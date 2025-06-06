@@ -1,0 +1,39 @@
+name: te_widgets
+description: "My Flutter Widgets"
+version: 0.0.1
+homepage: 
+repository: https://github.com/teranes10/flutter-libs/tree/main/packages/te_widgets
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  go_router: ^15.1.2
+  responsive_builder: ^0.7.1
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  fonts:
+    - family: Lexend
+      fonts:
+        - asset: fonts/Lexend-Light.ttf
+          weight: 300
+        - asset: fonts/Lexend-Regular.ttf
+          weight: 400
+        - asset: fonts/Lexend-Medium.ttf
+          weight: 500
+        - asset: fonts/Lexend-SemiBold.ttf
+          weight: 600
+        - asset: fonts/Lexend-Bold.ttf
+          weight: 700
