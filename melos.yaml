@@ -1,0 +1,11 @@
+name: flutter_libs
+
+packages:
+  - packages/**
+  - apps/**
+
+commands:
+  version:
+    linkToCommits: true
+    updateGitTagRefs: true
+    includeCommitId: true

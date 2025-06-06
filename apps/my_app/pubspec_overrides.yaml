@@ -1,0 +1,4 @@
+# melos_managed_dependency_overrides: te_widgets
+dependency_overrides:
+  te_widgets:
+    path: ../../packages/te_widgets

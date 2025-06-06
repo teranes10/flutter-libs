@@ -1,0 +1,8 @@
+name: flutter_libs
+description: Monorepo for shared packages and apps
+publish_to: "none"
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dev_dependencies:
+  melos: ^3.0.0
