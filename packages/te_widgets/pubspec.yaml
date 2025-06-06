@@ -1,6 +1,6 @@
 name: te_widgets
 description: "My Flutter Widgets"
-version: 0.0.1
+version: 0.0.2
 publish_to: https://pub.dev
 homepage: https://github.com/teranes10/flutter-libs/tree/master/packages/te_widgets
 repository: https://github.com/teranes10/flutter-libs/tree/master/packages/te_widgets
