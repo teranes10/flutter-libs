@@ -41,21 +41,21 @@ class _LoadingIconState extends State<TLoadingIcon> with SingleTickerProviderSta
 
   @override
   Widget build(BuildContext context) {
-    final _background = widget.background ?? widget.color.withAlpha(50);
+    final background = widget.background ?? widget.color.withAlpha(50);
 
     switch (widget.type) {
       case TLoadingType.oval:
         return SizedBox(
             width: widget.size,
             height: widget.size,
-            child: _LoadingOval(color: widget.color, background: _background, size: widget.size, controller: _controller));
+            child: _LoadingOval(color: widget.color, background: background, size: widget.size, controller: _controller));
       case TLoadingType.dots:
         return SizedBox(width: widget.size, height: widget.size, child: _LoadingDots(color: widget.color, size: widget.size));
       case TLoadingType.linear:
         return SizedBox(
           height: widget.size,
           child: LinearProgressIndicator(
-            backgroundColor: _background,
+            backgroundColor: background,
             valueColor: AlwaysStoppedAnimation<Color>(widget.color),
           ),
         );

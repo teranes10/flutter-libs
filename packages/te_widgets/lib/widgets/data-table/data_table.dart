@@ -334,6 +334,11 @@ class _TDataTableState<T> extends State<TDataTable<T>> {
                       key: item.toString(),
                     ))
                 .toList(),
+            onSingleChanged: (value) {
+              if (value != null) {
+                _onItemsPerPageChanged(value);
+              }
+            },
           ),
         ),
       ],

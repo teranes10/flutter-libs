@@ -66,7 +66,7 @@ class _TTextFieldState extends State<TTextField> {
   late final FocusNode _focusNode;
   late final bool _shouldDisposeFocusNode;
   late List<String> _tags;
-  List<String> _internalErrors = [];
+  final List<String> _internalErrors = [];
   bool _isFocused = false;
 
   @override

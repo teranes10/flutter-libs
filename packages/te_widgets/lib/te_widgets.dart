@@ -1,3 +1,5 @@
+library;
+
 export 'configs/theme/theme.dart';
 export 'configs/theme/theme_colors.dart';
 

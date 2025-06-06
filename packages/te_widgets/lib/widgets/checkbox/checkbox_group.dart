@@ -16,7 +16,7 @@ class TCheckboxGroup<T> extends StatefulWidget {
   final List<String Function(List<T>?)>? rules;
 
   const TCheckboxGroup({
-    Key? key,
+    super.key,
     required this.modelValue,
     this.onChanged,
     required this.items,
@@ -28,7 +28,7 @@ class TCheckboxGroup<T> extends StatefulWidget {
     this.size = TCheckboxSize.medium,
     this.icon = TCheckboxIcon.check,
     this.rules,
-  }) : super(key: key);
+  });
 
   @override
   State<TCheckboxGroup<T>> createState() => _TCheckboxGroupState<T>();
