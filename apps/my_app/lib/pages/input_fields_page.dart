@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:te_widgets/widgets/number-field/number_field.dart';
 import 'package:te_widgets/widgets/text-field/text_field.dart';
+import 'package:te_widgets/widgets/tags-field/tags_field.dart';
 
 class InputFieldsPage extends StatefulWidget {
   const InputFieldsPage({super.key});
@@ -10,9 +12,6 @@ class InputFieldsPage extends StatefulWidget {
 }
 
 class _InputFieldsPageState extends State<InputFieldsPage> {
-  String _textValue = '';
-  List<String> _tags = ['Flutter', 'Dart'];
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -21,30 +20,18 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
         runSpacing: 20.0,
         children: [
           TTextField(
-            label: 'Name',
-            placeholder: 'Enter your name',
+            label: 'Order No',
+            placeholder: 'Enter a order no',
             required: true,
-            value: _textValue,
-            onChanged: (value) {
-              setState(() {
-                _textValue = value;
-              });
-            },
             rules: [
-              (value) => value?.isEmpty == true ? 'Name is required' : '',
-              (value) => value == null || value.length < 2 ? 'Name must be at least 2 characters' : '',
+              (value) => value == null || value.length < 2 ? 'Name must be at least 2 characters' : null,
+              (value) => value == null || !value.startsWith('Order#') ? 'Order number must be start with Order#' : null,
             ],
           ),
-          TTextField(
-            label: 'Tags',
+          TTagsField(
+            label: "Skills",
             placeholder: 'Add a tag and press Enter',
-            tags: _tags,
-            addTagOnEnter: true,
-            onTagsChanged: (tags) {
-              setState(() {
-                _tags = tags;
-              });
-            },
+            value: ["Flutter", "Dart"],
           ),
           TTextField(
             label: 'Description',
