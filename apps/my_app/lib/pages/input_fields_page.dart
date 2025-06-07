@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:te_widgets/widgets/number-field/number_field.dart';
 import 'package:te_widgets/widgets/text-field/text_field.dart';
 import 'package:te_widgets/widgets/tags-field/tags_field.dart';
@@ -22,7 +21,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           TTextField(
             label: 'Order No',
             placeholder: 'Enter a order no',
-            required: true,
+            isRequired: true,
             rules: [
               (value) => value == null || value.length < 2 ? 'Name must be at least 2 characters' : null,
               (value) => value == null || !value.startsWith('Order#') ? 'Order number must be start with Order#' : null,
@@ -42,12 +41,11 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           ),
           TNumberField<int>(
             label: "Age",
-            onChanged: (value) => print("Age: $value"),
           ),
           TNumberField<double>(
             label: "Price",
             decimals: 2,
-            onChanged: (value) => print("Price: \$${value?.toStringAsFixed(2)}"),
+            rules: [(value) => value == null || value < 100 ? 'Value must be greater than 100' : null],
           ),
         ],
       ),

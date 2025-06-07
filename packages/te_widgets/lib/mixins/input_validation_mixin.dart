@@ -1,18 +1,19 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/mixins/focus_mixin.dart';
+import 'package:te_widgets/mixins/input_value_mixin.dart';
 
-mixin TInputValidationMixin<T> {
+mixin TInputValidationMixin<T> on TInputValueMixin<T>, TFocusMixin {
   List<String? Function(T?)>? get rules;
   List<String>? get errors;
-  bool? get required;
+  bool? get isRequired;
   Duration? get validationDebounce;
 
   List<String> validateValue(T? value) {
     List<String> errors = [];
 
-    if (required == true && _isValueEmpty(value)) {
+    if (isRequired == true && _isValueEmpty(value)) {
       errors.add('This field is required');
       return errors;
     }
@@ -36,26 +37,32 @@ mixin TInputValidationMixin<T> {
   }
 }
 
-mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W> {
+mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W>, TInputValueStateMixin<T, W>, TFocusStateMixin<W> {
   Timer? _validationTimer;
   final ValueNotifier<List<String>> _errorsNotifier = ValueNotifier([]);
 
-  TInputValidationMixin<T> get _validationWidget => widget as TInputValidationMixin<T>;
+  TInputValidationMixin<T> get _widget => widget as TInputValidationMixin<T>;
 
   ValueNotifier<List<String>> get errorsNotifier => _errorsNotifier;
   List<String> get errors => _errorsNotifier.value;
   bool get hasErrors => _errorsNotifier.value.isNotEmpty;
+  bool get isNeedToValidate => _widget.isRequired == true || _widget.rules?.isNotEmpty == true;
 
   void triggerValidation(T? value) {
+    if (!isNeedToValidate) return;
+
     _validationTimer?.cancel();
-    final validationErrors = _validationWidget.validateValue(value);
-    _errorsNotifier.value = (_validationWidget.errors ?? []) + validationErrors;
+    final validationErrors = _widget.validateValue(value);
+    _errorsNotifier.value = (_widget.errors ?? []) + validationErrors;
+    setState(() {});
   }
 
-  void triggerValidationWithDebounce(T? value) {
+  void _triggerValidationWithDebounce(T? value) {
+    if (!isNeedToValidate) return;
+
     _validationTimer?.cancel();
     _validationTimer = Timer(
-      _validationWidget.validationDebounce ?? Duration(milliseconds: 1000),
+      _widget.validationDebounce ?? Duration(milliseconds: 1500),
       () {
         if (mounted) {
           triggerValidation(value);
@@ -64,8 +71,24 @@ mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W> {
     );
   }
 
-  void disposeValidation() {
+  @override
+  void onFocusChanged(bool hasFocus) {
+    if (!hasFocus) {
+      triggerValidation(currentValue);
+    }
+    setState(() {});
+  }
+
+  @override
+  void onValueChanged(value) {
+    _triggerValidationWithDebounce(value);
+    super.onValueChanged(value);
+  }
+
+  @override
+  void dispose() {
     _validationTimer?.cancel();
     _errorsNotifier.dispose();
+    super.dispose();
   }
 }

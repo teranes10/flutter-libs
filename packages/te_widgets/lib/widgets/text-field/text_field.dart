@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/mixins/focus_mixin.dart';
 import 'package:te_widgets/mixins/input_field_mixin.dart';
 import 'package:te_widgets/mixins/input_validation_mixin.dart';
 import 'package:te_widgets/mixins/input_value_mixin.dart';
 
-class TTextField extends StatefulWidget with TInputFieldMixin, TInputValidationMixin<String>, TInputValueMixin<String> {
+class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<String>, TFocusMixin, TInputValidationMixin<String> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
-  final bool? required, disabled;
+  final bool? isRequired, disabled;
   @override
   final TInputSize? size;
   @override
@@ -23,18 +23,19 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValidationM
   @override
   final List<String>? errors;
   @override
+  final Duration? validationDebounce;
+  @override
   final String? value;
   @override
   final ValueNotifier<String>? valueNotifier;
   @override
   final ValueChanged<String>? onValueChanged;
   @override
-  final Duration? validationDebounce;
+  final FocusNode? focusNode;
 
   // TextField specific properties
   final int? rows;
   final TextEditingController? controller;
-  final FocusNode? focusNode;
   final List<TextInputFormatter>? inputFormatters;
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
@@ -53,7 +54,7 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValidationM
     this.helperText,
     this.message,
     this.value,
-    this.required,
+    this.isRequired,
     this.disabled,
     this.rows,
     this.size = TInputSize.md,
@@ -66,7 +67,6 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValidationM
     this.controller,
     this.focusNode,
     this.errors,
-    this.valueNotifier,
     this.onValueChanged,
     this.validationDebounce,
     this.keyboardType,
@@ -77,81 +77,35 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValidationM
     this.maxLengthEnforcement,
     this.obscureText = false,
     this.textInputAction,
+    this.valueNotifier,
   });
 
   @override
   State<TTextField> createState() => _TTextFieldState();
 }
 
-class _TTextFieldState extends State<TTextField> with TInputValidationStateMixin {
+class _TTextFieldState extends State<TTextField>
+    with TInputValueStateMixin<String, TTextField>, TFocusStateMixin<TTextField>, TInputValidationStateMixin<String, TTextField> {
   late final TextEditingController _controller;
-  late final FocusNode _focusNode;
   late final bool _shouldDisposeController;
-  late final bool _shouldDisposeFocusNode;
-
-  bool _isFocused = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeControllers();
-    _setupListeners();
-  }
-
-  void _initializeControllers() {
     _controller = widget.controller ?? TextEditingController(text: widget.value ?? '');
     _shouldDisposeController = widget.controller == null;
-
-    _focusNode = widget.focusNode ?? FocusNode();
-    _shouldDisposeFocusNode = widget.focusNode == null;
-  }
-
-  void _setupListeners() {
-    _focusNode.addListener(_onFocusChanged);
-    widget.valueNotifier?.addListener(_onValueNotifierChanged);
-  }
-
-  void _onFocusChanged() {
-    final wasFocused = _isFocused;
-    _isFocused = _focusNode.hasFocus;
-
-    if (wasFocused && !_isFocused) {
-      triggerValidation(_controller.text);
-    }
-
-    setState(() {});
-  }
-
-  void _onValueNotifierChanged() {
-    final newValue = widget.valueNotifier?.value ?? '';
-    if (_controller.text != newValue) {
-      _controller.text = newValue;
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant TTextField oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value && widget.value != _controller.text) {
-      _controller.text = widget.value ?? '';
-    }
   }
 
   @override
   void dispose() {
-    _focusNode.removeListener(_onFocusChanged);
-    widget.valueNotifier?.removeListener(_onValueNotifierChanged);
-
     if (_shouldDisposeController) _controller.dispose();
-    if (_shouldDisposeFocusNode) _focusNode.dispose();
-
-    disposeValidation();
     super.dispose();
   }
 
-  void _onTextChanged(String value) {
-    widget.notifyValueChanged(value);
-    triggerValidationWithDebounce(value);
+  @override
+  void onExternalValueChanged(String value) {
+    super.onExternalValueChanged(value);
+    _controller.text = value;
   }
 
   @override
@@ -160,12 +114,12 @@ class _TTextFieldState extends State<TTextField> with TInputValidationStateMixin
 
     return widget.buildContainer(
       isMultiline: isMultiline,
-      isFocused: _isFocused,
+      isFocused: isFocused,
       hasErrors: hasErrors,
       errorsNotifier: errorsNotifier,
       child: TextField(
         controller: _controller,
-        focusNode: _focusNode,
+        focusNode: focusNode,
         enabled: widget.disabled != true,
         maxLines: isMultiline ? widget.rows : 1,
         keyboardType: widget.keyboardType,
@@ -181,7 +135,7 @@ class _TTextFieldState extends State<TTextField> with TInputValidationStateMixin
         textAlignVertical: isMultiline ? TextAlignVertical.top : TextAlignVertical.center,
         style: widget.getTextStyle(),
         decoration: widget.getInputDecoration(),
-        onChanged: _onTextChanged,
+        onChanged: notifyValueChanged,
       ),
     );
   }

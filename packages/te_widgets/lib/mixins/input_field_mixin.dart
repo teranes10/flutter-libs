@@ -11,7 +11,7 @@ mixin TInputFieldMixin {
   String? get placeholder;
   String? get helperText;
   String? get message;
-  bool? get required;
+  bool? get isRequired;
   bool? get disabled;
   TInputSize? get size;
   TInputColor? get color;
@@ -135,7 +135,7 @@ mixin TInputFieldMixin {
                   fontWeight: FontWeight.w500,
                   color: AppColors.grey.shade500,
                 ),
-                children: required == true ? [TextSpan(text: ' *', style: TextStyle(color: AppColors.danger))] : null,
+                children: isRequired == true ? [TextSpan(text: ' *', style: TextStyle(color: AppColors.danger))] : null,
               ),
             ),
           if (tag != null)
@@ -193,7 +193,7 @@ mixin TInputFieldMixin {
     );
   }
 
-  Widget buildContainer({bool? isMultiline, isFocused, hasErrors, ValueNotifier<List<String>>? errorsNotifier, Widget? child}) {
+  Widget buildContainer({bool? isMultiline, isFocused, hasErrors, ValueNotifier<List<String>>? errorsNotifier, Widget? child, Widget? postWidget}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -218,7 +218,11 @@ mixin TInputFieldMixin {
                 if (postWidget != null)
                   Padding(
                       padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, right: fieldPadding.right),
-                      child: Center(child: postWidget!)),
+                      child: Center(child: postWidget)),
+                if (this.postWidget != null)
+                  Padding(
+                      padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, right: fieldPadding.right),
+                      child: Center(child: this.postWidget!)),
               ],
             ),
           ),

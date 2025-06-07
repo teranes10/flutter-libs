@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/mixins/focus_mixin.dart';
 import 'package:te_widgets/mixins/input_field_mixin.dart';
 import 'package:te_widgets/mixins/input_validation_mixin.dart';
 import 'package:te_widgets/mixins/input_value_mixin.dart';
 
-class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValidationMixin<List<String>>, TInputValueMixin<List<String>> {
+class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<List<String>>, TFocusMixin, TInputValidationMixin<List<String>> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
-  final bool? required, disabled;
+  final bool? isRequired, disabled;
   @override
   final TInputSize? size;
   @override
@@ -30,6 +31,8 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValidationM
   final ValueChanged<List<String>>? onValueChanged;
   @override
   final Duration? validationDebounce;
+  @override
+  final FocusNode? focusNode;
 
   // TagsField specific properties
   final String? inputValue;
@@ -47,7 +50,7 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValidationM
     this.helperText,
     this.message,
     this.value,
-    this.required,
+    this.isRequired,
     this.disabled,
     this.size = TInputSize.md,
     this.color,
@@ -65,69 +68,26 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValidationM
     this.tagBuilder,
     this.maxTags,
     this.allowDuplicates = false,
+    this.focusNode,
   });
 
   @override
   State<TTagsField> createState() => _TTagsFieldState();
 }
 
-class _TTagsFieldState extends State<TTagsField> with TInputValidationStateMixin {
+class _TTagsFieldState extends State<TTagsField>
+    with TInputValueStateMixin<List<String>, TTagsField>, TFocusStateMixin<TTagsField>, TInputValidationStateMixin<List<String>, TTagsField> {
   late final TextEditingController _controller;
-  late final FocusNode _focusNode;
-
-  List<String> _tags = [];
-  bool _isFocused = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.inputValue ?? '');
-    _focusNode = FocusNode();
-    _tags = List<String>.from(widget.value ?? []);
-    _setupListeners();
-  }
-
-  void _setupListeners() {
-    _focusNode.addListener(_onFocusChanged);
-    widget.valueNotifier?.addListener(_onValueNotifierChanged);
-  }
-
-  void _onFocusChanged() {
-    final wasFocused = _isFocused;
-    _isFocused = _focusNode.hasFocus;
-
-    if (wasFocused && !_isFocused) {
-      _addTagFromInput();
-      triggerValidation(_tags);
-    }
-
-    setState(() {});
-  }
-
-  void _onValueNotifierChanged() {
-    final newValue = widget.valueNotifier?.value ?? <String>[];
-    if (!_listEquals(_tags, newValue)) {
-      setState(() {
-        _tags = List<String>.from(newValue);
-      });
-    }
-  }
-
-  bool _listEquals(List<String> a, List<String> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
   }
 
   @override
   void didUpdateWidget(covariant TTagsField oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (widget.value != oldWidget.value) {
-      _tags = List<String>.from(widget.value ?? []);
-    }
 
     if (widget.inputValue != oldWidget.inputValue) {
       _controller.text = widget.inputValue ?? '';
@@ -136,12 +96,15 @@ class _TTagsFieldState extends State<TTagsField> with TInputValidationStateMixin
 
   @override
   void dispose() {
-    _focusNode.removeListener(_onFocusChanged);
-    widget.valueNotifier?.removeListener(_onValueNotifierChanged);
     _controller.dispose();
-    _focusNode.dispose();
-    disposeValidation();
     super.dispose();
+  }
+
+  @override
+  void onExternalValueChanged(List<String> value) {
+    super.onExternalValueChanged(value);
+
+    setState(() {});
   }
 
   void _onInputChanged(String value) {
@@ -162,36 +125,74 @@ class _TTagsFieldState extends State<TTagsField> with TInputValidationStateMixin
     if (trimmed.isEmpty) return;
 
     // Check max tags
-    if (widget.maxTags != null && _tags.length >= widget.maxTags!) return;
+    if (widget.maxTags != null && currentValue != null && currentValue!.length >= widget.maxTags!) return;
 
     // Check duplicates
-    if (!widget.allowDuplicates && _tags.contains(trimmed)) return;
+    if (!widget.allowDuplicates && currentValue?.contains(trimmed) == true) return;
+
+    currentValue?.add(trimmed);
 
     setState(() {
-      _tags.add(trimmed);
+      notifyValueChanged(List.from(currentValue ?? []));
     });
-
-    widget.notifyValueChanged(_tags);
-    triggerValidationWithDebounce(_tags);
   }
 
   void _removeTag(String tag) {
+    currentValue?.remove(tag);
     setState(() {
-      _tags.remove(tag);
+      notifyValueChanged(List.from(currentValue ?? []));
     });
-
-    widget.notifyValueChanged(_tags);
-    triggerValidationWithDebounce(_tags);
   }
 
   void _onKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.enter && widget.addTagOnEnter) {
         _addTagFromInput();
-      } else if (event.logicalKey == LogicalKeyboardKey.backspace && _controller.text.isEmpty && _tags.isNotEmpty) {
-        _removeTag(_tags.last);
+      } else if (event.logicalKey == LogicalKeyboardKey.backspace && _controller.text.isEmpty && currentValue?.isNotEmpty == true) {
+        _removeTag(currentValue!.last);
       }
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.buildContainer(
+      isMultiline: true,
+      isFocused: isFocused,
+      hasErrors: hasErrors,
+      errorsNotifier: errorsNotifier,
+      child: Wrap(
+        spacing: 6.0,
+        runSpacing: 6.0,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          ...(currentValue ?? []).map(_buildTagChip),
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              minWidth: 150,
+              maxWidth: double.infinity,
+            ),
+            child: IntrinsicWidth(
+              child: KeyboardListener(
+                focusNode: FocusNode(),
+                onKeyEvent: _onKeyEvent,
+                child: TextField(
+                  controller: _controller,
+                  focusNode: focusNode,
+                  enabled: widget.disabled != true,
+                  cursorHeight: widget.fontSize + 2,
+                  textInputAction: TextInputAction.unspecified,
+                  textAlignVertical: TextAlignVertical.center,
+                  style: widget.getTextStyle(),
+                  decoration: widget.getInputDecoration(),
+                  onChanged: _onInputChanged,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildTagChip(String tag) {
@@ -219,48 +220,6 @@ class _TTagsFieldState extends State<TTagsField> with TInputValidationStateMixin
           GestureDetector(
             onTap: () => _removeTag(tag),
             child: Icon(Icons.close, size: 12.0, color: AppColors.grey.shade500),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.buildContainer(
-      isMultiline: true,
-      isFocused: _isFocused,
-      hasErrors: hasErrors,
-      errorsNotifier: errorsNotifier,
-      child: Wrap(
-        spacing: 6.0,
-        runSpacing: 6.0,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          ..._tags.map(_buildTagChip),
-          ConstrainedBox(
-            constraints: const BoxConstraints(
-              minWidth: 150,
-              maxWidth: double.infinity,
-            ),
-            child: IntrinsicWidth(
-              child: KeyboardListener(
-                focusNode: FocusNode(),
-                onKeyEvent: _onKeyEvent,
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  enabled: widget.disabled != true,
-                  cursorHeight: widget.fontSize + 2,
-                  textInputAction: TextInputAction.unspecified,
-                  textAlignVertical: TextAlignVertical.center,
-                  style: widget.getTextStyle(),
-                  decoration: widget.getInputDecoration(),
-                  onChanged: _onInputChanged,
-                  onSubmitted: (_) => _addTagFromInput(),
-                ),
-              ),
-            ),
           ),
         ],
       ),
