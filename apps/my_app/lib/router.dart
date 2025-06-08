@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:my_app/pages/buttons_page.dart';
 import 'package:my_app/pages/chips_page.dart';
 import 'package:my_app/pages/input_fields_page.dart';
 import 'package:my_app/pages/popups_page.dart';
@@ -31,6 +32,11 @@ final GoRouter router = GoRouter(
           path: '/select-fields',
           name: 'Select Fields',
           pageBuilder: (context, state) => NoTransitionPage(child: SelectFieldsPage()),
+        ),
+        GoRoute(
+          path: '/buttons',
+          name: 'Buttons',
+          pageBuilder: (context, state) => NoTransitionPage(child: ButtonsPage()),
         ),
         GoRoute(
           path: '/chips',
@@ -74,6 +80,11 @@ Widget getLayout(context, GoRouterState state, child) {
         icon: Icons.list_alt,
         text: 'Select Fields',
         routeName: '/select-fields',
+      ),
+      SidebarItem(
+        icon: Icons.list_alt,
+        text: 'Buttons',
+        routeName: '/buttons',
       ),
       SidebarItem(
         icon: Icons.list_alt,

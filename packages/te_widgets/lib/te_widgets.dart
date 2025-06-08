@@ -3,6 +3,8 @@ library;
 export 'configs/theme/theme.dart';
 export 'configs/theme/theme_colors.dart';
 
+export 'helpers/validations.dart';
+
 export 'layouts/layout.dart';
 
 export 'layouts/widgets/sidebar/sidebar.dart';
@@ -12,9 +14,18 @@ export 'layouts/widgets/sidebar/sidebar_items.dart';
 export 'layouts/widgets/sidebar/sidebar_logo.dart';
 export 'layouts/widgets/sidebar/sidebar_profile.dart';
 
+export 'mixins/focus_mixin.dart';
+export 'mixins/input_field_mixin.dart';
+export 'mixins/input_validation_mixin.dart';
+export 'mixins/input_value_mixin.dart';
+
 export 'widgets/alert/alert.dart';
 export 'widgets/alert/alert_config.dart';
 export 'widgets/alert/alert_service.dart';
+
+export 'widgets/button/button_config.dart';
+export 'widgets/button/button_group.dart';
+export 'widgets/button/button.dart';
 
 export 'widgets/checkbox/checkbox.dart';
 export 'widgets/checkbox/checkbox_group.dart';
@@ -43,10 +54,9 @@ export 'widgets/table/table.dart';
 export 'widgets/table/table_card.dart';
 export 'widgets/table/table_configs.dart';
 
+export 'widgets/tags-field/tags_field.dart';
+
 export 'widgets/text-field/text_field.dart';
-export 'widgets/text-field/text_field_mixin.dart';
-export 'widgets/text-field/validations.dart';
-export 'widgets/text-field/validation_mixin.dart';
 
 export 'widgets/tooltip/tooltip.dart';
 export 'widgets/tooltip/tooltip_config.dart';
