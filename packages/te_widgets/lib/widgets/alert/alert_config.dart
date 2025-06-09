@@ -36,7 +36,7 @@ final Map<AlertType, IconData> alertIcons = {
   AlertType.danger: Icons.cancel_rounded,
 };
 
-final Map<AlertType, Color> alertColors = {
+final Map<AlertType, MaterialColor> alertColors = {
   AlertType.success: AppColors.success,
   AlertType.info: AppColors.info,
   AlertType.warning: AppColors.warning,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/alert/alert_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TAlert extends StatelessWidget {
   final AlertProps props;
@@ -25,19 +24,23 @@ class TAlert extends StatelessWidget {
               )
             : (props.text is Widget ? props.text : null),
         actionsAlignment: MainAxisAlignment.center,
-        actionsPadding: EdgeInsets.only(bottom: 5),
+        actionsPadding: EdgeInsets.only(bottom: 15),
         actions: [
           if (props.closeButton != null)
-            TextButton.icon(
-              icon: props.closeButton!.icon != null ? Icon(props.closeButton!.icon) : const SizedBox.shrink(),
-              label: Text(props.closeButton!.text ?? 'OK'),
-              onPressed: props.closeButton!.onClick,
+            TButton(
+              color: AppColors.grey,
+              type: TButtonType.text,
+              icon: props.closeButton!.icon,
+              text: props.closeButton!.text,
+              onPressed: (_) => props.closeButton!.onClick?.call(),
             ),
           if (props.confirmButton != null)
-            TextButton.icon(
-              icon: props.confirmButton!.icon != null ? Icon(props.confirmButton!.icon, color: color) : const SizedBox.shrink(),
-              label: Text(props.confirmButton!.text ?? 'Confirm'),
-              onPressed: props.confirmButton!.onClick,
+            TButton(
+              color: color,
+              type: TButtonType.text,
+              icon: props.confirmButton!.icon,
+              text: props.confirmButton!.text,
+              onPressed: (_) => props.confirmButton!.onClick?.call(),
             ),
         ],
       ),
