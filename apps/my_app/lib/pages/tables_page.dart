@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/widgets/button/button_config.dart';
+import 'package:te_widgets/widgets/button/button_group.dart';
 import 'package:te_widgets/widgets/data-table/data_table.dart';
 import 'package:te_widgets/widgets/table/table.dart';
 import 'package:te_widgets/widgets/table/table_configs.dart';
@@ -16,6 +18,13 @@ class _TablesPageState extends State<TablesPage> {
   List<User> users = [
     User(id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', createdAt: DateTime.now()),
     User(id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
+    User(id: 3, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
+    User(id: 4, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
+    User(id: 5, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
+    User(id: 6, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
+    User(id: 7, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
+    User(id: 8, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
+    User(id: 9, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
     // Add more users...
   ];
 
@@ -36,40 +45,30 @@ class _TablesPageState extends State<TablesPage> {
           ),
           TDataTable<User>(
             headers: [
-              TTableHeader('ID', map: (user) => user.id.toString()),
+              TTableHeader('ID', maxWidth: 50, map: (user) => user.id.toString()),
               TTableHeader('Name', map: (user) => user.name),
               TTableHeader('Email', map: (user) => user.email),
               TTableHeader(
                 'Role',
-                maxWidth: 100,
-                alignment: Alignment.center,
                 builder: (context, user) => TChip(text: user.role, color: user.role == 'Admin' ? AppColors.info : AppColors.success),
               ),
               TTableHeader(
                 'Actions',
-                maxWidth: 100,
+                maxWidth: 132,
                 alignment: Alignment.center,
-                builder: (context, user) => Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit, size: 18),
-                      onPressed: () => _editUser(user),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete, size: 18, color: Colors.red),
-                      onPressed: () => _deleteUser(user),
-                    ),
+                builder: (context, user) => TButtonGroup(
+                  type: TButtonGroupType.icon,
+                  items: [
+                    TButtonGroupItem(icon: Icons.remove_red_eye, color: AppColors.success, onPressed: (_) => {}),
+                    TButtonGroupItem(icon: Icons.edit, color: AppColors.info, onPressed: (_) => {}),
+                    TButtonGroupItem(icon: Icons.unarchive, color: AppColors.info, onPressed: (_) => {}),
+                    TButtonGroupItem(icon: Icons.archive, color: AppColors.warning, onPressed: (_) => {}),
+                    TButtonGroupItem(icon: Icons.delete_forever, color: AppColors.danger, onPressed: (_) => {}),
                   ],
                 ),
               ),
             ],
             items: users,
-            itemsPerPage: 10,
-            onItemTap: (user) => _viewUser(user),
-            onInitialize: (context) {
-              // Initialize data table context if needed
-            },
           ),
         ],
       ),

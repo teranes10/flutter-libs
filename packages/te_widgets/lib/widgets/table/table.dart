@@ -41,6 +41,8 @@ class TTable<T> extends StatefulWidget {
 
 class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  late ScrollController _horizontalScrollController;
+  late ScrollController _verticalScrollController;
   bool _isCardView = false;
 
   @override
@@ -50,12 +52,16 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
       vsync: this,
       duration: widget.animationDuration,
     );
+    _horizontalScrollController = ScrollController();
+    _verticalScrollController = ScrollController();
     _animationController.forward();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _horizontalScrollController.dispose();
+    _verticalScrollController.dispose();
     super.dispose();
   }
 
@@ -71,7 +77,16 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           _animationController.forward();
         }
 
-        Widget child = _isCardView ? _buildCardView() : _buildTableView();
+        Widget child = _isCardView ? _buildCardView() : _buildTableView(constraints);
+
+        // Calculate if we need horizontal scroll based on column widths
+        bool needsHorizontalScroll = false;
+        double totalRequiredWidth = 0;
+
+        if (!_isCardView) {
+          totalRequiredWidth = _calculateTotalRequiredWidth();
+          needsHorizontalScroll = totalRequiredWidth > constraints.maxWidth;
+        }
 
         if (widget.minWidth != null || widget.maxWidth != null) {
           child = ConstrainedBox(
@@ -83,8 +98,23 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           );
         }
 
-        if (!_isCardView && widget.minWidth != null && widget.minWidth! > constraints.maxWidth) {
+        // Apply horizontal scroll if needed and set minimum width
+        if (!_isCardView && (needsHorizontalScroll || (widget.minWidth != null && widget.minWidth! > constraints.maxWidth))) {
+          // Ensure the table has enough width to display all columns properly
+          final minTableWidth = totalRequiredWidth > 0 ? totalRequiredWidth : (widget.minWidth ?? constraints.maxWidth);
+
+          child = SizedBox(
+            width: minTableWidth,
+            child: child,
+          );
+
           child = _buildScrollableWrapper(child, isHorizontal: true);
+        } else if (!_isCardView) {
+          // When no horizontal scroll is needed, stretch to full available width
+          child = SizedBox(
+            width: constraints.maxWidth,
+            child: child,
+          );
         }
 
         return SizedBox(
@@ -95,29 +125,38 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     );
   }
 
+  double _calculateTotalRequiredWidth() {
+    double totalWidth = 0;
+
+    for (final header in widget.headers) {
+      if (header.maxWidth != null && header.maxWidth != double.infinity) {
+        totalWidth += header.maxWidth!;
+      } else if (header.minWidth != null && header.minWidth! > 0) {
+        totalWidth += header.minWidth!;
+      } else {
+        // For flex columns, assume a minimum reasonable width
+        totalWidth += 100; // Default minimum width for flex columns
+      }
+    }
+
+    // Add some padding for table margins/padding
+    totalWidth += 32; // Account for horizontal padding
+
+    return totalWidth;
+  }
+
   Widget _buildCardView() {
     if (widget.items.isEmpty) {
       return tableEmptyState();
     }
 
-    Widget listView;
-
-    if (widget.shrinkWrap) {
-      listView = ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: widget.styling?.contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: widget.items.length,
-        itemBuilder: _buildCardItem,
-      );
-    } else {
-      listView = ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: widget.styling?.contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: widget.items.length,
-        itemBuilder: _buildCardItem,
-      );
-    }
+    Widget listView = ListView.builder(
+      shrinkWrap: widget.shrinkWrap,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: widget.styling?.contentPadding ?? const EdgeInsets.all(0),
+      itemCount: widget.items.length,
+      itemBuilder: _buildCardItem,
+    );
 
     return widget.showScrollbars && !widget.shrinkWrap ? _buildScrollableWrapper(listView) : listView;
   }
@@ -135,13 +174,13 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildTableView() {
+  Widget _buildTableView([BoxConstraints? constraints]) {
     if (widget.items.isEmpty) {
       return tableEmptyState();
     }
 
     Widget content;
-    final defaultPadding = widget.styling?.contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+    final defaultPadding = widget.styling?.contentPadding ?? const EdgeInsets.only(bottom: 8);
 
     if (widget.shrinkWrap) {
       content = Column(
@@ -162,14 +201,27 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           _buildTableHeader(),
           Expanded(
             child: widget.showScrollbars
-                ? _buildScrollableWrapper(
-                    SingleChildScrollView(
+                ? RawScrollbar(
+                    controller: _verticalScrollController,
+                    thumbVisibility: true,
+                    interactive: true,
+                    thickness: 8.0,
+                    radius: const Radius.circular(4.0),
+                    thumbColor: AppColors.grey.shade300,
+                    trackColor: AppColors.grey.shade100,
+                    trackBorderColor: Colors.transparent,
+                    crossAxisMargin: 2.0,
+                    mainAxisMargin: 4.0,
+                    minThumbLength: 36.0,
+                    child: SingleChildScrollView(
+                      controller: _verticalScrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: defaultPadding,
                       child: _buildTable(),
                     ),
                   )
                 : SingleChildScrollView(
+                    controller: _verticalScrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: defaultPadding,
                     child: _buildTable(),
@@ -183,13 +235,16 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
   }
 
   Widget _buildTable() {
-    return Column(
-      children: widget.items.asMap().entries.map((entry) {
-        final index = entry.key;
-        final item = entry.value;
+    return SizedBox(
+      width: double.infinity, // Ensure table stretches full width
+      child: Column(
+        children: widget.items.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
 
-        return _buildAnimatedTableRow(index, item);
-      }).toList(),
+          return _buildAnimatedTableRow(index, item);
+        }).toList(),
+      ),
     );
   }
 
@@ -198,6 +253,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
 
     // Create the entire row as a single card
     Widget rowCard = Container(
+      width: double.infinity, // Force full width
       margin: rowStyle.margin ?? const EdgeInsets.only(bottom: 8),
       child: Material(
         elevation: rowStyle.elevation ?? 1,
@@ -207,6 +263,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           onTap: widget.onItemTap != null ? () => widget.onItemTap!(item) : null,
           borderRadius: rowStyle.borderRadius ?? BorderRadius.circular(8),
           child: Container(
+            width: double.infinity, // Ensure inner container also stretches
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
@@ -252,6 +309,20 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
   Map<int, TableColumnWidth> _getColumnWidths() {
     Map<int, TableColumnWidth> columnWidths = {};
 
+    // Count fixed width columns and calculate remaining space for flex columns
+    double totalFixedWidth = 0;
+    int flexColumnCount = 0;
+
+    for (final header in widget.headers) {
+      if (header.maxWidth != null && header.maxWidth != double.infinity) {
+        totalFixedWidth += header.maxWidth!;
+      } else if (header.minWidth != null && header.minWidth! > 0) {
+        totalFixedWidth += header.minWidth!;
+      } else {
+        flexColumnCount++;
+      }
+    }
+
     for (int i = 0; i < widget.headers.length; i++) {
       final header = widget.headers[i];
 
@@ -259,13 +330,10 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
         // Fixed width column
         columnWidths[i] = FixedColumnWidth(header.maxWidth!);
       } else if (header.minWidth != null && header.minWidth! > 0) {
-        // Minimum width with flex behavior
-        columnWidths[i] = MinColumnWidth(
-          FixedColumnWidth(header.minWidth!),
-          FlexColumnWidth(header.flex?.toDouble() ?? 1.0),
-        );
+        // Use FixedColumnWidth for minWidth to ensure it's respected
+        columnWidths[i] = FixedColumnWidth(header.minWidth!);
       } else {
-        // Flexible column
+        // Flexible column - these will stretch to fill remaining space
         columnWidths[i] = FlexColumnWidth(header.flex?.toDouble() ?? 1.0);
       }
     }
@@ -281,9 +349,10 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           color: AppColors.grey[500],
         );
 
-    final defaultPadding = widget.styling?.contentPadding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+    final defaultPadding = widget.styling?.contentPadding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 8);
 
     return Container(
+      width: double.infinity, // Ensure header stretches full width
       padding: widget.styling?.headerPadding ??
           EdgeInsets.symmetric(
             vertical: 12,
@@ -296,16 +365,18 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           TableRow(
             children: widget.headers.map((header) {
               return Container(
-                constraints: BoxConstraints(
-                  minWidth: header.minWidth ?? 0,
-                  maxWidth: header.maxWidth ?? double.infinity,
-                ),
-                child: Text(
-                  header.text,
-                  style: headerStyle,
-                  textAlign: header.alignment?.toTextAlign() ?? TextAlign.left,
-                ),
-              );
+                  constraints: BoxConstraints(
+                    minWidth: header.minWidth ?? 0,
+                    maxWidth: header.maxWidth ?? double.infinity,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 5),
+                    child: Text(
+                      header.text,
+                      style: headerStyle,
+                      textAlign: header.alignment?.toTextAlign() ?? TextAlign.left,
+                    ),
+                  ));
             }).toList(),
           ),
         ],
@@ -320,14 +391,17 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
       );
     }
 
-    return Text(
-      header.getValue(item),
-      style: widget.styling?.rowTextStyle ??
-          TextStyle(
-            fontSize: 13.6,
-            fontWeight: FontWeight.w300,
-            color: AppColors.grey[600],
-          ),
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 5),
+      child: Text(
+        header.getValue(item),
+        style: widget.styling?.rowTextStyle ??
+            TextStyle(
+              fontSize: 13.6,
+              fontWeight: FontWeight.w300,
+              color: AppColors.grey[600],
+            ),
+      ),
     );
   }
 
@@ -361,17 +435,72 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
 
   Widget _buildScrollableWrapper(Widget child, {bool isHorizontal = false}) {
     if (isHorizontal) {
-      return Scrollbar(
-        scrollbarOrientation: ScrollbarOrientation.bottom,
+      return TScrollbar(
+        controller: _horizontalScrollController,
+        isHorizontal: true,
         child: SingleChildScrollView(
+          controller: _horizontalScrollController,
           scrollDirection: Axis.horizontal,
+          physics: const AlwaysScrollableScrollPhysics(),
           child: child,
         ),
       );
     }
 
-    return Scrollbar(
-      child: child,
+    return TScrollbar(
+      controller: _verticalScrollController,
+      thumbVisibility: widget.showScrollbars,
+      child: SingleChildScrollView(
+        controller: _verticalScrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: child,
+      ),
+    );
+  }
+}
+
+class TScrollbar extends StatefulWidget {
+  final Widget child;
+  final ScrollController controller;
+  final bool isHorizontal;
+  final bool thumbVisibility;
+
+  const TScrollbar({
+    super.key,
+    required this.child,
+    required this.controller,
+    this.isHorizontal = false,
+    this.thumbVisibility = true,
+  });
+
+  @override
+  State<TScrollbar> createState() => _TScrollbarState();
+}
+
+class _TScrollbarState extends State<TScrollbar> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: RawScrollbar(
+        controller: widget.controller,
+        scrollbarOrientation: widget.isHorizontal ? ScrollbarOrientation.bottom : ScrollbarOrientation.right,
+        thumbVisibility: widget.thumbVisibility,
+        trackVisibility: true,
+        interactive: true,
+        thickness: 8.0,
+        radius: const Radius.circular(8.0),
+        thumbColor: _isHovered ? AppColors.grey.shade200 : AppColors.grey.shade50.withAlpha(200),
+        trackColor: Colors.transparent,
+        trackBorderColor: Colors.transparent,
+        crossAxisMargin: 0.0,
+        mainAxisMargin: 0.0,
+        minThumbLength: 36.0,
+        child: widget.child,
+      ),
     );
   }
 }
