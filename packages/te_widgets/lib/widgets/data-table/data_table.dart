@@ -326,7 +326,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> {
         SizedBox(
           width: 80,
           child: TSelect<int>(
-            selectedValue: _itemsPerPage,
+            value: _itemsPerPage,
             items: _availableItemsPerPageOptions
                 .map((item) => TSimpleSelectItem<int>(
                       text: item.toString(),
@@ -334,7 +334,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> {
                       key: item.toString(),
                     ))
                 .toList(),
-            onSingleChanged: (value) {
+            onValueChanged: (value) {
               if (value != null) {
                 _onItemsPerPageChanged(value);
               }

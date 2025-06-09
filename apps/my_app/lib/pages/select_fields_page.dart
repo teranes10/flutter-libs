@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/mixins/input_field_mixin.dart';
 import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select.dart';
-import 'package:te_widgets/widgets/text-field/text_field_mixin.dart';
+import 'package:te_widgets/widgets/select/multi_select.dart';
 
 class SelectFieldsPage extends StatefulWidget {
   const SelectFieldsPage({super.key});
@@ -38,20 +39,19 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
               'Japan': 'JP',
               'South Korea': 'KR',
             }),
-            selectedValue: selectedCountry,
-            onSingleChanged: (value) {
+            value: selectedCountry,
+            onValueChanged: (value) {
               setState(() {
                 selectedCountry = value;
               });
             },
-            required: true,
-            size: TTextFieldSize.md,
+            isRequired: true,
+            size: TInputSize.md,
           ),
-          TSelect<String>(
+          TMultiSelect<String>(
             label: 'Skills',
             placeholder: 'Select your skills',
             helperText: 'Choose all applicable skills',
-            multiple: true,
             items: TSelectItemBuilder.fromList([
               'Flutter Development',
               'React Native',
@@ -64,13 +64,13 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
               'DevOps',
               'Machine Learning',
             ]),
-            selectedValues: selectedSkills,
-            onMultipleChanged: (values) {
+            value: selectedSkills,
+            onValueChanged: (values) {
               setState(() {
                 selectedSkills = values;
               });
             },
-            size: TTextFieldSize.md,
+            size: TInputSize.md,
           ),
           TSelect<String>(
             label: 'Product Category',
@@ -142,8 +142,8 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
                 'key': 'books',
               },
             ]),
-            selectedValue: selectedCategory,
-            onSingleChanged: (value) {
+            value: selectedCategory,
+            onValueChanged: (value) {
               setState(() {
                 selectedCategory = value;
               });
@@ -155,8 +155,8 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
             placeholder: 'This select is disabled',
             disabled: true,
             items: TSelectItemBuilder.fromList(['Option 1', 'Option 2']),
-            selectedValue: null,
-            onSingleChanged: null,
+            value: null,
+            onValueChanged: null,
           ),
           TSelect<User>(
             label: 'Project Manager',
@@ -178,17 +178,16 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
                 key: 'user_3',
               ),
             ],
-            selectedValue: selectedUser,
-            onSingleChanged: (user) {
+            value: selectedUser,
+            onValueChanged: (user) {
               setState(() {
                 selectedUser = user;
               });
             },
           ),
-          TSelect<User>(
+          TMultiSelect<User>(
             label: 'Team Members',
             placeholder: 'Select team members',
-            multiple: true,
             items: [
               TSimpleSelectItem<User>(
                 text: 'Alice Brown (Frontend)',
@@ -206,8 +205,8 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
                 key: 'user_6',
               ),
             ],
-            selectedValues: selectedTeamMembers,
-            onMultipleChanged: (users) {
+            value: selectedTeamMembers,
+            onValueChanged: (users) {
               setState(() {
                 selectedTeamMembers = users;
               });
