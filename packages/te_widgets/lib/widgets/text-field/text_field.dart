@@ -25,6 +25,8 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final Duration? validationDebounce;
   @override
+  final bool? skipValidation;
+  @override
   final String? value;
   @override
   final ValueNotifier<String>? valueNotifier;
@@ -78,6 +80,7 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
     this.obscureText = false,
     this.textInputAction,
     this.valueNotifier,
+    this.skipValidation,
   });
 
   @override
@@ -91,9 +94,9 @@ class _TTextFieldState extends State<TTextField>
 
   @override
   void initState() {
-    super.initState();
     _controller = widget.controller ?? TextEditingController(text: widget.value ?? '');
     _shouldDisposeController = widget.controller == null;
+    super.initState();
   }
 
   @override
@@ -105,7 +108,12 @@ class _TTextFieldState extends State<TTextField>
   @override
   void onExternalValueChanged(String value) {
     super.onExternalValueChanged(value);
-    _controller.text = value;
+    if (_controller.text != value) {
+      _controller.value = _controller.value.copyWith(
+        text: value,
+        selection: TextSelection.collapsed(offset: value.length),
+      );
+    }
   }
 
   @override

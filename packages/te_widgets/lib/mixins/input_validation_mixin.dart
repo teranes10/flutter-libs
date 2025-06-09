@@ -9,6 +9,7 @@ mixin TInputValidationMixin<T> on TInputValueMixin<T>, TFocusMixin {
   List<String>? get errors;
   bool? get isRequired;
   Duration? get validationDebounce;
+  bool? get skipValidation;
 
   List<String> validateValue(T? value) {
     List<String> errors = [];
@@ -46,7 +47,7 @@ mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W>, TInpu
   ValueNotifier<List<String>> get errorsNotifier => _errorsNotifier;
   List<String> get errors => _errorsNotifier.value;
   bool get hasErrors => _errorsNotifier.value.isNotEmpty;
-  bool get isNeedToValidate => _widget.isRequired == true || _widget.rules?.isNotEmpty == true;
+  bool get isNeedToValidate => _widget.skipValidation != true && (_widget.isRequired == true || _widget.rules?.isNotEmpty == true);
 
   void triggerValidation(T? value) {
     if (!isNeedToValidate) return;

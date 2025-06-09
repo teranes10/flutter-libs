@@ -25,6 +25,8 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
   @override
   final Duration? validationDebounce;
   @override
+  final bool? skipValidation;
+  @override
   final T? value;
   @override
   final ValueNotifier<T>? valueNotifier;
@@ -65,6 +67,7 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
     this.decrement,
     this.decimals,
     this.showSteppers = true,
+    this.skipValidation,
   });
 
   @override

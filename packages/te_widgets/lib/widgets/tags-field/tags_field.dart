@@ -32,15 +32,20 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final Duration? validationDebounce;
   @override
+  final bool? skipValidation;
+  @override
   final FocusNode? focusNode;
 
   // TagsField specific properties
   final String? inputValue;
   final ValueChanged<String>? onInputChanged;
+  final TextEditingController? controller;
   final bool addTagOnEnter;
   final int? maxTags;
   final bool allowDuplicates;
   final Widget Function(String tag, VoidCallback onRemove)? tagBuilder;
+  final void Function(String)? onTagAdded;
+  final void Function(String)? onTagRemoved;
 
   const TTagsField({
     super.key,
@@ -69,6 +74,10 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
     this.maxTags,
     this.allowDuplicates = false,
     this.focusNode,
+    this.skipValidation,
+    this.controller,
+    this.onTagAdded,
+    this.onTagRemoved,
   });
 
   @override
@@ -78,11 +87,13 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
 class _TTagsFieldState extends State<TTagsField>
     with TInputValueStateMixin<List<String>, TTagsField>, TFocusStateMixin<TTagsField>, TInputValidationStateMixin<List<String>, TTagsField> {
   late final TextEditingController _controller;
+  late final bool _shouldDisposeController;
 
   @override
   void initState() {
+    _controller = widget.controller ?? TextEditingController(text: widget.inputValue ?? '');
+    _shouldDisposeController = widget.controller == null;
     super.initState();
-    _controller = TextEditingController(text: widget.inputValue ?? '');
   }
 
   @override
@@ -96,7 +107,7 @@ class _TTagsFieldState extends State<TTagsField>
 
   @override
   void dispose() {
-    _controller.dispose();
+    if (_shouldDisposeController) _controller.dispose();
     super.dispose();
   }
 
@@ -131,6 +142,7 @@ class _TTagsFieldState extends State<TTagsField>
     if (!widget.allowDuplicates && currentValue?.contains(trimmed) == true) return;
 
     currentValue?.add(trimmed);
+    widget.onTagRemoved?.call(trimmed);
 
     setState(() {
       notifyValueChanged(List.from(currentValue ?? []));
@@ -139,6 +151,7 @@ class _TTagsFieldState extends State<TTagsField>
 
   void _removeTag(String tag) {
     currentValue?.remove(tag);
+    widget.onTagRemoved?.call(tag);
     setState(() {
       notifyValueChanged(List.from(currentValue ?? []));
     });
