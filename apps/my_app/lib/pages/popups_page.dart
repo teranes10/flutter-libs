@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/widgets/alert/alert_service.dart';
+import 'package:te_widgets/widgets/button/button.dart';
+import 'package:te_widgets/widgets/button/button_config.dart';
+import 'package:te_widgets/widgets/button/button_group.dart';
 import 'package:te_widgets/widgets/modal/modal_config.dart';
 import 'package:te_widgets/widgets/modal/modal_service.dart';
 import 'package:te_widgets/widgets/tooltip/tooltip.dart';
@@ -14,10 +17,6 @@ class PopupsPage extends StatefulWidget {
 }
 
 class _PopupsPageState extends State<PopupsPage> {
-  void _showServiceAlert() {
-    TAlertService.confirmDelete(context, () => {});
-  }
-
   void _showServiceModal() {
     TModalService.show(
       context,
@@ -50,8 +49,9 @@ class _PopupsPageState extends State<PopupsPage> {
     return Stack(
       children: [
         Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Wrap(
+            direction: Axis.vertical,
+            spacing: 25,
             children: [
               ElevatedButton(
                 onPressed: _showServiceModal,
@@ -62,14 +62,28 @@ class _PopupsPageState extends State<PopupsPage> {
                 ),
                 child: const Text('Show Modal '),
               ),
-              ElevatedButton(
-                onPressed: _showServiceAlert,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                ),
-                child: const Text('Show Alert '),
+              TButtonGroup(
+                type: TButtonGroupType.inverse,
+                items: [
+                  TButtonGroupItem(
+                    color: AppColors.danger,
+                    icon: Icons.archive,
+                    text: 'Archive',
+                    onPressed: (_) => TAlertService.confirmArchive(context, () => {}),
+                  ),
+                  TButtonGroupItem(
+                    color: AppColors.info,
+                    icon: Icons.unarchive,
+                    text: 'Unarchive',
+                    onPressed: (_) => TAlertService.confirmRestore(context, () => {}),
+                  ),
+                  TButtonGroupItem(
+                    color: AppColors.danger,
+                    icon: Icons.delete_forever,
+                    text: 'Delete',
+                    onPressed: (_) => TAlertService.confirmDelete(context, () => {}),
+                  ),
+                ],
               ),
               Wrap(
                 spacing: 32,
