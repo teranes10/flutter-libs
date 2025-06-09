@@ -6,9 +6,9 @@ import 'package:te_widgets/mixins/input_validation_mixin.dart';
 import 'package:te_widgets/mixins/input_value_mixin.dart';
 import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select_mixin.dart';
-import 'package:te_widgets/widgets/text-field/text_field.dart';
+import 'package:te_widgets/widgets/tags-field/tags_field.dart';
 
-class TSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<V>, TFocusMixin, TInputValidationMixin<V> {
+class TMultiSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<List<V>>, TFocusMixin, TInputValidationMixin<List<V>> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
@@ -22,7 +22,7 @@ class TSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final Widget? preWidget, postWidget;
   @override
-  final List<String? Function(V?)>? rules;
+  final List<String? Function(List<V>?)>? rules;
   @override
   final List<String>? errors;
   @override
@@ -30,11 +30,11 @@ class TSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final bool? skipValidation;
   @override
-  final V? value;
+  final List<V>? value;
   @override
-  final ValueNotifier<V>? valueNotifier;
+  final ValueNotifier<List<V>>? valueNotifier;
   @override
-  final ValueChanged<V>? onValueChanged;
+  final ValueChanged<List<V>>? onValueChanged;
   @override
   final FocusNode? focusNode;
 
@@ -45,7 +45,7 @@ class TSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   final VoidCallback? onExpanded;
   final VoidCallback? onCollapsed;
 
-  const TSelect({
+  const TMultiSelect({
     super.key,
     this.label,
     this.tag,
@@ -77,18 +77,17 @@ class TSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   });
 
   @override
-  State<TSelect<V>> createState() => _TSelectState<V>();
+  State<TMultiSelect<V>> createState() => _TMultiSelectState<V>();
 }
 
-class _TSelectState<V> extends State<TSelect<V>>
+class _TMultiSelectState<V> extends State<TMultiSelect<V>>
     with
-        TInputValueStateMixin<V, TSelect<V>>,
-        TFocusStateMixin<TSelect<V>>,
-        TInputValidationStateMixin<V, TSelect<V>>,
-        TSelectCommonMixin<TSelect<V>> {
+        TInputValueStateMixin<List<V>, TMultiSelect<V>>,
+        TFocusStateMixin<TMultiSelect<V>>,
+        TInputValidationStateMixin<List<V>, TMultiSelect<V>>,
+        TSelectCommonMixin<TMultiSelect<V>> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
-  String _displayTextBeforeExpansion = '';
 
   // Implement mixin getters
   @override
@@ -116,7 +115,7 @@ class _TSelectState<V> extends State<TSelect<V>>
   VoidCallback? get onCollapsed => widget.onCollapsed;
 
   @override
-  bool get isMultiple => false;
+  bool get isMultiple => true;
 
   @override
   void initState() {
@@ -126,7 +125,6 @@ class _TSelectState<V> extends State<TSelect<V>>
 
     // Initialize common functionality
     initializeCommon();
-    _updateDisplayText();
 
     _focusNode.addListener(() {
       if (_focusNode.hasFocus && widget.filterable) {
@@ -136,13 +134,12 @@ class _TSelectState<V> extends State<TSelect<V>>
   }
 
   @override
-  void didUpdateWidget(TSelect<V> oldWidget) {
+  void didUpdateWidget(TMultiSelect<V> oldWidget) {
     super.didUpdateWidget(oldWidget);
     didUpdateItems(oldWidget.items);
 
     if (widget.value != oldWidget.value) {
       updateSelectedStates();
-      _updateDisplayText();
 
       if (isExpanded) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -166,10 +163,11 @@ class _TSelectState<V> extends State<TSelect<V>>
 
   @override
   void updateSelectedStates() {
+    final selectedValues = widget.value ?? <V>[];
     for (final item in internalItems) {
-      item.selected = item.value == widget.value;
+      item.selected = selectedValues.contains(item.value);
       if (item is TMultiLevelSelectItem<V> && item.hasChildren) {
-        updateChildrenSelection(item, widget.value != null ? [widget.value!] : []);
+        updateChildrenSelection(item, selectedValues);
       }
     }
     autoExpandParentsWithSelectedChildren();
@@ -178,31 +176,21 @@ class _TSelectState<V> extends State<TSelect<V>>
   @override
   void onItemTapped(TSelectItem item) {
     setState(() {
-      // Clear all selections
-      TSelectItemCollector.clearAllSelections(internalItems);
-
-      // Select the tapped item
-      item.selected = true;
-      notifyValueChanged(item.value);
-      _updateDisplayText();
-      _controller.selection = TextSelection.collapsed(offset: _controller.text.length);
+      item.selected = !item.selected;
+      final selectedItems = TSelectItemCollector.getSelectedItems(internalItems);
+      final selectedValues = selectedItems.map((item) => item.value as V).toList();
+      notifyValueChanged(selectedValues);
     });
 
-    hideDropdown();
-  }
-
-  void _updateDisplayText() {
-    final selectedItem = _getSelectedItem();
-    _controller.text = selectedItem?.text ?? '';
-  }
-
-  TSelectItem<V>? _getSelectedItem() {
-    final selectedItems = TSelectItemCollector.getSelectedItems(internalItems);
-    return selectedItems.isNotEmpty ? selectedItems.first as TSelectItem<V> : null;
+    // Keep dropdown open and rebuild to show updated selections
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && overlayEntry != null) {
+        rebuildDropdown();
+      }
+    });
   }
 
   void _showDropdownWithSearch() {
-    _displayTextBeforeExpansion = _controller.text;
     _controller.clear();
     _focusNode.requestFocus();
     showDropdown();
@@ -212,8 +200,37 @@ class _TSelectState<V> extends State<TSelect<V>>
   void hideDropdown() {
     if (overlayEntry == null) return;
 
-    _controller.text = _displayTextBeforeExpansion;
+    _controller.clear();
     super.hideDropdown();
+  }
+
+  List<String> _getSelectedTags() {
+    final selectedItems = TSelectItemCollector.getSelectedItems(internalItems);
+    return selectedItems.map((item) => item.text).toList();
+  }
+
+  void _onTagRemoved(String tag) {
+    final selectedItems = TSelectItemCollector.getSelectedItems(internalItems);
+    final itemToRemove = selectedItems.firstWhere(
+      (item) => item.text == tag,
+      orElse: () => selectedItems.first, // fallback, shouldn't happen
+    );
+
+    setState(() {
+      itemToRemove.selected = false;
+      final remainingSelectedItems = TSelectItemCollector.getSelectedItems(internalItems);
+      final selectedValues = remainingSelectedItems.map((item) => item.value as V).toList();
+      notifyValueChanged(selectedValues);
+    });
+
+    // Rebuild dropdown if it's open
+    if (isExpanded) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && overlayEntry != null) {
+          rebuildDropdown();
+        }
+      });
+    }
   }
 
   @override
@@ -223,7 +240,7 @@ class _TSelectState<V> extends State<TSelect<V>>
       child: GestureDetector(
         key: selectKey,
         onTap: toggleDropdown,
-        child: TTextField(
+        child: TTagsField(
           skipValidation: true,
           focusNode: _focusNode,
           label: widget.label,
@@ -236,14 +253,16 @@ class _TSelectState<V> extends State<TSelect<V>>
           size: widget.size,
           color: widget.color,
           controller: _controller,
-          value: isExpanded && widget.filterable ? searchQuery : _controller.text,
+          inputValue: isExpanded && widget.filterable ? searchQuery : '',
+          value: _getSelectedTags(),
           postWidget: widget.postWidget ??
               Icon(
                 isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                 size: 16,
                 color: Colors.grey.shade500,
               ),
-          onValueChanged: widget.filterable && isExpanded ? onSearchChanged : null,
+          onInputChanged: widget.filterable && isExpanded ? onSearchChanged : null,
+          onTagRemoved: _onTagRemoved,
           boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? AppColors.grey.shade50 : Colors.white),
         ),
       ),
