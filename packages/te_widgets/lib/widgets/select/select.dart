@@ -241,7 +241,7 @@ class _TSelectState<V> extends State<TSelect<V>>
               Icon(
                 isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                 size: 16,
-                color: Colors.grey.shade500,
+                color: AppColors.grey.shade500,
               ),
           onValueChanged: widget.filterable && isExpanded ? onSearchChanged : null,
           boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? AppColors.grey.shade50 : Colors.white),

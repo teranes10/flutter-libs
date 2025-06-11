@@ -104,19 +104,14 @@ class _TSelectDropdownState<V> extends State<TSelectDropdown<V>> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           color: item.selected ? AppColors.primary.shade50 : Colors.transparent,
-          padding: EdgeInsets.only(
-            left: 16.0 + (level * 20.0), // Increased indentation for better hierarchy
-            right: 16.0,
-            top: 10.0,
-            bottom: 10.0,
-          ),
+          padding: EdgeInsets.only(left: (level * 18.0), right: 16.0, top: 10.0, bottom: 10.0),
           child: Row(
             children: [
               // Selection indicator
               if (widget.multiple)
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.only(right: 12),
+                  margin: const EdgeInsets.only(right: 12, left: 12),
                   child: Icon(
                     item.selected ? Icons.check_box : Icons.check_box_outline_blank,
                     size: 18,
@@ -126,7 +121,7 @@ class _TSelectDropdownState<V> extends State<TSelectDropdown<V>> {
               else if (item.selected)
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.only(right: 12),
+                  margin: const EdgeInsets.only(right: 12, left: 20),
                   child: Icon(
                     Icons.check,
                     size: 18,
@@ -134,7 +129,7 @@ class _TSelectDropdownState<V> extends State<TSelectDropdown<V>> {
                   ),
                 )
               else
-                const SizedBox(width: 30),
+                const SizedBox(width: 25),
 
               // Item text
               Expanded(
