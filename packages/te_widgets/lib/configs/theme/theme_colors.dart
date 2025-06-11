@@ -100,12 +100,12 @@ class AppColors {
   });
 }
 
-ColorScheme getColorScheme() {
+ColorScheme getColorScheme({MaterialColor? primary, MaterialColor? secondary}) {
   return ColorScheme.light(
-    primary: AppColors.primary,
-    primaryContainer: AppColors.primary[400],
-    secondary: AppColors.secondary,
-    secondaryContainer: AppColors.secondary[400],
+    primary: primary ?? AppColors.primary,
+    primaryContainer: primary?.shade400 ?? AppColors.primary[400],
+    secondary: secondary ?? AppColors.secondary,
+    secondaryContainer: secondary?.shade400 ?? AppColors.secondary[400],
     surface: Colors.white,
     error: AppColors.danger,
     onPrimary: Colors.white,

@@ -65,7 +65,7 @@ final GoRouter router = GoRouter(
 
 Widget getLayout(context, GoRouterState state, child) {
   return Layout(
-    logo: SidebarLogo(text: 'My Widgets'),
+    logo: SidebarLogo(text: 'Te Widgets'),
     profile: SidebarProfile(
       icon: 'assets/icons/profile.png',
       text: 'Teranes',

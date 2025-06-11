@@ -176,10 +176,6 @@ class _PopupsPageState extends State<PopupsPage> {
                 label: const Text('Rich Content'),
               ),
             ),
-            TTooltip(
-              message: 'Compact',
-              child: Icon(Icons.help_outline, size: 20),
-            ),
           ]),
           const SizedBox(height: 16),
 
