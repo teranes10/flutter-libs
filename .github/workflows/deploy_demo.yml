@@ -15,7 +15,7 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0' # or 'stable'
+          flutter-version: '3.32.2' # or 'stable'
 
       - name: Flutter Pub Get
         working-directory: apps/my_app
