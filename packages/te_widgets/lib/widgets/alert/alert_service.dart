@@ -35,6 +35,54 @@ class TAlertService {
     });
   }
 
+  static void info(BuildContext context, String title, String message) {
+    show(
+      context,
+      AlertProps(
+        title: title,
+        text: message,
+        icon: Icons.info_outline_rounded,
+        type: AlertType.info,
+      ),
+    );
+  }
+
+  static void success(BuildContext context, String title, String message) {
+    show(
+      context,
+      AlertProps(
+        title: title,
+        text: message,
+        icon: Icons.check_circle_outline_rounded,
+        type: AlertType.success,
+      ),
+    );
+  }
+
+  static void warning(BuildContext context, String title, String message) {
+    show(
+      context,
+      AlertProps(
+        title: title,
+        text: message,
+        icon: Icons.warning_amber_rounded,
+        type: AlertType.warning,
+      ),
+    );
+  }
+
+  static void error(BuildContext context, String title, String message) {
+    show(
+      context,
+      AlertProps(
+        title: title,
+        text: message,
+        icon: Icons.error_outline_rounded,
+        type: AlertType.danger,
+      ),
+    );
+  }
+
   static void confirmArchive(
     BuildContext context,
     VoidCallback onConfirm, {

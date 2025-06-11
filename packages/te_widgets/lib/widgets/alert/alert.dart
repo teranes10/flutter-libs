@@ -20,6 +20,7 @@ class TAlert extends StatelessWidget {
         content: props.text is String
             ? Text(
                 props.text,
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: AppColors.grey.shade700),
               )
             : (props.text is Widget ? props.text : null),
@@ -28,7 +29,8 @@ class TAlert extends StatelessWidget {
         actions: [
           if (props.closeButton != null)
             TButton(
-              color: AppColors.grey,
+              width: 100,
+              color: props.confirmButton != null ? AppColors.grey : color,
               type: TButtonType.text,
               icon: props.closeButton!.icon,
               text: props.closeButton!.text,
@@ -36,6 +38,7 @@ class TAlert extends StatelessWidget {
             ),
           if (props.confirmButton != null)
             TButton(
+              width: 80,
               color: color,
               type: TButtonType.text,
               icon: props.confirmButton!.icon,

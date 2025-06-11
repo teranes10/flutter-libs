@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/widgets/button/button_config.dart';
+import 'package:te_widgets/widgets/tooltip/tooltip.dart';
 
 class TButton extends StatefulWidget {
   final TButtonType type;
@@ -104,7 +105,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
         return scheme.border != null ? BorderSide(color: scheme.border!) : BorderSide.none;
       }),
       padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: size.hPad, vertical: size.vPad)),
-      minimumSize: WidgetStateProperty.all(Size(widget.width ?? size.minW, widget.height ?? size.minH)),
+      minimumSize: WidgetStateProperty.all(Size(widget.block ? double.infinity : widget.width ?? size.minW, widget.height ?? size.minH)),
       shape: WidgetStateProperty.all(widget.shape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(6))),
       elevation: WidgetStateProperty.all(0),
       overlayColor: WidgetStateProperty.all(Colors.transparent),
@@ -173,19 +174,14 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       child: button,
     );
 
-    Widget finalButton = SizedBox(
-      width: widget.block ? double.infinity : widget.width,
-      child: scaledButton,
-    );
-
     final wrapped = MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child: finalButton,
+      child: scaledButton,
     );
 
     if (widget.tooltip != null) {
-      return Tooltip(message: widget.tooltip!, child: wrapped);
+      return TTooltip(message: widget.tooltip!, child: wrapped);
     }
 
     return wrapped;

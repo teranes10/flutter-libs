@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/widgets/alert/alert_service.dart';
 import 'package:te_widgets/widgets/button/button.dart';
-import 'package:te_widgets/widgets/button/button_config.dart';
-import 'package:te_widgets/widgets/button/button_group.dart';
 import 'package:te_widgets/widgets/modal/modal_config.dart';
 import 'package:te_widgets/widgets/modal/modal_service.dart';
 import 'package:te_widgets/widgets/tooltip/tooltip.dart';
@@ -17,220 +15,184 @@ class PopupsPage extends StatefulWidget {
 }
 
 class _PopupsPageState extends State<PopupsPage> {
-  void _showServiceModal() {
+  void _showModal({required String title, double width = 600, bool persistent = false}) {
     TModalService.show(
       context,
-      (context) {
-        return const Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('This modal was opened using TModalService!'),
-              SizedBox(height: 20),
-              Text('Click outside or the X button to close.'),
-            ],
-          ),
-        );
-      },
-      config: const TModalConfig(
-        title: 'Add New Product',
-        width: 600,
-        persistent: false,
+      (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Text('This is a ${persistent ? "persistent" : "standard"} "$title" modal'),
       ),
-      onClose: () {
-        print('Service modal closed');
-      },
+      config: TModalConfig(
+        title: title,
+        width: width,
+        persistent: persistent,
+      ),
+      onClose: () => debugPrint('Modal "$title" closed'),
+    );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 1)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Center(
-          child: Wrap(
-            direction: Axis.vertical,
-            spacing: 25,
-            children: [
-              ElevatedButton(
-                onPressed: _showServiceModal,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                ),
-                child: const Text('Show Modal '),
-              ),
-              TButtonGroup(
-                type: TButtonGroupType.inverse,
-                items: [
-                  TButtonGroupItem(
-                    color: AppColors.danger,
-                    icon: Icons.archive,
-                    text: 'Archive',
-                    onPressed: (_) => TAlertService.confirmArchive(context, () => {}),
-                  ),
-                  TButtonGroupItem(
-                    color: AppColors.info,
-                    icon: Icons.unarchive,
-                    text: 'Unarchive',
-                    onPressed: (_) => TAlertService.confirmRestore(context, () => {}),
-                  ),
-                  TButtonGroupItem(
-                    color: AppColors.danger,
-                    icon: Icons.delete_forever,
-                    text: 'Delete',
-                    onPressed: (_) => TAlertService.confirmDelete(context, () => {}),
-                  ),
-                ],
-              ),
-              Wrap(
-                spacing: 32,
-                runSpacing: 32,
-                alignment: WrapAlignment.center,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ===== Alerts =====
+          const Text('📢 Alerts', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Wrap(spacing: 16, children: [
+            TButton(color: AppColors.warning, text: 'Archive (Confirm)', onPressed: (_) => TAlertService.confirmArchive(context, () {})),
+            TButton(color: AppColors.info, text: 'Restore (Confirm)', onPressed: (_) => TAlertService.confirmRestore(context, () {})),
+            TButton(color: AppColors.danger, text: 'Delete (Confirm)', onPressed: (_) => TAlertService.confirmDelete(context, () {})),
+            TButton(
+              color: AppColors.info,
+              text: 'Info Alert',
+              onPressed: (_) => TAlertService.info(context, 'Info', 'Just an informational alert'),
+            ),
+            TButton(
+              color: AppColors.success,
+              text: 'Success Alert',
+              onPressed: (_) => TAlertService.success(context, 'Success', 'Operation was successful'),
+            ),
+            TButton(
+              color: AppColors.warning,
+              text: 'Warning Alert',
+              onPressed: (_) =>
+                  TAlertService.warning(context, 'Unsaved Changes', 'You have unsaved changes. If you leave now, your edits will be lost.'),
+            ),
+            TButton(
+              color: AppColors.danger,
+              text: 'Error Alert',
+              onPressed: (_) => TAlertService.error(context, 'Failed to Save', 'Something went wrong while saving your data. Please try again.'),
+            ),
+          ]),
+          const SizedBox(height: 32),
+
+          // ===== Modals =====
+          const Text('🗔 Modals', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Wrap(spacing: 16, children: [
+            TButton(text: 'Standard Modal', onPressed: (_) => _showModal(title: 'Standard Modal')),
+            TButton(text: 'Wide Modal (800px)', onPressed: (_) => _showModal(title: 'Wide Modal', width: 800)),
+            TButton(text: 'Persistent Modal', onPressed: (_) => _showModal(title: 'Persistent Modal', persistent: true)),
+          ]),
+          const SizedBox(height: 32),
+
+          // ===== Tooltip Showcase =====
+          const Text('💡 Tooltips', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const Text('— Position & Formatting'),
+          const SizedBox(height: 16),
+          Wrap(spacing: 24, runSpacing: 24, alignment: WrapAlignment.center, children: [
+            TTooltip(
+              message: 'Default tooltip',
+              child: ElevatedButton(onPressed: () {}, child: const Text('Hover')),
+            ),
+            TTooltip(
+              message: 'Top tooltip',
+              position: TTooltipPosition.top,
+              child: Icon(Icons.arrow_upward, size: 32),
+            ),
+            TTooltip(
+              message: 'Bottom tooltip',
+              position: TTooltipPosition.bottom,
+              child: Icon(Icons.arrow_downward, size: 32),
+            ),
+            TTooltip(
+              message: 'Left tooltip',
+              position: TTooltipPosition.left,
+              child: Icon(Icons.arrow_back, size: 32),
+            ),
+            TTooltip(
+              message: 'Right tooltip',
+              position: TTooltipPosition.right,
+              child: Icon(Icons.arrow_forward, size: 32),
+            ),
+          ]),
+          const SizedBox(height: 16),
+
+          const Text('— Variants: Success, Warning, Error, Info'),
+          const SizedBox(height: 16),
+          Wrap(spacing: 24, runSpacing: 24, alignment: WrapAlignment.center, children: [
+            TTooltip(
+              message: 'Operation successful',
+              color: AppColors.success,
+              child: Icon(Icons.check_circle, color: Colors.green, size: 32),
+            ),
+            TTooltip(
+              message: 'Check this warning',
+              color: AppColors.warning,
+              size: TTooltipSize.large,
+              position: TTooltipPosition.left,
+              child: Icon(Icons.warning, color: Colors.orange, size: 32),
+            ),
+            TTooltip(
+              message: 'Error occurred',
+              color: AppColors.danger,
+              position: TTooltipPosition.right,
+              child: Icon(Icons.error, color: Colors.red, size: 32),
+            ),
+            TTooltip(
+              message: 'See more info',
+              color: AppColors.info,
+              icon: Icons.info_outline,
+              position: TTooltipPosition.right,
+              child: Icon(Icons.info, color: Colors.blue, size: 32),
+            ),
+          ]),
+          const SizedBox(height: 16),
+
+          const Text('— Rich Content & Custom'),
+
+          const SizedBox(height: 16),
+          Wrap(spacing: 24, runSpacing: 24, children: [
+            TTooltip(
+              message: '',
+              richMessage: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Basic tooltip
-                  TTooltip(
-                    message: 'Compact tooltip near the hovering point',
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      child: const Text('Hover Me'),
-                    ),
-                  ),
-
-                  // Success variant
-                  TTooltip(
-                    message: 'Operation completed successfully!',
-                    color: AppColors.success,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.check_circle, color: Colors.green, size: 24),
-                    ),
-                  ),
-
-                  // Warning variant
-                  TTooltip(
-                    message: 'Please review your input before proceeding',
-                    color: AppColors.warning,
-                    size: TTooltipSize.large,
-                    position: TTooltipPosition.left,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.warning, color: Colors.orange, size: 24),
-                    ),
-                  ),
-
-                  // Error variant with tap trigger
-                  TTooltip(
-                    message: 'An error occurred while processing your request',
-                    color: AppColors.danger,
-                    triggerMode: TTooltipTriggerMode.tap,
-                    position: TTooltipPosition.right,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade100,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.error, color: Colors.red, size: 24),
-                    ),
-                  ),
-
-                  // Info variant with custom icon
-                  TTooltip(
-                    message: 'This feature provides detailed analytics and insights',
-                    color: AppColors.info,
-                    icon: Icons.analytics,
-                    maxWidth: 300,
-                    position: TTooltipPosition.right,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade100,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.analytics, size: 18, color: Colors.blue),
-                          SizedBox(width: 8),
-                          Text('Analytics', style: TextStyle(color: Colors.blue)),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Rich content tooltip
-                  TTooltip(
-                    message: '',
-                    richMessage: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Rich Content Tooltip',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'This tooltip contains multiple lines and rich formatting with custom styling.',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            'Interactive',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                    color: AppColors.secondary,
-                    position: TTooltipPosition.right,
-                    child: OutlinedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.info_outline),
-                      label: const Text('Rich Content'),
-                    ),
-                  ),
-
-                  // Small size tooltip
-                  TTooltip(
-                    message: 'Compact tooltip near the hovering point',
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Icon(Icons.help_outline, size: 16),
-                    ),
+                  const Text('Rich Tooltip', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  const Text('This tooltip includes multiple lines and a button.'),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    onPressed: () => _showSnackBar('Rich tooltip action'),
+                    icon: const Icon(Icons.info_outline),
+                    label: const Text('Action'),
                   ),
                 ],
               ),
-            ],
+              color: AppColors.secondary,
+              position: TTooltipPosition.right,
+              child: OutlinedButton.icon(
+                onPressed: () => _showSnackBar('Rich Content pressed'),
+                icon: const Icon(Icons.info_outline),
+                label: const Text('Rich Content'),
+              ),
+            ),
+            TTooltip(
+              message: 'Compact',
+              child: Icon(Icons.help_outline, size: 20),
+            ),
+          ]),
+          const SizedBox(height: 16),
+
+          const Text('— Delay & Padding Example'),
+          TTooltip(
+            message: 'Tooltip with 500ms delay & padding',
+            showDelay: const Duration(milliseconds: 500),
+            padding: const EdgeInsets.all(20),
+            position: TTooltipPosition.top,
+            child: const Icon(Icons.hourglass_empty, size: 32),
           ),
-        ),
-        // Stateful Modal
-      ],
+        ],
+      ),
     );
   }
 }

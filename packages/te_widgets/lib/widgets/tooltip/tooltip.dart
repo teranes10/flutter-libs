@@ -4,42 +4,11 @@ import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/widgets/tooltip/tooltip_config.dart';
 
 class TTooltip extends StatefulWidget {
-  const TTooltip({
-    super.key,
-    required this.message,
-    required this.child,
-    this.richMessage,
-    this.icon,
-    this.position = TTooltipPosition.auto,
-    this.color = AppColors.grey,
-    this.size = TTooltipSize.small,
-    this.showDelay = const Duration(milliseconds: 100),
-    this.hideDelay = const Duration(milliseconds: 50),
-    this.waitDuration = Duration.zero,
-    this.showDuration = const Duration(seconds: 3),
-    this.triggerMode = TTooltipTriggerMode.hover,
-    this.enableFeedback = true,
-    this.excludeFromSemantics = false,
-    this.decoration,
-    this.textStyle,
-    this.textAlign,
-    this.margin = const EdgeInsets.all(0),
-    this.padding,
-    this.verticalOffset = 5,
-    this.preferBelow = false,
-    this.enableHapticFeedback = false,
-    this.showArrow = true,
-    this.interactive = false,
-    this.maxWidth = 250.0,
-    this.onShow,
-    this.onHide,
-  });
-
   final String message;
   final Widget? richMessage;
   final Widget child;
   final TTooltipPosition position;
-  final MaterialColor color;
+  final MaterialColor? color;
   final IconData? icon;
   final TTooltipSize size;
   final Duration showDelay;
@@ -62,6 +31,37 @@ class TTooltip extends StatefulWidget {
   final double maxWidth;
   final VoidCallback? onShow;
   final VoidCallback? onHide;
+
+  const TTooltip({
+    super.key,
+    required this.message,
+    required this.child,
+    this.richMessage,
+    this.icon,
+    this.position = TTooltipPosition.auto,
+    this.color,
+    this.size = TTooltipSize.small,
+    this.showDelay = const Duration(milliseconds: 100),
+    this.hideDelay = const Duration(milliseconds: 50),
+    this.waitDuration = Duration.zero,
+    this.showDuration = const Duration(seconds: 3),
+    this.triggerMode = TTooltipTriggerMode.hover,
+    this.enableFeedback = true,
+    this.excludeFromSemantics = false,
+    this.decoration,
+    this.textStyle,
+    this.textAlign,
+    this.margin = const EdgeInsets.all(0),
+    this.padding,
+    this.verticalOffset = 5,
+    this.preferBelow = false,
+    this.enableHapticFeedback = false,
+    this.showArrow = true,
+    this.interactive = false,
+    this.maxWidth = 250.0,
+    this.onShow,
+    this.onHide,
+  });
 
   @override
   State<TTooltip> createState() => _TTooltipState();
@@ -98,8 +98,11 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
       HapticFeedback.lightImpact();
     }
 
-    _overlayEntry = _createOverlayEntry();
-    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+    // Only create overlay if it doesn't exist
+    if (_overlayEntry == null) {
+      _overlayEntry = _createOverlayEntry();
+      Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+    }
     _controller.forward();
   }
 
@@ -128,16 +131,22 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
     final screenHeight = overlayBox.size.height;
     final screenWidth = overlayBox.size.width;
 
-    const requiredSpace = 48.0;
+    // Increased required space for better positioning
+    final requiredSpace = widget.maxWidth + 20.0;
 
     final spaceTop = targetTopLeft.dy;
     final spaceBottom = screenHeight - (targetTopLeft.dy + targetSize.height);
+    final spaceLeft = targetTopLeft.dx;
     final spaceRight = screenWidth - (targetTopLeft.dx + targetSize.width);
 
-    if (spaceTop >= requiredSpace) return TTooltipResolvedPosition.top;
-    if (spaceBottom >= requiredSpace) return TTooltipResolvedPosition.bottom;
+    // Prefer vertical positioning first to avoid horizontal overflow
+    if (spaceBottom >= 60.0) return TTooltipResolvedPosition.bottom;
+    if (spaceTop >= 60.0) return TTooltipResolvedPosition.top;
     if (spaceRight >= requiredSpace) return TTooltipResolvedPosition.right;
-    return TTooltipResolvedPosition.left;
+    if (spaceLeft >= requiredSpace) return TTooltipResolvedPosition.left;
+
+    // Fallback to vertical even if space is limited
+    return spaceBottom > spaceTop ? TTooltipResolvedPosition.bottom : TTooltipResolvedPosition.top;
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -152,8 +161,9 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
           if (widget.interactive)
             Positioned.fill(
               child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
                 onTap: _hideTooltip,
-                child: const ColoredBox(color: Colors.transparent),
+                child: const SizedBox.expand(),
               ),
             ),
           _TooltipContent(
@@ -176,6 +186,8 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
             icon: widget.icon,
             onTap: widget.interactive ? null : _hideTooltip,
             resolvedPosition: _resolveAutoPosition(),
+            onPointerEnter: _onTooltipPointerEnter,
+            onPointerExit: _onTooltipPointerExit,
           ),
         ],
       ),
@@ -192,6 +204,21 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   }
 
   void _onPointerExit(PointerExitEvent event) {
+    if (widget.triggerMode == TTooltipTriggerMode.hover) {
+      _isHovering = false;
+      Future.delayed(widget.hideDelay, () {
+        if (!_isHovering && mounted) _hideTooltip();
+      });
+    }
+  }
+
+  void _onTooltipPointerEnter(PointerEnterEvent event) {
+    if (widget.triggerMode == TTooltipTriggerMode.hover) {
+      _isHovering = true;
+    }
+  }
+
+  void _onTooltipPointerExit(PointerExitEvent event) {
     if (widget.triggerMode == TTooltipTriggerMode.hover) {
       _isHovering = false;
       Future.delayed(widget.hideDelay, () {
@@ -226,6 +253,28 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
 }
 
 class _TooltipContent extends StatelessWidget {
+  final String message;
+  final Widget? richMessage;
+  final Rect targetRect;
+  final TTooltipPosition position;
+  final MaterialColor? color;
+  final TTooltipSize size;
+  final Decoration? decoration;
+  final TextStyle? textStyle;
+  final TextAlign? textAlign;
+  final EdgeInsetsGeometry margin;
+  final EdgeInsetsGeometry? padding;
+  final double verticalOffset;
+  final bool preferBelow;
+  final bool showArrow;
+  final double maxWidth;
+  final Animation<double> animation;
+  final IconData? icon;
+  final VoidCallback? onTap;
+  final TTooltipResolvedPosition resolvedPosition;
+  final void Function(PointerEnterEvent)? onPointerEnter;
+  final void Function(PointerExitEvent)? onPointerExit;
+
   const _TooltipContent({
     required this.message,
     this.richMessage,
@@ -246,27 +295,9 @@ class _TooltipContent extends StatelessWidget {
     this.icon,
     this.onTap,
     required this.resolvedPosition,
+    this.onPointerEnter,
+    this.onPointerExit,
   });
-
-  final String message;
-  final Widget? richMessage;
-  final Rect targetRect;
-  final TTooltipPosition position;
-  final MaterialColor color;
-  final TTooltipSize size;
-  final Decoration? decoration;
-  final TextStyle? textStyle;
-  final TextAlign? textAlign;
-  final EdgeInsetsGeometry margin;
-  final EdgeInsetsGeometry? padding;
-  final double verticalOffset;
-  final bool preferBelow;
-  final bool showArrow;
-  final double maxWidth;
-  final Animation<double> animation;
-  final IconData? icon;
-  final VoidCallback? onTap;
-  final TTooltipResolvedPosition resolvedPosition;
 
   Offset _getAnimationOffset() {
     switch (resolvedPosition) {
@@ -283,7 +314,12 @@ class _TooltipContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (bgColor, txtColor) = (color.shade50, color.shade500);
+    final (bgColor, txtColor, shdwColor) = (
+      color?.shade50 ?? Colors.white,
+      color?.shade500 ?? AppColors.grey.shade700,
+      color?.shade900.withAlpha(20) ?? AppColors.grey.shade900.withAlpha(20),
+    );
+
     final (defaultPadding, fontSize) = _sizeStyle();
     final effectivePadding = padding ?? defaultPadding;
     final effectiveTextStyle = textStyle ?? TextStyle(color: txtColor, fontSize: fontSize, fontWeight: FontWeight.w400);
@@ -307,49 +343,53 @@ class _TooltipContent extends StatelessWidget {
             maxWidth: maxWidth,
             child: Material(
               type: MaterialType.transparency,
-              child: GestureDetector(
-                onTap: onTap,
-                child: Container(
-                  constraints: BoxConstraints(maxWidth: maxWidth),
-                  padding: effectivePadding,
-                  decoration: decoration ??
-                      BoxDecoration(
-                        color: bgColor,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: color.shade800.withAlpha(25),
-                            blurRadius: 8,
-                            spreadRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                  child: IntrinsicWidth(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            if (icon != null) ...[
-                              Icon(icon, size: fontSize + 2, color: txtColor),
-                              const SizedBox(width: 8),
-                            ],
-                            Flexible(
-                              child: richMessage ??
-                                  Text(
-                                    message,
-                                    style: effectiveTextStyle,
-                                    textAlign: textAlign,
-                                    softWrap: true,
-                                  ),
+              child: MouseRegion(
+                onEnter: onPointerEnter,
+                onExit: onPointerExit,
+                child: GestureDetector(
+                  onTap: onTap,
+                  child: Container(
+                    constraints: BoxConstraints(maxWidth: maxWidth),
+                    padding: effectivePadding,
+                    decoration: decoration ??
+                        BoxDecoration(
+                          color: bgColor,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: shdwColor,
+                              blurRadius: 8,
+                              spreadRadius: 4,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                      ],
+                    child: IntrinsicWidth(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              if (icon != null) ...[
+                                Icon(icon, size: fontSize + 2, color: txtColor),
+                                const SizedBox(width: 8),
+                              ],
+                              Flexible(
+                                child: richMessage ??
+                                    Text(
+                                      message,
+                                      style: effectiveTextStyle,
+                                      textAlign: textAlign,
+                                      softWrap: true,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -453,26 +493,33 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
     double tooltipHeight = tooltipSize.height;
     double tooltipWidth = tooltipSize.width.clamp(0.0, widget.maxWidth);
 
-    // Determine position
+    // Determine position with better logic
     TTooltipPosition actualPosition = widget.position;
     TArrowDirection arrowDirection = TArrowDirection.up;
 
     if (actualPosition == TTooltipPosition.auto) {
+      // Enhanced auto-positioning logic
+      final minRequiredHorizontalSpace = tooltipWidth + widget.verticalOffset + 10; // Extra margin
+
       if (widget.preferBelow && spaceBelow >= tooltipHeight + widget.verticalOffset) {
         actualPosition = TTooltipPosition.bottom;
       } else if (spaceAbove >= tooltipHeight + widget.verticalOffset) {
         actualPosition = TTooltipPosition.top;
-      } else if (spaceRight >= widget.maxWidth) {
+      } else if (spaceRight >= minRequiredHorizontalSpace) {
         actualPosition = TTooltipPosition.right;
-      } else if (spaceLeft >= widget.maxWidth) {
+      } else if (spaceLeft >= minRequiredHorizontalSpace) {
         actualPosition = TTooltipPosition.left;
       } else {
+        // Force vertical positioning if horizontal won't fit
         actualPosition = spaceBelow > spaceAbove ? TTooltipPosition.bottom : TTooltipPosition.top;
       }
     }
 
     double tooltipX = 0;
     double tooltipY = 0;
+
+    // Calculate effective max width for horizontal positioning
+    double effectiveMaxWidth = widget.maxWidth;
 
     switch (actualPosition) {
       case TTooltipPosition.top:
@@ -486,11 +533,21 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
         arrowDirection = TArrowDirection.up;
         break;
       case TTooltipPosition.left:
+        // Adjust max width based on available space
+        final availableLeftSpace = widget.targetRect.left - widget.verticalOffset - marginInsets.left;
+        effectiveMaxWidth = (availableLeftSpace - 10).clamp(100.0, widget.maxWidth); // Minimum 100px
+        tooltipWidth = tooltipSize.width.clamp(0.0, effectiveMaxWidth);
+
         tooltipX = widget.targetRect.left - widget.verticalOffset - tooltipWidth;
         tooltipY = widget.targetRect.center.dy - tooltipHeight / 2;
         arrowDirection = TArrowDirection.right;
         break;
       case TTooltipPosition.right:
+        // Adjust max width based on available space
+        final availableRightSpace = screenSize.width - widget.targetRect.right - widget.verticalOffset - marginInsets.right;
+        effectiveMaxWidth = (availableRightSpace - 10).clamp(100.0, widget.maxWidth); // Minimum 100px
+        tooltipWidth = tooltipSize.width.clamp(0.0, effectiveMaxWidth);
+
         tooltipX = widget.targetRect.right + widget.verticalOffset;
         tooltipY = widget.targetRect.center.dy - tooltipHeight / 2;
         arrowDirection = TArrowDirection.left;
@@ -498,12 +555,25 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
       case TTooltipPosition.auto:
         tooltipX = widget.targetRect.center.dx - tooltipWidth / 2;
         tooltipY = widget.targetRect.bottom + widget.verticalOffset;
-        arrowDirection = TArrowDirection.down;
+        arrowDirection = TArrowDirection.up;
         break;
     }
 
-    tooltipX = tooltipX.clamp(marginInsets.left, screenSize.width - tooltipWidth - marginInsets.right);
-    tooltipY = tooltipY.clamp(marginInsets.top, screenSize.height - tooltipHeight - marginInsets.bottom);
+    // Enhanced boundary checking
+    final minX = marginInsets.left;
+    final maxX = screenSize.width - tooltipWidth - marginInsets.right;
+    final minY = marginInsets.top;
+    final maxY = screenSize.height - tooltipHeight - marginInsets.bottom;
+
+    // For horizontal positioning, be more strict about boundaries
+    if (actualPosition == TTooltipPosition.left || actualPosition == TTooltipPosition.right) {
+      tooltipX = tooltipX.clamp(minX, maxX);
+      tooltipY = tooltipY.clamp(minY, maxY);
+    } else {
+      // For vertical positioning, allow more flexibility
+      tooltipX = tooltipX.clamp(minX, maxX);
+      tooltipY = tooltipY.clamp(minY, maxY);
+    }
 
     return ClipRect(
       child: Stack(
@@ -513,12 +583,17 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
             top: tooltipY,
             child: Container(
               margin: marginInsets,
-              constraints: BoxConstraints(maxWidth: widget.maxWidth),
+              constraints: BoxConstraints(
+                maxWidth: effectiveMaxWidth,
+                minWidth: 50.0, // Minimum width to prevent too narrow tooltips
+              ),
               child: MeasureSize(
                 onChange: (size) {
                   if (tooltipSize != size) {
-                    setState(() {
-                      tooltipSize = size;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      setState(() {
+                        tooltipSize = size;
+                      });
                     });
                   }
                 },
@@ -532,7 +607,7 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
                       children: [
                         if (widget.showArrow && arrowDirection == TArrowDirection.left)
                           _TooltipArrow(color: widget.backgroundColor, direction: TArrowDirection.left),
-                        widget.child,
+                        Flexible(child: widget.child), // Wrap in Flexible to prevent overflow
                         if (widget.showArrow && arrowDirection == TArrowDirection.right)
                           _TooltipArrow(color: widget.backgroundColor, direction: TArrowDirection.right),
                       ],
@@ -614,7 +689,7 @@ class _ArrowPainter extends CustomPainter {
     // Draw shadow first
     final shadowPath = path.shift(const Offset(0, 1));
     final shadowPaint = Paint()
-      ..color = AppColors.grey.shade900.withAlpha(10)
+      ..color = AppColors.grey.shade900.withAlpha(20)
       ..style = PaintingStyle.fill;
     canvas.drawPath(shadowPath, shadowPaint);
 
