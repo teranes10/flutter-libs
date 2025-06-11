@@ -181,7 +181,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     );
 
     if (widget.tooltip != null) {
-      return TTooltip(message: widget.tooltip!, child: wrapped);
+      return TTooltip(message: widget.tooltip!, color: widget.color, child: wrapped);
     }
 
     return wrapped;
