@@ -8,8 +8,6 @@ class TButtonGroup extends StatelessWidget {
   final TButtonSize? size;
   final MaterialColor color;
   final List<TButtonGroupItem> items;
-  final MainAxisSize mainAxisSize;
-  final CrossAxisAlignment crossAxisAlignment;
 
   const TButtonGroup({
     super.key,
@@ -17,8 +15,6 @@ class TButtonGroup extends StatelessWidget {
     this.color = AppColors.primary,
     this.size,
     this.items = const [],
-    this.mainAxisSize = MainAxisSize.min,
-    this.crossAxisAlignment = CrossAxisAlignment.center,
   });
 
   @override
@@ -26,9 +22,7 @@ class TButtonGroup extends StatelessWidget {
     final isBoxed = type == TButtonGroupType.boxed;
     final effectiveType = isBoxed ? TButtonType.textFill : mapGroupTypeToButtonType(type);
 
-    Widget buttonGroup = Row(
-      mainAxisSize: mainAxisSize,
-      crossAxisAlignment: crossAxisAlignment,
+    Widget buttonGroup = Wrap(
       children: _buildButtons(effectiveType),
     );
 
