@@ -8,7 +8,7 @@ import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select_mixin.dart';
 import 'package:te_widgets/widgets/text-field/text_field.dart';
 
-class TSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<V>, TFocusMixin, TInputValidationMixin<V> {
+class TSelect<T, V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<V>, TFocusMixin, TInputValidationMixin<V>, TSelectMixin<T, V> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
@@ -38,12 +38,27 @@ class TSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final FocusNode? focusNode;
 
-  final List<TSelectItem<V>> items;
+  @override
+  final List<T> items;
+  @override
   final bool multiLevel, filterable;
+  @override
   final double dropdownMaxHeight;
+  @override
   final String? footerMessage;
+  @override
   final VoidCallback? onExpanded;
+  @override
   final VoidCallback? onCollapsed;
+
+  @override
+  final ItemTextAccessor<T>? itemText;
+  @override
+  final ItemValueAccessor<T, V>? itemValue;
+  @override
+  final ItemKeyAccessor<T>? itemKey;
+  @override
+  final ItemChildrenAccessor<T>? itemChildren;
 
   const TSelect({
     super.key,
@@ -68,52 +83,30 @@ class TSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
     this.focusNode,
     required this.items,
     this.multiLevel = false,
-    this.filterable = false,
+    this.filterable = true,
     this.dropdownMaxHeight = 200,
     this.footerMessage,
     this.onExpanded,
     this.onCollapsed,
     this.skipValidation,
+    this.itemText,
+    this.itemValue,
+    this.itemKey,
+    this.itemChildren,
   });
 
   @override
-  State<TSelect<V>> createState() => _TSelectState<V>();
+  State<TSelect<T, V>> createState() => _TSelectState<T, V>();
 }
 
-class _TSelectState<V> extends State<TSelect<V>>
+class _TSelectState<T, V> extends State<TSelect<T, V>>
     with
-        TInputValueStateMixin<V, TSelect<V>>,
-        TFocusStateMixin<TSelect<V>>,
-        TInputValidationStateMixin<V, TSelect<V>>,
-        TSelectCommonMixin<TSelect<V>> {
+        TInputValueStateMixin<V, TSelect<T, V>>,
+        TFocusStateMixin<TSelect<T, V>>,
+        TInputValidationStateMixin<V, TSelect<T, V>>,
+        TSelectStateMixin<T, V, TSelect<T, V>> {
   late TextEditingController _controller;
-  late FocusNode _focusNode;
   String _displayTextBeforeExpansion = '';
-
-  // Implement mixin getters
-  @override
-  List<TSelectItem<V>> get items => widget.items;
-
-  @override
-  bool get filterable => widget.filterable;
-
-  @override
-  bool get multiLevel => widget.multiLevel;
-
-  @override
-  double get dropdownMaxHeight => widget.dropdownMaxHeight;
-
-  @override
-  String? get footerMessage => widget.footerMessage;
-
-  @override
-  bool get isDisabled => widget.disabled == true;
-
-  @override
-  VoidCallback? get onExpanded => widget.onExpanded;
-
-  @override
-  VoidCallback? get onCollapsed => widget.onCollapsed;
 
   @override
   bool get isMultiple => false;
@@ -122,21 +115,14 @@ class _TSelectState<V> extends State<TSelect<V>>
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _focusNode = widget.focusNode ?? FocusNode();
 
     // Initialize common functionality
     initializeCommon();
     _updateDisplayText();
-
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus && widget.filterable) {
-        _showDropdownWithSearch();
-      }
-    });
   }
 
   @override
-  void didUpdateWidget(TSelect<V> oldWidget) {
+  void didUpdateWidget(TSelect<T, V> oldWidget) {
     super.didUpdateWidget(oldWidget);
     didUpdateItems(oldWidget.items);
 
@@ -158,17 +144,23 @@ class _TSelectState<V> extends State<TSelect<V>>
   void dispose() {
     disposeCommon();
     _controller.dispose();
-    if (widget.focusNode == null) {
-      _focusNode.dispose();
-    }
     super.dispose();
+  }
+
+  @override
+  void onFocusChanged(bool hasFocus) {
+    super.onFocusChanged(hasFocus);
+
+    if (hasFocus && widget.filterable) {
+      _showDropdownWithSearch();
+    }
   }
 
   @override
   void updateSelectedStates() {
     for (final item in internalItems) {
       item.selected = item.value == widget.value;
-      if (item is TMultiLevelSelectItem<V> && item.hasChildren) {
+      if (item.hasChildren) {
         updateChildrenSelection(item, widget.value != null ? [widget.value!] : []);
       }
     }
@@ -176,7 +168,7 @@ class _TSelectState<V> extends State<TSelect<V>>
   }
 
   @override
-  void onItemTapped(TSelectItem item) {
+  void onItemTapped(TSelectItem<V> item) {
     setState(() {
       // Clear all selections
       TSelectItemCollector.clearAllSelections(internalItems);
@@ -198,13 +190,13 @@ class _TSelectState<V> extends State<TSelect<V>>
 
   TSelectItem<V>? _getSelectedItem() {
     final selectedItems = TSelectItemCollector.getSelectedItems(internalItems);
-    return selectedItems.isNotEmpty ? selectedItems.first as TSelectItem<V> : null;
+    return selectedItems.isNotEmpty ? selectedItems.first : null;
   }
 
   void _showDropdownWithSearch() {
     _displayTextBeforeExpansion = _controller.text;
     _controller.clear();
-    _focusNode.requestFocus();
+    focusNode.requestFocus();
     showDropdown();
   }
 
@@ -220,32 +212,28 @@ class _TSelectState<V> extends State<TSelect<V>>
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
       link: layerLink,
-      child: GestureDetector(
+      child: TTextField(
         key: selectKey,
-        onTap: toggleDropdown,
-        child: TTextField(
-          skipValidation: true,
-          focusNode: _focusNode,
-          label: widget.label,
-          tag: widget.tag,
-          placeholder: widget.placeholder,
-          helperText: widget.helperText,
-          message: widget.message,
-          isRequired: widget.isRequired,
-          disabled: widget.disabled == true || !widget.filterable,
-          size: widget.size,
-          color: widget.color,
-          controller: _controller,
-          value: isExpanded && widget.filterable ? searchQuery : _controller.text,
-          postWidget: widget.postWidget ??
-              Icon(
-                isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                size: 16,
-                color: AppColors.grey.shade500,
-              ),
-          onValueChanged: widget.filterable && isExpanded ? onSearchChanged : null,
-          boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? AppColors.grey.shade50 : Colors.white),
-        ),
+        onTap: widget.filterable ? null : toggleDropdown,
+        skipValidation: true,
+        focusNode: focusNode,
+        label: widget.label,
+        tag: widget.tag,
+        placeholder: widget.placeholder,
+        helperText: widget.helperText,
+        message: widget.message,
+        isRequired: widget.isRequired,
+        readOnly: !widget.filterable,
+        disabled: widget.disabled == true,
+        size: widget.size,
+        color: widget.color,
+        controller: _controller,
+        value: isExpanded && widget.filterable ? searchQuery : _controller.text,
+        preWidget: widget.preWidget,
+        postWidget:
+            widget.postWidget ?? Icon(isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: AppColors.grey.shade500),
+        onValueChanged: widget.filterable && isExpanded ? onSearchChanged : null,
+        boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? AppColors.grey.shade50 : Colors.white),
       ),
     );
   }

@@ -1,3 +1,4 @@
+// select_mixin.dart
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -5,25 +6,29 @@ import 'package:te_widgets/mixins/input_field_mixin.dart';
 import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select_dropdown.dart';
 
-/// Common functionality for TSelect and TMultiSelect widgets
-mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
-  // Common properties - to be overridden by implementing classes
-  List<TSelectItem> get items;
-  bool get filterable;
+mixin TSelectMixin<T, V> on TInputFieldMixin {
+  List<T> get items;
   bool get multiLevel;
+  bool get filterable;
   double get dropdownMaxHeight;
   String? get footerMessage;
-  bool get isDisabled;
   VoidCallback? get onExpanded;
   VoidCallback? get onCollapsed;
 
-  // Abstract methods to be implemented by subclasses
-  void onItemTapped(TSelectItem item);
+  ItemTextAccessor<T>? get itemText;
+  ItemValueAccessor<T, V>? get itemValue;
+  ItemKeyAccessor<T>? get itemKey;
+  ItemChildrenAccessor<T>? get itemChildren;
+}
+
+mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W> {
+  TSelectMixin<T, V> get _widget => widget as TSelectMixin<T, V>;
+
+  void onItemTapped(TSelectItem<V> item);
   bool get isMultiple;
 
-  // Common state
-  late List<TSelectItem> internalItems;
-  List<TSelectItem> filteredItems = [];
+  late List<TSelectItem<V>> internalItems;
+  List<TSelectItem<V>> filteredItems = [];
   bool isExpanded = false;
   String searchQuery = '';
   final LayerLink layerLink = LayerLink();
@@ -32,9 +37,12 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
   bool openUpward = false;
   final GlobalKey selectKey = GlobalKey();
 
+  // Scroll position preservation
+  double _scrollPosition = 0.0;
+
   // Initialize common functionality
   void initializeCommon() {
-    internalItems = List.from(items);
+    internalItems = _widget.items.map((x) => _convertToSelectItem(x)).toList();
     updateSelectedStates();
     filteredItems = List.from(internalItems);
   }
@@ -46,9 +54,9 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
   }
 
   // Update widget when items change
-  void didUpdateItems(List<TSelectItem> oldItems) {
-    if (items != oldItems) {
-      internalItems = List.from(items);
+  void didUpdateItems(List<T> oldItems) {
+    if (_widget.items != oldItems) {
+      internalItems = _widget.items.map((x) => _convertToSelectItem(x)).toList();
       updateSelectedStates();
       filterItems(searchQuery);
     }
@@ -90,21 +98,21 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
   }
 
   // Check if item matches search query
-  bool itemMatchesQuery(TSelectItem item, String query) {
+  bool itemMatchesQuery(TSelectItem<V> item, String query) {
     if (item.text.toLowerCase().contains(query)) {
       return true;
     }
 
-    if (item is TMultiLevelSelectItem && item.hasChildren) {
-      return item.items!.any((child) => itemMatchesQuery(child, query));
+    if (item.hasChildren) {
+      return item.children!.any((child) => itemMatchesQuery(child, query));
     }
 
     return false;
   }
 
   // Handle item tap with common logic
-  void handleItemTap(TSelectItem item) {
-    if (item is TMultiLevelSelectItem && item.hasChildren) {
+  void handleItemTap(TSelectItem<V> item) {
+    if (item.hasChildren) {
       setState(() {
         item.expanded = !item.expanded;
       });
@@ -122,16 +130,16 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
 
   // Auto-expand parents with selected children (for multi-level)
   void autoExpandParentsWithSelectedChildren() {
-    if (!multiLevel) return;
+    if (!_widget.multiLevel) return;
 
-    void expandIfHasSelectedChildren(List<TSelectItem> items) {
+    void expandIfHasSelectedChildren(List<TSelectItem<V>> items) {
       for (final item in items) {
-        if (item is TMultiLevelSelectItem && item.hasChildren) {
+        if (item.hasChildren) {
           bool hasSelectedChild = hasSelectedChildRecursive(item);
           if (hasSelectedChild) {
             item.expanded = true;
           }
-          expandIfHasSelectedChildren(item.items!);
+          expandIfHasSelectedChildren(item.children!);
         }
       }
     }
@@ -140,10 +148,10 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
   }
 
   // Check if parent has selected children recursively
-  bool hasSelectedChildRecursive(TMultiLevelSelectItem parent) {
+  bool hasSelectedChildRecursive(TSelectItem<V> parent) {
     if (!parent.hasChildren) return false;
 
-    for (final child in parent.items!) {
+    for (final child in parent.children!) {
       if (child.selected) return true;
       if (child.hasChildren) {
         if (hasSelectedChildRecursive(child)) return true;
@@ -153,10 +161,10 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
   }
 
   // Update children selection state
-  void updateChildrenSelection(TMultiLevelSelectItem parent, List selectedValues) {
+  void updateChildrenSelection(TSelectItem<V> parent, List selectedValues) {
     if (!parent.hasChildren) return;
 
-    for (final child in parent.items!) {
+    for (final child in parent.children!) {
       child.selected = selectedValues.contains(child.value);
       if (child.hasChildren) {
         updateChildrenSelection(child, selectedValues);
@@ -165,10 +173,10 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
   }
 
   // Clear children selection
-  void clearChildrenSelection(TMultiLevelSelectItem parent) {
+  void clearChildrenSelection(TSelectItem<V> parent) {
     if (!parent.hasChildren) return;
 
-    for (final child in parent.items!) {
+    for (final child in parent.children!) {
       child.selected = false;
       if (child.hasChildren) {
         clearChildrenSelection(child);
@@ -176,7 +184,7 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  // Calculate dropdown position
+  // Calculate dropdown position based on container bounds
   void calculatePosition() {
     final RenderBox? renderBox = selectKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
@@ -188,7 +196,7 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
     final spaceBelow = screenHeight - (position.dy + size.height);
     final spaceAbove = position.dy;
 
-    final dropdownHeight = math.min(dropdownMaxHeight, calculateDropdownHeight());
+    final dropdownHeight = math.min(_widget.dropdownMaxHeight, calculateDropdownHeight());
 
     openUpward = spaceBelow < dropdownHeight && spaceAbove > dropdownHeight;
   }
@@ -199,7 +207,7 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
     const padding = 16.0;
 
     int visibleItemCount = countVisibleItems(filteredItems);
-    return math.min(visibleItemCount * itemHeight + padding, dropdownMaxHeight);
+    return math.min(visibleItemCount * itemHeight + padding, _widget.dropdownMaxHeight);
   }
 
   // Count visible items including expanded children
@@ -207,19 +215,26 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
     int count = 0;
     for (final item in items) {
       count++;
-      if (item is TMultiLevelSelectItem && item.hasChildren && item.expanded) {
-        count += countVisibleItems(item.items!);
+      if (item.hasChildren && item.expanded) {
+        count += countVisibleItems(item.children!);
       }
     }
     return count;
   }
 
+  // Get container height for proper dropdown positioning
+  double getContainerHeight() {
+    final RenderBox? renderBox = selectKey.currentContext?.findRenderObject() as RenderBox?;
+    return renderBox?.size.height ?? 38;
+  }
+
   // Show dropdown
   void showDropdown() {
-    if (overlayEntry != null || isDisabled) return;
+    if (overlayEntry != null || _widget.disabled == true) return;
 
     searchQuery = '';
     filterItems('');
+    _scrollPosition = 0.0; // Reset scroll position when opening
 
     calculatePosition();
 
@@ -227,7 +242,7 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
       isExpanded = true;
     });
 
-    onExpanded?.call();
+    _widget.onExpanded?.call();
     createOverlay();
   }
 
@@ -237,17 +252,18 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
 
     searchQuery = '';
     filterItems('');
+    _scrollPosition = 0.0; // Reset scroll position when closing
 
     setState(() {
       isExpanded = false;
     });
 
-    onCollapsed?.call();
+    _widget.onCollapsed?.call();
     overlayEntry?.remove();
     overlayEntry = null;
   }
 
-  // Rebuild dropdown
+  // Rebuild dropdown with preserved scroll position
   void rebuildDropdown() {
     if (overlayEntry == null || !mounted) return;
 
@@ -255,6 +271,11 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
     overlayEntry = null;
 
     createOverlay();
+  }
+
+  // Handle scroll position changes
+  void onScrollPositionChanged(double position) {
+    _scrollPosition = position;
   }
 
   // Create overlay entry
@@ -272,14 +293,16 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
             child: CompositedTransformFollower(
               link: layerLink,
               showWhenUnlinked: false,
-              offset: openUpward ? Offset(0, -calculateDropdownHeight() - 8) : Offset(0, 38 + 8 + 8 + 8),
+              offset: openUpward ? Offset(0, -calculateDropdownHeight() - 8) : Offset(0, getContainerHeight() + 8), // Use actual container height
               child: TSelectDropdown(
                 key: ValueKey('dropdown_${filteredItems.hashCode}_${DateTime.now().millisecondsSinceEpoch}'),
                 items: filteredItems,
-                maxHeight: dropdownMaxHeight,
+                maxHeight: _widget.dropdownMaxHeight,
                 onItemTap: handleItemTap,
-                footerMessage: footerMessage,
+                footerMessage: _widget.footerMessage,
                 multiple: isMultiple,
+                scrollPosition: _scrollPosition,
+                onScrollPositionChanged: onScrollPositionChanged,
               ),
             ),
           ),
@@ -292,13 +315,13 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
 
   // Get dropdown width
   double getDropdownWidth() {
-    final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+    final RenderBox? renderBox = selectKey.currentContext?.findRenderObject() as RenderBox?;
     return renderBox?.size.width ?? 200;
   }
 
   // Toggle dropdown
   void toggleDropdown() {
-    if (isDisabled) return;
+    if (_widget.disabled == true) return;
 
     if (isExpanded) {
       hideDropdown();
@@ -306,79 +329,66 @@ mixin TSelectCommonMixin<T extends StatefulWidget> on State<T> {
       showDropdown();
     }
   }
-}
 
-/// Helper class to collect selected items
-class TSelectItemCollector {
-  static List<TSelectItem> getSelectedItems(List<TSelectItem> items) {
-    List<TSelectItem> selected = [];
+  TSelectItem<V> _convertToSelectItem(T item) {
+    assert(V != Null, 'Select labeled "${_widget.label}": value type can not be Null.');
 
-    void collectSelected(List<TSelectItem> items) {
-      for (final item in items) {
-        if (item.selected) {
-          selected.add(item);
-        }
-        if (item is TMultiLevelSelectItem && item.hasChildren) {
-          collectSelected(item.items!);
-        }
-      }
+    switch (item) {
+      // Already a TSelectItem
+      case TSelectItem<V> i:
+        return i;
+
+      // Record support
+      case TSelectRecord<V> record:
+        return TSelectItem<V>.fromRecord(record);
+
+      // String
+      case String s when V == String:
+        return TSelectItem<V>.simple(s, s as V, s);
+
+      // int
+      case int i when V == int:
+        final text = i.toString();
+        return TSelectItem<V>.simple(text, i as V, text);
+
+      // double
+      case double d when V == double:
+        final text = d.toString();
+        return TSelectItem<V>.simple(text, d as V, text);
+
+      // bool
+      case bool b when V == bool:
+        final text = b.toString();
+        return TSelectItem<V>.simple(text, b as V, text);
+
+      // num
+      case num n when V == num:
+        final text = n.toString();
+        return TSelectItem<V>.simple(text, n as V, text);
+
+      // Default / custom object
+      default:
+        final text = _widget.itemText?.call(item);
+        final value = _widget.itemValue != null ? _widget.itemValue!.call(item) : item;
+        final key = _widget.itemKey?.call(item);
+        final children = _widget.itemChildren?.call(item);
+
+        assert(
+          text != null,
+          'Select labeled "${_widget.label}": For custom item "$item", `itemText` must not return null.',
+        );
+
+        assert(
+          value is V,
+          'Select labeled "${_widget.label}": `itemValue` result is not of type $V. Got: ${value.runtimeType} from item "$item".',
+        );
+
+        return TSelectItem<V>(
+          text: text!,
+          value: value as V,
+          key: key,
+          children: children?.map(_convertToSelectItem).toList(),
+        );
     }
-
-    collectSelected(items);
-    return selected;
   }
-
-  static void clearAllSelections(List<TSelectItem> items) {
-    for (final item in items) {
-      item.selected = false;
-      if (item is TMultiLevelSelectItem && item.hasChildren) {
-        clearAllSelections(item.items!);
-      }
-    }
-  }
-}
-
-/// Configuration class for select widgets
-class TSelectConfig {
-  final String? label;
-  final String? tag;
-  final String? placeholder;
-  final String? helperText;
-  final String? message;
-  final bool? isRequired;
-  final bool? disabled;
-  final TInputSize? size;
-  final TInputColor? color;
-  final BoxDecoration? boxDecoration;
-  final Widget? preWidget;
-  final Widget? postWidget;
-  final FocusNode? focusNode;
-  final bool multiLevel;
-  final bool filterable;
-  final double dropdownMaxHeight;
-  final String? footerMessage;
-  final VoidCallback? onExpanded;
-  final VoidCallback? onCollapsed;
-
-  const TSelectConfig({
-    this.label,
-    this.tag,
-    this.placeholder,
-    this.helperText,
-    this.message,
-    this.isRequired,
-    this.disabled,
-    this.size,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
-    this.focusNode,
-    this.multiLevel = false,
-    this.filterable = false,
-    this.dropdownMaxHeight = 200,
-    this.footerMessage,
-    this.onExpanded,
-    this.onCollapsed,
-  });
 }
