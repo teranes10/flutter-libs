@@ -193,7 +193,8 @@ mixin TInputFieldMixin {
     );
   }
 
-  Widget buildContainer({bool? isMultiline, isFocused, hasErrors, ValueNotifier<List<String>>? errorsNotifier, Widget? child, Widget? postWidget}) {
+  Widget buildContainer(
+      {bool? isMultiline, isFocused, hasErrors, ValueNotifier<List<String>>? errorsNotifier, Widget? child, Widget? postWidget, Widget? preWidget}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -210,10 +211,14 @@ mixin TInputFieldMixin {
           child: IntrinsicHeight(
             child: Row(
               children: [
+                if (this.preWidget != null)
+                  Padding(
+                      padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, left: fieldPadding.left),
+                      child: Center(child: this.preWidget!)),
                 if (preWidget != null)
                   Padding(
                       padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, left: fieldPadding.left),
-                      child: Center(child: preWidget!)),
+                      child: Center(child: preWidget)),
                 Expanded(child: Padding(padding: fieldPadding, child: child)),
                 if (postWidget != null)
                   Padding(

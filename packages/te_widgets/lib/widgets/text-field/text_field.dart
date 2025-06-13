@@ -47,6 +47,8 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   final MaxLengthEnforcement? maxLengthEnforcement;
   final bool obscureText;
   final TextInputAction? textInputAction;
+  final void Function()? onTap;
+  final bool? readOnly;
 
   const TTextField({
     super.key,
@@ -81,6 +83,8 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
     this.textInputAction,
     this.valueNotifier,
     this.skipValidation,
+    this.onTap,
+    this.readOnly,
   });
 
   @override
@@ -144,6 +148,8 @@ class _TTextFieldState extends State<TTextField>
         style: widget.getTextStyle(),
         decoration: widget.getInputDecoration(),
         onChanged: notifyValueChanged,
+        onTap: widget.onTap,
+        readOnly: widget.readOnly == true,
       ),
     );
   }
