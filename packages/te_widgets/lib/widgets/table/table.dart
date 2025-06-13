@@ -175,10 +175,6 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
   }
 
   Widget _buildTableView([BoxConstraints? constraints]) {
-    if (widget.items.isEmpty) {
-      return tableEmptyState();
-    }
-
     Widget content;
     final defaultPadding = widget.styling?.contentPadding ?? const EdgeInsets.only(bottom: 8);
 
@@ -192,6 +188,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
             padding: defaultPadding,
             child: _buildTable(),
           ),
+          if (widget.items.isEmpty) tableEmptyState()
         ],
       );
     } else {
@@ -227,6 +224,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
                     child: _buildTable(),
                   ),
           ),
+          if (widget.items.isEmpty) tableEmptyState()
         ],
       );
     }

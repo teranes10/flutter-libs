@@ -22,13 +22,22 @@ class TTableHeader<T> {
     this.alignment,
   });
 
+  const TTableHeader.map(
+    this.text,
+    this.map, {
+    this.value,
+    this.builder,
+    this.flex,
+    this.minWidth,
+    this.maxWidth,
+    this.alignment,
+  });
+
   String getValue(T item) {
     if (this.map != null) {
       return this.map!(item);
-    } else if (T is Map<String, dynamic>) {
-      final map = item as Map<String, dynamic>;
-      final value = map[this.value];
-      return value?.toString() ?? '';
+    } else if (item is Map<String, dynamic> && value != null) {
+      return item[value]?.toString() ?? '';
     }
 
     return '';

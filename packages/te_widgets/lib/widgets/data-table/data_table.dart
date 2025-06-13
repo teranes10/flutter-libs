@@ -1,25 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/pagination/pagination.dart';
-import 'package:te_widgets/widgets/select/select.dart';
-import 'package:te_widgets/widgets/select/select_configs.dart';
-import 'package:te_widgets/widgets/table/table.dart';
-import 'package:te_widgets/widgets/table/table_configs.dart';
-import 'data_table_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TDataTable<T> extends StatefulWidget {
   final List<TTableHeader<T>> headers;
-  final List<T> items;
+  final List<T>? items;
   final ItemKey<T>? itemKey;
   final int itemsPerPage;
   final List<int> itemsPerPageOptions;
   final String? search;
-  final bool serverSideRendering;
   final int searchDelay;
-  final Map<String, dynamic>? params;
   final bool loading;
   final DataTableOnLoadListener<T>? onLoad;
-  final DataTableInitializeCallback<T>? onInitialize;
 
   // Table styling properties
   final double mobileBreakpoint;
@@ -37,17 +28,14 @@ class TDataTable<T> extends StatefulWidget {
   const TDataTable({
     super.key,
     required this.headers,
-    required this.items,
+    this.items,
     this.itemKey,
     this.itemsPerPage = 10,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
     this.search,
-    this.serverSideRendering = false,
     this.searchDelay = 300,
-    this.params,
     this.loading = false,
     this.onLoad,
-    this.onInitialize,
     this.mobileBreakpoint = 768,
     this.cardWidth,
     this.showStaggeredAnimation = true,
@@ -68,31 +56,48 @@ class TDataTable<T> extends StatefulWidget {
 class _TDataTableState<T> extends State<TDataTable<T>> {
   late List<TTableHeader<T>> _headers;
   late List<T> _items;
-  late List<T> _displayItems;
   late int _currentPage;
   late int _itemsPerPage;
   late bool _loading;
   late bool _serverSideRendering;
 
+  List<T> _displayItems = [];
   int _totalItems = 0;
-  DataTableOnLoadListener<T>? _loadCallback;
+
+  int get _totalPages => (_totalItems / _itemsPerPage).ceil();
+
+  int get _computedItemsPerPage => _totalItems < _itemsPerPage ? _displayItems.length : _itemsPerPage;
+
+  List<int> get _computedItemsPerPageOptions {
+    final options = <int>{
+      _computedItemsPerPage,
+      _totalItems,
+      ...List.from(widget.itemsPerPageOptions),
+    };
+
+    return options.where((x) => x <= _totalItems).toList()..sort();
+  }
+
+  int get _pageStartAt => ((_currentPage - 1) * _itemsPerPage) + 1;
+
+  int get _pageEndAt => (_currentPage * _itemsPerPage).clamp(0, _totalItems);
+
+  String get _paginationInfo {
+    if (_totalItems == 0) return 'No entries';
+    return 'Showing $_pageStartAt to $_pageEndAt of $_totalItems entries';
+  }
 
   @override
   void initState() {
     super.initState();
     _headers = List.from(widget.headers);
-    _items = List.from(widget.items);
+    _items = List.from(widget.items ?? []);
     _currentPage = 1;
     _itemsPerPage = widget.itemsPerPage;
     _loading = widget.loading;
-    _serverSideRendering = widget.serverSideRendering;
+    _serverSideRendering = widget.onLoad != null;
 
-    if (widget.onLoad != null) {
-      _serverSideRendering = true;
-    }
-
-    _updateDisplayItems();
-    _initializeContext();
+    _loadData();
   }
 
   @override
@@ -100,8 +105,8 @@ class _TDataTableState<T> extends State<TDataTable<T>> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.items != widget.items) {
-      _items = List.from(widget.items);
-      _updateDisplayItems();
+      _items = List.from(widget.items ?? []);
+      _loadData();
     }
 
     if (oldWidget.headers != widget.headers) {
@@ -113,66 +118,16 @@ class _TDataTableState<T> extends State<TDataTable<T>> {
     }
   }
 
-  void _initializeContext() {
-    final context = DataTableContext<T>(
-      isServerSideRendering: () => _serverSideRendering,
-      setHeaders: (headers) => setState(() => _headers = headers),
-      setOnLoadListener: (callback) {
-        _loadCallback = callback;
-        setState(() => _serverSideRendering = true);
-      },
-      getItems: () => _serverSideRendering ? _displayItems : _items,
-      setItems: (items) => setState(() {
-        _items = items;
-        _updateDisplayItems();
-      }),
-      addItem: (item) => setState(() {
-        if (_serverSideRendering) {
-          _displayItems.insert(0, item);
-          _totalItems++;
-        } else {
-          _items.insert(0, item);
-          _updateDisplayItems();
-        }
-      }),
-      updateItem: (index, item) => setState(() {
-        if (_serverSideRendering) {
-          if (index >= 0 && index < _displayItems.length) {
-            _displayItems[index] = item;
-          }
-        } else {
-          if (index >= 0 && index < _items.length) {
-            _items[index] = item;
-            _updateDisplayItems();
-          }
-        }
-      }),
-      removeItem: (index) => setState(() {
-        if (_serverSideRendering) {
-          if (index >= 0 && index < _displayItems.length) {
-            _displayItems.removeAt(index);
-            _totalItems--;
-          }
-        } else {
-          if (index >= 0 && index < _items.length) {
-            _items.removeAt(index);
-            _updateDisplayItems();
-          }
-        }
-      }),
-      notifyDataSetChanged: () => _updateDisplayItems(),
-      setLoading: (loading) => setState(() => _loading = loading),
-    );
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.onInitialize?.call(context);
-    });
-  }
-
-  void _updateDisplayItems() {
+  void _loadData() {
     if (_serverSideRendering) {
-      _totalItems = _items.length;
-      _displayItems = List.from(_items);
+      _loading = true;
+      _loadDataFromServer((items, totalItems) {
+        _totalItems = totalItems;
+        _displayItems = items;
+        setState(() {
+          _loading = false;
+        });
+      });
     } else {
       _totalItems = _items.length;
       final startIndex = (_currentPage - 1) * _itemsPerPage;
@@ -186,11 +141,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> {
       _currentPage = page;
     });
 
-    if (_serverSideRendering) {
-      _loadData();
-    } else {
-      _updateDisplayItems();
-    }
+    _loadData();
   }
 
   void _onItemsPerPageChanged(int itemsPerPage) {
@@ -199,40 +150,18 @@ class _TDataTableState<T> extends State<TDataTable<T>> {
       _currentPage = 1;
     });
 
-    if (_serverSideRendering) {
-      _loadData();
-    } else {
-      _updateDisplayItems();
-    }
+    _loadData();
   }
 
-  void _loadData() {
+  void _loadDataFromServer(Function(List<T>, int) callback) {
     final options = DataTableLoadOptions<T>(
       page: _currentPage,
       itemsPerPage: _itemsPerPage,
       search: widget.search,
-      params: widget.params,
+      callback: callback,
     );
 
     widget.onLoad?.call(options);
-    _loadCallback?.call(options);
-  }
-
-  int get _totalPages => (_totalItems / _itemsPerPage).ceil();
-
-  String get _paginationInfo {
-    if (_totalItems == 0) return 'No entries';
-
-    final start = ((_currentPage - 1) * _itemsPerPage) + 1;
-    final end = (_currentPage * _itemsPerPage).clamp(0, _totalItems);
-    return 'Showing $start to $end of $_totalItems entries';
-  }
-
-  List<int> get _availableItemsPerPageOptions {
-    final options = Set<int>.from(widget.itemsPerPageOptions);
-    options.add(_itemsPerPage);
-    final remainingItems = _totalItems - ((_currentPage - 1) * _itemsPerPage);
-    return options.where((option) => option <= remainingItems || option == _itemsPerPage).toList()..sort();
   }
 
   @override
@@ -325,19 +254,12 @@ class _TDataTableState<T> extends State<TDataTable<T>> {
         const SizedBox(width: 12),
         SizedBox(
           width: 80,
-          child: TSelect<int>(
-            value: _itemsPerPage,
-            items: _availableItemsPerPageOptions
-                .map((item) => TSimpleSelectItem<int>(
-                      text: item.toString(),
-                      value: item,
-                      key: item.toString(),
-                    ))
-                .toList(),
+          child: TSelect(
+            size: TInputSize.sm,
+            value: _computedItemsPerPage,
+            items: _computedItemsPerPageOptions,
             onValueChanged: (value) {
-              if (value != null) {
-                _onItemsPerPageChanged(value);
-              }
+              _onItemsPerPageChanged(value);
             },
           ),
         ),

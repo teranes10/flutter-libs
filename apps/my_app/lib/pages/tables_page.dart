@@ -1,4 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:my_app/clients/posts_client.dart';
+import 'package:my_app/models/post_dto.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/widgets/button/button_config.dart';
 import 'package:te_widgets/widgets/button/button_group.dart';
@@ -15,17 +18,70 @@ class TablesPage extends StatefulWidget {
 }
 
 class _TablesPageState extends State<TablesPage> {
-  List<User> users = [
-    User(id: 1, name: 'John Doe', email: 'john@example.com', role: 'Admin', createdAt: DateTime.now()),
-    User(id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
-    User(id: 3, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
-    User(id: 4, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
-    User(id: 5, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
-    User(id: 6, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
-    User(id: 7, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
-    User(id: 8, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
-    User(id: 9, name: 'Jane Smith', email: 'jane@example.com', role: 'User', createdAt: DateTime.now()),
-    // Add more users...
+  List<Map<String, dynamic>> userMaps = [
+    {
+      'id': 1,
+      'name': 'John Doe',
+      'email': 'john@example.com',
+      'role': 'Admin',
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': 2,
+      'name': 'Jane Smith',
+      'email': 'jane@example.com',
+      'role': 'User',
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': 3,
+      'name': 'Jane Smith',
+      'email': 'jane@example.com',
+      'role': 'User',
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': 4,
+      'name': 'Jane Smith',
+      'email': 'jane@example.com',
+      'role': 'User',
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': 5,
+      'name': 'Jane Smith',
+      'email': 'jane@example.com',
+      'role': 'User',
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': 6,
+      'name': 'Jane Smith',
+      'email': 'jane@example.com',
+      'role': 'User',
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': 7,
+      'name': 'Jane Smith',
+      'email': 'jane@example.com',
+      'role': 'User',
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': 8,
+      'name': 'Jane Smith',
+      'email': 'jane@example.com',
+      'role': 'User',
+      'createdAt': DateTime.now(),
+    },
+    {
+      'id': 9,
+      'name': 'Jane Smith',
+      'email': 'jane@example.com',
+      'role': 'User',
+      'createdAt': DateTime.now(),
+    },
   ];
 
   @override
@@ -37,21 +93,18 @@ class _TablesPageState extends State<TablesPage> {
         children: [
           TTable<Product>(
             headers: [
-              TTableHeader("Name", map: (x) => x.name),
-              TTableHeader("Price", map: (x) => x.price.toString()),
-              TTableHeader("Stock", map: (x) => x.stock.toString()),
+              TTableHeader.map("Name", (x) => x.name),
+              TTableHeader.map("Price", (x) => x.price.toString()),
+              TTableHeader.map("Stock", (x) => x.stock.toString()),
             ],
             items: products,
           ),
-          TDataTable<User>(
+          TDataTable<Product>(
             headers: [
-              TTableHeader('ID', maxWidth: 50, map: (user) => user.id.toString()),
-              TTableHeader('Name', map: (user) => user.name),
-              TTableHeader('Email', map: (user) => user.email),
-              TTableHeader(
-                'Role',
-                builder: (context, user) => TChip(text: user.role, color: user.role == 'Admin' ? AppColors.info : AppColors.success),
-              ),
+              TTableHeader.map("Name", (x) => x.name),
+              TTableHeader.map("Price", (x) => x.price.toString()),
+              TTableHeader.map("Stock", (x) => x.stock.toString()),
+              TTableHeader('Stock', builder: (_, x) => TChip(text: x.stock.toString(), color: AppColors.info)),
               TTableHeader(
                 'Actions',
                 maxWidth: 132,
@@ -59,17 +112,28 @@ class _TablesPageState extends State<TablesPage> {
                 builder: (context, user) => TButtonGroup(
                   type: TButtonGroupType.icon,
                   items: [
-                    TButtonGroupItem(icon: Icons.remove_red_eye, color: AppColors.success, onPressed: (_) => {}),
-                    TButtonGroupItem(icon: Icons.edit, color: AppColors.info, onPressed: (_) => {}),
-                    TButtonGroupItem(icon: Icons.unarchive, color: AppColors.info, onPressed: (_) => {}),
-                    TButtonGroupItem(icon: Icons.archive, color: AppColors.warning, onPressed: (_) => {}),
-                    TButtonGroupItem(icon: Icons.delete_forever, color: AppColors.danger, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'View', icon: Icons.remove_red_eye, color: AppColors.success, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Edit', icon: Icons.edit, color: AppColors.info, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Restore', icon: Icons.unarchive, color: AppColors.info, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Archive', icon: Icons.archive, color: AppColors.warning, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Delete', icon: Icons.delete_forever, color: AppColors.danger, onPressed: (_) => {}),
                   ],
                 ),
               ),
             ],
-            items: users,
+            items: products,
           ),
+          TDataTable<PostDto>(
+            headers: [
+              TTableHeader.map('Title', (x) => x.title),
+              TTableHeader.map('Body', (x) => x.body),
+            ],
+            onLoad: (o) async {
+              print('__onload');
+              final pair = await PostsClient().fetchPosts(start: o.offset, limit: o.itemsPerPage);
+              o.callback(pair.$1, pair.$2);
+            },
+          )
         ],
       ),
     );
@@ -114,7 +178,7 @@ class Product {
 }
 
 final List<Product> products = List.generate(
-  10,
+  3,
   (index) => Product(
     'ID-${index + 1}',
     'Product Description ${index + 1}',
