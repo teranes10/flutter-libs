@@ -8,7 +8,8 @@ import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select_mixin.dart';
 import 'package:te_widgets/widgets/tags-field/tags_field.dart';
 
-class TMultiSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<List<V>>, TFocusMixin, TInputValidationMixin<List<V>> {
+class TMultiSelect<T, V> extends StatefulWidget
+    with TInputFieldMixin, TInputValueMixin<List<V>>, TFocusMixin, TInputValidationMixin<List<V>>, TSelectMixin<T, V> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
@@ -38,12 +39,27 @@ class TMultiSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueM
   @override
   final FocusNode? focusNode;
 
-  final List<TSelectItem<V>> items;
+  @override
+  final List<T> items;
+  @override
   final bool multiLevel, filterable;
+  @override
   final double dropdownMaxHeight;
+  @override
   final String? footerMessage;
+  @override
   final VoidCallback? onExpanded;
+  @override
   final VoidCallback? onCollapsed;
+
+  @override
+  final ItemTextAccessor<T>? itemText;
+  @override
+  final ItemValueAccessor<T, V>? itemValue;
+  @override
+  final ItemKeyAccessor<T>? itemKey;
+  @override
+  final ItemChildrenAccessor<T>? itemChildren;
 
   const TMultiSelect({
     super.key,
@@ -68,51 +84,29 @@ class TMultiSelect<V> extends StatefulWidget with TInputFieldMixin, TInputValueM
     this.focusNode,
     required this.items,
     this.multiLevel = false,
-    this.filterable = false,
+    this.filterable = true,
     this.dropdownMaxHeight = 200,
     this.footerMessage,
     this.onExpanded,
     this.onCollapsed,
     this.skipValidation,
+    this.itemText,
+    this.itemValue,
+    this.itemKey,
+    this.itemChildren,
   });
 
   @override
-  State<TMultiSelect<V>> createState() => _TMultiSelectState<V>();
+  State<TMultiSelect<T, V>> createState() => _TMultiSelectState<T, V>();
 }
 
-class _TMultiSelectState<V> extends State<TMultiSelect<V>>
+class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
     with
-        TInputValueStateMixin<List<V>, TMultiSelect<V>>,
-        TFocusStateMixin<TMultiSelect<V>>,
-        TInputValidationStateMixin<List<V>, TMultiSelect<V>>,
-        TSelectCommonMixin<TMultiSelect<V>> {
+        TInputValueStateMixin<List<V>, TMultiSelect<T, V>>,
+        TFocusStateMixin<TMultiSelect<T, V>>,
+        TInputValidationStateMixin<List<V>, TMultiSelect<T, V>>,
+        TSelectStateMixin<T, V, TMultiSelect<T, V>> {
   late TextEditingController _controller;
-  late FocusNode _focusNode;
-
-  // Implement mixin getters
-  @override
-  List<TSelectItem<V>> get items => widget.items;
-
-  @override
-  bool get filterable => widget.filterable;
-
-  @override
-  bool get multiLevel => widget.multiLevel;
-
-  @override
-  double get dropdownMaxHeight => widget.dropdownMaxHeight;
-
-  @override
-  String? get footerMessage => widget.footerMessage;
-
-  @override
-  bool get isDisabled => widget.disabled == true;
-
-  @override
-  VoidCallback? get onExpanded => widget.onExpanded;
-
-  @override
-  VoidCallback? get onCollapsed => widget.onCollapsed;
 
   @override
   bool get isMultiple => true;
@@ -121,20 +115,13 @@ class _TMultiSelectState<V> extends State<TMultiSelect<V>>
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _focusNode = widget.focusNode ?? FocusNode();
 
     // Initialize common functionality
     initializeCommon();
-
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus && widget.filterable) {
-        _showDropdownWithSearch();
-      }
-    });
   }
 
   @override
-  void didUpdateWidget(TMultiSelect<V> oldWidget) {
+  void didUpdateWidget(TMultiSelect<T, V> oldWidget) {
     super.didUpdateWidget(oldWidget);
     didUpdateItems(oldWidget.items);
 
@@ -155,10 +142,16 @@ class _TMultiSelectState<V> extends State<TMultiSelect<V>>
   void dispose() {
     disposeCommon();
     _controller.dispose();
-    if (widget.focusNode == null) {
-      _focusNode.dispose();
-    }
     super.dispose();
+  }
+
+  @override
+  void onFocusChanged(bool hasFocus) {
+    super.onFocusChanged(hasFocus);
+
+    if (hasFocus && widget.filterable) {
+      _showDropdownWithSearch();
+    }
   }
 
   @override
@@ -166,7 +159,7 @@ class _TMultiSelectState<V> extends State<TMultiSelect<V>>
     final selectedValues = widget.value ?? <V>[];
     for (final item in internalItems) {
       item.selected = selectedValues.contains(item.value);
-      if (item is TMultiLevelSelectItem<V> && item.hasChildren) {
+      if (item.hasChildren) {
         updateChildrenSelection(item, selectedValues);
       }
     }
@@ -174,7 +167,7 @@ class _TMultiSelectState<V> extends State<TMultiSelect<V>>
   }
 
   @override
-  void onItemTapped(TSelectItem item) {
+  void onItemTapped(TSelectItem<V> item) {
     setState(() {
       item.selected = !item.selected;
       final selectedItems = TSelectItemCollector.getSelectedItems(internalItems);
@@ -192,7 +185,7 @@ class _TMultiSelectState<V> extends State<TMultiSelect<V>>
 
   void _showDropdownWithSearch() {
     _controller.clear();
-    _focusNode.requestFocus();
+    focusNode.requestFocus();
     showDropdown();
   }
 
@@ -242,14 +235,15 @@ class _TMultiSelectState<V> extends State<TMultiSelect<V>>
         onTap: toggleDropdown,
         child: TTagsField(
           skipValidation: true,
-          focusNode: _focusNode,
+          focusNode: focusNode,
           label: widget.label,
           tag: widget.tag,
           placeholder: widget.placeholder,
           helperText: widget.helperText,
           message: widget.message,
           isRequired: widget.isRequired,
-          disabled: widget.disabled == true || !widget.filterable,
+          disabled: widget.disabled == true,
+          readOnly: !widget.filterable,
           size: widget.size,
           color: widget.color,
           controller: _controller,

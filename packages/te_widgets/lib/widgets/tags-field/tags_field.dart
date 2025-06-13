@@ -46,6 +46,7 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   final Widget Function(String tag, VoidCallback onRemove)? tagBuilder;
   final void Function(String)? onTagAdded;
   final void Function(String)? onTagRemoved;
+  final bool? readOnly;
 
   const TTagsField({
     super.key,
@@ -78,6 +79,7 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
     this.controller,
     this.onTagAdded,
     this.onTagRemoved,
+    this.readOnly,
   });
 
   @override
@@ -199,6 +201,7 @@ class _TTagsFieldState extends State<TTagsField>
                   style: widget.getTextStyle(),
                   decoration: widget.getInputDecoration(),
                   onChanged: _onInputChanged,
+                  readOnly: widget.readOnly == true,
                 ),
               ),
             ),
