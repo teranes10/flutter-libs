@@ -3,16 +3,17 @@ library;
 export 'configs/theme/theme.dart';
 export 'configs/theme/theme_colors.dart';
 
+export 'helpers/routes_helper.dart';
 export 'helpers/validations.dart';
 
-export 'layouts/layout.dart';
-
-export 'layouts/widgets/sidebar/sidebar.dart';
-export 'layouts/widgets/sidebar/sidebar_item_group.dart';
-export 'layouts/widgets/sidebar/sidebar_item.dart';
+export 'layouts/widgets/sidebar/sidebar_config.dart';
 export 'layouts/widgets/sidebar/sidebar_items.dart';
-export 'layouts/widgets/sidebar/sidebar_logo.dart';
-export 'layouts/widgets/sidebar/sidebar_profile.dart';
+export 'layouts/widgets/sidebar/sidebar.dart';
+
+export 'layouts/widgets/logo.dart';
+export 'layouts/widgets/profile.dart';
+
+export 'layouts/layout.dart';
 
 export 'mixins/focus_mixin.dart';
 export 'mixins/input_field_mixin.dart';
@@ -34,29 +35,30 @@ export 'widgets/checkbox/checkbox_config.dart';
 export 'widgets/chip/chip.dart';
 
 export 'widgets/data-table/data_table.dart';
-export 'widgets/data-table/data_table_config.dart';
 
 export 'widgets/loading-icon/loading_icon.dart';
 
-export 'widgets/modal/modal.dart';
-export 'widgets/modal/modal_service.dart';
 export 'widgets/modal/modal_config.dart';
+export 'widgets/modal/modal_service.dart';
+export 'widgets/modal/modal.dart';
 
 export 'widgets/number-field/number_field.dart';
 
 export 'widgets/pagination/pagination.dart';
 
-export 'widgets/select/select.dart';
-export 'widgets/select/select_dropdown.dart';
+export 'widgets/select/multi_select.dart';
 export 'widgets/select/select_configs.dart';
+export 'widgets/select/select_dropdown.dart';
+export 'widgets/select/select_mixin.dart';
+export 'widgets/select/select.dart';
 
-export 'widgets/table/table.dart';
 export 'widgets/table/table_card.dart';
 export 'widgets/table/table_configs.dart';
+export 'widgets/table/table.dart';
 
 export 'widgets/tags-field/tags_field.dart';
 
 export 'widgets/text-field/text_field.dart';
 
-export 'widgets/tooltip/tooltip.dart';
 export 'widgets/tooltip/tooltip_config.dart';
+export 'widgets/tooltip/tooltip.dart';

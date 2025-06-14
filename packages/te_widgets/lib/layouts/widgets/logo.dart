@@ -1,24 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
 
-class SidebarLogo extends StatelessWidget {
+class TLogo extends StatelessWidget {
   final String? icon;
   final String? text;
   final VoidCallback? onTap;
+  final Axis axis;
+  final double size;
+  final double spacing;
 
-  const SidebarLogo({
+  const TLogo({
     super.key,
     this.icon,
     this.text,
     this.onTap,
+    this.axis = Axis.horizontal,
+    this.size = 40,
+    this.spacing = 12,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: spacing,
+        runSpacing: spacing,
         children: [
           if (icon != null)
             Image.network(
@@ -27,15 +36,12 @@ class SidebarLogo extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           if (text != null)
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Text(
-                text!,
-                style: TextStyle(
-                  fontSize: 32.0,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
+            Text(
+              text!,
+              style: TextStyle(
+                fontSize: 30.0,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primary,
               ),
             ),
         ],

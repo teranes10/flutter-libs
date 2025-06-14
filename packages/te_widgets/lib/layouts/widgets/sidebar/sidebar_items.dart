@@ -1,66 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/sidebar_item.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_item_group.dart';
 
 class SidebarItems extends StatelessWidget {
-  final List<dynamic>? items; // Can contain SidebarItem or SidebarItemGroup
-  final double heightOffset;
+  final List<TSidebarItem> items;
+  final bool isMinimized;
+  final TSidebarTheme? theme;
 
   const SidebarItems({
     super.key,
-    this.items,
-    this.heightOffset = 250.0,
+    required this.items,
+    this.isMinimized = false,
+    this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (items == null || items!.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    if (items.isEmpty) return const SizedBox.shrink();
 
-    return SizedBox(
-        height: MediaQuery.of(context).size.height - heightOffset,
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            scrollbars: true,
-            overscroll: false,
+    final sidebarTheme = theme ?? TSidebarTheme.defaultTheme();
+
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        scrollbars: !isMinimized,
+        overscroll: false,
+      ),
+      child: SingleChildScrollView(
+        child: Container(
+          color: Colors.transparent,
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: _buildAnimatedItems(sidebarTheme),
           ),
-          child: SingleChildScrollView(
-            child: Container(
-              color: Colors.transparent,
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: List.generate(items!.length, (index) {
-                  final item = items![index];
-                  return TweenAnimationBuilder<Offset>(
-                    tween: Tween<Offset>(begin: const Offset(0.25, 0), end: Offset.zero),
-                    duration: Duration(milliseconds: 400 + (index * 100)),
-                    curve: Curves.easeInOut,
-                    builder: (context, offset, child) {
-                      return Transform.translate(
-                        offset: Offset(offset.dx * 100, 0), // scale x translation
-                        child: AnimatedOpacity(
-                          duration: Duration(milliseconds: 400 + (index * 100)),
-                          opacity: 1.0,
-                          curve: Curves.easeInOut,
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: item is SidebarItemGroup
-                        ? item
-                        : SidebarItem(
-                            icon: item.icon,
-                            text: item.text,
-                            routeName: item.routeName,
-                            onTap: item.onTap,
-                          ),
-                  );
-                }),
-              ),
-            ),
-          ),
-        ));
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildAnimatedItems(TSidebarTheme sidebarTheme) {
+    return List.generate(items.length, (index) {
+      return TweenAnimationBuilder<Offset>(
+        tween: Tween<Offset>(
+          begin: Offset(isMinimized ? -0.5 : 0.25, 0),
+          end: Offset.zero,
+        ),
+        duration: Duration(milliseconds: 300 + (index * 80)),
+        curve: Curves.easeInOutCubic,
+        builder: (context, offset, child) {
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0.0, end: 1.0),
+            duration: Duration(milliseconds: 300 + (index * 80)),
+            curve: Curves.easeInOutCubic,
+            builder: (context, opacity, child) {
+              return Transform.translate(
+                offset: Offset(offset.dx * (isMinimized ? 30 : 100), 0),
+                child: Opacity(opacity: opacity, child: child),
+              );
+            },
+            child: child,
+          );
+        },
+        child: TSidebarItemWidget(
+          item: items[index],
+          isMinimized: isMinimized,
+          level: 0,
+          theme: sidebarTheme,
+        ),
+      );
+    });
   }
 }
