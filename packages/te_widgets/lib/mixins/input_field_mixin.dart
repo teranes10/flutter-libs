@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 enum TInputSize { sm, md, lg }
 
@@ -11,13 +11,14 @@ mixin TInputFieldMixin {
   String? get placeholder;
   String? get helperText;
   String? get message;
-  bool? get isRequired;
-  bool? get disabled;
+  bool get isRequired;
+  bool get disabled;
   TInputSize? get size;
   TInputColor? get color;
   BoxDecoration? get boxDecoration;
   Widget? get preWidget;
   Widget? get postWidget;
+  VoidCallback? get onTap;
 
   double get fieldHeight {
     switch (size) {
@@ -70,19 +71,7 @@ mixin TInputFieldMixin {
     }
   }
 
-  BoxDecoration getBoxDecoration({required bool isFocused, required bool hasErrors}) {
-    return BoxDecoration(
-      border: Border.all(
-        color: getBorderColor(isFocused: isFocused, hasErrors: hasErrors),
-        width: 1.0,
-      ),
-      borderRadius: BorderRadius.circular(6.0),
-      color: boxDecoration?.color ?? (disabled == true ? AppColors.grey.shade50 : Colors.white),
-      boxShadow: isFocused ? [BoxShadow(color: AppColors.grey.shade50, blurRadius: 3.0, spreadRadius: 3.0)] : null,
-    );
-  }
-
-  InputDecoration getInputDecoration() {
+  InputDecoration get inputDecoration {
     return InputDecoration(
       border: InputBorder.none,
       hintText: placeholder ?? label,
@@ -92,32 +81,14 @@ mixin TInputFieldMixin {
     );
   }
 
-  TextStyle getTextStyle() {
+  TextStyle get textStyle {
     return TextStyle(
       fontSize: fontSize,
       color: disabled == true ? AppColors.grey.shade400 : AppColors.grey.shade700,
     );
   }
 
-  Color getBorderColor({required bool isFocused, required bool hasErrors}) {
-    if (disabled == true) return AppColors.grey.shade200;
-    if (hasErrors) return AppColors.danger;
-
-    switch (color) {
-      case TInputColor.success:
-        return AppColors.success;
-      case TInputColor.error:
-        return AppColors.danger;
-      case TInputColor.info:
-        return AppColors.info;
-      case TInputColor.warning:
-        return AppColors.warning;
-      case null:
-        return isFocused ? AppColors.grey.shade300 : AppColors.grey.shade200;
-    }
-  }
-
-  Widget buildLabel() {
+  Widget get labelWidget {
     if (label == null && tag == null) return const SizedBox.shrink();
 
     return Padding(
@@ -152,7 +123,7 @@ mixin TInputFieldMixin {
     );
   }
 
-  Widget buildHelperText() {
+  Widget get helperTextWidget {
     if (helperText == null) return const SizedBox.shrink();
 
     return Padding(
@@ -164,7 +135,7 @@ mixin TInputFieldMixin {
     );
   }
 
-  Widget buildMessage() {
+  Widget get messageWidget {
     if (message == null) return const SizedBox.shrink();
 
     return Padding(
@@ -174,6 +145,40 @@ mixin TInputFieldMixin {
         style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: messageColor),
       ),
     );
+  }
+}
+
+mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
+  TInputFieldMixin get _widget => widget as TInputFieldMixin;
+
+  BoxDecoration getBoxDecoration({required bool isFocused, required bool hasErrors}) {
+    return BoxDecoration(
+      border: Border.all(
+        color: getBorderColor(isFocused: isFocused, hasErrors: hasErrors),
+        width: 1.0,
+      ),
+      borderRadius: BorderRadius.circular(6.0),
+      color: _widget.boxDecoration?.color ?? (_widget.disabled == true ? AppColors.grey.shade50 : Colors.white),
+      boxShadow: isFocused ? [BoxShadow(color: AppColors.grey.shade50, blurRadius: 3.0, spreadRadius: 3.0)] : null,
+    );
+  }
+
+  Color getBorderColor({required bool isFocused, required bool hasErrors}) {
+    if (_widget.disabled == true) return AppColors.grey.shade200;
+    if (hasErrors) return AppColors.danger;
+
+    switch (_widget.color) {
+      case TInputColor.success:
+        return AppColors.success;
+      case TInputColor.error:
+        return AppColors.danger;
+      case TInputColor.info:
+        return AppColors.info;
+      case TInputColor.warning:
+        return AppColors.warning;
+      case null:
+        return isFocused ? AppColors.grey.shade300 : AppColors.grey.shade200;
+    }
   }
 
   Widget buildValidationErrors(ValueNotifier<List<String>> errorsNotifier) {
@@ -193,49 +198,67 @@ mixin TInputFieldMixin {
     );
   }
 
-  Widget buildContainer(
-      {bool? isMultiline, isFocused, hasErrors, ValueNotifier<List<String>>? errorsNotifier, Widget? child, Widget? postWidget, Widget? preWidget}) {
-    return Column(
+  Widget buildContainer({
+    bool? isMultiline,
+    Widget? child,
+    Widget? postWidget,
+    Widget? preWidget,
+    VoidCallback? onTap,
+  }) {
+    TFocusStateMixin? focusWidget = this is TFocusStateMixin ? this as TFocusStateMixin : null;
+    TInputValidationStateMixin? validationMixin = this is TInputValidationStateMixin ? this as TInputValidationStateMixin : null;
+
+    final container = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        buildLabel(),
+        _widget.labelWidget,
         Container(
           constraints: BoxConstraints(
-            minHeight: fieldHeight,
-            maxHeight: isMultiline == true ? double.infinity : fieldHeight,
+            minHeight: _widget.fieldHeight,
+            maxHeight: isMultiline == true ? double.infinity : _widget.fieldHeight,
           ),
           decoration: getBoxDecoration(
-            isFocused: isFocused == true,
-            hasErrors: hasErrors == true,
+            isFocused: focusWidget?.isFocused == true,
+            hasErrors: validationMixin?.hasErrors == true,
           ),
           child: IntrinsicHeight(
             child: Row(
               children: [
-                if (this.preWidget != null)
+                if (_widget.preWidget != null)
                   Padding(
-                      padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, left: fieldPadding.left),
-                      child: Center(child: this.preWidget!)),
+                      padding: EdgeInsets.only(top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
+                      child: Center(child: _widget.preWidget!)),
                 if (preWidget != null)
                   Padding(
-                      padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, left: fieldPadding.left),
+                      padding: EdgeInsets.only(top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
                       child: Center(child: preWidget)),
-                Expanded(child: Padding(padding: fieldPadding, child: child)),
+                Expanded(child: Padding(padding: _widget.fieldPadding, child: child)),
                 if (postWidget != null)
                   Padding(
-                      padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, right: fieldPadding.right),
+                      padding: EdgeInsets.only(top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
                       child: Center(child: postWidget)),
-                if (this.postWidget != null)
+                if (_widget.postWidget != null)
                   Padding(
-                      padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, right: fieldPadding.right),
-                      child: Center(child: this.postWidget!)),
+                      padding: EdgeInsets.only(top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
+                      child: Center(child: _widget.postWidget!)),
               ],
             ),
           ),
         ),
-        buildHelperText(),
-        buildMessage(),
-        if (errorsNotifier != null) buildValidationErrors(errorsNotifier),
+        _widget.helperTextWidget,
+        _widget.messageWidget,
+        if (validationMixin?.errorsNotifier != null) buildValidationErrors(validationMixin!.errorsNotifier),
       ],
+    );
+
+    return Listener(
+      behavior: HitTestBehavior.opaque,
+      onPointerDown: (_) {
+        _widget.onTap?.call();
+        onTap?.call();
+        focusWidget?.focusNode.requestFocus();
+      },
+      child: container,
     );
   }
 }

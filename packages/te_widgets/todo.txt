@@ -1,11 +1,19 @@
-multi select scroll issue when choose scroll go to top
-multi select dropdown not align correctly when multi line tags
-select focus fix 
-select dropdown item start space fix (no need tick space, selected will little right)
 
-text field validation debounce
+accordion
+autocomplete
+checkbox 
+radio
+switch
+currency field
+file upload
+image
+menu
+toast
+tabs
+progressBar
 
-sidebar expand on sub level selected
-sidebar highlight background for current page
+date time picker, number field, table, select, tooltip optimize 
 
-tooltip overflow issues on left and right positions
+
+can optimize TSelectController logic in state notifier
+multi select not working

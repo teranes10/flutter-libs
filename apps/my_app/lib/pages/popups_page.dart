@@ -88,7 +88,7 @@ class _PopupsPageState extends State<PopupsPage> {
           const SizedBox(height: 12),
           const Text('— Position & Formatting'),
           const SizedBox(height: 16),
-          Wrap(spacing: 24, runSpacing: 24, alignment: WrapAlignment.center, children: [
+          Wrap(spacing: 24, runSpacing: 24, alignment: WrapAlignment.start, children: [
             TTooltip(
               message: 'Default tooltip',
               child: ElevatedButton(onPressed: () {}, child: const Text('Hover')),
@@ -118,7 +118,7 @@ class _PopupsPageState extends State<PopupsPage> {
 
           const Text('— Variants: Success, Warning, Error, Info'),
           const SizedBox(height: 16),
-          Wrap(spacing: 24, runSpacing: 24, alignment: WrapAlignment.center, children: [
+          Wrap(spacing: 24, runSpacing: 24, alignment: WrapAlignment.start, children: [
             TTooltip(
               message: 'Operation successful',
               color: AppColors.success,

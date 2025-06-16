@@ -8,7 +8,7 @@ class TCheckboxGroup<T> extends StatefulWidget {
   final List<TCheckboxGroupItem<T>> items;
   final String? label;
   final String? tag;
-  final bool required;
+  final bool isRequired;
   final bool inline;
   final String color;
   final TCheckboxSize size;
@@ -22,7 +22,7 @@ class TCheckboxGroup<T> extends StatefulWidget {
     required this.items,
     this.label,
     this.tag,
-    this.required = false,
+    this.isRequired = false,
     this.inline = true,
     this.color = 'primary',
     this.size = TCheckboxSize.medium,
@@ -97,7 +97,7 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>> {
                 color: Colors.grey.shade700,
               ),
             ),
-          if (widget.required)
+          if (widget.isRequired)
             const Text(
               ' *',
               style: TextStyle(

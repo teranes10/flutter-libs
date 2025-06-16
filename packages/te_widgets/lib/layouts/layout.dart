@@ -114,7 +114,7 @@ class _LayoutState extends State<Layout> {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(10, 25, 10, 20),
+      padding: const EdgeInsets.fromLTRB(10, 24, 10, 14),
       child: sizing.isMobile
           ? Wrap(
               alignment: WrapAlignment.start,

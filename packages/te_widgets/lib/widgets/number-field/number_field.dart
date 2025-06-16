@@ -9,7 +9,7 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
-  final bool? isRequired, disabled;
+  final bool isRequired, disabled;
   @override
   final TInputSize? size;
   @override
@@ -34,6 +34,8 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
   final ValueChanged<T>? onValueChanged;
   @override
   final FocusNode? focusNode;
+  @override
+  final VoidCallback? onTap;
 
   // NumberField specific properties
   final T? min, max, increment, decrement;
@@ -47,8 +49,8 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
     this.placeholder,
     this.helperText,
     this.message,
-    this.isRequired,
-    this.disabled,
+    this.isRequired = false,
+    this.disabled = false,
     this.size,
     this.color,
     this.boxDecoration,
@@ -68,6 +70,7 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
     this.decimals,
     this.showSteppers = true,
     this.skipValidation,
+    this.onTap,
   });
 
   @override
@@ -75,7 +78,11 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
 }
 
 class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
-    with TInputValueStateMixin<T, TNumberField<T>>, TFocusStateMixin<TNumberField<T>>, TInputValidationStateMixin<T, TNumberField<T>> {
+    with
+        TInputFieldStateMixin<TNumberField<T>>,
+        TInputValueStateMixin<T, TNumberField<T>>,
+        TFocusStateMixin<TNumberField<T>>,
+        TInputValidationStateMixin<T, TNumberField<T>> {
   late final TextEditingController _controller;
 
   @override
@@ -248,10 +255,7 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
 
   @override
   Widget build(BuildContext context) {
-    return widget.buildContainer(
-      isFocused: isFocused,
-      hasErrors: hasErrors,
-      errorsNotifier: errorsNotifier,
+    return buildContainer(
       postWidget: _buildPostWidget(),
       child: TextField(
         controller: _controller,
@@ -262,8 +266,8 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
         textInputAction: TextInputAction.next,
         cursorHeight: widget.fontSize + 2,
         textAlignVertical: TextAlignVertical.center,
-        style: widget.getTextStyle(),
-        decoration: widget.getInputDecoration(),
+        style: widget.textStyle,
+        decoration: widget.inputDecoration,
         onChanged: _onValueChanged,
       ),
     );

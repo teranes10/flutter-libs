@@ -9,7 +9,7 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
-  final bool? isRequired, disabled;
+  final bool isRequired, disabled;
   @override
   final TInputSize? size;
   @override
@@ -34,6 +34,8 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   final ValueChanged<String>? onValueChanged;
   @override
   final FocusNode? focusNode;
+  @override
+  final VoidCallback? onTap;
 
   // TextField specific properties
   final int? rows;
@@ -47,7 +49,6 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   final MaxLengthEnforcement? maxLengthEnforcement;
   final bool obscureText;
   final TextInputAction? textInputAction;
-  final void Function()? onTap;
   final bool? readOnly;
 
   const TTextField({
@@ -58,8 +59,8 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
     this.helperText,
     this.message,
     this.value,
-    this.isRequired,
-    this.disabled,
+    this.isRequired = false,
+    this.disabled = false,
     this.rows,
     this.size = TInputSize.md,
     this.color,
@@ -92,7 +93,11 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
 }
 
 class _TTextFieldState extends State<TTextField>
-    with TInputValueStateMixin<String, TTextField>, TFocusStateMixin<TTextField>, TInputValidationStateMixin<String, TTextField> {
+    with
+        TInputFieldStateMixin<TTextField>,
+        TInputValueStateMixin<String, TTextField>,
+        TFocusStateMixin<TTextField>,
+        TInputValidationStateMixin<String, TTextField> {
   late final TextEditingController _controller;
   late final bool _shouldDisposeController;
 
@@ -124,11 +129,8 @@ class _TTextFieldState extends State<TTextField>
   Widget build(BuildContext context) {
     final isMultiline = widget.rows != null && widget.rows! > 1;
 
-    return widget.buildContainer(
+    return buildContainer(
       isMultiline: isMultiline,
-      isFocused: isFocused,
-      hasErrors: hasErrors,
-      errorsNotifier: errorsNotifier,
       child: TextField(
         controller: _controller,
         focusNode: focusNode,
@@ -145,10 +147,9 @@ class _TTextFieldState extends State<TTextField>
         textInputAction: widget.textInputAction ?? (isMultiline ? TextInputAction.newline : TextInputAction.next),
         cursorHeight: widget.fontSize + 2,
         textAlignVertical: isMultiline ? TextAlignVertical.top : TextAlignVertical.center,
-        style: widget.getTextStyle(),
-        decoration: widget.getInputDecoration(),
+        style: widget.textStyle,
+        decoration: widget.inputDecoration,
         onChanged: notifyValueChanged,
-        onTap: widget.onTap,
         readOnly: widget.readOnly == true,
       ),
     );

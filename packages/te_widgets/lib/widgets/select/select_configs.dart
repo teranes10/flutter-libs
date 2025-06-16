@@ -53,35 +53,6 @@ typedef ItemValueAccessor<T, V> = V Function(T item);
 typedef ItemKeyAccessor<T> = String? Function(T item);
 typedef ItemChildrenAccessor<T> = List<T>? Function(T item);
 
-class TSelectItemCollector {
-  static List<TSelectItem<V>> getSelectedItems<V>(List<TSelectItem<V>> items) {
-    List<TSelectItem<V>> selected = [];
-
-    void collectSelected(List<TSelectItem<V>> items) {
-      for (final item in items) {
-        if (item.selected) {
-          selected.add(item);
-        }
-        if (item.hasChildren) {
-          collectSelected(item.children!);
-        }
-      }
-    }
-
-    collectSelected(items);
-    return selected;
-  }
-
-  static void clearAllSelections<V>(List<TSelectItem<V>> items) {
-    for (final item in items) {
-      item.selected = false;
-      if (item.hasChildren) {
-        clearAllSelections(item.children!);
-      }
-    }
-  }
-}
-
 class TSelectItemBuilder {
   static List<TSelectItem<V>> fromMap<V>(Map<String, V> items) {
     return items.entries

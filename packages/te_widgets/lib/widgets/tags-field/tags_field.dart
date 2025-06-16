@@ -10,7 +10,7 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
-  final bool? isRequired, disabled;
+  final bool isRequired, disabled;
   @override
   final TInputSize? size;
   @override
@@ -35,6 +35,8 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   final bool? skipValidation;
   @override
   final FocusNode? focusNode;
+  @override
+  final VoidCallback? onTap;
 
   // TagsField specific properties
   final String? inputValue;
@@ -56,8 +58,8 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
     this.helperText,
     this.message,
     this.value,
-    this.isRequired,
-    this.disabled,
+    this.isRequired = false,
+    this.disabled = false,
     this.size = TInputSize.md,
     this.color,
     this.boxDecoration,
@@ -80,6 +82,7 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
     this.onTagAdded,
     this.onTagRemoved,
     this.readOnly,
+    this.onTap,
   });
 
   @override
@@ -87,7 +90,11 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
 }
 
 class _TTagsFieldState extends State<TTagsField>
-    with TInputValueStateMixin<List<String>, TTagsField>, TFocusStateMixin<TTagsField>, TInputValidationStateMixin<List<String>, TTagsField> {
+    with
+        TInputFieldStateMixin<TTagsField>,
+        TInputValueStateMixin<List<String>, TTagsField>,
+        TFocusStateMixin<TTagsField>,
+        TInputValidationStateMixin<List<String>, TTagsField> {
   late final TextEditingController _controller;
   late final bool _shouldDisposeController;
 
@@ -171,11 +178,8 @@ class _TTagsFieldState extends State<TTagsField>
 
   @override
   Widget build(BuildContext context) {
-    return widget.buildContainer(
+    return buildContainer(
       isMultiline: true,
-      isFocused: isFocused,
-      hasErrors: hasErrors,
-      errorsNotifier: errorsNotifier,
       child: Wrap(
         spacing: 6.0,
         runSpacing: 6.0,
@@ -198,8 +202,8 @@ class _TTagsFieldState extends State<TTagsField>
                   cursorHeight: widget.fontSize + 2,
                   textInputAction: TextInputAction.unspecified,
                   textAlignVertical: TextAlignVertical.center,
-                  style: widget.getTextStyle(),
-                  decoration: widget.getInputDecoration(),
+                  style: widget.textStyle,
+                  decoration: widget.inputDecoration,
                   onChanged: _onInputChanged,
                   readOnly: widget.readOnly == true,
                 ),

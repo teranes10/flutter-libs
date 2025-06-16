@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/mixins/popup_mixin.dart';
 import 'package:te_widgets/mixins/focus_mixin.dart';
 import 'package:te_widgets/mixins/input_field_mixin.dart';
 import 'package:te_widgets/mixins/input_validation_mixin.dart';
@@ -9,11 +10,11 @@ import 'package:te_widgets/widgets/select/select_mixin.dart';
 import 'package:te_widgets/widgets/tags-field/tags_field.dart';
 
 class TMultiSelect<T, V> extends StatefulWidget
-    with TInputFieldMixin, TInputValueMixin<List<V>>, TFocusMixin, TInputValidationMixin<List<V>>, TSelectMixin<T, V> {
+    with TInputFieldMixin, TInputValueMixin<List<V>>, TFocusMixin, TInputValidationMixin<List<V>>, TPopupMixin, TSelectMixin<T, V> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
-  final bool? isRequired, disabled;
+  final bool isRequired, disabled;
   @override
   final TInputSize? size;
   @override
@@ -38,13 +39,15 @@ class TMultiSelect<T, V> extends StatefulWidget
   final ValueChanged<List<V>>? onValueChanged;
   @override
   final FocusNode? focusNode;
+  @override
+  final VoidCallback? onTap;
 
   @override
   final List<T> items;
   @override
   final bool multiLevel, filterable;
   @override
-  final double dropdownMaxHeight;
+  final double? dropdownMaxHeight;
   @override
   final String? footerMessage;
   @override
@@ -61,6 +64,9 @@ class TMultiSelect<T, V> extends StatefulWidget
   @override
   final ItemChildrenAccessor<T>? itemChildren;
 
+  @override
+  final IconData? selectedIcon;
+
   const TMultiSelect({
     super.key,
     this.label,
@@ -68,8 +74,8 @@ class TMultiSelect<T, V> extends StatefulWidget
     this.placeholder,
     this.helperText,
     this.message,
-    this.isRequired,
-    this.disabled,
+    this.isRequired = false,
+    this.disabled = false,
     this.size,
     this.color,
     this.boxDecoration,
@@ -85,7 +91,7 @@ class TMultiSelect<T, V> extends StatefulWidget
     required this.items,
     this.multiLevel = false,
     this.filterable = true,
-    this.dropdownMaxHeight = 200,
+    this.dropdownMaxHeight,
     this.footerMessage,
     this.onExpanded,
     this.onCollapsed,
@@ -94,6 +100,8 @@ class TMultiSelect<T, V> extends StatefulWidget
     this.itemValue,
     this.itemKey,
     this.itemChildren,
+    this.selectedIcon,
+    this.onTap,
   });
 
   @override
@@ -105,160 +113,118 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
         TInputValueStateMixin<List<V>, TMultiSelect<T, V>>,
         TFocusStateMixin<TMultiSelect<T, V>>,
         TInputValidationStateMixin<List<V>, TMultiSelect<T, V>>,
+        TPopupStateMixin<TMultiSelect<T, V>>,
         TSelectStateMixin<T, V, TMultiSelect<T, V>> {
   late TextEditingController _controller;
 
   @override
   bool get isMultiple => true;
 
+  bool readOnlyMode = true;
+
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
-
-    // Initialize common functionality
-    initializeCommon();
   }
 
   @override
   void didUpdateWidget(TMultiSelect<T, V> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    didUpdateItems(oldWidget.items);
 
     if (widget.value != oldWidget.value) {
       updateSelectedStates();
-
-      if (isExpanded) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && overlayEntry != null) {
-            rebuildDropdown();
-          }
-        });
-      }
     }
   }
 
   @override
   void dispose() {
-    disposeCommon();
     _controller.dispose();
     super.dispose();
   }
 
   @override
-  void onFocusChanged(bool hasFocus) {
-    super.onFocusChanged(hasFocus);
-
-    if (hasFocus && widget.filterable) {
-      _showDropdownWithSearch();
-    }
-  }
-
-  @override
   void updateSelectedStates() {
-    final selectedValues = widget.value ?? <V>[];
-    for (final item in internalItems) {
-      item.selected = selectedValues.contains(item.value);
-      if (item.hasChildren) {
-        updateChildrenSelection(item, selectedValues);
-      }
-    }
-    autoExpandParentsWithSelectedChildren();
+    stateNotifier.updateSelectedStates(widget.value != null ? widget.value! : []);
   }
 
   @override
   void onItemTapped(TSelectItem<V> item) {
-    setState(() {
-      item.selected = !item.selected;
-      final selectedItems = TSelectItemCollector.getSelectedItems(internalItems);
-      final selectedValues = selectedItems.map((item) => item.value as V).toList();
-      notifyValueChanged(selectedValues);
-    });
-
-    // Keep dropdown open and rebuild to show updated selections
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && overlayEntry != null) {
-        rebuildDropdown();
-      }
-    });
-  }
-
-  void _showDropdownWithSearch() {
-    _controller.clear();
-    focusNode.requestFocus();
-    showDropdown();
+    final selectedItems = stateNotifier.getSelectedItems();
+    final selectedValues = selectedItems.map((item) => item.value).toList();
+    notifyValueChanged(selectedValues);
   }
 
   @override
-  void hideDropdown() {
-    if (overlayEntry == null) return;
-
+  void showPopup() {
     _controller.clear();
-    super.hideDropdown();
-  }
+    super.showPopup();
 
-  List<String> _getSelectedTags() {
-    final selectedItems = TSelectItemCollector.getSelectedItems(internalItems);
-    return selectedItems.map((item) => item.text).toList();
-  }
-
-  void _onTagRemoved(String tag) {
-    final selectedItems = TSelectItemCollector.getSelectedItems(internalItems);
-    final itemToRemove = selectedItems.firstWhere(
-      (item) => item.text == tag,
-      orElse: () => selectedItems.first, // fallback, shouldn't happen
-    );
-
-    setState(() {
-      itemToRemove.selected = false;
-      final remainingSelectedItems = TSelectItemCollector.getSelectedItems(internalItems);
-      final selectedValues = remainingSelectedItems.map((item) => item.value as V).toList();
-      notifyValueChanged(selectedValues);
-    });
-
-    // Rebuild dropdown if it's open
-    if (isExpanded) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && overlayEntry != null) {
-          rebuildDropdown();
-        }
-      });
+    if (widget.filterable) {
+      readOnlyMode = false;
+      focusNode.requestFocus();
     }
   }
 
   @override
+  void hidePopup() {
+    setState(() {
+      readOnlyMode = true;
+      focusNode.unfocus();
+    });
+
+    super.hidePopup();
+    _controller.clear();
+    stateNotifier.onSearchChanged('');
+  }
+
+  List<String> _getSelectedTags() {
+    final selectedItems = stateNotifier.getSelectedItems();
+    return selectedItems.map((item) => item.text).toList();
+  }
+
+  void _onTagRemoved(String tag) {
+    final selectedItems = stateNotifier.getSelectedItems();
+    final itemToRemove = selectedItems.firstWhere(
+      (item) => item.text == tag,
+      orElse: () => selectedItems.first,
+    );
+
+    itemToRemove.selected = false;
+    final remainingSelectedItems = stateNotifier.getSelectedItems();
+    final selectedValues = remainingSelectedItems.map((item) => item.value).toList();
+    notifyValueChanged(selectedValues);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: layerLink,
-      child: GestureDetector(
-        key: selectKey,
-        onTap: toggleDropdown,
-        child: TTagsField(
-          skipValidation: true,
-          focusNode: focusNode,
-          label: widget.label,
-          tag: widget.tag,
-          placeholder: widget.placeholder,
-          helperText: widget.helperText,
-          message: widget.message,
-          isRequired: widget.isRequired,
-          disabled: widget.disabled == true,
-          readOnly: !widget.filterable,
-          size: widget.size,
-          color: widget.color,
-          controller: _controller,
-          inputValue: isExpanded && widget.filterable ? searchQuery : '',
-          value: _getSelectedTags(),
-          postWidget: widget.postWidget ??
-              Icon(
-                isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                size: 16,
-                color: Colors.grey.shade500,
-              ),
-          onInputChanged: widget.filterable && isExpanded ? onSearchChanged : null,
-          onTagRemoved: _onTagRemoved,
-          boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? AppColors.grey.shade50 : Colors.white),
-        ),
+    return buildWithDropdownTarget(
+      child: TTagsField(
+        onTap: togglePopup,
+        skipValidation: true,
+        focusNode: focusNode,
+        label: widget.label,
+        tag: widget.tag,
+        placeholder: widget.placeholder,
+        helperText: widget.helperText,
+        message: widget.message,
+        isRequired: widget.isRequired,
+        disabled: widget.disabled == true,
+        readOnly: !widget.filterable,
+        size: widget.size,
+        color: widget.color,
+        controller: _controller,
+        inputValue: isPopupShowing && widget.filterable ? stateNotifier.searchQuery : '',
+        value: _getSelectedTags(),
+        postWidget: widget.postWidget ??
+            Icon(
+              isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+              size: 16,
+              color: Colors.grey.shade500,
+            ),
+        onInputChanged: widget.filterable && isPopupShowing ? onSearchChanged : null,
+        onTagRemoved: _onTagRemoved,
+        boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? AppColors.grey.shade50 : Colors.white),
       ),
     );
   }

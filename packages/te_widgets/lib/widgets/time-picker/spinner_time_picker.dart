@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/configs/theme/theme_colors.dart';
 
-class TTimePickerSpinner extends StatefulWidget {
+class TSpinnerTimePicker extends StatefulWidget {
   final TimeOfDay time;
   final ValueChanged<TimeOfDay> onTimeChanged;
+  final bool reverseScroll;
 
-  const TTimePickerSpinner({
+  const TSpinnerTimePicker({
     super.key,
     required this.time,
     required this.onTimeChanged,
+    this.reverseScroll = true,
   });
 
   @override
-  State<TTimePickerSpinner> createState() => _TTimePickerSpinnerState();
+  State<TSpinnerTimePicker> createState() => _TSpinnerTimePickerState();
 }
 
-class _TTimePickerSpinnerState extends State<TTimePickerSpinner> {
+class _TSpinnerTimePickerState extends State<TSpinnerTimePicker> {
   late FixedExtentScrollController hourController;
   late FixedExtentScrollController minuteController;
   late int selectedHour;
@@ -56,12 +59,13 @@ class _TTimePickerSpinnerState extends State<TTimePickerSpinner> {
     return Expanded(
       child: Column(
         children: [
-          Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          Text(label, style: TextStyle(fontSize: 14, color: AppColors.grey.shade500)),
           const SizedBox(height: 8),
           Expanded(
             child: GestureDetector(
               onPanUpdate: (details) {
-                controller.jumpTo(controller.offset + details.delta.dy);
+                final offsetChange = widget.reverseScroll ? -details.delta.dy : details.delta.dy;
+                controller.jumpTo(controller.offset + offsetChange);
               },
               child: ListWheelScrollView.useDelegate(
                 controller: controller,
@@ -77,7 +81,7 @@ class _TTimePickerSpinnerState extends State<TTimePickerSpinner> {
                     return Container(
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: isSelected ? Colors.blue.withOpacity(0.1) : null,
+                        color: isSelected ? AppColors.primary.shade50 : null,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -85,7 +89,7 @@ class _TTimePickerSpinnerState extends State<TTimePickerSpinner> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? Colors.blue : Colors.black87,
+                          color: isSelected ? AppColors.primary.shade400 : AppColors.grey.shade600,
                         ),
                       ),
                     );
@@ -129,13 +133,6 @@ class _TTimePickerSpinnerState extends State<TTimePickerSpinner> {
                 onChanged: _onMinuteChanged,
               ),
             ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: Text(
-            '${selectedHour.toString().padLeft(2, '0')}:${selectedMinute.toString().padLeft(2, '0')}',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
         ),
       ],

@@ -7,7 +7,7 @@ import 'package:te_widgets/mixins/input_value_mixin.dart';
 mixin TInputValidationMixin<T> on TInputValueMixin<T>, TFocusMixin {
   List<String? Function(T?)>? get rules;
   List<String>? get errors;
-  bool? get isRequired;
+  bool get isRequired;
   Duration? get validationDebounce;
   bool? get skipValidation;
 
@@ -81,9 +81,12 @@ mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W>, TInpu
   }
 
   @override
-  void onValueChanged(value) {
-    _triggerValidationWithDebounce(value);
+  void onValueChanged(value, {bool initial = false}) {
     super.onValueChanged(value);
+
+    if (!initial) {
+      _triggerValidationWithDebounce(value);
+    }
   }
 
   @override

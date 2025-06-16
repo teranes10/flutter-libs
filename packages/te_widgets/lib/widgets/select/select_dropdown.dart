@@ -1,101 +1,94 @@
-// select_dropdown.dart
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'select_configs.dart';
+import 'package:te_widgets/widgets/select/select_configs.dart';
+import 'package:te_widgets/widgets/select/select_notifier.dart';
 
-class TSelectDropdown<V> extends StatefulWidget {
-  final List<TSelectItem<V>> items;
+class TSelectDropdown<T, V> extends StatefulWidget {
+  final TSelectStateNotifier<T, V> stateNotifier;
   final bool multiple;
   final double maxHeight;
   final String? footerMessage;
-  final ValueChanged<TSelectItem<V>> onItemTap;
-  final double? scrollPosition;
-  final ValueChanged<double>? onScrollPositionChanged;
+  final IconData? selectedIcon;
+  final ValueChanged<TSelectItem<V>> onItemTapped;
 
   const TSelectDropdown({
     super.key,
-    required this.items,
-    required this.onItemTap,
+    required this.stateNotifier,
+    required this.onItemTapped,
     this.multiple = false,
     this.maxHeight = 200.0,
     this.footerMessage,
-    this.scrollPosition,
-    this.onScrollPositionChanged,
+    this.selectedIcon = Icons.check,
   });
 
   @override
-  State<TSelectDropdown<V>> createState() => _TSelectDropdownState<V>();
+  State<TSelectDropdown<T, V>> createState() => _TSelectDropdownState<T, V>();
 }
 
-class _TSelectDropdownState<V> extends State<TSelectDropdown<V>> {
+class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
   late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController(
-      initialScrollOffset: widget.scrollPosition ?? 0.0,
-    );
+    _scrollController = ScrollController();
 
-    // Listen to scroll changes to preserve position
+    widget.stateNotifier.scrollPositionNotifier.addListener(_updateScrollPosition);
+
     _scrollController.addListener(() {
-      widget.onScrollPositionChanged?.call(_scrollController.offset);
+      widget.stateNotifier.updateScrollPosition(_scrollController.offset);
+
+      final position = _scrollController.position;
+      if (position.pixels >= position.maxScrollExtent) {
+        widget.stateNotifier.onScrollEnd();
+      }
     });
   }
 
-  @override
-  void didUpdateWidget(TSelectDropdown<V> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    // Restore scroll position after rebuild
-    if (widget.scrollPosition != null && _scrollController.hasClients && _scrollController.offset != widget.scrollPosition) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scrollController.hasClients) {
-          _scrollController.jumpTo(widget.scrollPosition!);
-        }
-      });
+  void _updateScrollPosition() {
+    if (_scrollController.hasClients) {
+      final targetPosition = widget.stateNotifier.scrollPositionNotifier.value;
+      if (_scrollController.offset != targetPosition) {
+        _scrollController.jumpTo(targetPosition);
+      }
     }
   }
 
   @override
   void dispose() {
+    widget.stateNotifier.scrollPositionNotifier.removeListener(_updateScrollPosition);
     _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 2,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        constraints: BoxConstraints(maxHeight: widget.maxHeight),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade100),
-        ),
-        child: widget.items.isEmpty
-            ? Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  widget.footerMessage ?? 'No items found',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
-                ),
-              )
-            : Scrollbar(
-                controller: _scrollController,
-                thumbVisibility: widget.items.length > 10,
-                child: ListView(
-                  controller: _scrollController,
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  children: _buildDropdownItems(context, widget.items, 0),
-                ),
+    return Container(
+      constraints: BoxConstraints(maxHeight: widget.maxHeight),
+      child: ValueListenableBuilder<List<TSelectItem<V>>>(
+        valueListenable: widget.stateNotifier.filteredItemsNotifier,
+        builder: (context, filteredItems, child) {
+          if (filteredItems.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                widget.footerMessage ?? 'No items found',
+                style: TextStyle(color: AppColors.grey.shade600, fontSize: 14),
               ),
+            );
+          }
+
+          return Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: filteredItems.length > 10,
+            child: ListView(
+              controller: _scrollController,
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: _buildDropdownItems(context, filteredItems, 0),
+            ),
+          );
+        },
       ),
     );
   }
@@ -116,77 +109,68 @@ class _TSelectDropdownState<V> extends State<TSelectDropdown<V>> {
   }
 
   Widget _buildDropdownItem(BuildContext context, TSelectItem<V> item, int level, int index) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      curve: Curves.easeInOut,
-      child: Listener(
-        behavior: HitTestBehavior.translucent,
-        onPointerDown: (_) => widget.onItemTap(item),
-        child: InkWell(
-          key: ValueKey('${item.key}_${item.selected}_${item.expanded}_$level'),
-          splashColor: AppColors.primary.shade100,
-          highlightColor: AppColors.primary.shade50,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            color: item.selected ? AppColors.primary.shade50 : Colors.transparent,
-            padding: EdgeInsets.only(left: (level * 18.0), right: 16.0, top: 10.0, bottom: 10.0),
-            child: Row(
-              children: [
-                // Selection indicator
-                if (widget.multiple)
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.only(right: 12, left: 12),
-                    child: Icon(
-                      item.selected ? Icons.check_box : Icons.check_box_outline_blank,
-                      size: 18,
-                      color: item.selected ? Theme.of(context).primaryColor : Colors.grey.shade400,
-                    ),
-                  )
-                else if (item.selected)
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.only(right: 12, left: 25),
-                    child: Icon(
-                      Icons.check,
-                      size: 18,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  )
-                else
-                  const SizedBox(width: 25),
-
-                // Item text
-                Expanded(
-                  child: AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 200),
-                    style: TextStyle(
-                      fontSize: 13.6,
-                      color: item.selected ? AppColors.primary : AppColors.grey.shade700,
-                      fontWeight: item.selected ? FontWeight.w500 : FontWeight.w400,
-                    ),
-                    child: Text(
-                      item.text,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
+    return InkWell(
+      key: ValueKey('${item.key}_${item.selected}_${item.expanded}_$level'),
+      onTap: () {
+        widget.stateNotifier.onItemTapped(item);
+        widget.onItemTapped(item);
+      },
+      splashColor: AppColors.primary.shade100,
+      highlightColor: AppColors.primary.shade50,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        color: item.selected ? AppColors.primary.shade50 : Colors.transparent,
+        padding: EdgeInsets.only(left: (level * 18.0), right: 16.0, top: 10.0, bottom: 10.0),
+        child: Row(
+          children: [
+            // Selection indicator
+            if (widget.multiple)
+              Container(
+                margin: const EdgeInsets.only(right: 12, left: 12),
+                child: Icon(
+                  item.selected ? Icons.check_box : Icons.check_box_outline_blank,
+                  size: 18,
+                  color: item.selected ? Theme.of(context).primaryColor : AppColors.grey.shade400,
                 ),
+              )
+            else if (item.selected && widget.selectedIcon != null)
+              Container(
+                margin: const EdgeInsets.only(right: 12, left: 25),
+                child: Icon(
+                  widget.selectedIcon,
+                  size: 18,
+                  color: Theme.of(context).primaryColor,
+                ),
+              )
+            else
+              const SizedBox(width: 25),
 
-                // Expansion indicator for multi-level items
-                if (item.isMultiLevel)
-                  AnimatedRotation(
-                    turns: item.expanded ? 0.25 : 0.0, // 90 degrees when expanded
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      Icons.keyboard_arrow_right,
-                      size: 18,
-                      color: Colors.grey.shade500,
-                    ),
-                  ),
-              ],
+            // Item text
+            Expanded(
+              child: Text(
+                item.text,
+                style: TextStyle(
+                  fontSize: 13.6,
+                  color: item.selected ? Theme.of(context).primaryColor : AppColors.grey.shade700,
+                  fontWeight: item.selected ? FontWeight.w500 : FontWeight.w400,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ),
-          ),
+
+            // Expansion indicator for multi-level items
+            if (item.isMultiLevel)
+              AnimatedRotation(
+                turns: item.expanded ? 0.25 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.keyboard_arrow_right,
+                  size: 18,
+                  color: AppColors.grey.shade500,
+                ),
+              ),
+          ],
         ),
       ),
     );

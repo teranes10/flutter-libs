@@ -113,8 +113,11 @@ class _PaginationState extends State<TPagination> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 4,
+      runSpacing: 4,
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         // First page button
         _PaginationIconButton(
@@ -122,44 +125,26 @@ class _PaginationState extends State<TPagination> {
           isEnabled: _hasFirstPage,
           onPressed: _gotoFirstPage,
         ),
-        const SizedBox(width: 4),
-
         // Previous page button
         _PaginationIconButton(
           icon: Icons.chevron_left,
           isEnabled: _hasPreviousPage,
           onPressed: _gotoPreviousPage,
         ),
-        const SizedBox(width: 4),
-
         // Page numbers
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: _visiblePages.map((page) {
-            if (page == '...') {
-              return const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Text('...'),
-              );
-            } else {
-              return _PaginationNumberButton(
-                number: page,
-                isActive: page == _currentPage,
-                onPressed: () => _gotoPage(page),
-              );
-            }
-          }).toList(),
-        ),
-        const SizedBox(width: 4),
-
+        ..._visiblePages.map((page) {
+          if (page == '...') {
+            return const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('...'));
+          } else {
+            return _PaginationNumberButton(number: page, isActive: page == _currentPage, onPressed: () => _gotoPage(page));
+          }
+        }),
         // Next page button
         _PaginationIconButton(
           icon: Icons.chevron_right,
           isEnabled: _hasNextPage,
           onPressed: _gotoNextPage,
         ),
-        const SizedBox(width: 4),
-
         // Last page button
         _PaginationIconButton(
           icon: Icons.last_page,
@@ -210,34 +195,21 @@ class _PaginationNumberButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 2),
-      child: Material(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-          side: isActive
-              ? BorderSide(
-                  color: AppColors.primary[200]!,
-                )
-              : BorderSide.none,
-        ),
-        color: isActive ? AppColors.primary[50] : Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(6),
-          onTap: onPressed,
-          child: SizedBox(
-            width: 36,
-            height: 36,
-            child: Center(
-              child: Text(
-                number.toString(),
-                style: TextStyle(
-                  fontWeight: FontWeight.normal,
-                  color: isActive ? AppColors.primary : AppColors.grey[600],
-                ),
-              ),
-            ),
-          ),
+    return Material(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6),
+        side: isActive ? BorderSide(color: AppColors.primary[200]!) : BorderSide.none,
+      ),
+      color: isActive ? AppColors.primary[50] : Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: onPressed,
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Center(
+              child: Text(number.toString(),
+                  style: TextStyle(fontWeight: FontWeight.normal, color: isActive ? AppColors.primary : AppColors.grey[600]))),
         ),
       ),
     );

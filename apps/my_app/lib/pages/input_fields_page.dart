@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/extensions/date_time_extensions.dart';
+import 'package:te_widgets/te_widgets.dart';
 import 'package:te_widgets/widgets/number-field/number_field.dart';
-import 'package:te_widgets/widgets/text-field/text_field.dart';
 import 'package:te_widgets/widgets/tags-field/tags_field.dart';
+import 'package:te_widgets/widgets/text-field/text_field.dart';
+import 'package:te_widgets/widgets/date-picker/date_picker.dart';
+import 'package:te_widgets/widgets/time-picker/clock_time_picker.dart';
+import 'package:te_widgets/widgets/time-picker/time_picker.dart';
+import 'package:te_widgets/widgets/date-time-picker/date_time_picker.dart';
 
 class InputFieldsPage extends StatefulWidget {
   const InputFieldsPage({super.key});
@@ -46,6 +52,24 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             label: "Price",
             decimals: 2,
             rules: [(value) => value == null || value < 100 ? 'Value must be greater than 100' : null],
+          ),
+          TDatePicker(
+            label: 'Select Date',
+            placeholder: 'Choose a date',
+          ),
+          TTimePicker(
+            label: 'Select Time',
+            placeholder: 'Choose a time',
+          ),
+          TDateTimePicker(
+            label: 'Select Date & Time',
+            placeholder: 'Choose date and time',
+          ),
+          TButton(
+            text: 'time',
+            onPressed: (_) {
+              showTimePicker(context: context, initialEntryMode: TimePickerEntryMode.dialOnly, initialTime: DateTime.now().toTimeOfDay);
+            },
           ),
         ],
       ),

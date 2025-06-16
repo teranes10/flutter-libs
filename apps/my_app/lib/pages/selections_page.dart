@@ -36,7 +36,7 @@ class _SelectionsPageState extends State<SelectionsPage> {
           // Checkbox group
           TCheckboxGroup<String>(
             label: 'Select fruits',
-            required: true,
+            isRequired: true,
             modelValue: selectedFruits,
             onChanged: (values) => setState(() => selectedFruits = values),
             items: const [

@@ -84,7 +84,7 @@ class TModal extends StatelessWidget {
                   ),
                 ),
           ),
-          if (config.showCloseButton == true) _CloseIcon(onClose: onClose),
+          if (config.showCloseButton == true) CloseIconButton(onClose: onClose),
         ],
       ),
     );
@@ -98,16 +98,16 @@ class TModal extends StatelessWidget {
   }
 }
 
-class _CloseIcon extends StatefulWidget {
+class CloseIconButton extends StatefulWidget {
   final VoidCallback onClose;
 
-  const _CloseIcon({required this.onClose});
+  const CloseIconButton({required this.onClose});
 
   @override
-  State<_CloseIcon> createState() => _CloseIconState();
+  State<CloseIconButton> createState() => CloseIconButtonState();
 }
 
-class _CloseIconState extends State<_CloseIcon> {
+class CloseIconButtonState extends State<CloseIconButton> {
   bool _isHovering = false;
 
   @override

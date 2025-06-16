@@ -3,7 +3,6 @@ import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select.dart';
 import 'package:te_widgets/widgets/select/multi_select.dart';
-import 'package:te_widgets/widgets/autocomplete/autocomplete.dart';
 
 class SelectFieldsPage extends StatefulWidget {
   const SelectFieldsPage({super.key});
@@ -13,19 +12,42 @@ class SelectFieldsPage extends StatefulWidget {
 }
 
 class _SelectFieldsPageState extends State<SelectFieldsPage> {
-  String? singleValue;
+  String? singleValue = 'CA';
   User? selectedUser;
   List<User>? selectedUsers;
   List<String> multiValue = ['Flutter Development'];
   final countries = TSelectItemBuilder.fromMap({
     'United States': 'US',
     'Canada': 'CA',
+    'Mexico': 'MX',
+    'Brazil': 'BR',
+    'Argentina': 'AR',
+    'United Kingdom': 'GB',
+    'Germany': 'DE',
+    'France': 'FR',
+    'Italy': 'IT',
+    'Spain': 'ES',
+    'India': 'IN',
+    'China': 'CN',
+    'Japan': 'JP',
+    'South Korea': 'KR',
+    'Australia': 'AU',
+    'New Zealand': 'NZ',
+    'South Africa': 'ZA',
   });
 
   final skills = [
     'Flutter Development',
     'Android Development',
     'iOS Development',
+    'Dart Programming',
+    'Firebase Integration',
+    'RESTful API Integration',
+    'State Management (Provider, Riverpod, Bloc)',
+    'Cross-Platform App Architecture',
+    'Unit & Widget Testing',
+    'Material Design Implementation',
+    'App Store & Play Store Deployment',
   ];
 
   final users = [
@@ -117,7 +139,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           ]),
           multiLevel: true,
           value: 'mobile',
-          // onValueChanged: (v) => debugPrint('Selected: $v'),
+          onValueChanged: (v) => debugPrint('Selected: $v'),
         ),
         const SizedBox(height: 20),
       ],
