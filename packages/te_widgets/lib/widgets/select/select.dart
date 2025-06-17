@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/mixins/pagination_mixin.dart';
 import 'package:te_widgets/mixins/popup_mixin.dart';
 import 'package:te_widgets/mixins/focus_mixin.dart';
 import 'package:te_widgets/mixins/input_field_mixin.dart';
@@ -10,7 +11,7 @@ import 'package:te_widgets/widgets/select/select_mixin.dart';
 import 'package:te_widgets/widgets/text-field/text_field.dart';
 
 class TSelect<T, V> extends StatefulWidget
-    with TInputFieldMixin, TInputValueMixin<V>, TFocusMixin, TInputValidationMixin<V>, TPopupMixin, TSelectMixin<T, V> {
+    with TInputFieldMixin, TInputValueMixin<V>, TFocusMixin, TInputValidationMixin<V>, TPopupMixin, TPaginationMixin<T>, TSelectMixin<T, V> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
@@ -50,11 +51,9 @@ class TSelect<T, V> extends StatefulWidget
   final String? footerMessage;
 
   @override
-  final double? dropdownMaxHeight;
+  final VoidCallback? onShow;
   @override
-  final VoidCallback? onExpanded;
-  @override
-  final VoidCallback? onCollapsed;
+  final VoidCallback? onHide;
 
   @override
   final ItemTextAccessor<T>? itemText;
@@ -67,6 +66,19 @@ class TSelect<T, V> extends StatefulWidget
 
   @override
   final IconData? selectedIcon;
+
+  @override
+  final int itemsPerPage;
+  @override
+  final List<int> itemsPerPageOptions;
+  @override
+  final bool loading;
+  @override
+  final TLoadListener<T>? onLoad;
+  @override
+  final String? search;
+  @override
+  final int searchDelay;
 
   const TSelect({
     super.key,
@@ -89,13 +101,12 @@ class TSelect<T, V> extends StatefulWidget
     this.valueNotifier,
     this.onValueChanged,
     this.focusNode,
-    required this.items,
+    this.items = const [], // Provide default empty list
     this.multiLevel = false,
     this.filterable = true,
-    this.dropdownMaxHeight,
     this.footerMessage,
-    this.onExpanded,
-    this.onCollapsed,
+    this.onShow,
+    this.onHide,
     this.skipValidation,
     this.itemText,
     this.itemValue,
@@ -103,6 +114,13 @@ class TSelect<T, V> extends StatefulWidget
     this.itemChildren,
     this.selectedIcon = Icons.check,
     this.onTap,
+    // Server-side pagination
+    this.onLoad,
+    this.itemsPerPage = 10,
+    this.itemsPerPageOptions = const [],
+    this.loading = false,
+    this.search,
+    this.searchDelay = 300,
   });
 
   @override
@@ -115,14 +133,13 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
         TFocusStateMixin<TSelect<T, V>>,
         TInputValidationStateMixin<V, TSelect<T, V>>,
         TPopupStateMixin<TSelect<T, V>>,
+        TPaginationStateMixin<T, TSelect<T, V>>,
         TSelectStateMixin<T, V, TSelect<T, V>> {
   late TextEditingController _controller;
   String _displayTextBeforeExpansion = '';
 
   @override
   bool get isMultiple => false;
-
-  bool readOnlyMode = true;
 
   @override
   void initState() {
@@ -154,6 +171,10 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
 
   @override
   void onItemTapped(TSelectItem<V> item) {
+    if (item.hasChildren) {
+      return;
+    }
+    print('__ item $item');
     notifyValueChanged(item.value);
     _updateDisplayText();
     hidePopup();
@@ -171,34 +192,43 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
   }
 
   @override
-  void showPopup() {
-    _displayTextBeforeExpansion = _controller.text;
-    _controller.clear();
-    super.showPopup();
+  void onFocusChanged(bool hasFocus) {
+    super.onFocusChanged(hasFocus);
 
-    if (widget.filterable) {
-      readOnlyMode = false;
-      focusNode.requestFocus();
+    if (hasFocus) {
+      showPopup();
+    } else {
+      hidePopup();
     }
   }
 
   @override
-  void hidePopup() {
-    setState(() {
-      readOnlyMode = true;
-      focusNode.unfocus();
-    });
+  void showPopup() {
+    _displayTextBeforeExpansion = _controller.text;
+    if (widget.filterable) {
+      _controller.clear();
+    }
+    super.showPopup();
+  }
 
+  @override
+  void hidePopup() {
     super.hidePopup();
     _controller.text = _displayTextBeforeExpansion;
-    stateNotifier.onSearchChanged('');
+    if (serverSideRendering) {
+      // Reset search for server-side rendering
+      super.onSearchChanged('');
+    } else {
+      // Reset search for client-side filtering
+      stateNotifier.onSearchChanged('');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return buildWithDropdownTarget(
       child: TTextField(
-        onTap: togglePopup,
+        onTap: !widget.filterable ? togglePopup : null,
         skipValidation: true,
         focusNode: focusNode,
         label: widget.label,
@@ -207,12 +237,12 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
         helperText: widget.helperText,
         message: widget.message,
         isRequired: widget.isRequired,
-        readOnly: readOnlyMode,
+        readOnly: !widget.filterable,
         disabled: widget.disabled == true,
         size: widget.size,
         color: widget.color,
         controller: _controller,
-        value: isPopupShowing && widget.filterable ? stateNotifier.searchQuery : _controller.text,
+        value: isPopupShowing && widget.filterable ? (stateNotifier.searchQuery) : _controller.text,
         preWidget: widget.preWidget,
         postWidget:
             widget.postWidget ?? Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: AppColors.grey.shade500),

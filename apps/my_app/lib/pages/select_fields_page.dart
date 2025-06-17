@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/clients/posts_client.dart';
+import 'package:my_app/models/post_dto.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select.dart';
@@ -142,6 +144,16 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           onValueChanged: (v) => debugPrint('Selected: $v'),
         ),
         const SizedBox(height: 20),
+        TSelect<PostDto, PostDto>(
+          label: 'Server side rendering',
+          items: [],
+          onLoad: (o) async {
+            print('__select on load ${o.page}, ${o.itemsPerPage}, ${o.search}');
+            final pair = await PostsClient().fetchPosts(start: o.offset, limit: o.itemsPerPage);
+            o.callback(pair.$1, pair.$2);
+          },
+          itemText: (x) => x.title,
+        )
       ],
     );
   }

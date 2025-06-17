@@ -1,13 +1,13 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/mixins/input_field_mixin.dart';
 import 'package:te_widgets/mixins/popup_mixin.dart';
+import 'package:te_widgets/mixins/pagination_mixin.dart';
+import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select_dropdown.dart';
 import 'package:te_widgets/widgets/select/select_notifier.dart';
-import 'select_configs.dart';
+import 'dart:math' as math;
 
-mixin TSelectMixin<T, V> on TInputFieldMixin, TPopupMixin {
-  List<T> get items;
+mixin TSelectMixin<T, V> on TInputFieldMixin, TPopupMixin, TPaginationMixin<T> {
   bool get multiLevel;
   bool get filterable;
   String? get footerMessage;
@@ -19,8 +19,8 @@ mixin TSelectMixin<T, V> on TInputFieldMixin, TPopupMixin {
   IconData? get selectedIcon;
 }
 
-mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupStateMixin<W> {
-  TSelectMixin<T, V> get _widget => widget as TSelectMixin<T, V>;
+mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupStateMixin<W>, TPaginationStateMixin<T, W> {
+  TSelectMixin<T, V> get _selectWidget => widget as TSelectMixin<T, V>;
 
   late TSelectStateNotifier<T, V> stateNotifier;
 
@@ -29,64 +29,122 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
   @override
   void initState() {
     super.initState();
+
     stateNotifier = TSelectStateNotifier<T, V>(
-      items: _widget.items,
       isMultiple: isMultiple,
-      itemText: _widget.itemText,
-      itemValue: _widget.itemValue,
-      itemKey: _widget.itemKey,
-      itemChildren: _widget.itemChildren,
-      label: _widget.label,
+      itemText: _selectWidget.itemText,
+      itemValue: _selectWidget.itemValue,
+      itemKey: _selectWidget.itemKey,
+      itemChildren: _selectWidget.itemChildren,
+      label: _selectWidget.label,
     );
 
+    // Listen to pagination changes and update select items
+    itemsNotifier.addListener(_onPaginatedItemsChanged);
+    loadingNotifier.addListener(_onLoadingStateChanged);
+
+    // Initialize with current items
+    _updateSelectItems();
     updateSelectedStates();
   }
 
   @override
   void didUpdateWidget(W oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     final oldSelectWidget = oldWidget as TSelectMixin<T, V>;
-    if (_widget.items != oldSelectWidget.items) {
-      stateNotifier.updateItems(_widget.items);
+    if (_selectWidget.items != oldSelectWidget.items) {
+      _updateSelectItems();
       updateSelectedStates();
     }
   }
 
   @override
   void dispose() {
+    itemsNotifier.removeListener(_onPaginatedItemsChanged);
+    loadingNotifier.removeListener(_onLoadingStateChanged);
     stateNotifier.dispose();
     super.dispose();
   }
 
-  @override
-  double getContentHeight() {
-    const double itemHeight = 50.0;
-    const double padding = 16.0;
-    const double footerHeight = 24.0;
+  void _onPaginatedItemsChanged() {
+    _updateSelectItems();
+  }
 
-    int visibleItemCount = stateNotifier.countVisibleItems(stateNotifier.filteredItems);
-    double estimatedHeight = visibleItemCount * itemHeight + padding;
-
-    if (_widget.footerMessage?.isNotEmpty == true) {
-      estimatedHeight += footerHeight;
+  void _onLoadingStateChanged() {
+    // Force rebuild when loading state changes
+    if (mounted) {
+      setState(() {});
     }
+  }
 
-    return math.min(estimatedHeight, _widget.dropdownMaxHeight ?? 200);
+  void _updateSelectItems() {
+    if (serverSideRendering) {
+      // For server-side rendering, use paginated items
+      stateNotifier.updateFilteredItems(paginatedItems);
+    } else {
+      // For client-side, use all items and let select notifier handle filtering
+      stateNotifier.updateItems(items);
+    }
+  }
+
+  @override
+  double get contentMaxHeight {
+    const double itemHeight = 50.0;
+    const double padding = 12.0;
+
+    double estimatedHeight = (itemHeight * 5) + padding;
+
+    return estimatedHeight;
   }
 
   @override
   Widget getContentWidget() {
     return TSelectDropdown<T, V>(
       stateNotifier: stateNotifier,
-      footerMessage: _widget.footerMessage,
+      footerMessage: _selectWidget.footerMessage,
       multiple: isMultiple,
-      selectedIcon: _widget.selectedIcon,
+      selectedIcon: _selectWidget.selectedIcon,
       onItemTapped: onItemTapped,
+      // Pass pagination state to dropdown
+      showLoadingIndicator: serverSideRendering,
+      loading: loading,
+      onScrollEnd: serverSideRendering ? onScrollEnd : null,
+      maxHeight: 200,
     );
   }
 
+  @override
   void onSearchChanged(String value) {
-    stateNotifier.onSearchChanged(value);
+    if (serverSideRendering) {
+      // Use pagination mixin's search functionality for server-side
+      super.onSearchChanged(value);
+    } else {
+      // Use select notifier's local filtering for client-side
+      stateNotifier.onSearchChanged(value);
+    }
+  }
+
+  @override
+  void showPopup() {
+    super.showPopup();
+
+    // If server-side rendering and no items loaded yet, trigger initial load
+    if (serverSideRendering && paginatedItems.isEmpty && !loading) {
+      refresh();
+    }
+  }
+
+  // Override pagination methods to work with select
+  @override
+  void refresh() {
+    super.refresh();
+    // Update select items after refresh
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _updateSelectItems();
+      }
+    });
   }
 
   void updateSelectedStates();

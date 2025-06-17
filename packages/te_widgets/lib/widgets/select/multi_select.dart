@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/mixins/pagination_mixin.dart';
 import 'package:te_widgets/mixins/popup_mixin.dart';
 import 'package:te_widgets/mixins/focus_mixin.dart';
 import 'package:te_widgets/mixins/input_field_mixin.dart';
@@ -10,7 +11,14 @@ import 'package:te_widgets/widgets/select/select_mixin.dart';
 import 'package:te_widgets/widgets/tags-field/tags_field.dart';
 
 class TMultiSelect<T, V> extends StatefulWidget
-    with TInputFieldMixin, TInputValueMixin<List<V>>, TFocusMixin, TInputValidationMixin<List<V>>, TPopupMixin, TSelectMixin<T, V> {
+    with
+        TInputFieldMixin,
+        TInputValueMixin<List<V>>,
+        TFocusMixin,
+        TInputValidationMixin<List<V>>,
+        TPopupMixin,
+        TPaginationMixin<T>,
+        TSelectMixin<T, V> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
@@ -46,14 +54,13 @@ class TMultiSelect<T, V> extends StatefulWidget
   final List<T> items;
   @override
   final bool multiLevel, filterable;
-  @override
-  final double? dropdownMaxHeight;
+
   @override
   final String? footerMessage;
   @override
-  final VoidCallback? onExpanded;
+  final VoidCallback? onShow;
   @override
-  final VoidCallback? onCollapsed;
+  final VoidCallback? onHide;
 
   @override
   final ItemTextAccessor<T>? itemText;
@@ -66,6 +73,19 @@ class TMultiSelect<T, V> extends StatefulWidget
 
   @override
   final IconData? selectedIcon;
+
+  @override
+  final int itemsPerPage;
+  @override
+  final List<int> itemsPerPageOptions;
+  @override
+  final bool loading;
+  @override
+  final TLoadListener<T>? onLoad;
+  @override
+  final String? search;
+  @override
+  final int searchDelay;
 
   const TMultiSelect({
     super.key,
@@ -91,10 +111,9 @@ class TMultiSelect<T, V> extends StatefulWidget
     required this.items,
     this.multiLevel = false,
     this.filterable = true,
-    this.dropdownMaxHeight,
     this.footerMessage,
-    this.onExpanded,
-    this.onCollapsed,
+    this.onShow,
+    this.onHide,
     this.skipValidation,
     this.itemText,
     this.itemValue,
@@ -102,6 +121,13 @@ class TMultiSelect<T, V> extends StatefulWidget
     this.itemChildren,
     this.selectedIcon,
     this.onTap,
+    // Server-side pagination
+    this.onLoad,
+    this.itemsPerPage = 10,
+    this.itemsPerPageOptions = const [],
+    this.loading = false,
+    this.search,
+    this.searchDelay = 300,
   });
 
   @override
@@ -114,13 +140,14 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
         TFocusStateMixin<TMultiSelect<T, V>>,
         TInputValidationStateMixin<List<V>, TMultiSelect<T, V>>,
         TPopupStateMixin<TMultiSelect<T, V>>,
+        TPaginationStateMixin<T, TMultiSelect<T, V>>,
         TSelectStateMixin<T, V, TMultiSelect<T, V>> {
   late TextEditingController _controller;
 
   @override
   bool get isMultiple => true;
-
-  bool readOnlyMode = true;
+  @override
+  bool get persistent => true;
 
   @override
   void initState() {
@@ -153,26 +180,25 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
     final selectedItems = stateNotifier.getSelectedItems();
     final selectedValues = selectedItems.map((item) => item.value).toList();
     notifyValueChanged(selectedValues);
+    focusNode.requestFocus();
+  }
+
+  @override
+  void onFocusChanged(bool hasFocus) {
+    super.onFocusChanged(hasFocus);
+    if (hasFocus && !isPopupShowing) {
+      showPopup();
+    }
   }
 
   @override
   void showPopup() {
     _controller.clear();
     super.showPopup();
-
-    if (widget.filterable) {
-      readOnlyMode = false;
-      focusNode.requestFocus();
-    }
   }
 
   @override
   void hidePopup() {
-    setState(() {
-      readOnlyMode = true;
-      focusNode.unfocus();
-    });
-
     super.hidePopup();
     _controller.clear();
     stateNotifier.onSearchChanged('');
@@ -200,7 +226,7 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
   Widget build(BuildContext context) {
     return buildWithDropdownTarget(
       child: TTagsField(
-        onTap: togglePopup,
+        onTap: !widget.filterable ? togglePopup : null,
         skipValidation: true,
         focusNode: focusNode,
         label: widget.label,

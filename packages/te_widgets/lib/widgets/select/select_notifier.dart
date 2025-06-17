@@ -1,9 +1,7 @@
-import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:te_widgets/widgets/select/select_configs.dart';
 
 class TSelectStateNotifier<T, V> extends ChangeNotifier {
-  final List<T> _originalItems;
   final ItemTextAccessor<T>? itemText;
   final ItemValueAccessor<T, V>? itemValue;
   final ItemKeyAccessor<T>? itemKey;
@@ -15,23 +13,20 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
   List<TSelectItem<V>> _filteredItems = [];
   String _searchQuery = '';
   double _scrollPosition = 0.0;
-  Timer? _debounceTimer;
 
+  // Notifiers for reactive updates
   final ValueNotifier<List<TSelectItem<V>>> filteredItemsNotifier = ValueNotifier([]);
   final ValueNotifier<String> searchQueryNotifier = ValueNotifier('');
   final ValueNotifier<double> scrollPositionNotifier = ValueNotifier(0.0);
 
   TSelectStateNotifier({
-    required List<T> items,
     required this.isMultiple,
     this.itemText,
     this.itemValue,
     this.itemKey,
     this.itemChildren,
     this.label,
-  }) : _originalItems = items {
-    _initializeItems();
-  }
+  });
 
   // Getters
   List<TSelectItem<V>> get internalItems => _internalItems;
@@ -39,24 +34,47 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   double get scrollPosition => _scrollPosition;
 
-  void _initializeItems() {
-    _internalItems = _originalItems.map(_convertToSelectItem).toList();
-    _filteredItems = List.from(_internalItems);
-    filteredItemsNotifier.value = _filteredItems;
+  void updateItems(List<T> items) {
+    _internalItems = items.map(_convertToSelectItem).toList();
+    _applyFiltering();
   }
 
-  void updateItems(List<T> newItems) {
-    if (!listEquals(_originalItems, newItems)) {
-      _originalItems.clear();
-      _originalItems.addAll(newItems);
-      _initializeItems();
+  void updateFilteredItems(List<T> items) {
+    _filteredItems = items.map(_convertToSelectItem).toList();
+
+    // Preserve selection states from internal items
+    _preserveSelectionStates();
+
+    filteredItemsNotifier.value = List.from(_filteredItems);
+    notifyListeners();
+  }
+
+  void _preserveSelectionStates() {
+    for (final filteredItem in _filteredItems) {
+      final internalItem = _findItemByKey(_internalItems, filteredItem.key);
+      if (internalItem != null) {
+        filteredItem.selected = internalItem.selected;
+        filteredItem.expanded = internalItem.expanded;
+      }
     }
+  }
+
+  TSelectItem<V>? _findItemByKey(List<TSelectItem<V>> items, String key) {
+    for (final item in items) {
+      if (item.key == key) return item;
+      if (item.hasChildren) {
+        final found = _findItemByKey(item.children!, key);
+        if (found != null) return found;
+      }
+    }
+    return null;
   }
 
   void updateSelectedStates(List<V> selectedValues) {
     _updateSelectedStatesRecursive(_internalItems, selectedValues);
     _updateSelectedStatesRecursive(_filteredItems, selectedValues);
     filteredItemsNotifier.value = List.from(_filteredItems);
+    notifyListeners();
   }
 
   bool _updateSelectedStatesRecursive(List<TSelectItem<V>> items, List<V> selectedValues) {
@@ -81,25 +99,22 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
   }
 
   void onSearchChanged(String query) {
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-      _filterItems(query);
-    });
-  }
-
-  void _filterItems(String query) {
     _searchQuery = query;
     searchQueryNotifier.value = query;
+    _applyFiltering();
+  }
 
-    if (query.isEmpty) {
+  void _applyFiltering() {
+    if (_searchQuery.isEmpty) {
       _filteredItems = List.from(_internalItems);
     } else {
       _filteredItems = _internalItems.where((item) {
-        return _itemMatchesQuery(item, query.toLowerCase());
+        return _itemMatchesQuery(item, _searchQuery.toLowerCase());
       }).toList();
     }
 
-    filteredItemsNotifier.value = _filteredItems;
+    filteredItemsNotifier.value = List.from(_filteredItems);
+    notifyListeners();
   }
 
   bool _itemMatchesQuery(TSelectItem<V> item, String query) {
@@ -115,12 +130,16 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
   }
 
   void onItemTapped(TSelectItem<V> item) {
+    // Handle hierarchical expansion
     if (item.hasChildren) {
       item.expanded = !item.expanded;
+      _syncItemStates(item);
       filteredItemsNotifier.value = List.from(_filteredItems);
+      notifyListeners();
       return;
     }
 
+    // Handle selection
     if (isMultiple) {
       item.selected = !item.selected;
     } else {
@@ -129,7 +148,24 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
       item.selected = true;
     }
 
+    _syncItemStates(item);
     filteredItemsNotifier.value = List.from(_filteredItems);
+    notifyListeners();
+  }
+
+  void _syncItemStates(TSelectItem<V> item) {
+    // Sync state between internal and filtered items
+    final internalItem = _findItemByKey(_internalItems, item.key);
+    if (internalItem != null) {
+      internalItem.selected = item.selected;
+      internalItem.expanded = item.expanded;
+    }
+
+    final filteredItem = _findItemByKey(_filteredItems, item.key);
+    if (filteredItem != null && filteredItem != item) {
+      filteredItem.selected = item.selected;
+      filteredItem.expanded = item.expanded;
+    }
   }
 
   void _clearAllSelections(List<TSelectItem<V>> items) {
@@ -145,8 +181,6 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
     _scrollPosition = position;
     scrollPositionNotifier.value = position;
   }
-
-  void onScrollEnd() {}
 
   List<TSelectItem<V>> getSelectedItems() {
     List<TSelectItem<V>> selectedItems = [];
@@ -225,7 +259,6 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
     filteredItemsNotifier.dispose();
     searchQueryNotifier.dispose();
     scrollPositionNotifier.dispose();

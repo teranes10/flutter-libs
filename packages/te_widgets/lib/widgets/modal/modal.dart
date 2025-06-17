@@ -101,7 +101,7 @@ class TModal extends StatelessWidget {
 class CloseIconButton extends StatefulWidget {
   final VoidCallback onClose;
 
-  const CloseIconButton({required this.onClose});
+  const CloseIconButton({super.key, required this.onClose});
 
   @override
   State<CloseIconButton> createState() => CloseIconButtonState();

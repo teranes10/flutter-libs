@@ -36,12 +36,11 @@ class TTimePicker extends StatefulWidget
   final ValueChanged<TimeOfDay>? onValueChanged;
   @override
   final FocusNode? focusNode;
+
   @override
-  final double? dropdownMaxHeight;
+  final VoidCallback? onShow;
   @override
-  final VoidCallback? onExpanded;
-  @override
-  final VoidCallback? onCollapsed;
+  final VoidCallback? onHide;
   @override
   final VoidCallback? onTap;
 
@@ -70,9 +69,8 @@ class TTimePicker extends StatefulWidget
     this.onValueChanged,
     this.focusNode,
     this.format,
-    this.dropdownMaxHeight,
-    this.onExpanded,
-    this.onCollapsed,
+    this.onShow,
+    this.onHide,
     this.onTap,
   });
 
@@ -112,12 +110,11 @@ class _TTimePickerState extends State<TTimePicker>
     });
   }
 
-  // TPopupMixin overrides
   @override
-  double getContentWidth() => 450;
+  double get contentMaxWidth => 450;
 
   @override
-  double getContentHeight() => 250;
+  double get contentMaxHeight => 350;
 
   @override
   Widget getContentWidget() {

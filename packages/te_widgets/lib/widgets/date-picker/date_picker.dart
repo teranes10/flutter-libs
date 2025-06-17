@@ -33,12 +33,11 @@ class TDatePicker extends StatefulWidget
   final ValueChanged<DateTime>? onValueChanged;
   @override
   final FocusNode? focusNode;
+
   @override
-  final double? dropdownMaxHeight;
+  final VoidCallback? onShow;
   @override
-  final VoidCallback? onExpanded;
-  @override
-  final VoidCallback? onCollapsed;
+  final VoidCallback? onHide;
   @override
   final VoidCallback? onTap;
 
@@ -71,9 +70,8 @@ class TDatePicker extends StatefulWidget
     this.onValueChanged,
     this.focusNode,
     this.format,
-    this.dropdownMaxHeight,
-    this.onExpanded,
-    this.onCollapsed,
+    this.onShow,
+    this.onHide,
     this.onTap,
   });
 
@@ -115,12 +113,11 @@ class _TDatePickerState extends State<TDatePicker>
     hidePopup();
   }
 
-  // TPopupMixin overrides
   @override
-  double getContentWidth() => 325;
+  double get contentMaxWidth => 325;
 
   @override
-  double getContentHeight() => 300;
+  double get contentMaxHeight => 360;
 
   @override
   Widget getContentWidget() {
