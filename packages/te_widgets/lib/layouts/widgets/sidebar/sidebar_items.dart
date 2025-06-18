@@ -18,7 +18,7 @@ class SidebarItems extends StatelessWidget {
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
 
-    final sidebarTheme = theme ?? TSidebarTheme.defaultTheme();
+    final sidebarTheme = theme ?? TSidebarTheme.defaultTheme(context);
 
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(

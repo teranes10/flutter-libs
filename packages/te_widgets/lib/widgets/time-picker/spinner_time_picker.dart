@@ -81,7 +81,7 @@ class _TSpinnerTimePickerState extends State<TSpinnerTimePicker> {
                     return Container(
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary.shade50 : null,
+                        color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -89,7 +89,7 @@ class _TSpinnerTimePickerState extends State<TSpinnerTimePicker> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? AppColors.primary.shade400 : AppColors.grey.shade600,
+                          color: isSelected ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                     );

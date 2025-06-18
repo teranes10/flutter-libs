@@ -197,11 +197,11 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
           },
           child: InkWell(
             key: ValueKey('${item.key}_${item.selected}_${item.expanded}_$level'),
-            splashColor: AppColors.primary.shade100,
-            highlightColor: AppColors.primary.shade50,
+            splashColor: Theme.of(context).colorScheme.primaryContainer.withAlpha(150),
+            highlightColor: Theme.of(context).colorScheme.primaryContainer.withAlpha(200),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              color: item.selected ? AppColors.primary.shade50 : Colors.transparent,
+              color: item.selected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
               padding: EdgeInsets.only(
                 left: 16.0 + (level * 18.0),
                 right: 16.0,
@@ -217,7 +217,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                       child: Icon(
                         item.selected ? Icons.check_box : Icons.check_box_outline_blank,
                         size: 18,
-                        color: item.selected ? Theme.of(context).primaryColor : AppColors.grey.shade400,
+                        color: item.selected ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.onSurface,
                       ),
                     )
                   else if (item.selected && widget.selectedIcon != null)

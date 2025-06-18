@@ -61,12 +61,12 @@ class TSidebarTheme {
     required this.borderColor,
   });
 
-  factory TSidebarTheme.defaultTheme() {
+  factory TSidebarTheme.defaultTheme(BuildContext context) {
     return TSidebarTheme(
       defaultColor: AppColors.grey[500]!,
       hoverColor: AppColors.grey[400]!,
-      activeColor: AppColors.primary,
-      activeBackgroundColor: AppColors.primary.withOpacity(0.1),
+      activeColor: Theme.of(context).colorScheme.onPrimaryContainer,
+      activeBackgroundColor: Theme.of(context).colorScheme.primaryContainer,
       borderColor: AppColors.grey[100]!,
     );
   }

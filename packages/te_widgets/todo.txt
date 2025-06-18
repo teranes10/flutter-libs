@@ -13,7 +13,3 @@ tabs
 progressBar
 
 date time picker, number field, table, select, tooltip optimize 
-
-
-can optimize TSelectController logic in state notifier
-multi select not working

@@ -100,18 +100,19 @@ class AppColors {
   });
 }
 
-ColorScheme getColorScheme({MaterialColor? primary, MaterialColor? secondary}) {
+ColorScheme getColorScheme() {
   return ColorScheme.light(
-    primary: primary ?? AppColors.primary,
-    primaryContainer: primary?.shade400 ?? AppColors.primary[400],
-    secondary: secondary ?? AppColors.secondary,
-    secondaryContainer: secondary?.shade400 ?? AppColors.secondary[400],
-    surface: Colors.white,
-    error: AppColors.danger,
+    primary: AppColors.primary,
     onPrimary: Colors.white,
+    secondary: AppColors.secondary,
     onSecondary: Colors.white,
-    onSurface: AppColors.grey[900]!,
+    secondaryContainer: AppColors.secondary.shade50,
+    onSecondaryContainer: AppColors.secondary,
+    error: AppColors.danger,
     onError: Colors.white,
-    brightness: Brightness.light,
+    surface: Colors.white,
+    onSurface: AppColors.grey.shade600,
+    primaryContainer: AppColors.primary.shade50,
+    onPrimaryContainer: AppColors.primary,
   );
 }

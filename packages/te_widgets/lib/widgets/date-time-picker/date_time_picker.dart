@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:te_widgets/extensions/date_time_extensions.dart';
 import 'package:te_widgets/mixins/popup_mixin.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_widgets/widgets/tabs/tabs.dart';
 import 'package:te_widgets/widgets/time-picker/clock_time_picker.dart';
 
 class TDateTimePicker extends StatefulWidget
@@ -170,98 +171,38 @@ class _TDateTimePickerState extends State<TDateTimePicker>
     );
   }
 
-  Widget _buildTabBar() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.grey.shade300)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildTab(
-              index: 0,
-              icon: Icons.calendar_today,
-              label: 'Date',
-              isSelected: _currentTabIndex == 0,
-            ),
-          ),
-          Expanded(
-            child: _buildTab(
-              index: 1,
-              icon: Icons.access_time,
-              label: 'Time',
-              isSelected: _currentTabIndex == 1,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTab({
-    required int index,
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-    bool isEnabled = true,
-  }) {
-    final Color color = isEnabled ? (isSelected ? AppColors.primary : AppColors.grey.shade600) : AppColors.grey.shade400;
-
-    return InkWell(
-      onTap: isEnabled ? () => _onTabChanged(index) : null,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: BoxDecoration(
-          border: isSelected ? Border(bottom: BorderSide(color: AppColors.primary, width: 2)) : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-            if (index == 0 && _selectedDate != null)
-              Container(
-                margin: const EdgeInsets.only(left: 4),
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: AppColors.success,
-                  shape: BoxShape.circle,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
+  @override
+  double get contentMaxWidth => 425;
 
   @override
-  double get contentMaxWidth => 450;
-
-  @override
-  double get contentMaxHeight => 360;
+  double get contentMaxHeight => 380;
 
   @override
   Widget getContentWidget() {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _buildTabBar(),
-        SizedBox(
-          height: 300,
-          child: IndexedStack(
-            index: _currentTabIndex,
-            children: [
-              _buildDateTab(),
-              _buildTimeTab(),
-            ],
+        TTabs(
+          tabs: [
+            TTab(icon: Icons.calendar_today, label: 'Date', isActive: _selectedDate != null),
+            TTab(icon: Icons.access_time, label: 'Time'),
+          ],
+          selectedIndex: _currentTabIndex,
+          onTabChanged: _onTabChanged,
+        ),
+        Padding(
+          padding: EdgeInsets.all(10),
+          child: SizedBox(
+            height: 300,
+            child: IndexedStack(
+              index: _currentTabIndex,
+              alignment: Alignment.center,
+              children: [
+                _buildDateTab(),
+                _buildTimeTab(),
+              ],
+            ),
           ),
         ),
       ],

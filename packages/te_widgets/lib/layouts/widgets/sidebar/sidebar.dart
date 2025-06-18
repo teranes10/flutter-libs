@@ -31,7 +31,8 @@ class Sidebar extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
-                  child: ConstrainedBox(
+                  child: Container(
+                    color: Colors.white,
                     constraints: BoxConstraints(minHeight: constraints.maxHeight),
                     child: IntrinsicHeight(
                       child: Center(

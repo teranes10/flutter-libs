@@ -51,7 +51,7 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.shade400 : Colors.white,
+          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -59,7 +59,7 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : AppColors.grey.shade600,
+            color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),

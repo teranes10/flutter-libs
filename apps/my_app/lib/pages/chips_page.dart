@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/widgets/chip/chip.dart';
 import 'package:te_widgets/widgets/loading-icon/loading_icon.dart';
+import 'package:te_widgets/widgets/tabs/tabs.dart';
 
 class ChipsPage extends StatelessWidget {
   const ChipsPage({super.key});
@@ -67,6 +68,12 @@ class ChipsPage extends StatelessWidget {
             type: TLoadingType.linear,
             color: AppColors.secondary,
             size: 8,
+          ),
+          TTabs(
+            tabs: [
+              TTab(icon: Icons.calendar_today, label: 'Date'),
+              TTab(icon: Icons.access_time, label: 'Time'),
+            ],
           ),
         ],
       ),

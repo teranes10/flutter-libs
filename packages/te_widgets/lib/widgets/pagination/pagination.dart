@@ -198,9 +198,9 @@ class _PaginationNumberButton extends StatelessWidget {
     return Material(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(6),
-        side: isActive ? BorderSide(color: AppColors.primary[200]!) : BorderSide.none,
+        side: isActive ? BorderSide(color: Theme.of(context).colorScheme.onPrimaryContainer.withAlpha(100)) : BorderSide.none,
       ),
-      color: isActive ? AppColors.primary[50] : Colors.transparent,
+      color: isActive ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
       child: InkWell(
         borderRadius: BorderRadius.circular(6),
         onTap: onPressed,
@@ -209,7 +209,9 @@ class _PaginationNumberButton extends StatelessWidget {
           height: 36,
           child: Center(
               child: Text(number.toString(),
-                  style: TextStyle(fontWeight: FontWeight.normal, color: isActive ? AppColors.primary : AppColors.grey[600]))),
+                  style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      color: isActive ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.onSurface))),
         ),
       ),
     );

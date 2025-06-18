@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/router.dart';
 import 'package:te_widgets/configs/theme/theme.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 void main() {
   runApp(MyApp());

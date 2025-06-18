@@ -72,7 +72,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
             height: 4,
             child: LinearProgressIndicator(
               backgroundColor: AppColors.grey[100],
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
             ),
           ),
 

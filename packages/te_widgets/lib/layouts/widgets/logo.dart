@@ -41,7 +41,7 @@ class TLogo extends StatelessWidget {
               style: TextStyle(
                 fontSize: 30.0,
                 fontWeight: FontWeight.w500,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
         ],
