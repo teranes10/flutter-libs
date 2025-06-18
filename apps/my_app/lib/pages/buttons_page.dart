@@ -12,9 +12,6 @@ class ButtonsPage extends StatefulWidget {
 }
 
 class _ButtonsPageState extends State<ButtonsPage> {
-  bool _isLoading = false;
-  int _selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(

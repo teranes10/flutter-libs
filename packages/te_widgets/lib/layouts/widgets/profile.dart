@@ -26,7 +26,7 @@ class TProfile extends StatelessWidget {
       runSpacing: spacing,
       children: [
         if (icon != null)
-          Image.network(
+          Image.asset(
             icon!,
             width: size,
             height: size,

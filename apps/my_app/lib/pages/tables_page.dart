@@ -1,14 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:my_app/clients/posts_client.dart';
-import 'package:my_app/models/post_dto.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/button/button_config.dart';
-import 'package:te_widgets/widgets/button/button_group.dart';
-import 'package:te_widgets/widgets/data-table/data_table.dart';
-import 'package:te_widgets/widgets/table/table.dart';
-import 'package:te_widgets/widgets/table/table_configs.dart';
-import 'package:te_widgets/widgets/chip/chip.dart';
+import 'package:my_app/clients/products_client.dart';
+import 'package:my_app/models/product_dto.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TablesPage extends StatefulWidget {
   const TablesPage({super.key});
@@ -94,16 +87,16 @@ class _TablesPageState extends State<TablesPage> {
           TTable<Product>(
             headers: [
               TTableHeader.map("Name", (x) => x.name),
-              TTableHeader.map("Price", (x) => x.price.toString()),
-              TTableHeader.map("Stock", (x) => x.stock.toString()),
+              TTableHeader.map("Price", (x) => x.price),
+              TTableHeader.map("Stock", (x) => x.stock),
             ],
             items: products,
           ),
           TDataTable<Product>(
             headers: [
               TTableHeader.map("Name", (x) => x.name),
-              TTableHeader.map("Price", (x) => x.price.toString()),
-              TTableHeader.map("Stock", (x) => x.stock.toString()),
+              TTableHeader.map("Price", (x) => x.price),
+              TTableHeader.map("Stock", (x) => x.stock),
               TTableHeader('Stock', builder: (_, x) => TChip(text: x.stock.toString(), color: AppColors.info)),
               TTableHeader(
                 'Actions',
@@ -123,32 +116,22 @@ class _TablesPageState extends State<TablesPage> {
             ],
             items: products,
           ),
-          TDataTable<PostDto>(
+          TCrudTable<ProductDto>(
             headers: [
+              TTableHeader('Image', builder: (ctx, x) => Image.network(x.thumbnail, width: 50)),
+              TTableHeader.map('SKU', (x) => x.sku),
               TTableHeader.map('Title', (x) => x.title),
-              TTableHeader.map('Body', (x) => x.body),
+              TTableHeader.map('Category', (x) => x.category),
+              TTableHeader.map('Price', (x) => x.price),
+              TTableHeader.map('Discount', (x) => x.discountPercentage),
+              TTableHeader.map('Rating', (x) => x.rating),
+              TTableHeader.map('Created At', (x) => x.meta.createdAt),
             ],
-            onLoad: (o) async {
-              print('__onload');
-              final pair = await PostsClient().fetchPosts(start: o.offset, limit: o.itemsPerPage);
-              o.callback(pair.$1, pair.$2);
-            },
+            onLoad: ProductsClient().loadMore,
           )
         ],
       ),
     );
-  }
-
-  void _editUser(User user) {
-    // Implement edit functionality
-  }
-
-  void _deleteUser(User user) {
-    // Implement delete functionality
-  }
-
-  void _viewUser(User user) {
-    // Implement view functionality
   }
 }
 

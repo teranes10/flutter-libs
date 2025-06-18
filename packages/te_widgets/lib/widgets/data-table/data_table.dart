@@ -1,22 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/mixins/pagination_mixin.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
   final List<TTableHeader<T>> headers;
-
-  // Table styling properties
-  final double mobileBreakpoint;
-  final double? cardWidth;
-  final bool showStaggeredAnimation;
-  final Duration animationDuration;
-  final bool forceCardStyle;
-  final TTableStyling? styling;
-  final void Function(T item)? onItemTap;
-  final bool shrinkWrap;
-  final double? minWidth;
-  final double? maxWidth;
-  final bool showScrollbars;
+  final TTableDecoration decoration;
 
   @override
   final List<T>? items;
@@ -32,6 +19,10 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
   final String? search;
   @override
   final int searchDelay;
+  @override
+  final String Function(T)? itemToString;
+  @override
+  final ValueNotifier<String>? searchNotifier;
 
   const TDataTable({
     super.key,
@@ -39,21 +30,13 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
     this.items,
     this.itemsPerPage = 10,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
-    this.searchDelay = 300,
+    this.searchDelay = 2500,
     this.loading = false,
     this.search,
     this.onLoad,
-    this.mobileBreakpoint = 768,
-    this.cardWidth,
-    this.showStaggeredAnimation = true,
-    this.animationDuration = const Duration(milliseconds: 1200),
-    this.forceCardStyle = false,
-    this.styling,
-    this.onItemTap,
-    this.shrinkWrap = true,
-    this.minWidth,
-    this.maxWidth,
-    this.showScrollbars = true,
+    this.decoration = const TTableDecoration(),
+    this.itemToString,
+    this.searchNotifier,
   });
 
   @override
@@ -67,54 +50,62 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Loading indicator
-        if (loading)
-          SizedBox(
-            height: 4,
-            child: LinearProgressIndicator(
-              backgroundColor: AppColors.grey[100],
-              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
-            ),
-          ),
+        ValueListenableBuilder<bool>(
+          valueListenable: loadingNotifier,
+          builder: (context, isLoading, child) {
+            if (!isLoading) return const SizedBox.shrink();
+            return SizedBox(
+              height: 4,
+              child: LinearProgressIndicator(
+                backgroundColor: AppColors.grey[100],
+                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+              ),
+            );
+          },
+        ),
 
-        // Table
-        TTable<T>(
-          headers: widget.headers,
-          items: paginatedItems,
-          mobileBreakpoint: widget.mobileBreakpoint,
-          cardWidth: widget.cardWidth,
-          showStaggeredAnimation: widget.showStaggeredAnimation,
-          animationDuration: widget.animationDuration,
-          forceCardStyle: widget.forceCardStyle,
-          styling: widget.styling,
-          onItemTap: widget.onItemTap,
-          shrinkWrap: widget.shrinkWrap,
-          minWidth: widget.minWidth,
-          maxWidth: widget.maxWidth,
-          showScrollbars: widget.showScrollbars,
+        // Table with reactive items
+        ValueListenableBuilder<List<T>>(
+          valueListenable: itemsNotifier,
+          builder: (context, items, child) {
+            return TTable<T>(
+              headers: widget.headers,
+              items: items,
+              decoration: widget.decoration,
+              loading: loading,
+            );
+          },
         ),
 
         // Toolbar with pagination and controls
-        if (totalItems > 0) ...[
-          const SizedBox(height: 16),
-          _buildToolbar(),
-        ],
+        ValueListenableBuilder<List<T>>(
+          valueListenable: itemsNotifier,
+          builder: (context, items, child) {
+            if (totalItems == 0) return const SizedBox.shrink();
+            return Column(
+              children: [
+                const SizedBox(height: 16),
+                _buildToolbar(),
+              ],
+            );
+          },
+        ),
       ],
     );
   }
 
   Widget _buildToolbar() {
-    return Wrap(
-      alignment: WrapAlignment.spaceBetween,
-      runSpacing: 12,
-      spacing: 12,
-      children: [
-        TPagination(
-          currentPage: currentPage,
-          totalPages: totalPages,
-          onPageChanged: onPageChanged,
-        ),
-        _buildInfoContainer(),
-      ],
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        runSpacing: 12,
+        spacing: 12,
+        children: [
+          TPagination(currentPage: currentPage, totalPages: totalPages, onPageChanged: onPageChanged),
+          _buildInfoContainer(),
+        ],
+      ),
     );
   }
 
@@ -135,7 +126,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
           ),
         ),
         SizedBox(
-          width: 70,
+          width: 80,
           child: TSelect(
             size: TInputSize.sm,
             selectedIcon: null,

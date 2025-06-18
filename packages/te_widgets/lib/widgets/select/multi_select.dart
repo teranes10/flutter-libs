@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/mixins/pagination_mixin.dart';
+import 'package:te_widgets/mixins/pagination/pagination_config.dart';
+import 'package:te_widgets/mixins/pagination/pagination_mixin.dart';
 import 'package:te_widgets/mixins/popup_mixin.dart';
 import 'package:te_widgets/mixins/focus_mixin.dart';
 import 'package:te_widgets/mixins/input_field_mixin.dart';
@@ -86,6 +87,8 @@ class TMultiSelect<T, V> extends StatefulWidget
   final String? search;
   @override
   final int searchDelay;
+  @override
+  final String Function(T)? itemToString;
 
   const TMultiSelect({
     super.key,
@@ -108,7 +111,7 @@ class TMultiSelect<T, V> extends StatefulWidget
     this.valueNotifier,
     this.onValueChanged,
     this.focusNode,
-    required this.items,
+    this.items = const [],
     this.multiLevel = false,
     this.filterable = true,
     this.footerMessage,
@@ -128,6 +131,7 @@ class TMultiSelect<T, V> extends StatefulWidget
     this.loading = false,
     this.search,
     this.searchDelay = 300,
+    this.itemToString,
   });
 
   @override
@@ -201,7 +205,15 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
   void hidePopup() {
     super.hidePopup();
     _controller.clear();
-    stateNotifier.onSearchChanged('');
+
+    // Reset search based on pagination type
+    if (serverSideRendering) {
+      // Reset search for server-side rendering
+      super.onSearchChanged('');
+    } else {
+      // Reset search for client-side filtering
+      stateNotifier.onLocalSearchChanged('');
+    }
   }
 
   List<String> _getSelectedTags() {

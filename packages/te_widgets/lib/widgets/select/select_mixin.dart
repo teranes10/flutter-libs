@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/mixins/input_field_mixin.dart';
 import 'package:te_widgets/mixins/popup_mixin.dart';
-import 'package:te_widgets/mixins/pagination_mixin.dart';
+import 'package:te_widgets/mixins/pagination/pagination_mixin.dart';
 import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select_dropdown.dart';
 import 'package:te_widgets/widgets/select/select_notifier.dart';
@@ -80,10 +80,10 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
   void _updateSelectItems() {
     if (serverSideRendering) {
       // For server-side rendering, use paginated items
-      stateNotifier.updateFilteredItems(paginatedItems);
+      stateNotifier.updateDisplayItems(paginatedItems);
     } else {
-      // For client-side, use all items and let select notifier handle filtering
-      stateNotifier.updateItems(items);
+      // For client-side, use all items
+      stateNotifier.updateItems(_selectWidget.items ?? []);
     }
   }
 
@@ -91,9 +91,7 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
   double get contentMaxHeight {
     const double itemHeight = 50.0;
     const double padding = 12.0;
-
     double estimatedHeight = (itemHeight * 5) + padding;
-
     return estimatedHeight;
   }
 
@@ -120,7 +118,7 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
       super.onSearchChanged(value);
     } else {
       // Use select notifier's local filtering for client-side
-      stateNotifier.onSearchChanged(value);
+      stateNotifier.onLocalSearchChanged(value);
     }
   }
 
@@ -134,7 +132,6 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
     }
   }
 
-  // Override pagination methods to work with select
   @override
   void refresh() {
     super.refresh();

@@ -100,7 +100,7 @@ class AppColors {
   });
 }
 
-ColorScheme getColorScheme() {
+ColorScheme getTColorScheme() {
   return ColorScheme.light(
     primary: AppColors.primary,
     onPrimary: Colors.white,

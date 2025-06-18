@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
 
-TextTheme getTextTheme() {
+TextTheme getTTextTheme() {
   TextStyle textStyle(double size, FontWeight weight) {
     return TextStyle(
       fontFamily: 'Lexend',

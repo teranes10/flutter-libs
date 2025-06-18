@@ -29,7 +29,7 @@ class TLogo extends StatelessWidget {
         runSpacing: spacing,
         children: [
           if (icon != null)
-            Image.network(
+            Image.asset(
               icon!,
               height: 36,
               fit: BoxFit.cover,

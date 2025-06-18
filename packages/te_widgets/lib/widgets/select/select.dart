@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/mixins/pagination_mixin.dart';
+import 'package:te_widgets/mixins/pagination/pagination_config.dart';
+import 'package:te_widgets/mixins/pagination/pagination_mixin.dart';
 import 'package:te_widgets/mixins/popup_mixin.dart';
 import 'package:te_widgets/mixins/focus_mixin.dart';
 import 'package:te_widgets/mixins/input_field_mixin.dart';
@@ -44,7 +45,7 @@ class TSelect<T, V> extends StatefulWidget
   final VoidCallback? onTap;
 
   @override
-  final List<T> items;
+  final List<T>? items;
   @override
   final bool multiLevel, filterable;
   @override
@@ -79,6 +80,8 @@ class TSelect<T, V> extends StatefulWidget
   final String? search;
   @override
   final int searchDelay;
+  @override
+  final String Function(T)? itemToString;
 
   const TSelect({
     super.key,
@@ -101,7 +104,7 @@ class TSelect<T, V> extends StatefulWidget
     this.valueNotifier,
     this.onValueChanged,
     this.focusNode,
-    this.items = const [], // Provide default empty list
+    this.items,
     this.multiLevel = false,
     this.filterable = true,
     this.footerMessage,
@@ -121,6 +124,7 @@ class TSelect<T, V> extends StatefulWidget
     this.loading = false,
     this.search,
     this.searchDelay = 300,
+    this.itemToString,
   });
 
   @override
@@ -215,12 +219,14 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
   void hidePopup() {
     super.hidePopup();
     _controller.text = _displayTextBeforeExpansion;
+
+    // Reset search based on pagination type
     if (serverSideRendering) {
       // Reset search for server-side rendering
       super.onSearchChanged('');
     } else {
       // Reset search for client-side filtering
-      stateNotifier.onSearchChanged('');
+      stateNotifier.onLocalSearchChanged('');
     }
   }
 

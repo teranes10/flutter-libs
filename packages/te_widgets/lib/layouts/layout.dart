@@ -7,7 +7,7 @@ import 'package:te_widgets/layouts/widgets/profile.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/sidebar.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
 
-class Layout extends StatefulWidget {
+class TLayout extends StatefulWidget {
   final List<TSidebarItem> items;
   final TLogo? logo;
   final TProfile? profile;
@@ -18,7 +18,7 @@ class Layout extends StatefulWidget {
   final double minifiedWidth;
   final bool isMinimized;
 
-  const Layout({
+  const TLayout({
     super.key,
     this.items = const [],
     this.logo,
@@ -32,10 +32,10 @@ class Layout extends StatefulWidget {
   });
 
   @override
-  State<Layout> createState() => _LayoutState();
+  State<TLayout> createState() => _TLayoutState();
 }
 
-class _LayoutState extends State<Layout> {
+class _TLayoutState extends State<TLayout> {
   late bool _isMinified;
 
   @override

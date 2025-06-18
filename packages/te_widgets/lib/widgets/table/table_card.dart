@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/widgets/table/table_configs.dart';
+import 'package:te_widgets/widgets/table/table_decoration.dart';
 
 class TTableCard<T> extends StatelessWidget {
   final T item;

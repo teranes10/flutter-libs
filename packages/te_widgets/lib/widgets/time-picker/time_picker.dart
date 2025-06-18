@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/time-picker/clock_time_picker.dart';
 
 class TTimePicker extends StatefulWidget
     with TInputFieldMixin, TInputValueMixin<TimeOfDay>, TFocusMixin, TInputValidationMixin<TimeOfDay>, TPopupMixin {

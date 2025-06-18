@@ -71,8 +71,8 @@ class ChipsPage extends StatelessWidget {
           ),
           TTabs(
             tabs: [
-              TTab(icon: Icons.calendar_today, label: 'Date'),
-              TTab(icon: Icons.access_time, label: 'Time'),
+              TTab(icon: Icons.calendar_today, text: 'Date'),
+              TTab(icon: Icons.access_time, text: 'Time'),
             ],
           ),
         ],

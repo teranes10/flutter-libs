@@ -4,7 +4,7 @@ import 'package:te_widgets/configs/theme/theme_colors.dart';
 class TTableHeader<T> {
   final String text;
   final String? value;
-  final String Function(T)? map;
+  final Object Function(T)? map;
   final Widget Function(BuildContext, T)? builder;
   final int? flex;
   final double? minWidth;
@@ -35,73 +35,13 @@ class TTableHeader<T> {
 
   String getValue(T item) {
     if (this.map != null) {
-      return this.map!(item);
+      return this.map!(item).toString();
     } else if (item is Map<String, dynamic> && value != null) {
       return item[value]?.toString() ?? '';
     }
 
     return '';
   }
-}
-
-class TTableStyling {
-  final TextStyle? headerTextStyle;
-  final EdgeInsets? headerPadding;
-  final Decoration? headerDecoration;
-  final EdgeInsets? contentPadding;
-  final TCardStyle? cardStyle;
-  final TRowStyle? rowStyle;
-  final TextStyle? cardLabelStyle;
-  final TextStyle? cardValueStyle;
-  final TextStyle? rowTextStyle;
-
-  const TTableStyling({
-    this.headerTextStyle,
-    this.headerPadding,
-    this.headerDecoration,
-    this.contentPadding,
-    this.cardStyle,
-    this.rowStyle,
-    this.cardLabelStyle,
-    this.cardValueStyle,
-    this.rowTextStyle,
-  });
-}
-
-class TCardStyle {
-  final EdgeInsets? margin;
-  final EdgeInsets? padding;
-  final double? elevation;
-  final BorderRadius? borderRadius;
-  final Color? backgroundColor;
-  final Border? border;
-
-  const TCardStyle({
-    this.margin,
-    this.padding,
-    this.elevation,
-    this.borderRadius,
-    this.backgroundColor,
-    this.border,
-  });
-}
-
-class TRowStyle {
-  final EdgeInsets? margin;
-  final EdgeInsets? padding;
-  final double? elevation;
-  final BorderRadius? borderRadius;
-  final Color? backgroundColor;
-  final Border? border;
-
-  const TRowStyle({
-    this.margin,
-    this.padding,
-    this.elevation,
-    this.borderRadius,
-    this.backgroundColor,
-    this.border,
-  });
 }
 
 extension AlignmentExtension on Alignment {

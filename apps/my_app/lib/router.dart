@@ -8,8 +8,6 @@ import 'package:my_app/pages/popups_page.dart';
 import 'package:my_app/pages/select_fields_page.dart';
 import 'package:my_app/pages/selections_page.dart';
 import 'package:my_app/pages/tables_page.dart';
-import 'package:te_widgets/layouts/layout.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -44,7 +42,7 @@ final sidebarItems = [
 ];
 
 Widget getLayout(context, GoRouterState state, child) {
-  return Layout(
+  return TLayout(
     logo: TLogo(text: 'Te Widgets'),
     profile: TProfile(icon: 'assets/icons/profile.png', text: 'Teranes'),
     items: sidebarItems,

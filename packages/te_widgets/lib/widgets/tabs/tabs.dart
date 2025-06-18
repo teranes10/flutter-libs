@@ -3,16 +3,16 @@ import 'package:te_widgets/te_widgets.dart';
 
 class TTab {
   final IconData? icon;
-  final String? label;
+  final String? text;
   final bool isEnabled;
   final bool isActive;
 
   const TTab({
     this.icon,
-    this.label,
+    this.text,
     this.isEnabled = true,
     this.isActive = false,
-  }) : assert(icon != null || label != null, 'Either icon or label must be provided');
+  }) : assert(icon != null || text != null, 'Either icon or text must be provided');
 }
 
 class TTabs extends StatefulWidget {
@@ -26,6 +26,7 @@ class TTabs extends StatefulWidget {
   final Color? indicatorColor;
   final EdgeInsets? tabPadding;
   final double? indicatorWidth;
+  final bool inline;
 
   const TTabs({
     super.key,
@@ -37,8 +38,9 @@ class TTabs extends StatefulWidget {
     this.unselectedColor,
     this.disabledColor,
     this.indicatorColor,
-    this.tabPadding = const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-    this.indicatorWidth = 2,
+    this.tabPadding = const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
+    this.indicatorWidth = 1,
+    this.inline = false,
   });
 
   @override
@@ -74,35 +76,33 @@ class _TTabsState extends State<TTabs> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final defaultBorderColor = widget.borderColor ?? AppColors.grey.shade300;
+    final defaultBorderColor = widget.borderColor ?? Colors.transparent;
     final defaultSelectedColor = widget.selectedColor ?? theme.colorScheme.onPrimaryContainer;
     final defaultUnselectedColor = widget.unselectedColor ?? theme.colorScheme.onSurface;
     final defaultDisabledColor = widget.disabledColor ?? AppColors.grey.shade400;
     final defaultIndicatorColor = widget.indicatorColor ?? theme.colorScheme.primary;
 
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: defaultBorderColor)),
-      ),
-      child: Row(
-        children: widget.tabs.asMap().entries.map((entry) {
-          final index = entry.key;
-          final tab = entry.value;
-          final isSelected = _currentIndex == index;
+    final tabs = widget.tabs.asMap().entries.map((entry) {
+      final index = entry.key;
+      final tab = entry.value;
+      final isSelected = _currentIndex == index;
 
-          return Expanded(
-            child: _buildTab(
-              index: index,
-              tab: tab,
-              isSelected: isSelected,
-              selectedColor: defaultSelectedColor,
-              unselectedColor: defaultUnselectedColor,
-              disabledColor: defaultDisabledColor,
-              indicatorColor: defaultIndicatorColor,
-            ),
-          );
-        }).toList(),
-      ),
+      return Expanded(
+        child: _buildTab(
+          index: index,
+          tab: tab,
+          isSelected: isSelected,
+          selectedColor: defaultSelectedColor,
+          unselectedColor: defaultUnselectedColor,
+          disabledColor: defaultDisabledColor,
+          indicatorColor: defaultIndicatorColor,
+        ),
+      );
+    }).toList();
+
+    return Container(
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: defaultBorderColor))),
+      child: widget.inline ? Wrap(children: tabs) : Row(children: tabs),
     );
   }
 
@@ -130,15 +130,12 @@ class _TTabsState extends State<TTabs> {
           children: [
             if (tab.icon != null) ...[
               Icon(tab.icon, size: 16, color: color),
-              if (tab.label != null) const SizedBox(width: 8),
+              if (tab.text != null) const SizedBox(width: 8),
             ],
-            if (tab.label != null)
+            if (tab.text != null)
               Text(
-                tab.label!,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                ),
+                tab.text!,
+                style: TextStyle(color: color, fontSize: 13, fontWeight: isSelected ? FontWeight.w400 : FontWeight.w300),
               ),
             if (tab.isActive)
               Container(

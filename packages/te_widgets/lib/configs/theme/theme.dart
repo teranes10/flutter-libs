@@ -4,8 +4,7 @@ import 'package:te_widgets/configs/theme/theme_text.dart';
 
 ThemeData teWidgetsTheme() {
   return ThemeData(
-    colorScheme: getColorScheme(),
-    primarySwatch: AppColors.warning,
-    textTheme: getTextTheme(),
+    colorScheme: getTColorScheme(),
+    textTheme: getTTextTheme(),
   );
 }

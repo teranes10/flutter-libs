@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:te_widgets/extensions/date_time_extensions.dart';
-import 'package:te_widgets/mixins/popup_mixin.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/tabs/tabs.dart';
-import 'package:te_widgets/widgets/time-picker/clock_time_picker.dart';
 
 class TDateTimePicker extends StatefulWidget
     with TInputFieldMixin, TInputValueMixin<DateTime>, TFocusMixin, TInputValidationMixin<DateTime>, TPopupMixin {
@@ -184,9 +180,11 @@ class _TDateTimePickerState extends State<TDateTimePicker>
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         TTabs(
+          tabPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          borderColor: AppColors.grey.shade200,
           tabs: [
-            TTab(icon: Icons.calendar_today, label: 'Date', isActive: _selectedDate != null),
-            TTab(icon: Icons.access_time, label: 'Time'),
+            TTab(icon: Icons.calendar_today, text: 'Date', isActive: _selectedDate != null),
+            TTab(icon: Icons.access_time, text: 'Time'),
           ],
           selectedIndex: _currentTabIndex,
           onTabChanged: _onTabChanged,

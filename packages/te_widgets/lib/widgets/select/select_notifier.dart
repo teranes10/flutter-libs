@@ -10,12 +10,12 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
   final String? label;
 
   List<TSelectItem<V>> _internalItems = [];
-  List<TSelectItem<V>> _filteredItems = [];
+  List<TSelectItem<V>> _displayItems = [];
   String _searchQuery = '';
   double _scrollPosition = 0.0;
 
   // Notifiers for reactive updates
-  final ValueNotifier<List<TSelectItem<V>>> filteredItemsNotifier = ValueNotifier([]);
+  final ValueNotifier<List<TSelectItem<V>>> displayItemsNotifier = ValueNotifier([]);
   final ValueNotifier<String> searchQueryNotifier = ValueNotifier('');
   final ValueNotifier<double> scrollPositionNotifier = ValueNotifier(0.0);
 
@@ -30,31 +30,41 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
 
   // Getters
   List<TSelectItem<V>> get internalItems => _internalItems;
-  List<TSelectItem<V>> get filteredItems => _filteredItems;
+  List<TSelectItem<V>> get displayItems => _displayItems;
   String get searchQuery => _searchQuery;
   double get scrollPosition => _scrollPosition;
 
+  /// Updates all items (used for local pagination)
   void updateItems(List<T> items) {
     _internalItems = items.map(_convertToSelectItem).toList();
-    _applyFiltering();
-  }
-
-  void updateFilteredItems(List<T> items) {
-    _filteredItems = items.map(_convertToSelectItem).toList();
-
-    // Preserve selection states from internal items
+    _displayItems = List.from(_internalItems);
     _preserveSelectionStates();
-
-    filteredItemsNotifier.value = List.from(_filteredItems);
+    displayItemsNotifier.value = List.from(_displayItems);
     notifyListeners();
   }
 
+  /// Updates display items (used for server-side pagination)
+  void updateDisplayItems(List<T> items, {bool append = false}) {
+    final newSelectItems = items.map(_convertToSelectItem).toList();
+
+    if (append) {
+      _displayItems.addAll(newSelectItems);
+    } else {
+      _displayItems = newSelectItems;
+    }
+
+    _preserveSelectionStates();
+    displayItemsNotifier.value = List.from(_displayItems);
+    notifyListeners();
+  }
+
+  /// Preserves selection states between internal and display items
   void _preserveSelectionStates() {
-    for (final filteredItem in _filteredItems) {
-      final internalItem = _findItemByKey(_internalItems, filteredItem.key);
+    for (final displayItem in _displayItems) {
+      final internalItem = _findItemByKey(_internalItems, displayItem.key);
       if (internalItem != null) {
-        filteredItem.selected = internalItem.selected;
-        filteredItem.expanded = internalItem.expanded;
+        displayItem.selected = internalItem.selected;
+        displayItem.expanded = internalItem.expanded;
       }
     }
   }
@@ -70,10 +80,11 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
     return null;
   }
 
+  /// Updates selected states for all items
   void updateSelectedStates(List<V> selectedValues) {
     _updateSelectedStatesRecursive(_internalItems, selectedValues);
-    _updateSelectedStatesRecursive(_filteredItems, selectedValues);
-    filteredItemsNotifier.value = List.from(_filteredItems);
+    _updateSelectedStatesRecursive(_displayItems, selectedValues);
+    displayItemsNotifier.value = List.from(_displayItems);
     notifyListeners();
   }
 
@@ -98,22 +109,23 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
     return anySelected;
   }
 
-  void onSearchChanged(String query) {
+  /// Handles local search filtering (only used when pagination is local)
+  void onLocalSearchChanged(String query) {
     _searchQuery = query;
     searchQueryNotifier.value = query;
-    _applyFiltering();
+    _applyLocalFiltering();
   }
 
-  void _applyFiltering() {
+  void _applyLocalFiltering() {
     if (_searchQuery.isEmpty) {
-      _filteredItems = List.from(_internalItems);
+      _displayItems = List.from(_internalItems);
     } else {
-      _filteredItems = _internalItems.where((item) {
+      _displayItems = _internalItems.where((item) {
         return _itemMatchesQuery(item, _searchQuery.toLowerCase());
       }).toList();
     }
 
-    filteredItemsNotifier.value = List.from(_filteredItems);
+    displayItemsNotifier.value = List.from(_displayItems);
     notifyListeners();
   }
 
@@ -129,12 +141,13 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
     return false;
   }
 
+  /// Handles item tap (selection/expansion)
   void onItemTapped(TSelectItem<V> item) {
     // Handle hierarchical expansion
     if (item.hasChildren) {
       item.expanded = !item.expanded;
       _syncItemStates(item);
-      filteredItemsNotifier.value = List.from(_filteredItems);
+      displayItemsNotifier.value = List.from(_displayItems);
       notifyListeners();
       return;
     }
@@ -144,27 +157,27 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
       item.selected = !item.selected;
     } else {
       _clearAllSelections(_internalItems);
-      _clearAllSelections(_filteredItems);
+      _clearAllSelections(_displayItems);
       item.selected = true;
     }
 
     _syncItemStates(item);
-    filteredItemsNotifier.value = List.from(_filteredItems);
+    displayItemsNotifier.value = List.from(_displayItems);
     notifyListeners();
   }
 
   void _syncItemStates(TSelectItem<V> item) {
-    // Sync state between internal and filtered items
+    // Sync state between internal and display items
     final internalItem = _findItemByKey(_internalItems, item.key);
     if (internalItem != null) {
       internalItem.selected = item.selected;
       internalItem.expanded = item.expanded;
     }
 
-    final filteredItem = _findItemByKey(_filteredItems, item.key);
-    if (filteredItem != null && filteredItem != item) {
-      filteredItem.selected = item.selected;
-      filteredItem.expanded = item.expanded;
+    final displayItem = _findItemByKey(_displayItems, item.key);
+    if (displayItem != null && displayItem != item) {
+      displayItem.selected = item.selected;
+      displayItem.expanded = item.expanded;
     }
   }
 
@@ -177,11 +190,13 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
     }
   }
 
+  /// Updates scroll position
   void updateScrollPosition(double position) {
     _scrollPosition = position;
     scrollPositionNotifier.value = position;
   }
 
+  /// Gets all selected items
   List<TSelectItem<V>> getSelectedItems() {
     List<TSelectItem<V>> selectedItems = [];
     _collectSelectedItems(_internalItems, selectedItems);
@@ -199,6 +214,7 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
     }
   }
 
+  /// Counts visible items in the tree
   int countVisibleItems(List<TSelectItem<V>> items) {
     int count = 0;
     for (final item in items) {
@@ -210,6 +226,7 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
     return count;
   }
 
+  /// Converts raw items to TSelectItem
   TSelectItem<V> _convertToSelectItem(T item) {
     assert(V != Null, 'Select labeled "$label": value type can not be Null.');
 
@@ -259,7 +276,7 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
 
   @override
   void dispose() {
-    filteredItemsNotifier.dispose();
+    displayItemsNotifier.dispose();
     searchQueryNotifier.dispose();
     scrollPositionNotifier.dispose();
     super.dispose();

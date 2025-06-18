@@ -98,10 +98,10 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
         children: [
           Flexible(
             child: ValueListenableBuilder<List<TSelectItem<V>>>(
-              valueListenable: widget.stateNotifier.filteredItemsNotifier,
-              builder: (context, filteredItems, child) {
+              valueListenable: widget.stateNotifier.displayItemsNotifier,
+              builder: (context, displayItems, child) {
                 // Show loading indicator when initially loading and no items
-                if (filteredItems.isEmpty && widget.loading) {
+                if (displayItems.isEmpty && widget.loading) {
                   return SizedBox(
                     height: widget.maxHeight - footerHeight,
                     child: const Center(
@@ -111,7 +111,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                 }
 
                 // Show no items message when not loading and no items
-                if (filteredItems.isEmpty && !widget.loading) {
+                if (displayItems.isEmpty && !widget.loading) {
                   return SizedBox(
                     height: 60,
                     child: Center(
@@ -132,15 +132,15 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                   ),
                   child: Scrollbar(
                     controller: _scrollController,
-                    thumbVisibility: filteredItems.length > 10,
+                    thumbVisibility: displayItems.length > 10,
                     child: ListView.builder(
                       controller: _scrollController,
                       shrinkWrap: true,
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      itemCount: filteredItems.length + (widget.showLoadingIndicator ? 1 : 0),
+                      itemCount: displayItems.length + (widget.showLoadingIndicator ? 1 : 0),
                       itemBuilder: (context, index) {
                         // Show loading indicator at the end for infinite scroll
-                        if (index == filteredItems.length && widget.showLoadingIndicator) {
+                        if (index == displayItems.length && widget.showLoadingIndicator) {
                           return Container(
                             padding: const EdgeInsets.all(16.0),
                             child: Center(
@@ -155,7 +155,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                           );
                         }
 
-                        final item = filteredItems[index];
+                        final item = displayItems[index];
                         return _buildSelectItem(item, 0);
                       },
                     ),
@@ -202,12 +202,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               color: item.selected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
-              padding: EdgeInsets.only(
-                left: 16.0 + (level * 18.0),
-                right: 16.0,
-                top: 10.0,
-                bottom: 10.0,
-              ),
+              padding: EdgeInsets.only(left: 16.0 + (level * 18.0), right: 16.0, top: 10.0, bottom: 10.0),
               child: Row(
                 children: [
                   // Selection indicator
