@@ -3,6 +3,10 @@ library;
 export 'configs/theme/theme.dart';
 export 'configs/theme/theme_colors.dart';
 
+export 'extensions/date_format_extensions.dart';
+export 'extensions/date_time_extensions.dart';
+export 'extensions/time_of_day_extensions.dart';
+
 export 'helpers/routes_helper.dart';
 export 'helpers/validations.dart';
 
@@ -19,6 +23,8 @@ export 'mixins/focus_mixin.dart';
 export 'mixins/input_field_mixin.dart';
 export 'mixins/input_validation_mixin.dart';
 export 'mixins/input_value_mixin.dart';
+export 'mixins/pagination_mixin.dart';
+export 'mixins/popup_mixin.dart';
 
 export 'widgets/alert/alert.dart';
 export 'widgets/alert/alert_config.dart';
@@ -55,6 +61,8 @@ export 'widgets/select/select.dart';
 export 'widgets/table/table_card.dart';
 export 'widgets/table/table_configs.dart';
 export 'widgets/table/table.dart';
+
+export 'widgets/tabs/tabs.dart';
 
 export 'widgets/tags-field/tags_field.dart';
 

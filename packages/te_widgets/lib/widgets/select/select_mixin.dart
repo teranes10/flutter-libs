@@ -5,7 +5,6 @@ import 'package:te_widgets/mixins/pagination_mixin.dart';
 import 'package:te_widgets/widgets/select/select_configs.dart';
 import 'package:te_widgets/widgets/select/select_dropdown.dart';
 import 'package:te_widgets/widgets/select/select_notifier.dart';
-import 'dart:math' as math;
 
 mixin TSelectMixin<T, V> on TInputFieldMixin, TPopupMixin, TPaginationMixin<T> {
   bool get multiLevel;

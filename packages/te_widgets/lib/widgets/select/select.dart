@@ -174,7 +174,7 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
     if (item.hasChildren) {
       return;
     }
-    print('__ item $item');
+
     notifyValueChanged(item.value);
     _updateDisplayText();
     hidePopup();

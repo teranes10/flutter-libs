@@ -80,7 +80,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         child: Stack(
           children: [
             Padding(padding: EdgeInsets.fromLTRB(3, 9, 3, 0), child: getContentWidget()),
-            Positioned(top: 2, right: 2, child: CloseIconButton(onClose: hidePopup)),
+            Positioned(top: 2, right: 2, child: CloseIconButton(size: 14, onClose: hidePopup)),
           ],
         ),
       ),
@@ -201,35 +201,5 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   void dispose() {
     hidePopup();
     super.dispose();
-  }
-}
-
-class CloseIconButton extends StatefulWidget {
-  final VoidCallback onClose;
-
-  const CloseIconButton({super.key, required this.onClose});
-
-  @override
-  State<CloseIconButton> createState() => CloseIconButtonState();
-}
-
-class CloseIconButtonState extends State<CloseIconButton> {
-  bool _isHovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovering = true),
-      onExit: (_) => setState(() => _isHovering = false),
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: widget.onClose,
-        child: Icon(
-          Icons.cancel_outlined,
-          color: _isHovering ? AppColors.danger.shade400 : AppColors.grey.shade300,
-          size: 14,
-        ),
-      ),
-    );
   }
 }

@@ -28,7 +28,7 @@ class TTabs extends StatefulWidget {
   final double? indicatorWidth;
 
   const TTabs({
-    Key? key,
+    super.key,
     required this.tabs,
     this.selectedIndex,
     this.onTabChanged,
@@ -39,7 +39,7 @@ class TTabs extends StatefulWidget {
     this.indicatorColor,
     this.tabPadding = const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
     this.indicatorWidth = 2,
-  }) : super(key: key);
+  });
 
   @override
   State<TTabs> createState() => _TTabsState();

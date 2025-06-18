@@ -13,3 +13,4 @@ tabs
 progressBar
 
 date time picker, number field, table, select, tooltip optimize 
+serverside reder select onItemTap not working

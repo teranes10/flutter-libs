@@ -100,8 +100,9 @@ class TModal extends StatelessWidget {
 
 class CloseIconButton extends StatefulWidget {
   final VoidCallback onClose;
+  final double? size;
 
-  const CloseIconButton({super.key, required this.onClose});
+  const CloseIconButton({super.key, required this.onClose, this.size});
 
   @override
   State<CloseIconButton> createState() => CloseIconButtonState();
@@ -121,7 +122,7 @@ class CloseIconButtonState extends State<CloseIconButton> {
         child: Icon(
           Icons.cancel_outlined,
           color: _isHovering ? AppColors.danger.shade400 : AppColors.grey.shade300,
-          size: 20,
+          size: widget.size ?? 20,
         ),
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
 
 class TPagination extends StatefulWidget {
   final int currentPage;

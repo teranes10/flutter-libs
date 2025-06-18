@@ -308,14 +308,12 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     Map<int, TableColumnWidth> columnWidths = {};
 
     // Count fixed width columns and calculate remaining space for flex columns
-    double totalFixedWidth = 0;
+    // ignore: unused_local_variable
     int flexColumnCount = 0;
 
     for (final header in widget.headers) {
       if (header.maxWidth != null && header.maxWidth != double.infinity) {
-        totalFixedWidth += header.maxWidth!;
       } else if (header.minWidth != null && header.minWidth! > 0) {
-        totalFixedWidth += header.minWidth!;
       } else {
         flexColumnCount++;
       }
