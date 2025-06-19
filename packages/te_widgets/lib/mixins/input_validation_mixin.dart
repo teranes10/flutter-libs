@@ -1,13 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:te_widgets/mixins/focus_mixin.dart';
-import 'package:te_widgets/mixins/input_value_mixin.dart';
+import 'package:te_widgets/te_widgets.dart';
 
-mixin TInputValidationMixin<T> on TInputValueMixin<T>, TFocusMixin {
+mixin TInputValidationMixin<T> on TInputFieldMixin, TInputValueMixin<T>, TFocusMixin {
   List<String? Function(T?)>? get rules;
   List<String>? get errors;
-  bool get isRequired;
   Duration? get validationDebounce;
   bool? get skipValidation;
 
@@ -15,7 +13,7 @@ mixin TInputValidationMixin<T> on TInputValueMixin<T>, TFocusMixin {
     List<String> errors = [];
 
     if (isRequired == true && _isValueEmpty(value)) {
-      errors.add('This field is required');
+      errors.add('$label is required');
       return errors;
     }
 

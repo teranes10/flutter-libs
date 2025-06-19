@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/te_widgets.dart';
 import 'package:te_widgets/widgets/alert/alert_service.dart';
 import 'package:te_widgets/widgets/button/button.dart';
 import 'package:te_widgets/widgets/modal/modal_config.dart';
@@ -70,6 +71,41 @@ class _PopupsPageState extends State<PopupsPage> {
               color: AppColors.danger,
               text: 'Error Alert',
               onPressed: (_) => TAlertService.error(context, 'Failed to Save', 'Something went wrong while saving your data. Please try again.'),
+            ),
+          ]),
+          const SizedBox(height: 32),
+
+          // ===== Toasts =====
+          const Text('📢 Toasts', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Wrap(spacing: 16, children: [
+            TButton(
+              color: AppColors.info,
+              text: 'Info Toast',
+              onPressed: (_) => TToastService.info(context, 'Just an informational alert', 'Info'),
+            ),
+            TButton(
+              color: AppColors.info,
+              text: 'Info Toast without Title',
+              onPressed: (_) => TToastService.info(context, 'Just an informational alert'),
+            ),
+            TButton(
+              color: AppColors.success,
+              text: 'Success Toast',
+              onPressed: (_) => TToastService.success(context, 'Operation was successful', 'Success'),
+            ),
+            TButton(
+              color: AppColors.warning,
+              text: 'Warning Toast',
+              onPressed: (_) => TToastService.warning(
+                context,
+                'You have unsaved changes. If you leave now, your edits will be lost.',
+                'Unsaved Changes',
+              ),
+            ),
+            TButton(
+              color: AppColors.danger,
+              text: 'Error Toast',
+              onPressed: (_) => TToastService.error(context, 'Something went wrong while saving your data. Please try again.', 'Failed to Save'),
             ),
           ]),
           const SizedBox(height: 32),

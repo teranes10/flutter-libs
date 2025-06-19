@@ -53,7 +53,7 @@ class TModal extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (config.title != null || config.headerWidget != null) _buildHeader(config, onClose),
+                      if (config.title != null || config.showCloseButton == true || config.headerWidget != null) _buildHeader(config, onClose),
                       Flexible(child: child),
                       if (config.footerWidget != null) _buildFooter(config),
                     ],

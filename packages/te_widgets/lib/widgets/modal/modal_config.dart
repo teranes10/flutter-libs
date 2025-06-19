@@ -18,12 +18,12 @@ class TModalConfig {
   });
 }
 
-class TModelContext {
+class TModelContext<T> {
   final BuildContext context;
 
   TModelContext(this.context);
 
-  void close() {
-    Navigator.of(context).pop();
+  void close([T? value]) {
+    Navigator.of(context).pop(value);
   }
 }

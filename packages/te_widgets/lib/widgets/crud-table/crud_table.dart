@@ -71,16 +71,16 @@ class _TCrudTableState<T> extends State<TCrudTable<T>> {
         spacing: 5,
         runSpacing: 5,
         children: [
-          if (showCreateForm)
-            TButton(
-              type: TButtonType.outline,
-              size: TButtonSize.lg,
-              icon: Icons.add,
-              text: 'Add New Item',
-              color: AppColors.primary,
-              onPressed: (_) => {},
-            ),
-          SizedBox(width: 1, height: 1),
+          showCreateForm
+              ? TButton(
+                  type: TButtonType.outline,
+                  size: TButtonSize.lg,
+                  icon: Icons.add,
+                  text: 'Add New Item',
+                  color: AppColors.primary,
+                  onPressed: (_) => {},
+                )
+              : const SizedBox.shrink(),
           Wrap(
             spacing: 25,
             runSpacing: 5,

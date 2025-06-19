@@ -4,18 +4,13 @@ import 'package:te_widgets/widgets/modal/modal.dart';
 import 'package:te_widgets/widgets/modal/modal_config.dart';
 
 class TModalService {
-  static bool _isShowing = false;
-
-  static void show(
+  static Future<T?> show<T>(
     BuildContext context,
     Widget Function(TModelContext context) builder, {
     TModalConfig config = const TModalConfig(),
     VoidCallback? onClose,
   }) {
-    if (_isShowing) return;
-    _isShowing = true;
-
-    showDialog<void>(
+    return showDialog<T>(
       context: context,
       barrierDismissible: !config.persistent,
       barrierColor: AppColors.grey[950]!.withAlpha(10),
@@ -25,15 +20,10 @@ class TModalService {
           config: config,
           onClose: () {
             Navigator.of(dialogContext).pop();
-            _isShowing = false;
             onClose?.call();
           },
         );
       },
-    ).then((_) {
-      _isShowing = false;
-    });
+    );
   }
-
-  static bool get isShowing => _isShowing;
 }

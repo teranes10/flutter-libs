@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/button/button.dart';
-import 'package:te_widgets/widgets/form/form_builder.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class FormsPage extends StatelessWidget {
   const FormsPage({super.key});
@@ -8,12 +7,15 @@ class FormsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      TFormBuilder(input: userForm),
+      TFormBuilder(input: UserForm()),
       TButton(
-        text: 'Save',
-        onPressed: (_) =>
-            print('__save ${userForm.firstName.value}, ${userForm.lastName.value}, ${userForm.username.value}, ${userForm.email.value}'),
-      )
+          text: 'Show User Form Modal',
+          onPressed: (_) async {
+            final value = await TFormService.show(context, UserForm());
+            if (value != null) {
+              print('__save $value');
+            }
+          })
     ]);
   }
 }
@@ -27,12 +29,15 @@ class UserForm extends TFormBase {
   @override
   List<TFormField> get fields {
     return [
-      TFormField.text(firstName, 'First Name').size(6),
+      TFormField.text(firstName, 'First Name').size(6, sm: 6),
       TFormField.text(lastName, 'Last Name').size(6),
       TFormField.text(username, 'Username', isRequired: true),
       TFormField.text(email, 'Email'),
     ];
   }
-}
 
-final userForm = UserForm();
+  @override
+  String toString() {
+    return 'UserForm firstName: $firstName, lastName: $lastName, username: $username, email: $email';
+  }
+}

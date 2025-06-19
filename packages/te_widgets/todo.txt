@@ -12,88 +12,9 @@ toast
 tabs
 progressBar
 
-date time picker, number field, table, select, tooltip optimize 
+
 serverside reder select onItemTap not working
 remove not items found in loading state on table
 check table total items per page max option and if total count is greater than that then not add it
 
-
-enum GuardAction { hide, disable }
-
-class Guard extends StatelessWidget {
-  final String?    requireRole;
-  final String?    requireFlag;
-  final GuardAction ifFailed;   // hide  🔒  or disable 🚫
-  final Widget     child;
-
-  const Guard({
-    super.key,
-    this.requireRole,
-    this.requireFlag,
-    this.ifFailed = GuardAction.hide,
-    required this.child,
-  });
-
-  bool _allowed(
-    BuildContext context, {
-    String? role,
-    String? flag,
-  }) {
-    final userRole   = context.read(roleProvider);
-    final flags      = context.read(featureFlagsProvider);
-
-    final roleOk  = role == null  || role == userRole || userRole == 'superadmin';
-    final flagOk  = flag == null || flags.contains(flag);
-
-    return roleOk && flagOk;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final ok = _allowed(
-      context,
-      role: requireRole,
-      flag: requireFlag,
-    );
-
-    if (ok) return child;
-
-    if (ifFailed == GuardAction.hide) {
-      return const SizedBox.shrink();                // 🙈 hide completely
-    } else {
-      return IgnorePointer(                          // 🚫 disabled but visible
-        ignoring: true,
-        child: Opacity(
-          opacity: 0.38,
-          child: child,
-        ),
-      );
-    }
-  }
-}
-
-Guard(
-  requireRole: 'admin',
-  ifFailed: GuardAction.disable,     // 👀 still visible but greyed-out
-  child: ElevatedButton(
-    onPressed: () => print('admin only'),
-    child: const Text('Edit'),
-  ),
-),
-
-Guard(
-  requireFlag: 'beta',
-  ifFailed: GuardAction.hide,        // 🙈 gone if flag not present
-  child: const Text('New Beta Feature'),
-),
-
-extension GuardX on Widget {
-  Widget role(String r, {GuardAction fail = GuardAction.hide}) =>
-      Guard(requireRole: r, ifFailed: fail, child: this);
-
-  Widget flag(String f, {GuardAction fail = GuardAction.hide}) =>
-      Guard(requireFlag: f, ifFailed: fail, child: this);
-}
-
-// Usage:
-ElevatedButton(onPressed: ..., child: Text('Delete')).role('admin');
+dropdown action for layout

@@ -16,6 +16,7 @@ dependencies:
   go_router: ^15.1.2
   intl: ^0.20.2
   responsive_builder: ^0.7.1
+  toastification: ^3.0.3
   
 dev_dependencies:
   flutter_test:

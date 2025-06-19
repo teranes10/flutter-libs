@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/chip/chip.dart';
-import 'package:te_widgets/widgets/loading-icon/loading_icon.dart';
-import 'package:te_widgets/widgets/tabs/tabs.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class ChipsPage extends StatelessWidget {
   const ChipsPage({super.key});
@@ -75,8 +73,60 @@ class ChipsPage extends StatelessWidget {
               TTab(icon: Icons.access_time, text: 'Time'),
             ],
           ),
+
+          RoleTest()
         ],
       ),
     );
   }
+}
+
+final rolesProvider = StateProvider<List<String>>((ref) => ['guest']);
+
+class RoleTest extends ConsumerWidget {
+  const RoleTest({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final roles = ref.watch(rolesProvider);
+    return Column(
+      children: [
+        ...roles.map((x) => Text(x)),
+        TButton(
+          text: 'Add admin role',
+          onPressed: (_) {
+            ref.read(rolesProvider.notifier).update((roles) {
+              return roles.contains('admin') ? roles : [...roles, 'admin'];
+            });
+          },
+        ),
+        TButton(text: 'Need Admin Access', onPressed: (_) => _showSnackBar(context, 'Clicked by Admin')).role('admin')
+      ],
+    );
+  }
+}
+
+extension RoleGuardExtension on Widget {
+  Widget role(String role) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final roles = ref.watch(rolesProvider);
+
+        return TGuard(
+          condition: roles.contains(role),
+          action: TGuardAction.disable,
+          child: this,
+        );
+      },
+    );
+  }
+}
+
+void _showSnackBar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 1),
+    ),
+  );
 }
