@@ -116,19 +116,6 @@ class _TablesPageState extends State<TablesPage> {
             ],
             items: products,
           ),
-          TCrudTable<ProductDto>(
-            headers: [
-              TTableHeader('Image', builder: (ctx, x) => Image.network(x.thumbnail, width: 50)),
-              TTableHeader.map('SKU', (x) => x.sku),
-              TTableHeader.map('Title', (x) => x.title),
-              TTableHeader.map('Category', (x) => x.category),
-              TTableHeader.map('Price', (x) => x.price),
-              TTableHeader.map('Discount', (x) => x.discountPercentage),
-              TTableHeader.map('Rating', (x) => x.rating),
-              TTableHeader.map('Created At', (x) => x.meta.createdAt),
-            ],
-            onLoad: ProductsClient().loadMore,
-          )
         ],
       ),
     );

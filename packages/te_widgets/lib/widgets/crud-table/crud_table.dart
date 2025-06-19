@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TCrudTable<T> extends StatefulWidget {
+class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
   final List<TTableHeader<T>> headers;
   final int itemsPerPage;
   final List<int> itemsPerPageOptions;
@@ -11,7 +11,8 @@ class TCrudTable<T> extends StatefulWidget {
   final List<T>? archivedItems;
   final TLoadListener<T>? onArchiveLoad;
 
-  final TFormBase? createForm;
+  final F? createForm;
+  final Future<T?> Function(F)? onAddItem;
 
   const TCrudTable({
     super.key,
@@ -23,16 +24,18 @@ class TCrudTable<T> extends StatefulWidget {
     this.onArchiveLoad,
     this.archivedItems,
     this.createForm,
+    this.onAddItem,
   });
 
   @override
-  State<TCrudTable<T>> createState() => _TCrudTableState<T>();
+  State<TCrudTable<T, F>> createState() => _TCrudTableState<T, F>();
 }
 
-class _TCrudTableState<T> extends State<TCrudTable<T>> {
+class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
   bool get showCreateForm => widget.createForm != null;
   bool get showArchiveTable => widget.onArchiveLoad != null || widget.archivedItems != null;
   late ValueNotifier<String> searchNotifier;
+  final tableController = TPaginationController<T>();
 
   @override
   void initState() {
@@ -57,6 +60,7 @@ class _TCrudTableState<T> extends State<TCrudTable<T>> {
           items: widget.items,
           onLoad: widget.onLoad,
           searchNotifier: searchNotifier,
+          controller: tableController,
         ),
       ],
     );
@@ -78,7 +82,7 @@ class _TCrudTableState<T> extends State<TCrudTable<T>> {
                   icon: Icons.add,
                   text: 'Add New Item',
                   color: AppColors.primary,
-                  onPressed: (_) => {},
+                  onPressed: (_) => _addNewItem(),
                 )
               : const SizedBox.shrink(),
           Wrap(
@@ -103,5 +107,15 @@ class _TCrudTableState<T> extends State<TCrudTable<T>> {
         ],
       ),
     );
+  }
+
+  void _addNewItem() async {
+    final value = await TFormService.show(context, widget.createForm!);
+    if (value == null || widget.onAddItem == null) return;
+
+    final item = await widget.onAddItem!.call(value);
+    if (item == null) return;
+
+    tableController.addItem(item);
   }
 }

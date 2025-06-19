@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/mixins/pagination/pagination_config.dart';
 import 'package:te_widgets/mixins/pagination/pagination_notifier.dart';
 
+part 'pagination_controller.dart';
+
 mixin TPaginationMixin<T> {
   List<T>? get items;
   int get itemsPerPage;
@@ -11,9 +13,8 @@ mixin TPaginationMixin<T> {
   bool get loading;
   TLoadListener<T>? get onLoad;
   String Function(T)? get itemToString => null; // Default to toString()
-
-  // External search notifier for components like data table
   ValueNotifier<String>? get searchNotifier => null;
+  TPaginationController? get controller;
 }
 
 mixin TPaginationStateMixin<T, W extends StatefulWidget> on State<W> {
@@ -24,7 +25,6 @@ mixin TPaginationStateMixin<T, W extends StatefulWidget> on State<W> {
 
   late TPaginationNotifier<T> paginationNotifier;
 
-  // Getters for backward compatibility
   List<T> get paginatedItems => paginationNotifier.paginatedItems;
   bool get loading => paginationNotifier.loading;
   bool get hasMoreItems => paginationNotifier.hasMoreItems;
@@ -56,6 +56,8 @@ mixin TPaginationStateMixin<T, W extends StatefulWidget> on State<W> {
       initialSearch: _getInitialSearch(),
       initialLoading: _widget.loading,
     );
+
+    _widget.controller?._attach(paginationNotifier);
 
     // Listen to external search notifier if provided
     _widget.searchNotifier?.addListener(_onExternalSearchChanged);
@@ -100,6 +102,7 @@ mixin TPaginationStateMixin<T, W extends StatefulWidget> on State<W> {
   @override
   void dispose() {
     _widget.searchNotifier?.removeListener(_onExternalSearchChanged);
+    _widget.controller?._detach();
     paginationNotifier.dispose();
     super.dispose();
   }

@@ -13,8 +13,10 @@ tabs
 progressBar
 
 
-serverside reder select onItemTap not working
-remove not items found in loading state on table
+server side render select onItemTap not working
+
 check table total items per page max option and if total count is greater than that then not add it
 
 dropdown action for layout
+
+crud table update, archive, archive list, delete, restore

@@ -14,9 +14,9 @@ class ProductDto with ProductDtoMappable {
   final num rating;
   final int stock;
   final String sku;
-  final String thumbnail;
-  final List<String> images;
-  final MetaDto meta;
+  final String? thumbnail;
+  final List<String>? images;
+  final MetaDto? meta;
 
   const ProductDto(
       {required this.id,
@@ -28,7 +28,7 @@ class ProductDto with ProductDtoMappable {
       required this.stock,
       required this.category,
       required this.sku,
-      required this.thumbnail,
-      required this.images,
-      required this.meta});
+      this.thumbnail,
+      this.images,
+      this.meta});
 }

@@ -23,6 +23,8 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
   final String Function(T)? itemToString;
   @override
   final ValueNotifier<String>? searchNotifier;
+  @override
+  final TPaginationController? controller;
 
   const TDataTable({
     super.key,
@@ -37,6 +39,7 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
     this.decoration = const TTableDecoration(),
     this.itemToString,
     this.searchNotifier,
+    this.controller,
   });
 
   @override

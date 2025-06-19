@@ -89,6 +89,8 @@ class TMultiSelect<T, V> extends StatefulWidget
   final int searchDelay;
   @override
   final String Function(T)? itemToString;
+  @override
+  final TPaginationController? controller;
 
   const TMultiSelect({
     super.key,
@@ -132,6 +134,7 @@ class TMultiSelect<T, V> extends StatefulWidget
     this.search,
     this.searchDelay = 300,
     this.itemToString,
+    this.controller,
   });
 
   @override

@@ -68,11 +68,8 @@ class TPaginationState<T> {
   }
 
   int get totalPages => totalItems > 0 ? (totalItems / currentItemsPerPage).ceil() : 1;
-
   int get computedItemsPerPage => totalItems < currentItemsPerPage ? paginatedItems.length : currentItemsPerPage;
-
   int get pageStartAt => totalItems == 0 ? 0 : ((currentPage - 1) * currentItemsPerPage) + 1;
-
   int get pageEndAt => (currentPage * currentItemsPerPage).clamp(0, totalItems);
 
   String get paginationInfo {
@@ -81,22 +78,13 @@ class TPaginationState<T> {
   }
 }
 
-class TPaginationFilterHelper<T> {
-  final String Function(T)? itemToString;
-
-  const TPaginationFilterHelper({this.itemToString});
-
-  List<T> filterItems(List<T> items, String searchQuery) {
-    if (searchQuery.isEmpty) return items;
-
-    final query = searchQuery.toLowerCase();
-    return items.where((item) => _itemMatchesQuery(item, query)).toList();
-  }
-
-  bool _itemMatchesQuery(T item, String query) {
-    final text = itemToString?.call(item) ?? item.toString();
-    return text.toLowerCase().contains(query);
-  }
+abstract class TPaginationHandler<T> {
+  TPaginationState<T> handlePageChange(TPaginationState<T> state, int page);
+  TPaginationState<T> handleItemsPerPageChange(TPaginationState<T> state, int itemsPerPage);
+  TPaginationState<T> handleSearchChange(TPaginationState<T> state, String search);
+  TPaginationState<T> handleRefresh(TPaginationState<T> state);
+  TPaginationState<T> handleLoadMore(TPaginationState<T> state);
+  void dispose();
 }
 
 class TPaginationDebounceHelper {
@@ -116,5 +104,23 @@ class TPaginationDebounceHelper {
 
   void dispose() {
     cancel();
+  }
+}
+
+class TPaginationFilterHelper<T> {
+  final String Function(T)? itemToString;
+
+  const TPaginationFilterHelper({this.itemToString});
+
+  List<T> filterItems(List<T> items, String searchQuery) {
+    if (searchQuery.isEmpty) return items;
+
+    final query = searchQuery.toLowerCase();
+    return items.where((item) => _itemMatchesQuery(item, query)).toList();
+  }
+
+  bool _itemMatchesQuery(T item, String query) {
+    final text = itemToString?.call(item) ?? item.toString();
+    return text.toLowerCase().contains(query);
   }
 }

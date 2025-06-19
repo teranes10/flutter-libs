@@ -22,7 +22,6 @@ export 'layouts/widgets/profile.dart';
 export 'layouts/layout.dart';
 
 export 'mixins/pagination/pagination_config.dart';
-export 'mixins/pagination/pagination_handlers.dart';
 export 'mixins/pagination/pagination_mixin.dart';
 export 'mixins/pagination/pagination_notifier.dart';
 

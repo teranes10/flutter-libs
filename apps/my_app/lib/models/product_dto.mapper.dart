@@ -42,14 +42,15 @@ class ProductDtoMapper extends ClassMapperBase<ProductDto> {
       Field('category', _$category);
   static String _$sku(ProductDto v) => v.sku;
   static const Field<ProductDto, String> _f$sku = Field('sku', _$sku);
-  static String _$thumbnail(ProductDto v) => v.thumbnail;
+  static String? _$thumbnail(ProductDto v) => v.thumbnail;
   static const Field<ProductDto, String> _f$thumbnail =
-      Field('thumbnail', _$thumbnail);
-  static List<String> _$images(ProductDto v) => v.images;
+      Field('thumbnail', _$thumbnail, opt: true);
+  static List<String>? _$images(ProductDto v) => v.images;
   static const Field<ProductDto, List<String>> _f$images =
-      Field('images', _$images);
-  static MetaDto _$meta(ProductDto v) => v.meta;
-  static const Field<ProductDto, MetaDto> _f$meta = Field('meta', _$meta);
+      Field('images', _$images, opt: true);
+  static MetaDto? _$meta(ProductDto v) => v.meta;
+  static const Field<ProductDto, MetaDto> _f$meta =
+      Field('meta', _$meta, opt: true);
 
   @override
   final MappableFields<ProductDto> fields = const {
@@ -135,8 +136,8 @@ extension ProductDtoValueCopy<$R, $Out>
 
 abstract class ProductDtoCopyWith<$R, $In extends ProductDto, $Out>
     implements ClassCopyWith<$R, $In, $Out> {
-  ListCopyWith<$R, String, ObjectCopyWith<$R, String, String>> get images;
-  MetaDtoCopyWith<$R, MetaDto, MetaDto> get meta;
+  ListCopyWith<$R, String, ObjectCopyWith<$R, String, String>>? get images;
+  MetaDtoCopyWith<$R, MetaDto, MetaDto>? get meta;
   $R call(
       {int? id,
       String? title,
@@ -162,12 +163,14 @@ class _ProductDtoCopyWithImpl<$R, $Out>
   late final ClassMapperBase<ProductDto> $mapper =
       ProductDtoMapper.ensureInitialized();
   @override
-  ListCopyWith<$R, String, ObjectCopyWith<$R, String, String>> get images =>
-      ListCopyWith($value.images, (v, t) => ObjectCopyWith(v, $identity, t),
-          (v) => call(images: v));
+  ListCopyWith<$R, String, ObjectCopyWith<$R, String, String>>? get images =>
+      $value.images != null
+          ? ListCopyWith($value.images!,
+              (v, t) => ObjectCopyWith(v, $identity, t), (v) => call(images: v))
+          : null;
   @override
-  MetaDtoCopyWith<$R, MetaDto, MetaDto> get meta =>
-      $value.meta.copyWith.$chain((v) => call(meta: v));
+  MetaDtoCopyWith<$R, MetaDto, MetaDto>? get meta =>
+      $value.meta?.copyWith.$chain((v) => call(meta: v));
   @override
   $R call(
           {int? id,
@@ -179,9 +182,9 @@ class _ProductDtoCopyWithImpl<$R, $Out>
           int? stock,
           String? category,
           String? sku,
-          String? thumbnail,
-          List<String>? images,
-          MetaDto? meta}) =>
+          Object? thumbnail = $none,
+          Object? images = $none,
+          Object? meta = $none}) =>
       $apply(FieldCopyWithData({
         if (id != null) #id: id,
         if (title != null) #title: title,
@@ -192,9 +195,9 @@ class _ProductDtoCopyWithImpl<$R, $Out>
         if (stock != null) #stock: stock,
         if (category != null) #category: category,
         if (sku != null) #sku: sku,
-        if (thumbnail != null) #thumbnail: thumbnail,
-        if (images != null) #images: images,
-        if (meta != null) #meta: meta
+        if (thumbnail != $none) #thumbnail: thumbnail,
+        if (images != $none) #images: images,
+        if (meta != $none) #meta: meta
       }));
   @override
   ProductDto $make(CopyWithData data) => ProductDto(

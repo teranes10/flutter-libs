@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/layouts/widgets/logo.dart';
-import 'package:te_widgets/layouts/widgets/profile.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/sidebar.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
 
 class TLayout extends StatefulWidget {
   final List<TSidebarItem> items;
-  final TLogo? logo;
-  final TProfile? profile;
+  final Widget? logo;
+  final Widget? profile;
   final Widget child;
   final String? pageTitle;
   final double mainCardRadius;

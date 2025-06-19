@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/mixins/pagination/pagination_config.dart';
-import 'package:te_widgets/mixins/pagination/pagination_handlers.dart';
+import 'package:te_widgets/mixins/pagination/pagination_local_handler.dart';
+import 'package:te_widgets/mixins/pagination/pagination_server_handler.dart';
+
+part 'pagination_notifier_crud_extension.dart';
 
 class TPaginationNotifier<T> extends ChangeNotifier {
   TPaginationState<T> _state;
-  final TPaginationLocalHandler<T> _localHandler;
-  final TPaginationServerHandler<T> _serverHandler;
+
+  late final TPaginationHandler<T> _handler;
   final TPaginationDebounceHelper _debounceHelper;
-  final TLoadListener<T>? _onLoad;
   final bool _isServerSide;
 
   // Value notifiers for reactive updates
@@ -34,103 +36,96 @@ class TPaginationNotifier<T> extends ChangeNotifier {
           hasMoreItems: true,
           search: initialSearch ?? '',
         ),
-        _localHandler = TPaginationLocalHandler<T>(filterHelper: TPaginationFilterHelper<T>(itemToString: itemToString)),
-        _serverHandler = TPaginationServerHandler<T>(),
-        _debounceHelper = TPaginationDebounceHelper(delayMilliseconds: searchDelay),
-        _onLoad = onLoad,
-        _isServerSide = onLoad != null {
+        _isServerSide = onLoad != null,
+        _debounceHelper = TPaginationDebounceHelper(delayMilliseconds: searchDelay) {
+    _handler = onLoad != null
+        ? TPaginationServerHandler<T>(onLoad: onLoad, onStateUpdate: (state) => _updateState(state))
+        : TPaginationLocalHandler<T>(filterHelper: TPaginationFilterHelper<T>(itemToString: itemToString));
+
     searchNotifier.value = _state.search;
-    _loadData();
+    _initializeData();
   }
 
+  // Getters
   TPaginationState<T> get state => _state;
   List<T> get paginatedItems => _state.paginatedItems;
   bool get loading => _state.loading;
   bool get hasMoreItems => _state.hasMoreItems;
   String get search => _state.search;
 
-  void updateItems(List<T> newItems) {
-    if (_isServerSide) return; // Server-side items are handled by onLoad callback
-
-    _state = _state.copyWith(items: newItems);
-    _resetPagination();
-    _loadData();
-  }
-
+  // Core Pagination API - ONLY pagination logic here
   void onPageChanged(int page) {
-    if (page <= 0 || page > _state.totalPages) return;
-
-    _state = _state.copyWith(currentPage: page);
-    _loadData();
+    final newState = _handler.handlePageChange(_state, page);
+    _updateState(newState);
   }
 
   void onItemsPerPageChanged(int itemsPerPage) {
-    _state = _state.copyWith(currentItemsPerPage: itemsPerPage);
-    _resetPagination();
-    _loadData();
+    final newState = _handler.handleItemsPerPageChange(_state, itemsPerPage);
+    _updateState(newState);
   }
 
   void onSearchChanged(String query) {
     _debounceHelper.debounce(() {
       if (_state.search != query) {
-        _state = _state.copyWith(search: query);
         searchNotifier.value = query;
-        _resetPagination();
-        _loadData();
+        final newState = _handler.handleSearchChange(_state, query);
+        _updateState(newState);
       }
     });
   }
 
-  void nextPage() {
-    onPageChanged(_state.currentPage + 1);
-  }
-
-  void previousPage() {
-    onPageChanged(_state.currentPage - 1);
-  }
+  void nextPage() => onPageChanged(_state.currentPage + 1);
+  void previousPage() => onPageChanged(_state.currentPage - 1);
 
   void loadMore() {
-    if (_state.hasMoreItems && !_state.loading) {
-      _state = _state.copyWith(currentPage: _state.currentPage + 1);
-      _loadData(append: true);
-    }
+    final newState = _handler.handleLoadMore(_state);
+    _updateState(newState);
   }
 
   void refresh() {
-    _resetPagination();
-    _loadData();
+    final newState = _handler.handleRefresh(_state);
+    _updateState(newState);
   }
 
-  void _resetPagination() {
-    _state = _state.copyWith(
-      currentPage: 1,
-      hasMoreItems: true,
-      paginatedItems: [],
-    );
+  void updateItems(List<T> newItems) {
+    if (_isServerSide) return;
+    _state = _state.copyWith(items: newItems);
+    final newState = _handler.handleRefresh(_state);
+    _updateState(newState);
   }
 
-  void _loadData({bool append = false}) {
-    if (_state.loading || (!_state.hasMoreItems && append)) return;
+  List<int> getComputedItemsPerPageOptions(List<int> options) {
+    final optionsSet = <int>{
+      _state.computedItemsPerPage,
+      _state.totalItems,
+      ...options,
+    };
+    return optionsSet.where((x) => x <= _state.totalItems && x > 0).toList()..sort();
+  }
 
-    if (_isServerSide) {
-      _state = _serverHandler.setLoading(_state, true);
-      loadingNotifier.value = true;
+  bool shouldLoadMore(ScrollController controller) {
+    if (!controller.hasClients) return false;
+    final maxScroll = controller.position.maxScrollExtent;
+    final currentScroll = controller.position.pixels;
+    const delta = 100.0;
+    return currentScroll >= (maxScroll - delta) && _state.hasMoreItems && !_state.loading;
+  }
 
-      final options = TLoadOptions<T>(
-        page: _state.currentPage,
-        itemsPerPage: _state.currentItemsPerPage,
-        search: _state.search.isEmpty ? null : _state.search,
-        callback: (items, totalItems) {
-          _state = _serverHandler.handleServerResponse(_state, items, totalItems, append: append);
-          _updateNotifiers();
-        },
-      );
+  // Protected methods for extension
+  void updateState(TPaginationState<T> newState) => _updateState(newState);
+  TPaginationState<T> get currentState => _state;
+  TPaginationHandler<T> get handler => _handler;
+  bool get isServerSide => _isServerSide;
 
-      _onLoad?.call(options);
-    } else {
-      _state = _localHandler.handlePagination(_state, _state.items, append: append);
-      _updateNotifiers();
-    }
+  // Private methods
+  void _initializeData() {
+    final newState = _handler.handleRefresh(_state);
+    _updateState(newState);
+  }
+
+  void _updateState(TPaginationState<T> newState) {
+    _state = newState;
+    _updateNotifiers();
   }
 
   void _updateNotifiers() {
@@ -140,29 +135,10 @@ class TPaginationNotifier<T> extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<int> getComputedItemsPerPageOptions(List<int> options) {
-    final optionsSet = <int>{
-      _state.computedItemsPerPage,
-      _state.totalItems,
-      ...options,
-    };
-
-    return optionsSet.where((x) => x <= _state.totalItems && x > 0).toList()..sort();
-  }
-
-  bool shouldLoadMore(ScrollController controller) {
-    if (!controller.hasClients) return false;
-
-    final maxScroll = controller.position.maxScrollExtent;
-    final currentScroll = controller.position.pixels;
-    const delta = 100.0;
-
-    return currentScroll >= (maxScroll - delta) && _state.hasMoreItems && !_state.loading;
-  }
-
   @override
   void dispose() {
     _debounceHelper.dispose();
+    _handler.dispose();
     itemsNotifier.dispose();
     loadingNotifier.dispose();
     hasMoreItemsNotifier.dispose();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/pages/buttons_page.dart';
 import 'package:my_app/pages/chips_page.dart';
+import 'package:my_app/pages/crud_page.dart';
 import 'package:my_app/pages/forms_page.dart';
 import 'package:my_app/pages/input_fields_page.dart';
 import 'package:my_app/pages/popups_page.dart';
@@ -33,6 +34,7 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.list_alt, text: 'Chips', route: '/chips', page: ChipsPage()),
   TSidebarItem(icon: Icons.list_alt, text: 'Popups', route: '/popups', page: PopupsPage()),
   TSidebarItem(icon: Icons.list_alt, text: 'Tables', route: '/tables', page: TablesPage()),
+  TSidebarItem(icon: Icons.list_alt, text: 'Crud', route: '/crud', page: CrudPage()),
   TSidebarItem(icon: Icons.list_alt, text: 'Forms', route: '/forms', page: FormsPage()),
   TSidebarItem(icon: Icons.list_alt, text: 'Item', children: [
     TSidebarItem(icon: Icons.list_alt, text: 'Sub Item', children: [
@@ -44,7 +46,20 @@ final sidebarItems = [
 Widget getLayout(context, GoRouterState state, child) {
   return TLayout(
     logo: TLogo(text: 'Te Widgets'),
-    profile: TProfile(icon: 'assets/icons/profile.png', text: 'Teranes'),
+    profile: Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 15,
+      runSpacing: 5,
+      children: [
+        TProfile(icon: 'assets/icons/profile.png', text: 'Teranes'),
+        TButton(
+          type: TButtonType.icon,
+          icon: Icons.logout_rounded,
+          color: AppColors.grey,
+          onPressed: (_) {},
+        )
+      ],
+    ),
     items: sidebarItems,
     pageTitle: state.name,
     child: child,
