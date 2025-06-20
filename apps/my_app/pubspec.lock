@@ -627,7 +627,7 @@ packages:
       path: "../../packages/te_widgets"
       relative: true
     source: path
-    version: "0.0.3"
+    version: "0.0.5"
   term_glyph:
     dependency: transitive
     description:

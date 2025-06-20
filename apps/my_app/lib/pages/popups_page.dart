@@ -19,16 +19,13 @@ class _PopupsPageState extends State<PopupsPage> {
   void _showModal({required String title, double width = 600, bool persistent = false}) {
     TModalService.show(
       context,
+      title: title,
+      width: width,
+      persistent: persistent,
       (ctx) => Padding(
         padding: const EdgeInsets.all(20),
         child: Text('This is a ${persistent ? "persistent" : "standard"} "$title" modal'),
       ),
-      config: TModalConfig(
-        title: title,
-        width: width,
-        persistent: persistent,
-      ),
-      onClose: () => debugPrint('Modal "$title" closed'),
     );
   }
 
@@ -70,7 +67,8 @@ class _PopupsPageState extends State<PopupsPage> {
             TButton(
               color: AppColors.danger,
               text: 'Error Alert',
-              onPressed: (_) => TAlertService.error(context, 'Failed to Save', 'Something went wrong while saving your data. Please try again.'),
+              onPressed: (_) =>
+                  TAlertService.error(context, 'Failed to Save', 'Something went wrong while saving your data. Please try again.'),
             ),
           ]),
           const SizedBox(height: 32),
@@ -105,7 +103,8 @@ class _PopupsPageState extends State<PopupsPage> {
             TButton(
               color: AppColors.danger,
               text: 'Error Toast',
-              onPressed: (_) => TToastService.error(context, 'Something went wrong while saving your data. Please try again.', 'Failed to Save'),
+              onPressed: (_) =>
+                  TToastService.error(context, 'Something went wrong while saving your data. Please try again.', 'Failed to Save'),
             ),
           ]),
           const SizedBox(height: 32),
@@ -217,12 +216,11 @@ class _PopupsPageState extends State<PopupsPage> {
 
           const Text('— Delay & Padding Example'),
           TTooltip(
-            message: 'Tooltip with 500ms delay & padding',
-            showDelay: const Duration(milliseconds: 500),
-            padding: const EdgeInsets.all(20),
-            position: TTooltipPosition.top,
-            child: const Icon(Icons.hourglass_empty, size: 32),
-          ),
+              message: 'Tooltip with 500ms delay & padding',
+              showDelay: const Duration(milliseconds: 500),
+              padding: const EdgeInsets.all(20),
+              position: TTooltipPosition.top,
+              child: const Icon(Icons.hourglass_empty, size: 32)),
         ],
       ),
     );

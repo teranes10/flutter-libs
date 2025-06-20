@@ -1,28 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/modal/modal_config.dart';
+import 'package:te_widgets/widgets/close-icon/close_icon.dart';
 
 class TModal extends StatelessWidget {
+  final bool persistent;
+  final double width;
   final Widget child;
-  final TModalConfig config;
-  final VoidCallback onClose;
+
+  final Widget? header;
+  final Widget? footer;
+
+  final String? title;
+  final bool? showCloseButton;
+
+  final VoidCallback? onClose;
 
   const TModal(
     this.child, {
     super.key,
-    required this.config,
-    required this.onClose,
+    this.persistent = false,
+    this.width = 500,
+    this.header,
+    this.footer,
+    this.title,
+    this.showCloseButton,
+    this.onClose,
   });
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final modalWidth = config.width > screenWidth ? screenWidth - 25 : config.width;
+    final screenSize = MediaQuery.of(context).size;
+    final modalWidth = width > screenSize.width ? screenSize.width - 50 : width;
 
     return GestureDetector(
       onTap: () {
-        if (!config.persistent) {
-          onClose();
+        if (!persistent) {
+          onClose?.call();
         }
       },
       child: Scaffold(
@@ -30,32 +43,36 @@ class TModal extends StatelessWidget {
         body: Stack(
           children: [
             Align(
-              alignment: const FractionalOffset(0.5, 0.2),
+              alignment: const FractionalOffset(0.5, 0.275),
               child: GestureDetector(
                 onTap: () {}, // Prevent tap propagation
                 child: Container(
                   width: modalWidth,
-                  constraints: const BoxConstraints(
+                  constraints: BoxConstraints(
                     minWidth: 450,
                     minHeight: 250,
+                    maxWidth: screenSize.width - 50,
+                    maxHeight: screenSize.height - 50,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.grey.shade600.withAlpha(25),
-                        blurRadius: 10,
-                        spreadRadius: 2,
-                      ),
-                    ],
+                    boxShadow: [BoxShadow(color: AppColors.grey.shade600.withAlpha(25), blurRadius: 10, spreadRadius: 2)],
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (config.title != null || config.showCloseButton == true || config.headerWidget != null) _buildHeader(config, onClose),
-                      Flexible(child: child),
-                      if (config.footerWidget != null) _buildFooter(config),
+                      // Fixed header (non-scrollable
+                      if (header != null) header!,
+                      if (header == null && (title != null || showCloseButton == true)) _buildHeader(),
+
+                      // Scrollable content area
+                      Flexible(
+                        child: SingleChildScrollView(child: child),
+                      ),
+
+                      // Fixed footer (non-scrollable)
+                      if (footer != null) footer!,
                     ],
                   ),
                 ),
@@ -67,63 +84,19 @@ class TModal extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(TModalConfig config, VoidCallback onClose) {
+  Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: config.headerWidget ??
-                Text(
-                  config.title ?? '',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w300,
-                    color: AppColors.grey.shade600,
-                  ),
-                ),
+            child: title != null
+                ? Text(title ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: AppColors.grey.shade600))
+                : SizedBox.shrink(),
           ),
-          if (config.showCloseButton == true) CloseIconButton(onClose: onClose),
+          if (showCloseButton == true) TCloseIcon(onClose: () => onClose?.call()),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFooter(TModalConfig config) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 13.6, 20, 13.6),
-      child: config.footerWidget!,
-    );
-  }
-}
-
-class CloseIconButton extends StatefulWidget {
-  final VoidCallback onClose;
-  final double? size;
-
-  const CloseIconButton({super.key, required this.onClose, this.size});
-
-  @override
-  State<CloseIconButton> createState() => CloseIconButtonState();
-}
-
-class CloseIconButtonState extends State<CloseIconButton> {
-  bool _isHovering = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovering = true),
-      onExit: (_) => setState(() => _isHovering = false),
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: widget.onClose,
-        child: Icon(
-          Icons.cancel_outlined,
-          color: _isHovering ? AppColors.danger.shade400 : AppColors.grey.shade300,
-          size: widget.size ?? 20,
-        ),
       ),
     );
   }

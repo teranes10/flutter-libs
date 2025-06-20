@@ -65,7 +65,8 @@ class ProductForm extends TFormBase {
     return [
       TFormField.text(title, 'Title', isRequired: true).size(6),
       TFormField.number(price, 'Price').size(6),
-      TFormField.select(category, 'Category', items: categories),
+      TFormField.select<ProductDto, String>(category, 'Category',
+          onLoad: ProductsClient().loadMore, itemText: (x) => x.title, itemValue: (x) => x.sku),
       TFormField.date(date, "Date"),
       TFormField.text(description, 'Description', rows: 3),
     ];

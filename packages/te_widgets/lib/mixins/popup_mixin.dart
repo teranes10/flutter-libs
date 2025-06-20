@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_widgets/widgets/close-icon/close_icon.dart';
 
 mixin TPopupMixin {
   bool get disabled;
@@ -80,7 +81,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         child: Stack(
           children: [
             Padding(padding: EdgeInsets.fromLTRB(3, 9, 3, 0), child: getContentWidget()),
-            Positioned(top: 2, right: 2, child: CloseIconButton(size: 14, onClose: hidePopup)),
+            Positioned(top: 2, right: 2, child: TCloseIcon(size: 14, onClose: hidePopup)),
           ],
         ),
       ),

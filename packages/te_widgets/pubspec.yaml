@@ -6,8 +6,8 @@ homepage: https://teranes10.github.io/flutter-libs
 repository: https://github.com/teranes10/flutter-libs/tree/master/packages/te_widgets
 
 environment:
-  sdk: ^3.6.0
-  flutter: ">=1.17.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.27.0"
 
 dependencies:
   flutter:
