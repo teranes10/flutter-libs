@@ -39,6 +39,12 @@ class TFormService {
           ],
         ),
       );
-    }, config: TModalConfig(persistent: true, showCloseButton: true, width: 650, title: 'Add New User'));
+    },
+        config: TModalConfig(
+          persistent: input.isFormPersistent,
+          showCloseButton: input.isFormCloseButton,
+          width: input.formWidth,
+          title: input.formTitle,
+        ));
   }
 }

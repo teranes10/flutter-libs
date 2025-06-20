@@ -235,20 +235,17 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
         return i;
       case TSelectRecord<V> record:
         return TSelectItem<V>.fromRecord(record);
-      case String s when V == String:
+      case String s:
         return TSelectItem<V>.simple(s, s as V, s);
-      case int i when V == int:
+      case int i:
         final text = i.toString();
         return TSelectItem<V>.simple(text, i as V, text);
-      case double d when V == double:
+      case double d:
         final text = d.toString();
         return TSelectItem<V>.simple(text, d as V, text);
-      case bool b when V == bool:
+      case bool b:
         final text = b.toString();
         return TSelectItem<V>.simple(text, b as V, text);
-      case num n when V == num:
-        final text = n.toString();
-        return TSelectItem<V>.simple(text, n as V, text);
       default:
         final text = itemText?.call(item);
         final value = itemValue != null ? itemValue!.call(item) : item;

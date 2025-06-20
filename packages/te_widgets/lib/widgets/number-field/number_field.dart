@@ -87,8 +87,8 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
 
   @override
   void initState() {
-    super.initState();
     _controller = TextEditingController(text: _formatValue(currentValue));
+    super.initState();
   }
 
   @override
@@ -130,7 +130,7 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
   }
 
   String _formatValue(T? value) {
-    if (value == null) return '';
+    if (value == null || value == 0) return '';
 
     if (T == int) {
       return value.toInt().toString();

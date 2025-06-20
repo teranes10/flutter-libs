@@ -148,7 +148,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             isLoading ? widget.loadingText : widget.text!,
             style: TextStyle(
               fontSize: size.font,
-              fontWeight: FontWeight.w400,
+              fontWeight: widget.type.fontWeight,
               letterSpacing: 0.65,
             ),
           ),

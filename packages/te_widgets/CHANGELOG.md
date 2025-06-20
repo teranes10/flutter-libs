@@ -1,3 +1,14 @@
+## 0.0.5
+
+    - (tags, select, multiSelect, number, date, time, dateTime) field types added to TFormField
+
+## 0.0.4
+
+    - TPagination Controller
+    - TToastService
+    - TFormService
+    - TCrudTable (Add Item option)
+
 ## 0.0.3
 
     - TDataTable filtering logic

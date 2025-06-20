@@ -1,6 +1,12 @@
 part of 'form_builder.dart';
 
 abstract class TFormBase {
+  double get formWidth => 650;
+  String get formTitle => 'Add New Item';
+  String get formActionName => 'Add New Item';
+  bool get isFormPersistent => true;
+  bool get isFormCloseButton => true;
+
   List<TFormField> get fields;
 
   List<String> get validationErrors {
@@ -38,14 +44,6 @@ class TFieldSize {
   final int? sm, md, lg;
 
   const TFieldSize({this.sm, this.md, this.lg});
-  const TFieldSize.md(int columns)
-      : sm = null,
-        md = columns,
-        lg = null;
-  const TFieldSize.lg(int columns)
-      : sm = null,
-        md = null,
-        lg = columns;
 
   int getSpan(TBreakpoint bp) {
     switch (bp) {

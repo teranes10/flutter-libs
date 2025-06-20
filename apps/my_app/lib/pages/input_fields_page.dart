@@ -9,6 +9,9 @@ class InputFieldsPage extends StatefulWidget {
 }
 
 class _InputFieldsPageState extends State<InputFieldsPage> {
+  int integerValue = 10;
+  double doubleValue = 10.0;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -39,9 +42,11 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           ),
           TNumberField<int>(
             label: "Age",
+            value: integerValue,
           ),
           TNumberField<double>(
             label: "Price",
+            value: doubleValue,
             decimals: 2,
             rules: [(value) => value == null || value < 100 ? 'Value must be greater than 100' : null],
           ),

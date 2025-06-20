@@ -125,7 +125,7 @@ class TSelect<T, V> extends StatefulWidget
     this.itemsPerPageOptions = const [],
     this.loading = false,
     this.search,
-    this.searchDelay = 300,
+    this.searchDelay = 2500,
     this.itemToString,
     this.controller,
   });

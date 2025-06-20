@@ -80,7 +80,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
                   type: TButtonType.outline,
                   size: TButtonSize.lg,
                   icon: Icons.add,
-                  text: 'Add New Item',
+                  text: widget.createForm?.formActionName ?? 'Add New Item',
                   color: AppColors.primary,
                   onPressed: (_) => _addNewItem(),
                 )

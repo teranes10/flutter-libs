@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/widgets/button/button.dart';
 
-enum TButtonType { fill, inverse, outline, outlineFill, text, textFill, icon }
+enum TButtonType {
+  fill,
+  inverse,
+  outline,
+  outlineFill,
+  text,
+  textFill,
+  icon;
+
+  FontWeight get fontWeight {
+    return switch (this) {
+      fill || inverse || text || textFill || icon => FontWeight.w400,
+      outline || outlineFill => FontWeight.w300,
+    };
+  }
+}
 
 enum TButtonGroupType { fill, inverse, outline, outlineFill, text, textFill, icon, boxed }
 

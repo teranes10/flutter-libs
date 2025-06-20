@@ -29,7 +29,7 @@ class CrudPage extends StatelessWidget {
           id: productId++,
           title: input.title.value,
           description: input.description.value,
-          price: int.parse(input.price.value),
+          price: input.price.value,
           discountPercentage: 1,
           rating: 1,
           stock: 1,
@@ -42,18 +42,32 @@ class CrudPage extends StatelessWidget {
 }
 
 var productId = 1000;
+var categories = ['Category 1', 'Category 2', 'Category 3'];
 
 class ProductForm extends TFormBase {
   final title = TFieldProp('');
   final description = TFieldProp('');
-  final price = TFieldProp('');
+  final price = TFieldProp(0.0);
+  final date = TFieldProp(DateTime.now());
+  final category = TFieldProp('Category 1');
+
+  @override
+  double get formWidth => 750;
+
+  @override
+  String get formTitle => 'Add New Product';
+
+  @override
+  String get formActionName => 'Add New Product';
 
   @override
   List<TFormField> get fields {
     return [
-      TFormField.text(title, 'Title', isRequired: true).size(6, sm: 6),
-      TFormField.text(description, 'Description').size(6),
-      TFormField.text(price, 'Price'),
+      TFormField.text(title, 'Title', isRequired: true).size(6),
+      TFormField.number(price, 'Price').size(6),
+      TFormField.select(category, 'Category', items: categories),
+      TFormField.date(date, "Date"),
+      TFormField.text(description, 'Description', rows: 3),
     ];
   }
 }

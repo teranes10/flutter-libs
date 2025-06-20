@@ -52,7 +52,7 @@ class TMultiSelect<T, V> extends StatefulWidget
   final VoidCallback? onTap;
 
   @override
-  final List<T> items;
+  final List<T>? items;
   @override
   final bool multiLevel, filterable;
 
@@ -113,7 +113,7 @@ class TMultiSelect<T, V> extends StatefulWidget
     this.valueNotifier,
     this.onValueChanged,
     this.focusNode,
-    this.items = const [],
+    this.items,
     this.multiLevel = false,
     this.filterable = true,
     this.footerMessage,
