@@ -1,7 +1,5 @@
 part of 'pagination_notifier.dart';
 
-enum TItemAddPosition { first, last }
-
 extension TPaginationCrudExtension<T> on TPaginationNotifier<T> {
   void addItem(T item, {TItemAddPosition position = TItemAddPosition.first}) {
     final newState = currentState.copyWith(

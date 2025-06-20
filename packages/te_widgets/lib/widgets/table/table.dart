@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/widgets/card/card.dart';
+import 'package:te_widgets/widgets/list/list.dart';
 import 'package:te_widgets/widgets/scrollbar/scrollbar.dart';
 import 'package:te_widgets/widgets/table/table_card.dart';
 import 'package:te_widgets/widgets/table/table_configs.dart';
@@ -83,7 +85,8 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
         }
 
         // Apply horizontal scroll if needed and set minimum width
-        if (!_isCardView && (needsHorizontalScroll || (widget.decoration.minWidth != null && widget.decoration.minWidth! > constraints.maxWidth))) {
+        if (!_isCardView &&
+            (needsHorizontalScroll || (widget.decoration.minWidth != null && widget.decoration.minWidth! > constraints.maxWidth))) {
           // Ensure the table has enough width to display all columns properly
           final minTableWidth = totalRequiredWidth > 0 ? totalRequiredWidth : (widget.decoration.minWidth ?? constraints.maxWidth);
 
@@ -127,34 +130,6 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     totalWidth += 32; // Account for horizontal padding
 
     return totalWidth;
-  }
-
-  Widget _buildCardView() {
-    if (widget.items.isEmpty && !widget.loading) {
-      return tableEmptyState();
-    }
-
-    Widget listView = ListView.builder(
-      shrinkWrap: widget.decoration.shrinkWrap,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: widget.decoration.styling?.contentPadding ?? const EdgeInsets.all(0),
-      itemCount: widget.items.length,
-      itemBuilder: _buildCardItem,
-    );
-
-    return widget.decoration.showScrollbars && !widget.decoration.shrinkWrap ? _buildScrollableWrapper(listView) : listView;
-  }
-
-  Widget _buildCardItem(BuildContext context, int index) {
-    return _buildAnimatedItem(
-      index: index,
-      child: TTableCard<T>(
-        item: widget.items[index],
-        headers: widget.headers,
-        styling: widget.decoration.styling,
-        width: widget.decoration.cardWidth,
-      ),
-    );
   }
 
   Widget _buildTableView([BoxConstraints? constraints]) {
@@ -217,73 +192,78 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
 
   Widget _buildTable() {
     return SizedBox(
-      width: double.infinity, // Ensure table stretches full width
-      child: Column(
-        children: widget.items.asMap().entries.map((entry) {
-          final index = entry.key;
-          final item = entry.value;
-
-          return _buildAnimatedTableRow(index, item);
-        }).toList(),
+      width: double.infinity,
+      child: TList<T>(
+        items: widget.items,
+        showAnimation: widget.decoration.showStaggeredAnimation,
+        animationDuration: widget.decoration.animationDuration,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, item, index) {
+          return _buildTableRowCard(item, index);
+        },
       ),
     );
   }
 
-  Widget _buildAnimatedTableRow(int index, T item) {
+  Widget _buildTableRowCard(T item, int index) {
     final rowStyle = widget.decoration.styling?.rowStyle ?? const TRowStyle();
 
-    // Create the entire row as a single card
-    Widget rowCard = Container(
-      width: double.infinity, // Force full width
+    return TCard(
       margin: rowStyle.margin ?? const EdgeInsets.only(bottom: 8),
-      child: Material(
-        elevation: rowStyle.elevation ?? 1,
-        borderRadius: rowStyle.borderRadius ?? BorderRadius.circular(8),
-        color: rowStyle.backgroundColor ?? Colors.white,
-        child: InkWell(
-          borderRadius: rowStyle.borderRadius ?? BorderRadius.circular(8),
-          child: Container(
-            width: double.infinity, // Ensure inner container also stretches
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.grey.shade50,
-                  offset: Offset(0, 2),
-                  blurRadius: 0,
-                  spreadRadius: 0,
-                ),
-              ],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: rowStyle.padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: Table(
-              columnWidths: _getColumnWidths(),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: [
-                TableRow(
-                  children: widget.headers.map((header) {
-                    Widget cellContent = _buildCellContent(header, item);
-
-                    // Apply alignment
-                    return Align(
-                      alignment: header.alignment ?? Alignment.centerLeft,
-                      child: cellContent,
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-          ),
+      elevation: rowStyle.elevation ?? 1,
+      borderRadius: rowStyle.borderRadius ?? BorderRadius.circular(8),
+      backgroundColor: rowStyle.backgroundColor ?? Colors.white,
+      padding: rowStyle.padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.grey.shade50,
+          offset: const Offset(0, 2),
+          blurRadius: 0,
+          spreadRadius: 0,
         ),
+      ],
+      child: Table(
+        columnWidths: _getColumnWidths(),
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: [
+          TableRow(
+            children: widget.headers.map((header) {
+              Widget cellContent = _buildCellContent(header, item);
+              return Align(
+                alignment: header.alignment ?? Alignment.centerLeft,
+                child: cellContent,
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
+  }
 
-    // Apply animation to the entire row card
-    return _buildAnimatedItem(
-      index: index,
-      child: rowCard,
+  Widget _buildCardView() {
+    if (widget.items.isEmpty && !widget.loading) {
+      return tableEmptyState();
+    }
+
+    Widget listView = TList<T>(
+      items: widget.items,
+      showAnimation: widget.decoration.showStaggeredAnimation,
+      animationDuration: widget.decoration.animationDuration,
+      shrinkWrap: widget.decoration.shrinkWrap,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: widget.decoration.styling?.contentPadding ?? const EdgeInsets.all(0),
+      itemBuilder: (context, item, index) {
+        return TTableCard<T>(
+          item: item,
+          headers: widget.headers,
+          styling: widget.decoration.styling,
+          width: widget.decoration.cardWidth,
+        );
+      },
     );
+
+    return widget.decoration.showScrollbars && !widget.decoration.shrinkWrap ? _buildScrollableWrapper(listView) : listView;
   }
 
   Map<int, TableColumnWidth> _getColumnWidths() {
@@ -362,29 +342,9 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
       padding: EdgeInsets.symmetric(horizontal: 5),
       child: Text(
         header.getValue(item),
-        style: widget.decoration.styling?.rowTextStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w300, color: AppColors.grey[600]),
+        style:
+            widget.decoration.styling?.rowTextStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w300, color: AppColors.grey[600]),
       ),
-    );
-  }
-
-  Widget _buildAnimatedItem({required int index, required Widget child}) {
-    if (!widget.decoration.showStaggeredAnimation) {
-      return child;
-    }
-
-    final animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Interval((0.05 * index).clamp(0.0, 0.3), (0.3 + (0.05 * index)).clamp(0.3, 1.0), curve: Curves.easeOutCubic),
-    );
-
-    return AnimatedBuilder(
-      animation: animation,
-      builder: (context, _) {
-        return Transform.translate(
-          offset: Offset((1 - animation.value) * 50, 0),
-          child: Opacity(opacity: animation.value, child: child),
-        );
-      },
     );
   }
 

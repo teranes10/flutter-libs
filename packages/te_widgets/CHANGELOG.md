@@ -1,3 +1,7 @@
+## 0.0.7
+
+    - TFormBuilder (sub form & sub form list)
+
 ## 0.0.6
 
     - TModalService overflow issue fixed

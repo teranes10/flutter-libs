@@ -10,12 +10,16 @@ class TFormBuilder extends StatelessWidget {
   final TFormBase? input;
   final List<TFormField>? fields;
   final double gutter;
+  final VoidCallback? onValueChanged;
+  final String? label;
 
   const TFormBuilder({
     super.key,
     this.input,
     this.fields,
     this.gutter = 16.0,
+    this.onValueChanged,
+    this.label,
   }) : assert((input == null) != (fields == null), 'Provide either "input" or "fields", not both.');
 
   @override
@@ -28,15 +32,32 @@ class TFormBuilder extends StatelessWidget {
       return Wrap(
         spacing: gutter,
         runSpacing: gutter,
-        children: (input?.fields ?? fields ?? []).map((field) {
-          final span = field._size.getSpan(breakpoint);
-          final width = (unitWidth * span) + ((span - 1) * gutter);
+        children: [
+          if (label != null)
+            SizedBox(
+              width: (unitWidth * 12) + (11 * gutter),
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 5),
+                child: Text(label!, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: AppColors.grey.shade600)),
+              ),
+            ),
+          ...(input?.fields ?? fields ?? []).map((field) {
+            final span = field._size.getSpan(breakpoint);
+            final width = (unitWidth * span) + ((span - 1) * gutter);
+            final isForm = field._field is TFormBuilder || field._field is TItemsFormBuilder;
 
-          return SizedBox(
-            width: width,
-            child: field._field,
-          );
-        }).toList(),
+            if (onValueChanged != null) {
+              field._attach(onValueChanged!);
+            }
+
+            final widget = SizedBox(
+              width: width,
+              child: field._field,
+            );
+
+            return isForm ? Padding(padding: EdgeInsets.only(top: 15), child: widget) : widget;
+          })
+        ],
       );
     });
   }

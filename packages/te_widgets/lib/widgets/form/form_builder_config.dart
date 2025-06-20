@@ -14,10 +14,31 @@ abstract class TFormBase {
 
     for (var field in fields) {
       if (field._field is TInputValidationMixin) {
-        var input = field._field as TInputValidationMixin;
-        var errors = input.validateValue(field.prop.value);
+        final input = field._field as TInputValidationMixin;
+        final errors = input.validateValue(field.prop.value);
         if (errors.isNotEmpty) {
           errorsList.addAll(errors);
+        }
+      } else if (field._field is TItemsFormBuilder) {
+        final items = field.prop.value;
+        if (items is List && items.isNotEmpty) {
+          for (var i = 0; i < items.length; i++) {
+            final item = items[i];
+            if (item is TFormBase) {
+              final errors = item.validationErrors.map((e) => 'Item ${i + 1}: $e');
+              if (errors.isNotEmpty) {
+                errorsList.addAll(errors);
+              }
+            }
+          }
+        }
+      } else if (field._field is TFormBuilder) {
+        final item = field.prop.value;
+        if (item is TFormBase) {
+          final errors = item.validationErrors;
+          if (errors.isNotEmpty) {
+            errorsList.addAll(errors);
+          }
         }
       }
     }

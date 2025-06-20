@@ -4,15 +4,23 @@ class TFormField<T> {
   final TFieldProp<T> prop;
   final Widget Function(ValueChanged<T>) builder;
 
-  final Widget _field;
+  late final Widget _field;
   TFieldSize _size = const TFieldSize();
+  VoidCallback? _callback;
 
-  TFormField({
-    required this.prop,
-    required this.builder,
-  }) : _field = builder((value) {
-          prop._value = value;
-        });
+  TFormField({required this.builder, required this.prop}) {
+    _field = builder.call(_onValueChanged);
+  }
+
+  void _onValueChanged(T value) {
+    prop._value = value;
+    _callback?.call();
+  }
+
+  void _attach(VoidCallback callback) {
+    assert(_callback == null, 'Form field value listener already attached.');
+    _callback = callback;
+  }
 
   TFormField<T> size(int md, {int? sm, int? lg}) {
     _size = TFieldSize(sm: sm, md: md, lg: lg);
@@ -285,6 +293,41 @@ class TFormField<T> {
         itemsPerPage: itemsPerPage,
         onLoad: onLoad,
         searchDelay: searchDelay,
+      ),
+    );
+  }
+
+  static TFormField<T> group<T extends TFormBase>(TFieldProp<T> prop, {String? label}) {
+    return TFormField<T>(
+      prop: prop,
+      builder: (onValueChanged) => TFormBuilder(
+        label: label,
+        input: prop.value,
+        onValueChanged: () {
+          onValueChanged(prop.value);
+        },
+      ),
+    );
+  }
+
+  static TFormField<List<T>> items<T extends TFormBase>(
+    TFieldProp<List<T>> prop,
+    T Function() onNewItem, {
+    String? label,
+    String buttonLabel = 'Add New',
+    TItemAddPosition itemAddPosition = TItemAddPosition.first,
+  }) {
+    return TFormField<List<T>>(
+      prop: prop,
+      builder: (onValueChanged) => TItemsFormBuilder(
+        label: label,
+        buttonLabel: buttonLabel,
+        onNewItem: onNewItem,
+        itemAddPosition: itemAddPosition,
+        value: prop.value,
+        onValueChanged: (value) {
+          onValueChanged(value);
+        },
       ),
     );
   }

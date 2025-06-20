@@ -1,0 +1,1 @@
+enum TItemAddPosition { first, last }

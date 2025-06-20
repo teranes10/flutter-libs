@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/enum/list.dart';
 import 'package:te_widgets/mixins/pagination/pagination_config.dart';
 import 'package:te_widgets/mixins/pagination/pagination_notifier.dart';
 
