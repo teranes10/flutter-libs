@@ -1,3 +1,7 @@
+## 0.0.6
+
+    - TModalService overflow issue fixed
+
 ## 0.0.5
 
     - (tags, select, multiSelect, number, date, time, dateTime) field types added to TFormField
