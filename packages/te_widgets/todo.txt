@@ -1,6 +1,5 @@
 
 accordion
-autocomplete
 checkbox 
 radio
 switch
@@ -8,8 +7,6 @@ currency field
 file upload
 image
 menu
-toast
-tabs
 progressBar
 
 
@@ -19,4 +16,7 @@ check table total items per page max option and if total count is greater than t
 
 dropdown action for layout
 
-crud table update, archive, archive list, delete, restore
+crud table update, archive, delete, restore
+
+
+form reset on saved

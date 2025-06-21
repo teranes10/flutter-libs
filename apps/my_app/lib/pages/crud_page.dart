@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/clients/posts_client.dart';
 import 'package:my_app/clients/products_client.dart';
 import 'package:my_app/models/product_dto.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -23,6 +24,7 @@ class CrudPage extends StatelessWidget {
         TTableHeader.map('Created At', (x) => x.meta?.createdAt ?? ''),
       ],
       onLoad: ProductsClient().loadMore,
+      onArchiveLoad: ProductsClient().loadMore,
       createForm: ProductForm(),
       onAddItem: (input) async {
         return ProductDto(

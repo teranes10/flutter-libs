@@ -35,17 +35,23 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
   bool get showCreateForm => widget.createForm != null;
   bool get showArchiveTable => widget.onArchiveLoad != null || widget.archivedItems != null;
   late ValueNotifier<String> searchNotifier;
+  late ValueNotifier<String> archiveSearchNotifier;
   final tableController = TPaginationController<T>();
+  final archiveTableController = TPaginationController<T>();
+  int currentTabIndex = 0;
+  bool isArchiveLoaded = false;
 
   @override
   void initState() {
     super.initState();
     searchNotifier = ValueNotifier('');
+    archiveSearchNotifier = ValueNotifier('');
   }
 
   @override
   void dispose() {
     searchNotifier.dispose();
+    archiveSearchNotifier.dispose();
     super.dispose();
   }
 
@@ -55,13 +61,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       runSpacing: 25,
       children: [
         _buildTopBar(),
-        TDataTable<T>(
-          headers: widget.headers,
-          items: widget.items,
-          onLoad: widget.onLoad,
-          searchNotifier: searchNotifier,
-          controller: tableController,
-        ),
+        _buildDataTable(),
       ],
     );
   }
@@ -90,22 +90,72 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
             runSpacing: 5,
             children: [
               if (showArchiveTable)
-                TTabs(inline: true, tabs: [
-                  TTab(text: 'Active'),
-                  TTab(text: 'Archive'),
-                ]),
+                TTabs(
+                    inline: true,
+                    selectedIndex: currentTabIndex,
+                    onTabChanged: (index) {
+                      setState(() {
+                        currentTabIndex = index;
+                      });
+                    },
+                    tabs: [
+                      TTab(text: 'Active'),
+                      TTab(text: 'Archive'),
+                    ]),
               SizedBox(
-                  width: 250,
-                  child: TTextField(
-                    placeholder: 'Search',
-                    postWidget: Icon(Icons.search_rounded, color: AppColors.grey.shade500),
-                    size: TInputSize.sm,
-                    valueNotifier: searchNotifier,
-                  )),
+                width: 250,
+                child: TTextField(
+                  placeholder: 'Search',
+                  postWidget: Icon(Icons.search_rounded, color: AppColors.grey.shade500),
+                  size: TInputSize.sm,
+                  valueNotifier: currentTabIndex == 0 ? searchNotifier : archiveSearchNotifier,
+                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDataTable() {
+    if (!showArchiveTable) {
+      return TDataTable<T>(
+        headers: widget.headers,
+        items: widget.items,
+        onLoad: widget.onLoad,
+        searchNotifier: searchNotifier,
+        controller: tableController,
+      );
+    }
+
+    return IndexedStack(
+      index: currentTabIndex,
+      children: [
+        // Active items table
+        TDataTable<T>(
+          headers: widget.headers,
+          items: widget.items,
+          onLoad: widget.onLoad,
+          searchNotifier: searchNotifier,
+          controller: tableController,
+        ),
+        // Archive items table
+        _buildArchiveTable(),
+      ],
+    );
+  }
+
+  Widget _buildArchiveTable() {
+    if (currentTabIndex == 0 && !isArchiveLoaded) return SizedBox.shrink();
+
+    isArchiveLoaded = true;
+    return TDataTable<T>(
+      headers: widget.headers,
+      items: widget.archivedItems,
+      onLoad: widget.onArchiveLoad,
+      searchNotifier: archiveSearchNotifier,
+      controller: archiveTableController,
     );
   }
 

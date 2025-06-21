@@ -87,17 +87,18 @@ class _TTabsState extends State<TTabs> {
       final tab = entry.value;
       final isSelected = _currentIndex == index;
 
-      return Expanded(
-        child: _buildTab(
-          index: index,
-          tab: tab,
-          isSelected: isSelected,
-          selectedColor: defaultSelectedColor,
-          unselectedColor: defaultUnselectedColor,
-          disabledColor: defaultDisabledColor,
-          indicatorColor: defaultIndicatorColor,
-        ),
+      final tabWidget = _buildTab(
+        index: index,
+        tab: tab,
+        isSelected: isSelected,
+        selectedColor: defaultSelectedColor,
+        unselectedColor: defaultUnselectedColor,
+        disabledColor: defaultDisabledColor,
+        indicatorColor: defaultIndicatorColor,
       );
+
+      // Only wrap with Expanded if not inline
+      return widget.inline ? tabWidget : Expanded(child: tabWidget);
     }).toList();
 
     return Container(

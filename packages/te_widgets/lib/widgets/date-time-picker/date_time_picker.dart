@@ -151,13 +151,30 @@ class _TDateTimePickerState extends State<TDateTimePicker>
     });
   }
 
+  WidgetStateProperty<T> _resolveState<T>(T normal, T selected) {
+    return WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) return selected;
+      return normal;
+    });
+  }
+
   Widget _buildDateTab() {
-    return CalendarDatePicker(
-      initialDate: _selectedDate ?? currentValue ?? DateTime.now(),
-      firstDate: widget.firstDate ?? DateTime(1900),
-      lastDate: widget.lastDate ?? DateTime(2100),
-      onDateChanged: _onDateSelected,
-    );
+    return DatePickerTheme(
+        data: DatePickerThemeData(
+          backgroundColor: Colors.white,
+          headerBackgroundColor: Colors.white,
+          headerForegroundColor: AppColors.grey.shade600,
+          dayForegroundColor: _resolveState(AppColors.grey.shade600, Colors.white),
+          dayBackgroundColor: _resolveState(Colors.transparent, Theme.of(context).colorScheme.primary),
+          todayForegroundColor: _resolveState(AppColors.grey.shade600, Colors.white),
+          todayBackgroundColor: _resolveState(Colors.transparent, Theme.of(context).colorScheme.primary),
+        ),
+        child: CalendarDatePicker(
+          initialDate: _selectedDate ?? currentValue ?? DateTime.now(),
+          firstDate: widget.firstDate ?? DateTime(1900),
+          lastDate: widget.lastDate ?? DateTime(2100),
+          onDateChanged: _onDateSelected,
+        ));
   }
 
   Widget _buildTimeTab() {
