@@ -1,3 +1,7 @@
+## 0.0.8
+
+    - TCrudTable actions
+
 ## 0.0.7
 
     - TFormBuilder (sub form & sub form list)

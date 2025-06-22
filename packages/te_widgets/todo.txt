@@ -15,8 +15,3 @@ server side render select onItemTap not working
 check table total items per page max option and if total count is greater than that then not add it
 
 dropdown action for layout
-
-crud table update, archive, delete, restore
-
-
-form reset on saved

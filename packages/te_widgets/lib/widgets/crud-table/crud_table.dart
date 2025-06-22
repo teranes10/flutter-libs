@@ -1,30 +1,43 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
   final List<TTableHeader<T>> headers;
-  final int itemsPerPage;
-  final List<int> itemsPerPageOptions;
 
   final List<T>? items;
   final TLoadListener<T>? onLoad;
   final List<T>? archivedItems;
   final TLoadListener<T>? onArchiveLoad;
 
-  final F? createForm;
-  final Future<T?> Function(F)? onAddItem;
+  final F Function()? createForm;
+  final F Function(T item)? editForm;
+
+  final Future<T?> Function(F form)? onCreate;
+  final Future<T?> Function(T item, F form)? onEdit;
+  final Future<void> Function(T item)? onView;
+  final Future<bool> Function(T item)? onArchive;
+  final Future<bool> Function(T item)? onRestore;
+  final Future<bool> Function(T item)? onDelete;
+
+  final TCrudConfig<T> config;
 
   const TCrudTable({
     super.key,
     required this.headers,
-    this.itemsPerPage = 5,
-    this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
     this.items,
     this.onLoad,
-    this.onArchiveLoad,
     this.archivedItems,
+    this.onArchiveLoad,
     this.createForm,
-    this.onAddItem,
+    this.editForm,
+    this.onCreate,
+    this.onView,
+    this.onEdit,
+    this.onArchive,
+    this.onRestore,
+    this.onDelete,
+    this.config = const TCrudConfig(),
   });
 
   @override
@@ -32,140 +45,412 @@ class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
 }
 
 class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
-  bool get showCreateForm => widget.createForm != null;
-  bool get showArchiveTable => widget.onArchiveLoad != null || widget.archivedItems != null;
-  late ValueNotifier<String> searchNotifier;
-  late ValueNotifier<String> archiveSearchNotifier;
-  final tableController = TPaginationController<T>();
-  final archiveTableController = TPaginationController<T>();
-  int currentTabIndex = 0;
-  bool isArchiveLoaded = false;
+  late final ValueNotifier<String> _searchNotifier;
+  late final ValueNotifier<String> _archiveSearchNotifier;
+  final _tableController = TPaginationController<T>();
+  final _archiveController = TPaginationController<T>();
+
+  int _currentTab = 0;
+  final Map<T, Map<String, bool>> _permissionCache = {};
+
+  bool get _hasArchive => widget.archivedItems != null || widget.onArchiveLoad != null;
+  bool get _canCreate => widget.createForm != null && widget.onCreate != null;
+  bool get _canEdit => widget.editForm != null && widget.onEdit != null;
+  bool get _hasActiveActions => widget.onView != null || _canEdit || widget.onArchive != null || widget.config.activeActions.isNotEmpty;
+  bool get _hasArchiveActions =>
+      widget.onView != null || widget.onRestore != null || widget.onDelete != null || widget.config.archiveActions.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
-    searchNotifier = ValueNotifier('');
-    archiveSearchNotifier = ValueNotifier('');
+    _searchNotifier = ValueNotifier('');
+    _archiveSearchNotifier = ValueNotifier('');
   }
 
   @override
   void dispose() {
-    searchNotifier.dispose();
-    archiveSearchNotifier.dispose();
+    _searchNotifier.dispose();
+    _archiveSearchNotifier.dispose();
+    _permissionCache.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      runSpacing: 25,
+    return Column(
       children: [
-        _buildTopBar(),
-        _buildDataTable(),
+        _buildHeader(),
+        _buildContent(),
       ],
     );
   }
 
-  Widget _buildTopBar() {
-    return SizedBox(
-      width: double.infinity,
-      child: Wrap(
-        alignment: WrapAlignment.spaceBetween,
-        runAlignment: WrapAlignment.center,
-        spacing: 5,
-        runSpacing: 5,
-        children: [
-          showCreateForm
-              ? TButton(
-                  type: TButtonType.outline,
-                  size: TButtonSize.lg,
-                  icon: Icons.add,
-                  text: widget.createForm?.formActionName ?? 'Add New Item',
-                  color: AppColors.primary,
-                  onPressed: (_) => _addNewItem(),
-                )
-              : const SizedBox.shrink(),
-          Wrap(
-            spacing: 25,
-            runSpacing: 5,
-            children: [
-              if (showArchiveTable)
-                TTabs(
-                    inline: true,
-                    selectedIndex: currentTabIndex,
-                    onTabChanged: (index) {
-                      setState(() {
-                        currentTabIndex = index;
-                      });
-                    },
-                    tabs: [
-                      TTab(text: 'Active'),
-                      TTab(text: 'Archive'),
-                    ]),
-              SizedBox(
-                width: 250,
-                child: TTextField(
-                  placeholder: 'Search',
-                  postWidget: Icon(Icons.search_rounded, color: AppColors.grey.shade500),
-                  size: TInputSize.sm,
-                  valueNotifier: currentTabIndex == 0 ? searchNotifier : archiveSearchNotifier,
-                ),
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: SizedBox(
+        width: double.infinity,
+        child: Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          runSpacing: 10,
+          children: [
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 200),
+              child: Wrap(
+                alignment: WrapAlignment.start,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (_canCreate)
+                    TButton(
+                      type: TButtonType.outline,
+                      size: TButtonSize.lg,
+                      icon: Icons.add,
+                      text: widget.config.addButtonText,
+                      onPressed: (_) => _handleCreate(),
+                    ),
+                  ...widget.config.topBarActions,
+                ],
               ),
-            ],
-          ),
-        ],
+            ),
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 200),
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (_hasArchive)
+                    TTabs(
+                      inline: true,
+                      selectedIndex: _currentTab,
+                      onTabChanged: (i) => setState(() => _currentTab = i),
+                      tabs: [
+                        TTab(text: widget.config.activeTabText),
+                        TTab(text: widget.config.archiveTabText),
+                      ],
+                    ),
+                  SizedBox(
+                    width: 250,
+                    child: TTextField(
+                      placeholder: widget.config.searchPlaceholder,
+                      postWidget: Icon(
+                        Icons.search_rounded,
+                        size: 18,
+                        color: AppColors.grey.shade500,
+                      ),
+                      size: TInputSize.sm,
+                      valueNotifier: _currentTab == 0 ? _searchNotifier : _archiveSearchNotifier,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildDataTable() {
-    if (!showArchiveTable) {
-      return TDataTable<T>(
-        headers: widget.headers,
+  Widget _buildContent() {
+    if (!_hasArchive) {
+      return _buildTable(
+        headers: _buildActiveHeaders(),
         items: widget.items,
         onLoad: widget.onLoad,
-        searchNotifier: searchNotifier,
-        controller: tableController,
+        searchNotifier: _searchNotifier,
+        controller: _tableController,
       );
     }
 
     return IndexedStack(
-      index: currentTabIndex,
+      index: _currentTab,
       children: [
-        // Active items table
-        TDataTable<T>(
-          headers: widget.headers,
+        _buildTable(
+          headers: _buildActiveHeaders(),
           items: widget.items,
           onLoad: widget.onLoad,
-          searchNotifier: searchNotifier,
-          controller: tableController,
+          searchNotifier: _searchNotifier,
+          controller: _tableController,
         ),
-        // Archive items table
-        _buildArchiveTable(),
+        _buildTable(
+          headers: _buildArchiveHeaders(),
+          items: widget.archivedItems,
+          onLoad: widget.onArchiveLoad,
+          searchNotifier: _archiveSearchNotifier,
+          controller: _archiveController,
+        ),
       ],
     );
   }
 
-  Widget _buildArchiveTable() {
-    if (currentTabIndex == 0 && !isArchiveLoaded) return SizedBox.shrink();
-
-    isArchiveLoaded = true;
+  Widget _buildTable({
+    required List<TTableHeader<T>> headers,
+    required List<T>? items,
+    required TLoadListener<T>? onLoad,
+    required ValueNotifier<String> searchNotifier,
+    required TPaginationController<T> controller,
+  }) {
     return TDataTable<T>(
-      headers: widget.headers,
-      items: widget.archivedItems,
-      onLoad: widget.onArchiveLoad,
-      searchNotifier: archiveSearchNotifier,
-      controller: archiveTableController,
+      headers: headers,
+      items: items,
+      onLoad: onLoad,
+      searchNotifier: searchNotifier,
+      controller: controller,
+      itemsPerPage: widget.config.itemsPerPage,
+      itemsPerPageOptions: widget.config.itemsPerPageOptions,
     );
   }
 
-  void _addNewItem() async {
-    final value = await TFormService.show(context, widget.createForm!);
-    if (value == null || widget.onAddItem == null) return;
+  List<TTableHeader<T>> _buildActiveHeaders() {
+    final headers = [...widget.headers];
 
-    final item = await widget.onAddItem!.call(value);
-    if (item == null) return;
+    if (widget.config.showActions && _hasActiveActions) {
+      headers.add(TTableHeader<T>(
+        'Actions',
+        maxWidth: (27.0 * (3 + widget.config.activeActions.length)),
+        alignment: Alignment.center,
+        builder: (context, item) => _buildActiveActionButtons(item),
+      ));
+    }
 
-    tableController.addItem(item);
+    return headers;
+  }
+
+  List<TTableHeader<T>> _buildArchiveHeaders() {
+    final headers = [...widget.headers];
+
+    if (widget.config.showActions && _hasArchiveActions) {
+      headers.add(TTableHeader<T>(
+        'Actions',
+        maxWidth: (27.0 * (3 + widget.config.activeActions.length)),
+        alignment: Alignment.center,
+        builder: (context, item) => _buildArchiveActionButtons(item),
+      ));
+    }
+
+    return headers;
+  }
+
+  Widget _buildActiveActionButtons(T item) {
+    final buttons = <TButtonGroupItem>[];
+
+    if (widget.onView != null && _canPerformActionSync(item, widget.config.canView)) {
+      buttons.add(TButtonGroupItem(
+        tooltip: 'View',
+        icon: Icons.visibility,
+        color: AppColors.success,
+        onPressed: (_) => widget.onView!(item),
+      ));
+    }
+
+    if (_canEdit && _canPerformActionSync(item, widget.config.canEdit)) {
+      buttons.add(TButtonGroupItem(
+        tooltip: 'Edit',
+        icon: Icons.edit,
+        color: AppColors.info,
+        onPressed: (_) => _handleEdit(item),
+      ));
+    }
+
+    if (widget.onArchive != null && _canPerformActionSync(item, widget.config.canArchive)) {
+      buttons.add(TButtonGroupItem(
+        tooltip: 'Archive',
+        icon: Icons.archive,
+        color: AppColors.danger,
+        onPressed: (_) => _handleArchive(item),
+      ));
+    }
+
+    for (final action in widget.config.activeActions) {
+      if (_canPerformActionSync(item, action.canPerform)) {
+        buttons.add(TButtonGroupItem(
+          tooltip: action.tooltip,
+          icon: action.icon,
+          color: action.color,
+          onPressed: (_) => _performAction(() => action.onPressed(item)),
+        ));
+      }
+    }
+
+    return buttons.isEmpty
+        ? const SizedBox.shrink()
+        : TButtonGroup(
+            type: TButtonGroupType.icon,
+            items: buttons,
+          );
+  }
+
+  Widget _buildArchiveActionButtons(T item) {
+    final buttons = <TButtonGroupItem>[];
+
+    // View action
+    if (widget.onView != null && _canPerformActionSync(item, widget.config.canView)) {
+      buttons.add(TButtonGroupItem(
+        tooltip: 'View',
+        icon: Icons.visibility,
+        color: AppColors.success,
+        onPressed: (_) => widget.onView!(item),
+      ));
+    }
+
+    // Restore action
+    if (widget.onRestore != null && _canPerformActionSync(item, widget.config.canRestore)) {
+      buttons.add(TButtonGroupItem(
+        tooltip: 'Restore',
+        icon: Icons.restore,
+        color: AppColors.info,
+        onPressed: (_) => _handleRestore(item),
+      ));
+    }
+
+    // Delete permanently action
+    if (widget.onDelete != null && _canPerformActionSync(item, widget.config.canDelete)) {
+      buttons.add(TButtonGroupItem(
+        tooltip: 'Delete',
+        icon: Icons.delete_forever,
+        color: AppColors.danger,
+        onPressed: (_) => _handleDelete(item),
+      ));
+    }
+
+    // Custom actions for archive table
+    for (final action in widget.config.archiveActions) {
+      if (_canPerformActionSync(item, action.canPerform)) {
+        buttons.add(TButtonGroupItem(
+          tooltip: action.tooltip,
+          icon: action.icon,
+          color: action.color,
+          onPressed: (_) => _performAction(() => action.onPressed(item)),
+        ));
+      }
+    }
+
+    return buttons.isEmpty
+        ? const SizedBox.shrink()
+        : TButtonGroup(
+            type: TButtonGroupType.icon,
+            items: buttons,
+          );
+  }
+
+  // Synchronous permission check with caching
+  bool _canPerformActionSync(T item, Future<bool> Function(T)? permission) {
+    if (permission == null) return true;
+
+    final cacheKey = permission.toString();
+    final itemCache = _permissionCache[item] ??= <String, bool>{};
+
+    if (itemCache.containsKey(cacheKey)) {
+      return itemCache[cacheKey]!;
+    }
+
+    itemCache[cacheKey] = true;
+    _updatePermissionAsync(item, cacheKey, permission);
+
+    return true;
+  }
+
+  // Update permission asynchronously and rebuild if needed
+  void _updatePermissionAsync(T item, String cacheKey, Future<bool> Function(T) permission) {
+    permission(item).then((result) {
+      final itemCache = _permissionCache[item];
+      if (itemCache != null && itemCache[cacheKey] != result) {
+        itemCache[cacheKey] = result;
+        if (mounted) setState(() {});
+      }
+    }).catchError((e) {
+      final itemCache = _permissionCache[item];
+      if (itemCache != null) {
+        itemCache[cacheKey] = false;
+        if (mounted) setState(() {});
+      }
+    });
+  }
+
+  // Action handlers
+  void _handleCreate() {
+    _performAction(() async {
+      final form = widget.createForm?.call();
+      if (form == null) return;
+
+      final formData = await TFormService.show(context, form);
+      if (formData == null) return;
+
+      final newItem = await widget.onCreate?.call(formData);
+      if (newItem != null) {
+        _tableController.addItem(newItem);
+        form.reset();
+      }
+    });
+  }
+
+  void _handleEdit(T item) {
+    _performAction(() async {
+      final form = widget.editForm?.call(item);
+      if (form == null) return;
+
+      final formData = await TFormService.show(context, form);
+      if (formData == null) return;
+
+      final updatedItem = await widget.onEdit?.call(item, formData);
+      if (updatedItem != null) {
+        _tableController.updateItem(item, updatedItem);
+        form.reset();
+      }
+    });
+  }
+
+  void _handleArchive(T item) {
+    TAlertService.confirmArchive(context, () async {
+      await _performAction(() async {
+        final success = await widget.onArchive!(item);
+        if (success) {
+          _tableController.removeItem(item);
+          // Clear cache for this item
+          _permissionCache.remove(item);
+        }
+      });
+    });
+  }
+
+  void _handleRestore(T item) {
+    TAlertService.confirmRestore(context, () async {
+      await _performAction(() async {
+        final success = await widget.onRestore!(item);
+        if (success) {
+          _archiveController.removeItem(item);
+          // Clear cache for this item
+          _permissionCache.remove(item);
+        }
+      });
+    });
+  }
+
+  void _handleDelete(T item) {
+    TAlertService.confirmDelete(context, () async {
+      // Fixed: using confirmDelete instead of confirmRestore
+      await _performAction(() async {
+        final success = await widget.onDelete!(item);
+        if (success) {
+          _archiveController.removeItem(item);
+          // Clear cache for this item
+          _permissionCache.remove(item);
+        }
+      });
+    });
+  }
+
+  Future<void> _performAction(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (e) {
+      if (kDebugMode) {
+        print('__ TCrudTable action error: $e');
+      }
+    }
   }
 }

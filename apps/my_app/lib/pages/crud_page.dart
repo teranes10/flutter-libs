@@ -25,8 +25,9 @@ class CrudPage extends StatelessWidget {
       ],
       onLoad: ProductsClient().loadMore,
       onArchiveLoad: ProductsClient().loadMore,
-      createForm: ProductForm(),
-      onAddItem: (input) async {
+      createForm: () => ProductForm(),
+      editForm: (ProductDto item) => ProductForm(),
+      onCreate: (input) async {
         return ProductDto(
           id: productId++,
           title: input.title.value,
@@ -39,6 +40,27 @@ class CrudPage extends StatelessWidget {
           sku: 'sku',
         );
       },
+      onEdit: (item, form) async {
+        return item;
+      },
+      onArchive: (item) async {
+        return true;
+      },
+      onRestore: (item) async {
+        return true;
+      },
+      onDelete: (item) async {
+        return true;
+      },
+      config: TCrudConfig(topBarActions: [
+        TButton(
+          type: TButtonType.outline,
+          size: TButtonSize.lg,
+          icon: Icons.upload_file,
+          text: 'Upload File',
+          onPressed: (_) => {},
+        ),
+      ]),
     );
   }
 }

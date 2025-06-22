@@ -10,6 +10,10 @@ class TFieldProp<T> {
 
   T get value => _value;
 
+  void reset() {
+    _value = initialValue;
+  }
+
   @override
   String toString() {
     return value.toString();

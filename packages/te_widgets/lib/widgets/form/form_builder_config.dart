@@ -47,6 +47,12 @@ abstract class TFormBase {
   }
 
   bool get isValid => validationErrors.isEmpty;
+
+  void reset() {
+    for (var field in fields) {
+      field.prop.reset();
+    }
+  }
 }
 
 enum TBreakpoint {
