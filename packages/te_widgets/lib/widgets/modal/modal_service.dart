@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/modal/modal.dart';
-import 'package:te_widgets/widgets/modal/modal_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TModalService {
   static Future<T?> show<T>(
@@ -14,10 +12,12 @@ class TModalService {
     String? title,
     bool? showCloseButton,
   }) {
+    final theme = context.theme;
+
     return showDialog<T>(
       context: context,
       barrierDismissible: persistent,
-      barrierColor: AppColors.grey[950]!.withAlpha(10),
+      barrierColor: theme.scrim,
       builder: (BuildContext dialogContext) {
         final mContext = TModalContext<T>(dialogContext);
 

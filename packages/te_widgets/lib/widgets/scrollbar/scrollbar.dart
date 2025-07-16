@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TScrollbar extends StatefulWidget {
   final Widget child;
@@ -24,6 +24,8 @@ class _TScrollbarState extends State<TScrollbar> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -35,7 +37,7 @@ class _TScrollbarState extends State<TScrollbar> {
         interactive: true,
         thickness: 8.0,
         radius: const Radius.circular(8.0),
-        thumbColor: _isHovered ? AppColors.grey.shade200 : AppColors.grey.shade50.withAlpha(200),
+        thumbColor: _isHovered ? theme.surfaceContainerLow : theme.surfaceContainerHigh,
         trackColor: Colors.transparent,
         trackBorderColor: Colors.transparent,
         crossAxisMargin: 0.0,

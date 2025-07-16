@@ -1,35 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/button/button.dart';
-import 'package:te_widgets/widgets/button/button_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TButtonGroup extends StatelessWidget {
   final TButtonGroupType type;
   final TButtonSize? size;
-  final MaterialColor color;
+  final MaterialColor? color;
   final List<TButtonGroupItem> items;
 
   const TButtonGroup({
     super.key,
-    this.type = TButtonGroupType.fill,
-    this.color = AppColors.primary,
+    this.type = TButtonGroupType.solid,
+    this.color,
     this.size,
     this.items = const [],
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final isBoxed = type == TButtonGroupType.boxed;
-    final effectiveType = isBoxed ? TButtonType.textFill : mapGroupTypeToButtonType(type);
+    final effectiveType = isBoxed ? TButtonType.filledText : mapGroupTypeToButtonType(type);
 
-    Widget buttonGroup = Wrap(
-      children: _buildButtons(effectiveType),
-    );
+    Widget buttonGroup = Wrap(children: _buildButtons(theme, effectiveType));
 
     if (isBoxed) {
       buttonGroup = Container(
         padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(border: Border.all(color: theme.outline), borderRadius: BorderRadius.circular(8)),
         child: buttonGroup,
       );
     }
@@ -37,25 +34,21 @@ class TButtonGroup extends StatelessWidget {
     return buttonGroup;
   }
 
-  List<Widget> _buildButtons(TButtonType buttonType) {
+  List<Widget> _buildButtons(ColorScheme theme, TButtonType buttonType) {
     final allButtons = <Widget>[];
     final total = items.length;
 
     for (int i = 0; i < items.length; i++) {
       final item = items[i];
-      final button = _buildButton(
-        item: item,
-        index: i,
-        total: total,
-        buttonType: buttonType,
-      );
+      final button = _buildButton(theme, item: item, index: i, total: total, buttonType: buttonType);
       allButtons.add(button);
     }
 
     return allButtons;
   }
 
-  Widget _buildButton({
+  Widget _buildButton(
+    ColorScheme theme, {
     required TButtonGroupItem item,
     required int index,
     required int total,
@@ -80,13 +73,14 @@ class TButtonGroup extends StatelessWidget {
     );
 
     if (!isSingle) {
-      return _applyGroupStyling(button: button, isFirst: isFirst, isLast: isLast);
+      return _applyGroupStyling(theme, button: button, isFirst: isFirst, isLast: isLast);
     }
 
     return button;
   }
 
-  Widget _applyGroupStyling({
+  Widget _applyGroupStyling(
+    ColorScheme theme, {
     required TButton button,
     required bool isFirst,
     required bool isLast,
@@ -103,10 +97,9 @@ class TButtonGroup extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          right: isLast || button.type == TButtonType.outline || button.type == TButtonType.outlineFill
-              ? BorderSide.none
-              : BorderSide(color: Colors.grey.shade300, width: 0.25),
-        ),
+            right: isLast || button.type == TButtonType.outline || button.type == TButtonType.filledOutline
+                ? BorderSide.none
+                : BorderSide(color: theme.outline, width: 0.25)),
       ),
       child: button.copyWith(shape: shape),
     );

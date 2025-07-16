@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TPagination extends StatefulWidget {
   final int currentPage;
@@ -194,12 +195,13 @@ class _PaginationNumberButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     return Material(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(6),
-        side: isActive ? BorderSide(color: Theme.of(context).colorScheme.onPrimaryContainer.withAlpha(100)) : BorderSide.none,
+        side: isActive ? BorderSide(color: theme.onPrimaryContainer.withAlpha(100)) : BorderSide.none,
       ),
-      color: isActive ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
+      color: isActive ? theme.primaryContainer : theme.surface,
       child: InkWell(
         borderRadius: BorderRadius.circular(6),
         onTap: onPressed,
@@ -208,9 +210,7 @@ class _PaginationNumberButton extends StatelessWidget {
           height: 36,
           child: Center(
               child: Text(number.toString(),
-                  style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      color: isActive ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.onSurface))),
+                  style: TextStyle(fontWeight: FontWeight.normal, color: isActive ? theme.onPrimaryContainer : theme.onSurface))),
         ),
       ),
     );

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/mixins/focus_mixin.dart';
-import 'package:te_widgets/mixins/input_field_mixin.dart';
-import 'package:te_widgets/mixins/input_validation_mixin.dart';
-import 'package:te_widgets/mixins/input_value_mixin.dart';
+import 'package:te_widgets/te_widgets.dart';
 
-class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<List<String>>, TFocusMixin, TInputValidationMixin<List<String>> {
+class TTagsField extends StatefulWidget
+    with TInputFieldMixin, TInputValueMixin<List<String>>, TFocusMixin, TInputValidationMixin<List<String>> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
@@ -14,7 +11,7 @@ class TTagsField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final TInputSize? size;
   @override
-  final TInputColor? color;
+  final Color? color;
   @override
   final BoxDecoration? boxDecoration;
   @override
@@ -178,14 +175,19 @@ class _TTagsFieldState extends State<TTagsField>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final exTheme = context.exTheme;
+
     return buildContainer(
+      theme,
+      exTheme,
       isMultiline: true,
       child: Wrap(
         spacing: 6.0,
         runSpacing: 6.0,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          ...(currentValue ?? []).map(_buildTagChip),
+          ...(currentValue ?? []).map((tag) => _buildTagChip(theme, tag)),
           ConstrainedBox(
             constraints: const BoxConstraints(
               minWidth: 150,
@@ -202,8 +204,8 @@ class _TTagsFieldState extends State<TTagsField>
                   cursorHeight: widget.fontSize + 2,
                   textInputAction: TextInputAction.unspecified,
                   textAlignVertical: TextAlignVertical.center,
-                  style: widget.textStyle,
-                  decoration: widget.inputDecoration,
+                  style: getTextStyle(theme),
+                  decoration: getInputDecoration(theme),
                   onChanged: _onInputChanged,
                   readOnly: widget.readOnly == true,
                 ),
@@ -215,7 +217,7 @@ class _TTagsFieldState extends State<TTagsField>
     );
   }
 
-  Widget _buildTagChip(String tag) {
+  Widget _buildTagChip(ColorScheme theme, String tag) {
     if (widget.tagBuilder != null) {
       return widget.tagBuilder!(tag, () => _removeTag(tag));
     }
@@ -223,7 +225,7 @@ class _TTagsFieldState extends State<TTagsField>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
       decoration: BoxDecoration(
-        color: AppColors.grey.shade50,
+        color: theme.surfaceContainer,
         borderRadius: BorderRadius.circular(5),
       ),
       child: Row(
@@ -232,14 +234,14 @@ class _TTagsFieldState extends State<TTagsField>
           Text(
             tag,
             style: TextStyle(
-              color: AppColors.grey.shade500,
+              color: theme.onSurfaceVariant,
               fontSize: widget.fontSize,
             ),
           ),
           const SizedBox(width: 5.0),
           GestureDetector(
             onTap: () => _removeTag(tag),
-            child: Icon(Icons.close, size: 12.0, color: AppColors.grey.shade500),
+            child: Icon(Icons.close, size: 12.0, color: theme.onSurfaceVariant),
           ),
         ],
       ),

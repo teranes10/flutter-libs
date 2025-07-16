@@ -6,7 +6,7 @@ TextTheme getTTextTheme() {
     return TextStyle(
       fontFamily: 'Lexend',
       package: 'te_widgets',
-      color: AppColors.grey[700],
+      color: AppColors.grey.shade600,
       fontWeight: weight,
       fontSize: size,
     );

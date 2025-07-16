@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/tooltip/tooltip_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TTooltip extends StatefulWidget {
   final String message;
@@ -274,6 +273,7 @@ class _TooltipContent extends StatelessWidget {
   final TTooltipResolvedPosition resolvedPosition;
   final void Function(PointerEnterEvent)? onPointerEnter;
   final void Function(PointerExitEvent)? onPointerExit;
+  final TColorType? type;
 
   const _TooltipContent({
     required this.message,
@@ -297,6 +297,7 @@ class _TooltipContent extends StatelessWidget {
     required this.resolvedPosition,
     this.onPointerEnter,
     this.onPointerExit,
+    this.type,
   });
 
   Offset _getAnimationOffset() {
@@ -314,15 +315,13 @@ class _TooltipContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (bgColor, txtColor, shdwColor) = (
-      color?.shade50 ?? Colors.white,
-      color?.shade500 ?? AppColors.grey.shade700,
-      color?.shade900.withAlpha(20) ?? AppColors.grey.shade900.withAlpha(20),
-    );
+    final exTheme = context.exTheme;
+    final mColor = color ?? exTheme.primary;
+    final wTheme = context.getWidgetTheme(type ?? exTheme.tooltipType, mColor);
 
     final (defaultPadding, fontSize) = _sizeStyle();
     final effectivePadding = padding ?? defaultPadding;
-    final effectiveTextStyle = textStyle ?? TextStyle(color: txtColor, fontSize: fontSize, fontWeight: FontWeight.w400);
+    final effectiveTextStyle = textStyle ?? TextStyle(color: wTheme.onContainer, fontSize: fontSize, fontWeight: FontWeight.w400);
 
     final offset = _getAnimationOffset();
 
@@ -339,7 +338,8 @@ class _TooltipContent extends StatelessWidget {
             verticalOffset: verticalOffset,
             margin: margin,
             showArrow: showArrow,
-            backgroundColor: bgColor,
+            backgroundColor: wTheme.container,
+            shadowColor: wTheme.shadow,
             maxWidth: maxWidth,
             child: Material(
               type: MaterialType.transparency,
@@ -352,18 +352,7 @@ class _TooltipContent extends StatelessWidget {
                     constraints: BoxConstraints(maxWidth: maxWidth),
                     padding: effectivePadding,
                     decoration: decoration ??
-                        BoxDecoration(
-                          color: bgColor,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: shdwColor,
-                              blurRadius: 8,
-                              spreadRadius: 4,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
+                        BoxDecoration(color: wTheme.container, borderRadius: BorderRadius.circular(8), boxShadow: wTheme.boxShadow),
                     child: IntrinsicWidth(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -374,7 +363,7 @@ class _TooltipContent extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               if (icon != null) ...[
-                                Icon(icon, size: fontSize + 2, color: txtColor),
+                                Icon(icon, size: fontSize + 2, color: wTheme.onContainer),
                                 const SizedBox(width: 8),
                               ],
                               Flexible(
@@ -451,6 +440,17 @@ class _MeasureSizeState extends State<MeasureSize> {
 }
 
 class _PositionedTooltip extends StatefulWidget {
+  final Widget child;
+  final Rect targetRect;
+  final TTooltipPosition position;
+  final bool preferBelow;
+  final double verticalOffset;
+  final EdgeInsetsGeometry margin;
+  final bool showArrow;
+  final Color backgroundColor;
+  final Color? shadowColor;
+  final double maxWidth;
+
   const _PositionedTooltip({
     required this.child,
     required this.targetRect,
@@ -460,18 +460,9 @@ class _PositionedTooltip extends StatefulWidget {
     required this.margin,
     required this.showArrow,
     required this.backgroundColor,
+    this.shadowColor,
     required this.maxWidth,
   });
-
-  final Widget child;
-  final Rect targetRect;
-  final TTooltipPosition position;
-  final bool preferBelow;
-  final double verticalOffset;
-  final EdgeInsetsGeometry margin;
-  final bool showArrow;
-  final Color backgroundColor;
-  final double maxWidth;
 
   @override
   State<_PositionedTooltip> createState() => _PositionedTooltipState();
@@ -601,19 +592,19 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.showArrow && arrowDirection == TArrowDirection.up)
-                      _TooltipArrow(color: widget.backgroundColor, direction: TArrowDirection.up),
+                      _TooltipArrow(color: widget.backgroundColor, shadowColor: widget.shadowColor, direction: TArrowDirection.up),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (widget.showArrow && arrowDirection == TArrowDirection.left)
-                          _TooltipArrow(color: widget.backgroundColor, direction: TArrowDirection.left),
+                          _TooltipArrow(color: widget.backgroundColor, shadowColor: widget.shadowColor, direction: TArrowDirection.left),
                         Flexible(child: widget.child), // Wrap in Flexible to prevent overflow
                         if (widget.showArrow && arrowDirection == TArrowDirection.right)
-                          _TooltipArrow(color: widget.backgroundColor, direction: TArrowDirection.right),
+                          _TooltipArrow(color: widget.backgroundColor, shadowColor: widget.shadowColor, direction: TArrowDirection.right),
                       ],
                     ),
                     if (widget.showArrow && arrowDirection == TArrowDirection.down)
-                      _TooltipArrow(color: widget.backgroundColor, direction: TArrowDirection.down),
+                      _TooltipArrow(color: widget.backgroundColor, shadowColor: widget.shadowColor, direction: TArrowDirection.down),
                   ],
                 ),
               ),
@@ -626,28 +617,31 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
 }
 
 class _TooltipArrow extends StatelessWidget {
+  final Color color;
+  final Color? shadowColor;
+  final TArrowDirection direction;
+
   const _TooltipArrow({
     required this.color,
+    this.shadowColor,
     required this.direction,
   });
-
-  final Color color;
-  final TArrowDirection direction;
 
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
       size: direction == TArrowDirection.left || direction == TArrowDirection.right ? const Size(8, 16) : const Size(16, 8),
-      painter: _ArrowPainter(color: color, direction: direction),
+      painter: _ArrowPainter(color: color, shadowColor: shadowColor, direction: direction),
     );
   }
 }
 
 class _ArrowPainter extends CustomPainter {
   final Color color;
+  final Color? shadowColor;
   final TArrowDirection direction;
 
-  const _ArrowPainter({required this.color, required this.direction});
+  const _ArrowPainter({required this.color, this.shadowColor, required this.direction});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -689,7 +683,7 @@ class _ArrowPainter extends CustomPainter {
     // Draw shadow first
     final shadowPath = path.shift(const Offset(0, 1));
     final shadowPaint = Paint()
-      ..color = AppColors.grey.shade900.withAlpha(20)
+      ..color = shadowColor ?? Colors.transparent
       ..style = PaintingStyle.fill;
     canvas.drawPath(shadowPath, shadowPaint);
 

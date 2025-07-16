@@ -40,7 +40,7 @@ class AppColors {
     700: Color(0xFF647F9E),
     800: Color(0xFF536980),
     900: Color(0xFF475868),
-    950: Color(0xFF2A333C),
+    950: Color(0xFF1f1f1f),
   });
 
   static const MaterialColor success = MaterialColor(0xFF44BDB7, {
@@ -98,21 +98,4 @@ class AppColors {
     900: Color(0xFF7E201E),
     950: Color(0xFF450B0A)
   });
-}
-
-ColorScheme getTColorScheme() {
-  return ColorScheme.light(
-    primary: AppColors.primary,
-    onPrimary: Colors.white,
-    secondary: AppColors.secondary,
-    onSecondary: Colors.white,
-    secondaryContainer: AppColors.secondary.shade50,
-    onSecondaryContainer: AppColors.secondary,
-    error: AppColors.danger,
-    onError: Colors.white,
-    surface: Colors.white,
-    onSurface: AppColors.grey.shade600,
-    primaryContainer: AppColors.primary.shade50,
-    onPrimaryContainer: AppColors.primary,
-  );
 }

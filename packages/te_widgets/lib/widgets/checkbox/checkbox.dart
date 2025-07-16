@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/checkbox/checkbox_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TCheckbox<T> extends StatefulWidget {
   final T? value;
@@ -73,7 +73,7 @@ class _TCheckboxState<T> extends State<TCheckbox<T>> {
     widget.onChecked?.call();
   }
 
-  Widget _buildCheckboxIcon() {
+  Widget _buildCheckboxIcon(ColorScheme theme) {
     if (!_checked) return const SizedBox.shrink();
 
     switch (widget.icon) {
@@ -81,26 +81,27 @@ class _TCheckboxState<T> extends State<TCheckbox<T>> {
         return Icon(
           Icons.check,
           size: TCheckboxSizes.sizes[widget.size]! * 0.8,
-          color: Colors.white,
+          color: theme.onPrimary,
         );
       case TCheckboxIcon.minus:
         return Icon(
           Icons.remove,
           size: TCheckboxSizes.sizes[widget.size]! * 0.8,
-          color: Colors.white,
+          color: theme.onPrimary,
         );
       case TCheckboxIcon.square:
         return Icon(
           Icons.square,
           size: TCheckboxSizes.sizes[widget.size]! * 0.8,
-          color: Colors.white,
+          color: theme.onPrimary,
         );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final checkboxColor = TCheckboxColors.colors[widget.color] ?? Colors.blue;
+    final theme = context.theme;
+    final checkboxColor = TCheckboxColors.colors[widget.color] ?? theme.primary;
     final checkboxSize = TCheckboxSizes.sizes[widget.size]!;
     final hasErrors = _errors.isNotEmpty;
 
@@ -116,21 +117,18 @@ class _TCheckboxState<T> extends State<TCheckbox<T>> {
                 width: checkboxSize,
                 height: checkboxSize,
                 decoration: BoxDecoration(
-                  color: _checked ? checkboxColor : Colors.white,
-                  border: Border.all(
-                    color: hasErrors ? Colors.red : (_checked ? checkboxColor : Colors.grey.shade300),
-                    width: 1,
-                  ),
+                  color: _checked ? checkboxColor : theme.surface,
+                  border: Border.all(color: hasErrors ? theme.error : (_checked ? checkboxColor : theme.outline), width: 1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: _buildCheckboxIcon(),
+                child: _buildCheckboxIcon(theme),
               ),
               if (widget.label != null) ...[
                 const SizedBox(width: 8),
                 Text(
                   widget.label!,
                   style: TextStyle(
-                    color: widget.disabled ? Colors.grey : Colors.grey.shade700,
+                    color: widget.disabled ? theme.onSurfaceVariant : theme.onSurface,
                     fontSize: _getFontSize(),
                   ),
                 ),
@@ -144,8 +142,8 @@ class _TCheckboxState<T> extends State<TCheckbox<T>> {
                 padding: const EdgeInsets.only(left: 4),
                 child: Text(
                   '• $error',
-                  style: const TextStyle(
-                    color: Colors.red,
+                  style: TextStyle(
+                    color: theme.error,
                     fontSize: 12,
                   ),
                 ),

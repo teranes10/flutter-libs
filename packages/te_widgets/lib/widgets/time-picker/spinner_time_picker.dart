@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TSpinnerTimePicker extends StatefulWidget {
   final TimeOfDay time;
@@ -56,10 +56,12 @@ class _TSpinnerTimePickerState extends State<TSpinnerTimePicker> {
     required FixedExtentScrollController controller,
     required ValueChanged<int> onChanged,
   }) {
+    final theme = context.theme;
+
     return Expanded(
       child: Column(
         children: [
-          Text(label, style: TextStyle(fontSize: 14, color: AppColors.grey.shade500)),
+          Text(label, style: TextStyle(fontSize: 14, color: theme.onSurfaceVariant)),
           const SizedBox(height: 8),
           Expanded(
             child: GestureDetector(
@@ -81,7 +83,7 @@ class _TSpinnerTimePickerState extends State<TSpinnerTimePicker> {
                     return Container(
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
+                        color: isSelected ? theme.primaryContainer : theme.surface,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -89,7 +91,7 @@ class _TSpinnerTimePickerState extends State<TSpinnerTimePicker> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.onSurface,
+                          color: isSelected ? theme.onPrimaryContainer : theme.onSurface,
                         ),
                       ),
                     );

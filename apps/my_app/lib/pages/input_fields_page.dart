@@ -22,11 +22,17 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           TTextField(
             label: 'Order No',
             placeholder: 'Enter a order no',
+            tag: 'Required',
             isRequired: true,
             rules: [
               (value) => value == null || value.length < 2 ? 'Name must be at least 2 characters' : null,
               (value) => value == null || !value.startsWith('Order#') ? 'Order number must be start with Order#' : null,
             ],
+          ),
+          TTextField(
+            label: 'Disabled',
+            placeholder: 'Disabled field',
+            disabled: true,
           ),
           TTagsField(
             label: "Skills",

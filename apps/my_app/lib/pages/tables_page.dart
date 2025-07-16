@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/clients/products_client.dart';
-import 'package:my_app/models/product_dto.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TablesPage extends StatefulWidget {

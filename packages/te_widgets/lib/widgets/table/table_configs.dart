@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
 
 class TTableHeader<T> {
   final String text;
@@ -56,36 +55,19 @@ extension AlignmentExtension on Alignment {
   }
 }
 
-Widget tableEmptyState() {
+Widget buildTableEmptyState(ColorScheme theme) {
   return Center(
     child: Padding(
       padding: const EdgeInsets.all(32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.inbox_outlined,
-            size: 64,
-            color: AppColors.grey[400],
-          ),
+          Icon(Icons.inbox_outlined, size: 64, color: theme.onSurfaceVariant),
           const SizedBox(height: 16),
-          Text(
-            'No data available',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: AppColors.grey[600],
-            ),
-          ),
+          Text('No data available', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: theme.onSurface)),
           const SizedBox(height: 8),
-          Text(
-            'There are no items to display at the moment.',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.grey[500],
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text('There are no items to display at the moment.',
+              style: TextStyle(fontSize: 14, color: theme.onSurfaceVariant), textAlign: TextAlign.center),
         ],
       ),
     ),

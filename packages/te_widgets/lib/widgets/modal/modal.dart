@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/te_widgets.dart';
 import 'package:te_widgets/widgets/close-icon/close_icon.dart';
 
 class TModal extends StatelessWidget {
@@ -29,6 +29,7 @@ class TModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final screenSize = MediaQuery.of(context).size;
     final modalWidth = width > screenSize.width ? screenSize.width - 50 : width;
 
@@ -55,16 +56,16 @@ class TModal extends StatelessWidget {
                     maxHeight: screenSize.height - 50,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: theme.surface,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: AppColors.grey.shade600.withAlpha(25), blurRadius: 10, spreadRadius: 2)],
+                    boxShadow: [BoxShadow(color: theme.shadow, blurRadius: 12, spreadRadius: 0)],
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Fixed header (non-scrollable
                       if (header != null) header!,
-                      if (header == null && (title != null || showCloseButton == true)) _buildHeader(),
+                      if (header == null && (title != null || showCloseButton == true)) _buildHeader(theme),
 
                       // Scrollable content area
                       Flexible(
@@ -84,7 +85,7 @@ class TModal extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ColorScheme theme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
       child: Row(
@@ -92,7 +93,7 @@ class TModal extends StatelessWidget {
         children: [
           Expanded(
             child: title != null
-                ? Text(title ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: AppColors.grey.shade600))
+                ? Text(title ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: theme.onSurface))
                 : SizedBox.shrink(),
           ),
           if (showCloseButton == true) TCloseIcon(onClose: () => onClose?.call()),

@@ -11,7 +11,7 @@ class TTimePicker extends StatefulWidget
   @override
   final TInputSize? size;
   @override
-  final TInputColor? color;
+  final Color? color;
   @override
   final BoxDecoration? boxDecoration;
   @override
@@ -113,7 +113,7 @@ class _TTimePickerState extends State<TTimePicker>
   double get contentMaxHeight => 350;
 
   @override
-  Widget getContentWidget() {
+  Widget getContentWidget(BuildContext context) {
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
         child: TClockTimePicker(
@@ -124,9 +124,14 @@ class _TTimePickerState extends State<TTimePicker>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final exTheme = context.exTheme;
+
     return buildWithDropdownTarget(
       child: buildContainer(
-        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.grey.shade500),
+        theme,
+        exTheme,
+        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: theme.onSurfaceVariant),
         child: TextField(
           readOnly: true,
           controller: controller,
@@ -135,10 +140,10 @@ class _TTimePickerState extends State<TTimePicker>
           textInputAction: TextInputAction.next,
           cursorHeight: widget.fontSize + 2,
           textAlignVertical: TextAlignVertical.center,
-          style: widget.textStyle,
-          decoration: widget.inputDecoration,
+          style: getTextStyle(theme),
+          decoration: getInputDecoration(theme),
         ),
-        onTap: showPopup,
+        onTap: () => showPopup(context),
       ),
     );
   }

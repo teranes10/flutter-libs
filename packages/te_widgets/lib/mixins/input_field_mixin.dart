@@ -3,8 +3,6 @@ import 'package:te_widgets/te_widgets.dart';
 
 enum TInputSize { sm, md, lg }
 
-enum TInputColor { success, error, info, warning }
-
 mixin TInputFieldMixin {
   String? get label;
   String? get tag;
@@ -14,7 +12,7 @@ mixin TInputFieldMixin {
   bool get isRequired;
   bool get disabled;
   TInputSize? get size;
-  TInputColor? get color;
+  Color? get color;
   BoxDecoration? get boxDecoration;
   Widget? get preWidget;
   Widget? get postWidget;
@@ -55,67 +53,46 @@ mixin TInputFieldMixin {
         return 14.0;
     }
   }
+}
 
-  Color get messageColor {
-    switch (color) {
-      case TInputColor.success:
-        return AppColors.success;
-      case TInputColor.error:
-        return AppColors.danger;
-      case TInputColor.info:
-        return AppColors.info;
-      case TInputColor.warning:
-        return AppColors.warning;
-      case null:
-        return AppColors.grey.shade600;
-    }
-  }
+mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
+  TInputFieldMixin get _widget => widget as TInputFieldMixin;
 
-  InputDecoration get inputDecoration {
-    return InputDecoration(
-      border: InputBorder.none,
-      hintText: placeholder ?? label,
-      hintStyle: TextStyle(fontWeight: FontWeight.w300, color: AppColors.grey.shade300),
-      isCollapsed: true,
-      contentPadding: EdgeInsets.symmetric(vertical: 5),
-    );
-  }
-
-  TextStyle get textStyle {
-    return TextStyle(
-      fontSize: fontSize,
-      color: disabled == true ? AppColors.grey.shade400 : AppColors.grey.shade700,
-    );
-  }
-
-  Widget get labelWidget {
-    if (label == null && tag == null) return const SizedBox.shrink();
+  Widget buildLabel(ColorScheme theme) {
+    if (_widget.label == null && _widget.tag == null) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (label != null)
+          if (_widget.label != null)
             RichText(
               text: TextSpan(
-                text: label!,
+                text: _widget.label!,
                 style: TextStyle(
                   fontSize: 12.0,
                   letterSpacing: 0.9,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.grey.shade500,
+                  color: theme.onSurfaceVariant,
                 ),
-                children: isRequired == true ? [TextSpan(text: ' *', style: TextStyle(color: AppColors.danger))] : null,
+                children: _widget.isRequired ? [TextSpan(text: ' *', style: TextStyle(color: theme.error))] : null,
               ),
             ),
-          if (tag != null)
-            Text(
-              tag!,
-              style: TextStyle(
-                fontSize: 12.0,
-                fontWeight: FontWeight.bold,
-                color: AppColors.grey.shade700,
+          if (_widget.tag != null)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5.0),
+                color: theme.surfaceContainer,
+              ),
+              child: Text(
+                _widget.tag!,
+                style: TextStyle(
+                  fontSize: 11.0,
+                  fontWeight: FontWeight.w300,
+                  color: theme.onSurfaceVariant,
+                ),
               ),
             ),
         ],
@@ -123,65 +100,61 @@ mixin TInputFieldMixin {
     );
   }
 
-  Widget get helperTextWidget {
-    if (helperText == null) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 4.0),
-      child: Text(
-        helperText!,
-        style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: AppColors.grey.shade400),
-      ),
+  TextStyle getTextStyle(ColorScheme theme) {
+    return TextStyle(
+      fontSize: _widget.fontSize,
+      color: _widget.disabled ? theme.onSurfaceVariant : theme.onSurface,
     );
   }
 
-  Widget get messageWidget {
-    if (message == null) return const SizedBox.shrink();
+  Color getMessageColor(ColorScheme theme) {
+    return _widget.color ?? theme.onSurfaceVariant;
+  }
+
+  InputDecoration getInputDecoration(ColorScheme theme) {
+    return InputDecoration(
+      border: InputBorder.none,
+      hintText: _widget.placeholder ?? _widget.label,
+      hintStyle: TextStyle(fontWeight: FontWeight.w300, color: theme.onSurfaceVariant),
+      isCollapsed: true,
+      contentPadding: EdgeInsets.symmetric(vertical: 5),
+    );
+  }
+
+  Widget buildHelperText(ColorScheme theme) {
+    if (_widget.helperText == null) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
-      child: Text(
-        message!,
-        style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: messageColor),
-      ),
+      child: Text(_widget.helperText!, style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: theme.onSurfaceVariant)),
     );
   }
-}
 
-mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
-  TInputFieldMixin get _widget => widget as TInputFieldMixin;
+  Widget buildMessage(ColorScheme theme, TColorScheme exTheme) {
+    if (_widget.message == null) return const SizedBox.shrink();
 
-  BoxDecoration getBoxDecoration({required bool isFocused, required bool hasErrors}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Text(_widget.message!, style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: getMessageColor(theme))),
+    );
+  }
+
+  BoxDecoration getBoxDecoration(ColorScheme theme, TColorScheme exTheme, bool isFocused, bool hasErrors) {
     return BoxDecoration(
-      border: Border.all(
-        color: getBorderColor(isFocused: isFocused, hasErrors: hasErrors),
-        width: 1.0,
-      ),
+      border: Border.all(color: getBorderColor(theme, exTheme, isFocused, hasErrors), width: 1.0),
       borderRadius: BorderRadius.circular(6.0),
-      color: _widget.boxDecoration?.color ?? (_widget.disabled == true ? AppColors.grey.shade50 : Colors.white),
-      boxShadow: isFocused ? [BoxShadow(color: AppColors.grey.shade50, blurRadius: 3.0, spreadRadius: 3.0)] : null,
+      color: _widget.boxDecoration?.color ?? (_widget.disabled == true ? theme.surfaceDim : theme.surface),
+      boxShadow: isFocused ? [BoxShadow(color: theme.shadow, blurRadius: 4.0, spreadRadius: 1.5, offset: Offset(0, 0))] : null,
     );
   }
 
-  Color getBorderColor({required bool isFocused, required bool hasErrors}) {
-    if (_widget.disabled == true) return AppColors.grey.shade200;
-    if (hasErrors) return AppColors.danger;
-
-    switch (_widget.color) {
-      case TInputColor.success:
-        return AppColors.success;
-      case TInputColor.error:
-        return AppColors.danger;
-      case TInputColor.info:
-        return AppColors.info;
-      case TInputColor.warning:
-        return AppColors.warning;
-      case null:
-        return isFocused ? AppColors.grey.shade300 : AppColors.grey.shade200;
-    }
+  Color getBorderColor(ColorScheme theme, TColorScheme exTheme, bool isFocused, bool hasErrors) {
+    if (_widget.disabled) return theme.outlineVariant;
+    if (hasErrors) return theme.error;
+    return _widget.color ?? (isFocused ? theme.primary : theme.outline);
   }
 
-  Widget buildValidationErrors(ValueNotifier<List<String>> errorsNotifier) {
+  Widget buildValidationErrors(ColorScheme theme, ValueNotifier<List<String>> errorsNotifier) {
     return ValueListenableBuilder<List<String>>(
       valueListenable: errorsNotifier,
       builder: (context, validationErrors, child) {
@@ -191,14 +164,16 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
           padding: const EdgeInsets.only(top: 4.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: AppColors.danger.shade400))).toList(),
+            children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: theme.error))).toList(),
           ),
         );
       },
     );
   }
 
-  Widget buildContainer({
+  Widget buildContainer(
+    ColorScheme theme,
+    TColorScheme exTheme, {
     bool? isMultiline,
     Widget? child,
     Widget? postWidget,
@@ -211,43 +186,44 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     final container = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _widget.labelWidget,
+        buildLabel(theme),
         Container(
           constraints: BoxConstraints(
             minHeight: _widget.fieldHeight,
             maxHeight: isMultiline == true ? double.infinity : _widget.fieldHeight,
           ),
-          decoration: getBoxDecoration(
-            isFocused: focusWidget?.isFocused == true,
-            hasErrors: validationMixin?.hasErrors == true,
-          ),
+          decoration: getBoxDecoration(theme, exTheme, focusWidget?.isFocused == true, validationMixin?.hasErrors == true),
           child: IntrinsicHeight(
             child: Row(
               children: [
                 if (_widget.preWidget != null)
                   Padding(
-                      padding: EdgeInsets.only(top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
+                      padding: EdgeInsets.only(
+                          top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
                       child: Center(child: _widget.preWidget!)),
                 if (preWidget != null)
                   Padding(
-                      padding: EdgeInsets.only(top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
+                      padding: EdgeInsets.only(
+                          top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
                       child: Center(child: preWidget)),
                 Expanded(child: Padding(padding: _widget.fieldPadding, child: child)),
                 if (postWidget != null)
                   Padding(
-                      padding: EdgeInsets.only(top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
+                      padding: EdgeInsets.only(
+                          top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
                       child: Center(child: postWidget)),
                 if (_widget.postWidget != null)
                   Padding(
-                      padding: EdgeInsets.only(top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
+                      padding: EdgeInsets.only(
+                          top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
                       child: Center(child: _widget.postWidget!)),
               ],
             ),
           ),
         ),
-        _widget.helperTextWidget,
-        _widget.messageWidget,
-        if (validationMixin?.errorsNotifier != null) buildValidationErrors(validationMixin!.errorsNotifier),
+        buildHelperText(theme),
+        buildMessage(theme, exTheme),
+        if (validationMixin?.errorsNotifier != null) buildValidationErrors(theme, validationMixin!.errorsNotifier),
       ],
     );
 

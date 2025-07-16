@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/card/card.dart';
-import 'package:te_widgets/widgets/list/list.dart';
-import 'package:te_widgets/widgets/scrollbar/scrollbar.dart';
-import 'package:te_widgets/widgets/table/table_card.dart';
-import 'package:te_widgets/widgets/table/table_configs.dart';
-import 'package:te_widgets/widgets/table/table_decoration.dart'; // Import the new decoration class
+import 'package:te_widgets/te_widgets.dart';
 
 class TTable<T> extends StatefulWidget {
   final List<TTableHeader<T>> headers;
@@ -53,6 +47,8 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final shouldShowCardView = widget.decoration.forceCardStyle || constraints.maxWidth <= widget.decoration.mobileBreakpoint;
@@ -63,7 +59,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           _animationController.forward();
         }
 
-        Widget child = _isCardView ? _buildCardView() : _buildTableView(constraints);
+        Widget child = _isCardView ? _buildCardView(theme) : _buildTableView(theme);
 
         // Calculate if we need horizontal scroll based on column widths
         bool needsHorizontalScroll = false;
@@ -132,65 +128,21 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     return totalWidth;
   }
 
-  Widget _buildTableView([BoxConstraints? constraints]) {
-    Widget content;
+  Widget _buildTableView(ColorScheme theme) {
     final defaultPadding = widget.decoration.styling?.contentPadding ?? const EdgeInsets.only(bottom: 8);
 
-    if (widget.decoration.shrinkWrap) {
-      content = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildTableHeader(),
-          Padding(
-            padding: defaultPadding,
-            child: _buildTable(),
-          ),
-          if (widget.items.isEmpty && !widget.loading) tableEmptyState()
-        ],
-      );
-    } else {
-      content = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTableHeader(),
-          Expanded(
-            child: widget.decoration.showScrollbars
-                ? RawScrollbar(
-                    controller: _verticalScrollController,
-                    thumbVisibility: true,
-                    interactive: true,
-                    thickness: 8.0,
-                    radius: const Radius.circular(4.0),
-                    thumbColor: AppColors.grey.shade300,
-                    trackColor: AppColors.grey.shade100,
-                    trackBorderColor: Colors.transparent,
-                    crossAxisMargin: 2.0,
-                    mainAxisMargin: 4.0,
-                    minThumbLength: 36.0,
-                    child: SingleChildScrollView(
-                      controller: _verticalScrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: defaultPadding,
-                      child: _buildTable(),
-                    ),
-                  )
-                : SingleChildScrollView(
-                    controller: _verticalScrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: defaultPadding,
-                    child: _buildTable(),
-                  ),
-          ),
-          if (widget.items.isEmpty && !widget.loading) tableEmptyState()
-        ],
-      );
-    }
-
-    return content;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildTableHeader(theme),
+        Padding(padding: defaultPadding, child: _buildTable(theme)),
+        if (widget.items.isEmpty && !widget.loading) buildTableEmptyState(theme)
+      ],
+    );
   }
 
-  Widget _buildTable() {
+  Widget _buildTable(ColorScheme theme) {
     return SizedBox(
       width: double.infinity,
       child: TList<T>(
@@ -200,25 +152,25 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemBuilder: (context, item, index) {
-          return _buildTableRowCard(item, index);
+          return _buildTableRowCard(theme, item, index);
         },
       ),
     );
   }
 
-  Widget _buildTableRowCard(T item, int index) {
+  Widget _buildTableRowCard(ColorScheme theme, T item, int index) {
     final rowStyle = widget.decoration.styling?.rowStyle ?? const TRowStyle();
 
     return TCard(
       margin: rowStyle.margin ?? const EdgeInsets.only(bottom: 8),
       elevation: rowStyle.elevation ?? 1,
       borderRadius: rowStyle.borderRadius ?? BorderRadius.circular(8),
-      backgroundColor: rowStyle.backgroundColor ?? Colors.white,
+      backgroundColor: rowStyle.backgroundColor ?? theme.surface,
       padding: rowStyle.padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       boxShadow: [
         BoxShadow(
-          color: AppColors.grey.shade50,
-          offset: const Offset(0, 2),
+          color: theme.shadow,
+          offset: const Offset(0, 1),
           blurRadius: 0,
           spreadRadius: 0,
         ),
@@ -229,7 +181,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
         children: [
           TableRow(
             children: widget.headers.map((header) {
-              Widget cellContent = _buildCellContent(header, item);
+              Widget cellContent = _buildCellContent(theme, header, item);
               return Align(
                 alignment: header.alignment ?? Alignment.centerLeft,
                 child: cellContent,
@@ -241,9 +193,9 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildCardView() {
+  Widget _buildCardView(ColorScheme theme) {
     if (widget.items.isEmpty && !widget.loading) {
-      return tableEmptyState();
+      return buildTableEmptyState(theme);
     }
 
     Widget listView = TList<T>(
@@ -299,12 +251,12 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     return columnWidths;
   }
 
-  Widget _buildTableHeader() {
+  Widget _buildTableHeader(ColorScheme theme) {
     final headerStyle = widget.decoration.styling?.headerTextStyle ??
         TextStyle(
           fontSize: 13.6,
           fontWeight: FontWeight.w400,
-          color: AppColors.grey[500],
+          color: theme.onSurfaceVariant,
         );
 
     final defaultPadding = widget.decoration.styling?.contentPadding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 8);
@@ -331,7 +283,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _buildCellContent(TTableHeader<T> header, T item) {
+  Widget _buildCellContent(ColorScheme theme, TTableHeader<T> header, T item) {
     if (header.builder != null) {
       return Builder(
         builder: (context) => header.builder!(context, item),
@@ -342,8 +294,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
       padding: EdgeInsets.symmetric(horizontal: 5),
       child: Text(
         header.getValue(item),
-        style:
-            widget.decoration.styling?.rowTextStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w300, color: AppColors.grey[600]),
+        style: widget.decoration.styling?.rowTextStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w300, color: theme.onSurface),
       ),
     );
   }

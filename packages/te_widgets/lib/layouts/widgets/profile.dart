@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TProfile extends StatelessWidget {
   final String? icon;
@@ -19,6 +19,8 @@ class TProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -35,10 +37,10 @@ class TProfile extends StatelessWidget {
         if (text != null)
           Text(
             text!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14.0,
               fontWeight: FontWeight.w300,
-              color: AppColors.grey,
+              color: theme.onSurface,
             ),
           ),
       ],

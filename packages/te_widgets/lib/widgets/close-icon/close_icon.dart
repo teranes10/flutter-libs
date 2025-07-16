@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TCloseIcon extends StatefulWidget {
   final VoidCallback onClose;
@@ -16,6 +16,8 @@ class TCloseIconState extends State<TCloseIcon> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovering = true),
       onExit: (_) => setState(() => _isHovering = false),
@@ -24,7 +26,7 @@ class TCloseIconState extends State<TCloseIcon> {
         onTap: widget.onClose,
         child: Icon(
           Icons.cancel_outlined,
-          color: _isHovering ? AppColors.danger.shade400 : AppColors.grey.shade300,
+          color: _isHovering ? theme.error : theme.surfaceContainerLowest,
           size: widget.size ?? 20,
         ),
       ),

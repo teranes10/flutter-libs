@@ -24,6 +24,8 @@ class TFormBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return LayoutBuilder(builder: (context, constraints) {
       final breakpoint = TBreakpoint.getBreakpoint(constraints.maxWidth);
       final totalWidth = constraints.maxWidth;
@@ -38,7 +40,7 @@ class TFormBuilder extends StatelessWidget {
               width: (unitWidth * 12) + (11 * gutter),
               child: Padding(
                 padding: EdgeInsets.only(bottom: 5),
-                child: Text(label!, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: AppColors.grey.shade600)),
+                child: Text(label!, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: theme.onSurface)),
               ),
             ),
           ...(input?.fields ?? fields ?? []).map((field) {

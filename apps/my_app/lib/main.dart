@@ -22,7 +22,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      theme: teWidgetsTheme(),
+      theme: getTLightTheme(),
+      darkTheme: getTDarkTheme(),
+      themeMode: ThemeMode.system,
       routerConfig: _router,
     );
   }

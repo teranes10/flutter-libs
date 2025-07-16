@@ -1,15 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/mixins/pagination/pagination_config.dart';
-import 'package:te_widgets/mixins/pagination/pagination_mixin.dart';
-import 'package:te_widgets/mixins/popup_mixin.dart';
-import 'package:te_widgets/mixins/focus_mixin.dart';
-import 'package:te_widgets/mixins/input_field_mixin.dart';
-import 'package:te_widgets/mixins/input_validation_mixin.dart';
-import 'package:te_widgets/mixins/input_value_mixin.dart';
-import 'package:te_widgets/widgets/select/select_configs.dart';
-import 'package:te_widgets/widgets/select/select_mixin.dart';
-import 'package:te_widgets/widgets/tags-field/tags_field.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TMultiSelect<T, V> extends StatefulWidget
     with
@@ -27,7 +17,7 @@ class TMultiSelect<T, V> extends StatefulWidget
   @override
   final TInputSize? size;
   @override
-  final TInputColor? color;
+  final Color? color;
   @override
   final BoxDecoration? boxDecoration;
   @override
@@ -194,14 +184,14 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
   void onFocusChanged(bool hasFocus) {
     super.onFocusChanged(hasFocus);
     if (hasFocus && !isPopupShowing) {
-      showPopup();
+      showPopup(context);
     }
   }
 
   @override
-  void showPopup() {
+  void showPopup(BuildContext context) {
     _controller.clear();
-    super.showPopup();
+    super.showPopup(context);
   }
 
   @override
@@ -239,9 +229,11 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return buildWithDropdownTarget(
       child: TTagsField(
-        onTap: !widget.filterable ? togglePopup : null,
+        onTap: () => !widget.filterable ? togglePopup(context) : null,
         skipValidation: true,
         focusNode: focusNode,
         label: widget.label,
@@ -258,14 +250,10 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
         inputValue: isPopupShowing && widget.filterable ? stateNotifier.searchQuery : '',
         value: _getSelectedTags(),
         postWidget: widget.postWidget ??
-            Icon(
-              isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-              size: 16,
-              color: Colors.grey.shade500,
-            ),
+            Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: theme.onSurfaceVariant),
         onInputChanged: widget.filterable && isPopupShowing ? onSearchChanged : null,
         onTagRemoved: _onTagRemoved,
-        boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? AppColors.grey.shade50 : Colors.white),
+        boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? theme.surfaceDim : theme.surface),
       ),
     );
   }

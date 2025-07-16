@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_overlay_controller.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_overlay_item.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TSidebarOverlay extends StatefulWidget {
   final LayerLink layerLink;
@@ -129,6 +129,8 @@ class _TSidebarOverlayState extends State<TSidebarOverlay> with SingleTickerProv
   }
 
   Widget _buildOverlayContent(Size screenSize) {
+    final theme = context.theme;
+
     return MouseRegion(
       onEnter: (_) => TSidebarOverlayController.setMouseInArea(true),
       onExit: (_) => TSidebarOverlayController.setMouseInArea(false),
@@ -147,8 +149,8 @@ class _TSidebarOverlayState extends State<TSidebarOverlay> with SingleTickerProv
         child: Material(
           elevation: 12,
           borderRadius: BorderRadius.circular(8),
-          color: Colors.white,
-          shadowColor: Colors.black.withOpacity(0.15),
+          color: theme.surface,
+          shadowColor: theme.shadow,
           child: Container(
             constraints: BoxConstraints(
               minWidth: 180,

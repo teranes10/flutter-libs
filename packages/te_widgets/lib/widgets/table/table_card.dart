@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/table/table_configs.dart';
-import 'package:te_widgets/widgets/table/table_decoration.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TTableCard<T> extends StatelessWidget {
   final T item;
@@ -21,6 +19,7 @@ class TTableCard<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final cardStyle = styling?.cardStyle ?? const TCardStyle();
 
     return Container(
@@ -29,19 +28,19 @@ class TTableCard<T> extends StatelessWidget {
       child: Material(
         elevation: cardStyle.elevation ?? 1,
         borderRadius: cardStyle.borderRadius ?? BorderRadius.circular(12),
-        color: cardStyle.backgroundColor ?? Colors.white,
+        color: cardStyle.backgroundColor ?? theme.surface,
         child: InkWell(
           onTap: onTap,
           borderRadius: cardStyle.borderRadius ?? BorderRadius.circular(12),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: cardStyle.borderRadius ?? BorderRadius.circular(12),
-              border: cardStyle.border ?? Border.all(color: AppColors.grey[100]!),
+              border: cardStyle.border ?? Border.all(color: theme.outline),
             ),
             padding: cardStyle.padding ?? const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: _buildCardFields(),
+              children: _buildCardFields(theme),
             ),
           ),
         ),
@@ -49,7 +48,7 @@ class TTableCard<T> extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildCardFields() {
+  List<Widget> _buildCardFields(ColorScheme theme) {
     return headers.asMap().entries.map((entry) {
       final index = entry.key;
       final header = entry.value;
@@ -64,12 +63,7 @@ class TTableCard<T> extends StatelessWidget {
               flex: 2,
               child: Text(
                 header.text,
-                style: styling?.cardLabelStyle ??
-                    TextStyle(
-                      fontSize: 13.6,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.grey[500],
-                    ),
+                style: styling?.cardLabelStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w400, color: theme.onSurfaceVariant),
               ),
             ),
             const SizedBox(width: 12),
@@ -77,7 +71,7 @@ class TTableCard<T> extends StatelessWidget {
               flex: 3,
               child: Align(
                 alignment: Alignment.centerRight,
-                child: _buildCellContent(header),
+                child: _buildCellContent(theme, header),
               ),
             ),
           ],
@@ -86,7 +80,7 @@ class TTableCard<T> extends StatelessWidget {
     }).toList();
   }
 
-  Widget _buildCellContent(TTableHeader<T> header) {
+  Widget _buildCellContent(ColorScheme theme, TTableHeader<T> header) {
     if (header.builder != null) {
       return Builder(
         builder: (context) => header.builder!(context, item),
@@ -99,7 +93,7 @@ class TTableCard<T> extends StatelessWidget {
           TextStyle(
             fontSize: 13.6,
             fontWeight: FontWeight.w300,
-            color: AppColors.grey.shade600,
+            color: theme.onSurface,
           ),
     );
   }

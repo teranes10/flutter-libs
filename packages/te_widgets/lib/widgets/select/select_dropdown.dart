@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/select/select_configs.dart';
+import 'package:te_widgets/te_widgets.dart';
 import 'package:te_widgets/widgets/select/select_notifier.dart';
 
 class TSelectDropdown<T, V> extends StatefulWidget {
@@ -85,6 +84,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     // Calculate footer height to account for it in constraints
     final footerHeight = (widget.footerMessage?.isNotEmpty == true) ? 40.0 : 0.0;
 
@@ -119,7 +119,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                         padding: const EdgeInsets.all(16),
                         child: Text(
                           'No items found',
-                          style: TextStyle(color: AppColors.grey.shade600, fontSize: 14),
+                          style: TextStyle(color: theme.onSurface, fontSize: 14),
                         ),
                       ),
                     ),
@@ -156,7 +156,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                         }
 
                         final item = displayItems[index];
-                        return _buildSelectItem(item, 0);
+                        return _buildSelectItem(theme, item, 0);
                       },
                     ),
                   ),
@@ -169,12 +169,12 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                border: Border(top: BorderSide(color: Colors.grey.shade200)),
+                color: theme.surfaceContainer,
+                border: Border(top: BorderSide(color: theme.outline)),
               ),
               child: Text(
                 widget.footerMessage!,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(fontSize: 12, color: theme.onSurfaceVariant),
               ),
             ),
         ],
@@ -182,7 +182,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
     );
   }
 
-  Widget _buildSelectItem(TSelectItem<V> item, int level) {
+  Widget _buildSelectItem(ColorScheme theme, TSelectItem<V> item, int level) {
     return Column(
       children: [
         Listener(
@@ -192,11 +192,11 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
           },
           child: InkWell(
             key: ValueKey('${item.key}_${item.selected}_${item.expanded}_$level'),
-            splashColor: Theme.of(context).colorScheme.primaryContainer.withAlpha(150),
-            highlightColor: Theme.of(context).colorScheme.primaryContainer.withAlpha(200),
+            splashColor: theme.primaryContainer.withAlpha(150),
+            highlightColor: theme.primaryContainer.withAlpha(200),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              color: item.selected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
+              color: item.selected ? theme.primaryContainer : theme.surface,
               padding: EdgeInsets.only(left: 16.0 + (level * 18.0), right: 16.0, top: 10.0, bottom: 10.0),
               child: Row(
                 children: [
@@ -207,7 +207,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                       child: Icon(
                         item.selected ? Icons.check_box : Icons.check_box_outline_blank,
                         size: 18,
-                        color: item.selected ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.onSurface,
+                        color: item.selected ? theme.onPrimaryContainer : theme.onSurface,
                       ),
                     )
                   else if (item.selected && widget.selectedIcon != null)
@@ -216,7 +216,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                       child: Icon(
                         widget.selectedIcon,
                         size: 18,
-                        color: Theme.of(context).primaryColor,
+                        color: theme.primary,
                       ),
                     )
                   else
@@ -228,7 +228,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                       item.text,
                       style: TextStyle(
                         fontSize: 13.6,
-                        color: item.selected ? Theme.of(context).primaryColor : AppColors.grey.shade700,
+                        color: item.selected ? theme.primary : theme.onSurface,
                         fontWeight: item.selected ? FontWeight.w500 : FontWeight.w400,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -244,7 +244,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                       child: Icon(
                         Icons.keyboard_arrow_right,
                         size: 18,
-                        color: AppColors.grey.shade500,
+                        color: theme.onSurfaceVariant,
                       ),
                     ),
                 ],
@@ -253,7 +253,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
           ),
         ),
         // Render children if expanded
-        if (item.hasChildren && item.expanded) ...item.children!.map((child) => _buildSelectItem(child, level + 1)),
+        if (item.hasChildren && item.expanded) ...item.children!.map((child) => _buildSelectItem(theme, child, level + 1)),
       ],
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TSidebarItem {
   final IconData? icon;
@@ -62,12 +62,14 @@ class TSidebarTheme {
   });
 
   factory TSidebarTheme.defaultTheme(BuildContext context) {
+    final theme = context.theme;
+
     return TSidebarTheme(
-      defaultColor: AppColors.grey[500]!,
-      hoverColor: AppColors.grey[400]!,
-      activeColor: Theme.of(context).colorScheme.onPrimaryContainer,
-      activeBackgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      borderColor: AppColors.grey[100]!,
+      defaultColor: theme.onSurfaceVariant,
+      hoverColor: theme.onSurface,
+      activeColor: theme.onPrimaryContainer,
+      activeBackgroundColor: theme.primaryContainer,
+      borderColor: theme.outline,
     );
   }
 

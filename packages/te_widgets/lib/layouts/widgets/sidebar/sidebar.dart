@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_items.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class Sidebar extends StatelessWidget {
   final List<TSidebarItem>? items;
@@ -19,6 +18,8 @@ class Sidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return ResponsiveBuilder(
       builder: (context, sizingInformation) {
         if (sizingInformation.isMobile) {
@@ -32,7 +33,7 @@ class Sidebar extends StatelessWidget {
               builder: (context, constraints) {
                 return SingleChildScrollView(
                   child: Container(
-                    color: Colors.white,
+                    color: theme.surface,
                     constraints: BoxConstraints(minHeight: constraints.maxHeight),
                     child: IntrinsicHeight(
                       child: Center(

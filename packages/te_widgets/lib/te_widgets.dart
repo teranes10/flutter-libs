@@ -1,8 +1,11 @@
 library;
 
-export 'configs/theme/theme.dart';
+export 'configs/theme/theme_color_scheme.dart';
 export 'configs/theme/theme_colors.dart';
+export 'configs/theme/theme_extension.dart';
 export 'configs/theme/theme_text.dart';
+export 'configs/theme/theme_widget_color_scheme.dart';
+export 'configs/theme/theme.dart';
 
 export 'enum/list.dart';
 export 'enum/shadow.dart';
@@ -21,7 +24,6 @@ export 'layouts/widgets/sidebar/sidebar.dart';
 
 export 'layouts/widgets/logo.dart';
 export 'layouts/widgets/profile.dart';
-
 export 'layouts/layout.dart';
 
 export 'mixins/pagination/pagination_config.dart';
@@ -35,7 +37,6 @@ export 'mixins/input_value_mixin.dart';
 export 'mixins/popup_mixin.dart';
 
 export 'widgets/alert/alert.dart';
-export 'widgets/alert/alert_config.dart';
 export 'widgets/alert/alert_service.dart';
 
 export 'widgets/button/button_config.dart';

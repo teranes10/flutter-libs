@@ -96,7 +96,7 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
   }
 
   @override
-  Widget getContentWidget() {
+  Widget getContentWidget(BuildContext context) {
     return TSelectDropdown<T, V>(
       stateNotifier: stateNotifier,
       footerMessage: _selectWidget.footerMessage,
@@ -123,8 +123,8 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
   }
 
   @override
-  void showPopup() {
-    super.showPopup();
+  void showPopup(BuildContext context) {
+    super.showPopup(context);
 
     // If server-side rendering and no items loaded yet, trigger initial load
     if (serverSideRendering && paginatedItems.isEmpty && !loading) {

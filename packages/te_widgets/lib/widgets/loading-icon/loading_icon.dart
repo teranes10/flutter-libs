@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 enum TLoadingType { oval, dots, linear }
 
 class TLoadingIcon extends StatefulWidget {
   final TLoadingType type;
-  final Color color;
+  final Color? color;
   final Color? background;
   final double size;
 
   const TLoadingIcon({
     super.key,
     this.type = TLoadingType.oval,
-    this.color = AppColors.primary,
+    this.color,
     this.size = 25.0,
     this.background,
   });
@@ -41,22 +41,24 @@ class _LoadingIconState extends State<TLoadingIcon> with SingleTickerProviderSta
 
   @override
   Widget build(BuildContext context) {
-    final background = widget.background ?? widget.color.withAlpha(50);
+    final theme = context.theme;
+    final color = widget.color ?? theme.primary;
+    final background = widget.background ?? color.withAlpha(50);
 
     switch (widget.type) {
       case TLoadingType.oval:
         return SizedBox(
             width: widget.size,
             height: widget.size,
-            child: _LoadingOval(color: widget.color, background: background, size: widget.size, controller: _controller));
+            child: _LoadingOval(color: color, background: background, size: widget.size, controller: _controller));
       case TLoadingType.dots:
-        return SizedBox(width: widget.size, height: widget.size, child: _LoadingDots(color: widget.color, size: widget.size));
+        return SizedBox(width: widget.size, height: widget.size, child: _LoadingDots(color: color, size: widget.size));
       case TLoadingType.linear:
         return SizedBox(
           height: widget.size,
           child: LinearProgressIndicator(
             backgroundColor: background,
-            valueColor: AlwaysStoppedAnimation<Color>(widget.color),
+            valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         );
     }

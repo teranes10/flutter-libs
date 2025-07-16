@@ -27,19 +27,20 @@ final GoRouter router = GoRouter(
 );
 
 final sidebarItems = [
-  TSidebarItem(icon: Icons.list_alt, text: 'Input Fields', route: '/input-fields', page: InputFieldsPage()),
-  TSidebarItem(icon: Icons.list_alt, text: 'Select Fields', route: '/select-fields', page: SelectFieldsPage()),
-  TSidebarItem(icon: Icons.list_alt, text: 'Buttons', route: '/buttons', page: ButtonsPage()),
-  TSidebarItem(icon: Icons.list_alt, text: 'Selections', route: '/selections', page: SelectionsPage()),
-  TSidebarItem(icon: Icons.list_alt, text: 'Chips', route: '/chips', page: ChipsPage()),
-  TSidebarItem(icon: Icons.list_alt, text: 'Popups', route: '/popups', page: PopupsPage()),
-  TSidebarItem(icon: Icons.list_alt, text: 'Tables', route: '/tables', page: TablesPage()),
-  TSidebarItem(icon: Icons.list_alt, text: 'Crud', route: '/crud', page: CrudPage()),
-  TSidebarItem(icon: Icons.list_alt, text: 'Forms', route: '/forms', page: FormsPage()),
-  TSidebarItem(icon: Icons.list_alt, text: 'Item', children: [
-    TSidebarItem(icon: Icons.list_alt, text: 'Sub Item', children: [
-      TSidebarItem(icon: Icons.list_alt, text: 'Sub Sub Item', route: '/test', page: FormsPage()),
-    ])
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Input Fields', route: '/input-fields', page: InputFieldsPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Select Fields', route: '/select-fields', page: SelectFieldsPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Buttons', route: '/buttons', page: ButtonsPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Selections', route: '/selections', page: SelectionsPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Chips', route: '/chips', page: ChipsPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Popups', route: '/popups', page: PopupsPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Tables', route: '/tables', page: TablesPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Crud', route: '/crud', page: CrudPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Forms', route: '/forms', page: FormsPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Item', children: [
+    TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Item', children: [
+      TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Sub Item', route: '/test', page: FormsPage()),
+    ]),
+    TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Item 2', route: '/test2', page: FormsPage()),
   ]),
 ];
 

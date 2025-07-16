@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/button/button_config.dart';
-import 'package:te_widgets/widgets/tooltip/tooltip.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TButton extends StatefulWidget {
-  final TButtonType type;
+  final TButtonType? type;
   final TButtonSize? size;
   final double? width;
   final double? height;
@@ -13,7 +11,7 @@ class TButton extends StatefulWidget {
 
   final IconData? icon;
   final String? text;
-  final MaterialColor color;
+  final MaterialColor? color;
   final bool loading;
   final String loadingText;
   final String? tooltip;
@@ -23,9 +21,9 @@ class TButton extends StatefulWidget {
 
   const TButton({
     super.key,
-    this.type = TButtonType.fill,
+    this.type,
     this.size,
-    this.color = AppColors.primary,
+    this.color,
     this.block = false,
     this.loading = false,
     this.loadingText = 'Loading...',
@@ -87,23 +85,12 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     });
   }
 
-  ButtonStyle _getButtonStyle() {
-    final scheme = TButtonColorScheme.from(widget.color, widget.type);
-    final size = TButtonSizeData.from(widget.size ?? (widget.type == TButtonType.icon ? TButtonSize.xxs : TButtonSize.md));
-
+  ButtonStyle _getButtonStyle(TWidgetColorScheme wTheme, TButtonSizeData size) {
     return ButtonStyle(
-      backgroundColor: _resolveState(scheme.bg, scheme.bgActive, scheme.bg.withAlpha(100)),
-      foregroundColor: _resolveState(scheme.fg, scheme.fgActive, scheme.fg.withAlpha(100)),
-      iconColor: _resolveState(scheme.fg, scheme.fgActive, scheme.fg.withAlpha(100)),
-      side: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.disabled)) {
-          return scheme.border != null ? BorderSide(color: scheme.border!) : BorderSide.none;
-        }
-        if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered) || widget.active) {
-          return scheme.borderActive != null ? BorderSide(color: scheme.borderActive!) : BorderSide.none;
-        }
-        return scheme.border != null ? BorderSide(color: scheme.border!) : BorderSide.none;
-      }),
+      backgroundColor: wTheme.backgroundState,
+      foregroundColor: wTheme.foregroundState,
+      iconColor: wTheme.foregroundState,
+      side: wTheme.borderSideState,
       padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: size.hPad, vertical: size.vPad)),
       minimumSize: WidgetStateProperty.all(Size(widget.block ? double.infinity : widget.width ?? size.minW, widget.height ?? size.minH)),
       shape: WidgetStateProperty.all(widget.shape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(6))),
@@ -112,15 +99,13 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(TColorScheme exTheme, TWidgetColorScheme wTheme, TButtonSizeData size) {
     final isLoading = _isLoading;
-    final size = TButtonSizeData.from(widget.size ?? TButtonSize.md);
-    final colorScheme = TButtonColorScheme.from(widget.color, widget.type);
 
     final resolvedFgColor = _resolveState(
-      colorScheme.fg,
-      colorScheme.fgActive,
-      colorScheme.fg.withAlpha(100),
+      wTheme.onContainer,
+      wTheme.onContainerVariant,
+      wTheme.onContainer.withAlpha(100),
     ).resolve({
       if (_isHovered) WidgetState.hovered,
       if (widget.active) WidgetState.pressed,
@@ -148,7 +133,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             isLoading ? widget.loadingText : widget.text!,
             style: TextStyle(
               fontSize: size.font,
-              fontWeight: widget.type.fontWeight,
+              fontWeight: (widget.type ?? exTheme.buttonType).fontWeight,
               letterSpacing: 0.65,
             ),
           ),
@@ -160,10 +145,15 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final exTheme = context.exTheme;
+    final wTheme =
+        TWidgetColorScheme.from(context, widget.color ?? exTheme.primary, mapButtonTypeToColorType(widget.type ?? exTheme.buttonType));
+    final size = TButtonSizeData.from(widget.size ?? (widget.type == TButtonType.icon ? TButtonSize.xxs : TButtonSize.md));
+
     final button = ElevatedButton(
       onPressed: widget.onPressed != null ? _handlePress : null,
-      style: _getButtonStyle(),
-      child: _buildContent(),
+      style: _getButtonStyle(wTheme, size),
+      child: _buildContent(exTheme, wTheme, size),
     );
 
     final scaledButton = AnimatedBuilder(

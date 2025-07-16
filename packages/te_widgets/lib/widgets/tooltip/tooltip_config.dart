@@ -1,7 +1,5 @@
 enum TTooltipPosition { auto, top, bottom, left, right }
 
-enum TTooltipVariant { primary, secondary, success, warning, error, info }
-
 enum TTooltipSize { small, medium, large }
 
 enum TTooltipTriggerMode { hover, tap, longPress }

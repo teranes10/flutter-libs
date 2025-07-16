@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/checkbox/checkbox.dart';
-import 'package:te_widgets/widgets/checkbox/checkbox_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TCheckboxGroup<T> extends StatefulWidget {
   final List<T> modelValue;
@@ -79,7 +78,7 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>> {
     widget.onChanged?.call(List.from(_selectedValues));
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ColorScheme theme) {
     if (widget.label == null && widget.tag == null) {
       return const SizedBox.shrink();
     }
@@ -94,14 +93,14 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey.shade700,
+                color: theme.onSurface,
               ),
             ),
           if (widget.isRequired)
-            const Text(
+            Text(
               ' *',
               style: TextStyle(
-                color: Colors.red,
+                color: theme.error,
                 fontSize: 16,
               ),
             ),
@@ -109,17 +108,8 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>> {
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                widget.tag!,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
+              decoration: BoxDecoration(color: theme.surfaceContainer, borderRadius: BorderRadius.circular(12)),
+              child: Text(widget.tag!, style: TextStyle(fontSize: 12, color: theme.onSurfaceVariant)),
             ),
           ],
         ],
@@ -127,12 +117,12 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>> {
     );
   }
 
-  Widget _buildCheckboxes() {
+  Widget _buildCheckboxes(ColorScheme theme) {
     final hasErrors = _errors.isNotEmpty;
 
     Widget checkboxContainer = Container(
       decoration: BoxDecoration(
-        border: hasErrors ? Border.all(color: Colors.red) : null,
+        border: hasErrors ? Border.all(color: theme.error) : null,
         borderRadius: BorderRadius.circular(8),
       ),
       padding: hasErrors ? const EdgeInsets.all(8) : null,
@@ -167,7 +157,7 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>> {
     }).toList();
   }
 
-  Widget _buildErrors() {
+  Widget _buildErrors(ColorScheme theme) {
     if (_errors.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -177,13 +167,7 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>> {
         children: _errors
             .map((error) => Padding(
                   padding: const EdgeInsets.only(left: 4),
-                  child: Text(
-                    '• $error',
-                    style: const TextStyle(
-                      color: Colors.red,
-                      fontSize: 12,
-                    ),
-                  ),
+                  child: Text('• $error', style: TextStyle(color: theme.error, fontSize: 12)),
                 ))
             .toList(),
       ),
@@ -192,12 +176,13 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeader(),
-        _buildCheckboxes(),
-        _buildErrors(),
+        _buildHeader(theme),
+        _buildCheckboxes(theme),
+        _buildErrors(theme),
       ],
     );
   }

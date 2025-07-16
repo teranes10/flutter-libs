@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:te_widgets/mixins/focus_mixin.dart';
-import 'package:te_widgets/mixins/input_field_mixin.dart';
-import 'package:te_widgets/mixins/input_validation_mixin.dart';
-import 'package:te_widgets/mixins/input_value_mixin.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<String>, TFocusMixin, TInputValidationMixin<String> {
   @override
@@ -13,7 +10,7 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final TInputSize? size;
   @override
-  final TInputColor? color;
+  final Color? color;
   @override
   final BoxDecoration? boxDecoration;
   @override
@@ -127,9 +124,13 @@ class _TTextFieldState extends State<TTextField>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final exTheme = context.exTheme;
     final isMultiline = widget.rows != null && widget.rows! > 1;
 
     return buildContainer(
+      theme,
+      exTheme,
       isMultiline: isMultiline,
       child: TextField(
         controller: _controller,
@@ -147,8 +148,8 @@ class _TTextFieldState extends State<TTextField>
         textInputAction: widget.textInputAction ?? (isMultiline ? TextInputAction.newline : TextInputAction.next),
         cursorHeight: widget.fontSize + 2,
         textAlignVertical: isMultiline ? TextAlignVertical.top : TextAlignVertical.center,
-        style: widget.textStyle,
-        decoration: widget.inputDecoration,
+        style: getTextStyle(theme),
+        decoration: getInputDecoration(theme),
         onChanged: notifyValueChanged,
         readOnly: widget.readOnly == true,
       ),

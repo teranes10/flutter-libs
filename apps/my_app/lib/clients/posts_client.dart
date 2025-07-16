@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:my_app/models/post_dto.dart';
-import 'package:my_app/models/product_dto.dart';
 import 'package:te_widgets/mixins/pagination/pagination_config.dart';
 
 class PostsClient {

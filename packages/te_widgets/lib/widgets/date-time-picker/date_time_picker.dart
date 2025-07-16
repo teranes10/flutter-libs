@@ -11,7 +11,7 @@ class TDateTimePicker extends StatefulWidget
   @override
   final TInputSize? size;
   @override
-  final TInputColor? color;
+  final Color? color;
   @override
   final BoxDecoration? boxDecoration;
   @override
@@ -158,16 +158,16 @@ class _TDateTimePickerState extends State<TDateTimePicker>
     });
   }
 
-  Widget _buildDateTab() {
+  Widget _buildDateTab(ColorScheme theme) {
     return DatePickerTheme(
         data: DatePickerThemeData(
-          backgroundColor: Colors.white,
-          headerBackgroundColor: Colors.white,
-          headerForegroundColor: AppColors.grey.shade600,
-          dayForegroundColor: _resolveState(AppColors.grey.shade600, Colors.white),
-          dayBackgroundColor: _resolveState(Colors.transparent, Theme.of(context).colorScheme.primary),
-          todayForegroundColor: _resolveState(AppColors.grey.shade600, Colors.white),
-          todayBackgroundColor: _resolveState(Colors.transparent, Theme.of(context).colorScheme.primary),
+          backgroundColor: theme.surface,
+          headerBackgroundColor: theme.surface,
+          headerForegroundColor: theme.onSurface,
+          dayForegroundColor: _resolveState(theme.onSurface, theme.surface),
+          dayBackgroundColor: _resolveState(Colors.transparent, theme.primary),
+          todayForegroundColor: _resolveState(theme.onSurface, theme.surface),
+          todayBackgroundColor: _resolveState(Colors.transparent, theme.primary),
         ),
         child: CalendarDatePicker(
           initialDate: _selectedDate ?? currentValue ?? DateTime.now(),
@@ -191,14 +191,16 @@ class _TDateTimePickerState extends State<TDateTimePicker>
   double get contentMaxHeight => 380;
 
   @override
-  Widget getContentWidget() {
+  Widget getContentWidget(BuildContext context) {
+    final theme = context.theme;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         TTabs(
           tabPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          borderColor: AppColors.grey.shade200,
+          borderColor: theme.outline,
           tabs: [
             TTab(icon: Icons.calendar_today, text: 'Date', isActive: _selectedDate != null),
             TTab(icon: Icons.access_time, text: 'Time'),
@@ -214,7 +216,7 @@ class _TDateTimePickerState extends State<TDateTimePicker>
               index: _currentTabIndex,
               alignment: Alignment.center,
               children: [
-                _buildDateTab(),
+                _buildDateTab(theme),
                 _buildTimeTab(),
               ],
             ),
@@ -226,9 +228,14 @@ class _TDateTimePickerState extends State<TDateTimePicker>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final exTheme = context.exTheme;
+
     return buildWithDropdownTarget(
       child: buildContainer(
-        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.grey.shade500),
+        theme,
+        exTheme,
+        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: theme.onSurfaceVariant),
         child: TextField(
           readOnly: true,
           controller: controller,
@@ -237,14 +244,14 @@ class _TDateTimePickerState extends State<TDateTimePicker>
           textInputAction: TextInputAction.next,
           cursorHeight: widget.fontSize + 2,
           textAlignVertical: TextAlignVertical.center,
-          style: widget.textStyle,
-          decoration: widget.inputDecoration,
+          style: getTextStyle(theme),
+          decoration: getInputDecoration(theme),
         ),
         onTap: () {
           setState(() {
             _currentTabIndex = 0;
           });
-          showPopup();
+          showPopup(context);
         },
       ),
     );

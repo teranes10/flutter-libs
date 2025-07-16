@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/mixins/pagination/pagination_config.dart';
-import 'package:te_widgets/mixins/pagination/pagination_mixin.dart';
-import 'package:te_widgets/mixins/popup_mixin.dart';
-import 'package:te_widgets/mixins/focus_mixin.dart';
-import 'package:te_widgets/mixins/input_field_mixin.dart';
-import 'package:te_widgets/mixins/input_validation_mixin.dart';
-import 'package:te_widgets/mixins/input_value_mixin.dart';
-import 'package:te_widgets/widgets/select/select_configs.dart';
-import 'package:te_widgets/widgets/select/select_mixin.dart';
-import 'package:te_widgets/widgets/text-field/text_field.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TSelect<T, V> extends StatefulWidget
-    with TInputFieldMixin, TInputValueMixin<V>, TFocusMixin, TInputValidationMixin<V>, TPopupMixin, TPaginationMixin<T>, TSelectMixin<T, V> {
+    with
+        TInputFieldMixin,
+        TInputValueMixin<V>,
+        TFocusMixin,
+        TInputValidationMixin<V>,
+        TPopupMixin,
+        TPaginationMixin<T>,
+        TSelectMixin<T, V> {
   @override
   final String? label, tag, placeholder, helperText, message;
   @override
@@ -20,7 +17,7 @@ class TSelect<T, V> extends StatefulWidget
   @override
   final TInputSize? size;
   @override
-  final TInputColor? color;
+  final Color? color;
   @override
   final BoxDecoration? boxDecoration;
   @override
@@ -203,19 +200,19 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
     super.onFocusChanged(hasFocus);
 
     if (hasFocus) {
-      showPopup();
+      showPopup(context);
     } else {
       hidePopup();
     }
   }
 
   @override
-  void showPopup() {
+  void showPopup(BuildContext context) {
     _displayTextBeforeExpansion = _controller.text;
     if (widget.filterable) {
       _controller.clear();
     }
-    super.showPopup();
+    super.showPopup(context);
   }
 
   @override
@@ -235,9 +232,11 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return buildWithDropdownTarget(
       child: TTextField(
-        onTap: !widget.filterable ? togglePopup : null,
+        onTap: () => !widget.filterable ? togglePopup(context) : null,
         skipValidation: true,
         focusNode: focusNode,
         label: widget.label,
@@ -253,10 +252,10 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
         controller: _controller,
         value: isPopupShowing && widget.filterable ? (stateNotifier.searchQuery) : _controller.text,
         preWidget: widget.preWidget,
-        postWidget:
-            widget.postWidget ?? Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: AppColors.grey.shade500),
+        postWidget: widget.postWidget ??
+            Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: theme.onSurfaceVariant),
         onValueChanged: widget.filterable && isPopupShowing ? onSearchChanged : null,
-        boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? AppColors.grey.shade50 : Colors.white),
+        boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? theme.surfaceDim : theme.surface),
       ),
     );
   }

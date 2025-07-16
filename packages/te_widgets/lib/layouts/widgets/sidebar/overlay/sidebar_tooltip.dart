@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_overlay_controller.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TSidebarTooltip extends StatefulWidget {
   final LayerLink layerLink;
@@ -75,6 +74,8 @@ class _TSidebarTooltipState extends State<TSidebarTooltip> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return Positioned(
       left: 0,
       top: 0,
@@ -100,8 +101,8 @@ class _TSidebarTooltipState extends State<TSidebarTooltip> with SingleTickerProv
             child: Material(
               elevation: 12,
               borderRadius: BorderRadius.circular(8),
-              color: Colors.white,
-              shadowColor: Colors.black.withOpacity(0.15),
+              color: theme.surface,
+              shadowColor: theme.shadow,
               child: InkWell(
                 onTap: widget.item.isClickable ? _handleTap : null,
                 borderRadius: BorderRadius.circular(8),
@@ -119,7 +120,7 @@ class _TSidebarTooltipState extends State<TSidebarTooltip> with SingleTickerProv
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: widget.item.isClickable ? AppColors.grey[700] : AppColors.grey[500],
+                      color: theme.onSurface,
                     ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,

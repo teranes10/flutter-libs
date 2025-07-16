@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TLogo extends StatelessWidget {
   final String? icon;
@@ -20,6 +21,8 @@ class TLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return InkWell(
       onTap: onTap,
       child: Wrap(
@@ -40,7 +43,7 @@ class TLogo extends StatelessWidget {
               style: TextStyle(
                 fontSize: 30.0,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.primary,
+                color: theme.primary,
               ),
             ),
         ],

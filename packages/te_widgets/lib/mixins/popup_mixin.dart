@@ -22,12 +22,14 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   bool get isPopupShowing => _overlayEntry != null && _isOverlayVisible;
   bool get shouldCenterOnSmallScreen => MediaQuery.of(context).size.width <= 600;
 
-  BoxDecoration get dropdownDecoration => BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: AppColors.grey.shade50.withAlpha(100), blurRadius: 8, offset: const Offset(0, 4))],
-      );
+  BoxDecoration getDropdownDecoration(ColorScheme theme) {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(8),
+      border: Border.all(color: theme.outline),
+      color: theme.surface,
+      boxShadow: [BoxShadow(color: theme.shadow, blurRadius: 12, spreadRadius: 0)],
+    );
+  }
 
   double get _targetWidth {
     final renderBox = _dropdownTargetKey.currentContext?.findRenderObject() as RenderBox?;
@@ -42,11 +44,11 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   double get contentMaxWidth => _targetWidth;
   double get contentMaxHeight => MediaQuery.of(context).size.height * 0.85;
 
-  Widget getContentWidget();
+  Widget getContentWidget(BuildContext context);
 
-  void showPopup() {
+  void showPopup(BuildContext context) {
     if (_widget.disabled || isPopupShowing) return;
-    _showOverlay();
+    _showOverlay(context);
   }
 
   void hidePopup() {
@@ -55,8 +57,8 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  void togglePopup() {
-    isPopupShowing ? hidePopup() : showPopup();
+  void togglePopup(BuildContext context) {
+    isPopupShowing ? hidePopup() : showPopup(context);
   }
 
   void rebuildPopup() {
@@ -71,7 +73,10 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  Widget _buildContentWidget() {
+  Widget _buildContentWidget(BuildContext context) {
+    final theme = context.theme;
+    final dropdownDecoration = getDropdownDecoration(theme);
+
     return Material(
       elevation: 1,
       borderRadius: dropdownDecoration.borderRadius ?? BorderRadius.circular(8),
@@ -80,7 +85,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         decoration: dropdownDecoration,
         child: Stack(
           children: [
-            Padding(padding: EdgeInsets.fromLTRB(3, 9, 3, 0), child: getContentWidget()),
+            Padding(padding: EdgeInsets.fromLTRB(3, 9, 3, 0), child: getContentWidget(context)),
             Positioned(top: 2, right: 2, child: TCloseIcon(size: 14, onClose: hidePopup)),
           ],
         ),
@@ -88,34 +93,26 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  void _showOverlay() {
+  void _showOverlay(BuildContext context) {
     if (shouldCenterOnSmallScreen) {
-      _showCenteredOverlay();
+      _showCenteredOverlay(context);
     } else {
-      _showAnchoredOverlay();
+      _showAnchoredOverlay(context);
     }
   }
 
-  void _showCenteredOverlay() {
+  void _showCenteredOverlay(BuildContext context) {
+    final theme = context.theme;
     final screenSize = MediaQuery.of(context).size;
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
-          if (!persistent)
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: hidePopup,
-                child: Container(color: AppColors.grey[950]!.withAlpha(10)),
-              ),
-            ),
+          if (!persistent) Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: theme.scrim))),
           Center(
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: screenSize.width * 0.85,
-                maxHeight: screenSize.height * 0.85,
-              ),
-              child: _buildContentWidget(),
+              constraints: BoxConstraints(maxWidth: screenSize.width * 0.85, maxHeight: screenSize.height * 0.85),
+              child: _buildContentWidget(context),
             ),
           ),
         ],
@@ -127,7 +124,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     _widget.onShow?.call();
   }
 
-  void _showAnchoredOverlay() {
+  void _showAnchoredOverlay(BuildContext context) {
     _calculateDropdownPosition();
 
     _overlayEntry = OverlayEntry(
@@ -151,7 +148,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
                 maxWidth: contentMaxWidth,
                 maxHeight: contentMaxHeight,
               ),
-              child: SingleChildScrollView(child: _buildContentWidget()),
+              child: SingleChildScrollView(child: _buildContentWidget(context)),
             ),
           ),
         ],

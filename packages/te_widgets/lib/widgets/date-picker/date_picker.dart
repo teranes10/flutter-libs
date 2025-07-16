@@ -11,7 +11,7 @@ class TDatePicker extends StatefulWidget
   @override
   final TInputSize? size;
   @override
-  final TInputColor? color;
+  final Color? color;
   @override
   final BoxDecoration? boxDecoration;
   @override
@@ -126,16 +126,17 @@ class _TDatePickerState extends State<TDatePicker>
   }
 
   @override
-  Widget getContentWidget() {
+  Widget getContentWidget(BuildContext context) {
+    final theme = context.theme;
     return DatePickerTheme(
       data: DatePickerThemeData(
-        backgroundColor: Colors.white,
-        headerBackgroundColor: Colors.white,
-        headerForegroundColor: AppColors.grey.shade600,
-        dayForegroundColor: _resolveState(AppColors.grey.shade600, Colors.white),
-        dayBackgroundColor: _resolveState(Colors.transparent, Theme.of(context).colorScheme.primary),
-        todayForegroundColor: _resolveState(AppColors.grey.shade600, Colors.white),
-        todayBackgroundColor: _resolveState(Colors.transparent, Theme.of(context).colorScheme.primary),
+        backgroundColor: theme.surface,
+        headerBackgroundColor: theme.surface,
+        headerForegroundColor: theme.onSurface,
+        dayForegroundColor: _resolveState(theme.onSurface, theme.surface),
+        dayBackgroundColor: _resolveState(Colors.transparent, theme.primary),
+        todayForegroundColor: _resolveState(theme.onSurface, theme.surface),
+        todayBackgroundColor: _resolveState(Colors.transparent, theme.primary),
       ),
       child: CalendarDatePicker(
         initialDate: currentValue ?? DateTime.now(),
@@ -150,9 +151,14 @@ class _TDatePickerState extends State<TDatePicker>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final exTheme = context.exTheme;
+
     return buildWithDropdownTarget(
       child: buildContainer(
-        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: AppColors.grey.shade500),
+        theme,
+        exTheme,
+        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: theme.onSurfaceVariant),
         child: TextField(
           readOnly: true,
           controller: controller,
@@ -161,10 +167,10 @@ class _TDatePickerState extends State<TDatePicker>
           textInputAction: TextInputAction.next,
           cursorHeight: widget.fontSize + 2,
           textAlignVertical: TextAlignVertical.center,
-          style: widget.textStyle,
-          decoration: widget.inputDecoration,
+          style: getTextStyle(theme),
+          decoration: getInputDecoration(theme),
         ),
-        onTap: showPopup,
+        onTap: () => showPopup(context),
       ),
     );
   }

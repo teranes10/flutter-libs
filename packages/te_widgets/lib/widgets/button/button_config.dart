@@ -1,102 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/button/button.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 enum TButtonType {
-  fill,
-  inverse,
+  solid,
+  tonal,
   outline,
-  outlineFill,
+  softOutline,
+  filledOutline,
   text,
-  textFill,
+  softText,
+  filledText,
   icon;
 
   FontWeight get fontWeight {
     return switch (this) {
-      fill || inverse || text || textFill || icon => FontWeight.w400,
-      outline || outlineFill => FontWeight.w300,
+      solid || tonal || text || softText || filledText || icon => FontWeight.w400,
+      outline || softOutline || filledOutline => FontWeight.w300,
     };
   }
 }
 
-enum TButtonGroupType { fill, inverse, outline, outlineFill, text, textFill, icon, boxed }
+enum TButtonGroupType { solid, tonal, outline, softOutline, filledOutline, text, softText, filledText, icon, boxed }
 
 enum TButtonSize { xxs, xs, sm, md, lg }
 
 class TButtonPressOptions {
   final VoidCallback stopLoading;
   TButtonPressOptions({required this.stopLoading});
-}
-
-class TButtonColorScheme {
-  final Color bg, fg, bgActive, fgActive;
-  final Color? border, borderActive;
-
-  TButtonColorScheme({
-    required this.bg,
-    required this.bgActive,
-    required this.fg,
-    required this.fgActive,
-    this.border,
-    this.borderActive,
-  });
-
-  factory TButtonColorScheme.from(MaterialColor c, TButtonType type) {
-    switch (type) {
-      case TButtonType.fill:
-        return TButtonColorScheme(
-          bg: c.shade400,
-          bgActive: c.shade400.withAlpha(225),
-          fg: c.shade50,
-          fgActive: c.shade50,
-        );
-      case TButtonType.inverse:
-        return TButtonColorScheme(
-          bg: c.shade50,
-          bgActive: c.shade100.withAlpha(150),
-          fg: c.shade400,
-          fgActive: c.shade400,
-        );
-      case TButtonType.outline:
-        return TButtonColorScheme(
-          bg: Colors.transparent,
-          bgActive: c.shade50,
-          fg: c.shade400,
-          fgActive: c.shade400,
-          border: c.shade300,
-          borderActive: c.shade200.withAlpha(200),
-        );
-      case TButtonType.outlineFill:
-        return TButtonColorScheme(
-          bg: Colors.transparent,
-          bgActive: c.shade400,
-          fg: c.shade400,
-          fgActive: c.shade50,
-          border: c.shade300,
-          borderActive: c.shade300,
-        );
-      case TButtonType.text:
-        return TButtonColorScheme(
-          bg: Colors.transparent,
-          bgActive: c.shade50,
-          fg: c.shade400,
-          fgActive: c.shade400,
-        );
-      case TButtonType.textFill:
-        return TButtonColorScheme(
-          bg: Colors.transparent,
-          bgActive: c.shade400,
-          fg: c.shade400,
-          fgActive: c.shade50,
-        );
-      case TButtonType.icon:
-        return TButtonColorScheme(
-          bg: Colors.transparent,
-          bgActive: Colors.transparent,
-          fg: c.shade400,
-          fgActive: c.shade600.withAlpha(225),
-        );
-    }
-  }
 }
 
 class TButtonSizeData {
@@ -130,22 +60,46 @@ class TButtonSizeData {
 
 TButtonType mapGroupTypeToButtonType(TButtonGroupType groupType) {
   switch (groupType) {
-    case TButtonGroupType.fill:
-      return TButtonType.fill;
+    case TButtonGroupType.solid:
+      return TButtonType.solid;
+    case TButtonGroupType.tonal:
+      return TButtonType.tonal;
     case TButtonGroupType.outline:
       return TButtonType.outline;
-    case TButtonGroupType.outlineFill:
-      return TButtonType.outlineFill;
+    case TButtonGroupType.softOutline:
+      return TButtonType.softOutline;
+    case TButtonGroupType.filledOutline:
+      return TButtonType.filledOutline;
     case TButtonGroupType.text:
-      return TButtonType.text;
-    case TButtonGroupType.textFill:
-      return TButtonType.textFill;
     case TButtonGroupType.icon:
-      return TButtonType.icon;
+      return TButtonType.text;
+    case TButtonGroupType.softText:
+      return TButtonType.softText;
+    case TButtonGroupType.filledText:
     case TButtonGroupType.boxed:
-      return TButtonType.textFill;
-    case TButtonGroupType.inverse:
-      return TButtonType.inverse;
+      return TButtonType.filledText;
+  }
+}
+
+TColorType mapButtonTypeToColorType(TButtonType buttonType) {
+  switch (buttonType) {
+    case TButtonType.solid:
+      return TColorType.solid;
+    case TButtonType.tonal:
+      return TColorType.tonal;
+    case TButtonType.outline:
+      return TColorType.outline;
+    case TButtonType.softOutline:
+      return TColorType.softOutline;
+    case TButtonType.filledOutline:
+      return TColorType.filledOutline;
+    case TButtonType.text:
+    case TButtonType.icon:
+      return TColorType.text;
+    case TButtonType.softText:
+      return TColorType.softText;
+    case TButtonType.filledText:
+      return TColorType.filledText;
   }
 }
 

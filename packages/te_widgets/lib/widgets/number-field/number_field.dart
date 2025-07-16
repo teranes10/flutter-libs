@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:te_widgets/mixins/focus_mixin.dart';
-import 'package:te_widgets/mixins/input_field_mixin.dart';
-import 'package:te_widgets/mixins/input_validation_mixin.dart';
-import 'package:te_widgets/mixins/input_value_mixin.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<T>, TFocusMixin, TInputValidationMixin<T> {
   @override
@@ -13,7 +10,7 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
   @override
   final TInputSize? size;
   @override
-  final TInputColor? color;
+  final Color? color;
   @override
   final BoxDecoration? boxDecoration;
   @override
@@ -210,7 +207,7 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
     }
   }
 
-  Widget _buildStepperButton(IconData icon, VoidCallback onPressed, bool enabled) {
+  Widget _buildStepperButton(ColorScheme theme, IconData icon, VoidCallback onPressed, bool enabled) {
     return InkWell(
       onTap: enabled ? onPressed : null,
       borderRadius: BorderRadius.circular(2),
@@ -220,13 +217,13 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
         child: Icon(
           icon,
           size: 14,
-          color: enabled ? Colors.grey.shade600 : Colors.grey.shade300,
+          color: enabled ? theme.onSurface : theme.onSurfaceVariant,
         ),
       ),
     );
   }
 
-  Widget? _buildPostWidget() {
+  Widget? _buildPostWidget(ColorScheme theme) {
     if (!widget.showSteppers) return null;
 
     final disabled = widget.disabled == true;
@@ -236,17 +233,9 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
     final steppers = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildStepperButton(
-          Icons.remove,
-          () => _changeValueBy(-(widget.decrement ?? (T == int ? 1 : 1.0))),
-          canDecrease,
-        ),
+        _buildStepperButton(theme, Icons.remove, () => _changeValueBy(-(widget.decrement ?? (T == int ? 1 : 1.0))), canDecrease),
         const SizedBox(width: 4),
-        _buildStepperButton(
-          Icons.add,
-          () => _changeValueBy(widget.increment ?? (T == int ? 1 : 1.0)),
-          canIncrease,
-        ),
+        _buildStepperButton(theme, Icons.add, () => _changeValueBy(widget.increment ?? (T == int ? 1 : 1.0)), canIncrease),
       ],
     );
 
@@ -255,8 +244,13 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final exTheme = context.exTheme;
+
     return buildContainer(
-      postWidget: _buildPostWidget(),
+      theme,
+      exTheme,
+      postWidget: _buildPostWidget(theme),
       child: TextField(
         controller: _controller,
         focusNode: focusNode,
@@ -266,8 +260,8 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
         textInputAction: TextInputAction.next,
         cursorHeight: widget.fontSize + 2,
         textAlignVertical: TextAlignVertical.center,
-        style: widget.textStyle,
-        decoration: widget.inputDecoration,
+        style: getTextStyle(theme),
+        decoration: getInputDecoration(theme),
         onChanged: _onValueChanged,
       ),
     );

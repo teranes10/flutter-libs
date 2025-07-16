@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/configs/theme/theme_colors.dart';
 
 enum TCheckboxSize { small, medium, large }
 
@@ -6,11 +7,11 @@ enum TCheckboxIcon { check, minus, square }
 
 class TCheckboxColors {
   static const Map<String, Color> colors = {
-    'primary': Colors.blue,
-    'secondary': Colors.grey,
-    'success': Colors.green,
-    'warning': Colors.orange,
-    'danger': Colors.red,
+    'primary': AppColors.primary,
+    'secondary': AppColors.secondary,
+    'success': AppColors.success,
+    'warning': AppColors.warning,
+    'danger': AppColors.danger,
   };
 }
 

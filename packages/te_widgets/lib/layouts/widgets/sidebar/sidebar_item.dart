@@ -2,11 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_overlay.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_overlay_controller.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_tooltip.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TSidebarItemWidget extends StatefulWidget {
   final TSidebarItem item;
@@ -208,6 +207,8 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   }
 
   Widget _buildMainItem(bool isCurrentRoute, bool containsCurrentRoute) {
+    final theme = context.theme;
+
     return MouseRegion(
       onEnter: (_) => _onHoverEnter(),
       onExit: (_) => _onHoverExit(),
@@ -227,7 +228,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
                   : EdgeInsets.symmetric(horizontal: 10),
           decoration: widget.isMinimized
               ? BoxDecoration(
-                  shape: BoxShape.circle, color: isCurrentRoute ? widget.theme.activeBackgroundColor : AppColors.grey.shade50.withAlpha(100))
+                  shape: BoxShape.circle, color: isCurrentRoute ? widget.theme.activeBackgroundColor : theme.surfaceContainerHigh)
               : BoxDecoration(color: isCurrentRoute ? widget.theme.activeBackgroundColor : null, borderRadius: BorderRadius.circular(8)),
           child: _buildItemContent(isCurrentRoute, containsCurrentRoute),
         ),
@@ -245,16 +246,12 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     return Row(
       mainAxisAlignment: widget.isMinimized ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
-        if (widget.item.icon != null) Icon(widget.item.icon, size: TSidebarConstants.iconSize, color: color),
+        if (widget.item.icon != null) Icon(widget.item.icon, size: TSidebarConstants.iconSize, color: color.withValues(alpha: 25)),
         if (widget.item.text != null && !widget.isMinimized) ...[
           const SizedBox(width: 10),
           Text(
             widget.item.text!,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w300,
-              color: color,
-            ),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: color),
           ),
         ],
         if (widget.item.hasChildren && !widget.isMinimized) ...[
@@ -286,27 +283,16 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
       axisAlignment: 1.0,
       sizeFactor: _slideAnimation,
       child: Padding(
-        padding: const EdgeInsets.only(left: 26.4),
+        padding: EdgeInsets.only(left: TSidebarConstants.itemPadding.left * 2),
         child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(
-                color: widget.theme.borderColor,
-                width: 1,
-                style: BorderStyle.solid,
-              ),
-            ),
-          ),
+          decoration: BoxDecoration(border: Border(left: BorderSide(color: widget.theme.borderColor, width: 1, style: BorderStyle.solid))),
           child: Column(
             children: widget.item.children!.map((child) {
-              return Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: TSidebarItemWidget(
-                  item: child,
-                  isMinimized: false,
-                  level: widget.level + 1,
-                  theme: widget.theme,
-                ),
+              return TSidebarItemWidget(
+                item: child,
+                isMinimized: false,
+                level: widget.level + 1,
+                theme: widget.theme,
               );
             }).toList(),
           ),

@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/alert/alert_service.dart';
-import 'package:te_widgets/widgets/button/button.dart';
-import 'package:te_widgets/widgets/modal/modal_config.dart';
-import 'package:te_widgets/widgets/modal/modal_service.dart';
-import 'package:te_widgets/widgets/tooltip/tooltip.dart';
-import 'package:te_widgets/widgets/tooltip/tooltip_config.dart';
 
 class PopupsPage extends StatefulWidget {
   const PopupsPage({super.key});

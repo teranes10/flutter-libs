@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/enum/shadow.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TCard extends StatelessWidget {
   final Widget child;
@@ -27,6 +27,7 @@ class TCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
     final defaultBorderRadius = borderRadius ?? BorderRadius.circular(8);
 
     return Container(
@@ -35,14 +36,14 @@ class TCard extends StatelessWidget {
       child: Material(
         elevation: elevation ?? shadow.toElevation(),
         borderRadius: defaultBorderRadius,
-        color: backgroundColor ?? Colors.white,
+        color: backgroundColor ?? theme.surface,
         child: InkWell(
           borderRadius: defaultBorderRadius,
           onTap: onTap,
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
-                color: backgroundColor ?? Colors.white, boxShadow: boxShadow ?? shadow.toBoxShadow(), borderRadius: defaultBorderRadius),
+                color: backgroundColor ?? theme.surface, boxShadow: boxShadow ?? shadow.toBoxShadow(), borderRadius: defaultBorderRadius),
             padding: padding,
             child: child,
           ),

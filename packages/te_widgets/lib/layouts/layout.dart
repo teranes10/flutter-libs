@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TLayout extends StatefulWidget {
   final List<TSidebarItem> items;
@@ -50,6 +48,8 @@ class _TLayoutState extends State<TLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return Scaffold(
       backgroundColor: AppColors.grey.shade900,
       body: SafeArea(
@@ -59,12 +59,12 @@ class _TLayoutState extends State<TLayout> {
             builder: (context, sizing) {
               return DecoratedBox(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.surface,
                   borderRadius: BorderRadius.circular(widget.mainCardRadius),
                 ),
                 child: Column(
                   children: [
-                    _buildTopBar(context, sizing),
+                    _buildTopBar(theme, sizing),
                     Expanded(
                       child: Row(
                         children: [
@@ -80,7 +80,6 @@ class _TLayoutState extends State<TLayout> {
                             ),
                           _MainContent(
                             isMobile: sizing.isMobile,
-                            pageTitle: widget.pageTitle,
                             child: widget.child,
                           ),
                         ],
@@ -98,13 +97,13 @@ class _TLayoutState extends State<TLayout> {
 
   /* ─────────────────────────────── top bar ─────────────────────────────── */
 
-  Widget _buildTopBar(BuildContext context, SizingInformation sizing) {
+  Widget _buildTopBar(ColorScheme theme, SizingInformation sizing) {
     final List<Widget> children = [
       if (widget.logo != null) SizedBox(width: widget.width - 20, child: widget.logo!),
       if (!sizing.isMobile) const SizedBox(width: 5),
-      if (!sizing.isMobile) _buildSidebarToggle(),
+      if (!sizing.isMobile) _buildSidebarToggle(theme),
       if (!sizing.isMobile) const SizedBox(width: 10),
-      if (!sizing.isMobile) _buildPageTitle(),
+      if (!sizing.isMobile) _buildPageTitle(theme),
       Spacer(),
       if (widget.profile != null) widget.profile!,
       SizedBox(width: 25)
@@ -125,23 +124,23 @@ class _TLayoutState extends State<TLayout> {
     );
   }
 
-  Widget _buildSidebarToggle() {
+  Widget _buildSidebarToggle(ColorScheme theme) {
     return InkWell(
       onTap: _toggleSidebar,
       borderRadius: BorderRadius.circular(24),
       child: CircleAvatar(
           radius: 16,
-          backgroundColor: AppColors.grey.shade50.withAlpha(150),
-          child: Icon(_isMinified ? Icons.chevron_right_rounded : Icons.chevron_left_rounded, size: 20, color: AppColors.grey.shade500)),
+          backgroundColor: theme.surfaceContainerHigh,
+          child: Icon(_isMinified ? Icons.chevron_right_rounded : Icons.chevron_left_rounded, size: 20, color: theme.onSurface)),
     );
   }
 
-  Widget _buildPageTitle() {
+  Widget _buildPageTitle(ColorScheme theme) {
     final String title = widget.pageTitle ?? GoRouterState.of(context).topRoute?.name ?? '';
 
     return Text(
       title,
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: AppColors.grey.shade500),
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: theme.onSurfaceVariant),
     );
   }
 }
@@ -149,27 +148,27 @@ class _TLayoutState extends State<TLayout> {
 /* ─────────────────────────── main/content helpers ─────────────────────────── */
 
 class _MainContent extends StatelessWidget {
+  final bool isMobile;
+  final Widget child;
+
   const _MainContent({
     required this.isMobile,
-    required this.pageTitle,
     required this.child,
   });
 
-  final bool isMobile;
-  final String? pageTitle;
-  final Widget child;
-
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+
     return Expanded(
       child: DecoratedBox(
         decoration: isMobile
             ? const BoxDecoration()
             : BoxDecoration(
-                color: Colors.white,
+                color: theme.surface,
                 border: Border(
-                  top: BorderSide(color: AppColors.grey.shade50, width: 1),
-                  left: BorderSide(color: AppColors.grey.shade50, width: 1),
+                  top: BorderSide(color: theme.outlineVariant, width: 1),
+                  left: BorderSide(color: theme.outlineVariant, width: 1),
                 ),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(28),
@@ -178,16 +177,6 @@ class _MainContent extends StatelessWidget {
               ),
         child: Column(
           children: [
-            if (pageTitle != null)
-              Container(
-                height: 50,
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  pageTitle!,
-                  style: TextStyle(fontSize: 24, color: AppColors.grey[600]),
-                ),
-              ),
             const SizedBox(height: 8),
             Expanded(child: _Content(child: child)),
           ],

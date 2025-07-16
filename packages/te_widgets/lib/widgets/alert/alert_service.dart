@@ -1,165 +1,105 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/alert/alert.dart';
-import 'package:te_widgets/widgets/alert/alert_config.dart';
-import 'package:te_widgets/widgets/modal/modal_service.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TAlertService {
-  static Future<void> show(BuildContext context, AlertProps props) async {
+  static Future<void> show(
+    BuildContext context, {
+    final dynamic text,
+    final String? title,
+    final IconData? icon,
+    final MaterialColor? color,
+    final AlertButton? closeButton,
+    final AlertButton? confirmButton,
+  }) async {
     TModalService.show(context, (context) {
-      final AlertProps finalProps = AlertProps(
-        title: props.title,
-        text: props.text,
-        icon: props.icon,
-        type: props.type,
-        confirmButton: props.confirmButton != null
+      return TAlert(
+        title: title,
+        text: text,
+        icon: icon,
+        color: color,
+        confirmButton: confirmButton != null
             ? AlertButton(
-                text: props.confirmButton!.text,
-                icon: props.confirmButton!.icon,
+                text: confirmButton.text,
+                icon: confirmButton.icon,
                 onClick: () {
                   context.close();
-                  props.confirmButton?.onClick?.call();
+                  confirmButton.onClick?.call();
                 },
               )
             : null,
         closeButton: AlertButton(
-          text: props.closeButton?.text ?? (props.confirmButton != null ? 'Cancel' : 'OK'),
-          icon: props.closeButton?.icon,
+          text: closeButton?.text ?? (confirmButton != null ? 'Cancel' : 'OK'),
+          icon: closeButton?.icon,
           onClick: () {
             context.close();
-            props.closeButton?.onClick?.call();
+            closeButton?.onClick?.call();
           },
         ),
       );
-
-      return TAlert(finalProps);
     });
   }
 
   static void info(BuildContext context, String title, String message) {
-    show(
-      context,
-      AlertProps(
-        title: title,
-        text: message,
-        icon: Icons.info_outline_rounded,
-        type: AlertType.info,
-      ),
-    );
+    show(context, title: title, text: message, icon: Icons.info_outline_rounded, color: context.exTheme.info);
   }
 
   static void success(BuildContext context, String title, String message) {
-    show(
-      context,
-      AlertProps(
-        title: title,
-        text: message,
-        icon: Icons.check_circle_outline_rounded,
-        type: AlertType.success,
-      ),
-    );
+    show(context, title: title, text: message, icon: Icons.check_circle_outline_rounded, color: context.exTheme.success);
   }
 
   static void warning(BuildContext context, String title, String message) {
-    show(
-      context,
-      AlertProps(
-        title: title,
-        text: message,
-        icon: Icons.warning_amber_rounded,
-        type: AlertType.warning,
-      ),
-    );
+    show(context, title: title, text: message, icon: Icons.warning_amber_rounded, color: context.exTheme.warning);
   }
 
   static void error(BuildContext context, String title, String message) {
-    show(
-      context,
-      AlertProps(
-        title: title,
-        text: message,
-        icon: Icons.error_outline_rounded,
-        type: AlertType.danger,
-      ),
-    );
+    show(context, title: title, text: message, icon: Icons.error_outline_rounded, color: context.exTheme.danger);
   }
 
-  static void confirmArchive(
-    BuildContext context,
-    VoidCallback onConfirm, {
-    String? name,
-  }) {
+  static void confirmArchive(BuildContext context, VoidCallback onConfirm, {String? name}) {
     final msg = name != null
         ? Text.rich(TextSpan(
             text: 'Do you really want to archive ',
-            children: [
-              TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              const TextSpan(text: '?'),
-            ],
+            children: [TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold)), const TextSpan(text: '?')],
           ))
         : 'Do you really want to archive this item?';
 
-    show(
-      context,
-      AlertProps(
+    show(context,
         title: 'Are you sure?',
         text: msg,
         icon: Icons.archive_rounded,
-        type: AlertType.danger,
-        confirmButton: AlertButton(text: 'Archive', onClick: onConfirm),
-      ),
-    );
+        color: context.exTheme.danger,
+        confirmButton: AlertButton(text: 'Archive', onClick: onConfirm));
   }
 
-  static void confirmRestore(
-    BuildContext context,
-    VoidCallback onConfirm, {
-    String? name,
-  }) {
+  static void confirmRestore(BuildContext context, VoidCallback onConfirm, {String? name}) {
     final msg = name != null
         ? Text.rich(TextSpan(
             text: 'Do you really want to restore ',
-            children: [
-              TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              const TextSpan(text: '?'),
-            ],
+            children: [TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold)), const TextSpan(text: '?')],
           ))
         : 'Do you really want to restore this item?';
 
-    show(
-      context,
-      AlertProps(
+    show(context,
         title: 'Are you sure?',
         text: msg,
         icon: Icons.unarchive_rounded,
-        type: AlertType.info,
-        confirmButton: AlertButton(text: 'Restore', onClick: onConfirm),
-      ),
-    );
+        color: context.exTheme.info,
+        confirmButton: AlertButton(text: 'Restore', onClick: onConfirm));
   }
 
-  static void confirmDelete(
-    BuildContext context,
-    VoidCallback onConfirm, {
-    String? name,
-  }) {
+  static void confirmDelete(BuildContext context, VoidCallback onConfirm, {String? name}) {
     final msg = name != null
         ? Text.rich(TextSpan(
             text: 'Do you really want to delete ',
-            children: [
-              TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              const TextSpan(text: '?'),
-            ],
+            children: [TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold)), const TextSpan(text: '?')],
           ))
         : 'Do you really want to delete this item?';
 
-    show(
-      context,
-      AlertProps(
-          title: 'Are you sure?',
-          text: msg,
-          icon: Icons.delete_forever_rounded,
-          type: AlertType.danger,
-          confirmButton: AlertButton(text: 'Delete', onClick: onConfirm)),
-    );
+    show(context,
+        title: 'Are you sure?',
+        text: msg,
+        icon: Icons.delete_forever_rounded,
+        color: context.exTheme.danger,
+        confirmButton: AlertButton(text: 'Delete', onClick: onConfirm));
   }
 }
