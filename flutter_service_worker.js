@@ -20,7 +20,7 @@ const RESOURCES = {"assets/AssetManifest.bin": "48a4e9c4098188ca7b8ad988b52e8442
 "assets/packages/te_widgets/fonts/Lexend-Medium.ttf": "15c1a10bfb6fbe6caa9d5592bd890054",
 "version.json": "53fb59e54fb87bb44dba7c2200e1dead",
 "manifest.json": "ace26d0c71a6ddf01f5f72671a426a89",
-"flutter_bootstrap.js": "f67ab45d8a37d372b413a446118f846a",
+"flutter_bootstrap.js": "bf43dec19045868c2b7d4a6db701561c",
 "canvaskit/skwasm.wasm": "39dd80367a4e71582d234948adc521c0",
 "canvaskit/canvaskit.wasm": "7a3f4ae7d65fc1de6a6e7ddd3224bc93",
 "canvaskit/skwasm.js.symbols": "e72c79950c8a8483d826a7f0560573a1",
@@ -38,7 +38,7 @@ const RESOURCES = {"assets/AssetManifest.bin": "48a4e9c4098188ca7b8ad988b52e8442
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
 "icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
-"main.dart.js": "33a037c33dfe4cbe93714084e3024d84"};
+"main.dart.js": "85726a4765948047ae393ef393715aca"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",
