@@ -22,10 +22,15 @@ class FormsPage extends StatelessWidget {
 class UserForm extends TFormBase {
   final firstName = TFieldProp('');
   final lastName = TFieldProp('');
-  final username = TFieldProp('');
+  final username = TFieldProp('', useNotifier: true);
   final email = TFieldProp('');
   final subForm = TFieldProp(SubForm());
   final subForms = TFieldProp(List<SubForm>.empty());
+
+  UserForm() {
+    email.subscribe(firstName, (v) => v, cancelOnUserEdit: true);
+    username.subscribeToMany([firstName, lastName], () => "${firstName.value} ${lastName.value}", cancelOnUserEdit: true);
+  }
 
   @override
   double get formWidth => 850;
@@ -41,6 +46,13 @@ class UserForm extends TFormBase {
       TFormField.items(subForms, () => SubForm(), label: 'Sub Forms', buttonLabel: 'Add New')
     ];
   }
+
+  // @override
+  // void onValueChanged() {
+  //   if (!username.wasUserInput) {
+  //     username.value = "${firstName.value} ${lastName.value}";
+  //   }
+  // }
 
   @override
   String toString() {

@@ -49,9 +49,10 @@ class _TLayoutState extends State<TLayout> {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final exTheme = context.exTheme;
 
     return Scaffold(
-      backgroundColor: AppColors.grey.shade900,
+      backgroundColor: exTheme.layoutFrame,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(widget.mainCardRadius / 2),

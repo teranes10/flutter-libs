@@ -48,9 +48,10 @@ class TFormBuilder extends StatelessWidget {
             final width = (unitWidth * span) + ((span - 1) * gutter);
             final isForm = field._field is TFormBuilder || field._field is TItemsFormBuilder;
 
-            if (onValueChanged != null) {
-              field._attach(onValueChanged!);
-            }
+            field._attach(() {
+              onValueChanged?.call();
+              input?.onValueChanged();
+            });
 
             final widget = SizedBox(
               width: width,

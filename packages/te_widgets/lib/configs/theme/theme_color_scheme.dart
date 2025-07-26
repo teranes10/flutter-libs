@@ -12,6 +12,7 @@ class TColorScheme extends ThemeExtension<TColorScheme> {
   final MaterialColor danger;
   final MaterialColor grey;
 
+  final Color layoutFrame;
   final TButtonType buttonType;
   final TColorType chipType;
   final TColorType toastType;
@@ -24,6 +25,7 @@ class TColorScheme extends ThemeExtension<TColorScheme> {
     this.info = AppColors.info,
     this.danger = AppColors.danger,
     this.grey = AppColors.grey,
+    this.layoutFrame = AppColors.grey,
     this.buttonType = TButtonType.solid,
     this.chipType = TColorType.tonal,
     this.toastType = TColorType.outline,
@@ -38,6 +40,7 @@ class TColorScheme extends ThemeExtension<TColorScheme> {
     MaterialColor? info,
     MaterialColor? danger,
     MaterialColor? grey,
+    Color? layoutFrame,
     TButtonType? buttonType,
     TColorType? chipType,
     TColorType? toastType,
@@ -50,6 +53,7 @@ class TColorScheme extends ThemeExtension<TColorScheme> {
       info: info ?? this.info,
       danger: danger ?? this.danger,
       grey: grey ?? this.grey,
+      layoutFrame: layoutFrame ?? this.layoutFrame,
       buttonType: buttonType ?? this.buttonType,
       chipType: chipType ?? this.chipType,
       toastType: toastType ?? this.toastType,

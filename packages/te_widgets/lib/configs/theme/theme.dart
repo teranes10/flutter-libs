@@ -33,7 +33,11 @@ ThemeData getTLightTheme() {
       shadow: AppColors.grey.shade200.withAlpha(100),
       scrim: AppColors.grey[950]!.withAlpha(25),
     ),
-  ).copyWith(extensions: [TColorScheme()]);
+  ).copyWith(extensions: [
+    TColorScheme().copyWith(
+      layoutFrame: AppColors.grey.shade800,
+    )
+  ]);
 }
 
 ThemeData getTDarkTheme() {
@@ -66,5 +70,9 @@ ThemeData getTDarkTheme() {
       shadow: AppColors.grey.shade900.withAlpha(100),
       scrim: AppColors.grey.shade900.withAlpha(25),
     ),
-  ).copyWith(extensions: [TColorScheme()]);
+  ).copyWith(extensions: [
+    TColorScheme().copyWith(
+      layoutFrame: AppColors.grey.shade900,
+    )
+  ]);
 }

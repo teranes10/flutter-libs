@@ -51,9 +51,9 @@
     },
     {
       "name": "conventional_commit",
-      "rootUri": "file:///Users/teranesranjith/.pub-cache/hosted/pub.dev/conventional_commit-0.6.1",
+      "rootUri": "file:///Users/teranesranjith/.pub-cache/hosted/pub.dev/conventional_commit-0.6.1+1",
       "packageUri": "lib/",
-      "languageVersion": "3.6"
+      "languageVersion": "3.8"
     },
     {
       "name": "file",
@@ -207,7 +207,7 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///Users/teranesranjith/.pub-cache/hosted/pub.dev/test_api-0.7.6",
+      "rootUri": "file:///Users/teranesranjith/.pub-cache/hosted/pub.dev/test_api-0.7.7",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     },
@@ -248,10 +248,9 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2025-06-08T17:02:48.521922Z",
   "generator": "pub",
-  "generatorVersion": "3.6.0",
+  "generatorVersion": "3.8.1",
   "flutterRoot": "file:///Volumes/External%20SSD/Development/flutter",
-  "flutterVersion": "3.27.1",
+  "flutterVersion": "3.32.8",
   "pubCache": "file:///Users/teranesranjith/.pub-cache"
 }

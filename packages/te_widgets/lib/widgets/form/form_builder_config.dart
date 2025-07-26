@@ -53,6 +53,8 @@ abstract class TFormBase {
       field.prop.reset();
     }
   }
+
+  void onValueChanged() {}
 }
 
 enum TBreakpoint {

@@ -13,7 +13,7 @@ class TFormField<T> {
   }
 
   void _onValueChanged(T value) {
-    prop._value = value;
+    prop._setUserValue(value);
     _callback?.call();
   }
 
@@ -49,6 +49,7 @@ class TFormField<T> {
         disabled: disabled,
         rules: rules,
         value: prop.value,
+        valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
         rows: rows,
       ),
@@ -76,6 +77,7 @@ class TFormField<T> {
         disabled: disabled,
         rules: rules,
         value: prop.value,
+        valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
       ),
     );
@@ -107,6 +109,7 @@ class TFormField<T> {
         disabled: disabled,
         rules: rules,
         value: prop.value,
+        valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
         min: min,
         max: max,
@@ -141,6 +144,7 @@ class TFormField<T> {
         disabled: disabled,
         rules: rules,
         value: prop.value,
+        valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
         firstDate: firstDate,
         lastDate: lastDate,
@@ -171,6 +175,7 @@ class TFormField<T> {
         disabled: disabled,
         rules: rules,
         value: prop.value,
+        valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
         format: format,
       ),
@@ -201,6 +206,7 @@ class TFormField<T> {
         disabled: disabled,
         rules: rules,
         value: prop.value,
+        valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
         firstDate: firstDate,
         lastDate: lastDate,
@@ -239,6 +245,7 @@ class TFormField<T> {
         disabled: disabled,
         rules: rules,
         value: prop.value,
+        valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
         items: items,
         itemText: itemText,
@@ -283,6 +290,7 @@ class TFormField<T> {
         disabled: disabled,
         rules: rules,
         value: prop.value,
+        valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
         items: items,
         itemText: itemText,
@@ -325,6 +333,7 @@ class TFormField<T> {
         onNewItem: onNewItem,
         itemAddPosition: itemAddPosition,
         value: prop.value,
+        valueNotifier: prop.valueNotifier,
         onValueChanged: (value) {
           onValueChanged(value);
         },
