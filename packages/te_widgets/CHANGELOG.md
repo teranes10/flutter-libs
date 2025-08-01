@@ -1,3 +1,8 @@
+## 0.0.9
+
+    - Sidebar overlay (remove deeper levels fix)
+    - Select (selected item text display fix)
+
 ## 0.0.8
 
     - TCrudTable actions
@@ -27,8 +32,8 @@
 
 ## 0.0.2
 
-- **FEAT**(te_widgets): test version bump.
+    - **FEAT**(te_widgets): test version bump.
 
 ## 0.0.1
 
-- TODO: Describe initial release.
+    - TODO: Describe initial release.
