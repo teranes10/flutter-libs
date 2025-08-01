@@ -40,6 +40,9 @@ final sidebarItems = [
     TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Item', children: [
       TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Sub Item', route: '/test', page: FormsPage()),
     ]),
+    TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Item', children: [
+      TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Sub Item 2', route: '/test2', page: FormsPage()),
+    ]),
     TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Item 2', route: '/test2', page: FormsPage()),
   ]),
 ];

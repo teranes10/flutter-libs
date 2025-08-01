@@ -246,7 +246,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     return Row(
       mainAxisAlignment: widget.isMinimized ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
-        if (widget.item.icon != null) Icon(widget.item.icon, size: TSidebarConstants.iconSize, color: color.withValues(alpha: 25)),
+        if (widget.item.icon != null) Icon(widget.item.icon, size: TSidebarConstants.iconSize, color: color.withValues(alpha: 50)),
         if (widget.item.text != null && !widget.isMinimized) ...[
           const SizedBox(width: 10),
           Text(

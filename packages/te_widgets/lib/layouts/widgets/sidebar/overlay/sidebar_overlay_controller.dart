@@ -21,7 +21,7 @@ class TSidebarOverlayController {
   }
 
   static void showNestedOverlay(OverlayEntry overlay, int level) {
-    _removeOverlaysDeeper(level);
+    removeOverlaysDeeper(level);
 
     _overlayStack.add(overlay);
     _levelOverlays[level] = overlay;
@@ -79,12 +79,12 @@ class TSidebarOverlayController {
   }
 
   // Improved: Only remove overlays deeper than the specified level
-  static void _removeOverlaysDeeper(int level) {
+  static void removeOverlaysDeeper(int level) {
     final overlaysToRemove = <OverlayEntry>[];
     final levelsToRemove = <int>[];
 
     _levelOverlays.forEach((overlayLevel, overlay) {
-      if (overlayLevel > level) {
+      if (overlayLevel >= level) {
         overlaysToRemove.add(overlay);
         levelsToRemove.add(overlayLevel);
       }

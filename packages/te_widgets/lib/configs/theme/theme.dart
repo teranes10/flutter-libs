@@ -68,7 +68,7 @@ ThemeData getTDarkTheme() {
       outline: AppColors.grey.shade800,
       outlineVariant: AppColors.grey.shade900,
       shadow: AppColors.grey.shade900.withAlpha(100),
-      scrim: AppColors.grey.shade900.withAlpha(25),
+      scrim: AppColors.grey.shade900.withAlpha(50),
     ),
   ).copyWith(extensions: [
     TColorScheme().copyWith(

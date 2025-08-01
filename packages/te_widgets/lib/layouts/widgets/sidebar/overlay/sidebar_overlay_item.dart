@@ -51,6 +51,8 @@ class _TSidebarOverlayItemState extends State<TSidebarOverlayItem> {
 
     if (widget.item.hasChildren) {
       _scheduleSubOverlay();
+    } else {
+      TSidebarOverlayController.removeOverlaysDeeper(widget.level + 1);
     }
   }
 
