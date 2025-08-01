@@ -180,8 +180,8 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
     }
 
     notifyValueChanged(item.value);
-    _updateDisplayText();
     hidePopup();
+    _updateDisplayText();
   }
 
   void _updateDisplayText() {

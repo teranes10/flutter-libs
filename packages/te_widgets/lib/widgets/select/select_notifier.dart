@@ -199,7 +199,7 @@ class TSelectStateNotifier<T, V> extends ChangeNotifier {
   /// Gets all selected items
   List<TSelectItem<V>> getSelectedItems() {
     List<TSelectItem<V>> selectedItems = [];
-    _collectSelectedItems(_internalItems, selectedItems);
+    _collectSelectedItems(_displayItems, selectedItems);
     return selectedItems;
   }
 
