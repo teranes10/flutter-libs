@@ -67,14 +67,7 @@ class TTooltip extends StatefulWidget {
 }
 
 class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(milliseconds: 250),
-    vsync: this,
-  );
-  late final Animation<double> _animation = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeOutCubic,
-  );
+  late AnimationController _animationController;
 
   final GlobalKey _childKey = GlobalKey();
   OverlayEntry? _overlayEntry;
@@ -82,9 +75,15 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   bool _isVisible = false;
 
   @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
+  }
+
+  @override
   void dispose() {
     _removeTooltip();
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -102,14 +101,14 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
       _overlayEntry = _createOverlayEntry();
       Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
     }
-    _controller.forward();
+    _animationController.forward();
   }
 
   void _hideTooltip() {
     if (!_isVisible) return;
     setState(() => _isVisible = false);
     widget.onHide?.call();
-    _controller.reverse().then((_) => _removeTooltip());
+    _animationController.reverse().then((_) => _removeTooltip());
   }
 
   void _removeTooltip() {
@@ -181,7 +180,7 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
             preferBelow: widget.preferBelow,
             showArrow: widget.showArrow,
             maxWidth: widget.maxWidth,
-            animation: _animation,
+            animation: CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
             icon: widget.icon,
             onTap: widget.interactive ? null : _hideTooltip,
             resolvedPosition: _resolveAutoPosition(),

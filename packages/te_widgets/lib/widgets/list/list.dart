@@ -36,10 +36,7 @@ class _TListState<T> extends State<TList<T>> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: widget.animationDuration,
-    );
+    _animationController = AnimationController(vsync: this, duration: widget.animationDuration);
     _animationController.forward();
   }
 

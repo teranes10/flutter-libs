@@ -148,7 +148,6 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           label: 'Server side rendering',
           items: [],
           onLoad: (o) async {
-            print('__select on load ${o.page}, ${o.itemsPerPage}, ${o.search}');
             final pair = await PostsClient().fetchPosts(start: o.offset, limit: o.itemsPerPage);
             o.callback(pair.$1, pair.$2);
           },

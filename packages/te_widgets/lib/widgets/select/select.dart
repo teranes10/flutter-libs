@@ -201,8 +201,6 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
 
     if (hasFocus) {
       showPopup(context);
-    } else {
-      hidePopup();
     }
   }
 
