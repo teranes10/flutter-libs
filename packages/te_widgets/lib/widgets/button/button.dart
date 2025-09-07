@@ -10,6 +10,7 @@ class TButton extends StatefulWidget {
   final OutlinedBorder? shape;
 
   final IconData? icon;
+  final double? iconSize;
   final String? text;
   final MaterialColor? color;
   final bool loading;
@@ -28,6 +29,7 @@ class TButton extends StatefulWidget {
     this.loading = false,
     this.loadingText = 'Loading...',
     this.icon,
+    this.iconSize,
     this.text,
     this.tooltip,
     this.onPressed,
@@ -118,15 +120,15 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       children: [
         if (isLoading)
           SizedBox(
-            width: size.icon,
-            height: size.icon,
+            width: widget.iconSize ?? size.icon,
+            height: widget.iconSize ?? size.icon,
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation(resolvedFgColor),
             ),
           )
         else if (widget.icon != null)
-          Icon(widget.icon, size: size.icon),
+          Icon(widget.icon, size: widget.iconSize ?? size.icon),
         if ((widget.text?.isNotEmpty ?? false)) ...[
           if (widget.icon != null || isLoading) SizedBox(width: size.spacing),
           Text(
