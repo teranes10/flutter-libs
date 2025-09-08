@@ -67,6 +67,9 @@ export 'widgets/form/items_form_builder.dart';
 export 'widgets/guard/guard_config.dart';
 export 'widgets/guard/guard.dart';
 
+export 'widgets/key-value-section/key_value_section_config.dart';
+export 'widgets/key-value-section/key_value_section.dart';
+
 export 'widgets/list/list.dart';
 
 export 'widgets/loading-icon/loading_icon.dart';
@@ -87,7 +90,6 @@ export 'widgets/select/select_dropdown.dart';
 export 'widgets/select/select_mixin.dart';
 export 'widgets/select/select.dart';
 
-export 'widgets/table/table_card.dart';
 export 'widgets/table/table_configs.dart';
 export 'widgets/table/table_decoration.dart';
 export 'widgets/table/table.dart';

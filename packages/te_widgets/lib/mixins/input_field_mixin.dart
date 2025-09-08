@@ -154,36 +154,13 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     return _widget.color ?? (isFocused ? theme.primary : theme.outline);
   }
 
-  Widget buildValidationErrors(ColorScheme theme, ValueNotifier<List<String>> errorsNotifier) {
-    return ValueListenableBuilder<List<String>>(
-      valueListenable: errorsNotifier,
-      builder: (context, validationErrors, child) {
-        if (validationErrors.isEmpty) return const SizedBox.shrink();
-
-        return Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: theme.error))).toList(),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget buildContainer(
-    ColorScheme theme,
-    TColorScheme exTheme, {
-    bool? isMultiline,
-    Widget? child,
-    Widget? postWidget,
-    Widget? preWidget,
-    VoidCallback? onTap,
-  }) {
+  Widget buildContainer(ColorScheme theme, TColorScheme exTheme,
+      {bool? isMultiline, Widget? child, Widget? postWidget, Widget? preWidget, VoidCallback? onTap, bool block = true}) {
     TFocusStateMixin? focusWidget = this is TFocusStateMixin ? this as TFocusStateMixin : null;
     TInputValidationStateMixin? validationMixin = this is TInputValidationStateMixin ? this as TInputValidationStateMixin : null;
 
     final container = Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         buildLabel(theme),
@@ -193,37 +170,38 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
             maxHeight: isMultiline == true ? double.infinity : _widget.fieldHeight,
           ),
           decoration: getBoxDecoration(theme, exTheme, focusWidget?.isFocused == true, validationMixin?.hasErrors == true),
-          child: IntrinsicHeight(
-            child: Row(
-              children: [
-                if (_widget.preWidget != null)
-                  Padding(
-                      padding: EdgeInsets.only(
-                          top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
-                      child: Center(child: _widget.preWidget!)),
-                if (preWidget != null)
-                  Padding(
-                      padding: EdgeInsets.only(
-                          top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
-                      child: Center(child: preWidget)),
-                Expanded(child: Padding(padding: _widget.fieldPadding, child: child)),
-                if (postWidget != null)
-                  Padding(
-                      padding: EdgeInsets.only(
-                          top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
-                      child: Center(child: postWidget)),
-                if (_widget.postWidget != null)
-                  Padding(
-                      padding: EdgeInsets.only(
-                          top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
-                      child: Center(child: _widget.postWidget!)),
-              ],
-            ),
+          child: Row(
+            mainAxisSize: block ? MainAxisSize.max : MainAxisSize.min,
+            children: [
+              if (_widget.preWidget != null)
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
+                    child: Center(child: _widget.preWidget!)),
+              if (preWidget != null)
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
+                    child: Center(child: preWidget)),
+              block
+                  ? Expanded(child: Padding(padding: _widget.fieldPadding, child: child))
+                  : Padding(padding: _widget.fieldPadding, child: child),
+              if (postWidget != null)
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
+                    child: Center(child: postWidget)),
+              if (_widget.postWidget != null)
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
+                    child: Center(child: _widget.postWidget!)),
+            ],
           ),
         ),
         buildHelperText(theme),
         buildMessage(theme, exTheme),
-        if (validationMixin?.errorsNotifier != null) buildValidationErrors(theme, validationMixin!.errorsNotifier),
+        if (validationMixin?.errorsNotifier != null) validationMixin!.buildValidationErrors(theme, validationMixin.errorsNotifier),
       ],
     );
 

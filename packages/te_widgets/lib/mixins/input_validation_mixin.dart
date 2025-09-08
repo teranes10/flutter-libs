@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-mixin TInputValidationMixin<T> on TInputFieldMixin, TInputValueMixin<T>, TFocusMixin {
+mixin TInputValidationMixin<T> on TInputValueMixin<T>, TFocusMixin {
+  String? get label;
+  bool get isRequired;
   List<String? Function(T?)>? get rules;
   List<String>? get errors;
   Duration? get validationDebounce;
@@ -92,5 +94,22 @@ mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W>, TInpu
     _validationTimer?.cancel();
     _errorsNotifier.dispose();
     super.dispose();
+  }
+
+  Widget buildValidationErrors(ColorScheme theme, ValueNotifier<List<String>> errorsNotifier) {
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: errorsNotifier,
+      builder: (context, validationErrors, child) {
+        if (validationErrors.isEmpty) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: theme.error))).toList(),
+          ),
+        );
+      },
+    );
   }
 }

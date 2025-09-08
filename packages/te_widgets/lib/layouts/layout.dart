@@ -7,6 +7,7 @@ class TLayout extends StatefulWidget {
   final List<TSidebarItem> items;
   final Widget? logo;
   final Widget? profile;
+  final List<Widget>? actions;
   final Widget child;
   final String? pageTitle;
   final double mainCardRadius;
@@ -19,6 +20,7 @@ class TLayout extends StatefulWidget {
     this.items = const [],
     this.logo,
     this.profile,
+    this.actions,
     required this.child,
     this.pageTitle,
     this.mainCardRadius = 28,
@@ -99,29 +101,28 @@ class _TLayoutState extends State<TLayout> {
   /* ─────────────────────────────── top bar ─────────────────────────────── */
 
   Widget _buildTopBar(ColorScheme theme, SizingInformation sizing) {
-    final List<Widget> children = [
-      if (widget.logo != null) SizedBox(width: widget.width - 20, child: widget.logo!),
-      if (!sizing.isMobile) const SizedBox(width: 5),
-      if (!sizing.isMobile) _buildSidebarToggle(theme),
-      if (!sizing.isMobile) const SizedBox(width: 10),
-      if (!sizing.isMobile) _buildPageTitle(theme),
-      Spacer(),
-      if (widget.profile != null) widget.profile!,
-      SizedBox(width: 25)
-    ];
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(10, 24, 10, 14),
       child: sizing.isMobile
-          ? Wrap(
-              alignment: WrapAlignment.start,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 8,
-              runSpacing: 12,
-              children: children,
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (widget.logo != null) SizedBox(width: widget.width - 20, child: widget.logo!),
+                Icon(Icons.menu_rounded, size: 24, color: theme.onSurface)
+              ],
             )
-          : Row(children: children),
+          : Row(spacing: 10, children: [
+              if (widget.logo != null) SizedBox(width: widget.width - 20, child: widget.logo!),
+              _buildSidebarToggle(theme),
+              _buildPageTitle(theme),
+              Spacer(),
+              if (widget.profile != null) widget.profile!,
+              if (widget.actions != null)
+                Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 15, runSpacing: 5, children: widget.actions!),
+              SizedBox(width: 15)
+            ]),
     );
   }
 

@@ -36,8 +36,8 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
 
   @override
   void initState() {
-    _items = widget.value != null ? List.from(widget.value!) : List.empty();
     super.initState();
+    _items = widget.value != null ? List.from(widget.value!) : List.empty();
   }
 
   @override

@@ -1,189 +1,140 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TCheckboxGroup<T> extends StatefulWidget {
-  final List<T> modelValue;
-  final ValueChanged<List<T>>? onChanged;
+class TCheckboxGroup<T> extends StatefulWidget
+    with TInputFieldMixin, TInputValueMixin<List<T>>, TFocusMixin, TInputValidationMixin<List<T>> {
+  @override
+  final String? label, tag, placeholder, helperText, message;
+  @override
+  final bool isRequired, disabled;
+  @override
+  final TInputSize? size;
+  @override
+  final Color? color;
+  @override
+  final BoxDecoration? boxDecoration;
+  @override
+  final Widget? preWidget, postWidget;
+  @override
+  final VoidCallback? onTap;
+  @override
+  final List<String? Function(List<T>?)>? rules;
+  @override
+  final List<String>? errors;
+  @override
+  final Duration? validationDebounce;
+  @override
+  final bool? skipValidation;
+  @override
+  final List<T>? value;
+  @override
+  final ValueNotifier<List<T>>? valueNotifier;
+  @override
+  final ValueChanged<List<T>>? onValueChanged;
+  @override
+  final FocusNode? focusNode;
+
   final List<TCheckboxGroupItem<T>> items;
-  final String? label;
-  final String? tag;
-  final bool isRequired;
-  final bool inline;
-  final String color;
-  final TCheckboxSize size;
-  final TCheckboxIcon icon;
-  final List<String Function(List<T>?)>? rules;
+  final bool block;
+  final bool vertical;
 
   const TCheckboxGroup({
     super.key,
-    required this.modelValue,
-    this.onChanged,
-    required this.items,
     this.label,
     this.tag,
+    this.placeholder,
+    this.helperText,
+    this.message,
     this.isRequired = false,
-    this.inline = true,
-    this.color = 'primary',
-    this.size = TCheckboxSize.medium,
-    this.icon = TCheckboxIcon.check,
+    this.disabled = false,
+    this.size,
+    this.color,
+    this.boxDecoration,
+    this.preWidget,
+    this.postWidget,
+    this.onTap,
     this.rules,
+    this.errors,
+    this.validationDebounce,
+    this.skipValidation,
+    this.value,
+    this.valueNotifier,
+    this.onValueChanged,
+    this.focusNode,
+    this.items = const [],
+    this.block = true,
+    this.vertical = false,
   });
 
   @override
   State<TCheckboxGroup<T>> createState() => _TCheckboxGroupState<T>();
 }
 
-class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>> {
-  List<T> _selectedValues = [];
-  List<String> _errors = [];
+class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
+    with
+        TInputFieldStateMixin<TCheckboxGroup<T>>,
+        TInputValueStateMixin<List<T>, TCheckboxGroup<T>>,
+        TFocusStateMixin<TCheckboxGroup<T>>,
+        TInputValidationStateMixin<List<T>, TCheckboxGroup<T>> {
+  late Set<T> _selectedValues;
 
   @override
   void initState() {
     super.initState();
-    _selectedValues = List.from(widget.modelValue);
-    _validateField();
+    _initializeSelectedValues();
   }
 
   @override
   void didUpdateWidget(TCheckboxGroup<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.modelValue != widget.modelValue) {
-      setState(() {
-        _selectedValues = List.from(widget.modelValue);
-      });
-      _validateField();
+    if (oldWidget.value != widget.value) {
+      _initializeSelectedValues();
     }
   }
 
-  void _validateField() {
-    if (widget.rules != null) {
-      setState(() {
-        _errors = widget.rules!.map((rule) => rule(_selectedValues)).where((error) => error.isNotEmpty).toList();
-      });
-    }
+  void _initializeSelectedValues() {
+    final current = currentValue ?? widget.value ?? <T>[];
+    _selectedValues = Set<T>.from(current);
   }
 
-  void _onItemChanged(T value, bool isChecked) {
+  void _onItemChanged(T value, bool checked) {
+    if (widget.disabled) return;
+
     setState(() {
-      if (isChecked) {
-        if (!_selectedValues.contains(value)) {
-          _selectedValues.add(value);
-        }
+      if (checked) {
+        _selectedValues.add(value);
       } else {
         _selectedValues.remove(value);
       }
     });
 
-    _validateField();
-    widget.onChanged?.call(List.from(_selectedValues));
-  }
-
-  Widget _buildHeader(ColorScheme theme) {
-    if (widget.label == null && widget.tag == null) {
-      return const SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          if (widget.label != null)
-            Text(
-              widget.label!,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: theme.onSurface,
-              ),
-            ),
-          if (widget.isRequired)
-            Text(
-              ' *',
-              style: TextStyle(
-                color: theme.error,
-                fontSize: 16,
-              ),
-            ),
-          if (widget.tag != null) ...[
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: theme.surfaceContainer, borderRadius: BorderRadius.circular(12)),
-              child: Text(widget.tag!, style: TextStyle(fontSize: 12, color: theme.onSurfaceVariant)),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCheckboxes(ColorScheme theme) {
-    final hasErrors = _errors.isNotEmpty;
-
-    Widget checkboxContainer = Container(
-      decoration: BoxDecoration(
-        border: hasErrors ? Border.all(color: theme.error) : null,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: hasErrors ? const EdgeInsets.all(8) : null,
-      child: widget.inline
-          ? Wrap(
-              spacing: 16,
-              runSpacing: 8,
-              children: _buildCheckboxWidgets(),
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _buildCheckboxWidgets(),
-            ),
-    );
-
-    return checkboxContainer;
-  }
-
-  List<Widget> _buildCheckboxWidgets() {
-    return widget.items.map((item) {
-      final isChecked = _selectedValues.contains(item.value);
-
-      return TCheckbox<T>(
-        value: item.value,
-        label: item.label,
-        modelValue: isChecked,
-        color: item.color ?? widget.color,
-        size: item.size ?? widget.size,
-        icon: item.icon ?? widget.icon,
-        onChanged: (checked) => _onItemChanged(item.value, checked),
-      );
-    }).toList();
-  }
-
-  Widget _buildErrors(ColorScheme theme) {
-    if (_errors.isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _errors
-            .map((error) => Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Text('• $error', style: TextStyle(color: theme.error, fontSize: 12)),
-                ))
-            .toList(),
-      ),
-    );
+    final newValue = _selectedValues.toList();
+    notifyValueChanged(newValue);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildHeader(theme),
-        _buildCheckboxes(theme),
-        _buildErrors(theme),
-      ],
-    );
+    final exTheme = context.exTheme;
+
+    return buildContainer(theme, exTheme, block: widget.block, isMultiline: true, child: _buildCheckboxes());
+  }
+
+  Widget _buildCheckboxes() {
+    final items = widget.items.map((item) {
+      final isChecked = _selectedValues.contains(item.value);
+
+      return TCheckbox(
+        label: item.label,
+        color: item.color ?? widget.color,
+        size: widget.size,
+        value: isChecked,
+        onValueChanged: (checked) => _onItemChanged(item.value, checked ?? false),
+      );
+    }).toList();
+
+    return widget.vertical
+        ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: items)
+        : Wrap(spacing: 16, runSpacing: 8, alignment: WrapAlignment.start, children: items);
   }
 }

@@ -1,166 +1,155 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TCheckbox<T> extends StatefulWidget {
-  final T? value;
+class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin, TInputValidationMixin<bool?> {
+  @override
+  final bool? value;
+
+  @override
+  final ValueNotifier<bool?>? valueNotifier;
+
+  @override
+  final ValueChanged<bool?>? onValueChanged;
+
+  @override
+  final FocusNode? focusNode;
+
+  @override
   final String? label;
-  final bool? modelValue;
-  final ValueChanged<bool>? onChanged;
+
+  @override
+  final bool isRequired;
+
+  @override
+  final List<String? Function(bool?)>? rules;
+
+  @override
+  final List<String>? errors;
+
+  @override
+  final Duration? validationDebounce;
+
+  @override
+  final bool? skipValidation;
+
+  // Checkbox specific properties
   final bool disabled;
-  final String color;
-  final TCheckboxSize size;
-  final TCheckboxIcon icon;
-  final List<String Function(bool?)>? rules;
-  final VoidCallback? onChecked;
+  final Color? color;
+  final TInputSize? size;
+  final bool tristate;
 
   const TCheckbox({
     super.key,
-    this.value,
+    this.value = false,
+    this.valueNotifier,
+    this.onValueChanged,
+    this.focusNode,
     this.label,
-    this.modelValue,
-    this.onChanged,
-    this.disabled = false,
-    this.color = 'primary',
-    this.size = TCheckboxSize.medium,
-    this.icon = TCheckboxIcon.check,
+    this.isRequired = false,
     this.rules,
-    this.onChecked,
+    this.errors,
+    this.validationDebounce,
+    this.skipValidation,
+    this.disabled = false,
+    this.color,
+    this.size = TInputSize.md,
+    this.tristate = false,
   });
 
   @override
-  State<TCheckbox<T>> createState() => _TCheckboxState<T>();
+  State<TCheckbox> createState() => _TCheckboxState();
 }
 
-class _TCheckboxState<T> extends State<TCheckbox<T>> {
-  bool _checked = false;
-  List<String> _errors = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _checked = widget.modelValue ?? false;
-    _validateField();
-  }
-
-  @override
-  void didUpdateWidget(TCheckbox<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.modelValue != widget.modelValue) {
-      setState(() {
-        _checked = widget.modelValue ?? false;
-      });
-      _validateField();
+class _TCheckboxState<T> extends State<TCheckbox>
+    with TInputValueStateMixin<bool?, TCheckbox>, TFocusStateMixin<TCheckbox>, TInputValidationStateMixin<bool?, TCheckbox> {
+  double _getCheckboxSize() {
+    switch (widget.size) {
+      case TInputSize.sm:
+        return 0.9;
+      case TInputSize.md:
+      case null:
+        return 1.0;
+      case TInputSize.lg:
+        return 1.2;
     }
   }
 
-  void _validateField() {
-    if (widget.rules != null) {
-      setState(() {
-        _errors = widget.rules!.map((rule) => rule(_checked)).where((error) => error.isNotEmpty).toList();
-      });
+  double _getLabelFontSize() {
+    switch (widget.size) {
+      case TInputSize.sm:
+        return 12.0;
+      case TInputSize.md:
+      case null:
+        return 14.0;
+      case TInputSize.lg:
+        return 16.0;
     }
   }
 
-  void _onCheckChanged() {
-    if (widget.disabled) return;
-
-    setState(() {
-      _checked = !_checked;
-    });
-
-    _validateField();
-    widget.onChanged?.call(_checked);
-    widget.onChecked?.call();
-  }
-
-  Widget _buildCheckboxIcon(ColorScheme theme) {
-    if (!_checked) return const SizedBox.shrink();
-
-    switch (widget.icon) {
-      case TCheckboxIcon.check:
-        return Icon(
-          Icons.check,
-          size: TCheckboxSizes.sizes[widget.size]! * 0.8,
-          color: theme.onPrimary,
-        );
-      case TCheckboxIcon.minus:
-        return Icon(
-          Icons.remove,
-          size: TCheckboxSizes.sizes[widget.size]! * 0.8,
-          color: theme.onPrimary,
-        );
-      case TCheckboxIcon.square:
-        return Icon(
-          Icons.square,
-          size: TCheckboxSizes.sizes[widget.size]! * 0.8,
-          color: theme.onPrimary,
-        );
+  void _onCheckboxChanged(bool? newValue) {
+    if (widget.tristate) {
+      final currentBool = currentValue;
+      if (currentBool == null) {
+        newValue = false;
+      } else if (currentBool == false) {
+        newValue = true;
+      } else {
+        newValue = null;
+      }
+    } else {
+      newValue = !(currentValue ?? false);
     }
+
+    notifyValueChanged(newValue);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    final checkboxColor = TCheckboxColors.colors[widget.color] ?? theme.primary;
-    final checkboxSize = TCheckboxSizes.sizes[widget.size]!;
-    final hasErrors = _errors.isNotEmpty;
+    final exTheme = context.exTheme;
+    final mColor = widget.color ?? exTheme.primary;
+    final wTheme = context.getWidgetTheme(TColorType.solid, mColor);
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onTap: _onCheckChanged,
+          behavior: HitTestBehavior.translucent,
+          onTap: widget.disabled ? null : () => _onCheckboxChanged(null),
           child: Row(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: checkboxSize,
-                height: checkboxSize,
-                decoration: BoxDecoration(
-                  color: _checked ? checkboxColor : theme.surface,
-                  border: Border.all(color: hasErrors ? theme.error : (_checked ? checkboxColor : theme.outline), width: 1),
-                  borderRadius: BorderRadius.circular(8),
+              Opacity(
+                opacity: widget.disabled ? 0.6 : 1.0,
+                child: Transform.scale(
+                  scale: _getCheckboxSize(),
+                  child: Checkbox(
+                    splashRadius: 0,
+                    value: widget.value,
+                    onChanged: widget.disabled ? null : _onCheckboxChanged,
+                    activeColor: wTheme.container,
+                    checkColor: wTheme.onContainer,
+                    tristate: widget.tristate,
+                    visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+                    side: BorderSide(color: hasErrors ? theme.error : (currentValue != false ? mColor : theme.outline), width: 1),
+                  ),
                 ),
-                child: _buildCheckboxIcon(theme),
               ),
               if (widget.label != null) ...[
                 const SizedBox(width: 8),
                 Text(
                   widget.label!,
-                  style: TextStyle(
-                    color: widget.disabled ? theme.onSurfaceVariant : theme.onSurface,
-                    fontSize: _getFontSize(),
-                  ),
+                  style: TextStyle(letterSpacing: 0.9, color: theme.onSurfaceVariant, fontSize: _getLabelFontSize()),
                 ),
               ],
             ],
           ),
         ),
-        if (hasErrors) ...[
-          const SizedBox(height: 4),
-          ...(_errors.map((error) => Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Text(
-                  '• $error',
-                  style: TextStyle(
-                    color: theme.error,
-                    fontSize: 12,
-                  ),
-                ),
-              ))),
-        ],
+        buildValidationErrors(theme, errorsNotifier)
       ],
     );
-  }
-
-  double _getFontSize() {
-    switch (widget.size) {
-      case TCheckboxSize.small:
-        return 12;
-      case TCheckboxSize.medium:
-        return 14;
-      case TCheckboxSize.large:
-        return 16;
-    }
   }
 }

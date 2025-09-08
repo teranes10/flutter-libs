@@ -24,6 +24,7 @@ class UserForm extends TFormBase {
   final lastName = TFieldProp('');
   final username = TFieldProp('', useNotifier: true);
   final email = TFieldProp('');
+  final options = TFieldProp<List<String>>([]);
   final subForm = TFieldProp(SubForm());
   final subForms = TFieldProp(List<SubForm>.empty());
 
@@ -42,6 +43,11 @@ class UserForm extends TFormBase {
       TFormField.text(lastName, 'Last Name').size(6),
       TFormField.text(username, 'Username', isRequired: true),
       TFormField.text(email, 'Email'),
+      TFormField.checkboxGroup(options, "Options", [
+        TCheckboxGroupItem.map("Option 1"),
+        TCheckboxGroupItem.map("Option 2"),
+        TCheckboxGroupItem.map("Option 3"),
+      ]),
       TFormField.group(subForm, label: 'Sub Form'),
       TFormField.items(subForms, () => SubForm(), label: 'Sub Forms', buttonLabel: 'Add New')
     ];

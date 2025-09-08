@@ -7,7 +7,6 @@ import 'package:my_app/pages/forms_page.dart';
 import 'package:my_app/pages/input_fields_page.dart';
 import 'package:my_app/pages/popups_page.dart';
 import 'package:my_app/pages/select_fields_page.dart';
-import 'package:my_app/pages/selections_page.dart';
 import 'package:my_app/pages/tables_page.dart';
 import 'package:te_widgets/te_widgets.dart';
 
@@ -30,7 +29,6 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Input Fields', route: '/input-fields', page: InputFieldsPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Select Fields', route: '/select-fields', page: SelectFieldsPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Buttons', route: '/buttons', page: ButtonsPage()),
-  TSidebarItem(icon: Icons.line_style_rounded, text: 'Selections', route: '/selections', page: SelectionsPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Chips', route: '/chips', page: ChipsPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Popups', route: '/popups', page: PopupsPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Tables', route: '/tables', page: TablesPage()),
@@ -50,20 +48,15 @@ final sidebarItems = [
 Widget getLayout(context, GoRouterState state, child) {
   return TLayout(
     logo: TLogo(text: 'Te Widgets'),
-    profile: Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 15,
-      runSpacing: 5,
-      children: [
-        TProfile(icon: 'assets/icons/profile.png', text: 'Teranes'),
-        TButton(
-          type: TButtonType.icon,
-          icon: Icons.logout_rounded,
-          color: AppColors.grey,
-          onPressed: (_) {},
-        )
-      ],
-    ),
+    profile: TProfile(icon: 'assets/icons/profile.png', text: 'Teranes'),
+    actions: [
+      TButton(
+        type: TButtonType.icon,
+        icon: Icons.logout_rounded,
+        color: AppColors.grey,
+        onPressed: (_) {},
+      ),
+    ],
     items: sidebarItems,
     pageTitle: state.name,
     child: child,

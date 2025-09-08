@@ -164,8 +164,8 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
+    _controller.dispose();
   }
 
   @override

@@ -163,8 +163,8 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
+    _controller.dispose();
   }
 
   @override

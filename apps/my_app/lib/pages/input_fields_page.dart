@@ -11,12 +11,14 @@ class InputFieldsPage extends StatefulWidget {
 class _InputFieldsPageState extends State<InputFieldsPage> {
   int integerValue = 10;
   double doubleValue = 10.0;
+  bool? singleCheckbox = false;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Wrap(
+        spacing: 10.0,
         runSpacing: 20.0,
         children: [
           TTextField(
@@ -73,6 +75,11 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             onPressed: (_) {
               showTimePicker(context: context, initialEntryMode: TimePickerEntryMode.dialOnly, initialTime: DateTime.now().toTimeOfDay);
             },
+          ),
+          TCheckbox(label: 'I agree to the terms', value: singleCheckbox, onValueChanged: (v) => setState(() => singleCheckbox = v)),
+          TCheckboxGroup<String>(
+            label: 'Fruits',
+            items: [TCheckboxGroupItem.map('Apple'), TCheckboxGroupItem.map('Banana'), TCheckboxGroupItem.map('Orange')],
           ),
         ],
       ),

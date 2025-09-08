@@ -340,4 +340,52 @@ class TFormField<T> {
       ),
     );
   }
+
+  static TFormField<bool?> checkbox(
+    TFieldProp<bool?> prop,
+    String? label, {
+    bool isRequired = false,
+    bool disabled = false,
+    List<String? Function(bool?)>? rules,
+    Color? color,
+  }) {
+    return TFormField<bool?>(
+      prop: prop,
+      builder: (onValueChanged) => TCheckbox(
+        color: color,
+        label: label,
+        isRequired: isRequired,
+        disabled: disabled,
+        rules: rules,
+        value: prop.value,
+        valueNotifier: prop.valueNotifier,
+        onValueChanged: onValueChanged,
+      ),
+    );
+  }
+
+  static TFormField<List<T>> checkboxGroup<T>(
+    TFieldProp<List<T>> prop,
+    String? label,
+    List<TCheckboxGroupItem<T>> items, {
+    bool isRequired = false,
+    bool disabled = false,
+    List<String? Function(List<T>?)>? rules,
+    Color? color,
+  }) {
+    return TFormField<List<T>>(
+      prop: prop,
+      builder: (onValueChanged) => TCheckboxGroup<T>(
+        items: items,
+        color: color,
+        label: label,
+        isRequired: isRequired,
+        disabled: disabled,
+        rules: rules,
+        value: prop.value,
+        valueNotifier: prop.valueNotifier,
+        onValueChanged: onValueChanged,
+      ),
+    );
+  }
 }

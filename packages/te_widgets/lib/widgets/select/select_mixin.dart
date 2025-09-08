@@ -60,10 +60,10 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
 
   @override
   void dispose() {
+    super.dispose();
     itemsNotifier.removeListener(_onPaginatedItemsChanged);
     loadingNotifier.removeListener(_onLoadingStateChanged);
     stateNotifier.dispose();
-    super.dispose();
   }
 
   void _onPaginatedItemsChanged() {
