@@ -21,6 +21,19 @@ class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
   final Future<bool> Function(T item)? onDelete;
 
   final TCrudConfig<T> config;
+  final TPaginationController<T>? controller;
+  final TTableController<T>? tableController;
+  final TTableDecoration decoration;
+  final TTableInteractionConfig interactionConfig;
+
+  // Expandable configuration
+  final bool expandable;
+  final bool singleExpand;
+  final Widget Function(T item, int index, bool isExpanded)? expandedBuilder;
+
+  // Selectable configuration
+  final bool selectable;
+  final bool singleSelect;
 
   const TCrudTable({
     super.key,
@@ -38,6 +51,15 @@ class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
     this.onRestore,
     this.onDelete,
     this.config = const TCrudConfig(),
+    this.controller,
+    this.tableController,
+    this.decoration = const TTableDecoration(),
+    this.interactionConfig = const TTableInteractionConfig(),
+    this.expandable = false,
+    this.singleExpand = true,
+    this.expandedBuilder,
+    this.selectable = false,
+    this.singleSelect = false,
   });
 
   @override
@@ -47,8 +69,8 @@ class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
 class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
   late final ValueNotifier<String> _searchNotifier;
   late final ValueNotifier<String> _archiveSearchNotifier;
-  final _tableController = TPaginationController<T>();
-  final _archiveController = TPaginationController<T>();
+  late final TPaginationController<T> _paginationController;
+  late final TPaginationController<T> _archivePaginationController;
 
   int _currentTab = 0;
   final Map<T, Map<String, bool>> _permissionCache = {};
@@ -65,6 +87,8 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
     super.initState();
     _searchNotifier = ValueNotifier('');
     _archiveSearchNotifier = ValueNotifier('');
+    _paginationController = widget.controller ?? TPaginationController<T>();
+    _archivePaginationController = TPaginationController<T>();
   }
 
   @override
@@ -157,11 +181,12 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
   Widget _buildContent(TColorScheme exTheme) {
     if (!_hasArchive) {
       return _buildTable(
+        isArchive: false,
         headers: _buildActiveHeaders(exTheme),
         items: widget.items,
         onLoad: widget.onLoad,
         searchNotifier: _searchNotifier,
-        controller: _tableController,
+        controller: _paginationController,
       );
     }
 
@@ -169,24 +194,27 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       index: _currentTab,
       children: [
         _buildTable(
+          isArchive: false,
           headers: _buildActiveHeaders(exTheme),
           items: widget.items,
           onLoad: widget.onLoad,
           searchNotifier: _searchNotifier,
-          controller: _tableController,
+          controller: _paginationController,
         ),
         _buildTable(
+          isArchive: true,
           headers: _buildArchiveHeaders(exTheme),
           items: widget.archivedItems,
           onLoad: widget.onArchiveLoad,
           searchNotifier: _archiveSearchNotifier,
-          controller: _archiveController,
+          controller: _archivePaginationController,
         ),
       ],
     );
   }
 
   Widget _buildTable({
+    required bool isArchive,
     required List<TTableHeader<T>> headers,
     required List<T>? items,
     required TLoadListener<T>? onLoad,
@@ -195,10 +223,18 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
   }) {
     return TDataTable<T>(
       headers: headers,
+      decoration: widget.decoration,
+      interactionConfig: widget.interactionConfig,
+      expandable: !isArchive && widget.expandable,
+      selectable: !isArchive && widget.selectable,
+      singleExpand: widget.singleExpand,
+      singleSelect: widget.singleSelect,
+      expandedBuilder: widget.expandedBuilder,
       items: items,
       onLoad: onLoad,
       searchNotifier: searchNotifier,
       controller: controller,
+      tableController: widget.tableController,
       itemsPerPage: widget.config.itemsPerPage,
       itemsPerPageOptions: widget.config.itemsPerPageOptions,
     );
@@ -367,7 +403,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
 
       final newItem = await widget.onCreate?.call(formData);
       if (newItem != null) {
-        _tableController.addItem(newItem);
+        _paginationController.addItem(newItem);
         form.reset();
       }
     });
@@ -383,7 +419,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
 
       final updatedItem = await widget.onEdit?.call(item, formData);
       if (updatedItem != null) {
-        _tableController.updateItem(item, updatedItem);
+        _paginationController.updateItem(item, updatedItem);
         form.reset();
       }
     });
@@ -394,7 +430,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       await _performAction(() async {
         final success = await widget.onArchive!(item);
         if (success) {
-          _tableController.removeItem(item);
+          _paginationController.removeItem(item);
           // Clear cache for this item
           _permissionCache.remove(item);
         }
@@ -407,7 +443,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       await _performAction(() async {
         final success = await widget.onRestore!(item);
         if (success) {
-          _archiveController.removeItem(item);
+          _archivePaginationController.removeItem(item);
           // Clear cache for this item
           _permissionCache.remove(item);
         }
@@ -421,7 +457,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       await _performAction(() async {
         final success = await widget.onDelete!(item);
         if (success) {
-          _archiveController.removeItem(item);
+          _archivePaginationController.removeItem(item);
           // Clear cache for this item
           _permissionCache.remove(item);
         }

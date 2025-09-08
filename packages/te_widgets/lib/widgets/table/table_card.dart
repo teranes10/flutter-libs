@@ -1,100 +1,112 @@
-import 'package:flutter/material.dart';
-import 'package:te_widgets/te_widgets.dart';
+part of 'table.dart';
 
 class TTableCard<T> extends StatelessWidget {
   final T item;
   final List<TTableHeader<T>> headers;
-  final TTableStyling? styling;
-  final VoidCallback? onTap;
+  final TCardStyle style;
   final double? width;
+
+  //expandable
+  final bool expandable;
+  final bool isExpanded;
+  final VoidCallback? onExpansionChanged;
+  final Widget? expandedContent;
+
+  //selectable
+  final bool selectable;
+  final bool isSelected;
+  final VoidCallback? onSelectionChanged;
 
   const TTableCard({
     super.key,
     required this.item,
     required this.headers,
-    this.styling,
-    this.onTap,
+    this.style = const TCardStyle(),
     this.width,
+
+    //expandable
+    this.expandable = false,
+    this.isExpanded = false,
+    this.onExpansionChanged,
+    this.expandedContent,
+
+    //selectable
+    this.selectable = false,
+    this.isSelected = false,
+    this.onSelectionChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    final cardStyle = styling?.cardStyle ?? const TCardStyle();
 
     return Container(
       width: width,
-      margin: cardStyle.margin ?? const EdgeInsets.only(bottom: 12),
+      margin: style.margin,
       child: Material(
-        elevation: cardStyle.elevation ?? 1,
-        borderRadius: cardStyle.borderRadius ?? BorderRadius.circular(12),
-        color: cardStyle.backgroundColor ?? theme.surface,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: cardStyle.borderRadius ?? BorderRadius.circular(12),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: cardStyle.borderRadius ?? BorderRadius.circular(12),
-              border: cardStyle.border ?? Border.all(color: theme.outline),
-            ),
-            padding: cardStyle.padding ?? const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _buildCardFields(theme),
-            ),
+        elevation: style.elevation,
+        borderRadius: style.borderRadius,
+        color: style.getBackgroundColor(theme, isSelected),
+        child: Container(
+          decoration: BoxDecoration(borderRadius: style.borderRadius, border: style.getBorder(theme, isSelected)),
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  if (selectable)
+                    Positioned(
+                        top: 5,
+                        left: 5,
+                        child: TCheckbox(
+                          value: isSelected,
+                          onValueChanged: (value) => onSelectionChanged?.call(),
+                        )),
+                  _buildMainContent(theme),
+                  if (expandable) Positioned(bottom: 3, right: 5, child: _buildExpandButton(theme, isExpanded, onExpansionChanged)),
+                ],
+              ),
+              if (isExpanded && expandedContent != null) ...[
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: style.padding.left + (selectable ? 6 : 0),
+                    right: style.padding.right,
+                    bottom: style.padding.bottom,
+                  ),
+                  child: expandedContent!,
+                ),
+              ],
+            ],
           ),
         ),
       ),
     );
   }
 
-  List<Widget> _buildCardFields(ColorScheme theme) {
-    return headers.asMap().entries.map((entry) {
-      final index = entry.key;
-      final header = entry.value;
-      final isLast = index == headers.length - 1;
-
-      return Padding(
-        padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Text(
-                header.text,
-                style: styling?.cardLabelStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w400, color: theme.onSurfaceVariant),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 3,
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: _buildCellContent(theme, header),
-              ),
-            ),
-          ],
-        ),
-      );
-    }).toList();
+  Widget _buildMainContent(ColorScheme theme) {
+    final values = TKeyValue.mapHeaders(headers, item);
+    return Padding(
+      padding: EdgeInsets.only(
+        top: style.padding.top + (selectable ? 3 : 0),
+        left: (style.padding.left) + (selectable ? 6 : 0),
+        right: (style.padding.right),
+        bottom: (style.padding.bottom),
+      ),
+      child: TKeyValueSection(values: values),
+    );
   }
 
-  Widget _buildCellContent(ColorScheme theme, TTableHeader<T> header) {
-    if (header.builder != null) {
-      return Builder(
-        builder: (context) => header.builder!(context, item),
-      );
-    }
-
-    return Text(
-      header.getValue(item),
-      style: styling?.cardValueStyle ??
-          TextStyle(
-            fontSize: 13.6,
-            fontWeight: FontWeight.w300,
-            color: theme.onSurface,
-          ),
+  static Widget _buildExpandButton(ColorScheme theme, bool isExpanded, VoidCallback? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+        child: AnimatedRotation(
+          turns: isExpanded ? 0.5 : 0,
+          duration: const Duration(milliseconds: 200),
+          child: Icon(Icons.keyboard_arrow_down, size: 16, color: theme.onSurfaceVariant),
+        ),
+      ),
     );
   }
 }

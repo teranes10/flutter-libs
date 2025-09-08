@@ -102,10 +102,10 @@ mixin TPaginationStateMixin<T, W extends StatefulWidget> on State<W> {
 
   @override
   void dispose() {
-    _widget.searchNotifier?.removeListener(_onExternalSearchChanged);
-    _widget.controller?._detach();
-    paginationNotifier.dispose();
     super.dispose();
+    _widget.searchNotifier?.removeListener(_onExternalSearchChanged);
+    _widget.controller?._detach(paginationNotifier);
+    paginationNotifier.dispose();
   }
 
   // Public API methods

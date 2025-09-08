@@ -4,6 +4,17 @@ import 'package:te_widgets/te_widgets.dart';
 class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
   final List<TTableHeader<T>> headers;
   final TTableDecoration decoration;
+  final TTableController<T>? tableController;
+  final TTableInteractionConfig interactionConfig;
+
+  // Expandable configuration
+  final bool expandable;
+  final bool singleExpand;
+  final Widget Function(T item, int index, bool isExpanded)? expandedBuilder;
+
+  // Selectable configuration
+  final bool selectable;
+  final bool singleSelect;
 
   @override
   final List<T>? items;
@@ -29,6 +40,18 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
   const TDataTable({
     super.key,
     required this.headers,
+    this.decoration = const TTableDecoration(),
+    this.tableController,
+    this.interactionConfig = const TTableInteractionConfig(),
+
+    // Expandable
+    this.expandable = false,
+    this.singleExpand = true,
+    this.expandedBuilder,
+
+    // Selectable
+    this.selectable = false,
+    this.singleSelect = false,
     this.items,
     this.itemsPerPage = 10,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
@@ -36,7 +59,6 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
     this.loading = false,
     this.search,
     this.onLoad,
-    this.decoration = const TTableDecoration(),
     this.itemToString,
     this.searchNotifier,
     this.controller,
@@ -77,6 +99,13 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
               items: items,
               decoration: widget.decoration,
               loading: loading,
+              controller: widget.tableController,
+              interactionConfig: widget.interactionConfig,
+              expandable: widget.expandable,
+              singleExpand: widget.singleExpand,
+              expandedBuilder: widget.expandedBuilder,
+              selectable: widget.selectable,
+              singleSelect: widget.singleSelect,
             );
           },
         ),
@@ -88,7 +117,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
             if (totalItems == 0) return const SizedBox.shrink();
             return Column(
               children: [
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 _buildToolbar(theme),
               ],
             );

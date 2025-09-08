@@ -8,19 +8,19 @@ class CrudPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.theme;
+    final controller = TTableController<ProductDto>();
+
     return TCrudTable<ProductDto, ProductForm>(
       headers: [
-        TTableHeader(
-          'Image',
-          builder: (ctx, x) => x.thumbnail != null ? Image.network(x.thumbnail!, width: 50) : SizedBox.shrink(),
-        ),
+        TTableHeader.image("Image", (x) => x.thumbnail),
         TTableHeader.map('SKU', (x) => x.sku),
         TTableHeader.map('Title', (x) => x.title),
         TTableHeader.map('Category', (x) => x.category),
         TTableHeader.map('Price', (x) => x.price),
         TTableHeader.map('Discount', (x) => x.discountPercentage),
         TTableHeader.map('Rating', (x) => x.rating),
-        TTableHeader.map('Created At', (x) => x.meta?.createdAt ?? ''),
+        TTableHeader.chip('Stock', (x) => x.stock, color: AppColors.info)
       ],
       onLoad: ProductsClient().loadMore,
       onArchiveLoad: ProductsClient().loadMore,
@@ -59,7 +59,28 @@ class CrudPage extends StatelessWidget {
           text: 'Upload File',
           onPressed: (_) => {},
         ),
+        TButton(
+          type: TButtonType.outline,
+          size: TButtonSize.lg,
+          icon: Icons.select_all_sharp,
+          text: 'Selected',
+          onPressed: (_) => {TToastService.info(context, 'Selected Items: ${controller.selectedItems.map((x) => x.title).join("\n")}')},
+        ),
       ]),
+      selectable: true,
+      expandable: true,
+      expandedBuilder: (item, index, isExpanded) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(color: theme.surfaceDim, borderRadius: BorderRadius.circular(8)),
+        child: TKeyValueSection(values: [
+          TKeyValue('QR Code', widget: item.meta?.qrCode != null ? Image.network(item.meta!.qrCode, width: 80) : SizedBox.shrink()),
+          TKeyValue.text('Description', item.description),
+          TKeyValue.text('Barcode', item.meta?.barcode),
+          TKeyValue.text('Created At', item.meta?.createdAt),
+          TKeyValue.text('Updated At', item.meta?.updatedAt),
+        ]),
+      ),
+      tableController: controller,
     );
   }
 }

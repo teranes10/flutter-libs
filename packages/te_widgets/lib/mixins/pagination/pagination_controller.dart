@@ -4,10 +4,18 @@ class TPaginationController<T> {
   TPaginationNotifier<T>? _notifier;
 
   void _attach(TPaginationNotifier<T> notifier) {
+    if (_notifier != null) {
+      throw StateError('TPaginationController is already attached.');
+    }
+
     _notifier = notifier;
   }
 
-  void _detach() {
+  void _detach(TPaginationNotifier<T> notifier) {
+    if (_notifier != notifier) {
+      throw StateError('Trying to detach a different widget.');
+    }
+
     _notifier = null;
   }
 
