@@ -7,59 +7,47 @@ class ChipsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Text only chip
-          TChip(
-            text: 'Primary',
-            color: AppColors.primary,
-          ),
-          TChip(
-            text: 'Secondary',
-            color: AppColors.secondary,
-          ),
-          TChip(
-            text: 'Success',
-            color: AppColors.success,
-          ),
-          TChip(
-            text: 'Info',
-            color: AppColors.info,
-          ),
-          TChip(
-            text: 'Warning',
-            icon: Icons.warning,
-            color: AppColors.warning,
-          ),
-          TChip(
-            icon: Icons.dangerous,
-            color: AppColors.danger,
-          ),
-
-          // Tappable chip
-          TChip(
-            text: 'Clickable',
-            icon: Icons.touch_app,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Chip tapped!')),
-              );
-            },
-          ),
-
-          // Custom styling
-          TChip(
-            text: 'Custom Style',
-            background: Colors.amber,
-            textColor: Colors.white,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            borderRadius: BorderRadius.circular(16),
-          ),
-
+          _buildRow('Solid Chips', [
+            TChip(type: TColorType.solid, icon: Icons.home, text: 'Primary', color: AppColors.primary),
+            TChip(type: TColorType.solid, icon: Icons.home, text: 'Secondary', color: AppColors.secondary),
+            TChip(type: TColorType.solid, icon: Icons.home, text: 'Success', color: AppColors.success),
+            TChip(type: TColorType.solid, icon: Icons.home, text: 'Info', color: AppColors.info),
+            TChip(type: TColorType.solid, icon: Icons.home, text: 'Warning', color: AppColors.warning),
+            TChip(type: TColorType.solid, icon: Icons.home, text: 'Danger', color: AppColors.danger),
+            TChip(type: TColorType.solid, icon: Icons.home, text: 'Grey', color: AppColors.grey),
+          ]),
+          _buildRow('Tonal Chips', [
+            TChip(type: TColorType.tonal, icon: Icons.home, text: 'Primary', color: AppColors.primary),
+            TChip(type: TColorType.tonal, icon: Icons.home, text: 'Secondary', color: AppColors.secondary),
+            TChip(type: TColorType.tonal, icon: Icons.home, text: 'Success', color: AppColors.success),
+            TChip(type: TColorType.tonal, icon: Icons.home, text: 'Info', color: AppColors.info),
+            TChip(type: TColorType.tonal, icon: Icons.home, text: 'Warning', color: AppColors.warning),
+            TChip(type: TColorType.tonal, icon: Icons.home, text: 'Danger', color: AppColors.danger),
+            TChip(type: TColorType.tonal, icon: Icons.home, text: 'Grey', color: AppColors.grey),
+          ]),
+          _buildRow('Outline Chips', [
+            TChip(type: TColorType.outline, icon: Icons.home, text: 'Primary', color: AppColors.primary),
+            TChip(type: TColorType.outline, icon: Icons.home, text: 'Secondary', color: AppColors.secondary),
+            TChip(type: TColorType.outline, icon: Icons.home, text: 'Success', color: AppColors.success),
+            TChip(type: TColorType.outline, icon: Icons.home, text: 'Info', color: AppColors.info),
+            TChip(type: TColorType.outline, icon: Icons.home, text: 'Warning', color: AppColors.warning),
+            TChip(type: TColorType.outline, icon: Icons.home, text: 'Danger', color: AppColors.danger),
+            TChip(type: TColorType.outline, icon: Icons.home, text: 'Grey', color: AppColors.grey),
+          ]),
+          _buildRow('Text Chips', [
+            TChip(type: TColorType.text, icon: Icons.home, text: 'Primary', color: AppColors.primary),
+            TChip(type: TColorType.text, icon: Icons.home, text: 'Secondary', color: AppColors.secondary),
+            TChip(type: TColorType.text, icon: Icons.home, text: 'Success', color: AppColors.success),
+            TChip(type: TColorType.text, icon: Icons.home, text: 'Info', color: AppColors.info),
+            TChip(type: TColorType.text, icon: Icons.home, text: 'Warning', color: AppColors.warning),
+            TChip(type: TColorType.text, icon: Icons.home, text: 'Danger', color: AppColors.danger),
+            TChip(type: TColorType.text, icon: Icons.home, text: 'Grey', color: AppColors.grey),
+          ]),
           TLoadingIcon(color: AppColors.warning),
           TLoadingIcon(type: TLoadingType.dots, color: AppColors.secondary),
           TLoadingIcon(
@@ -73,8 +61,32 @@ class ChipsPage extends StatelessWidget {
               TTab(icon: Icons.access_time, text: 'Time'),
             ],
           ),
-
           RoleTest()
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRow(String label, List<Widget> buttons) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+          SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: buttons,
+          ),
         ],
       ),
     );

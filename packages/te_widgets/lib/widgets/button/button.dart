@@ -12,7 +12,7 @@ class TButton extends StatefulWidget {
   final IconData? icon;
   final double? iconSize;
   final String? text;
-  final MaterialColor? color;
+  final Color? color;
   final bool loading;
   final String loadingText;
   final String? tooltip;
@@ -101,7 +101,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildContent(TColorScheme exTheme, TWidgetColorScheme wTheme, TButtonSizeData size) {
+  Widget _buildContent(TWidgetColorScheme wTheme, TButtonType type, TButtonSizeData size) {
     final isLoading = _isLoading;
 
     final resolvedFgColor = _resolveState(
@@ -135,7 +135,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             isLoading ? widget.loadingText : widget.text!,
             style: TextStyle(
               fontSize: size.font,
-              fontWeight: (widget.type ?? exTheme.buttonType).fontWeight,
+              fontWeight: type.fontWeight,
               letterSpacing: 0.65,
             ),
           ),
@@ -148,14 +148,15 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final exTheme = context.exTheme;
-    final wTheme =
-        TWidgetColorScheme.from(context, widget.color ?? exTheme.primary, mapButtonTypeToColorType(widget.type ?? exTheme.buttonType));
-    final size = TButtonSizeData.from(widget.size ?? (widget.type == TButtonType.icon ? TButtonSize.xxs : TButtonSize.md));
+    final mColor = widget.color ?? exTheme.primary;
+    final mType = widget.type ?? exTheme.buttonType;
+    final wTheme = context.getWidgetTheme(mapButtonTypeToColorType(mType), mColor);
+    final size = TButtonSizeData.from(widget.size ?? (mType == TButtonType.icon ? TButtonSize.xxs : TButtonSize.md));
 
     final button = ElevatedButton(
       onPressed: widget.onPressed != null ? _handlePress : null,
       style: _getButtonStyle(wTheme, size),
-      child: _buildContent(exTheme, wTheme, size),
+      child: _buildContent(wTheme, mType, size),
     );
 
     final scaledButton = AnimatedBuilder(
@@ -173,7 +174,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     );
 
     if (widget.tooltip != null) {
-      return TTooltip(message: widget.tooltip!, color: widget.color, child: wrapped);
+      return TTooltip(message: widget.tooltip!, color: mColor, child: wrapped);
     }
 
     return wrapped;

@@ -17,13 +17,13 @@ class _ButtonsPageState extends State<ButtonsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildRow('Solid Buttons', [
-            TButton(icon: Icons.home, text: 'Primary', color: AppColors.primary, onPressed: (_) => {}),
-            TButton(icon: Icons.home, text: 'Secondary', color: AppColors.secondary, onPressed: (_) => {}),
-            TButton(icon: Icons.home, text: 'Success', color: AppColors.success, onPressed: (_) => {}),
-            TButton(icon: Icons.home, text: 'Info', color: AppColors.info, onPressed: (_) => {}),
-            TButton(icon: Icons.home, text: 'Warning', color: AppColors.warning, onPressed: (_) => {}),
-            TButton(icon: Icons.home, text: 'Danger', color: AppColors.danger, onPressed: (_) => {}),
-            TButton(icon: Icons.home, text: 'Grey', color: AppColors.grey, onPressed: (_) => {}),
+            TButton(type: TButtonType.solid, icon: Icons.home, text: 'Primary', color: AppColors.primary, onPressed: (_) => {}),
+            TButton(type: TButtonType.solid, icon: Icons.home, text: 'Secondary', color: AppColors.secondary, onPressed: (_) => {}),
+            TButton(type: TButtonType.solid, icon: Icons.home, text: 'Success', color: AppColors.success, onPressed: (_) => {}),
+            TButton(type: TButtonType.solid, icon: Icons.home, text: 'Info', color: AppColors.info, onPressed: (_) => {}),
+            TButton(type: TButtonType.solid, icon: Icons.home, text: 'Warning', color: AppColors.warning, onPressed: (_) => {}),
+            TButton(type: TButtonType.solid, icon: Icons.home, text: 'Danger', color: AppColors.danger, onPressed: (_) => {}),
+            TButton(type: TButtonType.solid, icon: Icons.home, text: 'Grey', color: AppColors.grey, onPressed: (_) => {}),
           ]),
           _buildRow('Tonal Buttons', [
             TButton(type: TButtonType.tonal, icon: Icons.home, text: 'Primary', color: AppColors.primary, onPressed: (_) => {}),
@@ -117,8 +117,9 @@ class _ButtonsPageState extends State<ButtonsPage> {
               },
             ),
           ]),
-          _buildRow('Fill Group', [
+          _buildRow('Solid Group', [
             TButtonGroup(
+              type: TButtonGroupType.solid,
               items: [
                 TButtonGroupItem(icon: Icons.home, text: 'Primary', color: AppColors.primary, onPressed: (_) => {}),
                 TButtonGroupItem(icon: Icons.home, text: 'Secondary', color: AppColors.secondary, onPressed: (_) => {}),
@@ -130,7 +131,7 @@ class _ButtonsPageState extends State<ButtonsPage> {
               ],
             ),
           ]),
-          _buildRow('Inverse Group', [
+          _buildRow('Tonal Group', [
             TButtonGroup(
               type: TButtonGroupType.tonal,
               items: [
@@ -158,7 +159,21 @@ class _ButtonsPageState extends State<ButtonsPage> {
               ],
             ),
           ]),
-          _buildRow('Outline Fill Group', [
+          _buildRow('Soft Outline Group', [
+            TButtonGroup(
+              type: TButtonGroupType.softOutline,
+              items: [
+                TButtonGroupItem(icon: Icons.home, text: 'Primary', color: AppColors.primary, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Secondary', color: AppColors.secondary, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Success', color: AppColors.success, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Info', color: AppColors.info, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Warning', color: AppColors.warning, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Danger', color: AppColors.danger, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Grey', color: AppColors.grey, onPressed: (_) => {}),
+              ],
+            ),
+          ]),
+          _buildRow('Filled Outline Group', [
             TButtonGroup(
               type: TButtonGroupType.filledOutline,
               items: [
@@ -186,7 +201,21 @@ class _ButtonsPageState extends State<ButtonsPage> {
               ],
             ),
           ]),
-          _buildRow('Text Fill Group', [
+          _buildRow('Soft Text Group', [
+            TButtonGroup(
+              type: TButtonGroupType.softText,
+              items: [
+                TButtonGroupItem(icon: Icons.home, text: 'Primary', color: AppColors.primary, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Secondary', color: AppColors.secondary, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Success', color: AppColors.success, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Info', color: AppColors.info, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Warning', color: AppColors.warning, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Danger', color: AppColors.danger, onPressed: (_) => {}),
+                TButtonGroupItem(icon: Icons.home, text: 'Grey', color: AppColors.grey, onPressed: (_) => {}),
+              ],
+            ),
+          ]),
+          _buildRow('Filled Text Group', [
             TButtonGroup(
               type: TButtonGroupType.filledText,
               items: [

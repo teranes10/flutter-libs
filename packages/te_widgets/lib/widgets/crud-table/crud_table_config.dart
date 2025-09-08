@@ -46,7 +46,7 @@ class TCrudConfig<T> {
 class TCrudCustomAction<T> {
   final String tooltip;
   final IconData icon;
-  final MaterialColor color;
+  final Color color;
   final Future<void> Function(T item) onPressed;
   final Future<bool> Function(T item)? canPerform;
 

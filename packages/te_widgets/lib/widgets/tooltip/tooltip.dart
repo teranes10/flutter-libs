@@ -7,7 +7,7 @@ class TTooltip extends StatefulWidget {
   final Widget? richMessage;
   final Widget child;
   final TTooltipPosition position;
-  final MaterialColor? color;
+  final Color? color;
   final IconData? icon;
   final TTooltipSize size;
   final Duration showDelay;
@@ -255,7 +255,7 @@ class _TooltipContent extends StatelessWidget {
   final Widget? richMessage;
   final Rect targetRect;
   final TTooltipPosition position;
-  final MaterialColor? color;
+  final Color? color;
   final TTooltipSize size;
   final Decoration? decoration;
   final TextStyle? textStyle;

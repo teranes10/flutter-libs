@@ -7,7 +7,7 @@ class TAlertService {
     final dynamic text,
     final String? title,
     final IconData? icon,
-    final MaterialColor? color,
+    final Color? color,
     final AlertButton? closeButton,
     final AlertButton? confirmButton,
   }) async {

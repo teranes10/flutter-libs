@@ -106,7 +106,7 @@ TColorType mapButtonTypeToColorType(TButtonType buttonType) {
 extension TButtonGroupExtension on TButton {
   TButton copyWith({
     TButtonType? type,
-    MaterialColor? color,
+    Color? color,
     TButtonSize? size,
     bool? block,
     bool? loading,

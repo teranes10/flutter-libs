@@ -4,7 +4,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TButtonGroup extends StatelessWidget {
   final TButtonGroupType type;
   final TButtonSize? size;
-  final MaterialColor? color;
+  final Color? color;
   final List<TButtonGroupItem> items;
 
   const TButtonGroup({
@@ -97,7 +97,12 @@ class TButtonGroup extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-            right: isLast || button.type == TButtonType.outline || button.type == TButtonType.filledOutline
+            right: isLast ||
+                    button.type == TButtonType.solid ||
+                    button.type == TButtonType.tonal ||
+                    button.type == TButtonType.outline ||
+                    button.type == TButtonType.softOutline ||
+                    button.type == TButtonType.filledOutline
                 ? BorderSide.none
                 : BorderSide(color: theme.outline, width: 0.25)),
       ),
@@ -111,7 +116,7 @@ class TButtonGroupItem {
   final String? text;
   final bool loading;
   final String loadingText;
-  final MaterialColor? color;
+  final Color? color;
   final String? tooltip;
   final bool active;
   final Widget? child;

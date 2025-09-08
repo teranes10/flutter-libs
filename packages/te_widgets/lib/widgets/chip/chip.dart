@@ -4,7 +4,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TChip extends StatelessWidget {
   final String? text;
   final IconData? icon;
-  final MaterialColor? color;
+  final Color? color;
   final Color? background;
   final Color? textColor;
   final VoidCallback? onTap;
@@ -38,9 +38,9 @@ class TChip extends StatelessWidget {
       child: Container(
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
-          color: mBackgroundColor,
-          borderRadius: borderRadius ?? BorderRadius.circular(8),
-        ),
+            color: mBackgroundColor,
+            borderRadius: borderRadius ?? BorderRadius.circular(8),
+            border: Border.all(color: wTheme.outline ?? Colors.transparent, width: 1)),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

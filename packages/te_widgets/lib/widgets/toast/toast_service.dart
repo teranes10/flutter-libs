@@ -10,7 +10,7 @@ class TToastService {
     IconData? icon,
     Duration? duration,
     Alignment? alignment,
-    MaterialColor? color,
+    Color? color,
     TColorType? type,
   }) {
     final exTheme = context.exTheme;

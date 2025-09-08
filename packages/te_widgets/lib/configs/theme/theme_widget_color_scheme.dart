@@ -42,71 +42,79 @@ class TWidgetColorScheme {
       outlineVariant != null ? BorderSide(color: outlineVariant!) : BorderSide.none,
       outline != null ? BorderSide(color: outline!) : BorderSide.none);
 
-  factory TWidgetColorScheme.from(BuildContext context, MaterialColor c, TColorType type) {
+  factory TWidgetColorScheme.from(BuildContext context, Color c, TColorType type) {
     final isDarkMode = context.isDarkMode;
     final theme = context.theme;
+
+    Color shade(int value) => c.shade(value);
+    Color alpha(Color color, int a) => color.withAlpha(a);
 
     switch (type) {
       case TColorType.solid:
         return TWidgetColorScheme(
-            container: c.shade400,
-            containerVariant: c.shade400.withValues(alpha: 35),
-            onContainer: c.shade50,
-            onContainerVariant: c.shade50,
-            shadow: c.shade900.withAlpha(35));
+          container: shade(400),
+          containerVariant: alpha(shade(400), 200),
+          onContainer: shade(50),
+          onContainerVariant: shade(50),
+          shadow: alpha(shade(900), 35),
+        );
       case TColorType.tonal:
         return TWidgetColorScheme(
-            container: isDarkMode ? c.shade700 : c.shade50,
-            containerVariant: isDarkMode ? c.shade800 : c.shade100,
-            onContainer: isDarkMode ? c.shade100 : c.shade400,
-            onContainerVariant: isDarkMode ? c.shade300 : c.shade500,
-            shadow: c.shade600.withAlpha(35));
+          container: isDarkMode ? shade(700) : shade(50),
+          containerVariant: isDarkMode ? shade(800) : shade(100),
+          onContainer: isDarkMode ? shade(100) : shade(400),
+          onContainerVariant: isDarkMode ? shade(300) : shade(500),
+          shadow: alpha(shade(600), 35),
+        );
       case TColorType.outline:
         return TWidgetColorScheme(
-            container: theme.surface,
-            containerVariant: theme.surface,
-            onContainer: c.shade400,
-            onContainerVariant: isDarkMode ? c.shade300 : c.shade500,
-            outline: c.shade300,
-            outlineVariant: c.shade400,
-            shadow: c.shade400.withAlpha(35));
+          container: theme.surface,
+          containerVariant: theme.surface,
+          onContainer: shade(400),
+          onContainerVariant: isDarkMode ? shade(300) : shade(500),
+          outline: shade(300),
+          outlineVariant: shade(400),
+          shadow: alpha(shade(400), 35),
+        );
       case TColorType.softOutline:
         return TWidgetColorScheme(
-            container: theme.surface,
-            containerVariant: isDarkMode ? c.shade700 : c.shade50,
-            onContainer: c.shade400,
-            onContainerVariant: isDarkMode ? c.shade200 : c.shade500,
-            outline: c.shade300,
-            outlineVariant: isDarkMode ? c.shade400 : c.shade200,
-            shadow: c.shade400.withAlpha(35));
+          container: theme.surface,
+          containerVariant: isDarkMode ? shade(700) : shade(50),
+          onContainer: shade(400),
+          onContainerVariant: isDarkMode ? shade(200) : shade(500),
+          outline: shade(300),
+          outlineVariant: isDarkMode ? shade(400) : shade(200),
+          shadow: alpha(shade(400), 35),
+        );
       case TColorType.filledOutline:
         return TWidgetColorScheme(
-            container: theme.surface,
-            containerVariant: c.shade400,
-            onContainer: c.shade400,
-            onContainerVariant: c.shade50,
-            outline: c.shade300,
-            shadow: c.shade400.withAlpha(35));
+          container: theme.surface,
+          containerVariant: shade(400),
+          onContainer: shade(400),
+          onContainerVariant: shade(50),
+          outline: shade(300),
+          shadow: alpha(shade(400), 35),
+        );
       case TColorType.text:
         return TWidgetColorScheme(
           container: Colors.transparent,
           containerVariant: Colors.transparent,
-          onContainer: c.shade400,
-          onContainerVariant: isDarkMode ? c.shade300 : c.shade500,
+          onContainer: shade(400),
+          onContainerVariant: isDarkMode ? shade(300) : shade(500),
         );
       case TColorType.softText:
         return TWidgetColorScheme(
           container: Colors.transparent,
-          containerVariant: isDarkMode ? c.shade700 : c.shade50,
-          onContainer: c.shade400,
-          onContainerVariant: isDarkMode ? c.shade300 : c.shade500,
+          containerVariant: isDarkMode ? shade(700) : shade(50),
+          onContainer: shade(400),
+          onContainerVariant: isDarkMode ? shade(300) : shade(500),
         );
       case TColorType.filledText:
         return TWidgetColorScheme(
           container: Colors.transparent,
-          containerVariant: c.shade400,
-          onContainer: c.shade400,
-          onContainerVariant: c.shade50,
+          containerVariant: shade(400),
+          onContainer: shade(400),
+          onContainerVariant: shade(50),
         );
     }
   }
