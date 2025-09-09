@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:my_app/pages/buttons_page.dart';
 import 'package:my_app/pages/chips_page.dart';
@@ -12,18 +13,6 @@ import 'package:te_widgets/te_widgets.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
-
-final GoRouter router = GoRouter(
-  navigatorKey: _rootNavigatorKey,
-  initialLocation: '/input-fields',
-  routes: [
-    ShellRoute(
-      navigatorKey: _shellNavigatorKey,
-      builder: getLayout,
-      routes: sidebarItems.toGoRoutes(),
-    ),
-  ],
-);
 
 final sidebarItems = [
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Input Fields', route: '/input-fields', page: InputFieldsPage()),
@@ -45,20 +34,38 @@ final sidebarItems = [
   ]),
 ];
 
-Widget getLayout(context, GoRouterState state, child) {
-  return TLayout(
-    logo: TLogo(text: 'Te Widgets'),
-    profile: TProfile(icon: 'assets/icons/profile.png', text: 'Teranes'),
-    actions: [
-      TButton(
-        type: TButtonType.icon,
-        icon: Icons.logout_rounded,
-        color: AppColors.grey,
-        onPressed: (_) {},
-      ),
-    ],
-    items: sidebarItems,
-    pageTitle: state.name,
-    child: child,
-  );
-}
+final GoRouter router = GoRouter(
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: '/input-fields',
+  routes: [
+    ShellRoute(
+      navigatorKey: _shellNavigatorKey,
+      routes: sidebarItems.toGoRoutes(),
+      builder: (context, state, child) {
+        return Consumer(
+          builder: (context, ref, _) {
+            final themeNotifier = ref.read(themeNotifierProvider.notifier);
+
+            return TLayout(
+              logo: TLogo(text: 'Te Widgets'),
+              profile: TProfile(icon: 'assets/icons/profile.png', text: 'Teranes'),
+              actions: [
+                CircleToggleButton(
+                    size: 24,
+                    iconSize: 18,
+                    falseIcon: Icon(Icons.wb_sunny, color: Colors.yellow.shade700),
+                    trueIcon: Icon(Icons.nights_stay, color: Colors.cyan.shade600),
+                    initialValue: context.isDarkMode,
+                    onChanged: (_) => themeNotifier.toggleTheme()),
+                TButton(type: TButtonType.icon, icon: Icons.logout_rounded, iconSize: 16, color: AppColors.grey, onPressed: (_) {}),
+              ],
+              items: sidebarItems,
+              pageTitle: state.name,
+              child: child,
+            );
+          },
+        );
+      },
+    ),
+  ],
+);

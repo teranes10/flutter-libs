@@ -112,13 +112,13 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
   }
 
   @override
-  void onSearchChanged(String value) {
+  void onSearchChanged(String query) {
     if (serverSideRendering) {
       // Use pagination mixin's search functionality for server-side
-      super.onSearchChanged(value);
+      super.onSearchChanged(query);
     } else {
       // Use select notifier's local filtering for client-side
-      stateNotifier.onLocalSearchChanged(value);
+      stateNotifier.onLocalSearchChanged(query);
     }
   }
 

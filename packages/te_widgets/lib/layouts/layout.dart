@@ -120,7 +120,7 @@ class _TLayoutState extends State<TLayout> {
               Spacer(),
               if (widget.profile != null) widget.profile!,
               if (widget.actions != null)
-                Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 15, runSpacing: 5, children: widget.actions!),
+                Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 10, runSpacing: 5, children: widget.actions!),
               SizedBox(width: 15)
             ]),
     );

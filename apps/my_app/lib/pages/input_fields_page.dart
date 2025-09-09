@@ -76,11 +76,12 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
               showTimePicker(context: context, initialEntryMode: TimePickerEntryMode.dialOnly, initialTime: DateTime.now().toTimeOfDay);
             },
           ),
-          TCheckbox(label: 'I agree to the terms', value: singleCheckbox, onValueChanged: (v) => setState(() => singleCheckbox = v)),
+          TCheckbox(label: 'Checkbox', value: singleCheckbox, onValueChanged: (v) => setState(() => singleCheckbox = v)),
           TCheckboxGroup<String>(
             label: 'Fruits',
             items: [TCheckboxGroupItem.map('Apple'), TCheckboxGroupItem.map('Banana'), TCheckboxGroupItem.map('Orange')],
           ),
+          TSwitch(label: 'Switch')
         ],
       ),
     );

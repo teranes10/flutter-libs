@@ -11,7 +11,6 @@ class TWidgetColorScheme {
   final Color? outline;
   final Color? outlineVariant;
   final Color? shadow;
-  final bool activeState;
 
   TWidgetColorScheme({
     required this.container,
@@ -21,26 +20,28 @@ class TWidgetColorScheme {
     this.outline,
     this.outlineVariant,
     this.shadow,
-    this.activeState = false,
   });
 
   BoxBorder? get boxBorder => outline != null ? Border.all(color: outline!) : null;
   List<BoxShadow>? get boxShadow => shadow != null ? [BoxShadow(color: shadow!, blurRadius: 12, spreadRadius: 2)] : null;
 
-  WidgetStateProperty<T> _resolveState<T>(T normal, T active, T disabled) {
-    return WidgetStateProperty.resolveWith((states) {
-      if (states.contains(WidgetState.disabled)) return disabled;
-      if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered) || activeState) return active;
-      return normal;
-    });
-  }
+  WidgetStateProperty<Color?> get backgroundState => StateHelper.resolveState(
+        container,
+        active: containerVariant,
+        disabled: container.withAlpha(100),
+      );
 
-  WidgetStateProperty<Color?> get backgroundState => _resolveState(container, containerVariant, container.withAlpha(100));
-  WidgetStateProperty<Color?> get foregroundState => _resolveState(onContainer, onContainerVariant, onContainer.withAlpha(100));
-  WidgetStateProperty<BorderSide?> get borderSideState => _resolveState(
-      outline != null ? BorderSide(color: outline!) : BorderSide.none,
-      outlineVariant != null ? BorderSide(color: outlineVariant!) : BorderSide.none,
-      outline != null ? BorderSide(color: outline!) : BorderSide.none);
+  WidgetStateProperty<Color?> get foregroundState => StateHelper.resolveState(
+        onContainer,
+        active: onContainerVariant,
+        disabled: onContainer.withAlpha(100),
+      );
+
+  WidgetStateProperty<BorderSide?> get borderSideState => StateHelper.resolveState(
+        outline != null ? BorderSide(color: outline!) : BorderSide.none,
+        active: outlineVariant != null ? BorderSide(color: outlineVariant!) : BorderSide.none,
+        disabled: outline != null ? BorderSide(color: outline!) : BorderSide.none,
+      );
 
   factory TWidgetColorScheme.from(BuildContext context, Color c, TColorType type) {
     final isDarkMode = context.isDarkMode;

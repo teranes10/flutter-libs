@@ -256,6 +256,14 @@ class _ButtonsPageState extends State<ButtonsPage> {
             ),
           ]),
           _buildRow('Block Button', [TButton(text: 'Block Button', block: true, color: AppColors.success, onPressed: (_) => {})]),
+          _buildRow("Circle Toggle Button", [
+            CircleToggleButton(
+              falseIcon: Icon(Icons.play_arrow, color: Colors.white),
+              trueIcon: Icon(Icons.pause, color: Colors.white),
+              falseBackground: Colors.green,
+              trueBackground: Colors.red,
+            )
+          ])
         ],
       ),
     );

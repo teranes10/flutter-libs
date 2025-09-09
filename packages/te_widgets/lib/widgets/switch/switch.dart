@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin, TInputValidationMixin<bool?> {
+class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, TInputValidationMixin<bool> {
   @override
   final bool? value;
 
   @override
-  final ValueNotifier<bool?>? valueNotifier;
+  final ValueNotifier<bool>? valueNotifier;
 
   @override
-  final ValueChanged<bool?>? onValueChanged;
+  final ValueChanged<bool>? onValueChanged;
 
   @override
   final FocusNode? focusNode;
@@ -32,15 +32,14 @@ class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin
   @override
   final bool? skipValidation;
 
-  // Checkbox specific properties
+  // Switch specific properties
   final bool disabled;
   final Color? color;
   final TInputSize? size;
-  final bool tristate;
 
-  const TCheckbox({
+  const TSwitch({
     super.key,
-    this.value,
+    this.value = false,
     this.valueNotifier,
     this.onValueChanged,
     this.focusNode,
@@ -53,24 +52,23 @@ class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin
     this.disabled = false,
     this.color,
     this.size = TInputSize.md,
-    this.tristate = false,
   });
 
   @override
-  State<TCheckbox> createState() => _TCheckboxState();
+  State<TSwitch> createState() => _TSwitchState();
 }
 
-class _TCheckboxState<T> extends State<TCheckbox>
-    with TInputValueStateMixin<bool?, TCheckbox>, TFocusStateMixin<TCheckbox>, TInputValidationStateMixin<bool?, TCheckbox> {
-  double _getCheckboxSize() {
+class _TSwitchState<T> extends State<TSwitch>
+    with TInputValueStateMixin<bool, TSwitch>, TFocusStateMixin<TSwitch>, TInputValidationStateMixin<bool, TSwitch> {
+  (double, double, double) _getSwitchSize() {
     switch (widget.size) {
       case TInputSize.sm:
-        return 0.9;
+        return (36, 22, 0.7);
       case TInputSize.md:
       case null:
-        return 1.0;
+        return (42, 25, 0.8);
       case TInputSize.lg:
-        return 1.2;
+        return (52, 32, 1.0);
     }
   }
 
@@ -86,20 +84,8 @@ class _TCheckboxState<T> extends State<TCheckbox>
     }
   }
 
-  void _onCheckboxChanged(bool? newValue) {
-    if (widget.tristate) {
-      final currentBool = currentValue;
-      if (currentBool == null) {
-        newValue = false;
-      } else if (currentBool == false) {
-        newValue = true;
-      } else {
-        newValue = null;
-      }
-    } else {
-      newValue = !(currentValue ?? false);
-    }
-
+  void _onSwitchChanged(bool? newValue) {
+    newValue = !(currentValue ?? false);
     notifyValueChanged(newValue);
     setState(() {});
   }
@@ -110,6 +96,7 @@ class _TCheckboxState<T> extends State<TCheckbox>
     final exTheme = context.exTheme;
     final mColor = widget.color ?? exTheme.primary;
     final wTheme = context.getWidgetTheme(TColorType.solid, mColor);
+    final (width, height, scale) = _getSwitchSize();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -117,7 +104,7 @@ class _TCheckboxState<T> extends State<TCheckbox>
       children: [
         GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: widget.disabled ? null : () => _onCheckboxChanged(null),
+          onTap: widget.disabled ? null : () => _onSwitchChanged(null),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -125,21 +112,22 @@ class _TCheckboxState<T> extends State<TCheckbox>
               Opacity(
                 opacity: widget.disabled ? 0.6 : 1.0,
                 child: Transform.scale(
-                  scale: _getCheckboxSize(),
-                  child: Checkbox(
-                    splashRadius: 0,
-                    value: currentValue ?? (widget.tristate ? null : false),
-                    onChanged: widget.disabled ? null : _onCheckboxChanged,
-                    activeColor: wTheme.container,
-                    checkColor: wTheme.onContainer,
-                    tristate: widget.tristate,
-                    visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-                    side: BorderSide(
-                        color: hasErrors
-                            ? theme.error
-                            : ((currentValue ?? (widget.tristate ? null : false)) != false ? mColor : theme.outline),
-                        width: 1),
+                  scale: scale,
+                  child: SizedBox(
+                    width: width,
+                    height: height,
+                    child: Switch(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      splashRadius: 0,
+                      value: currentValue ?? false,
+                      onChanged: widget.disabled ? null : _onSwitchChanged,
+                      activeColor: Colors.white,
+                      inactiveThumbColor: Colors.white,
+                      activeTrackColor: wTheme.container,
+                      inactiveTrackColor: theme.surfaceDim,
+                      trackOutlineWidth: WidgetStateProperty.all(0.1),
+                      trackOutlineColor: WidgetStateProperty.all(theme.outlineVariant),
+                    ),
                   ),
                 ),
               ),

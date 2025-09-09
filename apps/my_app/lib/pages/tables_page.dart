@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'dart:html' as html;
 
 class TablesPage extends StatefulWidget {
   const TablesPage({super.key});
@@ -79,52 +76,29 @@ class _TablesPageState extends State<TablesPage> {
     },
   ];
 
-  void generatePdfWithTable() async {
-    final lexendData = await rootBundle.load('packages/te_widgets/fonts/Lexend-Regular.ttf');
-    final lexendBoldData = await rootBundle.load('packages/te_widgets/fonts/Lexend-Medium.ttf');
-    final lexend = pw.Font.ttf(lexendData.buffer.asByteData());
-    final lexendBold = pw.Font.ttf(lexendBoldData.buffer.asByteData());
-
+  void generatePdfWithTable(BuildContext ctx) async {
+    final theme = context.theme;
     final pdf = pw.Document();
 
-    final headers = ['ID', 'Name', 'Age'];
-    final data = [
-      ['1', 'Alice', '24'],
-      ['2', 'Bob', '27'],
-      ['3', 'Charlie', '31'],
-    ];
-
     pdf.addPage(
-      pw.Page(
-        margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 25),
-        build: (context) => pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
-          pw.Text(
-            'Table 1: List of Participants',
-            style: pw.TextStyle(font: lexendBold, fontSize: 16, color: PdfColor.fromHex('#8EAEC6')),
+      pw.MultiPage(
+        pageTheme: pw.PageTheme(
+          margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 25),
+          buildBackground: (context) => pw.FullPage(
+            ignoreMargins: true,
+            child: pw.Container(color: theme.surface.toPdfColor()),
           ),
+        ),
+        build: (context) => [
+          pw.Text('Table 1: List of Participants', style: pw.TextStyle(fontSize: 16, color: theme.onSurfaceVariant.toPdfColor())),
           pw.SizedBox(height: 15),
-          pw.TableHelper.fromTextArray(
-            headers: headers,
-            data: data,
-            border: pw.TableBorder.all(color: PdfColor.fromHex('#E9F3F6'), width: 0.1),
-            headerStyle: pw.TextStyle(font: lexend, fontWeight: pw.FontWeight.normal, fontSize: 10, color: PdfColor.fromHex('#7393B3')),
-            headerAlignment: pw.Alignment.centerLeft,
-            cellAlignment: pw.Alignment.centerLeft,
-            cellStyle: pw.TextStyle(font: lexend, fontSize: 10, color: PdfColor.fromHex('#3b3b3f')),
-            cellPadding: const pw.EdgeInsets.all(5),
-          ),
-        ]),
+          TTableHelper.from(ctx, productHeaders, products),
+        ],
       ),
     );
 
-    // Save and download on Web
-    final bytes = await pdf.save();
-    final blob = html.Blob([bytes]);
-    final url = html.Url.createObjectUrlFromBlob(blob);
-    final anchor = html.AnchorElement(href: url)
-      ..setAttribute('download', 'table.pdf')
-      ..click();
-    html.Url.revokeObjectUrl(url);
+    final res = await pdf.download();
+    print("cc$res");
   }
 
   @override
@@ -134,13 +108,9 @@ class _TablesPageState extends State<TablesPage> {
       child: Wrap(
         runSpacing: 50,
         children: [
-          TButton(text: 'Print', onPressed: (_) => generatePdfWithTable()),
+          TButton(text: 'Print', onPressed: (_) => generatePdfWithTable(context)),
           TTable<Product>(
-            headers: [
-              TTableHeader.map("Name", (x) => x.name),
-              TTableHeader.map("Price", (x) => x.price),
-              TTableHeader.map("Stock", (x) => x.stock),
-            ],
+            headers: productHeaders,
             items: products,
           ),
           TDataTable<Product>(
@@ -191,6 +161,12 @@ class Product {
 
   Product(this.id, this.name, this.price, this.stock);
 }
+
+final List<TTableHeader<Product>> productHeaders = [
+  TTableHeader.map("Name", (x) => x.name),
+  TTableHeader.map("Price", (x) => x.price),
+  TTableHeader.map("Stock", (x) => x.stock),
+];
 
 final List<Product> products = List.generate(
   3,

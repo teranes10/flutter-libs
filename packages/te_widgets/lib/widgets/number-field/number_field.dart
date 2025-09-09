@@ -95,7 +95,7 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
   }
 
   @override
-  void onExternalValueChanged(T value) {
+  void onExternalValueChanged(T? value) {
     super.onExternalValueChanged(value);
     _controller.text = _formatValue(value);
   }

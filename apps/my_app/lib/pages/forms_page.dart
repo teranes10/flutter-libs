@@ -24,6 +24,8 @@ class UserForm extends TFormBase {
   final lastName = TFieldProp('');
   final username = TFieldProp('', useNotifier: true);
   final email = TFieldProp('');
+  final check = TFieldProp(false);
+  final toggle = TFieldProp(false);
   final options = TFieldProp<List<String>>([]);
   final subForm = TFieldProp(SubForm());
   final subForms = TFieldProp(List<SubForm>.empty());
@@ -39,7 +41,7 @@ class UserForm extends TFormBase {
   @override
   List<TFormField> get fields {
     return [
-      TFormField.text(firstName, 'First Name').size(6, sm: 6),
+      TFormField.text(firstName, 'First Name').size(6),
       TFormField.text(lastName, 'Last Name').size(6),
       TFormField.text(username, 'Username', isRequired: true),
       TFormField.text(email, 'Email'),
@@ -47,7 +49,9 @@ class UserForm extends TFormBase {
         TCheckboxGroupItem.map("Option 1"),
         TCheckboxGroupItem.map("Option 2"),
         TCheckboxGroupItem.map("Option 3"),
-      ]),
+      ]).size(6),
+      TFormField.checkbox(check, "Check").size(3),
+      TFormField.toggle(toggle, "Toggle").size(3),
       TFormField.group(subForm, label: 'Sub Form'),
       TFormField.items(subForms, () => SubForm(), label: 'Sub Forms', buttonLabel: 'Add New')
     ];

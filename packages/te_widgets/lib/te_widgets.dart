@@ -3,6 +3,7 @@ library;
 export 'configs/theme/theme_color_scheme.dart';
 export 'configs/theme/theme_colors.dart';
 export 'configs/theme/theme_extension.dart';
+export 'configs/theme/theme_notifier.dart';
 export 'configs/theme/theme_text.dart';
 export 'configs/theme/theme_widget_color_scheme.dart';
 export 'configs/theme/theme.dart';
@@ -51,6 +52,8 @@ export 'widgets/checkbox/checkbox_config.dart';
 
 export 'widgets/chip/chip.dart';
 
+export 'widgets/circle-toggle-button/circle_toggle_button.dart';
+
 export 'widgets/crud-table/crud_table_config.dart';
 export 'widgets/crud-table/crud_table.dart';
 
@@ -82,6 +85,10 @@ export 'widgets/number-field/number_field.dart';
 
 export 'widgets/pagination/pagination.dart';
 
+export 'widgets/pdf/pdf_config.dart';
+export 'widgets/pdf/pdf_table_config.dart';
+export 'widgets/pdf/pdf_table.dart';
+
 export 'widgets/scrollbar/scrollbar.dart';
 
 export 'widgets/select/multi_select.dart';
@@ -89,6 +96,8 @@ export 'widgets/select/select_configs.dart';
 export 'widgets/select/select_dropdown.dart';
 export 'widgets/select/select_mixin.dart';
 export 'widgets/select/select.dart';
+
+export 'widgets/switch/switch.dart';
 
 export 'widgets/table/table_configs.dart';
 export 'widgets/table/table_decoration.dart';

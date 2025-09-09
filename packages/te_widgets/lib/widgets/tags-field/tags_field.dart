@@ -118,7 +118,7 @@ class _TTagsFieldState extends State<TTagsField>
   }
 
   @override
-  void onExternalValueChanged(List<String> value) {
+  void onExternalValueChanged(List<String>? value) {
     super.onExternalValueChanged(value);
 
     setState(() {});

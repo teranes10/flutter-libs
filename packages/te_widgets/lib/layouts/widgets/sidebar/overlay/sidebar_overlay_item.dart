@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
@@ -86,7 +87,9 @@ class _TSidebarOverlayItemState extends State<TSidebarOverlayItem> {
         currentPosition = renderBox.localToGlobal(Offset.zero);
       }
     } catch (e) {
-      print('Error getting position: $e');
+      if (kDebugMode) {
+        print('Error getting position: $e');
+      }
     }
 
     currentPosition ??= Offset(

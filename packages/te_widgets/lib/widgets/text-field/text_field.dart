@@ -112,12 +112,12 @@ class _TTextFieldState extends State<TTextField>
   }
 
   @override
-  void onExternalValueChanged(String value) {
+  void onExternalValueChanged(String? value) {
     super.onExternalValueChanged(value);
     if (_controller.text != value) {
       _controller.value = _controller.value.copyWith(
         text: value,
-        selection: TextSelection.collapsed(offset: value.length),
+        selection: TextSelection.collapsed(offset: value?.length ?? 0),
       );
     }
   }

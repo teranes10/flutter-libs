@@ -341,6 +341,29 @@ class TFormField<T> {
     );
   }
 
+  static TFormField<bool> toggle(
+    TFieldProp<bool> prop,
+    String? label, {
+    bool isRequired = false,
+    bool disabled = false,
+    List<String? Function(bool?)>? rules,
+    Color? color,
+  }) {
+    return TFormField<bool>(
+      prop: prop,
+      builder: (onValueChanged) => TSwitch(
+        color: color,
+        label: label,
+        isRequired: isRequired,
+        disabled: disabled,
+        rules: rules,
+        value: prop.value,
+        valueNotifier: prop.valueNotifier,
+        onValueChanged: onValueChanged,
+      ),
+    );
+  }
+
   static TFormField<bool?> checkbox(
     TFieldProp<bool?> prop,
     String? label, {

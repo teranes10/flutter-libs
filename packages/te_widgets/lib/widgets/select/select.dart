@@ -170,7 +170,8 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
 
   @override
   void updateSelectedStates() {
-    stateNotifier.updateSelectedStates(widget.value != null ? [widget.value!] : []);
+    final value = widget.value;
+    stateNotifier.updateSelectedStates(value != null ? [value] : []);
   }
 
   @override
