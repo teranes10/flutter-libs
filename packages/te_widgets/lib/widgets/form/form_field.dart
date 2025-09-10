@@ -411,4 +411,33 @@ class TFormField<T> {
       ),
     );
   }
+
+  static TFormField<List<TFile>> filePicker<T>(
+    TFieldProp<List<TFile>> prop,
+    String? label, {
+    bool isRequired = false,
+    bool disabled = false,
+    List<String? Function(List<TFile>?)>? rules,
+    bool allowMultiple = false,
+    List<String>? allowedExtensions,
+    int? maxFiles,
+    TFileType fileType = TFileType.any,
+  }) {
+    return TFormField<List<TFile>>(
+      prop: prop,
+      builder: (onValueChanged) => TFilePicker(
+        label: label,
+        isRequired: isRequired,
+        disabled: disabled,
+        rules: rules,
+        allowMultiple: allowMultiple,
+        allowedExtensions: allowedExtensions,
+        maxFiles: maxFiles,
+        fileType: fileType,
+        value: prop.value,
+        valueNotifier: prop.valueNotifier,
+        onValueChanged: onValueChanged,
+      ),
+    );
+  }
 }

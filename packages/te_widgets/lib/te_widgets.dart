@@ -63,6 +63,10 @@ export 'widgets/date-picker/date_picker.dart';
 
 export 'widgets/date-time-picker/date_time_picker.dart';
 
+export 'widgets/file-picker/file_picker_config.dart';
+export 'widgets/file-picker/file_picker_decoration.dart';
+export 'widgets/file-picker/file_picker.dart';
+
 export 'widgets/form/form_builder.dart';
 export 'widgets/form/form_service.dart';
 export 'widgets/form/items_form_builder.dart';

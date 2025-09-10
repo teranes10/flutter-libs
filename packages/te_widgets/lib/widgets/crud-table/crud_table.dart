@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
@@ -240,9 +239,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
     try {
       await action();
     } catch (e) {
-      if (kDebugMode) {
-        print('__ TCrudTable action error: $e');
-      }
+      debugPrint('__ TCrudTable action error: $e');
     }
   }
 }

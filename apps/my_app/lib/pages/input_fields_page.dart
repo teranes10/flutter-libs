@@ -75,7 +75,8 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             label: 'Fruits',
             items: [TCheckboxGroupItem.map('Apple'), TCheckboxGroupItem.map('Banana'), TCheckboxGroupItem.map('Orange')],
           ),
-          TSwitch(label: 'Switch')
+          TSwitch(label: 'Switch'),
+          TFilePicker(label: 'File Picker'),
         ],
       ),
     );

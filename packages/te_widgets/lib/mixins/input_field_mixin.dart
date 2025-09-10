@@ -3,6 +3,44 @@ import 'package:te_widgets/te_widgets.dart';
 
 enum TInputSize { sm, md, lg }
 
+extension TInputSizeX on TInputSize? {
+  double get fieldHeight {
+    switch (this) {
+      case TInputSize.sm:
+        return 34.0;
+      case TInputSize.md:
+      case null:
+        return 38.0;
+      case TInputSize.lg:
+        return 42.0;
+    }
+  }
+
+  EdgeInsets get fieldPadding {
+    switch (this) {
+      case TInputSize.sm:
+        return const EdgeInsets.symmetric(vertical: 5, horizontal: 8);
+      case TInputSize.md:
+      case null:
+        return const EdgeInsets.symmetric(vertical: 8, horizontal: 10);
+      case TInputSize.lg:
+        return const EdgeInsets.symmetric(vertical: 10, horizontal: 12);
+    }
+  }
+
+  double get fontSize {
+    switch (this) {
+      case TInputSize.sm:
+        return 12.0;
+      case TInputSize.md:
+      case null:
+        return 14.0;
+      case TInputSize.lg:
+        return 16.0;
+    }
+  }
+}
+
 mixin TInputFieldMixin {
   String? get label;
   String? get tag;
@@ -18,41 +56,9 @@ mixin TInputFieldMixin {
   Widget? get postWidget;
   VoidCallback? get onTap;
 
-  double get fieldHeight {
-    switch (size) {
-      case TInputSize.sm:
-        return 34.0;
-      case TInputSize.lg:
-        return 42.0;
-      case TInputSize.md:
-      case null:
-        return 38.0;
-    }
-  }
-
-  EdgeInsets get fieldPadding {
-    switch (size) {
-      case TInputSize.sm:
-        return const EdgeInsets.symmetric(vertical: 5, horizontal: 8);
-      case TInputSize.lg:
-        return const EdgeInsets.symmetric(vertical: 10, horizontal: 12);
-      case TInputSize.md:
-      default:
-        return const EdgeInsets.symmetric(vertical: 8, horizontal: 10);
-    }
-  }
-
-  double get fontSize {
-    switch (size) {
-      case TInputSize.sm:
-        return 12.0;
-      case TInputSize.lg:
-        return 16.0;
-      case TInputSize.md:
-      case null:
-        return 14.0;
-    }
-  }
+  double get fontSize => size.fontSize;
+  double get fieldHeight => size.fieldHeight;
+  EdgeInsets get fieldPadding => size.fieldPadding;
 }
 
 mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
@@ -102,7 +108,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
 
   TextStyle getTextStyle(ColorScheme theme) {
     return TextStyle(
-      fontSize: _widget.fontSize,
+      fontSize: _widget.size.fontSize,
       color: _widget.disabled ? theme.onSurfaceVariant : theme.onSurface,
     );
   }
@@ -159,6 +165,10 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     TFocusStateMixin? focusWidget = this is TFocusStateMixin ? this as TFocusStateMixin : null;
     TInputValidationStateMixin? validationMixin = this is TInputValidationStateMixin ? this as TInputValidationStateMixin : null;
 
+    final size = _widget.size ?? TInputSize.md;
+    final fieldHeight = size.fieldHeight;
+    final fieldPadding = size.fieldPadding;
+
     final container = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,8 +176,8 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
         buildLabel(theme),
         Container(
           constraints: BoxConstraints(
-            minHeight: _widget.fieldHeight,
-            maxHeight: isMultiline == true ? double.infinity : _widget.fieldHeight,
+            minHeight: fieldHeight,
+            maxHeight: isMultiline == true ? double.infinity : fieldHeight,
           ),
           decoration: getBoxDecoration(theme, exTheme, focusWidget?.isFocused == true, validationMixin?.hasErrors == true),
           child: Row(
@@ -175,26 +185,20 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
             children: [
               if (_widget.preWidget != null)
                 Padding(
-                    padding: EdgeInsets.only(
-                        top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
+                    padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, left: fieldPadding.left),
                     child: Center(child: _widget.preWidget!)),
               if (preWidget != null)
                 Padding(
-                    padding: EdgeInsets.only(
-                        top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, left: _widget.fieldPadding.left),
+                    padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, left: fieldPadding.left),
                     child: Center(child: preWidget)),
-              block
-                  ? Expanded(child: Padding(padding: _widget.fieldPadding, child: child))
-                  : Padding(padding: _widget.fieldPadding, child: child),
+              block ? Expanded(child: Padding(padding: fieldPadding, child: child)) : Padding(padding: fieldPadding, child: child),
               if (postWidget != null)
                 Padding(
-                    padding: EdgeInsets.only(
-                        top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
+                    padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, right: fieldPadding.right),
                     child: Center(child: postWidget)),
               if (_widget.postWidget != null)
                 Padding(
-                    padding: EdgeInsets.only(
-                        top: _widget.fieldPadding.top, bottom: _widget.fieldPadding.bottom, right: _widget.fieldPadding.right),
+                    padding: EdgeInsets.only(top: fieldPadding.top, bottom: fieldPadding.bottom, right: fieldPadding.right),
                     child: Center(child: _widget.postWidget!)),
             ],
           ),
@@ -208,8 +212,8 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     return Listener(
       behavior: HitTestBehavior.opaque,
       onPointerDown: (_) {
-        _widget.onTap?.call();
         onTap?.call();
+        _widget.onTap?.call();
         focusWidget?.focusNode.requestFocus();
       },
       child: container,

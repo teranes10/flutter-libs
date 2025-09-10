@@ -97,8 +97,7 @@ class _TablesPageState extends State<TablesPage> {
       ),
     );
 
-    final res = await pdf.download();
-    print("cc$res");
+    await pdf.download();
   }
 
   @override

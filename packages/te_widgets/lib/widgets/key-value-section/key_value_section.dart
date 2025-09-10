@@ -86,7 +86,7 @@ class TKeyValueSection extends StatelessWidget {
   Widget _buildGridCell(ColorScheme theme, TKeyValue keyValue, bool isFirstInRow) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(border: isFirstInRow ? null : Border(left: BorderSide(color: theme.outline, width: 1))),
+      decoration: BoxDecoration(border: isFirstInRow ? null : Border(left: BorderSide(color: theme.outline.withAlpha(100), width: 1))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

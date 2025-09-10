@@ -12,7 +12,7 @@ class FormsPage extends StatelessWidget {
           onPressed: (_) async {
             final value = await TFormService.show(context, UserForm());
             if (value != null) {
-              print('__save $value');
+              debugPrint('__save $value');
             }
           })
     ]);
@@ -21,13 +21,14 @@ class FormsPage extends StatelessWidget {
 
 class UserForm extends TFormBase {
   final firstName = TFieldProp('', onValueChanged: (v) {
-    print(v);
+    debugPrint(v);
   });
   final lastName = TFieldProp('');
   final username = TFieldProp('', useNotifier: true);
   final email = TFieldProp('');
   final check = TFieldProp(false);
   final toggle = TFieldProp(false);
+  final files = TFieldProp<List<TFile>>([]);
   final options = TFieldProp<List<String>>([]);
   final subForm = TFieldProp(SubForm());
   final subForms = TFieldProp(List<SubForm>.empty());
@@ -54,6 +55,7 @@ class UserForm extends TFormBase {
       ]).size(6),
       TFormField.checkbox(check, "Check").size(3),
       TFormField.toggle(toggle, "Toggle").size(3),
+      TFormField.filePicker(files, "File Picker"),
       TFormField.group(subForm, label: 'Sub Form'),
       TFormField.items(subForms, () => SubForm(), label: 'Sub Forms', buttonLabel: 'Add New')
     ];
