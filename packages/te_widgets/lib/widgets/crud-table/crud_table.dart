@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+part 'crud_table_top_bar.dart';
+part 'crud_table_builder.dart';
+
 class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
   final List<TTableHeader<T>> headers;
 
@@ -72,15 +75,11 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
   late final TPaginationController<T> _paginationController;
   late final TPaginationController<T> _archivePaginationController;
 
+  late final _TCrudTopBar<T, F> _topBar;
+  late final _TCrudTableBuilder<T, F> _tableBuilder;
+
   int _currentTab = 0;
   final Map<T, Map<String, bool>> _permissionCache = {};
-
-  bool get _hasArchive => widget.archivedItems != null || widget.onArchiveLoad != null;
-  bool get _canCreate => widget.createForm != null && widget.onCreate != null;
-  bool get _canEdit => widget.editForm != null && widget.onEdit != null;
-  bool get _hasActiveActions => widget.onView != null || _canEdit || widget.onArchive != null || widget.config.activeActions.isNotEmpty;
-  bool get _hasArchiveActions =>
-      widget.onView != null || widget.onRestore != null || widget.onDelete != null || widget.config.archiveActions.isNotEmpty;
 
   @override
   void initState() {
@@ -89,6 +88,9 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
     _archiveSearchNotifier = ValueNotifier('');
     _paginationController = widget.controller ?? TPaginationController<T>();
     _archivePaginationController = TPaginationController<T>();
+
+    _topBar = _TCrudTopBar<T, F>(parent: this);
+    _tableBuilder = _TCrudTableBuilder<T, F>(parent: this);
   }
 
   @override
@@ -104,262 +106,34 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
     final theme = context.theme;
     final exTheme = context.exTheme;
 
-    return Column(
-      children: [
-        _buildHeader(theme),
-        _buildContent(exTheme),
-      ],
-    );
-  }
-
-  Widget _buildHeader(ColorScheme theme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: SizedBox(
-        width: double.infinity,
-        child: Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          runSpacing: 10,
-          children: [
-            ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 200),
-              child: Wrap(
-                alignment: WrapAlignment.start,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (_canCreate)
-                    TButton(
-                      type: TButtonType.softOutline,
-                      size: TButtonSize.lg,
-                      icon: Icons.add,
-                      text: widget.config.addButtonText,
-                      onPressed: (_) => _handleCreate(),
-                    ),
-                  ...widget.config.topBarActions,
-                ],
-              ),
-            ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 200),
-              child: Wrap(
-                alignment: WrapAlignment.end,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (_hasArchive)
-                    TTabs(
-                      inline: true,
-                      selectedIndex: _currentTab,
-                      onTabChanged: (i) => setState(() => _currentTab = i),
-                      tabs: [
-                        TTab(text: widget.config.activeTabText),
-                        TTab(text: widget.config.archiveTabText),
-                      ],
-                    ),
-                  SizedBox(
-                    width: 250,
-                    child: TTextField(
-                      placeholder: widget.config.searchPlaceholder,
-                      postWidget: Icon(Icons.search_rounded, size: 18, color: theme.onSurface),
-                      size: TInputSize.sm,
-                      valueNotifier: _currentTab == 0 ? _searchNotifier : _archiveSearchNotifier,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent(TColorScheme exTheme) {
-    if (!_hasArchive) {
-      return _buildTable(
-        isArchive: false,
-        headers: _buildActiveHeaders(exTheme),
-        items: widget.items,
-        onLoad: widget.onLoad,
-        searchNotifier: _searchNotifier,
-        controller: _paginationController,
+    return LayoutBuilder(builder: (_, constraints) {
+      return Column(
+        children: [
+          _topBar.build(theme, constraints),
+          _tableBuilder._buildContent(exTheme),
+        ],
       );
-    }
-
-    return IndexedStack(
-      index: _currentTab,
-      children: [
-        _buildTable(
-          isArchive: false,
-          headers: _buildActiveHeaders(exTheme),
-          items: widget.items,
-          onLoad: widget.onLoad,
-          searchNotifier: _searchNotifier,
-          controller: _paginationController,
-        ),
-        _buildTable(
-          isArchive: true,
-          headers: _buildArchiveHeaders(exTheme),
-          items: widget.archivedItems,
-          onLoad: widget.onArchiveLoad,
-          searchNotifier: _archiveSearchNotifier,
-          controller: _archivePaginationController,
-        ),
-      ],
-    );
+    });
   }
 
-  Widget _buildTable({
-    required bool isArchive,
-    required List<TTableHeader<T>> headers,
-    required List<T>? items,
-    required TLoadListener<T>? onLoad,
-    required ValueNotifier<String> searchNotifier,
-    required TPaginationController<T> controller,
-  }) {
-    return TDataTable<T>(
-      headers: headers,
-      decoration: widget.decoration,
-      interactionConfig: widget.interactionConfig,
-      expandable: !isArchive && widget.expandable,
-      selectable: !isArchive && widget.selectable,
-      singleExpand: widget.singleExpand,
-      singleSelect: widget.singleSelect,
-      expandedBuilder: widget.expandedBuilder,
-      items: items,
-      onLoad: onLoad,
-      searchNotifier: searchNotifier,
-      controller: controller,
-      tableController: widget.tableController,
-      itemsPerPage: widget.config.itemsPerPage,
-      itemsPerPageOptions: widget.config.itemsPerPageOptions,
-    );
-  }
+  // Getters for child classes
+  bool get hasArchive => widget.archivedItems != null || widget.onArchiveLoad != null;
+  bool get canCreate => widget.createForm != null && widget.onCreate != null;
+  bool get canEdit => widget.editForm != null && widget.onEdit != null;
+  bool get hasActiveActions => widget.onView != null || canEdit || widget.onArchive != null || widget.config.activeActions.isNotEmpty;
+  bool get hasArchiveActions =>
+      widget.onView != null || widget.onRestore != null || widget.onDelete != null || widget.config.archiveActions.isNotEmpty;
 
-  List<TTableHeader<T>> _buildActiveHeaders(TColorScheme exTheme) {
-    final headers = [...widget.headers];
+  // Getters for controllers and notifiers
+  ValueNotifier<String> get searchNotifier => _searchNotifier;
+  ValueNotifier<String> get archiveSearchNotifier => _archiveSearchNotifier;
+  TPaginationController<T> get paginationController => _paginationController;
+  TPaginationController<T> get archivePaginationController => _archivePaginationController;
+  int get currentTab => _currentTab;
+  set currentTab(int value) => setState(() => _currentTab = value);
 
-    if (widget.config.showActions && _hasActiveActions) {
-      headers.add(TTableHeader<T>(
-        'Actions',
-        maxWidth: (27.0 * (3 + widget.config.activeActions.length)),
-        alignment: Alignment.center,
-        builder: (context, item) => _buildActiveActionButtons(exTheme, item),
-      ));
-    }
-
-    return headers;
-  }
-
-  List<TTableHeader<T>> _buildArchiveHeaders(TColorScheme exTheme) {
-    final headers = [...widget.headers];
-
-    if (widget.config.showActions && _hasArchiveActions) {
-      headers.add(TTableHeader<T>(
-        'Actions',
-        maxWidth: (27.0 * (3 + widget.config.activeActions.length)),
-        alignment: Alignment.center,
-        builder: (context, item) => _buildArchiveActionButtons(exTheme, item),
-      ));
-    }
-
-    return headers;
-  }
-
-  Widget _buildActiveActionButtons(TColorScheme exTheme, T item) {
-    final buttons = <TButtonGroupItem>[];
-
-    if (widget.onView != null && _canPerformActionSync(item, widget.config.canView)) {
-      buttons.add(TButtonGroupItem(
-        tooltip: 'View',
-        icon: Icons.visibility,
-        color: exTheme.success,
-        onPressed: (_) => widget.onView!(item),
-      ));
-    }
-
-    if (_canEdit && _canPerformActionSync(item, widget.config.canEdit)) {
-      buttons.add(TButtonGroupItem(
-        tooltip: 'Edit',
-        icon: Icons.edit,
-        color: exTheme.info,
-        onPressed: (_) => _handleEdit(item),
-      ));
-    }
-
-    if (widget.onArchive != null && _canPerformActionSync(item, widget.config.canArchive)) {
-      buttons.add(TButtonGroupItem(
-        tooltip: 'Archive',
-        icon: Icons.archive,
-        color: exTheme.danger,
-        onPressed: (_) => _handleArchive(item),
-      ));
-    }
-
-    for (final action in widget.config.activeActions) {
-      if (_canPerformActionSync(item, action.canPerform)) {
-        buttons.add(TButtonGroupItem(
-          tooltip: action.tooltip,
-          icon: action.icon,
-          color: action.color,
-          onPressed: (_) => _performAction(() => action.onPressed(item)),
-        ));
-      }
-    }
-
-    return buttons.isEmpty
-        ? const SizedBox.shrink()
-        : TButtonGroup(
-            type: TButtonGroupType.text,
-            items: buttons,
-          );
-  }
-
-  Widget _buildArchiveActionButtons(TColorScheme exTheme, T item) {
-    final buttons = <TButtonGroupItem>[];
-
-    // View action
-    if (widget.onView != null && _canPerformActionSync(item, widget.config.canView)) {
-      buttons
-          .add(TButtonGroupItem(tooltip: 'View', icon: Icons.visibility, color: exTheme.success, onPressed: (_) => widget.onView!(item)));
-    }
-
-    // Restore action
-    if (widget.onRestore != null && _canPerformActionSync(item, widget.config.canRestore)) {
-      buttons.add(TButtonGroupItem(tooltip: 'Restore', icon: Icons.restore, color: exTheme.info, onPressed: (_) => _handleRestore(item)));
-    }
-
-    // Delete permanently action
-    if (widget.onDelete != null && _canPerformActionSync(item, widget.config.canDelete)) {
-      buttons.add(
-          TButtonGroupItem(tooltip: 'Delete', icon: Icons.delete_forever, color: exTheme.danger, onPressed: (_) => _handleDelete(item)));
-    }
-
-    // Custom actions for archive table
-    for (final action in widget.config.archiveActions) {
-      if (_canPerformActionSync(item, action.canPerform)) {
-        buttons.add(TButtonGroupItem(
-            tooltip: action.tooltip,
-            icon: action.icon,
-            color: action.color,
-            onPressed: (_) => _performAction(() => action.onPressed(item))));
-      }
-    }
-
-    return buttons.isEmpty
-        ? const SizedBox.shrink()
-        : TButtonGroup(
-            type: TButtonGroupType.text,
-            items: buttons,
-          );
-  }
-
-  // Synchronous permission check with caching
-  bool _canPerformActionSync(T item, Future<bool> Function(T)? permission) {
+  // Permission methods
+  bool canPerformActionSync(T item, Future<bool> Function(T)? permission) {
     if (permission == null) return true;
 
     final cacheKey = permission.toString();
@@ -375,7 +149,6 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
     return true;
   }
 
-  // Update permission asynchronously and rebuild if needed
   void _updatePermissionAsync(T item, String cacheKey, Future<bool> Function(T) permission) {
     permission(item).then((result) {
       final itemCache = _permissionCache[item];
@@ -393,7 +166,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
   }
 
   // Action handlers
-  void _handleCreate() {
+  void handleCreate() {
     _performAction(() async {
       final form = widget.createForm?.call();
       if (form == null) return;
@@ -409,7 +182,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
     });
   }
 
-  void _handleEdit(T item) {
+  void handleEdit(T item) {
     _performAction(() async {
       final form = widget.editForm?.call(item);
       if (form == null) return;
@@ -425,45 +198,43 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
     });
   }
 
-  void _handleArchive(T item) {
+  void handleArchive(T item) {
     TAlertService.confirmArchive(context, () async {
       await _performAction(() async {
         final success = await widget.onArchive!(item);
         if (success) {
           _paginationController.removeItem(item);
-          // Clear cache for this item
           _permissionCache.remove(item);
         }
       });
     });
   }
 
-  void _handleRestore(T item) {
+  void handleRestore(T item) {
     TAlertService.confirmRestore(context, () async {
       await _performAction(() async {
         final success = await widget.onRestore!(item);
         if (success) {
           _archivePaginationController.removeItem(item);
-          // Clear cache for this item
           _permissionCache.remove(item);
         }
       });
     });
   }
 
-  void _handleDelete(T item) {
+  void handleDelete(T item) {
     TAlertService.confirmDelete(context, () async {
-      // Fixed: using confirmDelete instead of confirmRestore
       await _performAction(() async {
         final success = await widget.onDelete!(item);
         if (success) {
           _archivePaginationController.removeItem(item);
-          // Clear cache for this item
           _permissionCache.remove(item);
         }
       });
     });
   }
+
+  Future<void> performAction(Future<void> Function() action) => _performAction(action);
 
   Future<void> _performAction(Future<void> Function() action) async {
     try {

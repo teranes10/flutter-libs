@@ -205,12 +205,16 @@ class _PaginationNumberButton extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(6),
         onTap: onPressed,
-        child: SizedBox(
-          width: 36,
-          height: 36,
-          child: Center(
-              child: Text(number.toString(),
-                  style: TextStyle(fontWeight: FontWeight.normal, color: isActive ? theme.onPrimaryContainer : theme.onSurface))),
+        child: IntrinsicWidth(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            child: Padding(
+              padding: EdgeInsets.all(7.5),
+              child: Center(
+                  child: Text(number.toString(),
+                      style: TextStyle(fontWeight: FontWeight.normal, color: isActive ? theme.onPrimaryContainer : theme.onSurface))),
+            ),
+          ),
         ),
       ),
     );

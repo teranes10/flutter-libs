@@ -6,13 +6,9 @@ class SidebarItems extends StatelessWidget {
   final List<TSidebarItem> items;
   final bool isMinimized;
   final TSidebarTheme? theme;
+  final Function(TSidebarItem)? onTap;
 
-  const SidebarItems({
-    super.key,
-    required this.items,
-    this.isMinimized = false,
-    this.theme,
-  });
+  const SidebarItems({super.key, required this.items, this.isMinimized = false, this.theme, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +62,7 @@ class SidebarItems extends StatelessWidget {
           isMinimized: isMinimized,
           level: 0,
           theme: sidebarTheme,
+          onTap: () => onTap?.call(items[index]),
         ),
       );
     });

@@ -11,6 +11,7 @@ class TTableDecoration {
   final double? minWidth;
   final double? maxWidth;
   final bool showScrollbars;
+  final int paginationTotalVisible;
 
   const TTableDecoration({
     this.mobileBreakpoint = 768,
@@ -22,6 +23,7 @@ class TTableDecoration {
     this.minWidth,
     this.maxWidth,
     this.showScrollbars = true,
+    this.paginationTotalVisible = 9,
   });
 
   TTableDecoration copyWith({

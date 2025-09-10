@@ -15,6 +15,8 @@ class TModal extends StatelessWidget {
 
   final VoidCallback? onClose;
 
+  final double gap;
+
   const TModal(
     this.child, {
     super.key,
@@ -25,13 +27,14 @@ class TModal extends StatelessWidget {
     this.title,
     this.showCloseButton,
     this.onClose,
+    this.gap = 15,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
     final screenSize = MediaQuery.of(context).size;
-    final modalWidth = width > screenSize.width ? screenSize.width - 50 : width;
+    final modalWidth = width > screenSize.width ? screenSize.width - gap : width;
 
     return GestureDetector(
       onTap: () {
@@ -50,10 +53,10 @@ class TModal extends StatelessWidget {
                 child: Container(
                   width: modalWidth,
                   constraints: BoxConstraints(
-                    minWidth: 450,
+                    minWidth: 250,
                     minHeight: 250,
-                    maxWidth: screenSize.width - 50,
-                    maxHeight: screenSize.height - 50,
+                    maxWidth: screenSize.width - gap,
+                    maxHeight: screenSize.height - gap,
                   ),
                   decoration: BoxDecoration(
                     color: theme.surface,

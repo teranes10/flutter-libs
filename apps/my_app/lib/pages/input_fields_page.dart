@@ -70,12 +70,6 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             label: 'Select Date & Time',
             placeholder: 'Choose date and time',
           ),
-          TButton(
-            text: 'time',
-            onPressed: (_) {
-              showTimePicker(context: context, initialEntryMode: TimePickerEntryMode.dialOnly, initialTime: DateTime.now().toTimeOfDay);
-            },
-          ),
           TCheckbox(label: 'Checkbox', value: singleCheckbox, onValueChanged: (v) => setState(() => singleCheckbox = v)),
           TCheckboxGroup<String>(
             label: 'Fruits',

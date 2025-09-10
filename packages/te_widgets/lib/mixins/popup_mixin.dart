@@ -42,7 +42,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   }
 
   double get contentMaxWidth => _targetWidth;
-  double get contentMaxHeight => MediaQuery.of(context).size.height * 0.85;
+  double get contentMaxHeight => MediaQuery.of(context).size.height - 25;
 
   Widget getContentWidget(BuildContext context);
 
@@ -103,15 +103,26 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
 
   void _showCenteredOverlay(BuildContext context) {
     final theme = context.theme;
-    final screenSize = MediaQuery.of(context).size;
+    final mediaQuery = MediaQuery.of(context);
+    final screenSize = mediaQuery.size;
+    final viewInsets = mediaQuery.viewInsets;
+
+    final keyboardHeight = viewInsets.bottom;
+    final isKeyboardOpen = keyboardHeight > 0;
+
+    final availableHeight = screenSize.height - keyboardHeight;
+
+    final alignment = isKeyboardOpen ? const FractionalOffset(0.5, 0.1) : const FractionalOffset(0.5, 0.275);
 
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
           if (!persistent) Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: theme.scrim))),
-          Center(
+          Align(
+            alignment: alignment,
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: screenSize.width * 0.85, maxHeight: screenSize.height * 0.85),
+              constraints: BoxConstraints(
+                  maxWidth: screenSize.width - 25, maxHeight: isKeyboardOpen ? availableHeight - 25 : screenSize.height - 25),
               child: _buildContentWidget(context),
             ),
           ),

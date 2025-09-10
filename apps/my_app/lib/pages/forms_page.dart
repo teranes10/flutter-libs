@@ -20,7 +20,9 @@ class FormsPage extends StatelessWidget {
 }
 
 class UserForm extends TFormBase {
-  final firstName = TFieldProp('');
+  final firstName = TFieldProp('', onValueChanged: (v) {
+    print(v);
+  });
   final lastName = TFieldProp('');
   final username = TFieldProp('', useNotifier: true);
   final email = TFieldProp('');

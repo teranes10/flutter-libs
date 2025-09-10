@@ -72,98 +72,122 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Loading indicator
-        ValueListenableBuilder<bool>(
-          valueListenable: loadingNotifier,
-          builder: (context, isLoading, child) {
-            if (!isLoading) return const SizedBox.shrink();
-            return SizedBox(
-              height: 4,
-              child: LinearProgressIndicator(
-                backgroundColor: theme.primaryContainer,
-                valueColor: AlwaysStoppedAnimation<Color>(theme.onPrimaryContainer),
-              ),
-            );
-          },
-        ),
+    return LayoutBuilder(builder: (context, constraints) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Loading indicator
+          ValueListenableBuilder<bool>(
+            valueListenable: loadingNotifier,
+            builder: (context, isLoading, child) {
+              if (!isLoading) return const SizedBox.shrink();
+              return SizedBox(
+                height: 4,
+                child: LinearProgressIndicator(
+                  backgroundColor: theme.primaryContainer,
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.onPrimaryContainer),
+                ),
+              );
+            },
+          ),
 
-        // Table with reactive items
-        ValueListenableBuilder<List<T>>(
-          valueListenable: itemsNotifier,
-          builder: (context, items, child) {
-            return TTable<T>(
-              headers: widget.headers,
-              items: items,
-              decoration: widget.decoration,
-              loading: loading,
-              controller: widget.tableController,
-              interactionConfig: widget.interactionConfig,
-              expandable: widget.expandable,
-              singleExpand: widget.singleExpand,
-              expandedBuilder: widget.expandedBuilder,
-              selectable: widget.selectable,
-              singleSelect: widget.singleSelect,
-            );
-          },
-        ),
+          // Table with reactive items
+          ValueListenableBuilder<List<T>>(
+            valueListenable: itemsNotifier,
+            builder: (context, items, child) {
+              return TTable<T>(
+                headers: widget.headers,
+                items: items,
+                decoration: widget.decoration,
+                loading: loading,
+                controller: widget.tableController,
+                interactionConfig: widget.interactionConfig,
+                expandable: widget.expandable,
+                singleExpand: widget.singleExpand,
+                expandedBuilder: widget.expandedBuilder,
+                selectable: widget.selectable,
+                singleSelect: widget.singleSelect,
+              );
+            },
+          ),
 
-        // Toolbar with pagination and controls
-        ValueListenableBuilder<List<T>>(
-          valueListenable: itemsNotifier,
-          builder: (context, items, child) {
-            if (totalItems == 0) return const SizedBox.shrink();
-            return Column(
+          // Toolbar with pagination and controls
+          ValueListenableBuilder<List<T>>(
+            valueListenable: itemsNotifier,
+            builder: (context, items, child) {
+              if (totalItems == 0) return const SizedBox.shrink();
+              return Column(
+                children: [
+                  const SizedBox(height: 24),
+                  _buildToolbar(theme, constraints),
+                ],
+              );
+            },
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildToolbar(ColorScheme theme, BoxConstraints constraints) {
+    final paginationBarWidth =
+        (40.0 * (totalPages.clamp(0, widget.decoration.paginationTotalVisible) + 4)) + ((totalPages.toString().length - 1) * 6 * 7);
+    final paginationInfoWidth = paginationInfo.length * 7.5;
+    final totalWidth = paginationBarWidth + paginationInfoWidth + 80 + 20;
+    final needWrap = constraints.maxWidth < totalWidth;
+
+    return SizedBox(
+      width: double.infinity,
+      child: needWrap
+          ? Column(
+              spacing: 15,
               children: [
-                const SizedBox(height: 24),
-                _buildToolbar(theme),
+                _buildPaginationBar(),
+                _buildPaginationInfo(theme),
+                _buildItemsPerPage(),
               ],
-            );
-          },
-        ),
-      ],
+            )
+          : Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              runSpacing: 12,
+              spacing: 12,
+              children: [
+                _buildPaginationBar(),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 15,
+                  children: [_buildPaginationInfo(theme), _buildItemsPerPage()],
+                ),
+              ],
+            ),
     );
   }
 
-  Widget _buildToolbar(ColorScheme theme) {
+  Widget _buildPaginationBar() {
+    return TPagination(
+      currentPage: currentPage,
+      totalPages: totalPages,
+      totalVisible: widget.decoration.paginationTotalVisible,
+      onPageChanged: onPageChanged,
+    );
+  }
+
+  Widget _buildItemsPerPage() {
     return SizedBox(
-      width: double.infinity,
-      child: Wrap(
-        alignment: WrapAlignment.spaceBetween,
-        runSpacing: 12,
-        spacing: 12,
-        children: [
-          TPagination(currentPage: currentPage, totalPages: totalPages, onPageChanged: onPageChanged),
-          _buildInfoContainer(theme),
-        ],
+      width: 80,
+      child: TSelect(
+        size: TInputSize.sm,
+        selectedIcon: null,
+        value: computedItemsPerPage,
+        items: computedItemsPerPageOptions,
+        onValueChanged: (value) {
+          onItemsPerPageChanged(value);
+        },
       ),
     );
   }
 
-  Widget _buildInfoContainer(ColorScheme theme) {
-    return Wrap(
-      direction: Axis.horizontal,
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      runSpacing: 12,
-      spacing: 12,
-      children: [
-        Text(paginationInfo, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: theme.onSurface)),
-        SizedBox(
-          width: 80,
-          child: TSelect(
-            size: TInputSize.sm,
-            selectedIcon: null,
-            value: computedItemsPerPage,
-            items: computedItemsPerPageOptions,
-            onValueChanged: (value) {
-              onItemsPerPageChanged(value);
-            },
-          ),
-        ),
-      ],
-    );
+  Widget _buildPaginationInfo(ColorScheme theme) {
+    return Text(paginationInfo, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: theme.onSurface));
   }
 }

@@ -139,4 +139,20 @@ extension TButtonGroupExtension on TButton {
       child: child ?? this.child,
     );
   }
+
+  double estimateWidth() {
+    final sizeData = TButtonSizeData.from(size ?? TButtonSize.md);
+
+    double width = sizeData.minW;
+
+    if (icon != null) {
+      width += sizeData.icon + sizeData.spacing;
+    }
+
+    if (text != null && text!.isNotEmpty) {
+      width += text!.length * (sizeData.font * 0.6);
+    }
+
+    return width;
+  }
 }

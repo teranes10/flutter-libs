@@ -31,7 +31,7 @@ ThemeData getTLightTheme() {
       outline: AppColors.grey.shade300,
       outlineVariant: AppColors.grey.shade100,
       shadow: AppColors.grey.shade200.withAlpha(100),
-      scrim: AppColors.grey[950]!.withAlpha(25),
+      scrim: AppColors.grey.shade900.withAlpha(150),
     ),
   ).copyWith(extensions: [
     TColorScheme().copyWith(
@@ -68,7 +68,7 @@ ThemeData getTDarkTheme() {
       outline: AppColors.grey.shade800,
       outlineVariant: AppColors.grey.shade900,
       shadow: AppColors.grey.shade900.withAlpha(100),
-      scrim: AppColors.grey.shade900.withAlpha(50),
+      scrim: AppColors.grey.shade900.withAlpha(150),
     ),
   ).copyWith(extensions: [
     TColorScheme().copyWith(
