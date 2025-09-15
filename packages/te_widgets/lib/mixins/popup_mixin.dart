@@ -22,12 +22,12 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   bool get isPopupShowing => _overlayEntry != null && _isOverlayVisible;
   bool get shouldCenterOnSmallScreen => MediaQuery.of(context).size.width <= 600;
 
-  BoxDecoration getDropdownDecoration(ColorScheme theme) {
+  BoxDecoration getDropdownDecoration(ColorScheme colors) {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: theme.outline),
-      color: theme.surface,
-      boxShadow: [BoxShadow(color: theme.shadow, blurRadius: 12, spreadRadius: 0)],
+      border: Border.all(color: colors.outline),
+      color: colors.surface,
+      boxShadow: [BoxShadow(color: colors.shadow, blurRadius: 12, spreadRadius: 0)],
     );
   }
 
@@ -74,8 +74,8 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   }
 
   Widget _buildContentWidget(BuildContext context) {
-    final theme = context.theme;
-    final dropdownDecoration = getDropdownDecoration(theme);
+    final colors = context.colors;
+    final dropdownDecoration = getDropdownDecoration(colors);
 
     return Material(
       elevation: 1,
@@ -86,7 +86,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         child: Stack(
           children: [
             Padding(padding: EdgeInsets.fromLTRB(3, 9, 3, 0), child: getContentWidget(context)),
-            Positioned(top: 2, right: 2, child: TCloseIcon(size: 14, onClose: hidePopup)),
+            Positioned(top: 2, right: 2, child: TCloseIcon(size: 18, onClose: hidePopup)),
           ],
         ),
       ),
@@ -102,7 +102,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   }
 
   void _showCenteredOverlay(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
     final mediaQuery = MediaQuery.of(context);
     final screenSize = mediaQuery.size;
     final viewInsets = mediaQuery.viewInsets;
@@ -117,7 +117,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     _overlayEntry = OverlayEntry(
       builder: (context) => Stack(
         children: [
-          if (!persistent) Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: theme.scrim))),
+          if (!persistent) Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: colors.scrim))),
           Align(
             alignment: alignment,
             child: ConstrainedBox(
@@ -208,7 +208,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
 
   @override
   void dispose() {
-    hidePopup();
+    if (isPopupShowing) hidePopup();
     super.dispose();
   }
 }

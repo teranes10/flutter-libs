@@ -74,7 +74,7 @@ class _TSidebarTooltipState extends State<TSidebarTooltip> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return Positioned(
       left: 0,
@@ -101,8 +101,8 @@ class _TSidebarTooltipState extends State<TSidebarTooltip> with SingleTickerProv
             child: Material(
               elevation: 12,
               borderRadius: BorderRadius.circular(8),
-              color: theme.surface,
-              shadowColor: theme.shadow,
+              color: colors.surface,
+              shadowColor: colors.shadow,
               child: InkWell(
                 onTap: widget.item.isClickable ? _handleTap : null,
                 borderRadius: BorderRadius.circular(8),
@@ -120,7 +120,7 @@ class _TSidebarTooltipState extends State<TSidebarTooltip> with SingleTickerProv
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
-                      color: theme.onSurface,
+                      color: colors.onSurface,
                     ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,

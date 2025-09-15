@@ -42,11 +42,11 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return Column(
       children: [
-        _buildToolbar(theme),
+        _buildToolbar(colors),
         TList(
           items: _items,
           padding: const EdgeInsets.all(2),
@@ -89,7 +89,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
     });
   }
 
-  Widget _buildToolbar(ColorScheme theme) {
+  Widget _buildToolbar(ColorScheme colors) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
       margin: EdgeInsets.only(bottom: 15),
@@ -98,7 +98,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           widget.label != null
-              ? Text(widget.label!, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: theme.onSurface))
+              ? Text(widget.label!, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: colors.onSurface))
               : SizedBox.shrink(),
           TButton(
               type: TButtonType.softText,

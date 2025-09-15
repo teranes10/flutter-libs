@@ -45,8 +45,10 @@ final GoRouter router = GoRouter(
         return Consumer(
           builder: (context, ref, _) {
             final themeNotifier = ref.read(themeNotifierProvider.notifier);
+            final sidebarMinified = ref.watch(sidebarNotifierProvider);
 
             return TLayout(
+              isMinimized: sidebarMinified,
               logo: TLogo(text: 'Te Widgets'),
               profile: TProfile(icon: 'assets/icons/profile.png', text: 'Teranes'),
               actions: [
@@ -57,7 +59,12 @@ final GoRouter router = GoRouter(
                     trueIcon: Icon(Icons.nights_stay, color: Colors.cyan.shade600),
                     initialValue: context.isDarkMode,
                     onChanged: (_) => themeNotifier.toggleTheme()),
-                TButton(type: TButtonType.icon, icon: Icons.logout_rounded, iconSize: 16, color: AppColors.grey, onPressed: (_) {}),
+                TButton(
+                    type: TButtonType.icon,
+                    icon: Icons.logout_rounded,
+                    size: TButtonSize.xxs.copyWith(icon: 16),
+                    color: AppColors.grey,
+                    onPressed: (_) {}),
               ],
               items: sidebarItems,
               pageTitle: state.name,

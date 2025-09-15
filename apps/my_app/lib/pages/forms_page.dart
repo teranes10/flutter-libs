@@ -14,7 +14,7 @@ class FormsPage extends StatelessWidget {
             if (value != null) {
               debugPrint('__save $value');
             }
-          })
+          }),
     ]);
   }
 }

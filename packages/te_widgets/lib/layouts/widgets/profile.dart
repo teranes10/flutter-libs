@@ -19,7 +19,7 @@ class TProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return Wrap(
       alignment: WrapAlignment.center,
@@ -40,7 +40,7 @@ class TProfile extends StatelessWidget {
             style: TextStyle(
               fontSize: 14.0,
               fontWeight: FontWeight.w300,
-              color: theme.onSurface,
+              color: colors.onSurface,
             ),
           ),
       ],

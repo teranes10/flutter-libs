@@ -29,27 +29,28 @@ class TAlert extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final theme = context.theme;
-    final exTheme = context.exTheme;
 
     return IntrinsicHeight(
       child: AlertDialog(
-        backgroundColor: theme.surface,
+        backgroundColor: colors.surface,
         insetPadding: EdgeInsets.all(12.0),
         contentPadding: EdgeInsets.all(20),
         icon: icon != null ? Icon(icon, size: 64, color: color) : null,
-        title:
-            title != null ? Text(title!, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: theme.onSurfaceVariant)) : null,
+        title: title != null
+            ? Text(title!, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant))
+            : null,
         content: text is String
-            ? Text(text, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: theme.onSurface))
+            ? Text(text, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface))
             : (text is Widget ? text : null),
         actionsAlignment: MainAxisAlignment.center,
         actionsPadding: EdgeInsets.only(bottom: 15),
         actions: [
           if (closeButton != null)
             TButton(
-              width: 100,
-              color: confirmButton != null ? exTheme.grey : color,
+              size: TButtonSize.md.copyWith(minW: 100),
+              color: confirmButton != null ? theme.grey : color,
               type: TButtonType.softText,
               icon: closeButton!.icon,
               text: closeButton!.text,
@@ -57,7 +58,7 @@ class TAlert extends StatelessWidget {
             ),
           if (confirmButton != null)
             TButton(
-              width: 80,
+              size: TButtonSize.md.copyWith(minW: 80),
               color: color,
               type: TButtonType.softText,
               icon: confirmButton!.icon,

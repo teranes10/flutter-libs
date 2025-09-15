@@ -16,7 +16,7 @@ class TCloseIconState extends State<TCloseIcon> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovering = true),
@@ -26,7 +26,7 @@ class TCloseIconState extends State<TCloseIcon> {
         onTap: widget.onClose,
         child: Icon(
           Icons.cancel_outlined,
-          color: _isHovering ? theme.error : theme.surfaceContainerLowest,
+          color: _isHovering ? colors.error : colors.surfaceContainerLowest,
           size: widget.size ?? 20,
         ),
       ),

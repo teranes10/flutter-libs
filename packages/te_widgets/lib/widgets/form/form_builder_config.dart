@@ -55,6 +55,12 @@ abstract class TFormBase {
   }
 
   void onValueChanged() {}
+
+  void dispose() {
+    for (var field in fields) {
+      field.prop.dispose();
+    }
+  }
 }
 
 enum TBreakpoint {

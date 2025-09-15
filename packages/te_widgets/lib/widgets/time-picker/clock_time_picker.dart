@@ -42,7 +42,7 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
     _handleTimeChanged(_selectedTime.replacing(hour: newHour));
   }
 
-  Widget _buildModeButton(ColorScheme theme, String text, _Mode mode) {
+  Widget _buildModeButton(ColorScheme colors, String text, _Mode mode) {
     final bool isSelected = _mode == mode;
     return GestureDetector(
       onTap: () {
@@ -50,22 +50,22 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        decoration: BoxDecoration(color: isSelected ? theme.primary : theme.surface, borderRadius: BorderRadius.circular(8)),
-        child:
-            Text(text, style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500, color: isSelected ? theme.onPrimary : theme.onSurface)),
+        decoration: BoxDecoration(color: isSelected ? colors.primary : colors.surface, borderRadius: BorderRadius.circular(8)),
+        child: Text(text,
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500, color: isSelected ? colors.onPrimary : colors.onSurface)),
       ),
     );
   }
 
-  Widget _buildPeriodButton(ColorScheme theme) {
+  Widget _buildPeriodButton(ColorScheme colors) {
     return GestureDetector(
       onTap: _togglePeriod,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(border: Border.all(color: theme.outline), borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(border: Border.all(color: colors.outline), borderRadius: BorderRadius.circular(8)),
         child: Text(
           _selectedTime.period == DayPeriod.am ? 'AM' : 'PM',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: theme.onSurface),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.onSurface),
         ),
       ),
     );
@@ -112,7 +112,7 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
     return dialSize;
   }
 
-  Widget _buildLandscapeTimeDisplay(ColorScheme theme) {
+  Widget _buildLandscapeTimeDisplay(ColorScheme colors) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -120,21 +120,21 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildModeButton(theme, _selectedTime.hourOfPeriod.toString().padLeft(2, '0'), _Mode.hour),
+            _buildModeButton(colors, _selectedTime.hourOfPeriod.toString().padLeft(2, '0'), _Mode.hour),
             const SizedBox(width: 8),
             const Text(':', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500)),
             const SizedBox(width: 8),
-            _buildModeButton(theme, _selectedTime.minute.toString().padLeft(2, '0'), _Mode.minute),
+            _buildModeButton(colors, _selectedTime.minute.toString().padLeft(2, '0'), _Mode.minute),
           ],
         ),
         const SizedBox(height: 16),
         // AM/PM centered below
-        _buildPeriodButton(theme),
+        _buildPeriodButton(colors),
       ],
     );
   }
 
-  Widget _buildPortraitTimeDisplay(ColorScheme theme) {
+  Widget _buildPortraitTimeDisplay(ColorScheme colors) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final double availableWidth = constraints.maxWidth > 0 ? constraints.maxWidth : (widget.width ?? MediaQuery.of(context).size.width);
@@ -149,24 +149,13 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildModeButton(
-                theme,
-                _selectedTime.hourOfPeriod.toString().padLeft(2, '0'),
-                _Mode.hour,
-              ),
+              _buildModeButton(colors, _selectedTime.hourOfPeriod.toString().padLeft(2, '0'), _Mode.hour),
               const SizedBox(height: 8),
-              const Text(
-                ':',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
+              const Text(':', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              _buildModeButton(
-                theme,
-                _selectedTime.minute.toString().padLeft(2, '0'),
-                _Mode.minute,
-              ),
+              _buildModeButton(colors, _selectedTime.minute.toString().padLeft(2, '0'), _Mode.minute),
               const SizedBox(height: 12),
-              _buildPeriodButton(theme),
+              _buildPeriodButton(colors),
             ],
           );
         } else if (shouldWrapAll) {
@@ -177,15 +166,15 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildModeButton(theme, _selectedTime.hourOfPeriod.toString().padLeft(2, '0'), _Mode.hour),
+                  _buildModeButton(colors, _selectedTime.hourOfPeriod.toString().padLeft(2, '0'), _Mode.hour),
                   const SizedBox(width: 8),
                   const Text(':', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(width: 8),
-                  _buildModeButton(theme, _selectedTime.minute.toString().padLeft(2, '0'), _Mode.minute),
+                  _buildModeButton(colors, _selectedTime.minute.toString().padLeft(2, '0'), _Mode.minute),
                 ],
               ),
               const SizedBox(height: 12),
-              _buildPeriodButton(theme),
+              _buildPeriodButton(colors),
             ],
           );
         } else {
@@ -193,24 +182,13 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
           return Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildModeButton(
-                theme,
-                _selectedTime.hourOfPeriod.toString().padLeft(2, '0'),
-                _Mode.hour,
-              ),
+              _buildModeButton(colors, _selectedTime.hourOfPeriod.toString().padLeft(2, '0'), _Mode.hour),
               const SizedBox(width: 8),
-              const Text(
-                ':',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
+              const Text(':', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(width: 8),
-              _buildModeButton(
-                theme,
-                _selectedTime.minute.toString().padLeft(2, '0'),
-                _Mode.minute,
-              ),
+              _buildModeButton(colors, _selectedTime.minute.toString().padLeft(2, '0'), _Mode.minute),
               const SizedBox(width: 8),
-              _buildPeriodButton(theme),
+              _buildPeriodButton(colors),
             ],
           );
         }
@@ -220,10 +198,10 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
     final bool useLandscapeLayout = _shouldUseLandscapeLayout();
     final double dialSize = _calculateDialSize();
-    final Widget timeDisplay = useLandscapeLayout ? _buildLandscapeTimeDisplay(theme) : _buildPortraitTimeDisplay(theme);
+    final Widget timeDisplay = useLandscapeLayout ? _buildLandscapeTimeDisplay(colors) : _buildPortraitTimeDisplay(colors);
 
     final Widget dial = SizedBox(
       width: dialSize,
@@ -470,7 +448,7 @@ class _DialState extends State<_Dial> {
     }
   }
 
-  _TappableLabel _buildLabel(ColorScheme theme, int value, String text, bool selected) {
+  _TappableLabel _buildLabel(ColorScheme colors, int value, String text, bool selected) {
     return _TappableLabel(
       value: value,
       painter: TextPainter(
@@ -478,7 +456,7 @@ class _DialState extends State<_Dial> {
           text: text,
           style: TextStyle(
             fontSize: 16,
-            color: selected ? theme.onPrimary : theme.onSurface,
+            color: selected ? colors.onPrimary : colors.onSurface,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -506,25 +484,26 @@ class _DialState extends State<_Dial> {
     );
   }
 
-  List<_TappableLabel> _buildHourLabels(ColorScheme theme, bool selected) {
+  List<_TappableLabel> _buildHourLabels(ColorScheme colors, bool selected) {
     return List.generate(12, (i) {
       final int hour = i == 0 ? 12 : i;
-      return _buildLabel(theme, hour, hour.toString(), selected);
+      return _buildLabel(colors, hour, hour.toString(), selected);
     });
   }
 
-  List<_TappableLabel> _buildMinuteLabels(ColorScheme theme, bool selected) {
+  List<_TappableLabel> _buildMinuteLabels(ColorScheme colors, bool selected) {
     return List.generate(12, (i) {
       final int minute = i * 5;
-      return _buildLabel(theme, minute, minute.toString().padLeft(2, '0'), selected);
+      return _buildLabel(colors, minute, minute.toString().padLeft(2, '0'), selected);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final List<_TappableLabel> labels = widget.mode == _Mode.hour ? _buildHourLabels(theme, false) : _buildMinuteLabels(theme, false);
-    final List<_TappableLabel> selectedLabels = widget.mode == _Mode.hour ? _buildHourLabels(theme, true) : _buildMinuteLabels(theme, true);
+    final colors = context.colors;
+    final List<_TappableLabel> labels = widget.mode == _Mode.hour ? _buildHourLabels(colors, false) : _buildMinuteLabels(colors, false);
+    final List<_TappableLabel> selectedLabels =
+        widget.mode == _Mode.hour ? _buildHourLabels(colors, true) : _buildMinuteLabels(colors, true);
 
     return GestureDetector(
       onPanStart: _handlePanStart,
@@ -535,9 +514,9 @@ class _DialState extends State<_Dial> {
         painter: _DialPainter(
           labels: labels,
           selectedLabels: selectedLabels,
-          background: theme.surface,
-          handColor: theme.primary,
-          dotColor: theme.onPrimary,
+          background: colors.surface,
+          handColor: colors.primary,
+          dotColor: colors.onPrimary,
           theta: _getThetaForTime(widget.selectedTime),
           mode: widget.mode,
           selectedTime: widget.selectedTime,

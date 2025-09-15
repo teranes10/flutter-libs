@@ -19,10 +19,7 @@ class TGuard extends StatelessWidget {
 
     return switch (action) {
       TGuardAction.hide => const SizedBox.shrink(),
-      TGuardAction.disable => IgnorePointer(
-          ignoring: true,
-          child: Opacity(opacity: 0.45, child: child),
-        )
+      TGuardAction.disable => IgnorePointer(child: Opacity(opacity: 0.45, child: child))
     };
   }
 }

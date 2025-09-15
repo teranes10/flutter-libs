@@ -5,7 +5,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
 
   _TCrudTopBar({required this.parent});
 
-  Widget build(ColorScheme theme, BoxConstraints constraints) {
+  Widget build(ColorScheme colors, BoxConstraints constraints) {
     final rows = <Widget>[];
     final maxWidth = constraints.maxWidth;
     final isMobile = maxWidth < 600;
@@ -67,7 +67,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
           currentRow.add(_buildTabs(constraints));
           currentRow.add(const SizedBox(width: spacing));
         }
-        currentRow.add(_buildSearchBar(theme, constraints));
+        currentRow.add(_buildSearchBar(colors, constraints));
         pushRow();
       } else {
         // Push actions row
@@ -78,7 +78,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
           final tabSearchRow = <Widget>[
             if (parent.hasArchive) _buildTabs(constraints),
             if (parent.hasArchive) const SizedBox(width: spacing),
-            _buildSearchBar(theme, constraints),
+            _buildSearchBar(colors, constraints),
           ];
           rows.add(_buildAlignedRow(tabSearchRow, MainAxisAlignment.end));
         } else {
@@ -86,7 +86,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
           if (parent.hasArchive) {
             rows.add(_buildAlignedRow([_buildTabs(constraints)], MainAxisAlignment.center));
           }
-          rows.add(_buildAlignedRow([_buildSearchBar(theme, constraints)], MainAxisAlignment.end));
+          rows.add(_buildAlignedRow([_buildSearchBar(colors, constraints)], MainAxisAlignment.end));
         }
       }
     } else {
@@ -136,11 +136,13 @@ class _TCrudTopBar<T, F extends TFormBase> {
     return constraints.maxWidth > 600 ? tabs : Flexible(child: tabs);
   }
 
-  Widget _buildSearchBar(ColorScheme theme, BoxConstraints constraints) {
+  Widget _buildSearchBar(ColorScheme colors, BoxConstraints constraints) {
     final searchBar = TTextField(
       placeholder: parent.widget.config.searchPlaceholder,
-      postWidget: Icon(Icons.search_rounded, size: 18, color: theme.onSurface),
-      size: TInputSize.sm,
+      theme: TTextFieldTheme(
+        postWidget: Icon(Icons.search_rounded, size: 18, color: colors.onSurface),
+        size: TInputSize.sm,
+      ),
       valueNotifier: parent.currentTab == 0 ? parent.searchNotifier : parent.archiveSearchNotifier,
     );
     return constraints.maxWidth > 600 ? SizedBox(width: 250, child: searchBar) : Flexible(child: searchBar);

@@ -10,7 +10,7 @@ class InputFieldsPage extends StatefulWidget {
 
 class _InputFieldsPageState extends State<InputFieldsPage> {
   int integerValue = 10;
-  double doubleValue = 10.0;
+  double doubleValue = 100;
   bool? singleCheckbox = false;
 
   @override
@@ -46,7 +46,6 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             placeholder: 'Enter description',
             rows: 4,
             helperText: 'This is a helper text',
-            message: 'This is a message',
           ),
           TNumberField<int>(
             label: "Age",
@@ -55,7 +54,6 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           TNumberField<double>(
             label: "Price",
             value: doubleValue,
-            decimals: 2,
             rules: [(value) => value == null || value < 100 ? 'Value must be greater than 100' : null],
           ),
           TDatePicker(
@@ -74,6 +72,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           TCheckboxGroup<String>(
             label: 'Fruits',
             items: [TCheckboxGroupItem.map('Apple'), TCheckboxGroupItem.map('Banana'), TCheckboxGroupItem.map('Orange')],
+            value: ['Apple'],
           ),
           TSwitch(label: 'Switch'),
           TFilePicker(label: 'File Picker'),

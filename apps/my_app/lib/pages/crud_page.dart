@@ -8,7 +8,7 @@ class CrudPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
     final controller = TTableController<ProductDto>();
 
     return TCrudTable<ProductDto, ProductForm>(
@@ -71,7 +71,7 @@ class CrudPage extends StatelessWidget {
       expandable: true,
       expandedBuilder: (item, index, isExpanded) => Container(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: theme.surfaceDim, borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(8)),
         child: TKeyValueSection(values: [
           TKeyValue('QR Code', widget: item.meta?.qrCode != null ? Image.network(item.meta!.qrCode, width: 80) : SizedBox.shrink()),
           TKeyValue.text('Description', item.description),

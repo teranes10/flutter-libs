@@ -130,14 +130,17 @@ class TPaginationNotifier<T> extends ChangeNotifier {
   }
 
   void _updateNotifiers() {
+    if (isDisposed) return;
     itemsNotifier.value = List.from(_state.paginatedItems);
     loadingNotifier.value = _state.loading;
     hasMoreItemsNotifier.value = _state.hasMoreItems;
     notifyListeners();
   }
 
+  bool isDisposed = false;
   @override
   void dispose() {
+    isDisposed = true;
     _debounceHelper.dispose();
     _handler.dispose();
     itemsNotifier.dispose();

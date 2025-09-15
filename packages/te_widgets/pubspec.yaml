@@ -32,6 +32,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  assets:
+    - assets/icons/no_image.png
+    
   fonts:
     - family: Lexend
       fonts:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_widgets/widgets/tags-field/tags_field_theme.dart';
 
 part 'field_prop.dart';
 part 'form_field.dart';
@@ -24,7 +25,7 @@ class TFormBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colorScheme = context.colors;
 
     return LayoutBuilder(builder: (context, constraints) {
       final breakpoint = TBreakpoint.getBreakpoint(constraints.maxWidth);
@@ -40,7 +41,7 @@ class TFormBuilder extends StatelessWidget {
               width: (unitWidth * 12) + (11 * gutter),
               child: Padding(
                 padding: EdgeInsets.only(bottom: 5),
-                child: Text(label!, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: theme.onSurface)),
+                child: Text(label!, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: colorScheme.onSurface)),
               ),
             ),
           ...(input?.fields ?? fields ?? []).map((field) {

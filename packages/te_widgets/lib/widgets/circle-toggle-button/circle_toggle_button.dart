@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_extension.dart';
 
 class CircleToggleButton extends StatefulWidget {
   final Duration duration;
@@ -48,8 +47,7 @@ class _CircleToggleButtonState extends State<CircleToggleButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final bgColor = (value ? widget.trueBackground : widget.falseBackground) ?? theme.surface;
+    final bgColor = (value ? widget.trueBackground : widget.falseBackground) ?? Colors.transparent;
     final icon = value ? widget.trueIcon : widget.falseIcon;
 
     return GestureDetector(

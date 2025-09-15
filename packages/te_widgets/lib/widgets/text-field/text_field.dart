@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<String>, TFocusMixin, TInputValidationMixin<String> {
+class TTextField extends StatefulWidget
+    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<String>, TInputValidationMixin<String> {
   @override
-  final String? label, tag, placeholder, helperText, message;
+  final String? label, tag, helperText, placeholder;
   @override
-  final bool isRequired, disabled;
+  final bool isRequired, disabled, autoFocus, readOnly;
   @override
-  final TInputSize? size;
+  final TTextFieldTheme? theme;
   @override
-  final Color? color;
+  final VoidCallback? onTap;
   @override
-  final BoxDecoration? boxDecoration;
+  final FocusNode? focusNode;
   @override
-  final Widget? preWidget, postWidget;
-  @override
-  final List<String? Function(String?)>? rules;
-  @override
-  final List<String>? errors;
-  @override
-  final Duration? validationDebounce;
-  @override
-  final bool? skipValidation;
+  final TextEditingController? textController;
   @override
   final String? value;
   @override
@@ -30,59 +22,32 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
   @override
   final ValueChanged<String>? onValueChanged;
   @override
-  final FocusNode? focusNode;
+  final List<String? Function(String?)>? rules;
   @override
-  final VoidCallback? onTap;
+  final Duration? validationDebounce;
 
-  // TextField specific properties
-  final int? rows;
-  final TextEditingController? controller;
-  final List<TextInputFormatter>? inputFormatters;
-  final TextInputType? keyboardType;
-  final TextCapitalization textCapitalization;
-  final bool autocorrect;
-  final bool enableSuggestions;
-  final int? maxLength;
-  final MaxLengthEnforcement? maxLengthEnforcement;
-  final bool obscureText;
-  final TextInputAction? textInputAction;
-  final bool? readOnly;
+  final int rows;
 
   const TTextField({
     super.key,
     this.label,
     this.tag,
-    this.placeholder,
     this.helperText,
-    this.message,
-    this.value,
+    this.placeholder,
     this.isRequired = false,
     this.disabled = false,
-    this.rows,
-    this.size = TInputSize.md,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
-    this.inputFormatters,
-    this.rules,
-    this.controller,
-    this.focusNode,
-    this.errors,
-    this.onValueChanged,
-    this.validationDebounce,
-    this.keyboardType,
-    this.textCapitalization = TextCapitalization.none,
-    this.autocorrect = true,
-    this.enableSuggestions = true,
-    this.maxLength,
-    this.maxLengthEnforcement,
-    this.obscureText = false,
-    this.textInputAction,
-    this.valueNotifier,
-    this.skipValidation,
+    this.autoFocus = false,
+    this.readOnly = false,
+    this.theme,
     this.onTap,
-    this.readOnly,
+    this.focusNode,
+    this.textController,
+    this.value,
+    this.valueNotifier,
+    this.onValueChanged,
+    this.rules,
+    this.validationDebounce,
+    this.rows = 1,
   });
 
   @override
@@ -92,30 +57,15 @@ class TTextField extends StatefulWidget with TInputFieldMixin, TInputValueMixin<
 class _TTextFieldState extends State<TTextField>
     with
         TInputFieldStateMixin<TTextField>,
-        TInputValueStateMixin<String, TTextField>,
         TFocusStateMixin<TTextField>,
+        TTextFieldStateMixin<TTextField>,
+        TInputValueStateMixin<String, TTextField>,
         TInputValidationStateMixin<String, TTextField> {
-  late final TextEditingController _controller;
-  late final bool _shouldDisposeController;
-
-  @override
-  void initState() {
-    _controller = widget.controller ?? TextEditingController(text: widget.value ?? '');
-    _shouldDisposeController = widget.controller == null;
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    if (_shouldDisposeController) _controller.dispose();
-    super.dispose();
-  }
-
   @override
   void onExternalValueChanged(String? value) {
     super.onExternalValueChanged(value);
-    if (_controller.text != value) {
-      _controller.value = _controller.value.copyWith(
+    if (controller.text != value) {
+      controller.value = controller.value.copyWith(
         text: value,
         selection: TextSelection.collapsed(offset: value?.length ?? 0),
       );
@@ -124,34 +74,11 @@ class _TTextFieldState extends State<TTextField>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final exTheme = context.exTheme;
-    final isMultiline = widget.rows != null && widget.rows! > 1;
-
     return buildContainer(
-      theme,
-      exTheme,
-      isMultiline: isMultiline,
-      child: TextField(
-        controller: _controller,
-        focusNode: focusNode,
-        enabled: widget.disabled != true,
-        maxLines: isMultiline ? widget.rows : 1,
-        keyboardType: widget.keyboardType,
-        textCapitalization: widget.textCapitalization,
-        autocorrect: widget.autocorrect,
-        enableSuggestions: widget.enableSuggestions,
-        maxLength: widget.maxLength,
-        maxLengthEnforcement: widget.maxLengthEnforcement,
-        inputFormatters: widget.inputFormatters,
-        obscureText: widget.obscureText,
-        textInputAction: widget.textInputAction ?? (isMultiline ? TextInputAction.newline : TextInputAction.next),
-        cursorHeight: widget.fontSize + 2,
-        textAlignVertical: isMultiline ? TextAlignVertical.top : TextAlignVertical.center,
-        style: getTextStyle(theme),
-        decoration: getInputDecoration(theme),
-        onChanged: notifyValueChanged,
-        readOnly: widget.readOnly == true,
+      isMultiline: widget.rows > 1,
+      child: buildTextField(
+        maxLines: widget.rows,
+        onValueChanged: notifyValueChanged,
       ),
     );
   }

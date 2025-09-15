@@ -3,27 +3,19 @@ import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TDatePicker extends StatefulWidget
-    with TInputFieldMixin, TInputValueMixin<DateTime>, TFocusMixin, TInputValidationMixin<DateTime>, TPopupMixin {
+    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<DateTime>, TInputValidationMixin<DateTime>, TPopupMixin {
   @override
-  final String? label, tag, placeholder, helperText, message;
+  final String? label, tag, helperText, placeholder;
   @override
-  final bool isRequired, disabled;
+  final bool isRequired, disabled, autoFocus, readOnly;
   @override
-  final TInputSize? size;
+  final TTextFieldTheme? theme;
   @override
-  final Color? color;
+  final VoidCallback? onTap;
   @override
-  final BoxDecoration? boxDecoration;
+  final FocusNode? focusNode;
   @override
-  final Widget? preWidget, postWidget;
-  @override
-  final List<String? Function(DateTime?)>? rules;
-  @override
-  final List<String>? errors;
-  @override
-  final Duration? validationDebounce;
-  @override
-  final bool? skipValidation;
+  final TextEditingController? textController;
   @override
   final DateTime? value;
   @override
@@ -31,14 +23,13 @@ class TDatePicker extends StatefulWidget
   @override
   final ValueChanged<DateTime>? onValueChanged;
   @override
-  final FocusNode? focusNode;
-
+  final List<String? Function(DateTime?)>? rules;
+  @override
+  final Duration? validationDebounce;
   @override
   final VoidCallback? onShow;
   @override
   final VoidCallback? onHide;
-  @override
-  final VoidCallback? onTap;
 
   final DateTime? firstDate;
   final DateTime? lastDate;
@@ -46,32 +37,28 @@ class TDatePicker extends StatefulWidget
 
   const TDatePicker({
     super.key,
-    this.firstDate,
-    this.lastDate,
     this.label,
     this.tag,
-    this.placeholder,
     this.helperText,
-    this.message,
+    this.placeholder,
     this.isRequired = false,
     this.disabled = false,
-    this.size,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
-    this.rules,
-    this.errors,
-    this.validationDebounce,
-    this.skipValidation,
+    this.autoFocus = false,
+    this.readOnly = true,
+    this.theme,
+    this.onTap,
+    this.focusNode,
+    this.textController,
     this.value,
     this.valueNotifier,
     this.onValueChanged,
-    this.focusNode,
-    this.format,
+    this.rules,
+    this.validationDebounce,
     this.onShow,
     this.onHide,
-    this.onTap,
+    this.firstDate,
+    this.lastDate,
+    this.format,
   });
 
   @override
@@ -81,26 +68,23 @@ class TDatePicker extends StatefulWidget
 class _TDatePickerState extends State<TDatePicker>
     with
         TInputFieldStateMixin<TDatePicker>,
-        TInputValueStateMixin<DateTime, TDatePicker>,
         TFocusStateMixin<TDatePicker>,
+        TTextFieldStateMixin<TDatePicker>,
+        TInputValueStateMixin<DateTime, TDatePicker>,
         TInputValidationStateMixin<DateTime, TDatePicker>,
         TPopupStateMixin<TDatePicker> {
-  final TextEditingController controller = TextEditingController();
   late DateFormat dateFormat;
 
   @override
   void initState() {
-    super.initState();
     dateFormat = widget.format ?? DateFormat('MMM dd, yyyy');
-    if (currentValue != null) {
-      controller.text = dateFormat.format(currentValue!);
-    }
+    super.initState();
   }
 
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+  void onExternalValueChanged(DateTime? value) {
+    super.onExternalValueChanged(value);
+    controller.text = currentValue != null ? dateFormat.format(currentValue!) : '';
   }
 
   void _onDateSelected(DateTime date) {
@@ -113,35 +97,40 @@ class _TDatePickerState extends State<TDatePicker>
   }
 
   @override
-  double get contentMaxWidth => 325;
+  double get contentMaxWidth => 425;
 
   @override
   double get contentMaxHeight => 360;
 
   WidgetStateProperty<T> _resolveState<T>(T normal, T selected) {
     return WidgetStateProperty.resolveWith((states) {
-      if (states.contains(WidgetState.selected)) return selected;
+      if (states.contains(WidgetState.selected) || states.contains(WidgetState.hovered) || states.contains(WidgetState.pressed)) {
+        return selected;
+      }
       return normal;
     });
   }
 
   @override
   Widget getContentWidget(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
+
     return DatePickerTheme(
       data: DatePickerThemeData(
-        backgroundColor: theme.surface,
-        headerBackgroundColor: theme.surface,
-        headerForegroundColor: theme.onSurface,
-        dayForegroundColor: _resolveState(theme.onSurface, theme.surface),
-        dayBackgroundColor: _resolveState(Colors.transparent, theme.primary),
-        todayForegroundColor: _resolveState(theme.onSurface, theme.surface),
-        todayBackgroundColor: _resolveState(Colors.transparent, theme.primary),
+        backgroundColor: Colors.amber,
+        surfaceTintColor: Colors.red,
+        todayForegroundColor: _resolveState(colors.onSurface, colors.onPrimaryContainer),
+        todayBackgroundColor: _resolveState(colors.surface, colors.primaryContainer),
+        yearForegroundColor: _resolveState(colors.onSurface, colors.onPrimaryContainer),
+        yearBackgroundColor: _resolveState(colors.surface, colors.primaryContainer),
+        dayForegroundColor: _resolveState(colors.onSurface, colors.onPrimaryContainer),
+        dayBackgroundColor: _resolveState(colors.onSurface, colors.primaryContainer),
       ),
       child: CalendarDatePicker(
         initialDate: currentValue ?? DateTime.now(),
-        firstDate: widget.firstDate ?? DateTime(1900),
-        lastDate: widget.lastDate ?? DateTime(2100),
+        currentDate: currentValue,
+        firstDate: widget.firstDate ?? DateTime(1950),
+        lastDate: widget.lastDate ?? DateTime(2050),
         onDateChanged: (date) {
           _onDateSelected(date);
         },
@@ -151,26 +140,13 @@ class _TDatePickerState extends State<TDatePicker>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final exTheme = context.exTheme;
-
     return buildWithDropdownTarget(
       child: buildContainer(
-        theme,
-        exTheme,
-        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: theme.onSurfaceVariant),
-        child: TextField(
-          readOnly: true,
-          controller: controller,
-          focusNode: focusNode,
-          enabled: widget.disabled != true,
-          textInputAction: TextInputAction.next,
-          cursorHeight: widget.fontSize + 2,
-          textAlignVertical: TextAlignVertical.center,
-          style: getTextStyle(theme),
-          decoration: getInputDecoration(theme),
-        ),
-        onTap: () => showPopup(context),
+        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: colors.onSurfaceVariant),
+        child: IgnorePointer(child: buildTextField()),
+        onTap: () {
+          showPopup(context);
+        },
       ),
     );
   }

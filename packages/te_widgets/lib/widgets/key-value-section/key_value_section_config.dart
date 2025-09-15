@@ -45,15 +45,15 @@ class TKeyValueStyle {
     this.keyValueBreakPoint = 350,
   });
 
-  TextStyle getKeyStyle(ColorScheme theme) {
-    return keyStyle ?? TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: theme.onSurfaceVariant);
+  TextStyle getKeyStyle(ColorScheme colors) {
+    return keyStyle ?? TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant);
   }
 
-  TextStyle getLabelStyle(ColorScheme theme) {
-    return labelStyle ?? TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: theme.onSurfaceVariant);
+  TextStyle getLabelStyle(ColorScheme colors) {
+    return labelStyle ?? TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant);
   }
 
-  TextStyle getValueStyle(ColorScheme theme) {
-    return valueStyle ?? TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: theme.onSurface);
+  TextStyle getValueStyle(ColorScheme colors) {
+    return valueStyle ?? TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: colors.onSurface);
   }
 }

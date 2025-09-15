@@ -24,15 +24,10 @@ class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, T
   final List<String? Function(bool?)>? rules;
 
   @override
-  final List<String>? errors;
-
-  @override
   final Duration? validationDebounce;
 
-  @override
-  final bool? skipValidation;
-
   // Switch specific properties
+  final bool autoFocus;
   final bool disabled;
   final Color? color;
   final TInputSize? size;
@@ -46,9 +41,8 @@ class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, T
     this.label,
     this.isRequired = false,
     this.rules,
-    this.errors,
     this.validationDebounce,
-    this.skipValidation,
+    this.autoFocus = false,
     this.disabled = false,
     this.color,
     this.size = TInputSize.md,
@@ -90,12 +84,29 @@ class _TSwitchState<T> extends State<TSwitch>
     setState(() {});
   }
 
+  Widget buildValidationErrors(ColorScheme colors, ValueNotifier<List<String>> errorsNotifier) {
+    return ValueListenableBuilder<List<String>>(
+      valueListenable: errorsNotifier,
+      builder: (context, validationErrors, child) {
+        if (validationErrors.isEmpty) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: colors.error))).toList(),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final theme = context.theme;
-    final exTheme = context.exTheme;
-    final mColor = widget.color ?? exTheme.primary;
-    final wTheme = context.getWidgetTheme(TColorType.solid, mColor);
+    final mColor = widget.color ?? theme.primary;
+    final wTheme = context.getWidgetTheme(TVariant.solid, mColor);
     final (width, height, scale) = _getSwitchSize();
 
     return Column(
@@ -117,6 +128,8 @@ class _TSwitchState<T> extends State<TSwitch>
                     width: width,
                     height: height,
                     child: Switch(
+                      focusNode: focusNode,
+                      autofocus: widget.autoFocus,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       splashRadius: 0,
                       value: currentValue ?? false,
@@ -124,9 +137,9 @@ class _TSwitchState<T> extends State<TSwitch>
                       activeColor: Colors.white,
                       inactiveThumbColor: Colors.white,
                       activeTrackColor: wTheme.container,
-                      inactiveTrackColor: theme.surfaceDim,
+                      inactiveTrackColor: colors.surfaceDim,
                       trackOutlineWidth: WidgetStateProperty.all(0.1),
-                      trackOutlineColor: WidgetStateProperty.all(theme.outlineVariant),
+                      trackOutlineColor: WidgetStateProperty.all(colors.outlineVariant),
                     ),
                   ),
                 ),
@@ -135,13 +148,13 @@ class _TSwitchState<T> extends State<TSwitch>
                 const SizedBox(width: 8),
                 Text(
                   widget.label!,
-                  style: TextStyle(letterSpacing: 0.9, color: theme.onSurfaceVariant, fontSize: _getLabelFontSize()),
+                  style: TextStyle(letterSpacing: 0.9, color: colors.onSurfaceVariant, fontSize: _getLabelFontSize()),
                 ),
               ],
             ],
           ),
         ),
-        buildValidationErrors(theme, errorsNotifier)
+        buildValidationErrors(colors, errorsNotifier)
       ],
     );
   }

@@ -7,9 +7,7 @@ mixin TInputValidationMixin<T> on TInputValueMixin<T>, TFocusMixin {
   String? get label;
   bool get isRequired;
   List<String? Function(T?)>? get rules;
-  List<String>? get errors;
   Duration? get validationDebounce;
-  bool? get skipValidation;
 
   List<String> validateValue(T? value) {
     List<String> errors = [];
@@ -47,14 +45,14 @@ mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W>, TInpu
   ValueNotifier<List<String>> get errorsNotifier => _errorsNotifier;
   List<String> get errors => _errorsNotifier.value;
   bool get hasErrors => _errorsNotifier.value.isNotEmpty;
-  bool get isNeedToValidate => _widget.skipValidation != true && (_widget.isRequired == true || _widget.rules?.isNotEmpty == true);
+  bool get isNeedToValidate => _widget.isRequired == true || _widget.rules?.isNotEmpty == true;
 
   void triggerValidation(T? value) {
     if (!isNeedToValidate) return;
 
     _validationTimer?.cancel();
     final validationErrors = _widget.validateValue(value);
-    _errorsNotifier.value = (_widget.errors ?? []) + validationErrors;
+    _errorsNotifier.value = validationErrors;
     setState(() {});
   }
 
@@ -94,22 +92,5 @@ mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W>, TInpu
     _validationTimer?.cancel();
     _errorsNotifier.dispose();
     super.dispose();
-  }
-
-  Widget buildValidationErrors(ColorScheme theme, ValueNotifier<List<String>> errorsNotifier) {
-    return ValueListenableBuilder<List<String>>(
-      valueListenable: errorsNotifier,
-      builder: (context, validationErrors, child) {
-        if (validationErrors.isEmpty) return const SizedBox.shrink();
-
-        return Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: theme.error))).toList(),
-          ),
-        );
-      },
-    );
   }
 }

@@ -21,7 +21,7 @@ class TLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return InkWell(
       onTap: onTap,
@@ -43,7 +43,7 @@ class TLogo extends StatelessWidget {
               style: TextStyle(
                 fontSize: 30.0,
                 fontWeight: FontWeight.w500,
-                color: theme.primary,
+                color: colors.primary,
               ),
             ),
         ],

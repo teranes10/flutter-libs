@@ -102,14 +102,14 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final theme = context.theme;
-    final exTheme = context.exTheme;
 
     return LayoutBuilder(builder: (_, constraints) {
       return Column(
         children: [
-          _topBar.build(theme, constraints),
-          _tableBuilder._buildContent(exTheme),
+          _topBar.build(colors, constraints),
+          _tableBuilder._buildContent(theme),
         ],
       );
     });
@@ -176,8 +176,10 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       final newItem = await widget.onCreate?.call(formData);
       if (newItem != null) {
         _paginationController.addItem(newItem);
-        form.reset();
       }
+
+      form.reset();
+      form.dispose();
     });
   }
 
@@ -192,8 +194,10 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       final updatedItem = await widget.onEdit?.call(item, formData);
       if (updatedItem != null) {
         _paginationController.updateItem(item, updatedItem);
-        form.reset();
       }
+
+      form.reset();
+      form.dispose();
     });
   }
 

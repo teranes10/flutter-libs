@@ -19,7 +19,7 @@ class Sidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return SizedBox(
       width: isMinimized ? minifiedWidth : width,
@@ -28,7 +28,7 @@ class Sidebar extends StatelessWidget {
           builder: (context, constraints) {
             return SingleChildScrollView(
               child: Container(
-                color: theme.surface,
+                color: colors.surface,
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
                   child: Center(

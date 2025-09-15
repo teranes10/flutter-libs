@@ -40,19 +40,19 @@ class TAlertService {
   }
 
   static void info(BuildContext context, String title, String message) {
-    show(context, title: title, text: message, icon: Icons.info_outline_rounded, color: context.exTheme.info);
+    show(context, title: title, text: message, icon: Icons.info_outline_rounded, color: context.theme.info);
   }
 
   static void success(BuildContext context, String title, String message) {
-    show(context, title: title, text: message, icon: Icons.check_circle_outline_rounded, color: context.exTheme.success);
+    show(context, title: title, text: message, icon: Icons.check_circle_outline_rounded, color: context.theme.success);
   }
 
   static void warning(BuildContext context, String title, String message) {
-    show(context, title: title, text: message, icon: Icons.warning_amber_rounded, color: context.exTheme.warning);
+    show(context, title: title, text: message, icon: Icons.warning_amber_rounded, color: context.theme.warning);
   }
 
   static void error(BuildContext context, String title, String message) {
-    show(context, title: title, text: message, icon: Icons.error_outline_rounded, color: context.exTheme.danger);
+    show(context, title: title, text: message, icon: Icons.error_outline_rounded, color: context.theme.danger);
   }
 
   static void confirmArchive(BuildContext context, VoidCallback onConfirm, {String? name}) {
@@ -67,7 +67,7 @@ class TAlertService {
         title: 'Are you sure?',
         text: msg,
         icon: Icons.archive_rounded,
-        color: context.exTheme.danger,
+        color: context.theme.danger,
         confirmButton: AlertButton(text: 'Archive', onClick: onConfirm));
   }
 
@@ -83,7 +83,7 @@ class TAlertService {
         title: 'Are you sure?',
         text: msg,
         icon: Icons.unarchive_rounded,
-        color: context.exTheme.info,
+        color: context.theme.info,
         confirmButton: AlertButton(text: 'Restore', onClick: onConfirm));
   }
 
@@ -99,7 +99,7 @@ class TAlertService {
         title: 'Are you sure?',
         text: msg,
         icon: Icons.delete_forever_rounded,
-        color: context.exTheme.danger,
+        color: context.theme.danger,
         confirmButton: AlertButton(text: 'Delete', onClick: onConfirm));
   }
 }

@@ -41,8 +41,8 @@ class _LoadingIconState extends State<TLoadingIcon> with SingleTickerProviderSta
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final color = widget.color ?? theme.primary;
+    final colors = context.colors;
+    final color = widget.color ?? colors.primary;
     final background = widget.background ?? color.withAlpha(50);
 
     switch (widget.type) {

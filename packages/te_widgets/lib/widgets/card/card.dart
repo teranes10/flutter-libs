@@ -10,7 +10,6 @@ class TCard extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
   final List<BoxShadow>? boxShadow;
-  final TShadowLevel shadow;
 
   const TCard({
     super.key,
@@ -22,28 +21,30 @@ class TCard extends StatelessWidget {
     this.padding = const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
     this.onTap,
     this.boxShadow,
-    this.shadow = TShadowLevel.low,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
     final defaultBorderRadius = borderRadius ?? BorderRadius.circular(8);
 
     return Container(
       width: double.infinity,
       margin: margin ?? const EdgeInsets.only(bottom: 8),
       child: Material(
-        elevation: elevation ?? shadow.toElevation(),
+        elevation: elevation ?? 1,
         borderRadius: defaultBorderRadius,
-        color: backgroundColor ?? theme.surface,
+        color: backgroundColor ?? colors.surface,
         child: InkWell(
           borderRadius: defaultBorderRadius,
           onTap: onTap,
           child: Container(
             width: double.infinity,
             decoration: BoxDecoration(
-                color: backgroundColor ?? theme.surface, boxShadow: boxShadow ?? shadow.toBoxShadow(), borderRadius: defaultBorderRadius),
+              color: backgroundColor ?? colors.surface,
+              boxShadow: boxShadow ?? [BoxShadow(color: colors.shadow, offset: const Offset(0, 2), blurRadius: 0, spreadRadius: 0)],
+              borderRadius: defaultBorderRadius,
+            ),
             padding: padding,
             child: child,
           ),

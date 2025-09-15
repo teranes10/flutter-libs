@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:te_widgets/te_widgets.dart';
 
@@ -34,14 +35,12 @@ class TLayout extends StatefulWidget {
 
 class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
   bool _isMobileSidebarOpen = false;
-  late bool _isMinified;
   late AnimationController _overlayController;
   late Animation<double> _overlayAnimation;
 
   @override
   void initState() {
     super.initState();
-    _isMinified = widget.isMinimized;
     _overlayController = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
     _overlayAnimation = CurvedAnimation(parent: _overlayController, curve: Curves.easeInOut);
   }
@@ -50,10 +49,6 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
   void dispose() {
     _overlayController.dispose();
     super.dispose();
-  }
-
-  void _toggleSidebar() {
-    setState(() => _isMinified = !_isMinified);
   }
 
   void _toggleMobileSidebar() {
@@ -78,11 +73,11 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final theme = context.theme;
-    final exTheme = context.exTheme;
 
     return Scaffold(
-      backgroundColor: exTheme.layoutFrame,
+      backgroundColor: theme.layoutFrame,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -94,12 +89,12 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
                   padding: EdgeInsets.all(isMobile ? 0.0 : widget.mainCardRadius / 2),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: theme.surface,
+                      color: colors.surface,
                       borderRadius: BorderRadius.circular(isMobile ? 12 : widget.mainCardRadius),
                     ),
                     child: Column(
                       children: [
-                        _buildTopBar(theme, isMobile),
+                        _buildTopBar(colors, isMobile),
                         Expanded(
                           child: Row(
                             children: [
@@ -110,10 +105,10 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
                                     items: widget.items,
                                     width: widget.width,
                                     minifiedWidth: widget.minifiedWidth,
-                                    isMinimized: _isMinified,
+                                    isMinimized: widget.isMinimized,
                                   ),
                                 ),
-                              _buildMainContent(theme, isMobile, widget.child),
+                              _buildMainContent(colors, isMobile, widget.child),
                             ],
                           ),
                         ),
@@ -122,7 +117,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
                   ),
                 ),
                 // Mobile sidebar overlay
-                if (isMobile) _buildSidebarOverlay(theme),
+                if (isMobile) _buildSidebarOverlay(colors),
               ],
             );
           },
@@ -131,7 +126,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTopBar(ColorScheme theme, bool isMobile) {
+  Widget _buildTopBar(ColorScheme colors, bool isMobile) {
     return Container(
       width: double.infinity,
       padding: isMobile ? const EdgeInsets.fromLTRB(16, 16, 16, 12) : const EdgeInsets.fromLTRB(10, 24, 10, 14),
@@ -148,7 +143,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
                     child: Icon(
                       _isMobileSidebarOpen ? Icons.close_rounded : Icons.menu_rounded,
                       size: 24,
-                      color: theme.onSurface,
+                      color: colors.onSurface,
                     ),
                   ),
                 ),
@@ -157,9 +152,9 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
           : Row(
               children: [
                 if (widget.logo != null) SizedBox(width: widget.width - 20, child: widget.logo!),
-                _buildSidebarToggle(theme),
+                _buildSidebarToggle(colors),
                 const SizedBox(width: 10),
-                Expanded(child: _buildPageTitle(theme)),
+                Expanded(child: _buildPageTitle(colors)),
                 Wrap(
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 10,
@@ -175,41 +170,45 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSidebarToggle(ColorScheme theme) {
-    return InkWell(
-      onTap: _toggleSidebar,
-      borderRadius: BorderRadius.circular(24),
-      child: CircleAvatar(
-          radius: 16,
-          backgroundColor: theme.surfaceContainerHigh,
-          child: Icon(_isMinified ? Icons.chevron_right_rounded : Icons.chevron_left_rounded, size: 20, color: theme.onSurface)),
-    );
+  Widget _buildSidebarToggle(ColorScheme colors) {
+    return Consumer(builder: (context, ref, _) {
+      final sidebarMinified = ref.read(sidebarNotifierProvider.notifier);
+
+      return InkWell(
+        onTap: sidebarMinified.toggleSidebar,
+        borderRadius: BorderRadius.circular(24),
+        child: CircleAvatar(
+            radius: 16,
+            backgroundColor: colors.surfaceContainerHigh,
+            child: Icon(widget.isMinimized ? Icons.chevron_right_rounded : Icons.chevron_left_rounded, size: 20, color: colors.onSurface)),
+      );
+    });
   }
 
-  Widget _buildPageTitle(ColorScheme theme) {
+  Widget _buildPageTitle(ColorScheme colors) {
     final String title = widget.pageTitle ?? GoRouterState.of(context).topRoute?.name ?? '';
 
     return Text(
       title,
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: theme.onSurfaceVariant),
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: colors.onSurfaceVariant),
       overflow: TextOverflow.ellipsis,
     );
   }
 
-  Widget _buildMainContent(ColorScheme theme, bool isMobile, Widget child) {
+  Widget _buildMainContent(ColorScheme colors, bool isMobile, Widget child) {
     return Expanded(
       child: DecoratedBox(
         decoration: isMobile
             ? BoxDecoration(
-                color: theme.surface,
-                border: Border.all(color: theme.outlineVariant, width: 1),
+                color: colors.surface,
+                border: Border.all(color: colors.outlineVariant, width: 1),
                 borderRadius: const BorderRadius.all(Radius.circular(12)),
               )
             : BoxDecoration(
-                color: theme.surface,
+                color: colors.surface,
                 border: Border(
-                  top: BorderSide(color: theme.outlineVariant, width: 1),
-                  left: BorderSide(color: theme.outlineVariant, width: 1),
+                  top: BorderSide(color: colors.outlineVariant, width: 1),
+                  left: BorderSide(color: colors.outlineVariant, width: 1),
                 ),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(28),
@@ -230,7 +229,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSidebarOverlay(ColorScheme theme) {
+  Widget _buildSidebarOverlay(ColorScheme colors) {
     return AnimatedBuilder(
       animation: _overlayAnimation,
       builder: (context, child) {
@@ -257,7 +256,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
                   child: Container(
                     width: widget.width,
                     decoration: BoxDecoration(
-                      color: theme.surface,
+                      color: colors.surface,
                       borderRadius: const BorderRadius.only(
                         topRight: Radius.circular(16),
                         bottomRight: Radius.circular(16),
@@ -295,7 +294,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
                             margin: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: theme.surfaceDim,
+                              color: colors.surfaceDim,
                             ),
                             child: Wrap(
                               alignment: WrapAlignment.center,

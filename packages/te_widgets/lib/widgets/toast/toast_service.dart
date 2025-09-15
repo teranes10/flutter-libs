@@ -11,16 +11,17 @@ class TToastService {
     Duration? duration,
     Alignment? alignment,
     Color? color,
-    TColorType? type,
+    TVariant? type,
   }) {
-    final exTheme = context.exTheme;
-    final mColor = color ?? exTheme.primary;
-    final wTheme = context.getWidgetTheme(type ?? exTheme.toastType, mColor);
+    final theme = context.theme;
+    final mColor = color ?? theme.primary;
+    final wTheme = context.getWidgetTheme(type ?? theme.toastType, mColor);
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     toastification.showCustom(
       context: context,
       autoCloseDuration: duration ?? const Duration(seconds: 3),
-      alignment: alignment ?? Alignment.topRight,
+      alignment: alignment ?? (isMobile ? Alignment.topCenter : Alignment.topRight),
       direction: TextDirection.ltr,
       animationDuration: const Duration(milliseconds: 300),
       animationBuilder: (context, animation, alignment, child) {
@@ -28,7 +29,7 @@ class TToastService {
       },
       builder: (context, holder) {
         return Container(
-          margin: const EdgeInsets.fromLTRB(5, 5, 35, 2),
+          margin: isMobile ? null : const EdgeInsets.fromLTRB(5, 5, 35, 2),
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: title != null ? 6 : 10),
           decoration: BoxDecoration(
               color: wTheme.container, borderRadius: BorderRadius.circular(8), border: wTheme.boxBorder, boxShadow: wTheme.boxShadow),
@@ -67,18 +68,18 @@ class TToastService {
   }
 
   static void success(BuildContext context, String message, [String? title]) {
-    show(context, message, title: title, icon: Icons.check_circle_outline_rounded, color: context.exTheme.success);
+    show(context, message, title: title, icon: Icons.check_circle_outline_rounded, color: context.theme.success);
   }
 
   static void info(BuildContext context, String message, [String? title]) {
-    show(context, message, title: title, icon: Icons.info_outline_rounded, color: context.exTheme.info);
+    show(context, message, title: title, icon: Icons.info_outline_rounded, color: context.theme.info);
   }
 
   static void warning(BuildContext context, String message, [String? title]) {
-    show(context, message, title: title, icon: Icons.warning_amber_rounded, color: context.exTheme.warning);
+    show(context, message, title: title, icon: Icons.warning_amber_rounded, color: context.theme.warning);
   }
 
   static void error(BuildContext context, String message, [String? title]) {
-    show(context, message, title: title, icon: Icons.error_outline_rounded, color: context.exTheme.danger);
+    show(context, message, title: title, icon: Icons.error_outline_rounded, color: context.theme.danger);
   }
 }

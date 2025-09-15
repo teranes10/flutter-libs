@@ -1,35 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_widgets/widgets/tags-field/tags_field_theme.dart';
 
 class TMultiSelect<T, V> extends StatefulWidget
     with
         TInputFieldMixin,
-        TInputValueMixin<List<V>>,
         TFocusMixin,
+        TTextFieldMixin,
+        TInputValueMixin<List<V>>,
         TInputValidationMixin<List<V>>,
         TPopupMixin,
         TPaginationMixin<T>,
         TSelectMixin<T, V> {
   @override
-  final String? label, tag, placeholder, helperText, message;
+  final String? label, tag, helperText, placeholder;
   @override
-  final bool isRequired, disabled;
+  final bool isRequired, disabled, autoFocus, readOnly;
   @override
-  final TInputSize? size;
+  final TTagsFieldTheme? theme;
   @override
-  final Color? color;
+  final VoidCallback? onTap;
   @override
-  final BoxDecoration? boxDecoration;
+  final FocusNode? focusNode;
   @override
-  final Widget? preWidget, postWidget;
-  @override
-  final List<String? Function(List<V>?)>? rules;
-  @override
-  final List<String>? errors;
-  @override
-  final Duration? validationDebounce;
-  @override
-  final bool? skipValidation;
+  final TextEditingController? textController;
   @override
   final List<V>? value;
   @override
@@ -37,9 +31,9 @@ class TMultiSelect<T, V> extends StatefulWidget
   @override
   final ValueChanged<List<V>>? onValueChanged;
   @override
-  final FocusNode? focusNode;
+  final List<String? Function(List<V>?)>? rules;
   @override
-  final VoidCallback? onTap;
+  final Duration? validationDebounce;
 
   @override
   final List<T>? items;
@@ -86,36 +80,32 @@ class TMultiSelect<T, V> extends StatefulWidget
     super.key,
     this.label,
     this.tag,
-    this.placeholder,
     this.helperText,
-    this.message,
+    this.placeholder,
     this.isRequired = false,
     this.disabled = false,
-    this.size,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
-    this.rules,
-    this.errors,
-    this.validationDebounce,
+    this.autoFocus = false,
+    this.theme,
+    this.onTap,
+    this.focusNode,
+    this.textController,
     this.value,
     this.valueNotifier,
     this.onValueChanged,
-    this.focusNode,
+    this.rules,
+    this.validationDebounce,
     this.items,
     this.multiLevel = false,
     this.filterable = true,
     this.footerMessage,
     this.onShow,
     this.onHide,
-    this.skipValidation,
     this.itemText,
     this.itemValue,
     this.itemKey,
     this.itemChildren,
     this.selectedIcon,
-    this.onTap,
+
     // Server-side pagination
     this.onLoad,
     this.itemsPerPage = 10,
@@ -125,46 +115,33 @@ class TMultiSelect<T, V> extends StatefulWidget
     this.searchDelay = 300,
     this.itemToString,
     this.controller,
-  });
-
+    bool? readOnly,
+  }) : readOnly = readOnly ?? !filterable;
   @override
   State<TMultiSelect<T, V>> createState() => _TMultiSelectState<T, V>();
 }
 
 class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
     with
-        TInputValueStateMixin<List<V>, TMultiSelect<T, V>>,
+        TInputFieldStateMixin<TMultiSelect<T, V>>,
         TFocusStateMixin<TMultiSelect<T, V>>,
-        TInputValidationStateMixin<List<V>, TMultiSelect<T, V>>,
+        TTextFieldStateMixin<TMultiSelect<T, V>>,
         TPopupStateMixin<TMultiSelect<T, V>>,
         TPaginationStateMixin<T, TMultiSelect<T, V>>,
-        TSelectStateMixin<T, V, TMultiSelect<T, V>> {
-  late TextEditingController _controller;
-
+        TSelectStateMixin<T, V, TMultiSelect<T, V>>,
+        TInputValueStateMixin<List<V>, TMultiSelect<T, V>>,
+        TInputValidationStateMixin<List<V>, TMultiSelect<T, V>> {
+  @override
+  TTagsFieldTheme get wTheme => widget.theme ?? theme.tagsFieldTheme;
   @override
   bool get isMultiple => true;
   @override
   bool get persistent => true;
 
   @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-  }
-
-  @override
-  void didUpdateWidget(TMultiSelect<T, V> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.value != oldWidget.value) {
-      updateSelectedStates();
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
+  void onExternalValueChanged(List<V>? value) {
+    super.onExternalValueChanged(value);
+    updateSelectedStates();
   }
 
   @override
@@ -181,23 +158,15 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
   }
 
   @override
-  void onFocusChanged(bool hasFocus) {
-    super.onFocusChanged(hasFocus);
-    if (hasFocus && !isPopupShowing) {
-      showPopup(context);
-    }
-  }
-
-  @override
   void showPopup(BuildContext context) {
-    _controller.clear();
+    controller.clear();
     super.showPopup(context);
   }
 
   @override
   void hidePopup() {
     super.hidePopup();
-    _controller.clear();
+    controller.clear();
 
     // Reset search based on pagination type
     if (serverSideRendering) {
@@ -229,31 +198,26 @@ class _TMultiSelectState<T, V> extends State<TMultiSelect<T, V>>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return buildWithDropdownTarget(
-      child: TTagsField(
-        onTap: () => !widget.filterable ? togglePopup(context) : null,
-        skipValidation: true,
-        focusNode: focusNode,
-        label: widget.label,
-        tag: widget.tag,
-        placeholder: widget.placeholder,
-        helperText: widget.helperText,
-        message: widget.message,
-        isRequired: widget.isRequired,
-        disabled: widget.disabled == true,
-        readOnly: !widget.filterable,
-        size: widget.size,
-        color: widget.color,
-        controller: _controller,
-        inputValue: isPopupShowing && widget.filterable ? stateNotifier.searchQuery : '',
-        value: _getSelectedTags(),
-        postWidget: widget.postWidget ??
-            Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: theme.onSurfaceVariant),
-        onInputChanged: widget.filterable && isPopupShowing ? onSearchChanged : null,
-        onTagRemoved: _onTagRemoved,
-        boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? theme.surfaceDim : theme.surface),
+      child: buildContainer(
+        isMultiline: true,
+        onTap: () => {togglePopup(context)},
+        postWidget: Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
+        child: wTheme.buildTagsField(
+          colors,
+          tags: _getSelectedTags(),
+          onRemove: _onTagRemoved,
+          child: Focus(
+            child: IgnorePointer(
+              child: buildTextField(
+                textInputAction: TextInputAction.unspecified,
+                onValueChanged: widget.filterable && isPopupShowing ? onSearchChanged : null,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

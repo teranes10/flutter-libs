@@ -28,7 +28,6 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
   @override
   void initState() {
     super.initState();
-
     stateNotifier = TSelectStateNotifier<T, V>(
       isMultiple: isMultiple,
       itemText: _selectWidget.itemText,
@@ -44,7 +43,6 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
 
     // Initialize with current items
     _updateSelectItems();
-    updateSelectedStates();
   }
 
   @override
@@ -54,16 +52,15 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
     final oldSelectWidget = oldWidget as TSelectMixin<T, V>;
     if (_selectWidget.items != oldSelectWidget.items) {
       _updateSelectItems();
-      updateSelectedStates();
     }
   }
 
   @override
   void dispose() {
-    super.dispose();
     itemsNotifier.removeListener(_onPaginatedItemsChanged);
     loadingNotifier.removeListener(_onLoadingStateChanged);
     stateNotifier.dispose();
+    super.dispose();
   }
 
   void _onPaginatedItemsChanged() {
@@ -85,6 +82,8 @@ mixin TSelectStateMixin<T, V, W extends StatefulWidget> on State<W>, TPopupState
       // For client-side, use all items
       stateNotifier.updateItems(_selectWidget.items ?? []);
     }
+
+    updateSelectedStates();
   }
 
   @override

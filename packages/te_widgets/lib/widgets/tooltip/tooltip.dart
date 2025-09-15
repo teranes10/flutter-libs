@@ -30,7 +30,7 @@ class TTooltip extends StatefulWidget {
   final double maxWidth;
   final VoidCallback? onShow;
   final VoidCallback? onHide;
-  final TColorType? type;
+  final TVariant? type;
 
   const TTooltip(
       {super.key,
@@ -274,7 +274,7 @@ class _TooltipContent extends StatelessWidget {
   final TTooltipResolvedPosition resolvedPosition;
   final void Function(PointerEnterEvent)? onPointerEnter;
   final void Function(PointerExitEvent)? onPointerExit;
-  final TColorType? type;
+  final TVariant? type;
 
   const _TooltipContent({
     required this.message,
@@ -316,9 +316,9 @@ class _TooltipContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final exTheme = context.exTheme;
-    final mColor = color ?? exTheme.primary;
-    final wTheme = context.getWidgetTheme(type ?? exTheme.tooltipType, mColor);
+    final theme = context.theme;
+    final mColor = color ?? theme.primary;
+    final wTheme = context.getWidgetTheme(type ?? theme.tooltipType, mColor);
 
     final (defaultPadding, fontSize) = _sizeStyle();
     final effectivePadding = padding ?? defaultPadding;

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_color_scheme.dart';
-import 'package:te_widgets/configs/theme/theme_widget_color_scheme.dart';
+import 'package:te_widgets/configs/widget-theme/widget_theme_extension.dart';
+import 'package:te_widgets/configs/widget-theme/widget_theme.dart';
 
 extension ColorSchemeExtension on BuildContext {
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
-  ColorScheme get theme => Theme.of(this).colorScheme;
-  TColorScheme get exTheme => Theme.of(this).extension<TColorScheme>() ?? TColorScheme();
-  TWidgetColorScheme getWidgetTheme(TColorType type, Color color) => TWidgetColorScheme.from(this, color, type);
+  ColorScheme get colors => Theme.of(this).colorScheme;
+  TWidgetThemeExtension get theme => Theme.of(this).extension<TWidgetThemeExtension>() ?? TWidgetThemeExtension();
+  TWidgetTheme getWidgetTheme(TVariant type, Color color) => TThemeResolver.getWidgetTheme(this, color, type);
 }
 
 extension ColorExtensions on Color {
@@ -37,6 +37,26 @@ extension ColorExtensions on Color {
       default:
         return this; // Return original if invalid shade
     }
+  }
+
+  bool get isTransparent {
+    return a == 0;
+  }
+
+  Color o(double opacity) {
+    if (a == 0) return this;
+    return withAlpha((opacity.clamp(0.0, 1.0) * 255).round());
+  }
+}
+
+class ColorHelper {
+  static Color fromHex(String hex) {
+    hex = hex.replaceFirst('#', '');
+    if (hex.length == 6) {
+      hex = 'FF$hex';
+    }
+
+    return Color(int.parse(hex, radix: 16));
   }
 }
 

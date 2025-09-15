@@ -47,7 +47,6 @@ mixin TPaginationStateMixin<T, W extends StatefulWidget> on State<W> {
   @override
   void initState() {
     super.initState();
-
     paginationNotifier = TPaginationNotifier<T>(
       initialItems: _widget.items ?? [],
       itemsPerPage: _widget.itemsPerPage,
@@ -102,10 +101,10 @@ mixin TPaginationStateMixin<T, W extends StatefulWidget> on State<W> {
 
   @override
   void dispose() {
-    super.dispose();
     _widget.searchNotifier?.removeListener(_onExternalSearchChanged);
     _widget.controller?._detach(paginationNotifier);
     paginationNotifier.dispose();
+    super.dispose();
   }
 
   // Public API methods

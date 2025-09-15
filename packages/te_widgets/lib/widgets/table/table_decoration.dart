@@ -71,12 +71,12 @@ class TTableStyle {
     this.rowStyle = const TRowStyle(),
   });
 
-  TextStyle getHeaderStyle(ColorScheme theme) {
-    return headerTextStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w400, color: theme.onSurfaceVariant);
+  TextStyle getHeaderStyle(ColorScheme colors) {
+    return headerTextStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant);
   }
 
-  TextStyle getContentTextStyle(ColorScheme theme) {
-    return contentTextStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w300, color: theme.onSurface);
+  TextStyle getContentTextStyle(ColorScheme colors) {
+    return contentTextStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w300, color: colors.onSurface);
   }
 }
 
@@ -101,14 +101,14 @@ class TCardStyle extends TKeyValueStyle {
     this.selectedBorder,
   });
 
-  Color getBackgroundColor(ColorScheme theme, bool isSelected) {
-    return isSelected ? (selectedBackgroundColor ?? theme.primaryContainer.withAlpha(25)) : (backgroundColor ?? theme.surface);
+  Color getBackgroundColor(ColorScheme colors, bool isSelected) {
+    return isSelected ? (selectedBackgroundColor ?? colors.primaryContainer.withAlpha(25)) : (backgroundColor ?? colors.surface);
   }
 
-  Border getBorder(ColorScheme theme, bool isSelected) {
+  Border getBorder(ColorScheme colors, bool isSelected) {
     return isSelected
-        ? (selectedBorder ?? Border.all(color: theme.primary.withAlpha(50), width: 2))
-        : (border ?? Border.all(color: theme.outline));
+        ? (selectedBorder ?? Border.all(color: colors.primary.withAlpha(50), width: 2))
+        : (border ?? Border.all(color: colors.outline));
   }
 }
 
@@ -131,7 +131,7 @@ class TRowStyle {
     this.border,
   });
 
-  Color getBackgroundColor(ColorScheme theme, bool isSelected) {
-    return isSelected ? (selectedBackgroundColor ?? theme.primaryContainer) : (backgroundColor ?? theme.surface);
+  Color getBackgroundColor(ColorScheme colors, bool isSelected) {
+    return isSelected ? (selectedBackgroundColor ?? colors.primaryContainer) : (backgroundColor ?? colors.surface);
   }
 }

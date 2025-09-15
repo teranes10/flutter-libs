@@ -129,7 +129,7 @@ class _TSidebarOverlayState extends State<TSidebarOverlay> with SingleTickerProv
   }
 
   Widget _buildOverlayContent(Size screenSize) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return MouseRegion(
       onEnter: (_) => TSidebarOverlayController.setMouseInArea(true),
@@ -149,8 +149,8 @@ class _TSidebarOverlayState extends State<TSidebarOverlay> with SingleTickerProv
         child: Material(
           elevation: 12,
           borderRadius: BorderRadius.circular(8),
-          color: theme.surface,
-          shadowColor: theme.shadow,
+          color: colors.surface,
+          shadowColor: colors.shadow,
           child: Container(
             constraints: BoxConstraints(
               minWidth: 180,

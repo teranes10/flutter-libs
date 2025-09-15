@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<T>, TFocusMixin, TInputValidationMixin<T> {
+class TNumberField<T extends num> extends StatefulWidget
+    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<T>, TInputValidationMixin<T> {
   @override
-  final String? label, tag, placeholder, helperText, message;
+  final String? label, tag, helperText, placeholder;
   @override
-  final bool isRequired, disabled;
+  final bool isRequired, disabled, autoFocus, readOnly;
   @override
-  final TInputSize? size;
+  final TNumberFieldTheme? theme;
   @override
-  final Color? color;
+  final VoidCallback? onTap;
   @override
-  final BoxDecoration? boxDecoration;
+  final FocusNode? focusNode;
   @override
-  final Widget? preWidget, postWidget;
-  @override
-  final List<String? Function(T?)>? rules;
-  @override
-  final List<String>? errors;
-  @override
-  final Duration? validationDebounce;
-  @override
-  final bool? skipValidation;
+  final TextEditingController? textController;
   @override
   final T? value;
   @override
@@ -30,44 +22,29 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
   @override
   final ValueChanged<T>? onValueChanged;
   @override
-  final FocusNode? focusNode;
+  final List<String? Function(T?)>? rules;
   @override
-  final VoidCallback? onTap;
-
-  // NumberField specific properties
-  final T? min, max, increment, decrement;
-  final int? decimals;
-  final bool showSteppers;
+  final Duration? validationDebounce;
 
   const TNumberField({
     super.key,
     this.label,
     this.tag,
-    this.placeholder,
     this.helperText,
-    this.message,
+    this.placeholder,
     this.isRequired = false,
     this.disabled = false,
-    this.size,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
-    this.rules,
-    this.errors,
-    this.validationDebounce,
+    this.autoFocus = false,
+    this.readOnly = false,
+    this.theme,
+    this.onTap,
+    this.focusNode,
+    this.textController,
     this.value,
     this.valueNotifier,
     this.onValueChanged,
-    this.focusNode,
-    this.min,
-    this.max,
-    this.increment,
-    this.decrement,
-    this.decimals,
-    this.showSteppers = true,
-    this.skipValidation,
-    this.onTap,
+    this.rules,
+    this.validationDebounce,
   });
 
   @override
@@ -77,27 +54,16 @@ class TNumberField<T extends num> extends StatefulWidget with TInputFieldMixin, 
 class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
     with
         TInputFieldStateMixin<TNumberField<T>>,
-        TInputValueStateMixin<T, TNumberField<T>>,
         TFocusStateMixin<TNumberField<T>>,
+        TTextFieldStateMixin<TNumberField<T>>,
+        TInputValueStateMixin<T, TNumberField<T>>,
         TInputValidationStateMixin<T, TNumberField<T>> {
-  late final TextEditingController _controller;
-
   @override
-  void initState() {
-    _controller = TextEditingController(text: _formatValue(currentValue));
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+  TNumberFieldTheme get wTheme => widget.theme ?? context.theme.numberFieldTheme;
   @override
   void onExternalValueChanged(T? value) {
     super.onExternalValueChanged(value);
-    _controller.text = _formatValue(value);
+    controller.text = wTheme.formatValue(value);
   }
 
   @override
@@ -106,203 +72,38 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
 
     if (T != double) return;
 
-    final raw = _controller.text.trim();
-    final parsed = double.tryParse(raw) ?? 0.0;
-    final isZero = parsed == 0.0;
-    final hasDecimals = parsed % 1 != 0;
-    String formattedValue = '';
-    if (!isZero) {
-      formattedValue = hasFocus ? (hasDecimals ? parsed.toString() : parsed.toInt().toString()) : parsed.toStringAsFixed(2);
+    if (hasFocus) {
+      controller.text = currentValue?.toString() ?? '';
+    } else if (wTheme.decimals != null) {
+      controller.text = currentValue?.toStringAsFixed(wTheme.decimals!) ?? '';
     }
-
-    _controller.text = formattedValue;
   }
 
   void _onValueChanged(String text) {
-    final parsed = _parseValue(text);
-    if (parsed != currentValue) {
-      final constrained = _applyConstraints(parsed);
-      if (constrained != null) notifyValueChanged(constrained);
-    }
-  }
-
-  String _formatValue(T? value) {
-    if (value == null || value == 0) return '';
-
-    if (T == int) {
-      return value.toInt().toString();
-    } else {
-      if (widget.decimals != null) {
-        return value.toStringAsFixed(widget.decimals!);
-      }
-
-      if (value is double && value == value.toInt()) {
-        return value.toInt().toString();
-      }
-      return value.toString();
-    }
-  }
-
-  T? _parseValue(String text) {
-    if (text.trim().isEmpty) return null;
-
-    try {
-      if (T == int) {
-        final parsed = int.tryParse(text);
-        return parsed as T?;
-      } else {
-        final parsed = double.tryParse(text);
-        return parsed as T?;
-      }
-    } catch (e) {
-      return null;
-    }
-  }
-
-  T? _applyConstraints(T? value) {
-    if (value == null) return null;
-
-    T constrained = value;
-
-    if (widget.min != null && value.compareTo(widget.min!) < 0) {
-      constrained = widget.min!;
-    }
-    if (widget.max != null && value.compareTo(widget.max!) > 0) {
-      constrained = widget.max!;
-    }
-
-    return constrained;
+    final parsedValue = wTheme.parseValue(text);
+    notifyValueChanged(parsedValue);
   }
 
   void _changeValueBy(num delta) {
     final base = currentValue ?? (T == int ? 0 : 0.0) as T;
     final newValue = T == int ? (base.toInt() + delta.toInt()) as T : (base.toDouble() + delta.toDouble()) as T;
 
-    final constrained = _applyConstraints(newValue);
-    if (constrained != null) {
-      _controller.text = _formatValue(constrained);
-      notifyValueChanged(constrained);
-    }
-  }
-
-  List<TextInputFormatter> _getInputFormatters() {
-    if (T == int) {
-      return [
-        FilteringTextInputFormatter.allow(RegExp(r'^-?\d*')),
-        _IntegerInputFormatter(),
-      ];
-    } else {
-      return [
-        FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*')),
-        _DecimalInputFormatter(decimals: widget.decimals),
-      ];
-    }
-  }
-
-  TextInputType _getKeyboardType() {
-    if (T == int) {
-      return const TextInputType.numberWithOptions(signed: true, decimal: false);
-    } else {
-      return const TextInputType.numberWithOptions(signed: true, decimal: true);
-    }
-  }
-
-  Widget _buildStepperButton(ColorScheme theme, IconData icon, VoidCallback onPressed, bool enabled) {
-    return InkWell(
-      onTap: enabled ? onPressed : null,
-      borderRadius: BorderRadius.circular(2),
-      mouseCursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Icon(
-          icon,
-          size: 14,
-          color: enabled ? theme.onSurface : theme.onSurfaceVariant,
-        ),
-      ),
-    );
-  }
-
-  Widget? _buildPostWidget(ColorScheme theme) {
-    if (!widget.showSteppers) return null;
-
-    final disabled = widget.disabled == true;
-    final canIncrease = !disabled && (widget.max == null || currentValue == null || currentValue!.compareTo(widget.max!) < 0);
-    final canDecrease = !disabled && (widget.min == null || currentValue == null || currentValue!.compareTo(widget.min!) > 0);
-
-    final steppers = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildStepperButton(theme, Icons.remove, () => _changeValueBy(-(widget.decrement ?? (T == int ? 1 : 1.0))), canDecrease),
-        const SizedBox(width: 4),
-        _buildStepperButton(theme, Icons.add, () => _changeValueBy(widget.increment ?? (T == int ? 1 : 1.0)), canIncrease),
-      ],
-    );
-
-    return steppers;
+    controller.text = wTheme.formatValue(newValue);
+    notifyValueChanged(newValue);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final exTheme = context.exTheme;
+    final type = getValueType().type;
+    final disabled = widget.disabled;
 
     return buildContainer(
-      theme,
-      exTheme,
-      postWidget: _buildPostWidget(theme),
-      child: TextField(
-        controller: _controller,
-        focusNode: focusNode,
-        enabled: widget.disabled != true,
-        keyboardType: _getKeyboardType(),
-        inputFormatters: _getInputFormatters(),
-        textInputAction: TextInputAction.next,
-        cursorHeight: widget.fontSize + 2,
-        textAlignVertical: TextAlignVertical.center,
-        style: getTextStyle(theme),
-        decoration: getInputDecoration(theme),
-        onChanged: _onValueChanged,
+      postWidget: wTheme.buildSteppers(colors, !disabled, !disabled, _changeValueBy),
+      child: buildTextField(
+        keyboardType: wTheme.getKeyboardType(type),
+        inputFormatters: wTheme.getInputFormatters(type, wTheme.decimals),
+        onValueChanged: _onValueChanged,
       ),
     );
-  }
-}
-
-class _IntegerInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    if (newValue.text.isEmpty) return newValue;
-
-    final regex = RegExp(r'^-?\d*$');
-    if (!regex.hasMatch(newValue.text)) {
-      return oldValue;
-    }
-
-    return newValue;
-  }
-}
-
-class _DecimalInputFormatter extends TextInputFormatter {
-  final int? decimals;
-
-  _DecimalInputFormatter({this.decimals});
-
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    if (newValue.text.isEmpty) return newValue;
-
-    final regex = RegExp(r'^-?\d*\.?\d*$');
-    if (!regex.hasMatch(newValue.text)) {
-      return oldValue;
-    }
-
-    if (decimals != null && newValue.text.contains('.')) {
-      final parts = newValue.text.split('.');
-      if (parts.length == 2 && parts[1].length > decimals!) {
-        return oldValue;
-      }
-    }
-
-    return newValue;
   }
 }

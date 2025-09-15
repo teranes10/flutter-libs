@@ -77,7 +77,7 @@ class _TablesPageState extends State<TablesPage> {
   ];
 
   void generatePdfWithTable(BuildContext ctx) async {
-    final theme = context.theme;
+    final colors = context.colors;
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -86,11 +86,11 @@ class _TablesPageState extends State<TablesPage> {
           margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 25),
           buildBackground: (context) => pw.FullPage(
             ignoreMargins: true,
-            child: pw.Container(color: theme.surface.toPdfColor()),
+            child: pw.Container(color: colors.surface.toPdfColor()),
           ),
         ),
         build: (context) => [
-          pw.Text('Table 1: List of Participants', style: pw.TextStyle(fontSize: 16, color: theme.onSurfaceVariant.toPdfColor())),
+          pw.Text('Table 1: List of Participants', style: pw.TextStyle(fontSize: 16, color: colors.onSurfaceVariant.toPdfColor())),
           pw.SizedBox(height: 15),
           TTableHelper.from(ctx, productHeaders, products),
         ],

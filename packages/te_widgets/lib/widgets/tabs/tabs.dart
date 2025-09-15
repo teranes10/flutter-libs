@@ -75,12 +75,12 @@ class _TTabsState extends State<TTabs> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
     final defaultBorderColor = widget.borderColor ?? Colors.transparent;
-    final defaultSelectedColor = widget.selectedColor ?? theme.onPrimaryContainer;
-    final defaultUnselectedColor = widget.unselectedColor ?? theme.onSurface;
-    final defaultDisabledColor = widget.disabledColor ?? theme.onSurfaceVariant;
-    final defaultIndicatorColor = widget.indicatorColor ?? theme.primary;
+    final defaultSelectedColor = widget.selectedColor ?? colors.onPrimaryContainer;
+    final defaultUnselectedColor = widget.unselectedColor ?? colors.onSurface;
+    final defaultDisabledColor = widget.disabledColor ?? colors.onSurfaceVariant;
+    final defaultIndicatorColor = widget.indicatorColor ?? colors.primary;
 
     final tabs = widget.tabs.asMap().entries.map((entry) {
       final index = entry.key;

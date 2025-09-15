@@ -84,7 +84,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
     // Calculate footer height to account for it in constraints
     final footerHeight = (widget.footerMessage?.isNotEmpty == true) ? 40.0 : 0.0;
 
@@ -119,7 +119,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                         padding: const EdgeInsets.all(16),
                         child: Text(
                           'No items found',
-                          style: TextStyle(color: theme.onSurface, fontSize: 14),
+                          style: TextStyle(color: colors.onSurface, fontSize: 14),
                         ),
                       ),
                     ),
@@ -156,7 +156,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                         }
 
                         final item = displayItems[index];
-                        return _buildSelectItem(theme, item, 0);
+                        return _buildSelectItem(colors, item, 0);
                       },
                     ),
                   ),
@@ -169,12 +169,12 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: theme.surfaceContainer,
-                border: Border(top: BorderSide(color: theme.outline)),
+                color: colors.surfaceContainer,
+                border: Border(top: BorderSide(color: colors.outline)),
               ),
               child: Text(
                 widget.footerMessage!,
-                style: TextStyle(fontSize: 12, color: theme.onSurfaceVariant),
+                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
               ),
             ),
         ],
@@ -182,7 +182,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
     );
   }
 
-  Widget _buildSelectItem(ColorScheme theme, TSelectItem<V> item, int level) {
+  Widget _buildSelectItem(ColorScheme colors, TSelectItem<V> item, int level) {
     return Column(
       children: [
         Listener(
@@ -192,11 +192,11 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
           },
           child: InkWell(
             key: ValueKey('${item.key}_${item.selected}_${item.expanded}_$level'),
-            splashColor: theme.primaryContainer.withAlpha(150),
-            highlightColor: theme.primaryContainer.withAlpha(200),
+            splashColor: colors.primaryContainer.withAlpha(150),
+            highlightColor: colors.primaryContainer.withAlpha(200),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              color: item.selected ? theme.primaryContainer : theme.surface,
+              color: item.selected ? colors.primaryContainer : colors.surface,
               padding: EdgeInsets.only(left: 16.0 + (level * 18.0), right: 16.0, top: 10.0, bottom: 10.0),
               child: Row(
                 children: [
@@ -207,7 +207,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                       child: Icon(
                         item.selected ? Icons.check_box : Icons.check_box_outline_blank,
                         size: 18,
-                        color: item.selected ? theme.onPrimaryContainer : theme.onSurface,
+                        color: item.selected ? colors.onPrimaryContainer : colors.onSurface,
                       ),
                     )
                   else if (item.selected && widget.selectedIcon != null)
@@ -216,7 +216,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                       child: Icon(
                         widget.selectedIcon,
                         size: 18,
-                        color: theme.primary,
+                        color: colors.primary,
                       ),
                     )
                   else
@@ -228,7 +228,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                       item.text,
                       style: TextStyle(
                         fontSize: 13.6,
-                        color: item.selected ? theme.primary : theme.onSurface,
+                        color: item.selected ? colors.primary : colors.onSurface,
                         fontWeight: item.selected ? FontWeight.w500 : FontWeight.w400,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -244,7 +244,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
                       child: Icon(
                         Icons.keyboard_arrow_right,
                         size: 18,
-                        color: theme.onSurfaceVariant,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                 ],
@@ -253,7 +253,7 @@ class _TSelectDropdownState<T, V> extends State<TSelectDropdown<T, V>> {
           ),
         ),
         // Render children if expanded
-        if (item.hasChildren && item.expanded) ...item.children!.map((child) => _buildSelectItem(theme, child, level + 1)),
+        if (item.hasChildren && item.expanded) ...item.children!.map((child) => _buildSelectItem(colors, child, level + 1)),
       ],
     );
   }

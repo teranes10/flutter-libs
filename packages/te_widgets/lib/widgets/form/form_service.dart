@@ -3,7 +3,7 @@ import 'package:te_widgets/te_widgets.dart';
 
 class TFormService {
   static Future<T?> show<T extends TFormBase>(BuildContext context, T input) {
-    final exTheme = context.exTheme;
+    final theme = context.theme;
 
     return TModalService.show<T>(
       context,
@@ -24,10 +24,15 @@ class TFormService {
                   mainAxisAlignment: MainAxisAlignment.end,
                   spacing: 5,
                   children: [
-                    TButton(width: 125, color: exTheme.grey, type: TButtonType.tonal, text: 'Cancel', onPressed: (_) => mContext.close()),
                     TButton(
-                        width: 100,
-                        color: exTheme.primary,
+                        size: TButtonSize.md.copyWith(minW: 125),
+                        color: theme.grey,
+                        type: TButtonType.tonal,
+                        text: 'Cancel',
+                        onPressed: (_) => mContext.close()),
+                    TButton(
+                        size: TButtonSize.md.copyWith(minW: 100),
+                        color: theme.primary,
                         text: 'Save',
                         onPressed: (_) {
                           final errors = input.validationErrors;

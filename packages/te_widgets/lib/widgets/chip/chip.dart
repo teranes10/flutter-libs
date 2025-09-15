@@ -10,7 +10,7 @@ class TChip extends StatelessWidget {
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? padding;
   final BorderRadius? borderRadius;
-  final TColorType? type;
+  final TVariant? type;
 
   const TChip({
     super.key,
@@ -27,9 +27,9 @@ class TChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final exTheme = context.exTheme;
-    final mColor = color ?? exTheme.primary;
-    final wTheme = context.getWidgetTheme(type ?? exTheme.chipType, mColor);
+    final theme = context.theme;
+    final mColor = color ?? theme.primary;
+    final wTheme = context.getWidgetTheme(type ?? theme.chipType, mColor);
     final mBackgroundColor = background ?? wTheme.container;
     final mTextColor = textColor ?? wTheme.onContainer;
 

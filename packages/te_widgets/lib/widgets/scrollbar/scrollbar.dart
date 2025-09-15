@@ -24,7 +24,7 @@ class _TScrollbarState extends State<TScrollbar> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -37,7 +37,7 @@ class _TScrollbarState extends State<TScrollbar> {
         interactive: true,
         thickness: 8.0,
         radius: const Radius.circular(8.0),
-        thumbColor: _isHovered ? theme.surfaceContainerLow : theme.surfaceContainerHigh,
+        thumbColor: _isHovered ? colors.surfaceContainerLow : colors.surfaceContainerHigh,
         trackColor: Colors.transparent,
         trackBorderColor: Colors.transparent,
         crossAxisMargin: 0.0,

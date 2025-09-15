@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:te_widgets/enum/value_type.dart';
 
 mixin TInputValueMixin<T> {
   T? get value;
@@ -18,11 +20,15 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   @override
   void initState() {
     super.initState();
-    final initial = _widget.valueNotifier?.value ?? _widget.value;
-    if (initial != null) {
-      _updateValue(initial, fromExternal: true, initial: true);
-    }
+
     _widget.valueNotifier?.addListener(_onValueNotifierChanged);
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      final initial = _widget.valueNotifier?.value ?? _widget.value;
+      if (initial != null) {
+        _updateValue(initial, fromExternal: true, initial: true);
+      }
+    });
   }
 
   @override
@@ -71,6 +77,10 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
       _widget.onValueChanged?.call(newValue);
       _widget.valueNotifier?.value = newValue;
     }
+  }
+
+  ValueType getValueType() {
+    return ValueType.from(T.toString());
   }
 
   @protected

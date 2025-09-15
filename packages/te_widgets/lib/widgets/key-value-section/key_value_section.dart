@@ -15,25 +15,25 @@ class TKeyValueSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     if (style.forceKeyValue) {
-      return _buildKeyValueLayout(theme);
+      return _buildKeyValueLayout(colors);
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
         if (availableWidth > style.keyValueBreakPoint) {
-          return _buildGridLayoutWidget(theme, availableWidth);
+          return _buildGridLayoutWidget(colors, availableWidth);
         } else {
-          return _buildKeyValueLayout(theme);
+          return _buildKeyValueLayout(colors);
         }
       },
     );
   }
 
-  Widget _buildKeyValueLayout(ColorScheme theme) {
+  Widget _buildKeyValueLayout(ColorScheme colors) {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Column(
@@ -47,9 +47,9 @@ class TKeyValueSection extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(flex: 2, child: Text(keyValue.key, style: style.getKeyStyle(theme))),
+                  Expanded(flex: 2, child: Text(keyValue.key, style: style.getKeyStyle(colors))),
                   const SizedBox(width: 12),
-                  Expanded(flex: 3, child: Align(alignment: Alignment.centerRight, child: _buildCellContent(theme, keyValue))),
+                  Expanded(flex: 3, child: Align(alignment: Alignment.centerRight, child: _buildCellContent(colors, keyValue))),
                 ],
               ),
             );
@@ -57,7 +57,7 @@ class TKeyValueSection extends StatelessWidget {
         ));
   }
 
-  Widget _buildGridLayoutWidget(ColorScheme theme, double availableWidth) {
+  Widget _buildGridLayoutWidget(ColorScheme colors, double availableWidth) {
     final gridData = _createRowData(availableWidth);
 
     return Column(
@@ -73,7 +73,7 @@ class TKeyValueSection extends StatelessWidget {
                   final header = entry.value;
                   final isFirst = index == 0;
 
-                  return _buildGridCell(theme, header, isFirst);
+                  return _buildGridCell(colors, header, isFirst);
                 }).toList(),
               ),
             ],
@@ -83,28 +83,28 @@ class TKeyValueSection extends StatelessWidget {
     );
   }
 
-  Widget _buildGridCell(ColorScheme theme, TKeyValue keyValue, bool isFirstInRow) {
+  Widget _buildGridCell(ColorScheme colors, TKeyValue keyValue, bool isFirstInRow) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(border: isFirstInRow ? null : Border(left: BorderSide(color: theme.outline.withAlpha(100), width: 1))),
+      decoration: BoxDecoration(border: isFirstInRow ? null : Border(left: BorderSide(color: colors.outline.withAlpha(100), width: 1))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(keyValue.key, style: style.getLabelStyle(theme)),
+          Text(keyValue.key, style: style.getLabelStyle(colors)),
           const SizedBox(height: 4),
-          _buildCellContent(theme, keyValue),
+          _buildCellContent(colors, keyValue),
         ],
       ),
     );
   }
 
-  Widget _buildCellContent(ColorScheme theme, TKeyValue keyValue) {
+  Widget _buildCellContent(ColorScheme colors, TKeyValue keyValue) {
     if (keyValue.widget != null) {
       return keyValue.widget!;
     }
 
-    return Text(keyValue.value ?? '', style: style.getValueStyle(theme));
+    return Text(keyValue.value ?? '', style: style.getValueStyle(colors));
   }
 
   List<_RowData> _createRowData(double availableWidth) {

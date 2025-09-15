@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_extension.dart';
+import 'package:te_widgets/configs/theme/theme_extensions.dart';
 
-enum TColorType { solid, tonal, outline, softOutline, filledOutline, text, softText, filledText }
+enum TVariant { solid, tonal, outline, softOutline, filledOutline, text, softText, filledText }
 
-class TWidgetColorScheme {
+@immutable
+class TWidgetTheme {
   final Color container;
   final Color containerVariant;
   final Color onContainer;
@@ -12,7 +13,7 @@ class TWidgetColorScheme {
   final Color? outlineVariant;
   final Color? shadow;
 
-  TWidgetColorScheme({
+  const TWidgetTheme({
     required this.container,
     required this.containerVariant,
     required this.onContainer,
@@ -23,100 +24,103 @@ class TWidgetColorScheme {
   });
 
   BoxBorder? get boxBorder => outline != null ? Border.all(color: outline!) : null;
+
   List<BoxShadow>? get boxShadow => shadow != null ? [BoxShadow(color: shadow!, blurRadius: 12, spreadRadius: 2)] : null;
 
-  WidgetStateProperty<Color?> get backgroundState => StateHelper.resolveState(
-        container,
-        active: containerVariant,
-        disabled: container.withAlpha(100),
-      );
+  WidgetStateProperty<Color?> get backgroundState =>
+      StateHelper.resolveState(container, active: containerVariant, disabled: container.isTransparent ? container.o(0.4) : container);
 
-  WidgetStateProperty<Color?> get foregroundState => StateHelper.resolveState(
-        onContainer,
-        active: onContainerVariant,
-        disabled: onContainer.withAlpha(100),
-      );
+  WidgetStateProperty<Color?> get foregroundState =>
+      StateHelper.resolveState(onContainer, active: onContainerVariant, disabled: onContainer.o(0.5));
 
   WidgetStateProperty<BorderSide?> get borderSideState => StateHelper.resolveState(
         outline != null ? BorderSide(color: outline!) : BorderSide.none,
         active: outlineVariant != null ? BorderSide(color: outlineVariant!) : BorderSide.none,
-        disabled: outline != null ? BorderSide(color: outline!) : BorderSide.none,
+        disabled: outline != null ? BorderSide(color: outline!.o(0.4)) : BorderSide.none,
       );
 
-  factory TWidgetColorScheme.from(BuildContext context, Color c, TColorType type) {
+  factory TWidgetTheme.from(BuildContext context, Color color, TVariant type) {
     final isDarkMode = context.isDarkMode;
-    final theme = context.theme;
 
-    Color shade(int value) => c.shade(value);
+    Color shade(int value) => color.shade(value);
     Color alpha(Color color, int a) => color.withAlpha(a);
 
-    switch (type) {
-      case TColorType.solid:
-        return TWidgetColorScheme(
+    return switch (type) {
+      TVariant.solid => TWidgetTheme(
           container: shade(400),
           containerVariant: alpha(shade(400), 200),
           onContainer: shade(50),
           onContainerVariant: shade(50),
           shadow: alpha(shade(900), 35),
-        );
-      case TColorType.tonal:
-        return TWidgetColorScheme(
+        ),
+      TVariant.tonal => TWidgetTheme(
           container: isDarkMode ? shade(700) : shade(50),
           containerVariant: isDarkMode ? shade(800) : shade(100),
           onContainer: isDarkMode ? shade(100) : shade(400),
           onContainerVariant: isDarkMode ? shade(300) : shade(500),
           shadow: alpha(shade(600), 35),
-        );
-      case TColorType.outline:
-        return TWidgetColorScheme(
-          container: theme.surface,
-          containerVariant: theme.surface,
+        ),
+      TVariant.outline => TWidgetTheme(
+          container: Colors.transparent,
+          containerVariant: Colors.transparent,
           onContainer: shade(400),
           onContainerVariant: isDarkMode ? shade(300) : shade(500),
           outline: shade(300),
           outlineVariant: shade(400),
           shadow: alpha(shade(400), 35),
-        );
-      case TColorType.softOutline:
-        return TWidgetColorScheme(
-          container: theme.surface,
+        ),
+      TVariant.softOutline => TWidgetTheme(
+          container: Colors.transparent,
           containerVariant: isDarkMode ? shade(700) : shade(50),
           onContainer: shade(400),
           onContainerVariant: isDarkMode ? shade(200) : shade(500),
           outline: shade(300),
           outlineVariant: isDarkMode ? shade(400) : shade(200),
           shadow: alpha(shade(400), 35),
-        );
-      case TColorType.filledOutline:
-        return TWidgetColorScheme(
-          container: theme.surface,
+        ),
+      TVariant.filledOutline => TWidgetTheme(
+          container: Colors.transparent,
           containerVariant: shade(400),
           onContainer: shade(400),
           onContainerVariant: shade(50),
           outline: shade(300),
           shadow: alpha(shade(400), 35),
-        );
-      case TColorType.text:
-        return TWidgetColorScheme(
+        ),
+      TVariant.text => TWidgetTheme(
           container: Colors.transparent,
           containerVariant: Colors.transparent,
           onContainer: shade(400),
           onContainerVariant: isDarkMode ? shade(300) : shade(500),
-        );
-      case TColorType.softText:
-        return TWidgetColorScheme(
+        ),
+      TVariant.softText => TWidgetTheme(
           container: Colors.transparent,
           containerVariant: isDarkMode ? shade(700) : shade(50),
           onContainer: shade(400),
           onContainerVariant: isDarkMode ? shade(300) : shade(500),
-        );
-      case TColorType.filledText:
-        return TWidgetColorScheme(
+        ),
+      TVariant.filledText => TWidgetTheme(
           container: Colors.transparent,
           containerVariant: shade(400),
           onContainer: shade(400),
           onContainerVariant: shade(50),
-        );
-    }
+        )
+    };
+  }
+}
+
+class TThemeResolver {
+  static final Map<String, TWidgetTheme> _baseThemeCache = {};
+
+  static String _cacheKey(Color color, TVariant variant, bool isDark) {
+    return '${color.toARGB32()}_${variant.name}_$isDark';
+  }
+
+  static TWidgetTheme getWidgetTheme(BuildContext context, Color color, TVariant variant) {
+    final key = _cacheKey(color, variant, context.isDarkMode);
+    return _baseThemeCache.putIfAbsent(key, () => TWidgetTheme.from(context, color, variant));
+  }
+
+  static void clearCache() {
+    _baseThemeCache.clear();
   }
 }

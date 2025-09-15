@@ -56,12 +56,12 @@ class _TSpinnerTimePickerState extends State<TSpinnerTimePicker> {
     required FixedExtentScrollController controller,
     required ValueChanged<int> onChanged,
   }) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return Expanded(
       child: Column(
         children: [
-          Text(label, style: TextStyle(fontSize: 14, color: theme.onSurfaceVariant)),
+          Text(label, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant)),
           const SizedBox(height: 8),
           Expanded(
             child: GestureDetector(
@@ -83,7 +83,7 @@ class _TSpinnerTimePickerState extends State<TSpinnerTimePicker> {
                     return Container(
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: isSelected ? theme.primaryContainer : theme.surface,
+                        color: isSelected ? colors.primaryContainer : colors.surface,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -91,7 +91,7 @@ class _TSpinnerTimePickerState extends State<TSpinnerTimePicker> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? theme.onPrimaryContainer : theme.onSurface,
+                          color: isSelected ? colors.onPrimaryContainer : colors.onSurface,
                         ),
                       ),
                     );

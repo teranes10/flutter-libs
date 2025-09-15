@@ -71,7 +71,7 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
 class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixin<T, TDataTable<T>> {
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
     return LayoutBuilder(builder: (context, constraints) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -84,8 +84,8 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
               return SizedBox(
                 height: 4,
                 child: LinearProgressIndicator(
-                  backgroundColor: theme.primaryContainer,
-                  valueColor: AlwaysStoppedAnimation<Color>(theme.onPrimaryContainer),
+                  backgroundColor: colors.primaryContainer,
+                  valueColor: AlwaysStoppedAnimation<Color>(colors.onPrimaryContainer),
                 ),
               );
             },
@@ -119,7 +119,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
               return Column(
                 children: [
                   const SizedBox(height: 24),
-                  _buildToolbar(theme, constraints),
+                  _buildToolbar(colors, constraints),
                 ],
               );
             },
@@ -129,7 +129,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
     });
   }
 
-  Widget _buildToolbar(ColorScheme theme, BoxConstraints constraints) {
+  Widget _buildToolbar(ColorScheme colors, BoxConstraints constraints) {
     final paginationBarWidth =
         (40.0 * (totalPages.clamp(0, widget.decoration.paginationTotalVisible) + 4)) + ((totalPages.toString().length - 1) * 6 * 7);
     final paginationInfoWidth = paginationInfo.length * 7.5;
@@ -143,7 +143,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
               spacing: 15,
               children: [
                 _buildPaginationBar(),
-                _buildPaginationInfo(theme),
+                _buildPaginationInfo(colors),
                 _buildItemsPerPage(),
               ],
             )
@@ -156,7 +156,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   spacing: 15,
-                  children: [_buildPaginationInfo(theme), _buildItemsPerPage()],
+                  children: [_buildPaginationInfo(colors), _buildItemsPerPage()],
                 ),
               ],
             ),
@@ -176,7 +176,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
     return SizedBox(
       width: 80,
       child: TSelect(
-        size: TInputSize.sm,
+        theme: TTextFieldTheme(size: TInputSize.sm),
         selectedIcon: null,
         value: computedItemsPerPage,
         items: computedItemsPerPageOptions,
@@ -187,7 +187,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
     );
   }
 
-  Widget _buildPaginationInfo(ColorScheme theme) {
-    return Text(paginationInfo, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: theme.onSurface));
+  Widget _buildPaginationInfo(ColorScheme colors) {
+    return Text(paginationInfo, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface));
   }
 }

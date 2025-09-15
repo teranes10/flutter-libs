@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/clients/posts_client.dart';
 import 'package:my_app/models/post_dto.dart';
-import 'package:te_widgets/configs/theme/theme_colors.dart';
-import 'package:te_widgets/widgets/select/select_configs.dart';
-import 'package:te_widgets/widgets/select/select.dart';
-import 'package:te_widgets/widgets/select/multi_select.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class SelectFieldsPage extends StatefulWidget {
   const SelectFieldsPage({super.key});
@@ -57,12 +54,6 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
     User(id: '2', name: 'Bob', role: 'Manager'),
   ];
 
-  final customDecoration = BoxDecoration(
-    color: AppColors.warning.shade50,
-    border: Border.all(color: Colors.blue),
-    borderRadius: BorderRadius.circular(8),
-  );
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -93,20 +84,6 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           itemText: (u) => u.name,
           value: selectedUser,
           onValueChanged: (val) => setState(() => selectedUser = val),
-        ),
-        const SizedBox(height: 20),
-        const Text('With Custom Decoration & Widgets', style: TextStyle(fontWeight: FontWeight.w400)),
-        TSelect(
-          label: 'Styled Field',
-          items: countries,
-          boxDecoration: customDecoration,
-          preWidget: const Icon(
-            Icons.flag,
-            color: AppColors.warning,
-          ),
-          postWidget: const Icon(Icons.arrow_drop_down, color: AppColors.warning),
-          value: singleValue,
-          onValueChanged: (val) => setState(() => singleValue = val),
         ),
         const SizedBox(height: 20),
         const Text('Multiselect Basic', style: TextStyle(fontWeight: FontWeight.w400)),
@@ -144,7 +121,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           onValueChanged: (v) => debugPrint('Selected: $v'),
         ),
         const SizedBox(height: 20),
-        TSelect<PostDto, PostDto>(
+        TSelect<PostDto, int>(
           label: 'Server side rendering',
           items: [],
           onLoad: (o) async {
@@ -152,6 +129,8 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
             o.callback(pair.$1, pair.$2);
           },
           itemText: (x) => x.title,
+          itemValue: (x) => x.id,
+          value: 2,
         )
       ],
     );

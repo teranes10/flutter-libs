@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_widgets/widgets/tags-field/tags_field_theme.dart';
 
 class TTagsField extends StatefulWidget
-    with TInputFieldMixin, TInputValueMixin<List<String>>, TFocusMixin, TInputValidationMixin<List<String>> {
+    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<List<String>>, TInputValidationMixin<List<String>> {
   @override
-  final String? label, tag, placeholder, helperText, message;
+  final String? label, tag, helperText, placeholder;
   @override
-  final bool isRequired, disabled;
+  final bool isRequired, disabled, autoFocus, readOnly;
   @override
-  final TInputSize? size;
+  final TTagsFieldTheme? theme;
   @override
-  final Color? color;
+  final VoidCallback? onTap;
   @override
-  final BoxDecoration? boxDecoration;
+  final FocusNode? focusNode;
   @override
-  final Widget? preWidget, postWidget;
-  @override
-  final List<String? Function(List<String>?)>? rules;
-  @override
-  final List<String>? errors;
+  final TextEditingController? textController;
   @override
   final List<String>? value;
   @override
@@ -27,59 +24,41 @@ class TTagsField extends StatefulWidget
   @override
   final ValueChanged<List<String>>? onValueChanged;
   @override
+  final List<String? Function(List<String>?)>? rules;
+  @override
   final Duration? validationDebounce;
-  @override
-  final bool? skipValidation;
-  @override
-  final FocusNode? focusNode;
-  @override
-  final VoidCallback? onTap;
 
   // TagsField specific properties
   final String? inputValue;
   final ValueChanged<String>? onInputChanged;
-  final TextEditingController? controller;
   final bool addTagOnEnter;
-  final int? maxTags;
-  final bool allowDuplicates;
-  final Widget Function(String tag, VoidCallback onRemove)? tagBuilder;
   final void Function(String)? onTagAdded;
   final void Function(String)? onTagRemoved;
-  final bool? readOnly;
 
   const TTagsField({
     super.key,
     this.label,
     this.tag,
-    this.placeholder,
     this.helperText,
-    this.message,
-    this.value,
+    this.placeholder,
     this.isRequired = false,
     this.disabled = false,
-    this.size = TInputSize.md,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
-    this.rules,
-    this.errors,
+    this.autoFocus = false,
+    this.readOnly = false,
+    this.theme,
+    this.onTap,
+    this.focusNode,
+    this.textController,
+    this.value,
     this.valueNotifier,
     this.onValueChanged,
+    this.rules,
     this.validationDebounce,
     this.inputValue,
     this.onInputChanged,
     this.addTagOnEnter = true,
-    this.tagBuilder,
-    this.maxTags,
-    this.allowDuplicates = false,
-    this.focusNode,
-    this.skipValidation,
-    this.controller,
     this.onTagAdded,
     this.onTagRemoved,
-    this.readOnly,
-    this.onTap,
   });
 
   @override
@@ -89,17 +68,17 @@ class TTagsField extends StatefulWidget
 class _TTagsFieldState extends State<TTagsField>
     with
         TInputFieldStateMixin<TTagsField>,
-        TInputValueStateMixin<List<String>, TTagsField>,
         TFocusStateMixin<TTagsField>,
+        TTextFieldStateMixin<TTagsField>,
+        TInputValueStateMixin<List<String>, TTagsField>,
         TInputValidationStateMixin<List<String>, TTagsField> {
-  late final TextEditingController _controller;
-  late final bool _shouldDisposeController;
+  @override
+  TTagsFieldTheme get wTheme => widget.theme ?? theme.tagsFieldTheme;
 
   @override
   void initState() {
-    _controller = widget.controller ?? TextEditingController(text: widget.inputValue ?? '');
-    _shouldDisposeController = widget.controller == null;
     super.initState();
+    controller.text = widget.inputValue ?? '';
   }
 
   @override
@@ -107,20 +86,13 @@ class _TTagsFieldState extends State<TTagsField>
     super.didUpdateWidget(oldWidget);
 
     if (widget.inputValue != oldWidget.inputValue) {
-      _controller.text = widget.inputValue ?? '';
+      controller.text = widget.inputValue ?? '';
     }
-  }
-
-  @override
-  void dispose() {
-    if (_shouldDisposeController) _controller.dispose();
-    super.dispose();
   }
 
   @override
   void onExternalValueChanged(List<String>? value) {
     super.onExternalValueChanged(value);
-
     setState(() {});
   }
 
@@ -129,10 +101,10 @@ class _TTagsFieldState extends State<TTagsField>
   }
 
   void _addTagFromInput() {
-    final input = _controller.text.trim();
+    final input = controller.text.trim();
     if (input.isNotEmpty) {
       _addTag(input);
-      _controller.clear();
+      controller.clear();
       widget.onInputChanged?.call('');
     }
   }
@@ -140,110 +112,52 @@ class _TTagsFieldState extends State<TTagsField>
   void _addTag(String tagText) {
     final trimmed = tagText.trim();
     if (trimmed.isEmpty) return;
+    if (currentValue?.contains(trimmed) == true) return;
 
-    // Check max tags
-    if (widget.maxTags != null && currentValue != null && currentValue!.length >= widget.maxTags!) return;
-
-    // Check duplicates
-    if (!widget.allowDuplicates && currentValue?.contains(trimmed) == true) return;
-
-    currentValue?.add(trimmed);
     widget.onTagRemoved?.call(trimmed);
+    final newValue = List<String>.from(currentValue ?? [])..add(trimmed);
 
-    setState(() {
-      notifyValueChanged(List.from(currentValue ?? []));
-    });
+    setState(() => notifyValueChanged(newValue));
   }
 
   void _removeTag(String tag) {
-    currentValue?.remove(tag);
     widget.onTagRemoved?.call(tag);
-    setState(() {
-      notifyValueChanged(List.from(currentValue ?? []));
-    });
+    final newValue = List<String>.from(currentValue ?? [])..remove(tag);
+
+    setState(() => notifyValueChanged(newValue));
   }
 
-  void _onKeyEvent(KeyEvent event) {
+  KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.enter && widget.addTagOnEnter) {
         _addTagFromInput();
-      } else if (event.logicalKey == LogicalKeyboardKey.backspace && _controller.text.isEmpty && currentValue?.isNotEmpty == true) {
+        return KeyEventResult.handled;
+      } else if (event.logicalKey == LogicalKeyboardKey.backspace && controller.text.isEmpty && currentValue?.isNotEmpty == true) {
         _removeTag(currentValue!.last);
+        return KeyEventResult.handled;
       }
     }
+
+    return KeyEventResult.ignored;
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final exTheme = context.exTheme;
-
     return buildContainer(
-      theme,
-      exTheme,
       isMultiline: true,
-      child: Wrap(
-        spacing: 6.0,
-        runSpacing: 6.0,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          ...(currentValue ?? []).map((tag) => _buildTagChip(theme, tag)),
-          ConstrainedBox(
-            constraints: const BoxConstraints(
-              minWidth: 150,
-              maxWidth: double.infinity,
-            ),
-            child: IntrinsicWidth(
-              child: KeyboardListener(
-                focusNode: FocusNode(),
-                onKeyEvent: _onKeyEvent,
-                child: TextField(
-                  controller: _controller,
-                  focusNode: focusNode,
-                  enabled: widget.disabled != true,
-                  cursorHeight: widget.fontSize + 2,
-                  textInputAction: TextInputAction.unspecified,
-                  textAlignVertical: TextAlignVertical.center,
-                  style: getTextStyle(theme),
-                  decoration: getInputDecoration(theme),
-                  onChanged: _onInputChanged,
-                  readOnly: widget.readOnly == true,
-                ),
-              ),
+      child: wTheme.buildTagsField(
+        colors,
+        tags: currentValue ?? [],
+        onRemove: _removeTag,
+        child: Focus(
+          onKeyEvent: _onKeyEvent,
+          child: IgnorePointer(
+            child: buildTextField(
+              textInputAction: TextInputAction.unspecified,
+              onValueChanged: _onInputChanged,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTagChip(ColorScheme theme, String tag) {
-    if (widget.tagBuilder != null) {
-      return widget.tagBuilder!(tag, () => _removeTag(tag));
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-      decoration: BoxDecoration(
-        color: theme.surfaceContainer,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            tag,
-            style: TextStyle(
-              color: theme.onSurfaceVariant,
-              fontSize: widget.fontSize,
-            ),
-          ),
-          const SizedBox(width: 5.0),
-          GestureDetector(
-            onTap: () => _removeTag(tag),
-            child: Icon(Icons.close, size: 12.0, color: theme.onSurfaceVariant),
-          ),
-        ],
+        ),
       ),
     );
   }

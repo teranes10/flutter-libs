@@ -13,7 +13,7 @@ class TTableRowBuilder<T> {
     widget = newWidget;
   }
 
-  Widget _buildTableRow(ColorScheme theme, TRowStyle rowStyle, T item, int index, bool isExpanded, bool isSelected) {
+  Widget _buildTableRow(ColorScheme colors, TRowStyle rowStyle, T item, int index, bool isExpanded, bool isSelected) {
     return _buildGestureDetector(
       item,
       index,
@@ -21,17 +21,17 @@ class TTableRowBuilder<T> {
         margin: rowStyle.margin,
         elevation: rowStyle.elevation,
         borderRadius: rowStyle.borderRadius,
-        backgroundColor: rowStyle.getBackgroundColor(theme, isSelected),
+        backgroundColor: rowStyle.getBackgroundColor(colors, isSelected),
         padding: rowStyle.padding,
         boxShadow: [
-          BoxShadow(color: theme.shadow, offset: const Offset(0, 1), blurRadius: 0, spreadRadius: 0),
+          BoxShadow(color: colors.shadow, offset: const Offset(0, 1), blurRadius: 0, spreadRadius: 0),
         ],
         child: Column(
           children: [
             Table(
               columnWidths: TTableLayoutCalculator._getColumnWidths(widget),
               defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: [TableRow(children: _buildRowCells(theme, item, index, isExpanded, isSelected))],
+              children: [TableRow(children: _buildRowCells(colors, item, index, isExpanded, isSelected))],
             ),
             if (widget.expandable)
               AnimatedSize(
@@ -41,7 +41,7 @@ class TTableRowBuilder<T> {
                     ? Container(
                         width: double.infinity,
                         margin: EdgeInsets.only(top: rowStyle.padding.top),
-                        child: widget.expandedBuilder?.call(item, index, isExpanded) ?? _buildDefaultExpandedContent(theme, item, index),
+                        child: widget.expandedBuilder?.call(item, index, isExpanded) ?? _buildDefaultExpandedContent(colors, item, index),
                       )
                     : const SizedBox.shrink(),
               )
@@ -51,7 +51,7 @@ class TTableRowBuilder<T> {
     );
   }
 
-  Widget _buildCardRow(ColorScheme theme, T item, int index, bool isExpanded, bool isSelected) {
+  Widget _buildCardRow(ColorScheme colors, T item, int index, bool isExpanded, bool isSelected) {
     return _buildGestureDetector(
       item,
       index,
@@ -63,7 +63,7 @@ class TTableRowBuilder<T> {
         expandable: widget.expandable,
         isExpanded: isExpanded,
         onExpansionChanged: widget.expandable ? () => controller?.toggleExpansion(index) : null,
-        expandedContent: widget.expandedBuilder?.call(item, index, isExpanded) ?? _buildDefaultExpandedContent(theme, item, index),
+        expandedContent: widget.expandedBuilder?.call(item, index, isExpanded) ?? _buildDefaultExpandedContent(colors, item, index),
         selectable: widget.selectable,
         isSelected: isSelected,
         onSelectionChanged: widget.selectable ? () => controller?.toggleSelection(index) : null,
@@ -71,7 +71,7 @@ class TTableRowBuilder<T> {
     );
   }
 
-  List<Widget> _buildRowCells(ColorScheme theme, T item, int index, bool isExpanded, bool isSelected) {
+  List<Widget> _buildRowCells(ColorScheme colors, T item, int index, bool isExpanded, bool isSelected) {
     List<Widget> cells = [];
 
     // Expansion cell
@@ -79,7 +79,7 @@ class TTableRowBuilder<T> {
       cells.add(
         Align(
           alignment: Alignment.centerLeft,
-          child: TTableCard._buildExpandButton(theme, isExpanded, () => controller?.toggleExpansion(index)),
+          child: TTableCard._buildExpandButton(colors, isExpanded, () => controller?.toggleExpansion(index)),
         ),
       );
     }
@@ -100,7 +100,7 @@ class TTableRowBuilder<T> {
     // Data cells
     cells.addAll(
       widget.headers.map((header) {
-        Widget cellContent = _buildCellContent(theme, header, item);
+        Widget cellContent = _buildCellContent(colors, header, item);
         return Align(
           alignment: header.alignment ?? Alignment.centerLeft,
           child: cellContent,
@@ -111,7 +111,7 @@ class TTableRowBuilder<T> {
     return cells;
   }
 
-  Widget _buildCellContent(ColorScheme theme, TTableHeader<T> header, T item) {
+  Widget _buildCellContent(ColorScheme colors, TTableHeader<T> header, T item) {
     if (header.builder != null) {
       return Builder(
         builder: (context) => header.builder!(context, item),
@@ -122,24 +122,24 @@ class TTableRowBuilder<T> {
       padding: const EdgeInsets.symmetric(horizontal: 5),
       child: Text(
         header.getValue(item),
-        style: widget.decoration.style.getContentTextStyle(theme),
+        style: widget.decoration.style.getContentTextStyle(colors),
       ),
     );
   }
 
-  Widget _buildDefaultExpandedContent(ColorScheme theme, T item, int index) {
+  Widget _buildDefaultExpandedContent(ColorScheme colors, T item, int index) {
     return Container(
       height: 100,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.surfaceDim,
+        color: colors.surfaceDim,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
         child: Text(
           'Expanded content for item $index\nProvide expandedBuilder for custom content',
           style: TextStyle(
-            color: theme.onSurfaceVariant,
+            color: colors.onSurfaceVariant,
             fontSize: 14,
           ),
           textAlign: TextAlign.center,

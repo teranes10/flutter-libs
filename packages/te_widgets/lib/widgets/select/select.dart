@@ -4,32 +4,25 @@ import 'package:te_widgets/te_widgets.dart';
 class TSelect<T, V> extends StatefulWidget
     with
         TInputFieldMixin,
-        TInputValueMixin<V>,
         TFocusMixin,
+        TTextFieldMixin,
+        TInputValueMixin<V>,
         TInputValidationMixin<V>,
         TPopupMixin,
         TPaginationMixin<T>,
         TSelectMixin<T, V> {
   @override
-  final String? label, tag, placeholder, helperText, message;
+  final String? label, tag, helperText, placeholder;
   @override
-  final bool isRequired, disabled;
+  final bool isRequired, disabled, autoFocus, readOnly;
   @override
-  final TInputSize? size;
+  final TTextFieldTheme? theme;
   @override
-  final Color? color;
+  final VoidCallback? onTap;
   @override
-  final BoxDecoration? boxDecoration;
+  final FocusNode? focusNode;
   @override
-  final Widget? preWidget, postWidget;
-  @override
-  final List<String? Function(V?)>? rules;
-  @override
-  final List<String>? errors;
-  @override
-  final Duration? validationDebounce;
-  @override
-  final bool? skipValidation;
+  final TextEditingController? textController;
   @override
   final V? value;
   @override
@@ -37,9 +30,9 @@ class TSelect<T, V> extends StatefulWidget
   @override
   final ValueChanged<V>? onValueChanged;
   @override
-  final FocusNode? focusNode;
+  final List<String? Function(V?)>? rules;
   @override
-  final VoidCallback? onTap;
+  final Duration? validationDebounce;
 
   @override
   final List<T>? items;
@@ -86,36 +79,31 @@ class TSelect<T, V> extends StatefulWidget
     super.key,
     this.label,
     this.tag,
-    this.placeholder,
     this.helperText,
-    this.message,
+    this.placeholder,
     this.isRequired = false,
     this.disabled = false,
-    this.size,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
-    this.rules,
-    this.errors,
-    this.validationDebounce,
+    this.autoFocus = false,
+    this.theme,
+    this.onTap,
+    this.focusNode,
+    this.textController,
     this.value,
     this.valueNotifier,
     this.onValueChanged,
-    this.focusNode,
+    this.rules,
+    this.validationDebounce,
     this.items,
     this.multiLevel = false,
     this.filterable = true,
     this.footerMessage,
     this.onShow,
     this.onHide,
-    this.skipValidation,
     this.itemText,
     this.itemValue,
     this.itemKey,
     this.itemChildren,
     this.selectedIcon = Icons.check,
-    this.onTap,
     // Server-side pagination
     this.onLoad,
     this.itemsPerPage = 10,
@@ -125,7 +113,8 @@ class TSelect<T, V> extends StatefulWidget
     this.searchDelay = 2500,
     this.itemToString,
     this.controller,
-  });
+    bool? readOnly,
+  }) : readOnly = readOnly ?? !filterable;
 
   @override
   State<TSelect<T, V>> createState() => _TSelectState<T, V>();
@@ -133,45 +122,30 @@ class TSelect<T, V> extends StatefulWidget
 
 class _TSelectState<T, V> extends State<TSelect<T, V>>
     with
-        TInputValueStateMixin<V, TSelect<T, V>>,
+        TInputFieldStateMixin<TSelect<T, V>>,
         TFocusStateMixin<TSelect<T, V>>,
-        TInputValidationStateMixin<V, TSelect<T, V>>,
+        TTextFieldStateMixin<TSelect<T, V>>,
         TPopupStateMixin<TSelect<T, V>>,
         TPaginationStateMixin<T, TSelect<T, V>>,
-        TSelectStateMixin<T, V, TSelect<T, V>> {
-  late TextEditingController _controller;
-  String _displayTextBeforeExpansion = '';
-
+        TSelectStateMixin<T, V, TSelect<T, V>>,
+        TInputValueStateMixin<V, TSelect<T, V>>,
+        TInputValidationStateMixin<V, TSelect<T, V>> {
   @override
   bool get isMultiple => false;
 
   @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController();
-    _updateDisplayText();
-  }
-
-  @override
-  void didUpdateWidget(TSelect<T, V> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (widget.value != oldWidget.value) {
-      updateSelectedStates();
-      _updateDisplayText();
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
+  void onExternalValueChanged(V? value) {
+    super.onExternalValueChanged(value);
+    updateSelectedStates();
   }
 
   @override
   void updateSelectedStates() {
     final value = widget.value;
     stateNotifier.updateSelectedStates(value != null ? [value] : []);
+    if (!isPopupShowing) {
+      _updateDisplayText();
+    }
   }
 
   @override
@@ -187,8 +161,8 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
 
   void _updateDisplayText() {
     final selectedItem = _getSelectedItem();
-    _controller.text = selectedItem?.text ?? '';
-    _controller.selection = TextSelection.collapsed(offset: _controller.text.length);
+    controller.text = selectedItem?.text ?? '';
+    controller.selection = TextSelection.collapsed(offset: controller.text.length);
   }
 
   TSelectItem<V>? _getSelectedItem() {
@@ -200,16 +174,15 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
   void onFocusChanged(bool hasFocus) {
     super.onFocusChanged(hasFocus);
 
-    if (hasFocus) {
+    if (hasFocus && !isPopupShowing) {
       showPopup(context);
     }
   }
 
   @override
   void showPopup(BuildContext context) {
-    _displayTextBeforeExpansion = _controller.text;
     if (widget.filterable) {
-      _controller.clear();
+      controller.clear();
     }
     super.showPopup(context);
   }
@@ -217,7 +190,7 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
   @override
   void hidePopup() {
     super.hidePopup();
-    _controller.text = _displayTextBeforeExpansion;
+    _updateDisplayText();
 
     // Reset search based on pagination type
     if (serverSideRendering) {
@@ -231,31 +204,17 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return buildWithDropdownTarget(
-      child: TTextField(
-        onTap: () => !widget.filterable ? togglePopup(context) : null,
-        skipValidation: true,
-        focusNode: focusNode,
-        label: widget.label,
-        tag: widget.tag,
-        placeholder: widget.placeholder,
-        helperText: widget.helperText,
-        message: widget.message,
-        isRequired: widget.isRequired,
-        readOnly: !widget.filterable,
-        disabled: widget.disabled == true,
-        size: widget.size,
-        color: widget.color,
-        controller: _controller,
-        value: isPopupShowing && widget.filterable ? (stateNotifier.searchQuery) : _controller.text,
-        preWidget: widget.preWidget,
-        postWidget: widget.postWidget ??
-            Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: theme.onSurfaceVariant),
-        onValueChanged: widget.filterable && isPopupShowing ? onSearchChanged : null,
-        boxDecoration: widget.boxDecoration ?? BoxDecoration(color: widget.disabled == true ? theme.surfaceDim : theme.surface),
-      ),
-    );
+        child: buildContainer(
+      child: IgnorePointer(child: buildTextField(onValueChanged: widget.filterable && isPopupShowing ? onSearchChanged : null)),
+      postWidget: Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
+      onTap: () {
+        if (!widget.filterable) return;
+
+        togglePopup(context);
+      },
+    ));
   }
 }

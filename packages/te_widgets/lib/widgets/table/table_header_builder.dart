@@ -13,7 +13,7 @@ class TTableHeaderBuilder<T> {
     widget = newWidget;
   }
 
-  Widget _build(ColorScheme theme) {
+  Widget _build(ColorScheme colors) {
     return Container(
       width: double.infinity,
       padding: widget.decoration.style.headerPadding,
@@ -22,14 +22,14 @@ class TTableHeaderBuilder<T> {
         columnWidths: TTableLayoutCalculator._getColumnWidths(widget),
         children: [
           TableRow(
-            children: _buildHeaderCells(theme, widget.decoration.style.getHeaderStyle(theme)),
+            children: _buildHeaderCells(colors, widget.decoration.style.getHeaderStyle(colors)),
           ),
         ],
       ),
     );
   }
 
-  List<Widget> _buildHeaderCells(ColorScheme theme, TextStyle headerStyle) {
+  List<Widget> _buildHeaderCells(ColorScheme colors, TextStyle headerStyle) {
     List<Widget> cells = [];
 
     if (widget.expandable) {

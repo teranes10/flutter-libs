@@ -3,27 +3,19 @@ import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TTimePicker extends StatefulWidget
-    with TInputFieldMixin, TInputValueMixin<TimeOfDay>, TFocusMixin, TInputValidationMixin<TimeOfDay>, TPopupMixin {
+    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<TimeOfDay>, TInputValidationMixin<TimeOfDay>, TPopupMixin {
   @override
-  final String? label, tag, placeholder, helperText, message;
+  final String? label, tag, helperText, placeholder;
   @override
-  final bool isRequired, disabled;
+  final bool isRequired, disabled, autoFocus, readOnly;
   @override
-  final TInputSize? size;
+  final TTextFieldTheme? theme;
   @override
-  final Color? color;
+  final VoidCallback? onTap;
   @override
-  final BoxDecoration? boxDecoration;
+  final FocusNode? focusNode;
   @override
-  final Widget? preWidget, postWidget;
-  @override
-  final List<String? Function(TimeOfDay?)>? rules;
-  @override
-  final List<String>? errors;
-  @override
-  final Duration? validationDebounce;
-  @override
-  final bool? skipValidation;
+  final TextEditingController? textController;
   @override
   final TimeOfDay? value;
   @override
@@ -31,14 +23,13 @@ class TTimePicker extends StatefulWidget
   @override
   final ValueChanged<TimeOfDay>? onValueChanged;
   @override
-  final FocusNode? focusNode;
-
+  final List<String? Function(TimeOfDay?)>? rules;
+  @override
+  final Duration? validationDebounce;
   @override
   final VoidCallback? onShow;
   @override
   final VoidCallback? onHide;
-  @override
-  final VoidCallback? onTap;
 
   final DateFormat? format;
 
@@ -46,28 +37,24 @@ class TTimePicker extends StatefulWidget
     super.key,
     this.label,
     this.tag,
-    this.placeholder,
     this.helperText,
-    this.message,
+    this.placeholder,
     this.isRequired = false,
     this.disabled = false,
-    this.size,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
-    this.rules,
-    this.errors,
-    this.validationDebounce,
-    this.skipValidation,
+    this.autoFocus = false,
+    this.readOnly = true,
+    this.theme,
+    this.onTap,
+    this.focusNode,
+    this.textController,
     this.value,
     this.valueNotifier,
     this.onValueChanged,
-    this.focusNode,
-    this.format,
+    this.rules,
+    this.validationDebounce,
     this.onShow,
     this.onHide,
-    this.onTap,
+    this.format,
   });
 
   @override
@@ -77,26 +64,23 @@ class TTimePicker extends StatefulWidget
 class _TTimePickerState extends State<TTimePicker>
     with
         TInputFieldStateMixin<TTimePicker>,
-        TInputValueStateMixin<TimeOfDay, TTimePicker>,
         TFocusStateMixin<TTimePicker>,
+        TTextFieldStateMixin<TTimePicker>,
+        TInputValueStateMixin<TimeOfDay, TTimePicker>,
         TInputValidationStateMixin<TimeOfDay, TTimePicker>,
         TPopupStateMixin<TTimePicker> {
-  final TextEditingController controller = TextEditingController();
   late DateFormat dateFormat;
 
   @override
   void initState() {
-    super.initState();
     dateFormat = widget.format ?? DateFormat('hh:mm a');
-    if (currentValue != null) {
-      controller.text = dateFormat.formatTimeOfDay(currentValue!);
-    }
+    super.initState();
   }
 
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+  void onExternalValueChanged(TimeOfDay? value) {
+    super.onExternalValueChanged(value);
+    controller.text = currentValue != null ? dateFormat.formatTimeOfDay(currentValue!) : '';
   }
 
   void _onTimeSelected(TimeOfDay time) {
@@ -124,26 +108,13 @@ class _TTimePickerState extends State<TTimePicker>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final exTheme = context.exTheme;
-
     return buildWithDropdownTarget(
       child: buildContainer(
-        theme,
-        exTheme,
-        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: theme.onSurfaceVariant),
-        child: TextField(
-          readOnly: true,
-          controller: controller,
-          focusNode: focusNode,
-          enabled: widget.disabled != true,
-          textInputAction: TextInputAction.next,
-          cursorHeight: widget.fontSize + 2,
-          textAlignVertical: TextAlignVertical.center,
-          style: getTextStyle(theme),
-          decoration: getInputDecoration(theme),
-        ),
-        onTap: () => showPopup(context),
+        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: colors.onSurfaceVariant),
+        child: IgnorePointer(child: buildTextField()),
+        onTap: () {
+          showPopup(context);
+        },
       ),
     );
   }

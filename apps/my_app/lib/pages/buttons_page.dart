@@ -16,6 +16,7 @@ class _ButtonsPageState extends State<ButtonsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          TImage(),
           _buildRow('Solid Buttons', [
             TButton(type: TButtonType.solid, icon: Icons.home, text: 'Primary', color: AppColors.primary, onPressed: (_) => {}),
             TButton(type: TButtonType.solid, icon: Icons.home, text: 'Secondary', color: AppColors.secondary, onPressed: (_) => {}),
@@ -101,9 +102,9 @@ class _ButtonsPageState extends State<ButtonsPage> {
             TButton(icon: Icons.home, text: 'sm', size: TButtonSize.sm, onPressed: (_) => {}),
             TButton(icon: Icons.home, text: 'md', onPressed: (_) => {}),
             TButton(icon: Icons.home, text: 'lg', size: TButtonSize.lg, onPressed: (_) => {}),
-            TButton(text: '150 * 75', width: 150, height: 75, onPressed: (_) => {}),
-            TButton(text: '100 * 150', width: 100, height: 150, onPressed: (_) => {}),
-            TButton(text: '150 * 150', width: 150, height: 150, onPressed: (_) => {}),
+            TButton(text: '150 * 75', size: TButtonSize.md.copyWith(minW: 150, minH: 75), onPressed: (_) => {}),
+            TButton(text: '100 * 150', size: TButtonSize.md.copyWith(minW: 100, minH: 150), onPressed: (_) => {}),
+            TButton(text: '150 * 150', size: TButtonSize.md.copyWith(minW: 150, minH: 150), onPressed: (_) => {}),
           ]),
           _buildRow('Loading State', [
             TButton(
@@ -255,7 +256,8 @@ class _ButtonsPageState extends State<ButtonsPage> {
               ],
             ),
           ]),
-          _buildRow('Block Button', [TButton(text: 'Block Button', block: true, color: AppColors.success, onPressed: (_) => {})]),
+          _buildRow(
+              'Block Button', [TButton(text: 'Block Button', size: TButtonSize.block, color: AppColors.success, onPressed: (_) => {})]),
           _buildRow("Circle Toggle Button", [
             CircleToggleButton(
               falseIcon: Icon(Icons.play_arrow, color: Colors.white),

@@ -32,7 +32,7 @@ class TModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
     final screenSize = MediaQuery.of(context).size;
     final modalWidth = width > screenSize.width ? screenSize.width - gap : width;
 
@@ -59,16 +59,16 @@ class TModal extends StatelessWidget {
                     maxHeight: screenSize.height - gap,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.surface,
+                    color: colors.surface,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: theme.shadow, blurRadius: 12, spreadRadius: 0)],
+                    boxShadow: [BoxShadow(color: colors.shadow, blurRadius: 12, spreadRadius: 0)],
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Fixed header (non-scrollable
                       if (header != null) header!,
-                      if (header == null && (title != null || showCloseButton == true)) _buildHeader(theme),
+                      if (header == null && (title != null || showCloseButton == true)) _buildHeader(colors),
 
                       // Scrollable content area
                       Flexible(
@@ -88,7 +88,7 @@ class TModal extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(ColorScheme theme) {
+  Widget _buildHeader(ColorScheme colors) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
       child: Row(
@@ -96,7 +96,7 @@ class TModal extends StatelessWidget {
         children: [
           Expanded(
             child: title != null
-                ? Text(title ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: theme.onSurface))
+                ? Text(title ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: colors.onSurface))
                 : SizedBox.shrink(),
           ),
           if (showCloseButton == true) TCloseIcon(onClose: () => onClose?.call()),

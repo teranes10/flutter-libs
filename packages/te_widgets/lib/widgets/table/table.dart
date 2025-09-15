@@ -89,7 +89,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -101,21 +101,21 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           _isCardView = shouldShowCardView;
         }
 
-        Widget child = _isCardView ? _buildCardView(theme, constraints) : _buildTableView(theme, constraints);
+        Widget child = _isCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
 
         return _layoutCalculator._applyConstraints(child, constraints);
       },
     );
   }
 
-  Widget _buildTableView(ColorScheme theme, BoxConstraints constraints) {
+  Widget _buildTableView(ColorScheme colors, BoxConstraints constraints) {
     Widget tableContent = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _headerBuilder._build(theme),
-        _buildTable(theme),
-        if (widget.items.isEmpty && !widget.loading) buildTableEmptyState(theme),
+        _headerBuilder._build(colors),
+        _buildTable(colors),
+        if (widget.items.isEmpty && !widget.loading) buildTableEmptyState(colors),
       ],
     );
 
@@ -141,7 +141,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     }
   }
 
-  Widget _buildTable(ColorScheme theme) {
+  Widget _buildTable(ColorScheme colors) {
     return SizedBox(
       width: double.infinity,
       child: _controller != null
@@ -151,16 +151,16 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
                 return ValueListenableBuilder<Set<int>>(
                   valueListenable: _controller!.selected,
                   builder: (context, selectedSet, _) {
-                    return _buildTList(theme, expandedSet, selectedSet);
+                    return _buildTList(colors, expandedSet, selectedSet);
                   },
                 );
               },
             )
-          : _buildTList(theme, const {}, const {}),
+          : _buildTList(colors, const {}, const {}),
     );
   }
 
-  Widget _buildTList(ColorScheme theme, Set<int> expandedSet, Set<int> selectedSet) {
+  Widget _buildTList(ColorScheme colors, Set<int> expandedSet, Set<int> selectedSet) {
     return TList<T>(
       items: widget.items,
       showAnimation: widget.decoration.showStaggeredAnimation,
@@ -169,14 +169,14 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, item, index) {
         return _rowBuilder._buildTableRow(
-            theme, widget.decoration.style.rowStyle, item, index, expandedSet.contains(index), selectedSet.contains(index));
+            colors, widget.decoration.style.rowStyle, item, index, expandedSet.contains(index), selectedSet.contains(index));
       },
     );
   }
 
-  Widget _buildCardView(ColorScheme theme, BoxConstraints constraints) {
+  Widget _buildCardView(ColorScheme colors, BoxConstraints constraints) {
     if (widget.items.isEmpty && !widget.loading) {
-      return buildTableEmptyState(theme);
+      return buildTableEmptyState(colors);
     }
 
     if (_controller != null) {
@@ -186,17 +186,17 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           return ValueListenableBuilder<Set<int>>(
             valueListenable: _controller!.selected,
             builder: (context, selectedSet, _) {
-              return _buildCardList(theme, expandedSet, selectedSet);
+              return _buildCardList(colors, expandedSet, selectedSet);
             },
           );
         },
       );
     } else {
-      return _buildCardList(theme, const {}, const {});
+      return _buildCardList(colors, const {}, const {});
     }
   }
 
-  Widget _buildCardList(ColorScheme theme, Set<int> expandedSet, Set<int> selectedSet) {
+  Widget _buildCardList(ColorScheme colors, Set<int> expandedSet, Set<int> selectedSet) {
     return TList<T>(
       items: widget.items,
       showAnimation: widget.decoration.showStaggeredAnimation,
@@ -205,7 +205,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, item, index) {
         return _rowBuilder._buildCardRow(
-          theme,
+          colors,
           item,
           index,
           expandedSet.contains(index),
@@ -215,19 +215,19 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
     );
   }
 
-  Widget buildTableEmptyState(ColorScheme theme) {
+  Widget buildTableEmptyState(ColorScheme colors) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.inbox_outlined, size: 64, color: theme.onSurfaceVariant),
+            Icon(Icons.inbox_outlined, size: 64, color: colors.onSurfaceVariant),
             const SizedBox(height: 16),
-            Text('No data available', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: theme.onSurface)),
+            Text('No data available', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: colors.onSurface)),
             const SizedBox(height: 8),
             Text('There are no items to display at the moment.',
-                style: TextStyle(fontSize: 14, color: theme.onSurfaceVariant), textAlign: TextAlign.center),
+                style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant), textAlign: TextAlign.center),
           ],
         ),
       ),

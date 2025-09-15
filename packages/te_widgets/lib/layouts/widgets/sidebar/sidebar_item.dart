@@ -203,7 +203,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   }
 
   Widget _buildMainItem(bool isCurrentRoute, bool containsCurrentRoute) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return MouseRegion(
       onEnter: (_) => _onHoverEnter(),
@@ -224,7 +224,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
                   : EdgeInsets.symmetric(horizontal: 10),
           decoration: widget.isMinimized
               ? BoxDecoration(
-                  shape: BoxShape.circle, color: isCurrentRoute ? widget.theme.activeBackgroundColor : theme.surfaceContainerHigh)
+                  shape: BoxShape.circle, color: isCurrentRoute ? widget.theme.activeBackgroundColor : colors.surfaceContainerHigh)
               : BoxDecoration(color: isCurrentRoute ? widget.theme.activeBackgroundColor : null, borderRadius: BorderRadius.circular(8)),
           child: _buildItemContent(isCurrentRoute, containsCurrentRoute),
         ),

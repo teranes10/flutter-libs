@@ -5,11 +5,11 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
 
   _TCrudTableBuilder({required this.parent});
 
-  Widget _buildContent(TColorScheme exTheme) {
+  Widget _buildContent(TWidgetThemeExtension theme) {
     if (!parent.hasArchive) {
       return _buildTable(
         isArchive: false,
-        headers: _buildActiveHeaders(exTheme),
+        headers: _buildActiveHeaders(theme),
         items: parent.widget.items,
         onLoad: parent.widget.onLoad,
         searchNotifier: parent.searchNotifier,
@@ -22,7 +22,7 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
       children: [
         _buildTable(
           isArchive: false,
-          headers: _buildActiveHeaders(exTheme),
+          headers: _buildActiveHeaders(theme),
           items: parent.widget.items,
           onLoad: parent.widget.onLoad,
           searchNotifier: parent.searchNotifier,
@@ -30,7 +30,7 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
         ),
         _buildTable(
           isArchive: true,
-          headers: _buildArchiveHeaders(exTheme),
+          headers: _buildArchiveHeaders(theme),
           items: parent.widget.archivedItems,
           onLoad: parent.widget.onArchiveLoad,
           searchNotifier: parent.archiveSearchNotifier,
@@ -67,7 +67,7 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
     );
   }
 
-  List<TTableHeader<T>> _buildActiveHeaders(TColorScheme exTheme) {
+  List<TTableHeader<T>> _buildActiveHeaders(TWidgetThemeExtension theme) {
     final headers = [...parent.widget.headers];
 
     if (parent.widget.config.showActions && parent.hasActiveActions) {
@@ -75,14 +75,14 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
         'Actions',
         maxWidth: (27.0 * (3 + parent.widget.config.activeActions.length)),
         alignment: Alignment.center,
-        builder: (context, item) => _buildActiveActionButtons(exTheme, item),
+        builder: (context, item) => _buildActiveActionButtons(theme, item),
       ));
     }
 
     return headers;
   }
 
-  List<TTableHeader<T>> _buildArchiveHeaders(TColorScheme exTheme) {
+  List<TTableHeader<T>> _buildArchiveHeaders(TWidgetThemeExtension theme) {
     final headers = [...parent.widget.headers];
 
     if (parent.widget.config.showActions && parent.hasArchiveActions) {
@@ -90,21 +90,21 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
         'Actions',
         maxWidth: (27.0 * (3 + parent.widget.config.activeActions.length)),
         alignment: Alignment.center,
-        builder: (context, item) => _buildArchiveActionButtons(exTheme, item),
+        builder: (context, item) => _buildArchiveActionButtons(theme, item),
       ));
     }
 
     return headers;
   }
 
-  Widget _buildActiveActionButtons(TColorScheme exTheme, T item) {
+  Widget _buildActiveActionButtons(TWidgetThemeExtension theme, T item) {
     final buttons = <TButtonGroupItem>[];
 
     if (parent.widget.onView != null && parent.canPerformActionSync(item, parent.widget.config.canView)) {
       buttons.add(TButtonGroupItem(
         tooltip: 'View',
         icon: Icons.visibility,
-        color: exTheme.success,
+        color: theme.success,
         onPressed: (_) => parent.widget.onView!(item),
       ));
     }
@@ -113,7 +113,7 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
       buttons.add(TButtonGroupItem(
         tooltip: 'Edit',
         icon: Icons.edit,
-        color: exTheme.info,
+        color: theme.info,
         onPressed: (_) => parent.handleEdit(item),
       ));
     }
@@ -122,7 +122,7 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
       buttons.add(TButtonGroupItem(
         tooltip: 'Archive',
         icon: Icons.archive,
-        color: exTheme.danger,
+        color: theme.danger,
         onPressed: (_) => parent.handleArchive(item),
       ));
     }
@@ -141,12 +141,12 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
     return buttons.isEmpty
         ? const SizedBox.shrink()
         : TButtonGroup(
-            type: TButtonGroupType.text,
+            type: TButtonGroupType.icon,
             items: buttons,
           );
   }
 
-  Widget _buildArchiveActionButtons(TColorScheme exTheme, T item) {
+  Widget _buildArchiveActionButtons(TWidgetThemeExtension theme, T item) {
     final buttons = <TButtonGroupItem>[];
 
     // View action
@@ -154,7 +154,7 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
       buttons.add(TButtonGroupItem(
         tooltip: 'View',
         icon: Icons.visibility,
-        color: exTheme.success,
+        color: theme.success,
         onPressed: (_) => parent.widget.onView!(item),
       ));
     }
@@ -164,7 +164,7 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
       buttons.add(TButtonGroupItem(
         tooltip: 'Restore',
         icon: Icons.restore,
-        color: exTheme.info,
+        color: theme.info,
         onPressed: (_) => parent.handleRestore(item),
       ));
     }
@@ -174,7 +174,7 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
       buttons.add(TButtonGroupItem(
         tooltip: 'Delete',
         icon: Icons.delete_forever,
-        color: exTheme.danger,
+        color: theme.danger,
         onPressed: (_) => parent.handleDelete(item),
       ));
     }
@@ -194,7 +194,7 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
     return buttons.isEmpty
         ? const SizedBox.shrink()
         : TButtonGroup(
-            type: TButtonGroupType.text,
+            type: TButtonGroupType.icon,
             items: buttons,
           );
   }

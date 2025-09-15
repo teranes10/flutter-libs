@@ -38,7 +38,7 @@ class TTableCard<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return Container(
       width: width,
@@ -46,9 +46,9 @@ class TTableCard<T> extends StatelessWidget {
       child: Material(
         elevation: style.elevation,
         borderRadius: style.borderRadius,
-        color: style.getBackgroundColor(theme, isSelected),
+        color: style.getBackgroundColor(colors, isSelected),
         child: Container(
-          decoration: BoxDecoration(borderRadius: style.borderRadius, border: style.getBorder(theme, isSelected)),
+          decoration: BoxDecoration(borderRadius: style.borderRadius, border: style.getBorder(colors, isSelected)),
           child: Column(
             children: [
               Stack(
@@ -61,8 +61,8 @@ class TTableCard<T> extends StatelessWidget {
                           value: isSelected,
                           onValueChanged: (value) => onSelectionChanged?.call(),
                         )),
-                  _buildMainContent(theme),
-                  if (expandable) Positioned(bottom: 3, right: 5, child: _buildExpandButton(theme, isExpanded, onExpansionChanged)),
+                  _buildMainContent(colors),
+                  if (expandable) Positioned(bottom: 3, right: 5, child: _buildExpandButton(colors, isExpanded, onExpansionChanged)),
                 ],
               ),
               if (isExpanded && expandedContent != null) ...[
@@ -82,7 +82,7 @@ class TTableCard<T> extends StatelessWidget {
     );
   }
 
-  Widget _buildMainContent(ColorScheme theme) {
+  Widget _buildMainContent(ColorScheme colors) {
     final values = TKeyValue.mapHeaders(headers, item);
     return Padding(
       padding: EdgeInsets.only(
@@ -95,7 +95,7 @@ class TTableCard<T> extends StatelessWidget {
     );
   }
 
-  static Widget _buildExpandButton(ColorScheme theme, bool isExpanded, VoidCallback? onTap) {
+  static Widget _buildExpandButton(ColorScheme colors, bool isExpanded, VoidCallback? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -104,7 +104,7 @@ class TTableCard<T> extends StatelessWidget {
         child: AnimatedRotation(
           turns: isExpanded ? 0.5 : 0,
           duration: const Duration(milliseconds: 200),
-          child: Icon(Icons.keyboard_arrow_down, size: 16, color: theme.onSurfaceVariant),
+          child: Icon(Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
         ),
       ),
     );

@@ -5,21 +5,15 @@ import 'package:te_widgets/te_widgets.dart';
 class TFilePicker extends StatefulWidget
     with TInputFieldMixin, TInputValueMixin<List<TFile>>, TFocusMixin, TInputValidationMixin<List<TFile>> {
   @override
-  final String? label, tag, placeholder, helperText, message;
+  final String? label, tag, helperText;
   @override
   final bool isRequired, disabled;
   @override
-  final TInputSize? size;
+  final TFilePickerTheme? theme;
   @override
-  final Color? color;
+  final VoidCallback? onTap;
   @override
-  final BoxDecoration? boxDecoration;
-  @override
-  final Widget? preWidget, postWidget;
-  @override
-  final List<String? Function(List<TFile>?)>? rules;
-  @override
-  final List<String>? errors;
+  final FocusNode? focusNode;
   @override
   final List<TFile>? value;
   @override
@@ -27,48 +21,34 @@ class TFilePicker extends StatefulWidget
   @override
   final ValueChanged<List<TFile>>? onValueChanged;
   @override
+  final List<String? Function(List<TFile>?)>? rules;
+  @override
   final Duration? validationDebounce;
-  @override
-  final bool? skipValidation;
-  @override
-  final FocusNode? focusNode;
-  @override
-  final VoidCallback? onTap;
 
   // FileSelector specific properties
-  final TFilePickerDecoration decoration;
+  final bool autoFocus;
   final bool allowMultiple;
   final List<String>? allowedExtensions;
-  final int? maxFiles;
   final TFileType fileType;
 
   const TFilePicker({
     super.key,
     this.label,
     this.tag,
-    this.placeholder = "Select files...",
     this.helperText,
-    this.message,
-    this.value,
     this.isRequired = false,
     this.disabled = false,
-    this.size = TInputSize.md,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
-    this.rules,
-    this.errors,
+    this.theme,
+    this.onTap,
+    this.focusNode,
+    this.value,
     this.valueNotifier,
     this.onValueChanged,
+    this.rules,
     this.validationDebounce,
-    this.skipValidation,
-    this.focusNode,
-    this.onTap,
+    this.autoFocus = false,
     this.allowMultiple = false,
-    this.maxFiles,
     this.allowedExtensions,
-    this.decoration = const TFilePickerDecoration(),
     this.fileType = TFileType.any,
   });
 
@@ -82,6 +62,9 @@ class _TFilePickerState extends State<TFilePicker>
         TInputValueStateMixin<List<TFile>, TFilePicker>,
         TFocusStateMixin<TFilePicker>,
         TInputValidationStateMixin<List<TFile>, TFilePicker> {
+  @override
+  TFilePickerTheme get wTheme => widget.theme ?? context.theme.filePickerTheme;
+
   @override
   void onExternalValueChanged(List<TFile>? value) {
     super.onExternalValueChanged(value);
@@ -110,10 +93,6 @@ class _TFilePickerState extends State<TFilePicker>
   }
 
   void _addFile(TFile file) {
-    // Check max files
-    if (widget.maxFiles != null && currentValue != null && currentValue!.length >= widget.maxFiles!) return;
-
-    //Check if file already exists (by path)
     if (currentValue?.any((f) => f == file) == true) return;
 
     if (widget.allowMultiple) {
@@ -135,22 +114,19 @@ class _TFilePickerState extends State<TFilePicker>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
-    final exTheme = context.exTheme;
-
-    return GestureDetector(
+    return buildContainer(
       onTap: _pickFiles,
-      child: buildContainer(
-        theme,
-        exTheme,
-        isMultiline: true,
-        preWidget: Icon(Icons.attach_file_rounded, size: 16, color: theme.onSurfaceVariant),
+      isMultiline: true,
+      preWidget: Icon(Icons.attach_file_rounded, size: 16, color: colors.onSurfaceVariant),
+      child: Focus(
+        focusNode: focusNode,
+        autofocus: widget.autoFocus,
         child: Wrap(
-          spacing: 6.0,
-          runSpacing: 6.0,
+          spacing: wTheme.tagSpacing,
+          runSpacing: wTheme.tagRunSpacing,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            ...(currentValue ?? []).map((file) => widget.decoration.buildFileChip(theme, widget.size, file, () => _removeFile(file))),
+            ...(currentValue ?? []).map((file) => wTheme.buildTagChip(colors, file, () => _removeFile(file))),
           ],
         ),
       ),

@@ -84,6 +84,16 @@ class TFieldProp<T> {
   void dispose() {
     _valueNotifier?.dispose();
     _subscribers.clear();
+
+    if (value is TFormBase) {
+      (value as TFormBase).dispose();
+    }
+
+    if (value is List<TFormBase>) {
+      for (var f in (value as List<TFormBase>)) {
+        f.dispose();
+      }
+    }
   }
 
   @override

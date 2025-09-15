@@ -2,15 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TButton extends StatefulWidget {
+  final TButtonTheme? theme;
   final TButtonType? type;
   final TButtonSize? size;
-  final double? width;
-  final double? height;
-  final bool block;
-  final OutlinedBorder? shape;
-
   final IconData? icon;
-  final double? iconSize;
   final String? text;
   final Color? color;
   final bool loading;
@@ -18,26 +13,24 @@ class TButton extends StatefulWidget {
   final String? tooltip;
   final bool active;
   final Widget? child;
+  final VoidCallback? onTap;
   final Function(TButtonPressOptions)? onPressed;
 
   const TButton({
     super.key,
+    this.theme,
     this.type,
     this.size,
     this.color,
-    this.block = false,
     this.loading = false,
     this.loadingText = 'Loading...',
     this.icon,
-    this.iconSize,
     this.text,
     this.tooltip,
+    this.onTap,
     this.onPressed,
     this.active = false,
-    this.width,
-    this.height,
     this.child,
-    this.shape,
   });
 
   @override
@@ -47,11 +40,9 @@ class TButton extends StatefulWidget {
 class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool _isHovered = false;
+  bool _isFocused = false;
 
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(milliseconds: 100),
-    vsync: this,
-  );
+  late final AnimationController _controller = AnimationController(duration: const Duration(milliseconds: 100), vsync: this);
   late final Animation<double> _scaleAnimation =
       Tween<double>(begin: 1.0, end: 0.95).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
@@ -62,119 +53,73 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   }
 
   void _handlePress() {
-    if (_isLoading || widget.onPressed == null) return;
+    if (_isLoading || (widget.onPressed == null && widget.onTap == null)) return;
 
     _controller.forward().then((_) => _controller.reverse());
 
-    if (widget.loading) {
-      setState(() => _isLoading = true);
+    if (widget.onTap != null) {
+      widget.onTap!();
+      return;
     }
 
-    widget.onPressed?.call(TButtonPressOptions(
-      stopLoading: () => setState(() => _isLoading = false),
-    ));
+    if (widget.onPressed != null) {
+      if (widget.loading) {
+        setState(() => _isLoading = true);
+      }
+
+      widget.onPressed!(TButtonPressOptions(
+        stopLoading: () {
+          if (mounted) {
+            setState(() => _isLoading = false);
+          }
+        },
+      ));
+    }
   }
 
-  WidgetStateProperty<T> _resolveState<T>(
-    T normal,
-    T active,
-    T disabled,
-  ) {
-    return WidgetStateProperty.resolveWith((states) {
-      if (states.contains(WidgetState.disabled)) return disabled;
-      if (states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered) || widget.active) return active;
-      return normal;
-    });
-  }
-
-  ButtonStyle _getButtonStyle(TWidgetColorScheme wTheme, TButtonSizeData size) {
-    return ButtonStyle(
-      backgroundColor: wTheme.backgroundState,
-      foregroundColor: wTheme.foregroundState,
-      iconColor: wTheme.foregroundState,
-      side: wTheme.borderSideState,
-      padding: WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: size.hPad, vertical: size.vPad)),
-      minimumSize: WidgetStateProperty.all(Size(widget.block ? double.infinity : widget.width ?? size.minW, widget.height ?? size.minH)),
-      shape: WidgetStateProperty.all(widget.shape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(6))),
-      elevation: WidgetStateProperty.all(0),
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-    );
-  }
-
-  Widget _buildContent(TWidgetColorScheme wTheme, TButtonType type, TButtonSizeData size) {
-    final isLoading = _isLoading;
-
-    final resolvedFgColor = _resolveState(
-      wTheme.onContainer,
-      wTheme.onContainerVariant,
-      wTheme.onContainer.withAlpha(100),
-    ).resolve({
+  Set<WidgetState> get _currentStates {
+    return {
+      if (widget.onPressed == null && widget.onTap == null) WidgetState.disabled,
       if (_isHovered) WidgetState.hovered,
+      if (_isFocused) WidgetState.focused,
       if (widget.active) WidgetState.pressed,
-      if (widget.onPressed == null) WidgetState.disabled,
-    });
-
-    return Row(
-      mainAxisSize: widget.block ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (isLoading)
-          SizedBox(
-            width: widget.iconSize ?? size.icon,
-            height: widget.iconSize ?? size.icon,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation(resolvedFgColor),
-            ),
-          )
-        else if (widget.icon != null)
-          Icon(widget.icon, size: widget.iconSize ?? size.icon),
-        if ((widget.text?.isNotEmpty ?? false)) ...[
-          if (widget.icon != null || isLoading) SizedBox(width: size.spacing),
-          Text(
-            isLoading ? widget.loadingText : widget.text!,
-            style: TextStyle(
-              fontSize: size.font,
-              fontWeight: type.fontWeight,
-              letterSpacing: 0.65,
-            ),
-          ),
-        ],
-        if (widget.child != null) widget.child!,
-      ],
-    );
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    final exTheme = context.exTheme;
-    final mColor = widget.color ?? exTheme.primary;
-    final mType = widget.type ?? exTheme.buttonType;
-    final wTheme = context.getWidgetTheme(mapButtonTypeToColorType(mType), mColor);
-    final size = TButtonSizeData.from(widget.size ?? (mType == TButtonType.icon ? TButtonSize.xxs : TButtonSize.md));
+    final wTheme = widget.theme ?? TButtonTheme.create(context, type: widget.type, size: widget.size, color: widget.color);
 
     final button = ElevatedButton(
-      onPressed: widget.onPressed != null ? _handlePress : null,
-      style: _getButtonStyle(wTheme, size),
-      child: _buildContent(wTheme, mType, size),
+      onPressed: (widget.onPressed == null && widget.onTap == null) ? null : _handlePress,
+      style: wTheme.getButtonStyle(),
+      child: wTheme.buildButtonContent(
+        icon: widget.icon,
+        text: widget.text,
+        isLoading: _isLoading,
+        loadingText: widget.loadingText,
+        child: widget.child,
+        states: _currentStates,
+      ),
     );
 
-    final scaledButton = AnimatedBuilder(
-      animation: _scaleAnimation,
-      builder: (context, child) {
-        return Transform.scale(scale: _scaleAnimation.value, child: child);
-      },
-      child: button,
-    );
-
-    final wrapped = MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: scaledButton,
+    final wrapped = Focus(
+      onFocusChange: (focused) => setState(() => _isFocused = focused),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: AnimatedBuilder(
+          animation: _scaleAnimation,
+          builder: (context, child) {
+            return Transform.scale(scale: _scaleAnimation.value, child: child);
+          },
+          child: button,
+        ),
+      ),
     );
 
     if (widget.tooltip != null) {
-      return TTooltip(message: widget.tooltip!, color: mColor, child: wrapped);
+      return TTooltip(message: widget.tooltip!, color: wTheme.color, child: wrapped);
     }
 
     return wrapped;

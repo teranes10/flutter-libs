@@ -1,30 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TCheckboxGroup<T> extends StatefulWidget
     with TInputFieldMixin, TInputValueMixin<List<T>>, TFocusMixin, TInputValidationMixin<List<T>> {
   @override
-  final String? label, tag, placeholder, helperText, message;
+  final String? label, tag, helperText;
   @override
   final bool isRequired, disabled;
   @override
-  final TInputSize? size;
-  @override
-  final Color? color;
-  @override
-  final BoxDecoration? boxDecoration;
-  @override
-  final Widget? preWidget, postWidget;
+  final TInputFieldTheme? theme;
   @override
   final VoidCallback? onTap;
   @override
-  final List<String? Function(List<T>?)>? rules;
-  @override
-  final List<String>? errors;
-  @override
-  final Duration? validationDebounce;
-  @override
-  final bool? skipValidation;
+  final FocusNode? focusNode;
   @override
   final List<T>? value;
   @override
@@ -32,38 +21,36 @@ class TCheckboxGroup<T> extends StatefulWidget
   @override
   final ValueChanged<List<T>>? onValueChanged;
   @override
-  final FocusNode? focusNode;
+  final List<String? Function(List<T>?)>? rules;
+  @override
+  final Duration? validationDebounce;
 
   final List<TCheckboxGroupItem<T>> items;
+  final Color? color;
   final bool block;
   final bool vertical;
+  final bool autoFocus;
 
   const TCheckboxGroup({
     super.key,
     this.label,
     this.tag,
-    this.placeholder,
     this.helperText,
-    this.message,
     this.isRequired = false,
     this.disabled = false,
-    this.size,
-    this.color,
-    this.boxDecoration,
-    this.preWidget,
-    this.postWidget,
+    this.theme,
     this.onTap,
-    this.rules,
-    this.errors,
-    this.validationDebounce,
-    this.skipValidation,
+    this.focusNode,
     this.value,
     this.valueNotifier,
     this.onValueChanged,
-    this.focusNode,
+    this.rules,
+    this.validationDebounce,
     this.items = const [],
+    this.color,
     this.block = true,
     this.vertical = false,
+    this.autoFocus = false,
   });
 
   @override
@@ -73,28 +60,115 @@ class TCheckboxGroup<T> extends StatefulWidget
 class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
     with
         TInputFieldStateMixin<TCheckboxGroup<T>>,
-        TInputValueStateMixin<List<T>, TCheckboxGroup<T>>,
         TFocusStateMixin<TCheckboxGroup<T>>,
+        TInputValueStateMixin<List<T>, TCheckboxGroup<T>>,
         TInputValidationStateMixin<List<T>, TCheckboxGroup<T>> {
-  late Set<T> _selectedValues;
+  Set<T> _selectedValues = <T>{};
+  late List<FocusNode> _checkboxFocusNodes;
+  late List<VoidCallback> _focusListeners;
+  late FocusScopeNode _scopeNode;
+  int _focusedIndex = -1;
 
   @override
   void initState() {
     super.initState();
-    _initializeSelectedValues();
+    _checkboxFocusNodes = [];
+    _focusListeners = [];
+
+    for (int i = 0; i < widget.items.length; i++) {
+      final focusNode = FocusNode(debugLabel: 'Checkbox_$i');
+
+      void listener() => _onCheckboxFocusChanged(i);
+      focusNode.addListener(listener);
+
+      _checkboxFocusNodes.add(focusNode);
+      _focusListeners.add(listener);
+    }
+
+    _scopeNode = FocusScopeNode(debugLabel: 'CheckboxGroup_Scope');
   }
 
   @override
-  void didUpdateWidget(TCheckboxGroup<T> oldWidget) {
+  void didUpdateWidget(covariant TCheckboxGroup<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.value != widget.value) {
-      _initializeSelectedValues();
+
+    if (widget.items.length != oldWidget.items.length) {
+      for (int i = 0; i < _checkboxFocusNodes.length; i++) {
+        _checkboxFocusNodes[i].removeListener(_focusListeners[i]);
+        _checkboxFocusNodes[i].dispose();
+      }
+
+      _checkboxFocusNodes.clear();
+      _focusListeners.clear();
+
+      for (int i = 0; i < widget.items.length; i++) {
+        final focusNode = FocusNode(debugLabel: 'Checkbox_$i');
+
+        void listener() => _onCheckboxFocusChanged(i);
+        focusNode.addListener(listener);
+
+        _checkboxFocusNodes.add(focusNode);
+        _focusListeners.add(listener);
+      }
+
+      _focusedIndex = -1;
     }
   }
 
-  void _initializeSelectedValues() {
+  @override
+  void dispose() {
+    for (int i = 0; i < _checkboxFocusNodes.length; i++) {
+      _checkboxFocusNodes[i].removeListener(_focusListeners[i]);
+      _checkboxFocusNodes[i].dispose();
+    }
+
+    _checkboxFocusNodes.clear();
+    _focusListeners.clear();
+
+    _scopeNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  void onFocusChanged(bool hasFocus) {
+    super.onFocusChanged(hasFocus);
+    if (hasFocus && !_isAnyCheckboxFocused()) {
+      _focusFirstItem();
+    }
+  }
+
+  @override
+  void onExternalValueChanged(List<T>? value) {
+    super.onExternalValueChanged(value);
     final current = currentValue ?? widget.value ?? <T>[];
     _selectedValues = Set<T>.from(current);
+    setState(() {});
+  }
+
+  bool _isAnyCheckboxFocused() {
+    return _checkboxFocusNodes.any((node) => node.hasFocus);
+  }
+
+  void _focusFirstItem() {
+    if (_checkboxFocusNodes.isNotEmpty && !widget.disabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _checkboxFocusNodes.first.requestFocus();
+        }
+      });
+    }
+  }
+
+  void _onCheckboxFocusChanged(int index) {
+    if (_checkboxFocusNodes[index].hasFocus) {
+      if (!isFocused) {
+        focusNode.requestFocus();
+      }
+
+      setState(() {
+        _focusedIndex = index;
+      });
+    }
   }
 
   void _onItemChanged(T value, bool checked) {
@@ -112,26 +186,70 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
     notifyValueChanged(newValue);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.theme;
-    final exTheme = context.exTheme;
+  KeyEventResult _handleKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent) return KeyEventResult.ignored;
 
-    return buildContainer(theme, exTheme, block: widget.block, isMultiline: true, child: _buildCheckboxes());
+    final key = event.logicalKey;
+
+    if (key == LogicalKeyboardKey.arrowDown || key == LogicalKeyboardKey.arrowRight) {
+      _scopeNode.nextFocus();
+      return KeyEventResult.handled;
+    } else if (key == LogicalKeyboardKey.arrowUp || key == LogicalKeyboardKey.arrowLeft) {
+      _scopeNode.previousFocus();
+      return KeyEventResult.handled;
+    } else if (key == LogicalKeyboardKey.space || key == LogicalKeyboardKey.enter) {
+      if (_focusedIndex >= 0 && _focusedIndex < widget.items.length) {
+        final item = widget.items[_focusedIndex];
+        final currentValue = _selectedValues.contains(item.value);
+        _onItemChanged(item.value, !currentValue);
+        return KeyEventResult.handled;
+      }
+    }
+
+    return KeyEventResult.ignored;
   }
 
-  Widget _buildCheckboxes() {
-    final items = widget.items.map((item) {
-      final isChecked = _selectedValues.contains(item.value);
+  @override
+  Widget build(BuildContext context) {
+    return TapRegion(
+      onTapOutside: (_) {
+        focusNode.unfocus();
+      },
+      child: buildContainer(
+        block: widget.block,
+        isMultiline: true,
+        child: Focus(
+          focusNode: focusNode,
+          autofocus: widget.autoFocus,
+          skipTraversal: true,
+          canRequestFocus: !widget.disabled,
+          child: FocusScope(
+            node: _scopeNode,
+            onKeyEvent: _handleKeyEvent,
+            child: _buildCheckboxes(widget.color ?? context.theme.primary),
+          ),
+        ),
+      ),
+    );
+  }
 
-      return TCheckbox(
+  Widget _buildCheckboxes(Color color) {
+    final items = <Widget>[];
+
+    for (int i = 0; i < widget.items.length; i++) {
+      final item = widget.items[i];
+      final isChecked = _selectedValues.contains(item.value);
+      final focusNode = _checkboxFocusNodes[i];
+
+      items.add(TCheckbox(
+        focusNode: focusNode,
         label: item.label,
-        color: item.color ?? widget.color,
-        size: widget.size,
+        color: item.color ?? color,
+        size: wTheme.size,
         value: isChecked,
-        onValueChanged: (checked) => _onItemChanged(item.value, checked ?? false),
-      );
-    }).toList();
+        onValueChanged: (checked) => {_onItemChanged(item.value, checked ?? false)},
+      ));
+    }
 
     return widget.vertical
         ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: items)

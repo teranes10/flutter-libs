@@ -62,14 +62,14 @@ class TSidebarTheme {
   });
 
   factory TSidebarTheme.defaultTheme(BuildContext context) {
-    final theme = context.theme;
+    final colors = context.colors;
 
     return TSidebarTheme(
-      defaultColor: theme.onSurfaceVariant,
-      hoverColor: theme.onSurface,
-      activeColor: theme.onPrimaryContainer,
-      activeBackgroundColor: theme.primaryContainer,
-      borderColor: theme.outline,
+      defaultColor: colors.onSurfaceVariant,
+      hoverColor: colors.onSurface,
+      activeColor: colors.onPrimaryContainer,
+      activeBackgroundColor: colors.primaryContainer,
+      borderColor: colors.outline,
     );
   }
 

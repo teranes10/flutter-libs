@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_widget_color_scheme.dart';
-import 'package:te_widgets/widgets/button/button_config.dart';
-import 'package:te_widgets/widgets/button/button_group.dart';
-import 'package:te_widgets/widgets/chip/chip.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TTableHeader<T> {
   final String text;
@@ -40,12 +37,12 @@ class TTableHeader<T> {
     String? Function(T) map, {
     this.flex,
     this.alignment,
-    double width = 60,
+    double width = 50,
   })  : value = null,
         map = null,
         minWidth = width + 12,
         maxWidth = width + 12,
-        builder = ((_, item) => map(item) != null ? Image.network(map(item)!, width: width) : const SizedBox.shrink());
+        builder = ((_, item) => map(item) != null ? TImage(url: map(item)!, size: width) : const SizedBox.shrink());
 
   TTableHeader.chip(
     this.text,
@@ -55,7 +52,7 @@ class TTableHeader<T> {
     this.maxWidth,
     this.alignment,
     Color? color,
-    TColorType? type,
+    TVariant? type,
   })  : value = null,
         builder = ((_, item) => TChip(text: map?.call(item).toString(), color: color, type: type));
 

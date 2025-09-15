@@ -21,16 +21,16 @@ class TPdfTableDecoration {
     this.border,
   });
 
-  TextStyle getHeaderStyle(ColorScheme theme) {
-    return headerStyle ?? TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: theme.onSurfaceVariant.toPdfColor());
+  TextStyle getHeaderStyle(ColorScheme colors) {
+    return headerStyle ?? TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: colors.onSurfaceVariant.toPdfColor());
   }
 
-  TextStyle getCellStyle(ColorScheme theme) {
-    return cellStyle ?? TextStyle(fontWeight: FontWeight.normal, fontSize: 10, color: theme.onSurface.toPdfColor());
+  TextStyle getCellStyle(ColorScheme colors) {
+    return cellStyle ?? TextStyle(fontWeight: FontWeight.normal, fontSize: 10, color: colors.onSurface.toPdfColor());
   }
 
-  TableBorder getBorder(ColorScheme theme) {
-    final borderSide = BorderSide(color: theme.outlineVariant.toPdfColor(), width: 0.1);
+  TableBorder getBorder(ColorScheme colors) {
+    final borderSide = BorderSide(color: colors.outlineVariant.toPdfColor(), width: 0.1);
     return TableBorder(
       horizontalInside: borderSide,
       bottom: borderSide,
