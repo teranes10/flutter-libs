@@ -12,14 +12,23 @@ class TFormService {
       width: input.formWidth,
       title: input.formTitle,
       (mContext) {
+        final isMobile = context.isMobile;
         return Padding(
-          padding: EdgeInsets.all(25),
+          padding: EdgeInsets.all(isMobile ? 10 : 25),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TFormBuilder(input: input),
+              isMobile
+                  ? InteractiveViewer(
+                      scaleEnabled: true,
+                      panEnabled: true,
+                      minScale: 1.0,
+                      maxScale: 1.3,
+                      child: TFormBuilder(input: input),
+                    )
+                  : TFormBuilder(input: input),
               Padding(
-                padding: EdgeInsets.only(top: 30),
+                padding: EdgeInsets.only(top: isMobile ? 20 : 30),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   spacing: 5,

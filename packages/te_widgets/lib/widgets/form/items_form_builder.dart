@@ -49,13 +49,14 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
         _buildToolbar(colors),
         TList(
           items: _items,
-          padding: const EdgeInsets.all(2),
+          padding: EdgeInsets.all(0),
           itemBuilder: (ctx, item, i) => TCard(
               padding: EdgeInsets.all(0),
+              margin: EdgeInsets.only(bottom: 10),
               child: Stack(
                 children: [
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: EdgeInsets.all(10),
                     child: TFormBuilder(input: item, onValueChanged: _update),
                   ),
                   Positioned(top: 2, right: 2, child: TCloseIcon(size: 14, onClose: () => _removeItem(item)))

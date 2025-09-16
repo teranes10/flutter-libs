@@ -552,6 +552,7 @@ class TFormField<T> {
     TFieldProp<List<TFile>> prop,
     String? label, {
     String? tag,
+    String? placeholder,
     String? helperText,
     bool isRequired = false,
     bool disabled = false,
@@ -569,6 +570,7 @@ class TFormField<T> {
       builder: (onValueChanged) => TFilePicker(
         label: label,
         tag: tag,
+        placeholder: placeholder,
         helperText: helperText,
         isRequired: isRequired,
         disabled: disabled,

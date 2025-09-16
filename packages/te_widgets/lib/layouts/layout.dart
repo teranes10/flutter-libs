@@ -129,7 +129,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
   Widget _buildTopBar(ColorScheme colors, bool isMobile) {
     return Container(
       width: double.infinity,
-      padding: isMobile ? const EdgeInsets.fromLTRB(16, 16, 16, 12) : const EdgeInsets.fromLTRB(10, 24, 10, 14),
+      padding: isMobile ? const EdgeInsets.all(6) : const EdgeInsets.fromLTRB(10, 24, 10, 14),
       child: isMobile
           ? Row(
               mainAxisAlignment: MainAxisAlignment.center,

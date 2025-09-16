@@ -8,7 +8,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
   Widget build(ColorScheme colors, BoxConstraints constraints) {
     final rows = <Widget>[];
     final maxWidth = constraints.maxWidth;
-    final isMobile = maxWidth < 600;
+    final isMobile = constraints.isMobile;
 
     const spacing = 8.0;
     const rowSpacing = 12.0;
@@ -130,7 +130,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
 
   Widget _buildTabs(BoxConstraints constraints) {
     final tabs = TTabs(
-      inline: constraints.maxWidth > 600,
+      inline: !constraints.isMobile,
       selectedIndex: parent.currentTab,
       onTabChanged: (i) => parent.currentTab = i,
       tabs: [
@@ -138,7 +138,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
         TTab(text: parent.widget.config.archiveTabText),
       ],
     );
-    return constraints.maxWidth > 600 ? tabs : Flexible(child: tabs);
+    return !constraints.isMobile ? tabs : Flexible(child: tabs);
   }
 
   Widget _buildSearchBar(ColorScheme colors, BoxConstraints constraints) {
@@ -150,6 +150,6 @@ class _TCrudTopBar<T, F extends TFormBase> {
       ),
       valueNotifier: parent.currentTab == 0 ? parent.searchNotifier : parent.archiveSearchNotifier,
     );
-    return constraints.maxWidth > 600 ? SizedBox(width: 250, child: searchBar) : Flexible(child: searchBar);
+    return !constraints.isMobile ? SizedBox(width: 250, child: searchBar) : Flexible(child: searchBar);
   }
 }

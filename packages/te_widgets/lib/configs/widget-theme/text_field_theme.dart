@@ -24,7 +24,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     return InputDecoration(
       border: InputBorder.none,
       hintText: placeholder ?? label,
-      hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurfaceVariant),
+      hintStyle: getHintStyle(colors),
       isCollapsed: true,
       contentPadding: const EdgeInsets.symmetric(vertical: 5),
     );
@@ -77,6 +77,8 @@ class TTextFieldTheme extends TInputFieldTheme {
       style: getTextStyle(colors, disabled),
       decoration: getInputDecoration(colors, label, placeholder),
       maxLines: maxLines,
+      scrollPhysics: const BouncingScrollPhysics(),
+      scrollPadding: const EdgeInsets.all(8),
       obscureText: obscureText,
       inputFormatters: inputFormatters ?? this.inputFormatters,
       keyboardType: disabled || readOnly

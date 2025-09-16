@@ -10,21 +10,22 @@ class TNumberFieldTheme extends TTextFieldTheme {
   Widget buildStepperButton(ColorScheme colorScheme, IconData icon, VoidCallback onPressed, bool enabled) {
     return TButton(
       type: TButtonType.icon,
-      size: TButtonSize.xs.copyWith(icon: 16),
+      size: TButtonSize.xxs.copyWith(icon: size.fontSize + 2),
       icon: icon,
       color: colorScheme.onSurfaceVariant,
       onTap: enabled ? onPressed : null,
     );
   }
 
-  Widget? buildSteppers(ColorScheme colorScheme, bool canDecrease, bool canIncrease, ValueChanged<num> onValueChanged) {
+  Widget? buildSteppers(
+      BuildContext context, ColorScheme colorScheme, bool canDecrease, bool canIncrease, ValueChanged<num> onValueChanged) {
     if (!showSteppers) return null;
 
     final steppers = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         buildStepperButton(colorScheme, Icons.remove, () => onValueChanged(-(decrement)), canDecrease),
-        const SizedBox(width: 2),
+        if (context.isMobile) const SizedBox(width: 8),
         buildStepperButton(colorScheme, Icons.add, () => onValueChanged(increment), canIncrease),
       ],
     );

@@ -2,14 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/widget-theme/widget_theme_extension.dart';
 import 'package:te_widgets/configs/widget-theme/widget_theme.dart';
 
-extension ColorSchemeExtension on BuildContext {
+extension BuildContextX on BuildContext {
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
   ColorScheme get colors => Theme.of(this).colorScheme;
   TWidgetThemeExtension get theme => Theme.of(this).extension<TWidgetThemeExtension>() ?? TWidgetThemeExtension();
   TWidgetTheme getWidgetTheme(TVariant type, Color color) => TThemeResolver.getWidgetTheme(this, color, type);
+
+  MediaQueryData get mediaQuery => MediaQuery.of(this);
+  double get screenWidth => mediaQuery.screenWidth;
+  double get screenHeight => mediaQuery.screenHeight;
+
+  bool get isMobile => mediaQuery.isMobile;
+  bool get isTablet => mediaQuery.isTablet;
+  bool get isDesktop => mediaQuery.isDesktop;
 }
 
-extension ColorExtensions on Color {
+extension MediaQueryDataX on MediaQueryData {
+  double get screenWidth => size.width;
+  double get screenHeight => size.height;
+
+  bool get isMobile => screenWidth < 600;
+  bool get isTablet => screenWidth >= 600 && screenWidth < 1024;
+  bool get isDesktop => screenWidth >= 1024;
+
+  TextScaler scaleText({double? sm, double? md, double? lg}) {
+    final current = textScaler;
+
+    if (isMobile && sm != null) {
+      return current.clamp(minScaleFactor: sm, maxScaleFactor: sm);
+    } else if (isTablet && md != null) {
+      return current.clamp(minScaleFactor: md, maxScaleFactor: md);
+    } else if (isDesktop && lg != null) {
+      return current.clamp(minScaleFactor: lg, maxScaleFactor: lg);
+    }
+
+    return current;
+  }
+}
+
+extension BoxConstraintsX on BoxConstraints {
+  bool get isMobile => maxWidth < 600;
+  bool get isTablet => maxWidth >= 600 && maxWidth < 1024;
+  bool get isDesktop => maxWidth >= 1024;
+}
+
+extension ColorX on Color {
   Color shade(int shade) {
     if (this is MaterialColor) return (this as MaterialColor)[shade]!;
 

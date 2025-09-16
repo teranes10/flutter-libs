@@ -26,6 +26,7 @@ class TFilePicker extends StatefulWidget
   final Duration? validationDebounce;
 
   // FileSelector specific properties
+  final String? placeholder;
   final bool autoFocus;
   final bool allowMultiple;
   final List<String>? allowedExtensions;
@@ -46,6 +47,7 @@ class TFilePicker extends StatefulWidget
     this.onValueChanged,
     this.rules,
     this.validationDebounce,
+    this.placeholder,
     this.autoFocus = false,
     this.allowMultiple = false,
     this.allowedExtensions,
@@ -126,6 +128,8 @@ class _TFilePickerState extends State<TFilePicker>
           runSpacing: wTheme.tagRunSpacing,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
+            if ((currentValue == null || currentValue!.isEmpty) && (widget.placeholder != null || widget.label != null))
+              Text(widget.placeholder ?? widget.label ?? '', style: wTheme.getHintStyle(colors)),
             ...(currentValue ?? []).map((file) => wTheme.buildTagChip(colors, file, () => _removeFile(file))),
           ],
         ),

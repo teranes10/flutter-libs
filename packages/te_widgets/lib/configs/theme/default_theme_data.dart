@@ -77,20 +77,3 @@ ThemeData getTDarkTheme() {
     extensions: [TWidgetThemeExtension().copyWith(layoutFrame: AppColors.grey.shade900)],
   );
 }
-
-extension MediaQueryDataTextScalerX on MediaQueryData {
-  TextScaler scaleText({double? sm, double? md, double? lg}) {
-    final width = size.width;
-    final current = textScaler;
-
-    if (width < 600 && sm != null) {
-      return current.clamp(minScaleFactor: sm, maxScaleFactor: sm);
-    } else if (width >= 600 && width < 1024 && md != null) {
-      return current.clamp(minScaleFactor: md, maxScaleFactor: md);
-    } else if (width >= 1024 && lg != null) {
-      return current.clamp(minScaleFactor: lg, maxScaleFactor: lg);
-    }
-
-    return current;
-  }
-}

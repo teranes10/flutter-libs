@@ -16,7 +16,7 @@ class TToastService {
     final theme = context.theme;
     final mColor = color ?? theme.primary;
     final wTheme = context.getWidgetTheme(type ?? theme.toastType, mColor);
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = context.isMobile;
 
     toastification.showCustom(
       context: context,
@@ -45,8 +45,8 @@ class TToastService {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (title != null)
-                        Text(title, style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w400, fontSize: 13)),
-                      Text(message, style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w300, fontSize: 12)),
+                        Text(title, style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w400, fontSize: 14)),
+                      Text(message, style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w300, fontSize: 13)),
                     ],
                   ),
                 ),

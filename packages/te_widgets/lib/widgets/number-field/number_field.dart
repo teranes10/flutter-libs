@@ -98,7 +98,7 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
     final disabled = widget.disabled;
 
     return buildContainer(
-      postWidget: wTheme.buildSteppers(colors, !disabled, !disabled, _changeValueBy),
+      postWidget: wTheme.buildSteppers(context, colors, !disabled, !disabled, _changeValueBy),
       child: buildTextField(
         keyboardType: wTheme.getKeyboardType(type),
         inputFormatters: wTheme.getInputFormatters(type, wTheme.decimals),
