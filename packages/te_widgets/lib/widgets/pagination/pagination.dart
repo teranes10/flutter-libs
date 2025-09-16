@@ -212,7 +212,11 @@ class _PaginationNumberButton extends StatelessWidget {
               padding: EdgeInsets.all(7.5),
               child: Center(
                   child: Text(number.toString(),
-                      style: TextStyle(fontWeight: FontWeight.normal, color: isActive ? colors.onPrimaryContainer : colors.onSurface))),
+                      style: TextStyle(
+                        fontSize: 13.6,
+                        fontWeight: FontWeight.normal,
+                        color: isActive ? colors.onPrimaryContainer : colors.onSurface,
+                      ))),
             ),
           ),
         ),

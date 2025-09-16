@@ -10,72 +10,6 @@ class TablesPage extends StatefulWidget {
 }
 
 class _TablesPageState extends State<TablesPage> {
-  List<Map<String, dynamic>> userMaps = [
-    {
-      'id': 1,
-      'name': 'John Doe',
-      'email': 'john@example.com',
-      'role': 'Admin',
-      'createdAt': DateTime.now(),
-    },
-    {
-      'id': 2,
-      'name': 'Jane Smith',
-      'email': 'jane@example.com',
-      'role': 'User',
-      'createdAt': DateTime.now(),
-    },
-    {
-      'id': 3,
-      'name': 'Jane Smith',
-      'email': 'jane@example.com',
-      'role': 'User',
-      'createdAt': DateTime.now(),
-    },
-    {
-      'id': 4,
-      'name': 'Jane Smith',
-      'email': 'jane@example.com',
-      'role': 'User',
-      'createdAt': DateTime.now(),
-    },
-    {
-      'id': 5,
-      'name': 'Jane Smith',
-      'email': 'jane@example.com',
-      'role': 'User',
-      'createdAt': DateTime.now(),
-    },
-    {
-      'id': 6,
-      'name': 'Jane Smith',
-      'email': 'jane@example.com',
-      'role': 'User',
-      'createdAt': DateTime.now(),
-    },
-    {
-      'id': 7,
-      'name': 'Jane Smith',
-      'email': 'jane@example.com',
-      'role': 'User',
-      'createdAt': DateTime.now(),
-    },
-    {
-      'id': 8,
-      'name': 'Jane Smith',
-      'email': 'jane@example.com',
-      'role': 'User',
-      'createdAt': DateTime.now(),
-    },
-    {
-      'id': 9,
-      'name': 'Jane Smith',
-      'email': 'jane@example.com',
-      'role': 'User',
-      'createdAt': DateTime.now(),
-    },
-  ];
-
   void generatePdfWithTable(BuildContext ctx) async {
     final colors = context.colors;
     final pdf = pw.Document();
@@ -108,6 +42,7 @@ class _TablesPageState extends State<TablesPage> {
         runSpacing: 50,
         children: [
           TButton(text: 'Print', onPressed: (_) => generatePdfWithTable(context)),
+          TList(items: products, itemBuilder: (ctx, item, idx) => TCard(child: Text(item.name))),
           TTable<Product>(
             headers: productHeaders,
             items: products,

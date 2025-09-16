@@ -58,6 +58,7 @@ class TAlertService {
   static void confirmArchive(BuildContext context, VoidCallback onConfirm, {String? name}) {
     final msg = name != null
         ? Text.rich(TextSpan(
+            style: TextStyle(fontSize: 14),
             text: 'Do you really want to archive ',
             children: [TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold)), const TextSpan(text: '?')],
           ))
@@ -74,6 +75,7 @@ class TAlertService {
   static void confirmRestore(BuildContext context, VoidCallback onConfirm, {String? name}) {
     final msg = name != null
         ? Text.rich(TextSpan(
+            style: TextStyle(fontSize: 14),
             text: 'Do you really want to restore ',
             children: [TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold)), const TextSpan(text: '?')],
           ))
@@ -90,6 +92,7 @@ class TAlertService {
   static void confirmDelete(BuildContext context, VoidCallback onConfirm, {String? name}) {
     final msg = name != null
         ? Text.rich(TextSpan(
+            style: TextStyle(fontSize: 14),
             text: 'Do you really want to delete ',
             children: [TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.bold)), const TextSpan(text: '?')],
           ))

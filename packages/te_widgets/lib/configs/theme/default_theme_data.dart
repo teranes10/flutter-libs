@@ -3,9 +3,8 @@ import 'package:te_widgets/configs/theme/app_colors.dart';
 import 'package:te_widgets/configs/widget-theme/widget_theme_extension.dart';
 
 ThemeData getTLightTheme() {
-  return ThemeData(
+  final base = ThemeData(
     brightness: Brightness.light,
-    textTheme: getTTextTheme(),
     primarySwatch: AppColors.primary,
     colorScheme: ColorScheme.light(
       primary: AppColors.primary,
@@ -33,17 +32,17 @@ ThemeData getTLightTheme() {
       shadow: AppColors.grey.shade200.withAlpha(100),
       scrim: AppColors.grey.shade900.withAlpha(150),
     ),
-  ).copyWith(extensions: [
-    TWidgetThemeExtension().copyWith(
-      layoutFrame: AppColors.grey.shade800,
-    )
-  ]);
+  );
+
+  return base.copyWith(
+    textTheme: base.textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
+    extensions: [TWidgetThemeExtension().copyWith(layoutFrame: AppColors.grey.shade800)],
+  );
 }
 
 ThemeData getTDarkTheme() {
-  return ThemeData(
+  final base = ThemeData(
     brightness: Brightness.dark,
-    textTheme: getTTextTheme(),
     primarySwatch: AppColors.primary,
     colorScheme: ColorScheme.dark(
       primary: AppColors.primary,
@@ -71,39 +70,27 @@ ThemeData getTDarkTheme() {
       shadow: AppColors.grey.shade900.withAlpha(125),
       scrim: AppColors.grey.shade900.withAlpha(150),
     ),
-  ).copyWith(extensions: [
-    TWidgetThemeExtension().copyWith(
-      layoutFrame: AppColors.grey.shade900,
-    )
-  ]);
+  );
+
+  return base.copyWith(
+    textTheme: base.textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
+    extensions: [TWidgetThemeExtension().copyWith(layoutFrame: AppColors.grey.shade900)],
+  );
 }
 
-TextTheme getTTextTheme() {
-  TextStyle textStyle(double size, FontWeight weight) {
-    return TextStyle(
-      fontFamily: 'Lexend',
-      package: 'te_widgets',
-      color: AppColors.grey.shade600,
-      fontWeight: weight,
-      fontSize: size,
-    );
-  }
+extension MediaQueryDataTextScalerX on MediaQueryData {
+  TextScaler scaleText({double? sm, double? md, double? lg}) {
+    final width = size.width;
+    final current = textScaler;
 
-  return TextTheme(
-    displayLarge: textStyle(57, FontWeight.w400),
-    displayMedium: textStyle(45, FontWeight.w400),
-    displaySmall: textStyle(36, FontWeight.w400),
-    headlineLarge: textStyle(32, FontWeight.w400),
-    headlineMedium: textStyle(28, FontWeight.w400),
-    headlineSmall: textStyle(24, FontWeight.w400),
-    titleLarge: textStyle(22, FontWeight.w500),
-    titleMedium: textStyle(16, FontWeight.w500),
-    titleSmall: textStyle(14, FontWeight.w500),
-    bodyLarge: textStyle(16, FontWeight.w400),
-    bodyMedium: textStyle(14, FontWeight.w400),
-    bodySmall: textStyle(12, FontWeight.w400),
-    labelLarge: textStyle(14, FontWeight.w500),
-    labelMedium: textStyle(12, FontWeight.w500),
-    labelSmall: textStyle(11, FontWeight.w500),
-  );
+    if (width < 600 && sm != null) {
+      return current.clamp(minScaleFactor: sm, maxScaleFactor: sm);
+    } else if (width >= 600 && width < 1024 && md != null) {
+      return current.clamp(minScaleFactor: md, maxScaleFactor: md);
+    } else if (width >= 1024 && lg != null) {
+      return current.clamp(minScaleFactor: lg, maxScaleFactor: lg);
+    }
+
+    return current;
+  }
 }

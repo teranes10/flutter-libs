@@ -93,11 +93,16 @@ class _TCrudTopBar<T, F extends TFormBase> {
       pushRow();
     }
 
+    final children = rows.expand((row) => [row, const SizedBox(height: rowSpacing)]).toList();
+    if (children.isNotEmpty) {
+      children.removeLast();
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: rows.expand((row) => [row, const SizedBox(height: rowSpacing)]).toList()..removeLast(),
+        children: children,
       ),
     );
   }

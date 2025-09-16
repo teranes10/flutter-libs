@@ -24,6 +24,14 @@ class MyApp extends ConsumerWidget {
       darkTheme: getTDarkTheme(),
       themeMode: themeMode,
       routerConfig: _router,
+      builder: (context, child) {
+        final mq = MediaQuery.of(context);
+
+        return MediaQuery(
+          data: mq.copyWith(textScaler: mq.scaleText(sm: 1.1)),
+          child: child!,
+        );
+      },
     );
   }
 }

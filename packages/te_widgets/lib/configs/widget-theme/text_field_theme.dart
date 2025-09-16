@@ -24,7 +24,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     return InputDecoration(
       border: InputBorder.none,
       hintText: placeholder ?? label,
-      hintStyle: TextStyle(fontWeight: FontWeight.w300, color: colors.onSurfaceVariant),
+      hintStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurfaceVariant),
       isCollapsed: true,
       contentPadding: const EdgeInsets.symmetric(vertical: 5),
     );
