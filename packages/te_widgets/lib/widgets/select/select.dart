@@ -141,7 +141,7 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
 
   @override
   void updateSelectedStates() {
-    final value = widget.value;
+    final value = currentValue;
     stateNotifier.updateSelectedStates(value != null ? [value] : []);
     if (!isPopupShowing) {
       _updateDisplayText();

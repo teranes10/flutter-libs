@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/clients/posts_client.dart';
+import 'package:my_app/models/post_dto.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class FormsPage extends StatelessWidget {
@@ -20,6 +22,7 @@ class FormsPage extends StatelessWidget {
 }
 
 class UserForm extends TFormBase {
+  final select = TFieldProp<PostDto?>(null, useNotifier: true);
   final firstName = TFieldProp('', onValueChanged: (v) {
     debugPrint(v);
   });
@@ -44,6 +47,18 @@ class UserForm extends TFormBase {
   @override
   List<TFormField> get fields {
     return [
+      TFormField.select<PostDto, PostDto?>(
+        select,
+        "Select",
+        onLoad: (o) async {
+          final pair = await PostsClient().fetchPosts(start: o.offset, limit: o.itemsPerPage, query: o.search);
+          if (o.page == 1) {
+            select.value = pair.$1.first;
+          }
+          o.callback(pair.$1, pair.$2);
+        },
+        itemText: (x) => x.title,
+      ),
       TFormField.text(firstName, 'First Name').size(6),
       TFormField.text(lastName, 'Last Name').size(6),
       TFormField.text(username, 'Username', isRequired: true),

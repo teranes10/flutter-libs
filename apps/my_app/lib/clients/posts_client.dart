@@ -5,12 +5,13 @@ import 'package:te_widgets/mixins/pagination/pagination_config.dart';
 class PostsClient {
   final Dio _dio = Dio(BaseOptions(baseUrl: 'https://jsonplaceholder.typicode.com'));
 
-  Future<(List<PostDto>, int)> fetchPosts({int start = 0, int limit = 10}) async {
+  Future<(List<PostDto>, int)> fetchPosts({int start = 0, int limit = 10, String? query}) async {
     final response = await _dio.get(
       '/posts',
       queryParameters: {
         '_start': start,
         '_limit': limit,
+        'title_like': query,
       },
       options: Options(headers: {
         'Accept': 'application/json',

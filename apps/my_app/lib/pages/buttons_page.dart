@@ -16,7 +16,6 @@ class _ButtonsPageState extends State<ButtonsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TImage(),
           _buildRow('Solid Buttons', [
             TButton(type: TButtonType.solid, icon: Icons.home, text: 'Primary', color: AppColors.primary, onPressed: (_) => {}),
             TButton(type: TButtonType.solid, icon: Icons.home, text: 'Secondary', color: AppColors.secondary, onPressed: (_) => {}),
