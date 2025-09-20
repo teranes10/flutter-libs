@@ -125,7 +125,9 @@ class _TCrudTopBar<T, F extends TFormBase> {
   }
 
   Widget _wrapButton(Widget button, bool isMobile) {
-    return isMobile && button is TButton ? Flexible(child: button.copyWith(block: true)) : button;
+    return isMobile && button is TButton
+        ? Flexible(child: button.copyWith(size: (button.size ?? TButtonSize.md).copyWith(minW: double.infinity)))
+        : button;
   }
 
   Widget _buildTabs(BoxConstraints constraints) {

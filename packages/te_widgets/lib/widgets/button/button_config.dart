@@ -38,7 +38,6 @@ extension TButtonExtension on TButton {
     TButtonType? type,
     Color? color,
     TButtonSize? size,
-    bool? block,
     bool? loading,
     String? loadingText,
     IconData? icon,
@@ -76,7 +75,7 @@ extension TButtonExtension on TButton {
     }
 
     if (text != null && text!.isNotEmpty) {
-      width += text!.length * (sizeData.font * 0.6);
+      width += text!.length * (sizeData.font * 0.75);
     }
 
     return width;
