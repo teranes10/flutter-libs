@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/te_widgets.dart';
 
 class TImage extends StatelessWidget {
   final String? url;

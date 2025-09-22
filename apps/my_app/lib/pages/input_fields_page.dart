@@ -15,7 +15,8 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
+        child: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Wrap(
         spacing: 10.0,
@@ -78,6 +79,6 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           TFilePicker(label: 'File Picker'),
         ],
       ),
-    );
+    ));
   }
 }

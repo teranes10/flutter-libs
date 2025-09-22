@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/close-icon/close_icon.dart';
 
 class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputValueMixin<List<T>> {
   @override
@@ -48,6 +47,8 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
       children: [
         _buildToolbar(colors),
         TList(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
           items: _items,
           padding: EdgeInsets.all(0),
           itemBuilder: (ctx, item, i) => TCard(

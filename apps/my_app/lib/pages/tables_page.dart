@@ -38,16 +38,13 @@ class _TablesPageState extends State<TablesPage> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Wrap(
-        runSpacing: 50,
+      child: Column(
         children: [
           TButton(text: 'Print', onPressed: (_) => generatePdfWithTable(context)),
-          TList(items: products, itemBuilder: (ctx, item, idx) => TCard(child: Text(item.name))),
-          TTable<Product>(
-            headers: productHeaders,
-            items: products,
-          ),
-          TDataTable<Product>(
+          Expanded(child: TList(items: products, itemBuilder: (ctx, item, idx) => TCard(child: Text(item.name)))),
+          Expanded(child: TTable<Product>(headers: productHeaders, items: products)),
+          Expanded(
+              child: TDataTable<Product>(
             headers: [
               TTableHeader.map("Name", (x) => x.name),
               TTableHeader.map("Price", (x) => x.price),
@@ -64,7 +61,7 @@ class _TablesPageState extends State<TablesPage> {
               ),
             ],
             items: products,
-          ),
+          )),
         ],
       ),
     );

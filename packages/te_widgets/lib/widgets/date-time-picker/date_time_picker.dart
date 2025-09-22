@@ -1,3 +1,4 @@
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -81,7 +82,7 @@ class _TDateTimePickerState extends State<TDateTimePicker>
 
   @override
   void initState() {
-    dateFormat = widget.format ?? DateFormat('MMM dd, yyyy');
+    dateFormat = widget.format ?? DateFormat('MMM dd, yyyy hh:mm a');
     super.initState();
   }
 
@@ -141,30 +142,17 @@ class _TDateTimePickerState extends State<TDateTimePicker>
     });
   }
 
-  WidgetStateProperty<T> _resolveState<T>(T normal, T selected) {
-    return WidgetStateProperty.resolveWith((states) {
-      if (states.contains(WidgetState.selected)) return selected;
-      return normal;
-    });
-  }
-
   Widget _buildDateTab(ColorScheme colors) {
-    return DatePickerTheme(
-        data: DatePickerThemeData(
-          backgroundColor: colors.surface,
-          headerBackgroundColor: colors.surface,
-          headerForegroundColor: colors.onSurface,
-          dayForegroundColor: _resolveState(colors.onSurface, colors.surface),
-          dayBackgroundColor: _resolveState(Colors.transparent, colors.primary),
-          todayForegroundColor: _resolveState(colors.onSurface, colors.surface),
-          todayBackgroundColor: _resolveState(Colors.transparent, colors.primary),
-        ),
-        child: CalendarDatePicker(
-          initialDate: _selectedDate ?? currentValue ?? DateTime.now(),
-          firstDate: widget.firstDate ?? DateTime(1900),
-          lastDate: widget.lastDate ?? DateTime(2100),
-          onDateChanged: _onDateSelected,
-        ));
+    return CalendarDatePicker2(
+      config: CalendarDatePicker2Config(
+        firstDate: widget.firstDate,
+        lastDate: widget.lastDate,
+      ),
+      value: [currentValue],
+      onValueChanged: (v) {
+        _onDateSelected(v.first);
+      },
+    );
   }
 
   Widget _buildTimeTab() {

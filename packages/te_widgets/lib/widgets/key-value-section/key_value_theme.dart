@@ -1,32 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/table/table_configs.dart';
 
-class TKeyValue {
-  final String key;
-  final String? value;
-  final Widget? widget;
-  final double? width;
-
-  TKeyValue(this.key, {this.value, this.widget, this.width});
-
-  factory TKeyValue.text(String key, String? value) {
-    return TKeyValue(key, value: value);
-  }
-
-  static TKeyValue mapHeader<T>(TTableHeader<T> header, T item) {
-    return TKeyValue(
-      header.text,
-      value: header.getValue(item),
-      widget: header.builder != null ? Builder(builder: (context) => header.builder!(context, item)) : null,
-    );
-  }
-
-  static List<TKeyValue> mapHeaders<T>(List<TTableHeader<T>> headers, T item) {
-    return headers.map((header) => TKeyValue.mapHeader(header, item)).toList();
-  }
-}
-
-class TKeyValueStyle {
+class TKeyValueTheme {
   final TextStyle? keyStyle;
   final TextStyle? labelStyle;
   final TextStyle? valueStyle;
@@ -35,7 +9,7 @@ class TKeyValueStyle {
   final bool forceKeyValue;
   final double keyValueBreakPoint;
 
-  const TKeyValueStyle({
+  const TKeyValueTheme({
     this.keyStyle,
     this.labelStyle,
     this.valueStyle,

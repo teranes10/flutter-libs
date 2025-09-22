@@ -14,6 +14,7 @@ class TTable<T> extends StatefulWidget {
   final bool loading;
   final TTableController<T>? controller;
   final TTableInteractionConfig interactionConfig;
+  final VoidCallback? onScrollEnd;
 
   // Expandable configuration
   final bool expandable;
@@ -32,6 +33,7 @@ class TTable<T> extends StatefulWidget {
     this.loading = false,
     this.controller,
     this.interactionConfig = const TTableInteractionConfig(),
+    this.onScrollEnd,
     // Expandable
     this.expandable = false,
     this.singleExpand = true,
@@ -101,9 +103,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           _isCardView = shouldShowCardView;
         }
 
-        Widget child = _isCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
-
-        return _layoutCalculator._applyConstraints(child, constraints);
+        return _isCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
       },
     );
   }
@@ -142,8 +142,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
   }
 
   Widget _buildTable(ColorScheme colors) {
-    return SizedBox(
-      width: double.infinity,
+    return Expanded(
       child: _controller != null
           ? ValueListenableBuilder<Set<int>>(
               valueListenable: _controller!.expanded,
@@ -165,12 +164,11 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
       items: widget.items,
       showAnimation: widget.decoration.showStaggeredAnimation,
       animationDuration: widget.decoration.animationDuration,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, item, index) {
         return _rowBuilder._buildTableRow(
             colors, widget.decoration.style.rowStyle, item, index, expandedSet.contains(index), selectedSet.contains(index));
       },
+      onScrollEnd: widget.onScrollEnd,
     );
   }
 
@@ -201,8 +199,6 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
       items: widget.items,
       showAnimation: widget.decoration.showStaggeredAnimation,
       animationDuration: widget.decoration.animationDuration,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, item, index) {
         return _rowBuilder._buildCardRow(
           colors,
@@ -212,6 +208,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
           selectedSet.contains(index),
         );
       },
+      onScrollEnd: widget.onScrollEnd,
     );
   }
 

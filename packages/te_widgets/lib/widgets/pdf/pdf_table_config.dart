@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' show ColorScheme;
+import 'package:te_widgets/te_widgets.dart';
 import 'package:pdf/widgets.dart';
-import 'package:te_widgets/widgets/pdf/pdf_config.dart';
 
 class TPdfTableDecoration {
   final TextStyle? headerStyle;

@@ -109,7 +109,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       return Column(
         children: [
           _topBar.build(colors, constraints),
-          _tableBuilder._buildContent(theme),
+          Expanded(child: _tableBuilder._buildContent(theme)),
         ],
       );
     });

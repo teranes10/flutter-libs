@@ -35,25 +35,7 @@ class TTableLayoutCalculator<T> {
 
   bool _needsHorizontalScroll(BoxConstraints constraints) {
     final totalRequiredWidth = _calculateTotalRequiredWidth();
-    return totalRequiredWidth > constraints.maxWidth ||
-        (widget.decoration.minWidth != null && widget.decoration.minWidth! > constraints.maxWidth);
-  }
-
-  Widget _applyConstraints(Widget child, BoxConstraints constraints) {
-    if (widget.decoration.minWidth != null || widget.decoration.maxWidth != null) {
-      child = ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: widget.decoration.minWidth ?? 0,
-          maxWidth: widget.decoration.maxWidth ?? double.infinity,
-        ),
-        child: child,
-      );
-    }
-
-    return SizedBox(
-      width: double.infinity,
-      child: child,
-    );
+    return totalRequiredWidth > constraints.maxWidth;
   }
 
   static Map<int, TableColumnWidth> _getColumnWidths<T>(TTable<T> widget) {

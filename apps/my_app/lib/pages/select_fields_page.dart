@@ -56,7 +56,8 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return SingleChildScrollView(
+        child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Basic TSelect (String)', style: TextStyle(fontWeight: FontWeight.w400)),
@@ -133,7 +134,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           value: 2,
         )
       ],
-    );
+    ));
   }
 }
 

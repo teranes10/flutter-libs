@@ -1,3 +1,4 @@
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -102,39 +103,17 @@ class _TDatePickerState extends State<TDatePicker>
   @override
   double get contentMaxHeight => 360;
 
-  WidgetStateProperty<T> _resolveState<T>(T normal, T selected) {
-    return WidgetStateProperty.resolveWith((states) {
-      if (states.contains(WidgetState.selected) || states.contains(WidgetState.hovered) || states.contains(WidgetState.pressed)) {
-        return selected;
-      }
-      return normal;
-    });
-  }
-
   @override
   Widget getContentWidget(BuildContext context) {
-    final colors = context.colors;
-
-    return DatePickerTheme(
-      data: DatePickerThemeData(
-        backgroundColor: Colors.amber,
-        surfaceTintColor: Colors.red,
-        todayForegroundColor: _resolveState(colors.onSurface, colors.onPrimaryContainer),
-        todayBackgroundColor: _resolveState(colors.surface, colors.primaryContainer),
-        yearForegroundColor: _resolveState(colors.onSurface, colors.onPrimaryContainer),
-        yearBackgroundColor: _resolveState(colors.surface, colors.primaryContainer),
-        dayForegroundColor: _resolveState(colors.onSurface, colors.onPrimaryContainer),
-        dayBackgroundColor: _resolveState(colors.onSurface, colors.primaryContainer),
+    return CalendarDatePicker2(
+      config: CalendarDatePicker2Config(
+        firstDate: widget.firstDate,
+        lastDate: widget.lastDate,
       ),
-      child: CalendarDatePicker(
-        initialDate: currentValue ?? DateTime.now(),
-        currentDate: currentValue,
-        firstDate: widget.firstDate ?? DateTime(1950),
-        lastDate: widget.lastDate ?? DateTime(2050),
-        onDateChanged: (date) {
-          _onDateSelected(date);
-        },
-      ),
+      value: [currentValue],
+      onValueChanged: (v) {
+        _onDateSelected(v.first);
+      },
     );
   }
 

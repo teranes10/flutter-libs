@@ -62,6 +62,8 @@ export 'widgets/chip/chip.dart';
 
 export 'widgets/circle-toggle-button/circle_toggle_button.dart';
 
+export 'widgets/close-icon/close_icon.dart';
+
 export 'widgets/crud-table/crud_table_config.dart';
 export 'widgets/crud-table/crud_table.dart';
 
@@ -84,8 +86,9 @@ export 'widgets/guard/guard.dart';
 
 export 'widgets/image/image.dart';
 
-export 'widgets/key-value-section/key_value_section_config.dart';
+export 'widgets/key-value-section/key_value.dart';
 export 'widgets/key-value-section/key_value_section.dart';
+export 'widgets/key-value-section/key_value_theme.dart';
 
 export 'widgets/list/list.dart';
 
@@ -110,6 +113,7 @@ export 'widgets/select/multi_select.dart';
 export 'widgets/select/select_configs.dart';
 export 'widgets/select/select_dropdown.dart';
 export 'widgets/select/select_mixin.dart';
+export 'widgets/select/select_notifier.dart';
 export 'widgets/select/select.dart';
 
 export 'widgets/switch/switch.dart';
@@ -120,6 +124,7 @@ export 'widgets/table/table.dart';
 
 export 'widgets/tabs/tabs.dart';
 
+export 'widgets/tags-field/tags_field_theme.dart';
 export 'widgets/tags-field/tags_field.dart';
 
 export 'widgets/text-field/text_field.dart';

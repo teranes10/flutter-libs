@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/close-icon/close_icon.dart';
 
 mixin TPopupMixin {
   bool get disabled;

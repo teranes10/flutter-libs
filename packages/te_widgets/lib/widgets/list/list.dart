@@ -11,6 +11,9 @@ class TList<T> extends StatefulWidget {
   final Curve animationCurve;
   final double staggerDelay;
   final double maxStaggerTime;
+  final ScrollController? controller;
+  final VoidCallback? onScrollEnd;
+  final double scrollEndThreshold;
 
   const TList({
     super.key,
@@ -18,12 +21,15 @@ class TList<T> extends StatefulWidget {
     required this.itemBuilder,
     this.showAnimation = true,
     this.animationDuration = const Duration(milliseconds: 1200),
-    this.shrinkWrap = true,
-    this.physics = const NeverScrollableScrollPhysics(),
+    this.shrinkWrap = false,
+    this.physics = const AlwaysScrollableScrollPhysics(),
     this.padding,
     this.animationCurve = Curves.easeOutCubic,
     this.staggerDelay = 0.05,
     this.maxStaggerTime = 0.3,
+    this.controller,
+    this.onScrollEnd,
+    this.scrollEndThreshold = 0.0, // Pixels from bottom to trigger onScrollEnd
   });
 
   @override
@@ -32,37 +38,93 @@ class TList<T> extends StatefulWidget {
 
 class _TListState<T> extends State<TList<T>> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  late ScrollController _scrollController;
+  bool _isScrollEndTriggered = false;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(vsync: this, duration: widget.animationDuration);
     _animationController.forward();
+
+    _scrollController = widget.controller ?? ScrollController();
+    if (widget.onScrollEnd != null) {
+      _scrollController.addListener(_onScroll);
+    }
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+
+    if (widget.onScrollEnd != null) {
+      _scrollController.removeListener(_onScroll);
+    }
+    if (widget.controller == null) {
+      _scrollController.dispose();
+    }
     super.dispose();
   }
 
   @override
   void didUpdateWidget(TList<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _isScrollEndTriggered = false;
 
-    if (oldWidget.items.length != widget.items.length) {
+    if (oldWidget.items.isEmpty) {
       _animationController.reset();
       _animationController.forward();
     }
 
-    if (oldWidget.animationDuration != widget.animationDuration) {
-      _animationController.duration = widget.animationDuration;
+    if (oldWidget.controller != widget.controller) {
+      if (oldWidget.onScrollEnd != null) {
+        (oldWidget.controller ?? _scrollController).removeListener(_onScroll);
+      }
+
+      if (oldWidget.controller == null && widget.controller != null) {
+        _scrollController.dispose();
+      }
+
+      _scrollController = widget.controller ?? ScrollController();
+      if (widget.onScrollEnd != null) {
+        _scrollController.addListener(_onScroll);
+      }
+    }
+
+    if (oldWidget.onScrollEnd != widget.onScrollEnd) {
+      if (oldWidget.onScrollEnd != null) {
+        _scrollController.removeListener(_onScroll);
+      }
+      if (widget.onScrollEnd != null) {
+        _scrollController.addListener(_onScroll);
+      }
+    }
+  }
+
+  void _onScroll() {
+    if (widget.onScrollEnd == null) return;
+
+    final scrollController = _scrollController;
+    if (!scrollController.hasClients) return;
+
+    final maxScrollExtent = scrollController.position.maxScrollExtent;
+    final currentScrollPosition = scrollController.position.pixels;
+    final distanceFromBottom = maxScrollExtent - currentScrollPosition;
+
+    if (distanceFromBottom <= widget.scrollEndThreshold && !_isScrollEndTriggered) {
+      _isScrollEndTriggered = true;
+      widget.onScrollEnd!();
+    }
+
+    if (distanceFromBottom > widget.scrollEndThreshold * 1.5) {
+      _isScrollEndTriggered = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      controller: _scrollController,
       shrinkWrap: widget.shrinkWrap,
       physics: widget.physics,
       padding: widget.padding,

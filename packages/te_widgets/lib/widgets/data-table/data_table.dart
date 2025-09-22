@@ -16,6 +16,8 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
   final bool selectable;
   final bool singleSelect;
 
+  final bool infiniteScroll;
+
   @override
   final List<T>? items;
   @override
@@ -43,15 +45,6 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
     this.decoration = const TTableDecoration(),
     this.tableController,
     this.interactionConfig = const TTableInteractionConfig(),
-
-    // Expandable
-    this.expandable = false,
-    this.singleExpand = true,
-    this.expandedBuilder,
-
-    // Selectable
-    this.selectable = false,
-    this.singleSelect = false,
     this.items,
     this.itemsPerPage = 10,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
@@ -62,6 +55,18 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
     this.itemToString,
     this.searchNotifier,
     this.controller,
+
+    // Expandable
+    this.expandable = false,
+    this.singleExpand = true,
+    this.expandedBuilder,
+
+    // Selectable
+    this.selectable = false,
+    this.singleSelect = false,
+
+    // Infinite scroll
+    this.infiniteScroll = false,
   });
 
   @override
@@ -73,6 +78,11 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
   Widget build(BuildContext context) {
     final colors = context.colors;
     return LayoutBuilder(builder: (context, constraints) {
+      bool infiniteScroll = widget.infiniteScroll;
+      if (constraints.maxWidth < 768) {
+        infiniteScroll = true;
+      }
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -92,41 +102,76 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
           ),
 
           // Table with reactive items
-          ValueListenableBuilder<List<T>>(
-            valueListenable: itemsNotifier,
-            builder: (context, items, child) {
-              return TTable<T>(
-                headers: widget.headers,
-                items: items,
-                decoration: widget.decoration,
-                loading: loading,
-                controller: widget.tableController,
-                interactionConfig: widget.interactionConfig,
-                expandable: widget.expandable,
-                singleExpand: widget.singleExpand,
-                expandedBuilder: widget.expandedBuilder,
-                selectable: widget.selectable,
-                singleSelect: widget.singleSelect,
-              );
-            },
-          ),
+          infiniteScroll ? _buildInfiniteScrollTable(constraints) : _buildRegularTable(),
 
-          // Toolbar with pagination and controls
-          ValueListenableBuilder<List<T>>(
-            valueListenable: itemsNotifier,
-            builder: (context, items, child) {
-              if (totalItems == 0) return const SizedBox.shrink();
-              return Column(
-                children: [
-                  const SizedBox(height: 24),
-                  _buildToolbar(colors, constraints),
-                ],
-              );
-            },
-          ),
+          // Toolbar with pagination and controls (hidden for infinite scroll)
+          if (!infiniteScroll)
+            ValueListenableBuilder<List<T>>(
+              valueListenable: itemsNotifier,
+              builder: (context, items, child) {
+                if (totalItems == 0) return const SizedBox.shrink();
+                return Column(
+                  children: [
+                    const SizedBox(height: 24),
+                    _buildToolbar(colors, constraints),
+                  ],
+                );
+              },
+            ),
         ],
       );
     });
+  }
+
+  Widget _buildRegularTable() {
+    return ValueListenableBuilder<List<T>>(
+      valueListenable: itemsNotifier,
+      builder: (context, items, child) {
+        return Expanded(child: _buildTable(items));
+      },
+    );
+  }
+
+  double estimateHeight(int itemsPerPage) {
+    return 48 + (70.0 * itemsPerPage) + (12.0 * (itemsPerPage - 1));
+  }
+
+  Widget _buildInfiniteScrollTable(BoxConstraints constraints) {
+    return ValueListenableBuilder<List<T>>(
+      valueListenable: itemsNotifier,
+      builder: (context, items, child) {
+        return Container(
+          constraints: BoxConstraints(maxHeight: estimateHeight(widget.itemsPerPage).clamp(0, constraints.maxHeight - 10)),
+          child: Column(
+            children: [
+              Expanded(
+                  child: _buildTable(items, onScrollEnd: () {
+                if (hasMoreItems) {
+                  onScrollEnd();
+                }
+              })),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTable(List<T> items, {VoidCallback? onScrollEnd}) {
+    return TTable<T>(
+      headers: widget.headers,
+      items: items,
+      decoration: widget.decoration,
+      loading: loading,
+      controller: widget.tableController,
+      interactionConfig: widget.interactionConfig,
+      expandable: widget.expandable,
+      singleExpand: widget.singleExpand,
+      expandedBuilder: widget.expandedBuilder,
+      selectable: widget.selectable,
+      singleSelect: widget.singleSelect,
+      onScrollEnd: onScrollEnd,
+    );
   }
 
   Widget _buildToolbar(ColorScheme colors, BoxConstraints constraints) {

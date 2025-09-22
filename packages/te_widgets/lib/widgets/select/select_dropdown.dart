@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/select/select_notifier.dart';
 
 class TSelectDropdown<T, V> extends StatefulWidget {
   final TSelectStateNotifier<T, V> stateNotifier;

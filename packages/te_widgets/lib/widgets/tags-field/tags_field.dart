@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/tags-field/tags_field_theme.dart';
 
 class TTagsField extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<List<String>>, TInputValidationMixin<List<String>> {

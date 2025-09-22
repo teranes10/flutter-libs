@@ -1,30 +1,28 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TKeyValueSection extends StatelessWidget {
   final List<TKeyValue> values;
-  final TKeyValueStyle style;
+  final TKeyValueTheme theme;
 
   const TKeyValueSection({
     super.key,
     required this.values,
-    this.style = const TKeyValueStyle(),
+    this.theme = const TKeyValueTheme(),
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    if (style.forceKeyValue) {
+    if (theme.forceKeyValue) {
       return _buildKeyValueLayout(colors);
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
-        if (availableWidth > style.keyValueBreakPoint) {
+        if (availableWidth > theme.keyValueBreakPoint) {
           return _buildGridLayoutWidget(colors, availableWidth);
         } else {
           return _buildKeyValueLayout(colors);
@@ -47,7 +45,7 @@ class TKeyValueSection extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(flex: 2, child: Text(keyValue.key, style: style.getKeyStyle(colors))),
+                  Expanded(flex: 2, child: Text(keyValue.key, style: theme.getKeyStyle(colors))),
                   const SizedBox(width: 12),
                   Expanded(flex: 3, child: Align(alignment: Alignment.centerRight, child: _buildCellContent(colors, keyValue))),
                 ],
@@ -63,7 +61,7 @@ class TKeyValueSection extends StatelessWidget {
     return Column(
       children: gridData.map((rowData) {
         return Padding(
-          padding: EdgeInsets.only(bottom: style.gridSpacing),
+          padding: EdgeInsets.only(bottom: theme.gridSpacing),
           child: Table(
             columnWidths: _createColumnWidths(rowData.columnWidths),
             children: [
@@ -91,7 +89,7 @@ class TKeyValueSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(keyValue.key, style: style.getLabelStyle(colors)),
+          Text(keyValue.key, style: theme.getLabelStyle(colors)),
           const SizedBox(height: 4),
           _buildCellContent(colors, keyValue),
         ],
@@ -104,7 +102,7 @@ class TKeyValueSection extends StatelessWidget {
       return keyValue.widget!;
     }
 
-    return Text(keyValue.value ?? '', style: style.getValueStyle(colors));
+    return Text(keyValue.value ?? '', style: theme.getValueStyle(colors));
   }
 
   List<_RowData> _createRowData(double availableWidth) {
@@ -114,8 +112,8 @@ class TKeyValueSection extends StatelessWidget {
     double currentRowTotalWidth = 0;
 
     for (final keyValue in values) {
-      final columnWidth = _calculateColumnWidth(keyValue, availableWidth);
-      final spacingNeeded = currentRowValues.isEmpty ? 0 : style.gridSpacing;
+      final columnWidth = keyValue.estimateColumnWidth(availableWidth, theme);
+      final spacingNeeded = currentRowValues.isEmpty ? 0 : theme.gridSpacing;
 
       if (currentRowTotalWidth + spacingNeeded + columnWidth <= availableWidth) {
         currentRowValues.add(keyValue);
@@ -146,41 +144,6 @@ class TKeyValueSection extends StatelessWidget {
     }
 
     return rows;
-  }
-
-  double _calculateColumnWidth(TKeyValue keyValue, double availableWidth) {
-    if (keyValue.width != null) {
-      return keyValue.width!;
-    }
-
-    const double charWidth = 8.0;
-    const double basePadding = 16.0;
-
-    final headerLength = keyValue.key.length;
-
-    if (keyValue.widget != null) {
-      final finalWidth = (headerLength * charWidth) + basePadding;
-      return math.max(style.minGridColWidth, math.min(finalWidth, availableWidth * 0.6));
-    }
-
-    final valueLength = keyValue.value?.length.toDouble() ?? 0;
-    final maxLength = math.max(headerLength.toDouble(), valueLength);
-
-    double scaledWidth;
-    if (maxLength <= 32) {
-      scaledWidth = maxLength * charWidth;
-    } else if (maxLength <= 50) {
-      final ratio = (maxLength - 32) / 18;
-      scaledWidth = (32 * charWidth) + (ratio * (32 * charWidth * 0.2));
-    } else if (maxLength <= 60) {
-      final ratio = (maxLength - 50) / 10;
-      scaledWidth = (32 * charWidth * 1.2) + (ratio * (42 * charWidth - 32 * charWidth * 1.2));
-    } else {
-      scaledWidth = math.min(42 * charWidth, availableWidth * 0.4);
-    }
-
-    final finalWidth = scaledWidth + basePadding;
-    return math.max(style.minGridColWidth, math.min(finalWidth, availableWidth * 0.6));
   }
 
   Map<int, TableColumnWidth> _createColumnWidths(List<double> widths) {

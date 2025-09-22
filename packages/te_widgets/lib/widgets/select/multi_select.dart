@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/tags-field/tags_field_theme.dart';
 
 class TMultiSelect<T, V> extends StatefulWidget
     with

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/tags-field/tags_field_theme.dart';
 
 part 'field_prop.dart';
 part 'form_field.dart';

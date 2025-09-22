@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:te_widgets/configs/widget-theme/input_field_theme.dart';
-import 'package:te_widgets/widgets/file-picker/file_picker_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TFilePickerTheme extends TInputFieldTheme {
   final double tagSpacing;

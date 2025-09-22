@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/key-value-section/key_value_section_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TTableDecoration {
   final double mobileBreakpoint;
@@ -8,8 +8,6 @@ class TTableDecoration {
   final Duration animationDuration;
   final bool forceCardStyle;
   final TTableStyle style;
-  final double? minWidth;
-  final double? maxWidth;
   final bool showScrollbars;
   final int paginationTotalVisible;
 
@@ -20,8 +18,6 @@ class TTableDecoration {
     this.animationDuration = const Duration(milliseconds: 1200),
     this.forceCardStyle = false,
     this.style = const TTableStyle(),
-    this.minWidth,
-    this.maxWidth,
     this.showScrollbars = true,
     this.paginationTotalVisible = 9,
   });
@@ -45,8 +41,6 @@ class TTableDecoration {
       animationDuration: animationDuration ?? this.animationDuration,
       forceCardStyle: forceCardStyle ?? this.forceCardStyle,
       style: style ?? this.style,
-      minWidth: minWidth ?? this.minWidth,
-      maxWidth: maxWidth ?? this.maxWidth,
       showScrollbars: showScrollbars ?? this.showScrollbars,
     );
   }
@@ -80,7 +74,7 @@ class TTableStyle {
   }
 }
 
-class TCardStyle extends TKeyValueStyle {
+class TCardStyle extends TKeyValueTheme {
   final EdgeInsets margin;
   final EdgeInsets padding;
   final double elevation;

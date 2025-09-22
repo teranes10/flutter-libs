@@ -100,10 +100,9 @@ class TTableRowBuilder<T> {
     // Data cells
     cells.addAll(
       widget.headers.map((header) {
-        Widget cellContent = _buildCellContent(colors, header, item);
         return Align(
           alignment: header.alignment ?? Alignment.centerLeft,
-          child: cellContent,
+          child: _buildCellContent(colors, header, item),
         );
       }),
     );

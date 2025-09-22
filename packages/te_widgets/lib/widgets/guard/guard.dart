@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/guard/guard_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TGuard extends StatelessWidget {
   final bool condition;

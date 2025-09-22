@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:te_widgets/widgets/select/select_configs.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TSelectStateNotifier<T, V> extends ChangeNotifier {
   final ItemTextAccessor<T>? itemText;

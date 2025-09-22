@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/mixins/input_field_mixin.dart';
-import 'package:te_widgets/mixins/popup_mixin.dart';
-import 'package:te_widgets/mixins/pagination/pagination_mixin.dart';
-import 'package:te_widgets/widgets/select/select_configs.dart';
-import 'package:te_widgets/widgets/select/select_dropdown.dart';
-import 'package:te_widgets/widgets/select/select_notifier.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 mixin TSelectMixin<T, V> on TInputFieldMixin, TPopupMixin, TPaginationMixin<T> {
   bool get multiLevel;

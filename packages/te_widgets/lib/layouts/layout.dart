@@ -221,7 +221,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
             Expanded(
                 child: Padding(
               padding: EdgeInsets.all(isMobile ? 16 : 32),
-              child: SingleChildScrollView(child: child),
+              child: child,
             )),
           ],
         ),
