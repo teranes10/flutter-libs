@@ -36,33 +36,36 @@ class _TablesPageState extends State<TablesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          TButton(text: 'Print', onPressed: (_) => generatePdfWithTable(context)),
-          Expanded(child: TList(items: products, itemBuilder: (ctx, item, idx) => TCard(child: Text(item.name)))),
-          Expanded(child: TTable<Product>(headers: productHeaders, items: products)),
-          Expanded(
-              child: TDataTable<Product>(
-            headers: [
-              TTableHeader.map("Name", (x) => x.name),
-              TTableHeader.map("Price", (x) => x.price),
-              TTableHeader.chip("Stock", (x) => x.stock, color: AppColors.info),
-              TTableHeader.actions(
-                (x) => [
-                  TButtonGroupItem(tooltip: 'View', icon: Icons.remove_red_eye, color: AppColors.success, onPressed: (_) => {}),
-                  TButtonGroupItem(tooltip: 'Edit', icon: Icons.edit, color: AppColors.info, onPressed: (_) => {}),
-                  TButtonGroupItem(tooltip: 'Restore', icon: Icons.unarchive, color: AppColors.info, onPressed: (_) => {}),
-                  TButtonGroupItem(tooltip: 'Archive', icon: Icons.archive, color: AppColors.warning, onPressed: (_) => {}),
-                  TButtonGroupItem(tooltip: 'Delete', icon: Icons.delete_forever, color: AppColors.danger, onPressed: (_) => {}),
-                ],
-                maxWidth: 45 * 5,
-              ),
-            ],
-            items: products,
-          )),
-        ],
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          spacing: 25,
+          children: [
+            TButton(text: 'Print', onPressed: (_) => generatePdfWithTable(context)),
+            TList(shrinkWrap: true, items: products, itemBuilder: (ctx, item, idx) => TCard(child: Text(item.name))),
+            TTable<Product>(shrinkWrap: true, headers: productHeaders, items: products),
+            TDataTable<Product>(
+              shrinkWrap: true,
+              headers: [
+                TTableHeader.map("Name", (x) => x.name),
+                TTableHeader.map("Price", (x) => x.price),
+                TTableHeader.chip("Stock", (x) => x.stock, color: AppColors.info),
+                TTableHeader.actions(
+                  (x) => [
+                    TButtonGroupItem(tooltip: 'View', icon: Icons.remove_red_eye, color: AppColors.success, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Edit', icon: Icons.edit, color: AppColors.info, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Restore', icon: Icons.unarchive, color: AppColors.info, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Archive', icon: Icons.archive, color: AppColors.warning, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Delete', icon: Icons.delete_forever, color: AppColors.danger, onPressed: (_) => {}),
+                  ],
+                  maxWidth: 45 * 5,
+                ),
+              ],
+              items: products,
+            ),
+          ],
+        ),
       ),
     );
   }

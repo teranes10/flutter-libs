@@ -48,7 +48,6 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
         _buildToolbar(colors),
         TList(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
           items: _items,
           padding: EdgeInsets.all(0),
           itemBuilder: (ctx, item, i) => TCard(

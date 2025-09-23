@@ -9,6 +9,7 @@ import 'package:my_app/pages/input_fields_page.dart';
 import 'package:my_app/pages/popups_page.dart';
 import 'package:my_app/pages/select_fields_page.dart';
 import 'package:my_app/pages/tables_page.dart';
+import 'package:my_app/pages/test.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -30,7 +31,7 @@ final sidebarItems = [
     TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Item', children: [
       TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Sub Item 2', route: '/test2', page: FormsPage()),
     ]),
-    TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Item 2', route: '/test2', page: FormsPage()),
+    TSidebarItem(icon: Icons.line_style_rounded, text: 'Doc', route: '/doc', page: TButtonDocumentationPage()),
   ]),
 ];
 

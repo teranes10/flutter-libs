@@ -6,6 +6,7 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
   final TTableDecoration decoration;
   final TTableController<T>? tableController;
   final TTableInteractionConfig interactionConfig;
+  final bool shrinkWrap;
 
   // Expandable configuration
   final bool expandable;
@@ -45,6 +46,7 @@ class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
     this.decoration = const TTableDecoration(),
     this.tableController,
     this.interactionConfig = const TTableInteractionConfig(),
+    this.shrinkWrap = false,
     this.items,
     this.itemsPerPage = 10,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
@@ -82,9 +84,11 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
       if (constraints.maxWidth < 768) {
         infiniteScroll = true;
       }
+      if (widget.shrinkWrap) {
+        infiniteScroll = false;
+      }
 
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Loading indicator
           ValueListenableBuilder<bool>(
@@ -127,7 +131,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
     return ValueListenableBuilder<List<T>>(
       valueListenable: itemsNotifier,
       builder: (context, items, child) {
-        return Expanded(child: _buildTable(items));
+        return widget.shrinkWrap ? _buildTable(items) : Expanded(child: _buildTable(items));
       },
     );
   }
@@ -144,12 +148,9 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
           constraints: BoxConstraints(maxHeight: estimateHeight(widget.itemsPerPage).clamp(0, constraints.maxHeight - 10)),
           child: Column(
             children: [
-              Expanded(
-                  child: _buildTable(items, onScrollEnd: () {
-                if (hasMoreItems) {
-                  onScrollEnd();
-                }
-              })),
+              widget.shrinkWrap
+                  ? _buildTable(items, onScrollEnd: onScrollEnd)
+                  : Expanded(child: _buildTable(items, onScrollEnd: onScrollEnd))
             ],
           ),
         );
@@ -159,6 +160,7 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
 
   Widget _buildTable(List<T> items, {VoidCallback? onScrollEnd}) {
     return TTable<T>(
+      shrinkWrap: widget.shrinkWrap,
       headers: widget.headers,
       items: items,
       decoration: widget.decoration,

@@ -14,6 +14,7 @@ class TTable<T> extends StatefulWidget {
   final bool loading;
   final TTableController<T>? controller;
   final TTableInteractionConfig interactionConfig;
+  final bool shrinkWrap;
   final VoidCallback? onScrollEnd;
 
   // Expandable configuration
@@ -33,6 +34,7 @@ class TTable<T> extends StatefulWidget {
     this.loading = false,
     this.controller,
     this.interactionConfig = const TTableInteractionConfig(),
+    this.shrinkWrap = false,
     this.onScrollEnd,
     // Expandable
     this.expandable = false,
@@ -114,7 +116,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
       mainAxisSize: MainAxisSize.min,
       children: [
         _headerBuilder._build(colors),
-        _buildTable(colors),
+        widget.shrinkWrap ? _buildTable(colors) : Expanded(child: _buildTable(colors)),
         if (widget.items.isEmpty && !widget.loading) buildTableEmptyState(colors),
       ],
     );
@@ -142,25 +144,24 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
   }
 
   Widget _buildTable(ColorScheme colors) {
-    return Expanded(
-      child: _controller != null
-          ? ValueListenableBuilder<Set<int>>(
-              valueListenable: _controller!.expanded,
-              builder: (context, expandedSet, _) {
-                return ValueListenableBuilder<Set<int>>(
-                  valueListenable: _controller!.selected,
-                  builder: (context, selectedSet, _) {
-                    return _buildTList(colors, expandedSet, selectedSet);
-                  },
-                );
-              },
-            )
-          : _buildTList(colors, const {}, const {}),
-    );
+    return _controller != null
+        ? ValueListenableBuilder<Set<int>>(
+            valueListenable: _controller!.expanded,
+            builder: (context, expandedSet, _) {
+              return ValueListenableBuilder<Set<int>>(
+                valueListenable: _controller!.selected,
+                builder: (context, selectedSet, _) {
+                  return _buildTList(colors, expandedSet, selectedSet);
+                },
+              );
+            },
+          )
+        : _buildTList(colors, const {}, const {});
   }
 
   Widget _buildTList(ColorScheme colors, Set<int> expandedSet, Set<int> selectedSet) {
     return TList<T>(
+      shrinkWrap: widget.shrinkWrap,
       items: widget.items,
       showAnimation: widget.decoration.showStaggeredAnimation,
       animationDuration: widget.decoration.animationDuration,
@@ -196,6 +197,7 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
 
   Widget _buildCardList(ColorScheme colors, Set<int> expandedSet, Set<int> selectedSet) {
     return TList<T>(
+      shrinkWrap: widget.shrinkWrap,
       items: widget.items,
       showAnimation: widget.decoration.showStaggeredAnimation,
       animationDuration: widget.decoration.animationDuration,
