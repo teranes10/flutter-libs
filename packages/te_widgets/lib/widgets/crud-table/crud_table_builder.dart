@@ -1,7 +1,7 @@
 part of 'crud_table.dart';
 
-class _TCrudTableBuilder<T, F extends TFormBase> {
-  final _TCrudTableState<T, F> parent;
+class _TCrudTableBuilder<T, K, F extends TFormBase> {
+  final _TCrudTableState<T, K, F> parent;
 
   _TCrudTableBuilder({required this.parent});
 
@@ -10,32 +10,15 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
       return _buildTable(
         isArchive: false,
         headers: _buildActiveHeaders(theme),
-        items: parent.widget.items,
-        onLoad: parent.widget.onLoad,
-        searchNotifier: parent.searchNotifier,
-        controller: parent.paginationController,
+        controller: parent.listController,
       );
     }
 
-    return IndexedStack(
+    return TLazyIndexedStack(
       index: parent.currentTab,
       children: [
-        _buildTable(
-          isArchive: false,
-          headers: _buildActiveHeaders(theme),
-          items: parent.widget.items,
-          onLoad: parent.widget.onLoad,
-          searchNotifier: parent.searchNotifier,
-          controller: parent.paginationController,
-        ),
-        _buildTable(
-          isArchive: true,
-          headers: _buildArchiveHeaders(theme),
-          items: parent.widget.archivedItems,
-          onLoad: parent.widget.onArchiveLoad,
-          searchNotifier: parent.archiveSearchNotifier,
-          controller: parent.archivePaginationController,
-        ),
+        (_) => _buildTable(isArchive: false, headers: _buildActiveHeaders(theme), controller: parent.listController),
+        (_) => _buildTable(isArchive: true, headers: _buildArchiveHeaders(theme), controller: parent.archiveListController),
       ],
     );
   }
@@ -43,26 +26,17 @@ class _TCrudTableBuilder<T, F extends TFormBase> {
   Widget _buildTable({
     required bool isArchive,
     required List<TTableHeader<T>> headers,
-    required List<T>? items,
-    required TLoadListener<T>? onLoad,
-    required ValueNotifier<String> searchNotifier,
-    required TPaginationController<T> controller,
+    required TListController<T, K> controller,
   }) {
-    return TDataTable<T>(
+    return TDataTable<T, K>(
       headers: headers,
-      decoration: parent.widget.decoration,
-      interactionConfig: parent.widget.interactionConfig,
-      expandable: !isArchive && parent.widget.expandable,
-      selectable: !isArchive && parent.widget.selectable,
-      singleExpand: parent.widget.singleExpand,
-      singleSelect: parent.widget.singleSelect,
       expandedBuilder: parent.widget.expandedBuilder,
-      items: items,
-      onLoad: onLoad,
-      searchNotifier: searchNotifier,
       controller: controller,
-      tableController: parent.widget.tableController,
-      itemsPerPage: parent.widget.config.itemsPerPage,
+      interaction: parent.widget.config.interaction ??
+          TListInteraction<T>(
+            tapAction: TListInteractionType.expand,
+            doubleTapAction: TListInteractionType.select,
+          ),
       itemsPerPageOptions: parent.widget.config.itemsPerPageOptions,
     );
   }

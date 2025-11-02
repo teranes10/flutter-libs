@@ -6,10 +6,10 @@ class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, T
   final bool? value;
 
   @override
-  final ValueNotifier<bool>? valueNotifier;
+  final ValueNotifier<bool?>? valueNotifier;
 
   @override
-  final ValueChanged<bool>? onValueChanged;
+  final ValueChanged<bool?>? onValueChanged;
 
   @override
   final FocusNode? focusNode;

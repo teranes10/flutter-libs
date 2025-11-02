@@ -13,9 +13,17 @@ mixin TInputFieldMixin {
 
 mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
   TInputFieldMixin get _widget => widget as TInputFieldMixin;
+  TFocusStateMixin? get focusMixin => this is TFocusStateMixin ? this as TFocusStateMixin : null;
+  TInputValidationStateMixin? get validationMixin => this is TInputValidationStateMixin ? this as TInputValidationStateMixin : null;
   ColorScheme get colors => context.colors;
-  TWidgetThemeExtension get theme => context.theme;
-  TInputFieldTheme get wTheme => _widget.theme ?? theme.inputFieldTheme;
+  TInputFieldTheme get wTheme => _widget.theme ?? context.theme.inputFieldTheme;
+
+  Set<WidgetState> get states {
+    final isFocused = focusMixin?.isFocused ?? false;
+    final hasErrors = validationMixin?.hasErrors ?? false;
+
+    return <WidgetState>{if (isFocused) WidgetState.focused, if (hasErrors) WidgetState.error, if (_widget.disabled) WidgetState.disabled};
+  }
 
   Widget buildContainer({
     bool isMultiline = false,
@@ -26,22 +34,6 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     bool block = true,
     bool focusOnTap = true,
   }) {
-    TFocusStateMixin? focusMixin = this is TFocusStateMixin ? this as TFocusStateMixin : null;
-    TInputValidationStateMixin? validationMixin = this is TInputValidationStateMixin ? this as TInputValidationStateMixin : null;
-
-    final isFocused = focusMixin?.isFocused ?? false;
-    final hasErrors = validationMixin?.hasErrors ?? false;
-
-    final ctx = TInputContext(
-      colors: colors,
-      theme: wTheme,
-      states: <WidgetState>{
-        if (isFocused) WidgetState.focused,
-        if (hasErrors) WidgetState.error,
-        if (_widget.disabled) WidgetState.disabled
-      },
-    );
-
     return InkWell(
       onTap: _widget.disabled
           ? null
@@ -54,7 +46,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
               }
             },
       child: wTheme.buildContainer(
-        ctx,
+        states,
         child: child,
         additionalPostWidget: postWidget,
         additionalPreWidget: preWidget,

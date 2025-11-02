@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 mixin TScrollMixin {
-  ScrollController? get controller;
+  ScrollController? get scrollController;
   VoidCallback? get onScrollEnd;
   double get scrollEndThreshold;
+  ValueNotifier<double>? get scrollPositionNotifier;
+  ValueChanged<double>? get onScrollPositionChanged;
 }
 
 mixin TScrollStateMixin<W extends StatefulWidget> on State<W> {
@@ -21,20 +23,20 @@ mixin TScrollStateMixin<W extends StatefulWidget> on State<W> {
   void initState() {
     super.initState();
 
-    _scrollController = _widget.controller ?? ScrollController();
-    if (_widget.onScrollEnd != null) {
-      _scrollController.addListener(_onScroll);
-    }
+    _scrollController = _widget.scrollController ?? ScrollController();
+    _scrollController.addListener(_onScroll);
+    _widget.scrollPositionNotifier?.addListener(_updateScrollPosition);
   }
 
   @override
   void dispose() {
-    if (_widget.onScrollEnd != null) {
-      _scrollController.removeListener(_onScroll);
-    }
-    if (_widget.controller == null) {
+    _scrollController.removeListener(_onScroll);
+    _widget.scrollPositionNotifier?.removeListener(_updateScrollPosition);
+
+    if (_widget.scrollController == null) {
       _scrollController.dispose();
     }
+
     super.dispose();
   }
 
@@ -44,48 +46,55 @@ mixin TScrollStateMixin<W extends StatefulWidget> on State<W> {
     _isScrollEndTriggered = false;
 
     final oldMixin = oldWidget as TScrollMixin;
-    if (oldMixin.controller != _widget.controller) {
-      if (oldMixin.onScrollEnd != null) {
-        (oldMixin.controller ?? _scrollController).removeListener(_onScroll);
-      }
 
-      if (oldMixin.controller == null && _widget.controller != null) {
+    if (oldMixin.scrollController != _widget.scrollController) {
+      (oldMixin.scrollController ?? _scrollController).removeListener(_onScroll);
+
+      if (oldMixin.scrollController == null && _widget.scrollController != null) {
         _scrollController.dispose();
       }
 
-      _scrollController = _widget.controller ?? ScrollController();
-      if (_widget.onScrollEnd != null) {
-        _scrollController.addListener(_onScroll);
-      }
+      _scrollController = _widget.scrollController ?? ScrollController();
+      _scrollController.addListener(_onScroll);
     }
 
-    if (oldMixin.onScrollEnd != _widget.onScrollEnd) {
-      if (oldMixin.onScrollEnd != null) {
-        _scrollController.removeListener(_onScroll);
-      }
-      if (_widget.onScrollEnd != null) {
-        _scrollController.addListener(_onScroll);
+    if (oldMixin.scrollPositionNotifier != _widget.scrollPositionNotifier) {
+      oldMixin.scrollPositionNotifier?.removeListener(_updateScrollPosition);
+      _widget.scrollPositionNotifier?.addListener(_updateScrollPosition);
+    }
+  }
+
+  void _updateScrollPosition() {
+    final notifier = _widget.scrollPositionNotifier;
+    if (_scrollController.hasClients && notifier != null) {
+      final targetPosition = notifier.value;
+      if ((_scrollController.offset - targetPosition).abs() > 1.0) {
+        _scrollController.jumpTo(targetPosition);
       }
     }
   }
 
   void _onScroll() {
-    if (_widget.onScrollEnd == null) return;
+    if (!_scrollController.hasClients) return;
 
-    final scrollController = _scrollController;
-    if (!scrollController.hasClients) return;
+    final currentPosition = _scrollController.position.pixels;
 
-    final maxScrollExtent = scrollController.position.maxScrollExtent;
-    final currentScrollPosition = scrollController.position.pixels;
-    final distanceFromBottom = maxScrollExtent - currentScrollPosition;
+    _widget.onScrollPositionChanged?.call(currentPosition);
+    _widget.scrollPositionNotifier?.value = currentPosition;
+
+    final maxScrollExtent = _scrollController.position.maxScrollExtent;
+    final distanceFromBottom = maxScrollExtent - currentPosition;
 
     if (distanceFromBottom <= _widget.scrollEndThreshold && !_isScrollEndTriggered) {
       _isScrollEndTriggered = true;
-      _widget.onScrollEnd!();
+      _widget.onScrollEnd?.call();
+      onScrollEnd();
     }
 
     if (distanceFromBottom > _widget.scrollEndThreshold * 1.5) {
       _isScrollEndTriggered = false;
     }
   }
+
+  void onScrollEnd() {}
 }

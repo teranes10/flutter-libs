@@ -47,17 +47,18 @@ class UserForm extends TFormBase {
   @override
   List<TFormField> get fields {
     return [
-      TFormField.select<PostDto, PostDto?>(
+      TFormField.select<PostDto, PostDto, int>(
         select,
         "Select",
         onLoad: (o) async {
-          final pair = await PostsClient().fetchPosts(start: o.offset, limit: o.itemsPerPage, query: o.search);
+          final (items, total) = await PostsClient().fetchPosts(start: o.offset, limit: o.itemsPerPage, query: o.search);
           if (o.page == 1) {
-            select.value = pair.$1.first;
+            select.value = items.first;
           }
-          o.callback(pair.$1, pair.$2);
+          return TLoadResult(items, total);
         },
         itemText: (x) => x.title,
+        itemKey: (x) => x.id,
       ),
       TFormField.text(firstName, 'First Name').size(6),
       TFormField.text(lastName, 'Last Name').size(6),

@@ -5,9 +5,9 @@ class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputV
   @override
   final List<T>? value;
   @override
-  final ValueChanged<List<T>>? onValueChanged;
+  final ValueChanged<List<T>?>? onValueChanged;
   @override
-  final ValueNotifier<List<T>>? valueNotifier;
+  final ValueNotifier<List<T>?>? valueNotifier;
 
   final String? label;
   final String buttonLabel;
@@ -31,12 +31,19 @@ class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputV
 
 class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuilder<T>>
     with TInputValueStateMixin<List<T>, TItemsFormBuilder<T>> {
-  late List<T> _items;
+  late TListController<T, int> _listController;
 
   @override
   void initState() {
     super.initState();
-    _items = widget.value != null ? List.from(widget.value!) : List.empty();
+    _listController = TListController(items: widget.value != null ? List.from(widget.value!) : List.empty());
+  }
+
+  @override
+  @override
+  void dispose() {
+    _listController.dispose();
+    super.dispose();
   }
 
   @override
@@ -46,20 +53,16 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
     return Column(
       children: [
         _buildToolbar(colors),
-        TList(
-          shrinkWrap: true,
-          items: _items,
-          padding: EdgeInsets.all(0),
-          itemBuilder: (ctx, item, i) => TCard(
+        TList<T, int>(
+          theme: TListTheme(shrinkWrap: true, infiniteScroll: false, padding: EdgeInsets.all(0)),
+          controller: _listController,
+          itemBuilder: (ctx, item, i, multiple) => TCard(
               padding: EdgeInsets.all(0),
               margin: EdgeInsets.only(bottom: 10),
               child: Stack(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.all(10),
-                    child: TFormBuilder(input: item, onValueChanged: _update),
-                  ),
-                  Positioned(top: 2, right: 2, child: TCloseIcon(size: 14, onClose: () => _removeItem(item)))
+                  Padding(padding: EdgeInsets.all(10), child: TFormBuilder(input: item.data, onValueChanged: _update)),
+                  Positioned(top: 2, right: 2, child: TIcon.close(colors, size: 14, onTap: () => _removeItem(item.data)))
                 ],
               )),
         )
@@ -68,26 +71,18 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
   }
 
   void _update() {
-    widget.onValueChanged?.call(_items);
+    final value = _listController.localItems;
+    widget.onValueChanged?.call(value);
   }
 
   void _onNewItem() {
-    setState(() {
-      if (widget.itemAddPosition == TItemAddPosition.first) {
-        _items.insert(0, widget.onNewItem());
-      } else {
-        _items.add(widget.onNewItem());
-      }
-
-      _update();
-    });
+    _listController.addItem(widget.onNewItem(), widget.itemAddPosition == TItemAddPosition.first);
+    _update();
   }
 
   void _removeItem(T item) {
-    setState(() {
-      _items.remove(item);
-      _update();
-    });
+    _listController.removeItem(item);
+    _update();
   }
 
   Widget _buildToolbar(ColorScheme colors) {

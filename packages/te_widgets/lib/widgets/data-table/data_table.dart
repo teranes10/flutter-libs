@@ -1,197 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TDataTable<T> extends StatefulWidget with TPaginationMixin<T> {
+class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   final List<TTableHeader<T>> headers;
-  final TTableDecoration decoration;
-  final TTableController<T>? tableController;
-  final TTableInteractionConfig interactionConfig;
-  final bool shrinkWrap;
+  final TTableTheme? theme;
+  final TListInteraction<T>? interaction;
 
-  // Expandable configuration
-  final bool expandable;
-  final bool singleExpand;
-  final Widget Function(T item, int index, bool isExpanded)? expandedBuilder;
-
-  // Selectable configuration
-  final bool selectable;
-  final bool singleSelect;
-
-  final bool infiniteScroll;
-
+  //List
   @override
   final List<T>? items;
   @override
-  final int itemsPerPage;
-  @override
-  final List<int> itemsPerPageOptions;
-  @override
-  final bool loading;
-  @override
-  final TLoadListener<T>? onLoad;
+  final int? itemsPerPage;
   @override
   final String? search;
   @override
-  final int searchDelay;
+  final int? searchDelay;
   @override
-  final String Function(T)? itemToString;
+  final TLoadListener<T>? onLoad;
   @override
-  final ValueNotifier<String>? searchNotifier;
+  final ItemKeyAccessor<T, K>? itemKey;
   @override
-  final TPaginationController? controller;
+  final TListController<T, K>? controller;
+
+  // Expandable configuration
+  final Widget Function(T item, int index)? expandedBuilder;
+
+  final int paginationTotalVisible;
+  final List<int> itemsPerPageOptions;
 
   const TDataTable({
     super.key,
     required this.headers,
-    this.decoration = const TTableDecoration(),
-    this.tableController,
-    this.interactionConfig = const TTableInteractionConfig(),
-    this.shrinkWrap = false,
+    this.theme,
+    this.interaction,
+    //List
     this.items,
-    this.itemsPerPage = 10,
-    this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
-    this.searchDelay = 2500,
-    this.loading = false,
+    this.itemsPerPage,
     this.search,
+    this.searchDelay,
     this.onLoad,
-    this.itemToString,
-    this.searchNotifier,
+    this.itemKey,
     this.controller,
-
-    // Expandable
-    this.expandable = false,
-    this.singleExpand = true,
+    //Expandable
     this.expandedBuilder,
-
-    // Selectable
-    this.selectable = false,
-    this.singleSelect = false,
-
-    // Infinite scroll
-    this.infiniteScroll = false,
+    //DataTable
+    this.paginationTotalVisible = 7,
+    this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
   });
 
   @override
-  State<TDataTable<T>> createState() => _TDataTableState<T>();
+  State<TDataTable<T, K>> createState() => _TDataTableState<T, K>();
 }
 
-class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixin<T, TDataTable<T>> {
+class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixin<T, K, TDataTable<T, K>> {
+  TWidgetThemeExtension get theme => context.theme;
+  TTableTheme get wTheme => widget.theme ?? context.theme.tableTheme;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return LayoutBuilder(builder: (context, constraints) {
-      bool infiniteScroll = widget.infiniteScroll;
-      if (constraints.maxWidth < 768) {
-        infiniteScroll = true;
-      }
-      if (widget.shrinkWrap) {
-        infiniteScroll = false;
-      }
-
-      return Column(
-        children: [
-          // Loading indicator
-          ValueListenableBuilder<bool>(
-            valueListenable: loadingNotifier,
-            builder: (context, isLoading, child) {
-              if (!isLoading) return const SizedBox.shrink();
-              return SizedBox(
-                height: 4,
-                child: LinearProgressIndicator(
-                  backgroundColor: colors.primaryContainer,
-                  valueColor: AlwaysStoppedAnimation<Color>(colors.onPrimaryContainer),
+    return Column(
+      children: [
+        Expanded(
+          child: TTable<T, K>(
+            headers: widget.headers,
+            theme: wTheme.copyWith(
+              infiniteScroll: false,
+              footerSticky: true,
+              footerWidget: LayoutBuilder(
+                builder: (_, constraints) => ValueListenableBuilder(
+                  valueListenable: listController,
+                  builder: (ctx, state, _) => _buildToolbar(colors, constraints),
                 ),
-              );
-            },
-          ),
-
-          // Table with reactive items
-          infiniteScroll ? _buildInfiniteScrollTable(constraints) : _buildRegularTable(),
-
-          // Toolbar with pagination and controls (hidden for infinite scroll)
-          if (!infiniteScroll)
-            ValueListenableBuilder<List<T>>(
-              valueListenable: itemsNotifier,
-              builder: (context, items, child) {
-                if (totalItems == 0) return const SizedBox.shrink();
-                return Column(
-                  children: [
-                    const SizedBox(height: 24),
-                    _buildToolbar(colors, constraints),
-                  ],
-                );
-              },
+              ),
             ),
-        ],
-      );
-    });
-  }
-
-  Widget _buildRegularTable() {
-    return ValueListenableBuilder<List<T>>(
-      valueListenable: itemsNotifier,
-      builder: (context, items, child) {
-        return widget.shrinkWrap ? _buildTable(items) : Expanded(child: _buildTable(items));
-      },
-    );
-  }
-
-  double estimateHeight(int itemsPerPage) {
-    return 48 + (70.0 * itemsPerPage) + (12.0 * (itemsPerPage - 1));
-  }
-
-  Widget _buildInfiniteScrollTable(BoxConstraints constraints) {
-    return ValueListenableBuilder<List<T>>(
-      valueListenable: itemsNotifier,
-      builder: (context, items, child) {
-        return Container(
-          constraints: BoxConstraints(maxHeight: estimateHeight(widget.itemsPerPage).clamp(0, constraints.maxHeight - 10)),
-          child: Column(
-            children: [
-              widget.shrinkWrap
-                  ? _buildTable(items, onScrollEnd: onScrollEnd)
-                  : Expanded(child: _buildTable(items, onScrollEnd: onScrollEnd))
-            ],
+            interaction: widget.interaction,
+            controller: listController,
+            expandedBuilder: widget.expandedBuilder,
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTable(List<T> items, {VoidCallback? onScrollEnd}) {
-    return TTable<T>(
-      shrinkWrap: widget.shrinkWrap,
-      headers: widget.headers,
-      items: items,
-      decoration: widget.decoration,
-      loading: loading,
-      controller: widget.tableController,
-      interactionConfig: widget.interactionConfig,
-      expandable: widget.expandable,
-      singleExpand: widget.singleExpand,
-      expandedBuilder: widget.expandedBuilder,
-      selectable: widget.selectable,
-      singleSelect: widget.singleSelect,
-      onScrollEnd: onScrollEnd,
+        ),
+      ],
     );
   }
 
   Widget _buildToolbar(ColorScheme colors, BoxConstraints constraints) {
-    final paginationBarWidth =
-        (40.0 * (totalPages.clamp(0, widget.decoration.paginationTotalVisible) + 4)) + ((totalPages.toString().length - 1) * 6 * 7);
-    final paginationInfoWidth = paginationInfo.length * 7.5;
+    final paginationBarWidth = (40.0 * (listController.totalPages.clamp(0, widget.paginationTotalVisible) + 4)) +
+        ((listController.totalPages.toString().length - 1) * 6 * 7);
+    final paginationInfoWidth = listController.paginationInfo.length * 7.5;
     final totalWidth = paginationBarWidth + paginationInfoWidth + 80 + 20;
     final needWrap = constraints.maxWidth < totalWidth;
 
-    return SizedBox(
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10),
       width: double.infinity,
       child: needWrap
           ? Column(
               spacing: 15,
               children: [
-                _buildPaginationBar(),
-                _buildPaginationInfo(colors),
-                _buildItemsPerPage(),
+                _buildPaginationBar(listController.page, listController.totalPages),
+                _buildPaginationInfo(colors, listController.paginationInfo),
+                _buildItemsPerPage(listController.itemsPerPage, listController.totalItems),
               ],
             )
           : Wrap(
@@ -199,42 +107,47 @@ class _TDataTableState<T> extends State<TDataTable<T>> with TPaginationStateMixi
               runSpacing: 12,
               spacing: 12,
               children: [
-                _buildPaginationBar(),
+                _buildPaginationBar(listController.page, listController.totalPages),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   spacing: 15,
-                  children: [_buildPaginationInfo(colors), _buildItemsPerPage()],
+                  children: [
+                    _buildPaginationInfo(colors, listController.paginationInfo),
+                    _buildItemsPerPage(listController.itemsPerPage, listController.totalItems)
+                  ],
                 ),
               ],
             ),
     );
   }
 
-  Widget _buildPaginationBar() {
+  Widget _buildPaginationBar(page, totalPages) {
     return TPagination(
-      currentPage: currentPage,
+      currentPage: page,
       totalPages: totalPages,
-      totalVisible: widget.decoration.paginationTotalVisible,
-      onPageChanged: onPageChanged,
+      totalVisible: widget.paginationTotalVisible,
+      onPageChanged: listController.handlePageChange,
     );
   }
 
-  Widget _buildItemsPerPage() {
+  Widget _buildItemsPerPage(int itemsPerPage, int total) {
+    final itemsPerPageOptions = <int>{itemsPerPage, ...widget.itemsPerPageOptions}.where((x) => x <= total && x > 0).toList()..sort();
     return SizedBox(
-      width: 80,
-      child: TSelect(
-        theme: TTextFieldTheme(size: TInputSize.sm),
-        selectedIcon: null,
-        value: computedItemsPerPage,
-        items: computedItemsPerPageOptions,
+      width: 100,
+      child: TSelect<int, int, int>(
+        theme: theme.textFieldTheme.copyWith(size: TInputSize.sm),
+        cardTheme: theme.listCardTheme.copyWith(showSelectionIndicator: false),
+        filterable: false,
+        value: itemsPerPage,
+        items: itemsPerPageOptions,
         onValueChanged: (value) {
-          onItemsPerPageChanged(value);
+          listController.handleItemsPerPageChange(value!);
         },
       ),
     );
   }
 
-  Widget _buildPaginationInfo(ColorScheme colors) {
-    return Text(paginationInfo, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface));
+  Widget _buildPaginationInfo(ColorScheme colors, String info) {
+    return Text(info, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface));
   }
 }

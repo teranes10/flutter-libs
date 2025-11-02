@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TCrudConfig<T> {
   final Future<bool> Function(T)? canView;
@@ -23,6 +24,7 @@ class TCrudConfig<T> {
   final List<TCrudCustomAction<T>> archiveActions;
 
   final List<Widget> topBarActions;
+  final TListInteraction<T>? interaction;
 
   const TCrudConfig({
     this.canView,
@@ -40,6 +42,7 @@ class TCrudConfig<T> {
     this.activeActions = const [],
     this.archiveActions = const [],
     this.topBarActions = const [],
+    this.interaction,
   });
 }
 

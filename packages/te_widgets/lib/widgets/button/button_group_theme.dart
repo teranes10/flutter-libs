@@ -100,22 +100,25 @@ class TButtonGroupTheme {
 
   Widget applyGroupStyling(
     BuildContext context, {
-    required TButtonGroupTheme groupTheme,
     required TButton button,
-    required bool isFirst,
-    required bool isLast,
+    required int index,
+    required int total,
   }) {
+    final isFirst = index == 0;
+    final isLast = index == total - 1;
+    final isSingle = total == 1;
+
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(isFirst ? groupTheme.borderRadius : 0),
-        bottomLeft: Radius.circular(isFirst ? groupTheme.borderRadius : 0),
-        topRight: Radius.circular(isLast ? groupTheme.borderRadius : 0),
-        bottomRight: Radius.circular(isLast ? groupTheme.borderRadius : 0),
+        topLeft: Radius.circular(isFirst ? borderRadius : 0),
+        bottomLeft: Radius.circular(isFirst ? borderRadius : 0),
+        topRight: Radius.circular(isLast ? borderRadius : 0),
+        bottomRight: Radius.circular(isLast ? borderRadius : 0),
       ),
     );
 
-    final buttonTheme = TButtonTheme.create(context, type: button.type, size: button.size, color: button.color, shape: shape);
-    return button.copyWith(theme: buttonTheme);
+    final buttonTheme = TButtonTheme(shape: shape).copyWith(type: type.buttonType, size: size);
+    return isSingle ? button.copyWith(type: button.type, size: button.size) : button.copyWith(theme: buttonTheme);
   }
 
   TButtonGroupTheme copyWith({

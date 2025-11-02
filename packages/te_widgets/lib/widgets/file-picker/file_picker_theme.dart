@@ -1,66 +1,185 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+typedef FileTagBuilder = Widget Function(TFile file, VoidCallback onRemove);
+
 class TFilePickerTheme extends TInputFieldTheme {
-  final double tagSpacing;
-  final double tagRunSpacing;
-  final EdgeInsets tagPadding;
-  final double tagBorderRadius;
-  final Color? tagBackgroundColor;
-  final Color? tagTextColor;
-  final double? tagFontSize;
-  final FontWeight? tagFontWeight;
-  final Color? tagIconColor;
-  final double tagIconSize;
-  final double minInputWidth;
-  final double maxInputWidth;
-  final Widget Function(TFile file, VoidCallback onRemove)? tagBuilder;
+  final WidgetStateProperty<TextStyle> hintStyle;
+  final FileTagBuilder fileTagBuilder;
 
-  Widget buildTagChip(ColorScheme colors, TFile file, VoidCallback onRemove) {
-    if (tagBuilder != null) {
-      return tagBuilder!(file, onRemove);
-    }
+  const TFilePickerTheme({
+    required super.color,
+    required super.backgroundColor,
+    required super.borderColor,
+    required super.labelStyle,
+    required super.helperTextStyle,
+    required super.errorTextStyle,
+    required super.tagStyle,
+    required super.decoration,
+    required super.borderRadius,
+    required super.borderWidth,
+    required super.labelBuilder,
+    required super.helperTextBuilder,
+    required super.errorsBuilder,
+    required this.fileTagBuilder,
+    required this.hintStyle,
+    super.size = TInputSize.md,
+    super.decorationType,
+    super.preWidget,
+    super.postWidget,
+    super.height,
+    super.padding,
+    super.fontSize,
+  });
 
-    return Container(
-      padding: tagPadding,
-      decoration: BoxDecoration(
-        color: tagBackgroundColor ?? colors.surfaceContainer,
-        borderRadius: BorderRadius.circular(tagBorderRadius),
-      ),
-      child: IntrinsicWidth(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            getFileIcon(file.extension, colors),
-            const SizedBox(width: 5),
-            Flexible(
-              child: Text(
-                file.name,
-                style: TextStyle(
-                  color: tagTextColor ?? colors.onSurfaceVariant,
-                  fontSize: tagFontSize ?? fontSize ?? super.fontSize,
-                  fontWeight: tagFontWeight,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
-            const SizedBox(width: 5.0),
-            GestureDetector(
-              onTap: onRemove,
-              child: Icon(Icons.close, size: tagIconSize, color: tagIconColor ?? colors.onSurfaceVariant),
-            ),
-          ],
-        ),
-      ),
+  @override
+  TFilePickerTheme copyWith({
+    TInputSize? size,
+    TInputDecorationType? decorationType,
+    WidgetStateProperty<Color>? color,
+    WidgetStateProperty<Color>? backgroundColor,
+    WidgetStateProperty<Color>? borderColor,
+    WidgetStateProperty<TextStyle>? labelStyle,
+    WidgetStateProperty<TextStyle>? helperTextStyle,
+    WidgetStateProperty<TextStyle>? errorTextStyle,
+    WidgetStateProperty<TextStyle>? tagStyle,
+    WidgetStateProperty<BoxDecoration>? decoration,
+    WidgetStateProperty<double>? borderRadius,
+    WidgetStateProperty<double>? borderWidth,
+    WidgetStateProperty<LabelBuilder>? labelBuilder,
+    WidgetStateProperty<HelperTextBuilder>? helperTextBuilder,
+    WidgetStateProperty<ErrorsBuilder>? errorsBuilder,
+    Widget? preWidget,
+    Widget? postWidget,
+    double? height,
+    EdgeInsets? padding,
+    double? fontSize,
+    FileTagBuilder? fileTagBuilder,
+    WidgetStateProperty<TextStyle>? hintStyle,
+  }) {
+    final baseTheme = super.copyWith(
+      size: size,
+      decorationType: decorationType,
+      color: color,
+      backgroundColor: backgroundColor,
+      borderColor: borderColor,
+      labelStyle: labelStyle,
+      helperTextStyle: helperTextStyle,
+      errorTextStyle: errorTextStyle,
+      tagStyle: tagStyle,
+      decoration: decoration,
+      borderRadius: borderRadius,
+      borderWidth: borderWidth,
+      labelBuilder: labelBuilder,
+      helperTextBuilder: helperTextBuilder,
+      errorsBuilder: errorsBuilder,
+      preWidget: preWidget,
+      postWidget: postWidget,
+      height: height,
+      padding: padding,
+      fontSize: fontSize,
+    );
+
+    return TFilePickerTheme(
+      // Base properties from parent
+      size: baseTheme.size,
+      decorationType: baseTheme.decorationType,
+      color: baseTheme.color,
+      backgroundColor: baseTheme.backgroundColor,
+      borderColor: baseTheme.borderColor,
+      labelStyle: baseTheme.labelStyle,
+      helperTextStyle: baseTheme.helperTextStyle,
+      errorTextStyle: baseTheme.errorTextStyle,
+      tagStyle: baseTheme.tagStyle,
+      decoration: baseTheme.decoration,
+      borderRadius: baseTheme.borderRadius,
+      borderWidth: baseTheme.borderWidth,
+      labelBuilder: baseTheme.labelBuilder,
+      helperTextBuilder: baseTheme.helperTextBuilder,
+      errorsBuilder: baseTheme.errorsBuilder,
+      preWidget: baseTheme.preWidget,
+      postWidget: baseTheme.postWidget,
+      height: baseTheme.height,
+      padding: baseTheme.padding,
+      fontSize: baseTheme.fontSize,
+
+      // File picker-specific properties
+      fileTagBuilder: fileTagBuilder ?? this.fileTagBuilder,
+      hintStyle: hintStyle ?? this.hintStyle,
     );
   }
 
-  Widget getFileIcon(String extension, ColorScheme colorScheme) {
-    Color iconColor = Colors.grey;
+  factory TFilePickerTheme.defaultTheme(ColorScheme colors) {
+    final baseTheme = TInputFieldTheme.defaultTheme(colors);
 
-    IconData iconData = switch (extension.toLowerCase()) {
+    return TFilePickerTheme(
+      size: baseTheme.size,
+      decorationType: baseTheme.decorationType,
+      color: baseTheme.color,
+      backgroundColor: baseTheme.backgroundColor,
+      borderColor: baseTheme.borderColor,
+      labelStyle: baseTheme.labelStyle,
+      helperTextStyle: baseTheme.helperTextStyle,
+      errorTextStyle: baseTheme.errorTextStyle,
+      tagStyle: baseTheme.tagStyle,
+      decoration: baseTheme.decoration,
+      borderRadius: baseTheme.borderRadius,
+      borderWidth: baseTheme.borderWidth,
+      labelBuilder: baseTheme.labelBuilder,
+      helperTextBuilder: baseTheme.helperTextBuilder,
+      errorsBuilder: baseTheme.errorsBuilder,
+      preWidget: baseTheme.preWidget,
+      postWidget: baseTheme.postWidget,
+      height: baseTheme.height,
+      padding: baseTheme.padding,
+      fontSize: baseTheme.fontSize,
+      fileTagBuilder: (file, onRemove) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+          decoration: BoxDecoration(color: colors.surfaceContainer, borderRadius: BorderRadius.circular(5.0)),
+          child: IntrinsicWidth(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _getFileIcon(file.extension, colors),
+                const SizedBox(width: 5),
+                Flexible(
+                  child: Text(
+                    file.name,
+                    style: TextStyle(color: colors.onSurfaceVariant, fontSize: baseTheme.fieldFontSize, fontWeight: FontWeight.w400),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                const SizedBox(width: 5.0),
+                InkWell(
+                  onTap: onRemove,
+                  child: Icon(Icons.close, size: 14, color: colors.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      hintStyle: WidgetStateProperty.all(TextStyle(fontSize: baseTheme.fieldFontSize, color: colors.onSurfaceVariant.withAlpha(150))),
+    );
+  }
+
+  Widget buildFilesField(
+      {required Set<WidgetState> states, required List<TFile> files, String? placeholder, ValueChanged<TFile>? onRemove}) {
+    return Wrap(
+      spacing: 6.0,
+      runSpacing: 6.0,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        if (files.isEmpty && placeholder != null && placeholder.isNotEmpty) Text(placeholder, style: hintStyle.resolve(states)),
+        ...files.map((file) => fileTagBuilder(file, () => onRemove?.call(file))),
+      ],
+    );
+  }
+
+  static Widget _getFileIcon(String extension, ColorScheme colors) {
+    final iconData = switch (extension.toLowerCase()) {
       'pdf' => Icons.picture_as_pdf,
       'doc' || 'docx' => Icons.description,
       'xls' || 'xlsx' => Icons.table_chart,
@@ -77,136 +196,12 @@ class TFilePickerTheme extends TInputFieldTheme {
     return Icon(
       iconData,
       size: 16.0,
-      color: iconColor,
+      color: colors.onSurfaceVariant.withAlpha(180),
     );
   }
 
-  bool isImageFile(String extension) {
+  static bool isImageFile(String extension) {
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
     return imageExtensions.contains(extension.toLowerCase());
-  }
-
-  const TFilePickerTheme({
-    super.size = TInputSize.md,
-    super.color,
-    super.backgroundColor,
-    super.borderColor,
-    super.preWidget,
-    super.postWidget,
-    super.height,
-    super.padding,
-    super.fontSize,
-    super.borderRadius,
-    super.labelStyle,
-    super.helperTextStyle,
-    super.errorTextStyle,
-    super.tagStyle,
-    super.labelBuilder,
-    super.helperTextBuilder,
-    super.errorsBuilder,
-    super.borderBuilder,
-    super.boxShadowBuilder,
-    super.decorationBuilder,
-
-    // Tag-specific properties
-    this.tagSpacing = 6.0,
-    this.tagRunSpacing = 6.0,
-    this.tagPadding = const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-    this.tagBorderRadius = 5.0,
-    this.tagBackgroundColor,
-    this.tagTextColor,
-    this.tagFontSize,
-    this.tagFontWeight,
-    this.tagIconColor,
-    this.tagIconSize = 14.0,
-    this.minInputWidth = 150.0,
-    this.maxInputWidth = double.infinity,
-    this.tagBuilder,
-  });
-
-  @override
-  TFilePickerTheme copyWith({
-    TInputSize? size,
-    WidgetStateProperty<Color?>? color,
-    WidgetStateProperty<Color?>? backgroundColor,
-    WidgetStateProperty<Color?>? borderColor,
-    Widget? preWidget,
-    Widget? postWidget,
-    double? height,
-    EdgeInsets? padding,
-    double? fontSize,
-    double? borderRadius,
-    WidgetStateProperty<TextStyle?>? labelStyle,
-    WidgetStateProperty<TextStyle?>? helperTextStyle,
-    WidgetStateProperty<TextStyle?>? errorTextStyle,
-    WidgetStateProperty<TextStyle?>? tagStyle,
-    LabelBuilder? labelBuilder,
-    HelperTextBuilder? helperTextBuilder,
-    ErrorsBuilder? errorsBuilder,
-    BorderBuilder? borderBuilder,
-    BoxShadowBuilder? boxShadowBuilder,
-    DecorationBuilder? decorationBuilder,
-    List<TextInputFormatter>? inputFormatters,
-    TextInputType? keyboardType,
-    TextCapitalization? textCapitalization,
-    bool? autocorrect,
-    bool? enableSuggestions,
-    int? maxLength,
-    MaxLengthEnforcement? maxLengthEnforcement,
-    TextInputAction? textInputAction,
-    bool? obscureText,
-
-    // Tag-specific properties
-    double? tagSpacing,
-    double? tagRunSpacing,
-    EdgeInsets? tagPadding,
-    double? tagBorderRadius,
-    Color? tagBackgroundColor,
-    Color? tagTextColor,
-    double? tagFontSize,
-    FontWeight? tagFontWeight,
-    Color? tagIconColor,
-    double? tagIconSize,
-    double? minInputWidth,
-    double? maxInputWidth,
-    Widget Function(TFile file, VoidCallback onRemove)? tagBuilder,
-  }) {
-    return TFilePickerTheme(
-      size: size ?? this.size,
-      color: color ?? this.color,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
-      borderColor: borderColor ?? this.borderColor,
-      preWidget: preWidget ?? this.preWidget,
-      postWidget: postWidget ?? this.postWidget,
-      height: height ?? this.height,
-      padding: padding ?? this.padding,
-      fontSize: fontSize ?? this.fontSize,
-      borderRadius: borderRadius ?? this.borderRadius,
-      labelStyle: labelStyle ?? this.labelStyle,
-      helperTextStyle: helperTextStyle ?? this.helperTextStyle,
-      errorTextStyle: errorTextStyle ?? this.errorTextStyle,
-      tagStyle: tagStyle ?? this.tagStyle,
-      labelBuilder: labelBuilder ?? this.labelBuilder,
-      helperTextBuilder: helperTextBuilder ?? this.helperTextBuilder,
-      errorsBuilder: errorsBuilder ?? this.errorsBuilder,
-      borderBuilder: borderBuilder ?? this.borderBuilder,
-      boxShadowBuilder: boxShadowBuilder ?? this.boxShadowBuilder,
-      decorationBuilder: decorationBuilder ?? this.decorationBuilder,
-
-      // Tag-specific properties
-      tagSpacing: tagSpacing ?? this.tagSpacing,
-      tagRunSpacing: tagRunSpacing ?? this.tagRunSpacing,
-      tagPadding: tagPadding ?? this.tagPadding,
-      tagBorderRadius: tagBorderRadius ?? this.tagBorderRadius,
-      tagBackgroundColor: tagBackgroundColor ?? this.tagBackgroundColor,
-      tagTextColor: tagTextColor ?? this.tagTextColor,
-      tagFontSize: tagFontSize ?? this.tagFontSize,
-      tagFontWeight: tagFontWeight ?? this.tagFontWeight,
-      tagIconColor: tagIconColor ?? this.tagIconColor,
-      tagIconSize: tagIconSize ?? this.tagIconSize,
-      minInputWidth: minInputWidth ?? this.minInputWidth,
-      maxInputWidth: maxInputWidth ?? this.maxInputWidth,
-      tagBuilder: tagBuilder ?? this.tagBuilder,
-    );
   }
 }

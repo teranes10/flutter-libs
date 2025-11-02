@@ -17,9 +17,9 @@ class TCheckboxGroup<T> extends StatefulWidget
   @override
   final List<T>? value;
   @override
-  final ValueNotifier<List<T>>? valueNotifier;
+  final ValueNotifier<List<T>?>? valueNotifier;
   @override
-  final ValueChanged<List<T>>? onValueChanged;
+  final ValueChanged<List<T>?>? onValueChanged;
   @override
   final List<String? Function(List<T>?)>? rules;
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class DocumentationSection {
   final String id;
@@ -36,21 +37,6 @@ class WidgetDocumentationPage extends StatefulWidget {
 class _WidgetDocumentationPageState extends State<WidgetDocumentationPage> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final Map<String, bool> _expandedSections = {};
-  late AnimationController _headerAnimationController;
-  late Animation<double> _headerAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _headerAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
-    _headerAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _headerAnimationController, curve: Curves.easeOut),
-    );
-    _headerAnimationController.forward();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +74,7 @@ class _WidgetDocumentationPageState extends State<WidgetDocumentationPage> with 
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.o(0.04),
             blurRadius: 15,
             offset: const Offset(0, 2),
           ),
@@ -103,7 +89,7 @@ class _WidgetDocumentationPageState extends State<WidgetDocumentationPage> with 
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  widget.primaryColor.withOpacity(0.05),
+                  widget.primaryColor.o(0.05),
                   Colors.transparent,
                 ],
                 begin: Alignment.topLeft,
@@ -118,7 +104,7 @@ class _WidgetDocumentationPageState extends State<WidgetDocumentationPage> with 
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: widget.primaryColor.withOpacity(0.1),
+                    color: widget.primaryColor.o(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -234,10 +220,10 @@ class _WidgetDocumentationPageState extends State<WidgetDocumentationPage> with 
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: isExpanded ? widget.primaryColor.withOpacity(0.1) : Colors.grey[100],
+                              color: isExpanded ? widget.primaryColor.o(0.1) : Colors.grey[100],
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: isExpanded ? widget.primaryColor.withOpacity(0.3) : Colors.grey[300]!,
+                                color: isExpanded ? widget.primaryColor.o(0.3) : Colors.grey[300]!,
                               ),
                             ),
                             child: Row(
@@ -297,7 +283,7 @@ class _WidgetDocumentationPageState extends State<WidgetDocumentationPage> with 
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.o(0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -325,10 +311,10 @@ class _WidgetDocumentationPageState extends State<WidgetDocumentationPage> with 
             right: 12,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.o(0.1),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.o(0.2),
                 ),
               ),
               child: InkWell(
@@ -399,7 +385,6 @@ class _WidgetDocumentationPageState extends State<WidgetDocumentationPage> with 
 
   @override
   void dispose() {
-    _headerAnimationController.dispose();
     _scrollController.dispose();
     super.dispose();
   }

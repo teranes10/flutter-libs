@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_overlay_controller.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_overlay_item.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TSidebarOverlay extends StatefulWidget {

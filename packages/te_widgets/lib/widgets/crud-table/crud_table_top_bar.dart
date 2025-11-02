@@ -1,11 +1,11 @@
 part of 'crud_table.dart';
 
-class _TCrudTopBar<T, F extends TFormBase> {
-  final _TCrudTableState<T, F> parent;
+class _TCrudTopBar<T, K, F extends TFormBase> {
+  final _TCrudTableState<T, K, F> parent;
 
   _TCrudTopBar({required this.parent});
 
-  Widget build(ColorScheme colors, BoxConstraints constraints) {
+  Widget build(BuildContext ctx, BoxConstraints constraints) {
     final rows = <Widget>[];
     final maxWidth = constraints.maxWidth;
     final isMobile = constraints.isMobile;
@@ -67,7 +67,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
           currentRow.add(_buildTabs(constraints));
           currentRow.add(const SizedBox(width: spacing));
         }
-        currentRow.add(_buildSearchBar(colors, constraints));
+        currentRow.add(_buildSearchBar(ctx, constraints));
         pushRow();
       } else {
         // Push actions row
@@ -78,7 +78,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
           final tabSearchRow = <Widget>[
             if (parent.hasArchive) _buildTabs(constraints),
             if (parent.hasArchive) const SizedBox(width: spacing),
-            _buildSearchBar(colors, constraints),
+            _buildSearchBar(ctx, constraints),
           ];
           rows.add(_buildAlignedRow(tabSearchRow, MainAxisAlignment.end));
         } else {
@@ -86,7 +86,7 @@ class _TCrudTopBar<T, F extends TFormBase> {
           if (parent.hasArchive) {
             rows.add(_buildAlignedRow([_buildTabs(constraints)], MainAxisAlignment.center));
           }
-          rows.add(_buildAlignedRow([_buildSearchBar(colors, constraints)], MainAxisAlignment.end));
+          rows.add(_buildAlignedRow([_buildSearchBar(ctx, constraints)], MainAxisAlignment.end));
         }
       }
     } else {
@@ -143,14 +143,20 @@ class _TCrudTopBar<T, F extends TFormBase> {
     return !constraints.isMobile ? tabs : Flexible(child: tabs);
   }
 
-  Widget _buildSearchBar(ColorScheme colors, BoxConstraints constraints) {
+  Widget _buildSearchBar(BuildContext ctx, BoxConstraints constraints) {
     final searchBar = TTextField(
       placeholder: parent.widget.config.searchPlaceholder,
-      theme: TTextFieldTheme(
-        postWidget: Icon(Icons.search_rounded, size: 18, color: colors.onSurface),
+      theme: ctx.theme.textFieldTheme.copyWith(
+        postWidget: Icon(Icons.search_rounded, size: 18, color: ctx.colors.onSurface),
         size: TInputSize.sm,
       ),
-      valueNotifier: parent.currentTab == 0 ? parent.searchNotifier : parent.archiveSearchNotifier,
+      onValueChanged: (String? input) {
+        if (parent.currentTab == 0) {
+          parent.listController.handleSearchChange(input ?? '');
+        } else {
+          parent.archiveListController.handleSearchChange(input ?? '');
+        }
+      },
     );
     return !constraints.isMobile ? SizedBox(width: 250, child: searchBar) : Flexible(child: searchBar);
   }

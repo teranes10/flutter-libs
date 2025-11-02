@@ -20,9 +20,9 @@ class TDatePicker extends StatefulWidget
   @override
   final DateTime? value;
   @override
-  final ValueNotifier<DateTime>? valueNotifier;
+  final ValueNotifier<DateTime?>? valueNotifier;
   @override
-  final ValueChanged<DateTime>? onValueChanged;
+  final ValueChanged<DateTime?>? onValueChanged;
   @override
   final List<String? Function(DateTime?)>? rules;
   @override
@@ -85,13 +85,13 @@ class _TDatePickerState extends State<TDatePicker>
   @override
   void onExternalValueChanged(DateTime? value) {
     super.onExternalValueChanged(value);
-    controller.text = currentValue != null ? dateFormat.format(currentValue!) : '';
+    textController.text = currentValue != null ? dateFormat.format(currentValue!) : '';
   }
 
   void _onDateSelected(DateTime date) {
     notifyValueChanged(date);
     setState(() {
-      controller.text = dateFormat.format(date);
+      textController.text = dateFormat.format(date);
     });
 
     hidePopup();

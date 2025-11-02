@@ -1,16 +1,12 @@
+import 'dart:collection';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TSelect<T, V> extends StatefulWidget
-    with
-        TInputFieldMixin,
-        TFocusMixin,
-        TTextFieldMixin,
-        TInputValueMixin<V>,
-        TInputValidationMixin<V>,
-        TPopupMixin,
-        TPaginationMixin<T>,
-        TSelectMixin<T, V> {
+typedef ItemValueAccessor<T, V> = V Function(T item);
+
+class TSelect<T, V, K> extends StatefulWidget
+    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<V>, TInputValidationMixin<V>, TPopupMixin, TListMixin<T, K> {
   @override
   final String? label, tag, helperText, placeholder;
   @override
@@ -26,54 +22,45 @@ class TSelect<T, V> extends StatefulWidget
   @override
   final V? value;
   @override
-  final ValueNotifier<V>? valueNotifier;
+  final ValueNotifier<V?>? valueNotifier;
   @override
-  final ValueChanged<V>? onValueChanged;
+  final ValueChanged<V?>? onValueChanged;
   @override
   final List<String? Function(V?)>? rules;
   @override
   final Duration? validationDebounce;
 
+  //List
+  final TListTheme? listTheme;
   @override
   final List<T>? items;
   @override
-  final bool multiLevel, filterable;
+  final int? itemsPerPage;
   @override
-  final String? footerMessage;
+  final String? search;
+  @override
+  final int? searchDelay;
+  @override
+  final TLoadListener<T>? onLoad;
+  @override
+  final ItemKeyAccessor<T, K>? itemKey;
+  @override
+  final TListController<T, K>? controller;
 
+  // Popup
   @override
   final VoidCallback? onShow;
   @override
   final VoidCallback? onHide;
 
-  @override
-  final ItemTextAccessor<T>? itemText;
-  @override
+  //Select
+  final bool filterable;
+  final ItemTextAccessor<T> itemText;
+  final ItemTextAccessor<T>? itemSubText;
+  final ItemTextAccessor<T>? itemImageUrl;
   final ItemValueAccessor<T, V>? itemValue;
-  @override
-  final ItemKeyAccessor<T>? itemKey;
-  @override
   final ItemChildrenAccessor<T>? itemChildren;
-
-  @override
-  final IconData? selectedIcon;
-
-  @override
-  final int itemsPerPage;
-  @override
-  final List<int> itemsPerPageOptions;
-  @override
-  final bool loading;
-  @override
-  final TLoadListener<T>? onLoad;
-  @override
-  final String? search;
-  @override
-  final int searchDelay;
-  @override
-  final String Function(T)? itemToString;
-  @override
-  final TPaginationController? controller;
+  final TListCardTheme? cardTheme;
 
   const TSelect({
     super.key,
@@ -93,113 +80,106 @@ class TSelect<T, V> extends StatefulWidget
     this.onValueChanged,
     this.rules,
     this.validationDebounce,
+    // List
+    this.listTheme,
     this.items,
-    this.multiLevel = false,
-    this.filterable = true,
-    this.footerMessage,
+    this.itemsPerPage = 6,
+    this.search,
+    this.searchDelay,
+    this.onLoad,
+    this.controller,
+    // Popup
     this.onShow,
     this.onHide,
-    this.itemText,
-    this.itemValue,
-    this.itemKey,
+    // Select
+    this.filterable = true,
+    this.itemSubText,
+    this.itemImageUrl,
     this.itemChildren,
-    this.selectedIcon = Icons.check,
-    // Server-side pagination
-    this.onLoad,
-    this.itemsPerPage = 10,
-    this.itemsPerPageOptions = const [],
-    this.loading = false,
-    this.search,
-    this.searchDelay = 2500,
-    this.itemToString,
-    this.controller,
+    this.cardTheme,
+    this.itemValue,
+    ItemTextAccessor<T>? itemText,
+    ItemKeyAccessor<T, K>? itemKey,
     bool? readOnly,
-  }) : readOnly = readOnly ?? !filterable;
+  })  : readOnly = readOnly ?? !filterable,
+        itemText = itemText ?? _defaultItemText,
+        assert(
+          !(itemKey != null && itemValue != null),
+          'You cannot provide both `itemKey` and `itemValue`. '
+          '`itemValue` will be used as key if provided.',
+        ),
+        itemKey = itemKey ?? (itemValue != null ? itemValue as ItemKeyAccessor<T, K> : null);
+
+  static String _defaultItemText<T>(T item) {
+    return item.toString();
+  }
 
   @override
-  State<TSelect<T, V>> createState() => _TSelectState<T, V>();
+  State<TSelect<T, V, K>> createState() => _TSelectState<T, V, K>();
 }
 
-class _TSelectState<T, V> extends State<TSelect<T, V>>
+class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
     with
-        TInputFieldStateMixin<TSelect<T, V>>,
-        TFocusStateMixin<TSelect<T, V>>,
-        TTextFieldStateMixin<TSelect<T, V>>,
-        TPopupStateMixin<TSelect<T, V>>,
-        TPaginationStateMixin<T, TSelect<T, V>>,
-        TSelectStateMixin<T, V, TSelect<T, V>>,
-        TInputValueStateMixin<V, TSelect<T, V>>,
-        TInputValidationStateMixin<V, TSelect<T, V>> {
-  @override
-  bool get isMultiple => false;
+        TInputFieldStateMixin<TSelect<T, V, K>>,
+        TFocusStateMixin<TSelect<T, V, K>>,
+        TTextFieldStateMixin<TSelect<T, V, K>>,
+        TInputValueStateMixin<V, TSelect<T, V, K>>,
+        TInputValidationStateMixin<V, TSelect<T, V, K>>,
+        TPopupStateMixin<TSelect<T, V, K>>,
+        TListStateMixin<T, K, TSelect<T, V, K>> {
+  TListTheme get listTheme => widget.listTheme ?? context.theme.listTheme;
+  late FocusNode filterFocusNode;
 
   @override
-  void onExternalValueChanged(V? value) {
-    super.onExternalValueChanged(value);
-    updateSelectedStates();
+  double get contentMaxHeight {
+    final itemsPerPage =
+        listController.isServerSide ? listController.itemsPerPage : min(listController.itemsPerPage, listController.flatItems.length);
+
+    return (itemsPerPage * listTheme.itemBaseHeight) + 12 + (listController.isServerSide ? 4 : 0) + (shouldCenteredOverlay ? 62 : 0);
   }
 
   @override
-  void updateSelectedStates() {
-    final value = currentValue;
-    stateNotifier.updateSelectedStates(value != null ? [value] : []);
-    if (!isPopupShowing) {
-      _updateDisplayText();
-    }
+  TListController<T, K> buildController() {
+    return TListController<T, K>(
+      items: widget.items ?? [],
+      itemsPerPage: widget.itemsPerPage ?? 0,
+      search: widget.search ?? '',
+      searchDelay: widget.searchDelay,
+      onLoad: widget.onLoad,
+      itemKey: widget.itemKey,
+      itemToString: widget.itemText,
+      itemChildren: widget.itemChildren,
+      selectionMode: TSelectionMode.single,
+      expansionMode: widget.itemChildren != null ? TExpansionMode.single : TExpansionMode.none,
+    );
   }
 
   @override
-  void onItemTapped(TSelectItem<V> item) {
-    if (item.hasChildren) {
-      return;
-    }
+  Widget getContentWidget(BuildContext context) {
+    final list = TList<T, K>(
+      controller: listController,
+      theme: listTheme,
+      cardTheme: widget.cardTheme,
+      itemTitle: widget.itemText,
+      itemSubTitle: widget.itemSubText,
+      itemImageUrl: widget.itemImageUrl,
+      onTap: _onItemSelected,
+    );
 
-    notifyValueChanged(item.value);
-    hidePopup();
-    _updateDisplayText();
-  }
-
-  void _updateDisplayText() {
-    final selectedItem = _getSelectedItem();
-    controller.text = selectedItem?.text ?? '';
-    controller.selection = TextSelection.collapsed(offset: controller.text.length);
-  }
-
-  TSelectItem<V>? _getSelectedItem() {
-    final selectedItems = stateNotifier.getSelectedItems();
-    return selectedItems.isNotEmpty ? selectedItems.first : null;
-  }
-
-  @override
-  void onFocusChanged(bool hasFocus) {
-    super.onFocusChanged(hasFocus);
-
-    if (hasFocus && !isPopupShowing) {
-      showPopup(context);
-    }
-  }
-
-  @override
-  void showPopup(BuildContext context) {
-    if (widget.filterable) {
-      controller.clear();
-    }
-    super.showPopup(context);
-  }
-
-  @override
-  void hidePopup() {
-    super.hidePopup();
-    _updateDisplayText();
-
-    // Reset search based on pagination type
-    if (serverSideRendering) {
-      // Reset search for server-side rendering
-      super.onSearchChanged('');
-    } else {
-      // Reset search for client-side filtering
-      stateNotifier.onLocalSearchChanged('');
-    }
+    return shouldCenteredOverlay
+        ? Column(spacing: 7.5, children: [
+            if (widget.filterable)
+              Padding(
+                padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 5),
+                child: TTextField(
+                    theme: context.theme.textFieldTheme.copyWith(decorationType: TInputDecorationType.underline),
+                    focusNode: filterFocusNode,
+                    textController: textController,
+                    onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
+              ),
+            Expanded(child: list),
+          ])
+        : list;
   }
 
   @override
@@ -207,14 +187,104 @@ class _TSelectState<T, V> extends State<TSelect<T, V>>
     final colors = context.colors;
 
     return buildWithDropdownTarget(
-        child: buildContainer(
-      child: IgnorePointer(child: buildTextField(onValueChanged: widget.filterable && isPopupShowing ? onSearchChanged : null)),
-      postWidget: Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
-      onTap: () {
-        if (!widget.filterable) return;
+      child: buildContainer(
+        child: IgnorePointer(
+          child: buildTextField(onValueChanged: widget.filterable && isPopupShowing ? listController.handleSearchChange : null),
+        ),
+        postWidget: Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
+        onTap: () {
+          if (widget.disabled) return;
+          togglePopup(context);
+        },
+      ),
+    );
+  }
 
-        togglePopup(context);
-      },
-    ));
+  @override
+  void initState() {
+    super.initState();
+
+    filterFocusNode = FocusNode();
+
+    if (listController.isEmpty && !listController.isLoading) {
+      listController.handleRefresh();
+    }
+
+    _updateState();
+  }
+
+  @override
+  void showPopup(BuildContext context) {
+    super.showPopup(context);
+    _updateState();
+    filterFocusNode.requestFocus();
+  }
+
+  @override
+  void hidePopup() {
+    super.hidePopup();
+    _updateState();
+  }
+
+  @override
+  void onListStateChanged() {
+    super.onListStateChanged();
+    _updateState();
+  }
+
+  @override
+  void onExternalValueChanged(V? value) {
+    super.onExternalValueChanged(value);
+
+    if (value == null) {
+      if (listController.hasSelection) {
+        listController.updateSelectionState(LinkedHashSet<K>());
+      }
+      return;
+    }
+
+    final selectedKey = widget.itemValue == null ? listController.itemKey(value as T) : value as K;
+    if (widget.itemValue == null && selectedKey != null) {
+      listController.itemsMap.putIfAbsent(selectedKey, () => value as T);
+    }
+
+    final selectedKeySet = LinkedHashSet<K>.from(selectedKey != null ? [selectedKey] : []);
+    if (!selectedKeySet.equalsEach(listController.selectedKeys)) {
+      listController.updateSelectionState(selectedKeySet);
+    }
+  }
+
+  void _onItemSelected(TListItem<T, K> item) {
+    if (item.hasChildren) {
+      listController.toggleExpansionByKey(item.key);
+    } else {
+      listController.selectItemKey(item.key);
+      notifyValueChanged(widget.itemValue?.call(item.data) ?? item.data as V);
+      hidePopup();
+    }
+  }
+
+  void _updateState() {
+    if (isPopupShowing) {
+      if (widget.filterable) {
+        textController.text = listController.value.search;
+        textController.selection = TextSelection.collapsed(offset: textController.text.length);
+      }
+    } else {
+      final selected = listController.selectedItems.firstOrNull;
+      if (selected != null) {
+        textController.text = widget.itemText(selected);
+        textController.selection = TextSelection.collapsed(offset: textController.text.length);
+      } else {
+        textController.text = '';
+        textController.selection = TextSelection.collapsed(offset: textController.text.length);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    filterFocusNode.dispose();
+    super.dispose();
   }
 }

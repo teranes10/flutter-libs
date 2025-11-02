@@ -1,61 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class AlertButton {
-  final String? text;
-  final IconData? icon;
-  final VoidCallback? onClick;
-
-  AlertButton({this.text, this.icon, this.onClick});
-}
-
 class TAlertTheme {
-  final Color? backgroundColor;
-  final EdgeInsetsGeometry? insetPadding;
-  final EdgeInsetsGeometry? contentPadding;
-  final EdgeInsetsGeometry? actionsPadding;
-  final MainAxisAlignment? actionsAlignment;
+  final Color backgroundColor;
+  final EdgeInsets? insetPadding;
+  final EdgeInsets? contentPadding;
+  final EdgeInsets? actionsPadding;
+  final MainAxisAlignment actionsAlignment;
   final double? iconSize;
-  final TextStyle? titleStyle;
-  final TextStyle? contentStyle;
+  final TextStyle titleStyle;
+  final TextStyle contentStyle;
   final TextAlign? contentTextAlign;
   final double? closeButtonWidth;
-  final double? confirmButtonWidth;
   final TButtonType? closeButtonType;
+  final MaterialColor? closeButtonColor;
+  final double? confirmButtonWidth;
   final TButtonType? confirmButtonType;
 
   const TAlertTheme({
-    this.backgroundColor,
+    required this.backgroundColor,
     this.insetPadding = const EdgeInsets.all(12.0),
     this.contentPadding = const EdgeInsets.all(20),
     this.actionsPadding = const EdgeInsets.only(bottom: 15),
     this.actionsAlignment = MainAxisAlignment.center,
     this.iconSize = 64,
-    this.titleStyle,
-    this.contentStyle,
+    required this.titleStyle,
+    required this.contentStyle,
     this.contentTextAlign = TextAlign.center,
     this.closeButtonWidth = 100,
     this.confirmButtonWidth = 80,
     this.closeButtonType = TButtonType.softText,
     this.confirmButtonType = TButtonType.softText,
+    this.closeButtonColor,
   });
 
-  Color getBackground(ColorScheme colors) {
-    return backgroundColor ?? colors.surface;
-  }
-
-  TextStyle getTitleStyle(ColorScheme colors) {
-    return titleStyle ?? TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant);
-  }
-
-  TextStyle getContentStyle(ColorScheme colors) {
-    return contentStyle ?? TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface);
-  }
-
   TAlertTheme copyWith({
-    EdgeInsetsGeometry? insetPadding,
-    EdgeInsetsGeometry? contentPadding,
-    EdgeInsetsGeometry? actionsPadding,
+    Color? backgroundColor,
+    EdgeInsets? insetPadding,
+    EdgeInsets? contentPadding,
+    EdgeInsets? actionsPadding,
     MainAxisAlignment? actionsAlignment,
     double? iconSize,
     TextStyle? titleStyle,
@@ -67,6 +50,7 @@ class TAlertTheme {
     TButtonType? confirmButtonType,
   }) {
     return TAlertTheme(
+      backgroundColor: backgroundColor ?? this.backgroundColor,
       insetPadding: insetPadding ?? this.insetPadding,
       contentPadding: contentPadding ?? this.contentPadding,
       actionsPadding: actionsPadding ?? this.actionsPadding,
@@ -79,6 +63,15 @@ class TAlertTheme {
       confirmButtonWidth: confirmButtonWidth ?? this.confirmButtonWidth,
       closeButtonType: closeButtonType ?? this.closeButtonType,
       confirmButtonType: confirmButtonType ?? this.confirmButtonType,
+    );
+  }
+
+  factory TAlertTheme.defaultTheme(ColorScheme colors) {
+    return TAlertTheme(
+      backgroundColor: colors.surface,
+      titleStyle: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
+      contentStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface),
+      closeButtonColor: AppColors.grey,
     );
   }
 }

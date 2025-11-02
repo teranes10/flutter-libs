@@ -2,7 +2,7 @@ part of 'form_builder.dart';
 
 class TFormField<T> {
   final TFieldProp<T> prop;
-  final Widget Function(ValueChanged<T>) builder;
+  final Widget Function(ValueChanged<T?>) builder;
 
   late final Widget _field;
   TFieldSize _size = const TFieldSize();
@@ -12,7 +12,7 @@ class TFormField<T> {
     _field = builder.call(_onValueChanged);
   }
 
-  void _onValueChanged(T value) {
+  void _onValueChanged(T? value) {
     prop._setUserValue(value);
     _callback?.call();
   }
@@ -81,13 +81,11 @@ class TFormField<T> {
     TTagsFieldTheme? theme,
     FocusNode? focusNode,
     VoidCallback? onTap,
-    TextEditingController? textController,
+    TTagsController? textController,
     List<String? Function(List<String>?)>? rules,
     String? inputValue,
     ValueChanged<String>? onInputChanged,
     bool addTagOnEnter = true,
-    void Function(String)? onTagAdded,
-    void Function(String)? onTagRemoved,
   }) {
     return TFormField<List<String>>(
       prop: prop,
@@ -105,11 +103,7 @@ class TFormField<T> {
         onTap: onTap,
         textController: textController,
         rules: rules,
-        inputValue: inputValue,
-        onInputChanged: onInputChanged,
         addTagOnEnter: addTagOnEnter,
-        onTagAdded: onTagAdded,
-        onTagRemoved: onTagRemoved,
         value: prop.value,
         valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
@@ -299,8 +293,8 @@ class TFormField<T> {
     );
   }
 
-  static TFormField<V> select<T, V>(
-    TFieldProp<V> prop,
+  static TFormField<V?> select<T, V, K>(
+    TFieldProp<V?> prop,
     String? label, {
     String? tag,
     String? placeholder,
@@ -315,18 +309,19 @@ class TFormField<T> {
     TextEditingController? textController,
     List<String? Function(V?)>? rules,
     List<T>? items,
-    ItemTextAccessor<T>? itemText,
+    ItemKeyAccessor<T, K>? itemKey,
     ItemValueAccessor<T, V>? itemValue,
+    ItemTextAccessor<T>? itemText,
+    ItemTextAccessor<T>? itemSubText,
+    ItemTextAccessor<T>? itemImageUrl,
     ItemChildrenAccessor<T>? itemChildren,
-    ItemKeyAccessor<T>? itemKey,
-    bool multiLevel = false,
-    int itemsPerPage = 10,
+    int? itemsPerPage = 6,
     TLoadListener<T>? onLoad,
-    int searchDelay = 2500,
+    int? searchDelay,
   }) {
-    return TFormField<V>(
+    return TFormField<V?>(
       prop: prop,
-      builder: (onValueChanged) => TSelect(
+      builder: (onValueChanged) => TSelect<T, V, K>(
         label: label,
         tag: tag,
         placeholder: placeholder,
@@ -342,10 +337,11 @@ class TFormField<T> {
         rules: rules,
         items: items,
         itemText: itemText,
-        itemValue: itemValue,
+        itemSubText: itemSubText,
+        itemImageUrl: itemImageUrl,
         itemChildren: itemChildren,
+        itemValue: itemValue,
         itemKey: itemKey,
-        multiLevel: multiLevel,
         itemsPerPage: itemsPerPage,
         onLoad: onLoad,
         searchDelay: searchDelay,
@@ -356,7 +352,7 @@ class TFormField<T> {
     );
   }
 
-  static TFormField<List<V>> multiSelect<T, V>(
+  static TFormField<List<V>> multiSelect<T, V, K>(
     TFieldProp<List<V>> prop,
     String? label, {
     String? tag,
@@ -369,17 +365,18 @@ class TFormField<T> {
     TTagsFieldTheme? theme,
     FocusNode? focusNode,
     VoidCallback? onTap,
-    TextEditingController? textController,
+    TTagsController? textController,
     List<String? Function(List<V>?)>? rules,
     List<T>? items,
-    ItemTextAccessor<T>? itemText,
+    ItemKeyAccessor<T, K>? itemKey,
     ItemValueAccessor<T, V>? itemValue,
+    ItemTextAccessor<T>? itemText,
+    ItemTextAccessor<T>? itemSubText,
+    ItemTextAccessor<T>? itemImageUrl,
     ItemChildrenAccessor<T>? itemChildren,
-    ItemKeyAccessor<T>? itemKey,
-    bool multiLevel = false,
     int itemsPerPage = 10,
     TLoadListener<T>? onLoad,
-    int searchDelay = 2500,
+    int? searchDelay,
   }) {
     return TFormField<List<V>>(
       prop: prop,
@@ -399,10 +396,11 @@ class TFormField<T> {
         rules: rules,
         items: items,
         itemText: itemText,
-        itemValue: itemValue,
+        itemSubText: itemSubText,
+        itemImageUrl: itemImageUrl,
         itemChildren: itemChildren,
+        itemValue: itemValue,
         itemKey: itemKey,
-        multiLevel: multiLevel,
         itemsPerPage: itemsPerPage,
         onLoad: onLoad,
         searchDelay: searchDelay,

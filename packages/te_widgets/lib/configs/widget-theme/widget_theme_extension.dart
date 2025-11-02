@@ -4,6 +4,7 @@ import 'package:te_widgets/te_widgets.dart';
 @immutable
 class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
   final MaterialColor primary;
+  final MaterialColor secondary;
   final MaterialColor success;
   final MaterialColor warning;
   final MaterialColor info;
@@ -11,7 +12,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
   final MaterialColor grey;
 
   final Color layoutFrame;
-  final TButtonType buttonType;
+  final TButtonTheme buttonTheme;
   final TVariant chipType;
   final TVariant toastType;
   final TVariant tooltipType;
@@ -20,36 +21,46 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
   final TTagsFieldTheme tagsFieldTheme;
   final TNumberFieldTheme numberFieldTheme;
   final TFilePickerTheme filePickerTheme;
+  final TListTheme listTheme;
+  final TTableTheme tableTheme;
+  final TListCardTheme listCardTheme;
+  final TAlertTheme alertTheme;
 
   const TWidgetThemeExtension({
     this.primary = AppColors.primary,
+    this.secondary = AppColors.secondary,
     this.success = AppColors.success,
     this.warning = AppColors.warning,
     this.info = AppColors.info,
     this.danger = AppColors.danger,
     this.grey = AppColors.grey,
     this.layoutFrame = AppColors.grey,
-    this.buttonType = TButtonType.solid,
+    this.buttonTheme = const TButtonTheme(type: TButtonType.solid, size: TButtonSize.md),
     this.chipType = TVariant.tonal,
     this.toastType = TVariant.outline,
     this.tooltipType = TVariant.tonal,
-    this.inputFieldTheme = const TInputFieldTheme(),
-    this.textFieldTheme = const TTextFieldTheme(),
-    this.tagsFieldTheme = const TTagsFieldTheme(),
-    this.numberFieldTheme = const TNumberFieldTheme(),
-    this.filePickerTheme = const TFilePickerTheme(),
+    required this.inputFieldTheme,
+    required this.textFieldTheme,
+    required this.tagsFieldTheme,
+    required this.numberFieldTheme,
+    required this.filePickerTheme,
+    this.listTheme = const TListTheme(),
+    this.tableTheme = const TTableTheme(),
+    required this.listCardTheme,
+    required this.alertTheme,
   });
 
   @override
   TWidgetThemeExtension copyWith({
     MaterialColor? primary,
+    MaterialColor? secondary,
     MaterialColor? success,
     MaterialColor? warning,
     MaterialColor? info,
     MaterialColor? danger,
     MaterialColor? grey,
     Color? layoutFrame,
-    TButtonType? buttonType,
+    TButtonTheme? buttonTheme,
     TVariant? chipType,
     TVariant? toastType,
     TVariant? tooltipType,
@@ -58,16 +69,21 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
     TTagsFieldTheme? tagsFieldTheme,
     TNumberFieldTheme? numberFieldTheme,
     TFilePickerTheme? filePickerTheme,
+    TListTheme? listTheme,
+    TTableTheme? tableTheme,
+    TListCardTheme? listCardTheme,
+    TAlertTheme? alertTheme,
   }) {
     return TWidgetThemeExtension(
       primary: primary ?? this.primary,
+      secondary: secondary ?? this.secondary,
       success: success ?? this.success,
       warning: warning ?? this.warning,
       info: info ?? this.info,
       danger: danger ?? this.danger,
       grey: grey ?? this.grey,
       layoutFrame: layoutFrame ?? this.layoutFrame,
-      buttonType: buttonType ?? this.buttonType,
+      buttonTheme: buttonTheme ?? this.buttonTheme,
       chipType: chipType ?? this.chipType,
       toastType: toastType ?? this.toastType,
       tooltipType: tooltipType ?? this.tooltipType,
@@ -76,11 +92,28 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
       tagsFieldTheme: tagsFieldTheme ?? this.tagsFieldTheme,
       numberFieldTheme: numberFieldTheme ?? this.numberFieldTheme,
       filePickerTheme: filePickerTheme ?? this.filePickerTheme,
+      listTheme: listTheme ?? this.listTheme,
+      tableTheme: tableTheme ?? this.tableTheme,
+      listCardTheme: listCardTheme ?? this.listCardTheme,
+      alertTheme: alertTheme ?? this.alertTheme,
     );
   }
 
   @override
   TWidgetThemeExtension lerp(ThemeExtension<TWidgetThemeExtension>? other, double t) {
     return this;
+  }
+
+  factory TWidgetThemeExtension.defaultTheme(ColorScheme colors) {
+    return TWidgetThemeExtension(
+      layoutFrame: colors.brightness == Brightness.light ? const Color(0xFF536980) : const Color(0xFF3b3b3f),
+      inputFieldTheme: TInputFieldTheme.defaultTheme(colors),
+      textFieldTheme: TTextFieldTheme.defaultTheme(colors),
+      tagsFieldTheme: TTagsFieldTheme.defaultTheme(colors),
+      numberFieldTheme: TNumberFieldTheme.defaultTheme(colors),
+      filePickerTheme: TFilePickerTheme.defaultTheme(colors),
+      listCardTheme: TListCardTheme.defaultTheme(colors),
+      alertTheme: TAlertTheme.defaultTheme(colors),
+    );
   }
 }

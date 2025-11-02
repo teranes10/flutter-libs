@@ -19,9 +19,9 @@ class TTimePicker extends StatefulWidget
   @override
   final TimeOfDay? value;
   @override
-  final ValueNotifier<TimeOfDay>? valueNotifier;
+  final ValueNotifier<TimeOfDay?>? valueNotifier;
   @override
-  final ValueChanged<TimeOfDay>? onValueChanged;
+  final ValueChanged<TimeOfDay?>? onValueChanged;
   @override
   final List<String? Function(TimeOfDay?)>? rules;
   @override
@@ -80,13 +80,13 @@ class _TTimePickerState extends State<TTimePicker>
   @override
   void onExternalValueChanged(TimeOfDay? value) {
     super.onExternalValueChanged(value);
-    controller.text = currentValue != null ? dateFormat.formatTimeOfDay(currentValue!) : '';
+    textController.text = currentValue != null ? dateFormat.formatTimeOfDay(currentValue!) : '';
   }
 
   void _onTimeSelected(TimeOfDay time) {
     notifyValueChanged(time);
     setState(() {
-      controller.text = dateFormat.formatTimeOfDay(time);
+      textController.text = dateFormat.formatTimeOfDay(time);
     });
   }
 

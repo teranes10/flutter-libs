@@ -58,6 +58,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             rules: [(value) => value == null || value < 100 ? 'Value must be greater than 100' : null],
           ),
           TDatePicker(
+            value: DateTime.now(),
             label: 'Select Date',
             placeholder: 'Choose a date',
           ),

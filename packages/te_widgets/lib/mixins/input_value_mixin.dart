@@ -4,13 +4,13 @@ import 'package:te_widgets/enum/value_type.dart';
 
 mixin TInputValueMixin<T> {
   T? get value;
-  ValueNotifier<T>? get valueNotifier;
-  ValueChanged<T>? get onValueChanged;
+  ValueNotifier<T?>? get valueNotifier;
+  ValueChanged<T?>? get onValueChanged;
 }
 
 mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   TInputValueMixin<T> get _widget {
-    assert(widget is TInputValueMixin<T>, 'Widget must mix in TInputValueMixin<$T>');
+    assert(widget is TInputValueMixin<T>, 'Widget must mix in TInputValueMixin<$T>, but got ${widget.runtimeType}');
     return widget as TInputValueMixin<T>;
   }
 
@@ -20,13 +20,13 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   @override
   void initState() {
     super.initState();
-
+    _currentValue = _widget.valueNotifier?.value ?? _widget.value;
     _widget.valueNotifier?.addListener(_onValueNotifierChanged);
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       final initial = _widget.valueNotifier?.value ?? _widget.value;
       if (initial != null) {
-        _updateValue(initial, fromExternal: true, initial: true);
+        _updateValue(initial, fromExternal: true, initial: true, force: true);
       }
     });
   }
@@ -62,15 +62,15 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
     _updateValue(newValue, fromExternal: true);
   }
 
-  void _updateValue(T? newValue, {bool fromExternal = false, bool initial = false}) {
-    if (newValue != currentValue) {
+  void _updateValue(T? newValue, {bool fromExternal = false, bool initial = false, bool force = false}) {
+    if (force || newValue != currentValue) {
       _currentValue = newValue;
       onValueChanged(newValue, initial: initial);
       if (fromExternal) onExternalValueChanged(newValue);
     }
   }
 
-  void notifyValueChanged(T newValue) {
+  void notifyValueChanged(T? newValue) {
     if (newValue != currentValue) {
       _currentValue = newValue;
       onValueChanged(newValue);

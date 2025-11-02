@@ -7,6 +7,7 @@ class TLogo extends StatelessWidget {
   final VoidCallback? onTap;
   final Axis axis;
   final double size;
+  final double fontSize;
   final double spacing;
 
   const TLogo({
@@ -16,6 +17,7 @@ class TLogo extends StatelessWidget {
     this.onTap,
     this.axis = Axis.horizontal,
     this.size = 40,
+    this.fontSize = 30,
     this.spacing = 12,
   });
 
@@ -31,21 +33,8 @@ class TLogo extends StatelessWidget {
         spacing: spacing,
         runSpacing: spacing,
         children: [
-          if (icon != null)
-            Image.asset(
-              icon!,
-              height: 36,
-              fit: BoxFit.cover,
-            ),
-          if (text != null)
-            Text(
-              text!,
-              style: TextStyle(
-                fontSize: 30.0,
-                fontWeight: FontWeight.w500,
-                color: colors.primary,
-              ),
-            ),
+          if (icon != null) Image.asset(icon!, height: size, fit: BoxFit.cover),
+          if (text != null) Text(text!, style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w500, color: colors.primary)),
         ],
       ),
     );

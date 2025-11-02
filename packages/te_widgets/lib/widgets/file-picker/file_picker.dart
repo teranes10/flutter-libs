@@ -17,9 +17,9 @@ class TFilePicker extends StatefulWidget
   @override
   final List<TFile>? value;
   @override
-  final ValueNotifier<List<TFile>>? valueNotifier;
+  final ValueNotifier<List<TFile>?>? valueNotifier;
   @override
-  final ValueChanged<List<TFile>>? onValueChanged;
+  final ValueChanged<List<TFile>?>? onValueChanged;
   @override
   final List<String? Function(List<TFile>?)>? rules;
   @override
@@ -123,15 +123,11 @@ class _TFilePickerState extends State<TFilePicker>
       child: Focus(
         focusNode: focusNode,
         autofocus: widget.autoFocus,
-        child: Wrap(
-          spacing: wTheme.tagSpacing,
-          runSpacing: wTheme.tagRunSpacing,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            if ((currentValue == null || currentValue!.isEmpty) && (widget.placeholder != null || widget.label != null))
-              Text(widget.placeholder ?? widget.label ?? '', style: wTheme.getHintStyle(colors)),
-            ...(currentValue ?? []).map((file) => wTheme.buildTagChip(colors, file, () => _removeFile(file))),
-          ],
+        child: wTheme.buildFilesField(
+          states: states,
+          files: currentValue ?? [],
+          placeholder: widget.placeholder ?? widget.label,
+          onRemove: (file) => _removeFile(file),
         ),
       ),
     );

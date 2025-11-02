@@ -4,13 +4,16 @@ import 'package:te_widgets/te_widgets.dart';
 part 'crud_table_top_bar.dart';
 part 'crud_table_builder.dart';
 
-class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
+class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   final List<TTableHeader<T>> headers;
 
   final List<T>? items;
   final TLoadListener<T>? onLoad;
+  final TListController<T, K>? controller;
+
   final List<T>? archivedItems;
   final TLoadListener<T>? onArchiveLoad;
+  final TListController<T, K>? archiveController;
 
   final F Function()? createForm;
   final F Function(T item)? editForm;
@@ -23,19 +26,7 @@ class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
   final Future<bool> Function(T item)? onDelete;
 
   final TCrudConfig<T> config;
-  final TPaginationController<T>? controller;
-  final TTableController<T>? tableController;
-  final TTableDecoration decoration;
-  final TTableInteractionConfig interactionConfig;
-
-  // Expandable configuration
-  final bool expandable;
-  final bool singleExpand;
-  final Widget Function(T item, int index, bool isExpanded)? expandedBuilder;
-
-  // Selectable configuration
-  final bool selectable;
-  final bool singleSelect;
+  final Widget Function(T item, int index)? expandedBuilder;
 
   const TCrudTable({
     super.key,
@@ -54,28 +45,28 @@ class TCrudTable<T, F extends TFormBase> extends StatefulWidget {
     this.onDelete,
     this.config = const TCrudConfig(),
     this.controller,
-    this.tableController,
-    this.decoration = const TTableDecoration(),
-    this.interactionConfig = const TTableInteractionConfig(),
-    this.expandable = false,
-    this.singleExpand = true,
+    this.archiveController,
     this.expandedBuilder,
-    this.selectable = false,
-    this.singleSelect = false,
-  });
+  })  : assert(
+          (controller == null && (items != null || onLoad != null)) || (controller != null && items == null && onLoad == null),
+          'Provide either `controller` OR (`items` / `onLoad`), not both.',
+        ),
+        assert(
+          (archiveController == null && (archivedItems != null || onArchiveLoad != null)) ||
+              (archiveController != null && archivedItems == null && onArchiveLoad == null),
+          'Provide either `archiveController` OR (`archivedItems` / `onArchiveLoad`), not both.',
+        );
 
   @override
-  State<TCrudTable<T, F>> createState() => _TCrudTableState<T, F>();
+  State<TCrudTable<T, K, F>> createState() => _TCrudTableState<T, K, F>();
 }
 
-class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
-  late final ValueNotifier<String> _searchNotifier;
-  late final ValueNotifier<String> _archiveSearchNotifier;
-  late final TPaginationController<T> _paginationController;
-  late final TPaginationController<T> _archivePaginationController;
+class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K, F>> {
+  late final TListController<T, K> _listController;
+  late final TListController<T, K> _archiveListController;
 
-  late final _TCrudTopBar<T, F> _topBar;
-  late final _TCrudTableBuilder<T, F> _tableBuilder;
+  late final _TCrudTopBar<T, K, F> _topBar;
+  late final _TCrudTableBuilder<T, K, F> _tableBuilder;
 
   int _currentTab = 0;
   final Map<T, Map<String, bool>> _permissionCache = {};
@@ -83,32 +74,39 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
   @override
   void initState() {
     super.initState();
-    _searchNotifier = ValueNotifier('');
-    _archiveSearchNotifier = ValueNotifier('');
-    _paginationController = widget.controller ?? TPaginationController<T>();
-    _archivePaginationController = TPaginationController<T>();
 
-    _topBar = _TCrudTopBar<T, F>(parent: this);
-    _tableBuilder = _TCrudTableBuilder<T, F>(parent: this);
+    _listController = widget.controller ??
+        TListController<T, K>(
+          itemsPerPage: widget.config.itemsPerPage,
+          items: widget.items ?? [],
+          onLoad: widget.onLoad,
+        );
+
+    _archiveListController = widget.archiveController ??
+        TListController<T, K>(
+          itemsPerPage: widget.config.itemsPerPage,
+          items: widget.archivedItems ?? [],
+          onLoad: widget.onArchiveLoad,
+        );
+
+    _topBar = _TCrudTopBar<T, K, F>(parent: this);
+    _tableBuilder = _TCrudTableBuilder<T, K, F>(parent: this);
   }
 
   @override
   void dispose() {
-    _searchNotifier.dispose();
-    _archiveSearchNotifier.dispose();
     _permissionCache.clear();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final theme = context.theme;
 
     return LayoutBuilder(builder: (_, constraints) {
       return Column(
         children: [
-          _topBar.build(colors, constraints),
+          _topBar.build(context, constraints),
           Expanded(child: _tableBuilder._buildContent(theme)),
         ],
       );
@@ -124,10 +122,8 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       widget.onView != null || widget.onRestore != null || widget.onDelete != null || widget.config.archiveActions.isNotEmpty;
 
   // Getters for controllers and notifiers
-  ValueNotifier<String> get searchNotifier => _searchNotifier;
-  ValueNotifier<String> get archiveSearchNotifier => _archiveSearchNotifier;
-  TPaginationController<T> get paginationController => _paginationController;
-  TPaginationController<T> get archivePaginationController => _archivePaginationController;
+  TListController<T, K> get listController => _listController;
+  TListController<T, K> get archiveListController => _archiveListController;
   int get currentTab => _currentTab;
   set currentTab(int value) => setState(() => _currentTab = value);
 
@@ -175,7 +171,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
 
       final newItem = await widget.onCreate?.call(formData);
       if (newItem != null) {
-        _paginationController.addItem(newItem);
+        _listController.addItem(newItem);
       }
 
       form.reset();
@@ -193,7 +189,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
 
       final updatedItem = await widget.onEdit?.call(item, formData);
       if (updatedItem != null) {
-        _paginationController.updateItem(item, updatedItem);
+        _listController.updateItem(item, updatedItem);
       }
 
       form.reset();
@@ -206,7 +202,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       await _performAction(() async {
         final success = await widget.onArchive!(item);
         if (success) {
-          _paginationController.removeItem(item);
+          _listController.removeItem(item);
           _permissionCache.remove(item);
         }
       });
@@ -218,7 +214,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       await _performAction(() async {
         final success = await widget.onRestore!(item);
         if (success) {
-          _archivePaginationController.removeItem(item);
+          _archiveListController.removeItem(item);
           _permissionCache.remove(item);
         }
       });
@@ -230,7 +226,7 @@ class _TCrudTableState<T, F extends TFormBase> extends State<TCrudTable<T, F>> {
       await _performAction(() async {
         final success = await widget.onDelete!(item);
         if (success) {
-          _archivePaginationController.removeItem(item);
+          _archiveListController.removeItem(item);
           _permissionCache.remove(item);
         }
       });

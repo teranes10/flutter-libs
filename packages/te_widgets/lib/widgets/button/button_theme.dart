@@ -80,10 +80,8 @@ class TButtonSize {
 
 @immutable
 class TButtonTheme {
-  final TWidgetTheme baseTheme;
   final TButtonType type;
   final TButtonSize size;
-  final Color color;
   final OutlinedBorder? shape;
   final double? borderRadius;
   final double? elevation;
@@ -94,7 +92,7 @@ class TButtonTheme {
   final WidgetStateProperty<TextStyle?>? textStyle;
   final WidgetStateProperty<Color?>? shadowColor;
 
-  ButtonStyle getButtonStyle() {
+  ButtonStyle getButtonStyle(TWidgetTheme baseTheme) {
     return ButtonStyle(
       backgroundColor: baseTheme.backgroundState,
       foregroundColor: baseTheme.foregroundState,
@@ -110,7 +108,8 @@ class TButtonTheme {
     );
   }
 
-  Widget buildButtonContent({
+  Widget buildButtonContent(
+    TWidgetTheme baseTheme, {
     IconData? icon,
     String? text,
     bool isLoading = false,
@@ -141,10 +140,8 @@ class TButtonTheme {
   }
 
   const TButtonTheme({
-    required this.baseTheme,
-    required this.type,
-    required this.size,
-    required this.color,
+    this.type = TButtonType.solid,
+    this.size = TButtonSize.md,
     this.shape,
     this.borderRadius = 6.0,
     this.elevation = 0.0,
@@ -155,27 +152,10 @@ class TButtonTheme {
     this.shadowColor,
   });
 
-  factory TButtonTheme.create(
-    BuildContext context, {
-    TButtonType? type,
-    TButtonSize? size,
-    Color? color,
-    OutlinedBorder? shape,
-  }) {
-    final theme = context.theme;
-    final mColor = color ?? theme.primary;
-    final mType = type ?? TButtonType.solid;
-    final mSize = size ?? (type == TButtonType.icon ? TButtonSize.xs.copyWith(icon: 18) : TButtonSize.md);
-    final baseTheme = context.getWidgetTheme(mType.colorType, mColor);
-
-    return TButtonTheme(baseTheme: baseTheme, type: mType, size: mSize, color: mColor, shape: shape);
-  }
-
   TButtonTheme copyWith({
     TWidgetTheme? baseTheme,
     TButtonType? type,
     TButtonSize? size,
-    Color? color,
     OutlinedBorder? shape,
     double? borderRadius,
     double? elevation,
@@ -186,10 +166,8 @@ class TButtonTheme {
     WidgetStateProperty<Color?>? shadowColor,
   }) {
     return TButtonTheme(
-      baseTheme: baseTheme ?? this.baseTheme,
       type: type ?? this.type,
       size: size ?? this.size,
-      color: color ?? this.color,
       shape: shape ?? this.shape,
       borderRadius: borderRadius ?? this.borderRadius,
       elevation: elevation ?? this.elevation,

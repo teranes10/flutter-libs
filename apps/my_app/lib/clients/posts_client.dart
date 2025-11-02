@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:my_app/models/post_dto.dart';
-import 'package:te_widgets/mixins/pagination/pagination_config.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class PostsClient {
   final Dio _dio = Dio(BaseOptions(baseUrl: 'https://jsonplaceholder.typicode.com'));
@@ -23,8 +23,8 @@ class PostsClient {
     return (items, total);
   }
 
-  void loadMore(TLoadOptions<PostDto> o) async {
+  Future<TLoadResult<PostDto>> loadMore(TLoadOptions<PostDto> o) async {
     final (items, total) = await fetchPosts(start: o.offset, limit: o.itemsPerPage);
-    o.callback(items, total);
+    return TLoadResult(items, total);
   }
 }

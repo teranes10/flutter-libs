@@ -43,10 +43,13 @@ class _TablesPageState extends State<TablesPage> {
           spacing: 25,
           children: [
             TButton(text: 'Print', onPressed: (_) => generatePdfWithTable(context)),
-            TList(shrinkWrap: true, items: products, itemBuilder: (ctx, item, idx) => TCard(child: Text(item.name))),
-            TTable<Product>(shrinkWrap: true, headers: productHeaders, items: products),
-            TDataTable<Product>(
-              shrinkWrap: true,
+            TTable<Product, int>(
+              theme: TTableTheme(shrinkWrap: true, infiniteScroll: false, headerSticky: false),
+              headers: productHeaders,
+              items: products,
+            ),
+            TTable<Product, int>(
+              theme: TTableTheme(shrinkWrap: true, infiniteScroll: false, headerSticky: false),
               headers: [
                 TTableHeader.map("Name", (x) => x.name),
                 TTableHeader.map("Price", (x) => x.price),

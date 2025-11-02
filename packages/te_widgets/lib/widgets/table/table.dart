@@ -1,95 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-part 'table_layout_calculator.dart';
-part 'table_header_builder.dart';
-part 'table_row_builder.dart';
-part 'table_card.dart';
-part 'table_controller.dart';
-
-class TTable<T> extends StatefulWidget {
+class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   final List<TTableHeader<T>> headers;
-  final List<T> items;
-  final TTableDecoration decoration;
-  final bool loading;
-  final TTableController<T>? controller;
-  final TTableInteractionConfig interactionConfig;
-  final bool shrinkWrap;
-  final VoidCallback? onScrollEnd;
+  final TTableTheme? theme;
+  final TListInteraction<T>? interaction;
+
+  //List
+  @override
+  final List<T>? items;
+  @override
+  final int? itemsPerPage;
+  @override
+  final String? search;
+  @override
+  final int? searchDelay;
+  @override
+  final TLoadListener<T>? onLoad;
+  @override
+  final ItemKeyAccessor<T, K>? itemKey;
+  @override
+  final TListController<T, K>? controller;
 
   // Expandable configuration
-  final bool expandable;
-  final bool singleExpand;
-  final Widget Function(T item, int index, bool isExpanded)? expandedBuilder;
-
-  // Selectable configuration
-  final bool selectable;
-  final bool singleSelect;
+  final Widget Function(T item, int index)? expandedBuilder;
 
   const TTable({
     super.key,
     required this.headers,
-    required this.items,
-    this.decoration = const TTableDecoration(),
-    this.loading = false,
+    this.theme,
+    this.interaction,
+    //List
+    this.items,
+    this.itemsPerPage,
+    this.search,
+    this.searchDelay,
+    this.onLoad,
+    this.itemKey,
     this.controller,
-    this.interactionConfig = const TTableInteractionConfig(),
-    this.shrinkWrap = false,
-    this.onScrollEnd,
-    // Expandable
-    this.expandable = false,
-    this.singleExpand = true,
+    //Expandable
     this.expandedBuilder,
-
-    // Selectable
-    this.selectable = false,
-    this.singleSelect = false,
   });
 
   @override
-  State<TTable<T>> createState() => _TTableState<T>();
+  State<TTable<T, K>> createState() => _TTableState<T, K>();
 }
 
-class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMixin {
-  TTableController<T>? _controller;
-  late TTableLayoutCalculator<T> _layoutCalculator;
-  late TTableRowBuilder<T> _rowBuilder;
-  late TTableHeaderBuilder<T> _headerBuilder;
-  late ScrollController _horizontalScrollController;
-
-  bool _isCardView = false;
-  bool _needsHorizontalScroll = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.selectable || widget.expandable) {
-      _controller = widget.controller ?? TTableController<T>();
-      _controller?._attach(widget);
-    }
-
-    _layoutCalculator = TTableLayoutCalculator<T>(widget: widget);
-    _rowBuilder = TTableRowBuilder<T>(widget: widget, controller: _controller);
-    _headerBuilder = TTableHeaderBuilder<T>(widget: widget, controller: _controller);
-    _horizontalScrollController = ScrollController();
-  }
-
-  @override
-  void didUpdateWidget(TTable<T> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _controller?._update(widget);
-    _layoutCalculator._updateWidget(widget);
-    _rowBuilder._updateWidget(widget);
-    _headerBuilder._updateWidget(widget);
-  }
-
-  @override
-  void dispose() {
-    _controller?._detach(widget);
-    _horizontalScrollController.dispose();
-    super.dispose();
-  }
+class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, TTable<T, K>> {
+  TTableTheme get wTheme => widget.theme ?? context.theme.tableTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -97,139 +55,98 @@ class _TTableState<T> extends State<TTable<T>> with SingleTickerProviderStateMix
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final shouldShowCardView = widget.decoration.forceCardStyle || constraints.maxWidth <= widget.decoration.mobileBreakpoint;
-
-        _needsHorizontalScroll = _layoutCalculator._needsHorizontalScroll(constraints);
-
-        if (shouldShowCardView != _isCardView) {
-          _isCardView = shouldShowCardView;
-        }
-
-        return _isCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
+        final shouldShowCardView = wTheme.forceCardStyle || constraints.maxWidth <= wTheme.mobileBreakpoint;
+        return shouldShowCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
       },
     );
   }
 
   Widget _buildTableView(ColorScheme colors, BoxConstraints constraints) {
-    Widget tableContent = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _headerBuilder._build(colors),
-        widget.shrinkWrap ? _buildTable(colors) : Expanded(child: _buildTable(colors)),
-        if (widget.items.isEmpty && !widget.loading) buildTableEmptyState(colors),
-      ],
+    final needsHorizontalScroll = _calculateTotalRequiredWidth() > constraints.maxWidth;
+
+    final columnWidths = wTheme.getColumnWidths(
+      widget.headers,
+      listController.selectable,
+      listController.expandable,
     );
 
-    if (_needsHorizontalScroll) {
-      tableContent = SizedBox(
-        width: _layoutCalculator._calculateTotalRequiredWidth(),
-        child: tableContent,
-      );
-
-      return TScrollbar(
-        controller: _horizontalScrollController,
-        isHorizontal: true,
-        thumbVisibility: widget.decoration.showScrollbars,
-        child: SingleChildScrollView(
-          controller: _horizontalScrollController,
-          scrollDirection: Axis.horizontal,
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: tableContent,
+    return TList<T, K>(
+      theme: wTheme.copyWith(
+        headerWidget: Column(
+          children: [
+            if (wTheme.headerWidget != null) wTheme.headerWidget!,
+            TTableRowHeader<T, K>(
+              theme: wTheme.headerTheme,
+              headers: widget.headers,
+              controller: listController,
+              columnWidths: columnWidths,
+            ),
+          ],
         ),
-      );
-    } else {
-      return SizedBox(width: constraints.maxWidth, child: tableContent);
-    }
-  }
-
-  Widget _buildTable(ColorScheme colors) {
-    return _controller != null
-        ? ValueListenableBuilder<Set<int>>(
-            valueListenable: _controller!.expanded,
-            builder: (context, expandedSet, _) {
-              return ValueListenableBuilder<Set<int>>(
-                valueListenable: _controller!.selected,
-                builder: (context, selectedSet, _) {
-                  return _buildTList(colors, expandedSet, selectedSet);
-                },
-              );
-            },
-          )
-        : _buildTList(colors, const {}, const {});
-  }
-
-  Widget _buildTList(ColorScheme colors, Set<int> expandedSet, Set<int> selectedSet) {
-    return TList<T>(
-      shrinkWrap: widget.shrinkWrap,
-      items: widget.items,
-      showAnimation: widget.decoration.showStaggeredAnimation,
-      animationDuration: widget.decoration.animationDuration,
-      itemBuilder: (context, item, index) {
-        return _rowBuilder._buildTableRow(
-            colors, widget.decoration.style.rowStyle, item, index, expandedSet.contains(index), selectedSet.contains(index));
-      },
-      onScrollEnd: widget.onScrollEnd,
+        needsHorizontalScroll: wTheme.needsHorizontalScroll || needsHorizontalScroll,
+        horizontalScrollWidth: wTheme.horizontalScrollWidth ?? (needsHorizontalScroll ? _calculateTotalRequiredWidth() : null),
+      ),
+      interaction: widget.interaction,
+      controller: listController,
+      itemBuilder: (context, item, index, multiple) => TTableRowCard<T>(
+        item: item.data,
+        headers: widget.headers,
+        theme: wTheme.rowCardTheme,
+        width: wTheme.cardWidth,
+        columnWidths: columnWidths,
+        expandable: listController.expandable,
+        isExpanded: item.isExpanded,
+        onExpansionChanged: () => listController.toggleExpansion(item.data),
+        expandedContent: widget.expandedBuilder?.call(item.data, index) ?? wTheme.buildDefaultExpandedContent(colors, item, index),
+        selectable: listController.selectable,
+        isSelected: item.isSelected,
+        onSelectionChanged: () => listController.toggleSelection(item.data),
+      ),
     );
   }
 
   Widget _buildCardView(ColorScheme colors, BoxConstraints constraints) {
-    if (widget.items.isEmpty && !widget.loading) {
-      return buildTableEmptyState(colors);
-    }
-
-    if (_controller != null) {
-      return ValueListenableBuilder<Set<int>>(
-        valueListenable: _controller!.expanded,
-        builder: (context, expandedSet, _) {
-          return ValueListenableBuilder<Set<int>>(
-            valueListenable: _controller!.selected,
-            builder: (context, selectedSet, _) {
-              return _buildCardList(colors, expandedSet, selectedSet);
-            },
-          );
-        },
-      );
-    } else {
-      return _buildCardList(colors, const {}, const {});
-    }
-  }
-
-  Widget _buildCardList(ColorScheme colors, Set<int> expandedSet, Set<int> selectedSet) {
-    return TList<T>(
-      shrinkWrap: widget.shrinkWrap,
-      items: widget.items,
-      showAnimation: widget.decoration.showStaggeredAnimation,
-      animationDuration: widget.decoration.animationDuration,
-      itemBuilder: (context, item, index) {
-        return _rowBuilder._buildCardRow(
-          colors,
-          item,
-          index,
-          expandedSet.contains(index),
-          selectedSet.contains(index),
-        );
-      },
-      onScrollEnd: widget.onScrollEnd,
-    );
-  }
-
-  Widget buildTableEmptyState(ColorScheme colors) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.inbox_outlined, size: 64, color: colors.onSurfaceVariant),
-            const SizedBox(height: 16),
-            Text('No data available', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: colors.onSurface)),
-            const SizedBox(height: 8),
-            Text('There are no items to display at the moment.',
-                style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant), textAlign: TextAlign.center),
-          ],
-        ),
+    return TList<T, K>(
+      theme: wTheme,
+      interaction: widget.interaction,
+      controller: listController,
+      itemBuilder: (context, item, index, multiple) => TTableMobileCard<T>(
+        item: item.data,
+        headers: widget.headers,
+        theme: wTheme.mobileCardTheme,
+        width: wTheme.cardWidth,
+        expandable: listController.expandable,
+        isExpanded: item.isExpanded,
+        onExpansionChanged: () => listController.toggleExpansion(item.data),
+        expandedContent: widget.expandedBuilder?.call(item.data, index) ?? wTheme.buildDefaultExpandedContent(colors, item, index),
+        selectable: listController.selectable,
+        isSelected: item.isSelected,
+        onSelectionChanged: () => listController.toggleSelection(item.data),
       ),
     );
+  }
+
+  double _calculateTotalRequiredWidth() {
+    double totalWidth = 0;
+
+    // Add width for expand/select columns
+    if (listController.expandable) totalWidth += 40;
+    if (listController.selectable) totalWidth += 40;
+
+    for (final header in widget.headers) {
+      if (header.maxWidth != null && header.maxWidth != double.infinity) {
+        totalWidth += header.maxWidth!;
+      } else if (header.minWidth != null && header.minWidth! > 0) {
+        totalWidth += header.minWidth!;
+      } else {
+        // For flex columns, assume a minimum reasonable width
+        totalWidth += 100; // Default minimum width for flex columns
+      }
+    }
+
+    // Add some padding for table margins/padding
+    totalWidth += 32; // Account for horizontal padding
+
+    return totalWidth;
   }
 }

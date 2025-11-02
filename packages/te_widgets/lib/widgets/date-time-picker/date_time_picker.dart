@@ -20,9 +20,9 @@ class TDateTimePicker extends StatefulWidget
   @override
   final DateTime? value;
   @override
-  final ValueNotifier<DateTime>? valueNotifier;
+  final ValueNotifier<DateTime?>? valueNotifier;
   @override
-  final ValueChanged<DateTime>? onValueChanged;
+  final ValueChanged<DateTime?>? onValueChanged;
   @override
   final List<String? Function(DateTime?)>? rules;
   @override
@@ -90,11 +90,11 @@ class _TDateTimePickerState extends State<TDateTimePicker>
   void onExternalValueChanged(DateTime? value) {
     super.onExternalValueChanged(value);
     if (currentValue != null) {
-      controller.text = dateFormat.format(currentValue!);
+      textController.text = dateFormat.format(currentValue!);
       _selectedDate = DateTime(currentValue!.year, currentValue!.month, currentValue!.day);
       _selectedTime = TimeOfDay.fromDateTime(currentValue!);
     } else {
-      controller.text = '';
+      textController.text = '';
       _selectedDate = null;
       _selectedTime = null;
     }
@@ -130,7 +130,7 @@ class _TDateTimePickerState extends State<TDateTimePicker>
 
       notifyValueChanged(composedDateTime);
       setState(() {
-        controller.text = dateFormat.format(composedDateTime);
+        textController.text = dateFormat.format(composedDateTime);
       });
     }
   }

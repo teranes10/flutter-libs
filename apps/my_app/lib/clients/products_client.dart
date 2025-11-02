@@ -13,8 +13,8 @@ class ProductsClient {
     return (items, total);
   }
 
-  void loadMore(TLoadOptions<ProductDto> o) async {
+  Future<TLoadResult<ProductDto>> loadMore(TLoadOptions<ProductDto> o) async {
     final (items, total) = await fetchProducts(offset: o.offset, limit: o.itemsPerPage, search: o.search ?? '');
-    o.callback(items, total);
+    return TLoadResult(items, total);
   }
 }

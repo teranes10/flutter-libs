@@ -1,6 +1,6 @@
 name: te_widgets
 description: "Te Flutter Widgets"
-version: 0.0.9
+version: 1.0.0
 
 homepage: https://teranes10.github.io/flutter-libs
 repository: https://github.com/teranes10/flutter-libs/tree/master/packages/te_widgets
@@ -23,6 +23,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   shared_preferences: ^2.5.3
   calendar_date_picker2: ^2.0.1
+  photo_view: ^0.15.0
   
 dev_dependencies:
   flutter_test:

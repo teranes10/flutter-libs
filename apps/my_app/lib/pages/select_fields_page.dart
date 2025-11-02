@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/clients/posts_client.dart';
+import 'package:my_app/clients/products_client.dart';
 import 'package:my_app/models/post_dto.dart';
+import 'package:my_app/models/product_dto.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class SelectFieldsPage extends StatefulWidget {
@@ -12,10 +14,12 @@ class SelectFieldsPage extends StatefulWidget {
 
 class _SelectFieldsPageState extends State<SelectFieldsPage> {
   String? singleValue = 'CA';
+  static List<PostDto> defaultPosts = [PostDto(userId: 12345, id: 234546, title: "Default Post", body: "")];
+  int? selectedPost = defaultPosts.first.id;
   User? selectedUser;
   List<User>? selectedUsers;
   List<String> multiValue = ['Flutter Development'];
-  final countries = TSelectItemBuilder.fromMap({
+  final countries = {
     'United States': 'US',
     'Canada': 'CA',
     'Mexico': 'MX',
@@ -33,7 +37,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
     'Australia': 'AU',
     'New Zealand': 'NZ',
     'South Africa': 'ZA',
-  });
+  }.entries.toList();
 
   final skills = [
     'Flutter Development',
@@ -54,6 +58,13 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
     User(id: '2', name: 'Bob', role: 'Manager'),
   ];
 
+  final hierarch = [
+    Category('Tech', 'tech', [
+      Category('Mobile', 'mobile'),
+      Category('Web', 'web'),
+    ])
+  ];
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -61,77 +72,80 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Basic TSelect (String)', style: TextStyle(fontWeight: FontWeight.w400)),
-        TSelect(
+        TSelect<MapEntry<String, String>, String, String>(
           label: 'Country',
           placeholder: 'Choose a country',
           helperText: 'This field is required',
           isRequired: true,
           items: countries,
+          itemText: (x) => x.key,
+          itemValue: (x) => x.value,
           value: singleValue,
-          onValueChanged: (val) => setState(() => singleValue = val),
         ),
         const SizedBox(height: 20),
         const Text('Disabled Select', style: TextStyle(fontWeight: FontWeight.w400)),
-        TSelect(
+        TSelect<MapEntry<String, String>, String, String>(
           label: 'Disabled',
           disabled: true,
           items: countries,
+          itemText: (x) => x.key,
+          itemValue: (x) => x.value,
         ),
         const SizedBox(height: 20),
         const Text('With Custom Text & Value Accessor', style: TextStyle(fontWeight: FontWeight.w400)),
-        TSelect(
+        TSelect<User, User, String>(
           label: 'Select User',
           items: users,
           itemText: (u) => u.name,
+          itemKey: (u) => u.id,
           value: selectedUser,
-          onValueChanged: (val) => setState(() => selectedUser = val),
         ),
         const SizedBox(height: 20),
         const Text('Multiselect Basic', style: TextStyle(fontWeight: FontWeight.w400)),
-        TMultiSelect(
+        TMultiSelect<String, String, String>(
           label: 'Select Skills',
           items: skills,
           value: multiValue,
-          onValueChanged: (val) => setState(() => multiValue = val),
         ),
         const SizedBox(height: 20),
         const Text('Multiselect with Custom ItemText', style: TextStyle(fontWeight: FontWeight.w400)),
-        TMultiSelect(
+        TMultiSelect<User, User, int>(
           label: 'Select Users',
           items: users,
           itemText: (u) => '${u.name} (${u.role})',
           value: selectedUsers,
-          onValueChanged: (val) => setState(() => selectedUsers = val),
         ),
         const SizedBox(height: 20),
         const Text('With Multi-Level (for hierarchy)', style: TextStyle(fontWeight: FontWeight.w400)),
-        TSelect<TSelectItem<String>, String>(
+        TSelect<Category, String, String>(
           label: 'Categories',
-          items: TSelectItemBuilder.fromHierarchy([
-            {
-              'text': 'Tech',
-              'value': 'tech',
-              'children': [
-                {'text': 'Mobile', 'value': 'mobile'},
-                {'text': 'Web', 'value': 'web'},
-              ]
-            }
-          ]),
-          multiLevel: true,
+          items: hierarch,
+          itemText: (x) => x.name,
+          itemValue: (x) => x.code,
+          itemChildren: (x) => x.subCategories,
           value: 'mobile',
-          onValueChanged: (v) => debugPrint('Selected: $v'),
         ),
         const SizedBox(height: 20),
-        TSelect<PostDto, int>(
+        TSelect<PostDto, int, int>(
           label: 'Server side rendering',
-          items: [],
-          onLoad: (o) async {
-            final pair = await PostsClient().fetchPosts(start: o.offset, limit: o.itemsPerPage);
-            o.callback(pair.$1, pair.$2);
-          },
+          onLoad: PostsClient().loadMore,
           itemText: (x) => x.title,
+          itemSubText: (x) => x.body,
           itemValue: (x) => x.id,
-          value: 2,
+          items: defaultPosts,
+          // In server-side rendering, include the default selected item in the items list so its text can be displayed, even if it’s not on the first page.
+          // This is required only when itemValue is provided — if value is of type T, the text is automatically taken from the provided value item.
+          value: selectedPost,
+        ),
+        const SizedBox(height: 20),
+        TSelect<ProductDto, int, int>(
+          label: 'Server side rendering',
+          onLoad: ProductsClient().loadMore,
+          itemText: (x) => x.title,
+          itemSubText: (x) => x.category,
+          itemImageUrl: (x) => x.thumbnail ?? '',
+          itemValue: (x) => x.id,
+          value: 1,
         )
       ],
     ));
@@ -147,4 +161,12 @@ class User {
 
   @override
   String toString() => '$name ($role)';
+}
+
+class Category {
+  final String name;
+  final String code;
+  final List<Category> subCategories;
+
+  Category(this.name, this.code, [this.subCategories = const []]);
 }

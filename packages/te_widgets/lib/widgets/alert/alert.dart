@@ -16,6 +16,7 @@ class TAlert extends StatelessWidget {
   final Color? color;
   final AlertButton? closeButton;
   final AlertButton? confirmButton;
+  final TAlertTheme? theme;
 
   const TAlert({
     super.key,
@@ -25,42 +26,40 @@ class TAlert extends StatelessWidget {
     this.closeButton,
     this.confirmButton,
     this.color,
+    this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final theme = context.theme;
+    final wTheme = theme ?? context.theme.alertTheme;
 
     return IntrinsicHeight(
       child: AlertDialog(
         backgroundColor: colors.surface,
-        insetPadding: EdgeInsets.all(12.0),
-        contentPadding: EdgeInsets.all(20),
-        icon: icon != null ? Icon(icon, size: 64, color: color) : null,
-        title: title != null
-            ? Text(title!, style: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant))
-            : null,
-        content: text is String
-            ? Text(text, textAlign: TextAlign.center, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface))
-            : (text is Widget ? text : null),
-        actionsAlignment: MainAxisAlignment.center,
-        actionsPadding: EdgeInsets.only(bottom: 15),
+        insetPadding: wTheme.insetPadding,
+        contentPadding: wTheme.contentPadding,
+        actionsPadding: wTheme.actionsPadding,
+        actionsAlignment: wTheme.actionsAlignment,
+        icon: icon != null ? Icon(icon, size: wTheme.iconSize, color: color) : null,
+        title: title != null ? Text(title!, style: wTheme.titleStyle) : null,
+        content:
+            text is String ? Text(text, textAlign: wTheme.contentTextAlign, style: wTheme.contentStyle) : (text is Widget ? text : null),
         actions: [
           if (closeButton != null)
             TButton(
-              size: TButtonSize.md.copyWith(minW: 100),
-              color: confirmButton != null ? theme.grey : color,
-              type: TButtonType.softText,
+              size: TButtonSize.md.copyWith(minW: wTheme.closeButtonWidth),
+              type: wTheme.closeButtonType,
+              color: confirmButton != null ? wTheme.closeButtonColor : color,
               icon: closeButton!.icon,
               text: closeButton!.text,
               onPressed: (_) => closeButton!.onClick?.call(),
             ),
           if (confirmButton != null)
             TButton(
-              size: TButtonSize.md.copyWith(minW: 80),
+              size: TButtonSize.md.copyWith(minW: wTheme.confirmButtonWidth),
+              type: wTheme.confirmButtonType,
               color: color,
-              type: TButtonType.softText,
               icon: confirmButton!.icon,
               text: confirmButton!.text,
               onPressed: (_) => confirmButton!.onClick?.call(),

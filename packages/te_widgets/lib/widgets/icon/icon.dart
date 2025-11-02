@@ -1,0 +1,81 @@
+import 'package:flutter/material.dart';
+import 'package:te_widgets/te_widgets.dart';
+
+class TIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback? onTap;
+  final double size;
+  final EdgeInsets padding;
+  final Color? color;
+  final Color? activeColor;
+  final Color? hoverColor;
+  final (double initial, double active)? turns;
+  final bool active;
+  final int animationMilliseconds;
+
+  const TIcon({
+    super.key,
+    required this.icon,
+    this.onTap,
+    this.size = 16,
+    this.active = false,
+    this.padding = const EdgeInsets.all(4),
+    this.turns,
+    this.animationMilliseconds = 200,
+    this.color,
+    this.activeColor,
+    this.hoverColor,
+  });
+
+  factory TIcon.close(
+    ColorScheme colors, {
+    VoidCallback? onTap,
+    double size = 20,
+  }) {
+    return TIcon(
+      icon: Icons.cancel_outlined,
+      onTap: onTap,
+      size: size,
+      color: colors.surfaceContainerLowest,
+      hoverColor: colors.error,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final baseColor = color ?? colors.onSurfaceVariant;
+    final hoverOrActiveColor = hoverColor ?? activeColor;
+
+    Widget buildIcon({required bool isHovering}) {
+      final effectiveColor = (isHovering && hoverOrActiveColor != null)
+          ? hoverOrActiveColor
+          : active
+              ? (activeColor ?? baseColor)
+              : baseColor;
+
+      Widget iconWidget = Icon(icon, size: size, color: effectiveColor);
+
+      if (turns != null) {
+        final (initialTurn, activeTurn) = turns!;
+        iconWidget = AnimatedRotation(
+          turns: active ? activeTurn : initialTurn,
+          duration: Duration(milliseconds: animationMilliseconds),
+          child: iconWidget,
+        );
+      }
+
+      return iconWidget;
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: padding,
+        child: hoverOrActiveColor == null
+            ? buildIcon(isHovering: false)
+            : THoverable(builder: (context, isHovering) => buildIcon(isHovering: isHovering)),
+      ),
+    );
+  }
+}

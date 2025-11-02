@@ -31,7 +31,7 @@ class TButton extends StatefulWidget {
     this.onPressed,
     this.active = false,
     this.child,
-  });
+  }) : assert(theme == null || (type == null && size == null), 'If theme is provided, type and size must be null.');
 
   @override
   State<TButton> createState() => _TButtonState();
@@ -88,12 +88,14 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final wTheme = widget.theme ?? TButtonTheme.create(context, type: widget.type, size: widget.size, color: widget.color);
+    final wTheme = widget.theme ?? context.theme.buttonTheme.copyWith(type: widget.type, size: widget.size);
+    final baseTheme = context.getWidgetTheme(wTheme.type.colorType, widget.color);
 
     final button = ElevatedButton(
       onPressed: (widget.onPressed == null && widget.onTap == null) ? null : _handlePress,
-      style: wTheme.getButtonStyle(),
+      style: wTheme.getButtonStyle(baseTheme),
       child: wTheme.buildButtonContent(
+        baseTheme,
         icon: widget.icon,
         text: widget.text,
         isLoading: _isLoading,
@@ -119,7 +121,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     );
 
     if (widget.tooltip != null) {
-      return TTooltip(message: widget.tooltip!, color: wTheme.color, child: wrapped);
+      return TTooltip(message: widget.tooltip!, color: baseTheme.color, child: wrapped);
     }
 
     return wrapped;

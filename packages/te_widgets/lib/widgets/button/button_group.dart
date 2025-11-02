@@ -73,14 +73,8 @@ class TButtonGroup extends StatelessWidget {
     required int index,
     required int total,
   }) {
-    final isFirst = index == 0;
-    final isLast = index == total - 1;
-    final isSingle = total == 1;
-
     TButton button = TButton(
-      type: groupTheme.type.buttonType,
       color: item.color ?? groupTheme.color,
-      size: groupTheme.size,
       text: item.text,
       icon: item.icon,
       loading: item.loading,
@@ -92,16 +86,11 @@ class TButtonGroup extends StatelessWidget {
       child: item.child,
     );
 
-    if (!isSingle) {
-      return groupTheme.applyGroupStyling(
-        context,
-        groupTheme: groupTheme,
-        button: button,
-        isFirst: isFirst,
-        isLast: isLast,
-      );
-    }
-
-    return button;
+    return groupTheme.applyGroupStyling(
+      context,
+      button: button,
+      index: index,
+      total: total,
+    );
   }
 }

@@ -2,87 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+typedef StepperButtonBuilder = Widget Function(VoidCallback onTap, bool enabled);
+typedef StepperBuilder = Widget Function(BuildContext ctx, ValueChanged<num> onValueChanged, bool canIncrease, bool canDecrease);
+
 class TNumberFieldTheme extends TTextFieldTheme {
-  final num increment, decrement;
+  // Numeric Configuration
+  final num increment;
+  final num decrement;
   final int? decimals;
-  final bool showSteppers;
-
-  Widget buildStepperButton(ColorScheme colorScheme, IconData icon, VoidCallback onPressed, bool enabled) {
-    return TButton(
-      type: TButtonType.icon,
-      size: TButtonSize.xxs.copyWith(icon: size.fontSize + 2),
-      icon: icon,
-      color: colorScheme.onSurfaceVariant,
-      onTap: enabled ? onPressed : null,
-    );
-  }
-
-  Widget? buildSteppers(
-      BuildContext context, ColorScheme colorScheme, bool canDecrease, bool canIncrease, ValueChanged<num> onValueChanged) {
-    if (!showSteppers) return null;
-
-    final steppers = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        buildStepperButton(colorScheme, Icons.remove, () => onValueChanged(-(decrement)), canDecrease),
-        if (context.isMobile) const SizedBox(width: 8),
-        buildStepperButton(colorScheme, Icons.add, () => onValueChanged(increment), canIncrease),
-      ],
-    );
-
-    return steppers;
-  }
-
-  String formatValue<T extends num>(T? value) {
-    if (value == null || value == 0) return '';
-
-    if (T == int) {
-      return value.toInt().toString();
-    } else {
-      if (decimals != null) {
-        return value.toStringAsFixed(decimals!);
-      }
-      return value.toString();
-    }
-  }
-
-  T? parseValue<T>(String text) {
-    if (text.trim().isEmpty) return null;
-
-    try {
-      if (T == int) {
-        final parsed = int.tryParse(text);
-        return parsed as T?;
-      } else {
-        final parsed = double.tryParse(text);
-        return parsed as T?;
-      }
-    } catch (e) {
-      return null;
-    }
-  }
+  final StepperButtonBuilder? decreaseButtonBuilder;
+  final StepperButtonBuilder? increaseButtonBuilder;
+  final StepperBuilder? stepperBuilder;
 
   const TNumberFieldTheme({
+    required super.color,
+    required super.backgroundColor,
+    required super.borderColor,
+    required super.labelStyle,
+    required super.helperTextStyle,
+    required super.errorTextStyle,
+    required super.tagStyle,
+    required super.decoration,
+    required super.borderRadius,
+    required super.borderWidth,
+    required super.labelBuilder,
+    required super.helperTextBuilder,
+    required super.errorsBuilder,
+    required super.textStyle,
+    required super.hintStyle,
     super.size = TInputSize.md,
-    super.color,
-    super.backgroundColor,
-    super.borderColor,
+    super.decorationType,
     super.preWidget,
     super.postWidget,
     super.height,
     super.padding,
     super.fontSize,
-    super.borderRadius,
-    super.labelStyle,
-    super.helperTextStyle,
-    super.errorTextStyle,
-    super.tagStyle,
-    super.labelBuilder,
-    super.helperTextBuilder,
-    super.errorsBuilder,
-    super.borderBuilder,
-    super.boxShadowBuilder,
-    super.decorationBuilder,
     super.inputFormatters,
     super.keyboardType,
     super.textCapitalization = TextCapitalization.none,
@@ -92,10 +46,12 @@ class TNumberFieldTheme extends TTextFieldTheme {
     super.maxLengthEnforcement,
     super.textInputAction,
     super.obscureText = false,
-    this.increment = 1,
-    this.decrement = 1,
-    this.decimals = 2,
-    this.showSteppers = true,
+    required this.increment,
+    required this.decrement,
+    required this.decimals,
+    this.increaseButtonBuilder,
+    this.decreaseButtonBuilder,
+    this.stepperBuilder,
   })  : assert(increment > 0, 'Increment must be positive'),
         assert(decrement > 0, 'Decrement must be positive'),
         assert(decimals == null || decimals >= 0, 'Decimals must be non-negative');
@@ -103,25 +59,27 @@ class TNumberFieldTheme extends TTextFieldTheme {
   @override
   TNumberFieldTheme copyWith({
     TInputSize? size,
-    WidgetStateProperty<Color?>? color,
-    WidgetStateProperty<Color?>? backgroundColor,
-    WidgetStateProperty<Color?>? borderColor,
+    TInputDecorationType? decorationType,
+    WidgetStateProperty<Color>? color,
+    WidgetStateProperty<Color>? backgroundColor,
+    WidgetStateProperty<Color>? borderColor,
+    WidgetStateProperty<TextStyle>? labelStyle,
+    WidgetStateProperty<TextStyle>? helperTextStyle,
+    WidgetStateProperty<TextStyle>? errorTextStyle,
+    WidgetStateProperty<TextStyle>? tagStyle,
+    WidgetStateProperty<BoxDecoration>? decoration,
+    WidgetStateProperty<double>? borderRadius,
+    WidgetStateProperty<double>? borderWidth,
+    WidgetStateProperty<LabelBuilder>? labelBuilder,
+    WidgetStateProperty<HelperTextBuilder>? helperTextBuilder,
+    WidgetStateProperty<ErrorsBuilder>? errorsBuilder,
+    WidgetStateProperty<TextStyle>? textStyle,
+    WidgetStateProperty<TextStyle>? hintStyle,
     Widget? preWidget,
     Widget? postWidget,
     double? height,
     EdgeInsets? padding,
     double? fontSize,
-    double? borderRadius,
-    WidgetStateProperty<TextStyle?>? labelStyle,
-    WidgetStateProperty<TextStyle?>? helperTextStyle,
-    WidgetStateProperty<TextStyle?>? errorTextStyle,
-    WidgetStateProperty<TextStyle?>? tagStyle,
-    LabelBuilder? labelBuilder,
-    HelperTextBuilder? helperTextBuilder,
-    ErrorsBuilder? errorsBuilder,
-    BorderBuilder? borderBuilder,
-    BoxShadowBuilder? boxShadowBuilder,
-    DecorationBuilder? decorationBuilder,
     List<TextInputFormatter>? inputFormatters,
     TextInputType? keyboardType,
     TextCapitalization? textCapitalization,
@@ -134,42 +92,174 @@ class TNumberFieldTheme extends TTextFieldTheme {
     num? increment,
     num? decrement,
     int? decimals,
-    bool? showSteppers,
+    StepperButtonBuilder? decreaseButtonBuilder,
+    StepperButtonBuilder? increaseButtonBuilder,
+    StepperBuilder? stepperBuilder,
   }) {
+    final baseTheme = super.copyWith(
+      size: size,
+      decorationType: decorationType,
+      color: color,
+      backgroundColor: backgroundColor,
+      borderColor: borderColor,
+      labelStyle: labelStyle,
+      helperTextStyle: helperTextStyle,
+      errorTextStyle: errorTextStyle,
+      tagStyle: tagStyle,
+      decoration: decoration,
+      borderRadius: borderRadius,
+      borderWidth: borderWidth,
+      labelBuilder: labelBuilder,
+      helperTextBuilder: helperTextBuilder,
+      errorsBuilder: errorsBuilder,
+      textStyle: textStyle,
+      hintStyle: hintStyle,
+      preWidget: preWidget,
+      postWidget: postWidget,
+      height: height,
+      padding: padding,
+      fontSize: fontSize,
+      inputFormatters: inputFormatters,
+      keyboardType: keyboardType,
+      textCapitalization: textCapitalization,
+      autocorrect: autocorrect,
+      enableSuggestions: enableSuggestions,
+      maxLength: maxLength,
+      maxLengthEnforcement: maxLengthEnforcement,
+      textInputAction: textInputAction,
+      obscureText: obscureText,
+    );
+
     return TNumberFieldTheme(
-      size: size ?? this.size,
-      color: color ?? this.color,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
-      borderColor: borderColor ?? this.borderColor,
-      preWidget: preWidget ?? this.preWidget,
-      postWidget: postWidget ?? this.postWidget,
-      height: height ?? this.height,
-      padding: padding ?? this.padding,
-      fontSize: fontSize ?? this.fontSize,
-      borderRadius: borderRadius ?? this.borderRadius,
-      labelStyle: labelStyle ?? this.labelStyle,
-      helperTextStyle: helperTextStyle ?? this.helperTextStyle,
-      errorTextStyle: errorTextStyle ?? this.errorTextStyle,
-      tagStyle: tagStyle ?? this.tagStyle,
-      labelBuilder: labelBuilder ?? this.labelBuilder,
-      helperTextBuilder: helperTextBuilder ?? this.helperTextBuilder,
-      errorsBuilder: errorsBuilder ?? this.errorsBuilder,
-      borderBuilder: borderBuilder ?? this.borderBuilder,
-      boxShadowBuilder: boxShadowBuilder ?? this.boxShadowBuilder,
-      decorationBuilder: decorationBuilder ?? this.decorationBuilder,
-      inputFormatters: inputFormatters ?? this.inputFormatters,
-      keyboardType: keyboardType ?? this.keyboardType,
-      textCapitalization: textCapitalization ?? this.textCapitalization,
-      autocorrect: autocorrect ?? this.autocorrect,
-      enableSuggestions: enableSuggestions ?? this.enableSuggestions,
-      maxLength: maxLength ?? this.maxLength,
-      maxLengthEnforcement: maxLengthEnforcement ?? this.maxLengthEnforcement,
-      textInputAction: textInputAction ?? this.textInputAction,
-      obscureText: obscureText ?? this.obscureText,
+      // Text field properties from parent
+      size: baseTheme.size,
+      decorationType: baseTheme.decorationType,
+      color: baseTheme.color,
+      backgroundColor: baseTheme.backgroundColor,
+      borderColor: baseTheme.borderColor,
+      labelStyle: baseTheme.labelStyle,
+      helperTextStyle: baseTheme.helperTextStyle,
+      errorTextStyle: baseTheme.errorTextStyle,
+      tagStyle: baseTheme.tagStyle,
+      decoration: baseTheme.decoration,
+      borderRadius: baseTheme.borderRadius,
+      borderWidth: baseTheme.borderWidth,
+      labelBuilder: baseTheme.labelBuilder,
+      helperTextBuilder: baseTheme.helperTextBuilder,
+      errorsBuilder: baseTheme.errorsBuilder,
+      textStyle: baseTheme.textStyle,
+      hintStyle: baseTheme.hintStyle,
+      preWidget: baseTheme.preWidget,
+      postWidget: baseTheme.postWidget,
+      height: baseTheme.height,
+      padding: baseTheme.padding,
+      fontSize: baseTheme.fontSize,
+      inputFormatters: baseTheme.inputFormatters,
+      keyboardType: baseTheme.keyboardType,
+      textCapitalization: baseTheme.textCapitalization,
+      autocorrect: baseTheme.autocorrect,
+      enableSuggestions: baseTheme.enableSuggestions,
+      maxLength: baseTheme.maxLength,
+      maxLengthEnforcement: baseTheme.maxLengthEnforcement,
+      textInputAction: baseTheme.textInputAction,
+      obscureText: baseTheme.obscureText,
+
+      // Number-specific properties
       increment: increment ?? this.increment,
       decrement: decrement ?? this.decrement,
       decimals: decimals ?? this.decimals,
-      showSteppers: showSteppers ?? this.showSteppers,
+      increaseButtonBuilder: increaseButtonBuilder ?? this.increaseButtonBuilder,
+      decreaseButtonBuilder: decreaseButtonBuilder ?? this.decreaseButtonBuilder,
+      stepperBuilder: stepperBuilder ?? this.stepperBuilder,
     );
+  }
+
+  factory TNumberFieldTheme.defaultTheme(ColorScheme colors) {
+    final baseTheme = TTextFieldTheme.defaultTheme(colors);
+    final increment = 1;
+    final decrement = 2;
+
+    Widget decreaseButtonBuilder(onTap, enabled) {
+      return TButton(
+        type: TButtonType.icon,
+        size: TButtonSize.xxs.copyWith(minW: baseTheme.fieldHeight + 3, minH: baseTheme.fieldHeight, icon: baseTheme.fieldFontSize + 3),
+        icon: Icons.remove,
+        color: colors.onSurfaceVariant,
+        onTap: enabled ? onTap : null,
+      );
+    }
+
+    Widget increaseButtonBuilder(onTap, enabled) {
+      return TButton(
+        type: TButtonType.icon,
+        size: TButtonSize.xxs.copyWith(minW: baseTheme.fieldHeight + 3, minH: baseTheme.fieldHeight, icon: baseTheme.fieldFontSize + 3),
+        icon: Icons.add,
+        color: colors.onSurfaceVariant,
+        onTap: enabled ? onTap : null,
+      );
+    }
+
+    return TNumberFieldTheme(
+      size: baseTheme.size,
+      decorationType: baseTheme.decorationType,
+      color: baseTheme.color,
+      backgroundColor: baseTheme.backgroundColor,
+      borderColor: baseTheme.borderColor,
+      labelStyle: baseTheme.labelStyle,
+      helperTextStyle: baseTheme.helperTextStyle,
+      errorTextStyle: baseTheme.errorTextStyle,
+      tagStyle: baseTheme.tagStyle,
+      decoration: baseTheme.decoration,
+      borderRadius: baseTheme.borderRadius,
+      borderWidth: baseTheme.borderWidth,
+      labelBuilder: baseTheme.labelBuilder,
+      helperTextBuilder: baseTheme.helperTextBuilder,
+      errorsBuilder: baseTheme.errorsBuilder,
+      preWidget: baseTheme.preWidget,
+      postWidget: baseTheme.postWidget,
+      height: baseTheme.height,
+      padding: baseTheme.padding,
+      fontSize: baseTheme.fontSize,
+      textStyle: baseTheme.textStyle,
+      hintStyle: baseTheme.hintStyle,
+      increment: increment,
+      decrement: decrement,
+      decimals: 2,
+      increaseButtonBuilder: increaseButtonBuilder,
+      decreaseButtonBuilder: decreaseButtonBuilder,
+      stepperBuilder: (ctx, onValueChanged, canIncrease, canDecrease) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            decreaseButtonBuilder(() => onValueChanged(-decrement), canDecrease),
+            increaseButtonBuilder(() => onValueChanged(increment), canIncrease),
+          ],
+        );
+      },
+    );
+  }
+
+  String formatValue<T extends num>(T? value) {
+    if (value == null || value == 0) return '';
+
+    if (T == int) {
+      return value.toInt().toString();
+    }
+
+    return decimals != null ? value.toStringAsFixed(decimals!) : value.toString();
+  }
+
+  T? parseValue<T extends num>(String text) {
+    if (text.trim().isEmpty) return null;
+
+    try {
+      if (T == int) {
+        return int.tryParse(text) as T?;
+      } else {
+        return double.tryParse(text) as T?;
+      }
+    } catch (e) {
+      return null;
+    }
   }
 }

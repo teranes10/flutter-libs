@@ -18,9 +18,9 @@ class TNumberField<T extends num> extends StatefulWidget
   @override
   final T? value;
   @override
-  final ValueNotifier<T>? valueNotifier;
+  final ValueNotifier<T?>? valueNotifier;
   @override
-  final ValueChanged<T>? onValueChanged;
+  final ValueChanged<T?>? onValueChanged;
   @override
   final List<String? Function(T?)>? rules;
   @override
@@ -63,7 +63,7 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
   @override
   void onExternalValueChanged(T? value) {
     super.onExternalValueChanged(value);
-    controller.text = wTheme.formatValue(value);
+    textController.text = wTheme.formatValue(value);
   }
 
   @override
@@ -73,14 +73,14 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
     if (T != double) return;
 
     if (hasFocus) {
-      controller.text = currentValue?.toString() ?? '';
+      textController.text = currentValue?.toString() ?? '';
     } else if (wTheme.decimals != null) {
-      controller.text = currentValue?.toStringAsFixed(wTheme.decimals!) ?? '';
+      textController.text = currentValue?.toStringAsFixed(wTheme.decimals!) ?? '';
     }
   }
 
   void _onValueChanged(String text) {
-    final parsedValue = wTheme.parseValue(text);
+    final parsedValue = wTheme.parseValue<T>(text);
     notifyValueChanged(parsedValue);
   }
 
@@ -88,7 +88,7 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
     final base = currentValue ?? (T == int ? 0 : 0.0) as T;
     final newValue = T == int ? (base.toInt() + delta.toInt()) as T : (base.toDouble() + delta.toDouble()) as T;
 
-    controller.text = wTheme.formatValue(newValue);
+    textController.text = wTheme.formatValue(newValue);
     notifyValueChanged(newValue);
   }
 
@@ -98,10 +98,10 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
     final disabled = widget.disabled;
 
     return buildContainer(
-      postWidget: wTheme.buildSteppers(context, colors, !disabled, !disabled, _changeValueBy),
+      postWidget: wTheme.stepperBuilder?.call(context, _changeValueBy, !disabled, !disabled),
       child: buildTextField(
-        keyboardType: wTheme.getKeyboardType(type),
-        inputFormatters: wTheme.getInputFormatters(type, wTheme.decimals),
+        keyboardType: type.keyboardType,
+        inputFormatters: type.getInputFormatters(wTheme.decimals),
         onValueChanged: _onValueChanged,
       ),
     );

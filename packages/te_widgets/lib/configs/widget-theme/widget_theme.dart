@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/configs/theme/theme_extensions.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 enum TVariant { solid, tonal, outline, softOutline, filledOutline, text, softText, filledText }
 
 @immutable
 class TWidgetTheme {
+  final MaterialColor color;
   final Color container;
   final Color containerVariant;
   final Color onContainer;
@@ -14,6 +15,7 @@ class TWidgetTheme {
   final Color? shadow;
 
   const TWidgetTheme({
+    required this.color,
     required this.container,
     required this.containerVariant,
     required this.onContainer,
@@ -27,13 +29,13 @@ class TWidgetTheme {
 
   List<BoxShadow>? get boxShadow => shadow != null ? [BoxShadow(color: shadow!, blurRadius: 12, spreadRadius: 2)] : null;
 
-  WidgetStateProperty<Color?> get backgroundState =>
-      StateHelper.resolveState(container, active: containerVariant, disabled: container.isTransparent ? container.o(0.4) : container);
+  WidgetStateProperty<Color?> get backgroundState => WidgetStatePropertyHelper.resolveState(container,
+      active: containerVariant, disabled: container.isTransparent ? container.o(0.4) : container);
 
   WidgetStateProperty<Color?> get foregroundState =>
-      StateHelper.resolveState(onContainer, active: onContainerVariant, disabled: onContainer.o(0.5));
+      WidgetStatePropertyHelper.resolveState(onContainer, active: onContainerVariant, disabled: onContainer.o(0.5));
 
-  WidgetStateProperty<BorderSide?> get borderSideState => StateHelper.resolveState(
+  WidgetStateProperty<BorderSide?> get borderSideState => WidgetStatePropertyHelper.resolveState(
         outline != null ? BorderSide(color: outline!) : BorderSide.none,
         active: outlineVariant != null ? BorderSide(color: outlineVariant!) : BorderSide.none,
         disabled: outline != null ? BorderSide(color: outline!.o(0.4)) : BorderSide.none,
@@ -41,26 +43,29 @@ class TWidgetTheme {
 
   factory TWidgetTheme.from(BuildContext context, Color color, TVariant type) {
     final isDarkMode = context.isDarkMode;
-
-    Color shade(int value) => color.shade(value);
+    MaterialColor mColor = color.toMaterial();
+    Color shade(int value) => mColor.shade(value);
     Color alpha(Color color, int a) => color.withAlpha(a);
 
     return switch (type) {
       TVariant.solid => TWidgetTheme(
-          container: shade(400),
+          color: mColor,
+          container: isDarkMode ? shade(500) : shade(400),
           containerVariant: alpha(shade(400), 200),
           onContainer: shade(50),
           onContainerVariant: shade(50),
           shadow: alpha(shade(900), 35),
         ),
       TVariant.tonal => TWidgetTheme(
-          container: isDarkMode ? shade(700) : shade(50),
+          color: mColor,
+          container: isDarkMode ? shade(900) : shade(50),
           containerVariant: isDarkMode ? shade(800) : shade(100),
           onContainer: isDarkMode ? shade(100) : shade(400),
           onContainerVariant: isDarkMode ? shade(300) : shade(500),
           shadow: alpha(shade(600), 35),
         ),
       TVariant.outline => TWidgetTheme(
+          color: mColor,
           container: Colors.transparent,
           containerVariant: Colors.transparent,
           onContainer: shade(400),
@@ -70,6 +75,7 @@ class TWidgetTheme {
           shadow: alpha(shade(400), 35),
         ),
       TVariant.softOutline => TWidgetTheme(
+          color: mColor,
           container: Colors.transparent,
           containerVariant: isDarkMode ? shade(700) : shade(50),
           onContainer: shade(400),
@@ -79,6 +85,7 @@ class TWidgetTheme {
           shadow: alpha(shade(400), 35),
         ),
       TVariant.filledOutline => TWidgetTheme(
+          color: mColor,
           container: Colors.transparent,
           containerVariant: shade(400),
           onContainer: shade(400),
@@ -87,18 +94,21 @@ class TWidgetTheme {
           shadow: alpha(shade(400), 35),
         ),
       TVariant.text => TWidgetTheme(
+          color: mColor,
           container: Colors.transparent,
           containerVariant: Colors.transparent,
           onContainer: shade(400),
           onContainerVariant: isDarkMode ? shade(300) : shade(500),
         ),
       TVariant.softText => TWidgetTheme(
+          color: mColor,
           container: Colors.transparent,
           containerVariant: isDarkMode ? shade(700) : shade(50),
           onContainer: shade(400),
           onContainerVariant: isDarkMode ? shade(300) : shade(500),
         ),
       TVariant.filledText => TWidgetTheme(
+          color: mColor,
           container: Colors.transparent,
           containerVariant: shade(400),
           onContainer: shade(400),

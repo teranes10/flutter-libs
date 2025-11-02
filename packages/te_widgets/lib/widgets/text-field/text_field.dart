@@ -18,9 +18,9 @@ class TTextField extends StatefulWidget
   @override
   final String? value;
   @override
-  final ValueNotifier<String>? valueNotifier;
+  final ValueNotifier<String?>? valueNotifier;
   @override
-  final ValueChanged<String>? onValueChanged;
+  final ValueChanged<String?>? onValueChanged;
   @override
   final List<String? Function(String?)>? rules;
   @override
@@ -64,8 +64,8 @@ class _TTextFieldState extends State<TTextField>
   @override
   void onExternalValueChanged(String? value) {
     super.onExternalValueChanged(value);
-    if (controller.text != value) {
-      controller.value = controller.value.copyWith(
+    if (textController.text != value) {
+      textController.value = textController.value.copyWith(
         text: value,
         selection: TextSelection.collapsed(offset: value?.length ?? 0),
       );

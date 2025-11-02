@@ -1,10 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_overlay.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/overlay/sidebar_overlay_controller.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class TSidebarOverlayItem extends StatefulWidget {
   final TSidebarItem item;

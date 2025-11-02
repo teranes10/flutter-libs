@@ -1,10 +1,10 @@
 part of 'form_builder.dart';
 
 class TFieldProp<T> {
-  T _value;
-  ValueNotifier<T>? _valueNotifier;
-  final T initialValue;
-  final ValueChanged<T>? onValueChanged;
+  T? _value;
+  ValueNotifier<T?>? _valueNotifier;
+  final T? initialValue;
+  final ValueChanged<T?>? onValueChanged;
   final Map<TFieldProp, _TPropSubscriber> _subscribers = {};
 
   bool _wasUserInput = false;
@@ -14,20 +14,20 @@ class TFieldProp<T> {
         initialValue = value,
         _valueNotifier = useNotifier ? ValueNotifier(value) : null;
 
-  T get value => _value;
+  T get value => _value as T;
 
-  ValueNotifier<T>? get valueNotifier => _valueNotifier;
+  ValueNotifier<T?>? get valueNotifier => _valueNotifier;
 
   bool get wasUserInput => _wasUserInput;
 
   set value(T newValue) => _setValue(newValue);
 
-  void _setUserValue(T newValue) {
+  void _setUserValue(T? newValue) {
     if (!_wasUserInput) _wasUserInput = true;
     _setValue(newValue);
   }
 
-  void _setValue(T newValue) {
+  void _setValue(T? newValue) {
     if (_value == newValue) return;
 
     _value = newValue;

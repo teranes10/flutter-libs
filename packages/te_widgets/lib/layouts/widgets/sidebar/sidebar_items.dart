@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_config.dart';
-import 'package:te_widgets/layouts/widgets/sidebar/sidebar_item.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 class SidebarItems extends StatelessWidget {
   final List<TSidebarItem> items;

@@ -9,9 +9,13 @@ class CrudPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final controller = TTableController<ProductDto>();
+    final controller = TListController<ProductDto, int>(
+      selectionMode: TSelectionMode.multiple,
+      expansionMode: TExpansionMode.single,
+      onLoad: ProductsClient().loadMore,
+    );
 
-    return TCrudTable<ProductDto, ProductForm>(
+    return TCrudTable<ProductDto, int, ProductForm>(
       headers: [
         TTableHeader.image("Image", (x) => x.thumbnail),
         TTableHeader.map('SKU', (x) => x.sku),
@@ -22,7 +26,6 @@ class CrudPage extends StatelessWidget {
         TTableHeader.map('Rating', (x) => x.rating),
         TTableHeader.chip('Stock', (x) => x.stock, color: AppColors.info)
       ],
-      onLoad: ProductsClient().loadMore,
       onArchiveLoad: ProductsClient().loadMore,
       createForm: () => ProductForm(),
       editForm: (ProductDto item) => ProductForm(),
@@ -67,9 +70,7 @@ class CrudPage extends StatelessWidget {
           onPressed: (_) => {TToastService.info(context, 'Selected Items: ${controller.selectedItems.map((x) => x.title).join("\n")}')},
         ),
       ]),
-      selectable: true,
-      expandable: true,
-      expandedBuilder: (item, index, isExpanded) => Container(
+      expandedBuilder: (item, index) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(8)),
         child: TKeyValueSection(values: [
@@ -80,7 +81,7 @@ class CrudPage extends StatelessWidget {
           TKeyValue.text('Updated At', item.meta?.updatedAt),
         ]),
       ),
-      tableController: controller,
+      controller: controller,
     );
   }
 }
@@ -109,8 +110,6 @@ class ProductForm extends TFormBase {
     return [
       TFormField.text(title, 'Title', isRequired: true).size(6),
       TFormField.number(price, 'Price').size(6),
-      TFormField.select<ProductDto, String>(category, 'Category',
-          onLoad: ProductsClient().loadMore, itemText: (x) => x.title, itemValue: (x) => x.sku),
       TFormField.date(date, "Date"),
       TFormField.text(description, 'Description', rows: 3),
     ];
