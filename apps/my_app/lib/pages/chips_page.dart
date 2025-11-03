@@ -57,8 +57,8 @@ class ChipsPage extends StatelessWidget {
           ),
           TTabs(
             tabs: [
-              TTab(icon: Icons.calendar_today, text: 'Date'),
-              TTab(icon: Icons.access_time, text: 'Time'),
+              TTab(icon: Icons.calendar_today, text: 'Date', value: 0),
+              TTab(icon: Icons.access_time, text: 'Time', value: 1),
             ],
           ),
           RoleTest()

@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TTab {
-  final IconData? icon;
+class TTab<T> {
+  final T value;
   final String? text;
+  final IconData? icon;
   final bool isEnabled;
   final bool isActive;
 
   const TTab({
-    this.icon,
+    required this.value,
     this.text,
+    this.icon,
     this.isEnabled = true,
     this.isActive = false,
   }) : assert(icon != null || text != null, 'Either icon or text must be provided');
+
+  double calculateWidth() {
+    return (text?.length.let((x) => x * 16 * 0.75) ?? 0) + (icon != null ? 17 : 0);
+  }
+
+  static double calculateTabsWidth(List<TTab> tabs) {
+    return tabs.fold<double>(0.0, (a, b) => a + b.calculateWidth()) + ((tabs.length - 1) * 16);
+  }
 }
 
-class TTabs extends StatefulWidget {
-  final List<TTab> tabs;
-  final int? selectedIndex;
-  final ValueChanged<int>? onTabChanged;
+class TTabs<T> extends StatelessWidget {
+  final List<TTab<T>> tabs;
+  final T? selectedValue;
+  final ValueChanged<T>? onTabChanged;
   final Color? borderColor;
   final Color? selectedColor;
   final Color? unselectedColor;
@@ -31,7 +41,7 @@ class TTabs extends StatefulWidget {
   const TTabs({
     super.key,
     required this.tabs,
-    this.selectedIndex,
+    this.selectedValue,
     this.onTabChanged,
     this.borderColor,
     this.selectedColor,
@@ -44,113 +54,60 @@ class TTabs extends StatefulWidget {
   });
 
   @override
-  State<TTabs> createState() => _TTabsState();
-}
-
-class _TTabsState extends State<TTabs> {
-  late int _currentIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentIndex = widget.selectedIndex ?? 0;
-  }
-
-  @override
-  void didUpdateWidget(TTabs oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.selectedIndex != null && widget.selectedIndex != _currentIndex) {
-      _currentIndex = widget.selectedIndex!;
-    }
-  }
-
-  void _handleTabTap(int index) {
-    if (widget.tabs[index].isEnabled) {
-      setState(() {
-        _currentIndex = index;
-      });
-      widget.onTabChanged?.call(index);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final defaultBorderColor = widget.borderColor ?? Colors.transparent;
-    final defaultSelectedColor = widget.selectedColor ?? colors.onPrimaryContainer;
-    final defaultUnselectedColor = widget.unselectedColor ?? colors.onSurface;
-    final defaultDisabledColor = widget.disabledColor ?? colors.onSurfaceVariant;
-    final defaultIndicatorColor = widget.indicatorColor ?? colors.primary;
+    final defaultBorderColor = borderColor ?? Colors.transparent;
+    final defaultSelectedColor = selectedColor ?? colors.onPrimaryContainer;
+    final defaultUnselectedColor = unselectedColor ?? colors.onSurface;
+    final defaultDisabledColor = disabledColor ?? colors.onSurfaceVariant;
+    final defaultIndicatorColor = indicatorColor ?? colors.primary;
 
-    final tabs = widget.tabs.asMap().entries.map((entry) {
-      final index = entry.key;
-      final tab = entry.value;
-      final isSelected = _currentIndex == index;
+    final tabWidgets = tabs.map((tab) {
+      final isSelected = selectedValue == tab.value;
+      final color = tab.isEnabled ? (isSelected ? defaultSelectedColor : defaultUnselectedColor) : defaultDisabledColor;
 
-      final tabWidget = _buildTab(
-        index: index,
-        tab: tab,
-        isSelected: isSelected,
-        selectedColor: defaultSelectedColor,
-        unselectedColor: defaultUnselectedColor,
-        disabledColor: defaultDisabledColor,
-        indicatorColor: defaultIndicatorColor,
+      final tabWidget = InkWell(
+        onTap: tab.isEnabled ? () => onTabChanged?.call(tab.value) : null,
+        child: Container(
+          padding: tabPadding,
+          decoration: BoxDecoration(
+            border: isSelected ? Border(bottom: BorderSide(color: defaultIndicatorColor, width: indicatorWidth!)) : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (tab.icon != null) ...[
+                Icon(tab.icon, size: 16, color: color),
+                if (tab.text != null) const SizedBox(width: 8),
+              ],
+              if (tab.text != null)
+                Text(
+                  tab.text!,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w400 : FontWeight.w300,
+                  ),
+                ),
+              if (tab.isActive)
+                Container(
+                  margin: const EdgeInsets.only(left: 4),
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(color: defaultIndicatorColor, shape: BoxShape.circle),
+                ),
+            ],
+          ),
+        ),
       );
 
-      // Only wrap with Expanded if not inline
-      return widget.inline ? tabWidget : Expanded(child: tabWidget);
+      return inline ? tabWidget : Expanded(child: tabWidget);
     }).toList();
 
     return Container(
       decoration: BoxDecoration(border: Border(bottom: BorderSide(color: defaultBorderColor))),
-      child: widget.inline ? Wrap(children: tabs) : Row(children: tabs),
-    );
-  }
-
-  Widget _buildTab({
-    required int index,
-    required TTab tab,
-    required bool isSelected,
-    required Color selectedColor,
-    required Color unselectedColor,
-    required Color disabledColor,
-    required Color indicatorColor,
-  }) {
-    final Color color = tab.isEnabled ? (isSelected ? selectedColor : unselectedColor) : disabledColor;
-
-    return InkWell(
-      onTap: tab.isEnabled ? () => _handleTabTap(index) : null,
-      child: Container(
-        padding: widget.tabPadding,
-        decoration: BoxDecoration(
-          border: isSelected ? Border(bottom: BorderSide(color: indicatorColor, width: widget.indicatorWidth!)) : null,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (tab.icon != null) ...[
-              Icon(tab.icon, size: 16, color: color),
-              if (tab.text != null) const SizedBox(width: 8),
-            ],
-            if (tab.text != null)
-              Text(
-                tab.text!,
-                style: TextStyle(color: color, fontSize: 13, fontWeight: isSelected ? FontWeight.w400 : FontWeight.w300),
-              ),
-            if (tab.isActive)
-              Container(
-                margin: const EdgeInsets.only(left: 4),
-                width: 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: indicatorColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-          ],
-        ),
-      ),
+      child: inline ? Wrap(children: tabWidgets) : Row(children: tabWidgets),
     );
   }
 }

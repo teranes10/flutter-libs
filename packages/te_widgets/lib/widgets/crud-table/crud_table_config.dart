@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TCrudConfig<T> {
+class TCrudConfig<T, K> {
   final Future<bool> Function(T)? canView;
   final Future<bool> Function(T)? canEdit;
   final Future<bool> Function(T)? canDelete;
@@ -10,8 +10,8 @@ class TCrudConfig<T> {
 
   // UI Labels
   final String addButtonText;
-  final String activeTabText;
-  final String archiveTabText;
+  final List<TTab<int>> tabs;
+  final List<TCrudTableContent<T, K>> tabContents;
   final String searchPlaceholder;
 
   // Action visibility
@@ -33,8 +33,8 @@ class TCrudConfig<T> {
     this.canArchive,
     this.canRestore,
     this.addButtonText = 'Add New',
-    this.activeTabText = 'Active',
-    this.archiveTabText = 'Archive',
+    this.tabs = const [TTab(text: "Active", value: 0), TTab(text: "Archive", value: 1)],
+    this.tabContents = const [],
     this.searchPlaceholder = 'Search...',
     this.showActions = true,
     this.itemsPerPage = 10,

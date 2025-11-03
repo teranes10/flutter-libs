@@ -180,10 +180,10 @@ class _TDateTimePickerState extends State<TDateTimePicker>
           tabPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           borderColor: colors.outline,
           tabs: [
-            TTab(icon: Icons.calendar_today, text: 'Date', isActive: _selectedDate != null),
-            TTab(icon: Icons.access_time, text: 'Time'),
+            TTab(icon: Icons.calendar_today, text: 'Date', isActive: _selectedDate != null, value: 0),
+            TTab(icon: Icons.access_time, text: 'Time', value: 1),
           ],
-          selectedIndex: _currentTabIndex,
+          selectedValue: _currentTabIndex,
           onTabChanged: _onTabChanged,
         ),
         Padding(

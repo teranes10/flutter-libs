@@ -1,56 +1,43 @@
 part of 'crud_table.dart';
 
+class TCrudTableContent<T, K> {
+  final List<TTableHeader<T>> headers;
+  final TListController<T, K> controller;
+
+  TCrudTableContent({required this.headers, required this.controller});
+}
+
 class _TCrudTableBuilder<T, K, F extends TFormBase> {
   final _TCrudTableState<T, K, F> parent;
 
   _TCrudTableBuilder({required this.parent});
 
   Widget _buildContent(TWidgetThemeExtension theme, TTableTheme tableTheme) {
-    if (!parent.hasArchive) {
-      return _buildTable(
-        isArchive: false,
-        headers: _buildActiveHeaders(theme),
-        controller: parent.listController,
+    Widget buildTable({
+      required List<TTableHeader<T>> headers,
+      required TListController<T, K> controller,
+    }) {
+      return TDataTable<T, K>(
         theme: tableTheme,
+        headers: headers,
+        expandedBuilder: parent.widget.expandedBuilder,
+        controller: controller,
+        interaction: parent.widget.config.interaction ??
+            TListInteraction<T>(
+              tapAction: TListInteractionType.expand,
+              doubleTapAction: TListInteractionType.select,
+            ),
+        itemsPerPageOptions: parent.widget.config.itemsPerPageOptions,
       );
     }
 
     return TLazyIndexedStack(
       index: parent.currentTab,
       children: [
-        (_) => _buildTable(
-              isArchive: false,
-              headers: _buildActiveHeaders(theme),
-              controller: parent.listController,
-              theme: tableTheme,
-            ),
-        (_) => _buildTable(
-              isArchive: true,
-              headers: _buildArchiveHeaders(theme),
-              controller: parent.archiveListController,
-              theme: tableTheme,
-            ),
+        (_) => buildTable(headers: _buildActiveHeaders(theme), controller: parent.listController),
+        (_) => buildTable(headers: _buildArchiveHeaders(theme), controller: parent.archiveListController),
+        ...parent.widget.config.tabContents.map((x) => (_) => buildTable(headers: x.headers, controller: x.controller))
       ],
-    );
-  }
-
-  Widget _buildTable({
-    required bool isArchive,
-    required List<TTableHeader<T>> headers,
-    required TListController<T, K> controller,
-    required TTableTheme theme,
-  }) {
-    return TDataTable<T, K>(
-      theme: theme,
-      headers: headers,
-      expandedBuilder: parent.widget.expandedBuilder,
-      controller: controller,
-      interaction: parent.widget.config.interaction ??
-          TListInteraction<T>(
-            tapAction: TListInteractionType.expand,
-            doubleTapAction: TListInteractionType.select,
-          ),
-      itemsPerPageOptions: parent.widget.config.itemsPerPageOptions,
     );
   }
 

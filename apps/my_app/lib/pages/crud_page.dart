@@ -15,17 +15,37 @@ class CrudPage extends StatelessWidget {
       onLoad: ProductsClient().loadMore,
     );
 
-    return TCrudTable<ProductDto, int, ProductForm>(
-      headers: [
-        TTableHeader.image("Image", (x) => x.thumbnail),
-        TTableHeader.map('SKU', (x) => x.sku),
-        TTableHeader.map('Title', (x) => x.title),
-        TTableHeader.map('Category', (x) => x.category),
-        TTableHeader.map('Price', (x) => x.price),
-        TTableHeader.map('Discount', (x) => x.discountPercentage),
-        TTableHeader.map('Rating', (x) => x.rating),
-        TTableHeader.chip('Stock', (x) => x.stock, color: AppColors.info)
+    final otherController = TListController<ProductDto, int>(
+      selectionMode: TSelectionMode.multiple,
+      expansionMode: TExpansionMode.single,
+      items: [
+        ProductDto(
+          id: 1,
+          title: "title",
+          description: 'description',
+          price: 10,
+          discountPercentage: 10,
+          rating: 2.34,
+          stock: 100,
+          category: 'category',
+          sku: 'sku',
+        )
       ],
+    );
+
+    List<TTableHeader<ProductDto>> headers = [
+      TTableHeader.image("Image", (x) => x.thumbnail),
+      TTableHeader.map('SKU', (x) => x.sku),
+      TTableHeader.map('Title', (x) => x.title),
+      TTableHeader.map('Category', (x) => x.category),
+      TTableHeader.map('Price', (x) => x.price),
+      TTableHeader.map('Discount', (x) => x.discountPercentage),
+      TTableHeader.map('Rating', (x) => x.rating),
+      TTableHeader.chip('Stock', (x) => x.stock, color: AppColors.info)
+    ];
+
+    return TCrudTable<ProductDto, int, ProductForm>(
+      headers: headers,
       onArchiveLoad: ProductsClient().loadMore,
       createForm: () => ProductForm(),
       editForm: (ProductDto item) => ProductForm(),
@@ -54,22 +74,33 @@ class CrudPage extends StatelessWidget {
       onDelete: (item) async {
         return true;
       },
-      config: TCrudConfig(topBarActions: [
-        TButton(
-          type: TButtonType.outline,
-          size: TButtonSize.lg,
-          icon: Icons.upload_file,
-          text: 'Upload File',
-          onPressed: (_) => {},
-        ),
-        TButton(
-          type: TButtonType.outline,
-          size: TButtonSize.lg,
-          icon: Icons.select_all_sharp,
-          text: 'Selected',
-          onPressed: (_) => {TToastService.info(context, 'Selected Items: ${controller.selectedItems.map((x) => x.title).join("\n")}')},
-        ),
-      ]),
+      config: TCrudConfig(
+        tabs: [TTab(text: "Active", value: 0), TTab(text: "Others", value: 2), TTab(text: "Archive", value: 1)],
+        // Tab values: Active = 0, Archive = 1, Others = 2
+        // Note: The order of [tabContents] follows the order of this list,
+        tabContents: [
+          TCrudTableContent(
+            headers: headers,
+            controller: otherController,
+          )
+        ],
+        topBarActions: [
+          TButton(
+            type: TButtonType.outline,
+            size: TButtonSize.lg,
+            icon: Icons.upload_file,
+            text: 'Upload File',
+            onPressed: (_) => {},
+          ),
+          TButton(
+            type: TButtonType.outline,
+            size: TButtonSize.lg,
+            icon: Icons.select_all_sharp,
+            text: 'Selected',
+            onPressed: (_) => {TToastService.info(context, 'Selected Items: ${controller.selectedItems.map((x) => x.title).join("\n")}')},
+          ),
+        ],
+      ),
       expandedBuilder: (item, index) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(8)),

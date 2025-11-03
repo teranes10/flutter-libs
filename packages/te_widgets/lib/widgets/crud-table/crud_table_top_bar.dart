@@ -12,7 +12,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
 
     const spacing = 8.0;
     const rowSpacing = 12.0;
-    const tabsWidth = 170.0;
+    final tabsWidth = TTab.calculateTabsWidth(parent.widget.config.tabs);
     const searchWidth = 300.0;
 
     var currentRow = <Widget>[];
@@ -133,12 +133,9 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
   Widget _buildTabs(BoxConstraints constraints) {
     final tabs = TTabs(
       inline: !constraints.isMobile,
-      selectedIndex: parent.currentTab,
+      selectedValue: parent.currentTab,
       onTabChanged: (i) => parent.currentTab = i,
-      tabs: [
-        TTab(text: parent.widget.config.activeTabText),
-        TTab(text: parent.widget.config.archiveTabText),
-      ],
+      tabs: parent.widget.config.tabs,
     );
     return !constraints.isMobile ? tabs : Flexible(child: tabs);
   }

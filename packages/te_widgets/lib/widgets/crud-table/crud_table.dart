@@ -25,7 +25,7 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   final Future<bool> Function(T item)? onRestore;
   final Future<bool> Function(T item)? onDelete;
 
-  final TCrudConfig<T> config;
+  final TCrudConfig<T, K> config;
   final Widget Function(T item, int index)? expandedBuilder;
 
   const TCrudTable({
