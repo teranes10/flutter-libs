@@ -67,7 +67,7 @@ class TModal extends StatelessWidget {
                     children: [
                       // Fixed header (non-scrollable
                       if (header != null) header!,
-                      if (header == null && (title != null || showCloseButton == true)) _buildHeader(colors),
+                      if (header == null && (title != null || showCloseButton == true)) _buildHeader(context, colors),
 
                       // Scrollable content area
                       Flexible(
@@ -87,9 +87,13 @@ class TModal extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(ColorScheme colors) {
+  Widget _buildHeader(BuildContext context, ColorScheme colors) {
+    final padding = context.isMobile
+        ? const EdgeInsets.only(left: 10, right: 2.5, top: 15, bottom: 7.5)
+        : const EdgeInsets.only(left: 25, right: 15, top: 15, bottom: 5);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+      padding: padding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -19,7 +19,7 @@ class TIcon extends StatelessWidget {
     this.onTap,
     this.size = 16,
     this.active = false,
-    this.padding = const EdgeInsets.all(4),
+    this.padding = const EdgeInsets.all(8),
     this.turns,
     this.animationMilliseconds = 200,
     this.color,
@@ -68,7 +68,7 @@ class TIcon extends StatelessWidget {
       return iconWidget;
     }
 
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Padding(
         padding: padding,

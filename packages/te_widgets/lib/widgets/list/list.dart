@@ -189,11 +189,11 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
     widget.onScrollPositionChanged?.call(scrollPosition);
 
     // Handle scroll end
-    if (widget.onScrollEnd != null || wTheme.infiniteScroll) {
+    if (widget.onScrollEnd != null || wTheme.infiniteScroll == true) {
       final threshold = widget.scrollEndThreshold;
       if (position.pixels >= position.maxScrollExtent - threshold) {
         widget.onScrollEnd?.call();
-        if (wTheme.infiniteScroll) {
+        if (wTheme.infiniteScroll == true) {
           listController.handleLoadMore();
         }
       }

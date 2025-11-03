@@ -52,23 +52,18 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final requiredWidth = TTableTheme.calculateTotalRequiredWidth(widget.headers, listController.selectable, listController.expandable);
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final shouldShowCardView = wTheme.forceCardStyle || constraints.maxWidth <= wTheme.mobileBreakpoint;
+        final shouldShowCardView = wTheme.forceCardStyle ?? constraints.maxWidth < requiredWidth;
         return shouldShowCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
       },
     );
   }
 
   Widget _buildTableView(ColorScheme colors, BoxConstraints constraints) {
-    final needsHorizontalScroll = _calculateTotalRequiredWidth() > constraints.maxWidth;
-
-    final columnWidths = wTheme.getColumnWidths(
-      widget.headers,
-      listController.selectable,
-      listController.expandable,
-    );
+    final columnWidths = TTableTheme.calculateColumnWidths(widget.headers, listController.selectable, listController.expandable);
 
     return TList<T, K>(
       theme: wTheme.copyWith(
@@ -83,8 +78,6 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
             ),
           ],
         ),
-        needsHorizontalScroll: wTheme.needsHorizontalScroll || needsHorizontalScroll,
-        horizontalScrollWidth: wTheme.horizontalScrollWidth ?? (needsHorizontalScroll ? _calculateTotalRequiredWidth() : null),
       ),
       interaction: widget.interaction,
       controller: listController,
@@ -124,29 +117,5 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         onSelectionChanged: () => listController.toggleSelection(item.data),
       ),
     );
-  }
-
-  double _calculateTotalRequiredWidth() {
-    double totalWidth = 0;
-
-    // Add width for expand/select columns
-    if (listController.expandable) totalWidth += 40;
-    if (listController.selectable) totalWidth += 40;
-
-    for (final header in widget.headers) {
-      if (header.maxWidth != null && header.maxWidth != double.infinity) {
-        totalWidth += header.maxWidth!;
-      } else if (header.minWidth != null && header.minWidth! > 0) {
-        totalWidth += header.minWidth!;
-      } else {
-        // For flex columns, assume a minimum reasonable width
-        totalWidth += 100; // Default minimum width for flex columns
-      }
-    }
-
-    // Add some padding for table margins/padding
-    totalWidth += 32; // Account for horizontal padding
-
-    return totalWidth;
   }
 }

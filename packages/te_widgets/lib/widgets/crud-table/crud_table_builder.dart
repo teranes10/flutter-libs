@@ -5,20 +5,31 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
 
   _TCrudTableBuilder({required this.parent});
 
-  Widget _buildContent(TWidgetThemeExtension theme) {
+  Widget _buildContent(TWidgetThemeExtension theme, TTableTheme tableTheme) {
     if (!parent.hasArchive) {
       return _buildTable(
         isArchive: false,
         headers: _buildActiveHeaders(theme),
         controller: parent.listController,
+        theme: tableTheme,
       );
     }
 
     return TLazyIndexedStack(
       index: parent.currentTab,
       children: [
-        (_) => _buildTable(isArchive: false, headers: _buildActiveHeaders(theme), controller: parent.listController),
-        (_) => _buildTable(isArchive: true, headers: _buildArchiveHeaders(theme), controller: parent.archiveListController),
+        (_) => _buildTable(
+              isArchive: false,
+              headers: _buildActiveHeaders(theme),
+              controller: parent.listController,
+              theme: tableTheme,
+            ),
+        (_) => _buildTable(
+              isArchive: true,
+              headers: _buildArchiveHeaders(theme),
+              controller: parent.archiveListController,
+              theme: tableTheme,
+            ),
       ],
     );
   }
@@ -27,8 +38,10 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
     required bool isArchive,
     required List<TTableHeader<T>> headers,
     required TListController<T, K> controller,
+    required TTableTheme theme,
   }) {
     return TDataTable<T, K>(
+      theme: theme,
       headers: headers,
       expandedBuilder: parent.widget.expandedBuilder,
       controller: controller,

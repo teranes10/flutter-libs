@@ -18,15 +18,15 @@ class TListTheme {
   final Widget Function(BuildContext context)? loadingBuilder;
   // Header widget
   final Widget? headerWidget;
-  final bool headerSticky;
+  final bool? headerSticky;
   // Footer widget
   final Widget? footerWidget;
-  final bool footerSticky;
+  final bool? footerSticky;
   // Horizontal scroll
   final bool needsHorizontalScroll;
   final double? horizontalScrollWidth;
   // Infinite scroll
-  final bool infiniteScroll;
+  final bool? infiniteScroll;
   final double itemBaseHeight;
   final String loadingMessage;
   final String noMoreItemsMessage;
@@ -53,15 +53,15 @@ class TListTheme {
     this.loadingBuilder,
     // Header
     this.headerWidget,
-    this.headerSticky = false,
+    this.headerSticky,
     // Footer
     this.footerWidget,
-    this.footerSticky = false,
+    this.footerSticky,
     // Horizontal scroll
     this.needsHorizontalScroll = false,
     this.horizontalScrollWidth,
     // Infinite scroll
-    this.infiniteScroll = true,
+    this.infiniteScroll,
     this.itemBaseHeight = 50,
     this.loadingMessage = 'Loading...',
     this.noMoreItemsMessage = 'No more items to display.',
@@ -70,9 +70,9 @@ class TListTheme {
     this.showSeparators = false,
     // Spacing
     this.itemSpacing = 0,
-  })  : assert(!shrinkWrap || !infiniteScroll, 'TListTheme: shrinkWrap disables scrolling, so infiniteScroll cannot be used.'),
-        assert(!shrinkWrap || !headerSticky, 'TListTheme: shrinkWrap disables scrolling, so headerSticky cannot be used.'),
-        assert(!shrinkWrap || !footerSticky, 'TListTheme: shrinkWrap disables scrolling, so footerSticky cannot be used.'),
+  })  : assert(!shrinkWrap || infiniteScroll != true, 'TListTheme: shrinkWrap disables scrolling, so infiniteScroll cannot be used.'),
+        assert(!shrinkWrap || headerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so headerSticky cannot be used.'),
+        assert(!shrinkWrap || footerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so footerSticky cannot be used.'),
         assert(itemBaseHeight > 0, 'TListTheme: itemBaseHeight must be greater than 0');
 
   TListTheme copyWith({
@@ -223,7 +223,7 @@ class TListTheme {
     required bool hasMoreItems,
     double? height,
   }) {
-    final effectiveInfiniteScroll = infiniteScroll && listController.hasMoreItems;
+    final effectiveInfiniteScroll = infiniteScroll == true && listController.hasMoreItems;
 
     // Error state takes priority
     if (hasError && error != null && items.isEmpty) {
@@ -237,12 +237,12 @@ class TListTheme {
 
     Widget buildItem(BuildContext context, int index) {
       // Header (non-sticky)
-      if (headerWidget != null && !headerSticky && index == 0) {
+      if (headerWidget != null && headerSticky != true && index == 0) {
         return headerWidget!;
       }
 
       // Calculate item index offset
-      final itemOffset = (headerWidget != null && !headerSticky) ? 1 : 0;
+      final itemOffset = (headerWidget != null && headerSticky != true) ? 1 : 0;
       final itemIndex = index - itemOffset;
 
       // Infinite scroll indicator
@@ -253,7 +253,7 @@ class TListTheme {
 
       // Footer (non-sticky)
       final footerIndex = items.length + itemOffset + (effectiveInfiniteScroll ? 1 : 0);
-      if (footerWidget != null && !footerSticky && index == footerIndex) {
+      if (footerWidget != null && footerSticky != true && index == footerIndex) {
         return footerWidget!;
       }
 
@@ -286,8 +286,8 @@ class TListTheme {
     }
 
     final totalItemCount = items.length +
-        (headerWidget != null && !headerSticky ? 1 : 0) +
-        (footerWidget != null && !footerSticky ? 1 : 0) +
+        (headerWidget != null && headerSticky != true ? 1 : 0) +
+        (footerWidget != null && footerSticky != true ? 1 : 0) +
         (effectiveInfiniteScroll ? 1 : 0);
 
     final effectivePhysics = physics ?? (shrinkWrap ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics());
@@ -317,11 +317,12 @@ class TListTheme {
 
     // Build column with sticky elements
     final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (loading && items.isEmpty) buildLoadingIndicator(context),
-        if (headerWidget != null && headerSticky) headerWidget!,
+        if (headerWidget != null && headerSticky == true) headerWidget!,
         if (shrinkWrap) listView else if (height != null) SizedBox(height: height, child: listView) else Expanded(child: listView),
-        if (footerWidget != null && footerSticky) footerWidget!,
+        if (footerWidget != null && footerSticky == true) footerWidget!,
       ],
     );
 

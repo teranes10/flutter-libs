@@ -103,14 +103,12 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   Widget build(BuildContext context) {
     final theme = context.theme;
 
-    return LayoutBuilder(builder: (_, constraints) {
-      return Column(
-        children: [
-          _topBar.build(context, constraints),
-          Expanded(child: _tableBuilder._buildContent(theme)),
-        ],
-      );
-    });
+    return _tableBuilder._buildContent(
+      theme,
+      theme.tableTheme.copyWith(
+        headerWidget: LayoutBuilder(builder: (_, constraints) => _topBar.build(context, constraints)),
+      ),
+    );
   }
 
   // Getters for child classes

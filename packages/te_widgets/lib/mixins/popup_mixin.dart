@@ -61,11 +61,9 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     final viewInsets = mediaQuery.viewInsets;
 
     final keyboardHeight = viewInsets.bottom;
-    final isKeyboardOpen = keyboardHeight > 0;
-
     final availableWidth = mediaQuery.isMobile ? screenSize.width - 25 : screenSize.width * 0.85;
     final availableHeight = mediaQuery.isMobile ? screenSize.height - keyboardHeight - 25 : screenSize.height * 0.85;
-    final alignment = isKeyboardOpen ? const FractionalOffset(0.5, 0.1) : const FractionalOffset(0.5, 0.275);
+    final alignment = mediaQuery.isMobile ? const FractionalOffset(0.5, 0.05) : const FractionalOffset(0.5, 0.1);
 
     return (
       maxWidth: contentMaxWidth.clamp(100.0, availableWidth),

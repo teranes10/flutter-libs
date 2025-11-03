@@ -1,5 +1,3 @@
-import 'dart:math';
-
 extension IterableX<T> on Iterable<T> {
   /// Returns the first element matching the test, or null if none found
   T? firstWhereOrNull(bool Function(T element) test) {

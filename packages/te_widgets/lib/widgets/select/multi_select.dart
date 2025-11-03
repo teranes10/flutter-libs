@@ -147,7 +147,6 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
         TPopupStateMixin<TMultiSelect<T, V, K>>,
         TListStateMixin<T, K, TMultiSelect<T, V, K>> {
   TListTheme get listTheme => widget.listTheme ?? context.theme.listTheme;
-  late FocusNode filterFocusNode;
 
   @override
   TTagsFieldTheme get wTheme => widget.theme ?? context.theme.tagsFieldTheme;
@@ -190,7 +189,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   Widget getContentWidget(BuildContext context) {
     final list = TList<T, K>(
       controller: listController,
-      theme: listTheme,
+      theme: listTheme.copyWith(infiniteScroll: true),
       cardTheme: widget.cardTheme,
       itemTitle: widget.itemText,
       itemSubTitle: widget.itemSubText,
@@ -204,8 +203,8 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
               Padding(
                 padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 5),
                 child: TTextField(
+                    placeholder: 'Search...',
                     theme: context.theme.textFieldTheme.copyWith(decorationType: TInputDecorationType.underline),
-                    focusNode: filterFocusNode,
                     value: listController.value.search,
                     onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
               ),
@@ -235,8 +234,6 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   void initState() {
     super.initState();
 
-    filterFocusNode = FocusNode();
-
     if (listController.isEmpty && !listController.isLoading) {
       listController.handleRefresh();
     }
@@ -248,7 +245,6 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   void showPopup(BuildContext context) {
     super.showPopup(context);
     _updateState();
-    filterFocusNode.requestFocus();
   }
 
   @override
@@ -316,11 +312,5 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
         tagsController.updateState(text: '', tags: []);
       }
     }
-  }
-
-  @override
-  void dispose() {
-    filterFocusNode.dispose();
-    super.dispose();
   }
 }

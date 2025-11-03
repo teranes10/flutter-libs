@@ -47,7 +47,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   }
 
   void handleLoadMore() {
-    if (!hasMoreItems) return;
+    if (!hasMoreItems || isLoading) return;
     _executePaginationAction('handleLoadMore', page: page + 1, append: true);
   }
 

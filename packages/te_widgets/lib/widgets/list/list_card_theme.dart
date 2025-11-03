@@ -133,11 +133,10 @@ class TListCardTheme {
         ],
       );
 
+      Widget child;
       if (!imageUrl.isNullOrBlank) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+        child = Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 15,
           children: [
             TImage(
               url: imageUrl,
@@ -145,12 +144,15 @@ class TListCardTheme {
               backgroundColor: colors.surfaceDim,
               disabled: true,
             ),
-            textContent,
+            const SizedBox(width: 15),
+            Expanded(child: textContent),
           ],
         );
+      } else {
+        child = textContent;
       }
 
-      return textContent;
+      return child;
     };
   }
 }

@@ -13,7 +13,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
     const spacing = 8.0;
     const rowSpacing = 12.0;
     const tabsWidth = 170.0;
-    const searchWidth = 250.0;
+    const searchWidth = 300.0;
 
     var currentRow = <Widget>[];
     var currentRowWidth = 0.0;

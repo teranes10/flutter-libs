@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TTableTheme extends TListTheme {
-  final double mobileBreakpoint;
   final double? cardWidth;
-  final bool forceCardStyle;
+  final bool? forceCardStyle;
   final TTableRowHeaderTheme headerTheme;
   final TTableMobileCardTheme mobileCardTheme;
   final TTableRowCardTheme rowCardTheme;
@@ -26,15 +25,15 @@ class TTableTheme extends TListTheme {
     super.loadingBuilder,
     // Header
     super.headerWidget,
-    super.headerSticky = true,
+    super.headerSticky,
     // Footer
     super.footerWidget,
-    super.footerSticky = false,
+    super.footerSticky,
     // Horizontal scroll
     super.needsHorizontalScroll = false,
     super.horizontalScrollWidth,
     // Infinite scroll
-    super.infiniteScroll = true,
+    super.infiniteScroll,
     super.itemBaseHeight = 50,
     super.loadingMessage = 'Loading...',
     super.noMoreItemsMessage = 'No more items to display.',
@@ -44,9 +43,8 @@ class TTableTheme extends TListTheme {
     // Spacing
     super.itemSpacing = 0,
     // Table
-    this.mobileBreakpoint = 768,
     this.cardWidth,
-    this.forceCardStyle = false,
+    this.forceCardStyle,
     this.headerTheme = const TTableRowHeaderTheme(),
     this.mobileCardTheme = const TTableMobileCardTheme(),
     this.rowCardTheme = const TTableRowCardTheme(),
@@ -89,7 +87,6 @@ class TTableTheme extends TListTheme {
     // Spacing
     double? itemSpacing,
     // Table
-    double? mobileBreakpoint,
     double? cardWidth,
     bool? forceCardStyle,
     TTableRowHeaderTheme? headerTheme,
@@ -121,7 +118,6 @@ class TTableTheme extends TListTheme {
       separatorBuilder: separatorBuilder ?? this.separatorBuilder,
       showSeparators: showSeparators ?? this.showSeparators,
       itemSpacing: itemSpacing ?? this.itemSpacing,
-      mobileBreakpoint: mobileBreakpoint ?? this.mobileBreakpoint,
       cardWidth: cardWidth ?? this.cardWidth,
       forceCardStyle: forceCardStyle ?? this.forceCardStyle,
       headerTheme: headerTheme ?? this.headerTheme,
@@ -130,7 +126,25 @@ class TTableTheme extends TListTheme {
     );
   }
 
-  Map<int, TableColumnWidth> getColumnWidths<T>(List<TTableHeader<T>> headers, bool selectable, bool expandable) {
+  Widget buildDefaultExpandedContent<T>(ColorScheme colors, T item, int index) {
+    return Container(
+      height: 100,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.surfaceDim,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          'Expanded content for item $index\nProvide expandedBuilder for custom content',
+          style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  static Map<int, TableColumnWidth> calculateColumnWidths<T>(List<TTableHeader<T>> headers, bool selectable, bool expandable) {
     Map<int, TableColumnWidth> columnWidths = {};
     int columnIndex = 0;
 
@@ -160,21 +174,27 @@ class TTableTheme extends TListTheme {
     return columnWidths;
   }
 
-  Widget buildDefaultExpandedContent<T>(ColorScheme colors, T item, int index) {
-    return Container(
-      height: 100,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colors.surfaceDim,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Text(
-          'Expanded content for item $index\nProvide expandedBuilder for custom content',
-          style: TextStyle(color: colors.onSurfaceVariant, fontSize: 14),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
+  static double calculateTotalRequiredWidth<T>(List<TTableHeader<T>> headers, bool selectable, bool expandable) {
+    double totalWidth = 0;
+
+    // Add width for expand/select columns
+    if (expandable) totalWidth += 40;
+    if (selectable) totalWidth += 40;
+
+    for (final header in headers) {
+      if (header.maxWidth != null && header.maxWidth != double.infinity) {
+        totalWidth += header.maxWidth!;
+      } else if (header.minWidth != null && header.minWidth! > 0) {
+        totalWidth += header.minWidth!;
+      } else {
+        // For flex columns, assume a minimum reasonable width
+        totalWidth += 100; // Default minimum width for flex columns
+      }
+    }
+
+    // Add some padding for table margins/padding
+    totalWidth += 32; // Account for horizontal padding
+
+    return totalWidth;
   }
 }

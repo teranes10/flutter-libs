@@ -128,7 +128,6 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
         TPopupStateMixin<TSelect<T, V, K>>,
         TListStateMixin<T, K, TSelect<T, V, K>> {
   TListTheme get listTheme => widget.listTheme ?? context.theme.listTheme;
-  late FocusNode filterFocusNode;
 
   @override
   double get contentMaxHeight {
@@ -158,7 +157,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
   Widget getContentWidget(BuildContext context) {
     final list = TList<T, K>(
       controller: listController,
-      theme: listTheme,
+      theme: listTheme.copyWith(infiniteScroll: true),
       cardTheme: widget.cardTheme,
       itemTitle: widget.itemText,
       itemSubTitle: widget.itemSubText,
@@ -172,8 +171,8 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
               Padding(
                 padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 5),
                 child: TTextField(
+                    placeholder: 'Search...',
                     theme: context.theme.textFieldTheme.copyWith(decorationType: TInputDecorationType.underline),
-                    focusNode: filterFocusNode,
                     textController: textController,
                     onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
               ),
@@ -204,8 +203,6 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
   void initState() {
     super.initState();
 
-    filterFocusNode = FocusNode();
-
     if (listController.isEmpty && !listController.isLoading) {
       listController.handleRefresh();
     }
@@ -217,7 +214,6 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
   void showPopup(BuildContext context) {
     super.showPopup(context);
     _updateState();
-    filterFocusNode.requestFocus();
   }
 
   @override
@@ -280,11 +276,5 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
         textController.selection = TextSelection.collapsed(offset: textController.text.length);
       }
     }
-  }
-
-  @override
-  void dispose() {
-    filterFocusNode.dispose();
-    super.dispose();
   }
 }

@@ -59,36 +59,49 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final isMobile = context.isMobile;
+
     return Column(
       children: [
         Expanded(
-          child: TTable<T, K>(
-            headers: widget.headers,
-            theme: wTheme.copyWith(
-              infiniteScroll: false,
-              footerSticky: true,
-              footerWidget: LayoutBuilder(
-                builder: (_, constraints) => ValueListenableBuilder(
-                  valueListenable: listController,
-                  builder: (ctx, state, _) => _buildToolbar(colors, constraints),
+          child: LayoutBuilder(builder: (_, constraints) {
+            final canSticky = constraints.maxWidth > 600 && constraints.maxHeight > 600;
+            final infiniteScroll = wTheme.infiniteScroll ?? isMobile;
+
+            return TTable<T, K>(
+              headers: widget.headers,
+              theme: wTheme.copyWith(
+                infiniteScroll: infiniteScroll,
+                headerSticky: wTheme.headerSticky ?? canSticky,
+                footerSticky: wTheme.footerSticky ?? canSticky,
+                footerWidget: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!infiniteScroll)
+                      ValueListenableBuilder(
+                        valueListenable: listController,
+                        builder: (ctx, state, _) => _buildToolbar(colors, constraints.maxWidth),
+                      ),
+                    if (wTheme.footerWidget != null) wTheme.footerWidget!,
+                  ],
                 ),
               ),
-            ),
-            interaction: widget.interaction,
-            controller: listController,
-            expandedBuilder: widget.expandedBuilder,
-          ),
+              interaction: widget.interaction,
+              controller: listController,
+              expandedBuilder: widget.expandedBuilder,
+            );
+          }),
         ),
       ],
     );
   }
 
-  Widget _buildToolbar(ColorScheme colors, BoxConstraints constraints) {
+  Widget _buildToolbar(ColorScheme colors, double maxWidth) {
     final paginationBarWidth = (40.0 * (listController.totalPages.clamp(0, widget.paginationTotalVisible) + 4)) +
         ((listController.totalPages.toString().length - 1) * 6 * 7);
     final paginationInfoWidth = listController.paginationInfo.length * 7.5;
     final totalWidth = paginationBarWidth + paginationInfoWidth + 80 + 20;
-    final needWrap = constraints.maxWidth < totalWidth;
+    final needWrap = maxWidth < totalWidth;
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10),
