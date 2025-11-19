@@ -4,7 +4,6 @@ import 'package:te_widgets/te_widgets.dart';
 class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   final List<TTableHeader<T>> headers;
   final TTableTheme? theme;
-  final TListInteraction<T>? interaction;
 
   //List
   @override
@@ -32,7 +31,6 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     super.key,
     required this.headers,
     this.theme,
-    this.interaction,
     //List
     this.items,
     this.itemsPerPage,
@@ -86,7 +84,6 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
                   ],
                 ),
               ),
-              interaction: widget.interaction,
               controller: listController,
               expandedBuilder: widget.expandedBuilder,
             );

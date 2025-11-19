@@ -50,7 +50,7 @@ class _CircleToggleButtonState extends State<CircleToggleButton> {
     final bgColor = (value ? widget.trueBackground : widget.falseBackground) ?? Colors.transparent;
     final icon = value ? widget.trueIcon : widget.falseIcon;
 
-    return GestureDetector(
+    return InkWell(
       onTap: _toggle,
       child: AnimatedContainer(
         duration: widget.duration,

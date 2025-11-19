@@ -62,7 +62,7 @@ class TTableRowCard<T> extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: TIcon(
                       icon: Icons.keyboard_arrow_down,
-                      size: 16,
+                      size: 20,
                       color: colors.onSurfaceVariant,
                       turns: (0, 0.5),
                       active: isExpanded,

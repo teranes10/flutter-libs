@@ -3,9 +3,10 @@ import 'package:te_widgets/te_widgets.dart';
 
 class TIcon extends StatelessWidget {
   final IconData icon;
-  final VoidCallback? onTap;
   final double size;
   final EdgeInsets padding;
+  final IconData? activeIcon;
+  final VoidCallback? onTap;
   final Color? color;
   final Color? activeColor;
   final Color? hoverColor;
@@ -23,6 +24,7 @@ class TIcon extends StatelessWidget {
     this.turns,
     this.animationMilliseconds = 200,
     this.color,
+    this.activeIcon,
     this.activeColor,
     this.hoverColor,
   });
@@ -48,13 +50,14 @@ class TIcon extends StatelessWidget {
     final hoverOrActiveColor = hoverColor ?? activeColor;
 
     Widget buildIcon({required bool isHovering}) {
+      final effectiveIcon = active ? activeIcon ?? icon : icon;
       final effectiveColor = (isHovering && hoverOrActiveColor != null)
           ? hoverOrActiveColor
           : active
               ? (activeColor ?? baseColor)
               : baseColor;
 
-      Widget iconWidget = Icon(icon, size: size, color: effectiveColor);
+      Widget iconWidget = Icon(effectiveIcon, size: size, color: effectiveColor);
 
       if (turns != null) {
         final (initialTurn, activeTurn) = turns!;
@@ -70,6 +73,7 @@ class TIcon extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
       child: Padding(
         padding: padding,
         child: hoverOrActiveColor == null

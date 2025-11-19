@@ -113,8 +113,7 @@ class _TSwitchState<T> extends State<TSwitch>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
+        InkWell(
           onTap: widget.disabled ? null : () => _onSwitchChanged(null),
           child: Row(
             mainAxisSize: MainAxisSize.min,

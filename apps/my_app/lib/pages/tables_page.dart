@@ -44,12 +44,12 @@ class _TablesPageState extends State<TablesPage> {
           children: [
             TButton(text: 'Print', onPressed: (_) => generatePdfWithTable(context)),
             TTable<Product, int>(
-              theme: TTableTheme(shrinkWrap: true, infiniteScroll: false, headerSticky: false),
+              theme: context.theme.tableTheme.copyWith(shrinkWrap: true, infiniteScroll: false, headerSticky: false),
               headers: productHeaders,
               items: products,
             ),
             TTable<Product, int>(
-              theme: TTableTheme(shrinkWrap: true, infiniteScroll: false, headerSticky: false),
+              theme: context.theme.tableTheme.copyWith(shrinkWrap: true, infiniteScroll: false, headerSticky: false),
               headers: [
                 TTableHeader.map("Name", (x) => x.name),
                 TTableHeader.map("Price", (x) => x.price),

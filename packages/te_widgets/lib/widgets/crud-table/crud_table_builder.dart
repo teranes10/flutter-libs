@@ -22,11 +22,6 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
         headers: headers,
         expandedBuilder: parent.widget.expandedBuilder,
         controller: controller,
-        interaction: parent.widget.config.interaction ??
-            TListInteraction<T>(
-              tapAction: TListInteractionType.expand,
-              doubleTapAction: TListInteractionType.select,
-            ),
         itemsPerPageOptions: parent.widget.config.itemsPerPageOptions,
       );
     }

@@ -70,7 +70,24 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             label: 'Select Date & Time',
             placeholder: 'Choose date and time',
           ),
-          TCheckbox(label: 'Checkbox', value: singleCheckbox, onValueChanged: (v) => setState(() => singleCheckbox = v)),
+          TCheckbox(
+            label: 'Checkbox (sm)',
+            value: singleCheckbox,
+            onValueChanged: (v) => setState(() => singleCheckbox = v),
+            size: TInputSize.sm,
+          ),
+          TCheckbox(
+            label: 'Checkbox (md)',
+            value: singleCheckbox,
+            onValueChanged: (v) => setState(() => singleCheckbox = v),
+            size: TInputSize.md,
+          ),
+          TCheckbox(
+            label: 'Checkbox (lg)',
+            value: singleCheckbox,
+            onValueChanged: (v) => setState(() => singleCheckbox = v),
+            size: TInputSize.lg,
+          ),
           TCheckboxGroup<String>(
             label: 'Fruits',
             items: [TCheckboxGroupItem.map('Apple'), TCheckboxGroupItem.map('Banana'), TCheckboxGroupItem.map('Orange')],

@@ -65,11 +65,11 @@ class TTableMobileCard<T> extends StatelessWidget {
                   _buildMainContent(colors),
                   if (expandable)
                     Positioned(
-                      bottom: 3,
+                      bottom: 0,
                       right: 5,
                       child: TIcon(
                         icon: Icons.keyboard_arrow_down,
-                        size: 16,
+                        size: 20,
                         color: colors.onSurfaceVariant,
                         turns: (0, 0.5),
                         active: isExpanded,
@@ -81,8 +81,8 @@ class TTableMobileCard<T> extends StatelessWidget {
               if (isExpanded && expandedContent != null) ...[
                 Padding(
                   padding: EdgeInsets.only(
-                    left: theme.padding.left + (selectable ? 6 : 0),
-                    right: theme.padding.right,
+                    left: theme.padding.left + (selectable ? 3 : 0),
+                    right: theme.padding.right + (expandable ? 3 : 0),
                     bottom: theme.padding.bottom,
                   ),
                   child: expandedContent!,
@@ -99,10 +99,10 @@ class TTableMobileCard<T> extends StatelessWidget {
     final values = TKeyValue.mapHeaders(headers, item);
     return Padding(
       padding: EdgeInsets.only(
-        top: theme.padding.top + (selectable ? 3 : 0),
-        left: (theme.padding.left) + (selectable ? 6 : 0),
-        right: (theme.padding.right),
-        bottom: (theme.padding.bottom),
+        top: theme.padding.top + (selectable ? 6 : 0),
+        left: (theme.padding.left) + (selectable ? 3 : 0),
+        right: (theme.padding.right) + (expandable ? 3 : 0),
+        bottom: (theme.padding.bottom) + (expandable ? 6 : 0),
       ),
       child: TKeyValueSection(values: values),
     );

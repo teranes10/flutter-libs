@@ -4,7 +4,6 @@ import 'package:te_widgets/te_widgets.dart';
 class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   final ListItemBuilder<T, K> itemBuilder;
   final TListTheme? theme;
-  final TListInteraction<T>? interaction;
 
   // List configuration
   @override
@@ -43,7 +42,6 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   TList({
     super.key,
     this.theme,
-    this.interaction,
     // List
     this.items,
     this.itemsPerPage,
@@ -229,7 +227,6 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               listController: listController,
               scrollController: _scrollController,
               horizontalScrollController: _horizontalScrollController,
-              interaction: widget.interaction ?? TListInteraction<T>(),
               loading: state.loading,
               hasError: state.error != null,
               error: state.error,

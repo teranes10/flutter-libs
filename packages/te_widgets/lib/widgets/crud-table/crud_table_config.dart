@@ -24,7 +24,6 @@ class TCrudConfig<T, K> {
   final List<TCrudCustomAction<T>> archiveActions;
 
   final List<Widget> topBarActions;
-  final TListInteraction<T>? interaction;
 
   const TCrudConfig({
     this.canView,
@@ -37,12 +36,11 @@ class TCrudConfig<T, K> {
     this.tabContents = const [],
     this.searchPlaceholder = 'Search...',
     this.showActions = true,
-    this.itemsPerPage = 10,
+    this.itemsPerPage = 0,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
     this.activeActions = const [],
     this.archiveActions = const [],
     this.topBarActions = const [],
-    this.interaction,
   });
 }
 

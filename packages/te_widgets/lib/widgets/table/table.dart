@@ -4,7 +4,6 @@ import 'package:te_widgets/te_widgets.dart';
 class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   final List<TTableHeader<T>> headers;
   final TTableTheme? theme;
-  final TListInteraction<T>? interaction;
 
   //List
   @override
@@ -29,7 +28,6 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     super.key,
     required this.headers,
     this.theme,
-    this.interaction,
     //List
     this.items,
     this.itemsPerPage,
@@ -76,10 +74,25 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
               controller: listController,
               columnWidths: columnWidths,
             ),
+            ValueListenableBuilder(
+              valueListenable: listController,
+              builder: (_, controller, __) {
+                if (controller.loading) {
+                  return SizedBox(
+                    height: 4,
+                    child: LinearProgressIndicator(
+                      backgroundColor: colors.primaryContainer,
+                      valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                    ),
+                  );
+                } else {
+                  return SizedBox.shrink();
+                }
+              },
+            ),
           ],
         ),
       ),
-      interaction: widget.interaction,
       controller: listController,
       itemBuilder: (context, item, index, multiple) => TTableRowCard<T>(
         item: item.data,
@@ -101,7 +114,6 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   Widget _buildCardView(ColorScheme colors, BoxConstraints constraints) {
     return TList<T, K>(
       theme: wTheme,
-      interaction: widget.interaction,
       controller: listController,
       itemBuilder: (context, item, index, multiple) => TTableMobileCard<T>(
         item: item.data,

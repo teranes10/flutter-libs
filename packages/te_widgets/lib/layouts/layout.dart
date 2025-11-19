@@ -136,7 +136,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 if (widget.logo != null) Expanded(child: widget.logo!) else SizedBox.shrink(),
-                GestureDetector(
+                InkWell(
                   onTap: _toggleMobileSidebar,
                   child: Container(
                     padding: const EdgeInsets.all(8),
@@ -238,7 +238,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
           child: Stack(
             children: [
               // Backdrop
-              GestureDetector(
+              InkWell(
                 onTap: _closeMobileSidebar,
                 child: Container(
                   width: double.infinity,

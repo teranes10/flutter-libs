@@ -197,4 +197,9 @@ class TTableTheme extends TListTheme {
 
     return totalWidth;
   }
+
+  @override
+  buildLoadingIndicator(BuildContext context) {
+    return SizedBox.shrink();
+  }
 }

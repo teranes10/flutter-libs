@@ -229,12 +229,12 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     final spaceLeft = position.dx;
 
     final requiredHeightSpace = height + _widget.offset;
-    final requiredWidthSpace = width + _widget.offset;
+    final extraWidthNeeded = width > _targetWidth ? width - _targetWidth : 0;
 
     final canShowBelow = spaceBelow >= requiredHeightSpace;
     final canShowAbove = spaceAbove >= requiredHeightSpace;
-    final canShowRight = spaceRight >= requiredWidthSpace;
-    final canShowLeft = spaceLeft >= requiredWidthSpace;
+    final canShowRight = spaceRight >= extraWidthNeeded;
+    final canShowLeft = spaceLeft >= extraWidthNeeded;
 
     final (openUpward, openToRight, openOnSide) = switch (_widget.alignment) {
       TPopupAlignment.bottomLeft => (

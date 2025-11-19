@@ -44,7 +44,7 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
 
   Widget _buildModeButton(ColorScheme colors, String text, _Mode mode) {
     final bool isSelected = _mode == mode;
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         setState(() => _mode = mode);
       },
@@ -58,7 +58,7 @@ class _TClockTimePickerState extends State<TClockTimePicker> {
   }
 
   Widget _buildPeriodButton(ColorScheme colors) {
-    return GestureDetector(
+    return InkWell(
       onTap: _togglePeriod,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

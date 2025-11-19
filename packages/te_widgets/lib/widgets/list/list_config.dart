@@ -7,8 +7,6 @@ enum TSelectionMode { none, single, multiple }
 
 enum TExpansionMode { none, single, multiple }
 
-enum TListInteractionType { none, expand, select }
-
 typedef ItemToString<T> = String Function(T item);
 typedef ItemChildrenAccessor<T> = List<T>? Function(T item);
 typedef ItemTextAccessor<T> = String Function(T item);

@@ -33,7 +33,7 @@ class TChip extends StatelessWidget {
     final mBackgroundColor = background ?? wTheme.container;
     final mTextColor = textColor ?? wTheme.onContainer;
 
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Container(
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

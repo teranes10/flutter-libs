@@ -110,6 +110,10 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     }
   }
 
+  void handleError(TListError error) {
+    updateState(who: 'handleError', error: error);
+  }
+
   void cancelPendingOperations() {
     _debouncer.cancel();
     _activeRequests.clear();
@@ -164,7 +168,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       error: error ?? value.error,
     );
 
-    debugPrint("$who: $value");
+    //debugPrint("$who: $value");
   }
 
   List<TListItem<T, K>> _preserveStateOptimized({

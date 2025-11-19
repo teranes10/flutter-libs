@@ -216,7 +216,6 @@ class TListTheme {
     required ScrollController scrollController,
     required ScrollController horizontalScrollController,
     required TListController<T, K> listController,
-    required TListInteraction<T> interaction,
     required bool loading,
     required bool hasError,
     required TListError? error,
@@ -225,15 +224,12 @@ class TListTheme {
   }) {
     final effectiveInfiniteScroll = infiniteScroll == true && listController.hasMoreItems;
 
-    // Error state takes priority
-    if (hasError && error != null && items.isEmpty) {
-      return buildErrorState(context, error);
-    }
+    // Determine if we should show error/empty as a list item
+    final showErrorItem = hasError && error != null;
+    final showEmptyItem = !loading && items.isEmpty && !showErrorItem;
 
-    // Empty state when no items and not loading
-    if (items.isEmpty && !loading) {
-      return buildEmptyState(context);
-    }
+    // Adjust item count for error/empty
+    final itemCountForList = (showErrorItem || showEmptyItem) ? 1 : items.length;
 
     Widget buildItem(BuildContext context, int index) {
       // Header (non-sticky)
@@ -246,28 +242,28 @@ class TListTheme {
       final itemIndex = index - itemOffset;
 
       // Infinite scroll indicator
-      final infiniteScrollIndex = items.length + itemOffset;
+      final infiniteScrollIndex = itemCountForList + itemOffset;
       if (effectiveInfiniteScroll && index == infiniteScrollIndex) {
         return _buildInfiniteScrollFooter(context, items, loading, hasMoreItems);
       }
 
       // Footer (non-sticky)
-      final footerIndex = items.length + itemOffset + (effectiveInfiniteScroll ? 1 : 0);
+      final footerIndex = itemCountForList + itemOffset + (effectiveInfiniteScroll ? 1 : 0);
       if (footerWidget != null && footerSticky != true && index == footerIndex) {
         return footerWidget!;
       }
 
+      // Error or empty state as list item
+      if (showErrorItem) {
+        return buildErrorState(context, error);
+      }
+      if (showEmptyItem) {
+        return buildEmptyState(context);
+      }
+
       // Regular item
       final item = items[itemIndex];
-      Widget child = interaction.buildGestureDetector(
-        key: ObjectKey(item),
-        item: item.data,
-        index: itemIndex,
-        selectable: listController.selectable,
-        expandable: listController.expandable,
-        controller: listController,
-        child: itemBuilder(context, item, itemIndex, listController.isMultiSelect),
-      );
+      Widget child = itemBuilder(context, item, itemIndex, listController.isMultiSelect);
 
       // Apply animation
       if (animationBuilder != null) {
@@ -285,7 +281,7 @@ class TListTheme {
       return child;
     }
 
-    final totalItemCount = items.length +
+    final totalItemCount = itemCountForList +
         (headerWidget != null && headerSticky != true ? 1 : 0) +
         (footerWidget != null && footerSticky != true ? 1 : 0) +
         (effectiveInfiniteScroll ? 1 : 0);
@@ -332,12 +328,7 @@ class TListTheme {
     return scrollableContent;
   }
 
-  Widget _buildInfiniteScrollFooter<T>(
-    BuildContext context,
-    List<T> items,
-    bool loading,
-    bool hasMoreItems,
-  ) {
+  Widget _buildInfiniteScrollFooter<T>(BuildContext context, List<T> items, bool loading, bool hasMoreItems) {
     final colors = Theme.of(context).colorScheme;
 
     if (items.isNotEmpty && loading) {
@@ -346,17 +337,10 @@ class TListTheme {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary),
-            ),
+            SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary)),
             if (loadingMessage.isNotEmpty) ...[
               const SizedBox(width: 14),
-              Text(
-                loadingMessage,
-                style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-              ),
+              Text(loadingMessage, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant)),
             ],
           ],
         ),
@@ -366,11 +350,7 @@ class TListTheme {
     if (!hasMoreItems && noMoreItemsMessage.isNotEmpty) {
       return Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text(
-          noMoreItemsMessage,
-          style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-          textAlign: TextAlign.center,
-        ),
+        child: Text(noMoreItemsMessage, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant), textAlign: TextAlign.center),
       );
     }
 

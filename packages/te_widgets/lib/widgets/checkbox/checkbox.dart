@@ -59,12 +59,12 @@ class _TCheckboxState<T> extends State<TCheckbox>
   double _getCheckboxSize() {
     switch (widget.size) {
       case TInputSize.sm:
-        return 0.9;
+        return 1.1;
       case TInputSize.md:
       case null:
-        return 1.0;
-      case TInputSize.lg:
         return 1.2;
+      case TInputSize.lg:
+        return 1.3;
     }
   }
 
@@ -140,8 +140,7 @@ class _TCheckboxState<T> extends State<TCheckbox>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-          behavior: HitTestBehavior.translucent,
+        InkWell(
           onTap: widget.disabled ? null : () => _onCheckboxChanged(null),
           child: Row(
             mainAxisSize: MainAxisSize.min,
