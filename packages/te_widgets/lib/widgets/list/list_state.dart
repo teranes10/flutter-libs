@@ -1,7 +1,5 @@
 import 'dart:collection';
 
-import 'package:te_widgets/te_widgets.dart';
-
 class TListState<T, K> {
   final LinkedHashSet<K> selectedKeys;
   final LinkedHashSet<K> expandedKeys;
@@ -12,8 +10,6 @@ class TListState<T, K> {
   final bool loading;
   final bool hasMoreItems;
   final String search;
-  final TSelectionMode selectionMode;
-  final TExpansionMode expansionMode;
   final TListError? error;
 
   const TListState({
@@ -26,27 +22,14 @@ class TListState<T, K> {
     required this.loading,
     required this.hasMoreItems,
     required this.search,
-    this.selectionMode = TSelectionMode.none,
-    this.expansionMode = TExpansionMode.none,
     this.error,
   });
-
-  int get totalPages => totalItems > 0 ? (totalItems / itemsPerPage).ceil() : 1;
-  bool get isAllSelected => displayItems.isNotEmpty && displayItems.length == selectedKeys.length;
-  bool get hasSelection => selectedKeys.isNotEmpty;
-  bool get isSomeSelected => hasSelection && !isAllSelected;
-  bool? get selectionValue => isAllSelected
-      ? true
-      : isSomeSelected
-          ? null
-          : false;
 
   @override
   String toString() {
     return 'TListState(page: $page, itemsPerPage: $itemsPerPage, total: $totalItems,'
         'displayed: ${displayItems.length}, selected: ${selectedKeys.length}, expanded: ${expandedKeys.length}, '
-        '\n\tloading: $loading, hasMoreItems: $hasMoreItems, search: $search, '
-        '$selectionMode, $expansionMode)';
+        '\n\tloading: $loading, hasMoreItems: $hasMoreItems, search: $search)';
   }
 }
 

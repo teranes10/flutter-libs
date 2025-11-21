@@ -6,7 +6,7 @@ class TListTheme {
   final Duration animationDuration;
   final bool shrinkWrap;
   final ScrollPhysics? physics;
-  final EdgeInsetsGeometry? padding;
+  final EdgeInsets? padding;
   // Empty state
   final Widget Function(BuildContext context)? emptyStateBuilder;
   final String emptyStateMessage;
@@ -17,10 +17,10 @@ class TListTheme {
   // Loading state
   final Widget Function(BuildContext context)? loadingBuilder;
   // Header widget
-  final Widget? headerWidget;
+  final Widget Function(BuildContext context)? headerBuilder;
   final bool? headerSticky;
   // Footer widget
-  final Widget? footerWidget;
+  final Widget Function(BuildContext context)? footerBuilder;
   final bool? footerSticky;
   // Horizontal scroll
   final bool needsHorizontalScroll;
@@ -52,10 +52,10 @@ class TListTheme {
     // Loading state
     this.loadingBuilder,
     // Header
-    this.headerWidget,
+    this.headerBuilder,
     this.headerSticky,
     // Footer
-    this.footerWidget,
+    this.footerBuilder,
     this.footerSticky,
     // Horizontal scroll
     this.needsHorizontalScroll = false,
@@ -80,7 +80,7 @@ class TListTheme {
     Duration? animationDuration,
     bool? shrinkWrap,
     ScrollPhysics? physics,
-    EdgeInsetsGeometry? padding,
+    EdgeInsets? padding,
     // Empty state
     Widget Function(BuildContext context)? emptyStateBuilder,
     String? emptyStateMessage,
@@ -91,10 +91,10 @@ class TListTheme {
     // Loading state
     Widget Function(BuildContext context)? loadingBuilder,
     // Header
-    Widget? headerWidget,
+    Widget Function(BuildContext context)? headerBuilder,
     bool? headerSticky,
     // Footer
-    Widget? footerWidget,
+    Widget Function(BuildContext context)? footerBuilder,
     bool? footerSticky,
     // Horizontal scroll
     bool? needsHorizontalScroll,
@@ -122,9 +122,9 @@ class TListTheme {
       errorStateBuilder: errorStateBuilder ?? this.errorStateBuilder,
       errorStateMessage: errorStateMessage ?? this.errorStateMessage,
       loadingBuilder: loadingBuilder ?? this.loadingBuilder,
-      headerWidget: headerWidget ?? this.headerWidget,
+      headerBuilder: headerBuilder ?? this.headerBuilder,
       headerSticky: headerSticky ?? this.headerSticky,
-      footerWidget: footerWidget ?? this.footerWidget,
+      footerBuilder: footerBuilder ?? this.footerBuilder,
       footerSticky: footerSticky ?? this.footerSticky,
       needsHorizontalScroll: needsHorizontalScroll ?? this.needsHorizontalScroll,
       horizontalScrollWidth: horizontalScrollWidth ?? this.horizontalScrollWidth,
@@ -135,6 +135,232 @@ class TListTheme {
       separatorBuilder: separatorBuilder ?? this.separatorBuilder,
       showSeparators: showSeparators ?? this.showSeparators,
       itemSpacing: itemSpacing ?? this.itemSpacing,
+    );
+  }
+
+  Widget buildListView<T, K>({
+    required BuildContext context,
+    required List<TListItem<T, K>> items,
+    required ListItemBuilder<T, K> itemBuilder,
+    required AnimationController animationController,
+    required ScrollController scrollController,
+    required ScrollController horizontalScrollController,
+    required TListController<T, K> listController,
+    required bool loading,
+    required bool hasError,
+    required TListError? error,
+    required bool hasMoreItems,
+    double? height,
+  }) {
+    final effectiveInfiniteScroll = infiniteScroll == true && listController.hasMoreItems;
+
+    // Determine if we should show error/empty as a list item
+    final showErrorItem = hasError && error != null;
+    final showEmptyItem = !loading && items.isEmpty && !showErrorItem;
+
+    // Adjust item count for error/empty
+    final itemCountForList = (showErrorItem || showEmptyItem) ? 1 : items.length;
+    final itemOffset = (headerBuilder != null && headerSticky != true) ? 1 : 0;
+
+    Widget buildItem(BuildContext context, int index) {
+      // Header (non-sticky)
+      if (headerBuilder != null && headerSticky != true && index == 0) {
+        return Container(
+          key: const ValueKey('list_header'),
+          child: headerBuilder!(context),
+        );
+      }
+
+      // Infinite scroll indicator
+      final infiniteScrollIndex = itemCountForList + itemOffset;
+      if (effectiveInfiniteScroll && index == infiniteScrollIndex) {
+        return Container(
+          key: const ValueKey('list_infinite_scroll_footer'),
+          child: _buildInfiniteScrollFooter(context, items, loading, hasMoreItems),
+        );
+      }
+
+      // Footer (non-sticky)
+      final footerIndex = itemCountForList + itemOffset + (effectiveInfiniteScroll ? 1 : 0);
+      if (footerBuilder != null && footerSticky != true && index == footerIndex) {
+        return Container(
+          key: const ValueKey('list_footer'),
+          child: footerBuilder!(context),
+        );
+      }
+
+      // Error state
+      if (showErrorItem) {
+        return Container(
+          key: const ValueKey('list_error_message'),
+          child: buildErrorState(context, error),
+        );
+      }
+
+      //Empty state
+      if (showEmptyItem) {
+        return Container(
+          key: const ValueKey('list_empty_message'),
+          child: buildEmptyState(context),
+        );
+      }
+
+      // Regular item
+      final itemIndex = index - itemOffset;
+      final item = items[itemIndex];
+      Widget child = itemBuilder(context, item, itemIndex);
+
+      // Apply animation
+      if (animationBuilder != null) {
+        child = animationBuilder!(context, animationController, child, itemIndex);
+      }
+
+      // Add spacing
+      if (itemSpacing > 0) {
+        child = Padding(
+          padding: EdgeInsets.only(bottom: itemSpacing),
+          child: child,
+        );
+      }
+
+      // Add key for reorderable items
+      if (listController.reorderable) {
+        return Container(
+          key: ValueKey('list_item_${item.key}'),
+          child: Row(
+            children: [
+              ReorderableDragStartListener(
+                index: index,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: Icon(Icons.drag_indicator_rounded, size: 20, color: context.colors.onSurfaceVariant),
+                ),
+              ),
+              const SizedBox(width: 5),
+              Expanded(child: child)
+            ],
+          ),
+        );
+      }
+
+      return Container(
+        key: ValueKey('list_item_${item.key}'),
+        child: child,
+      );
+    }
+
+    final totalItemCount = itemCountForList +
+        (headerBuilder != null && headerSticky != true ? 1 : 0) +
+        (footerBuilder != null && footerSticky != true ? 1 : 0) +
+        (effectiveInfiniteScroll ? 1 : 0);
+
+    final effectivePhysics = physics ?? (shrinkWrap ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics());
+
+    Widget listView;
+    if (listController.reorderable) {
+      listView = ReorderableListView.builder(
+        buildDefaultDragHandles: false,
+        scrollController: shrinkWrap ? null : scrollController,
+        shrinkWrap: shrinkWrap,
+        physics: effectivePhysics,
+        padding: padding,
+        itemCount: totalItemCount,
+        itemBuilder: buildItem,
+        onReorder: (int oldIndex, int newIndex) {
+          final adjustedOldIndex = oldIndex - itemOffset;
+          var adjustedNewIndex = newIndex - itemOffset;
+          if (adjustedNewIndex > adjustedOldIndex) adjustedNewIndex -= 1;
+          if (adjustedOldIndex >= 0 && adjustedOldIndex < items.length && adjustedNewIndex >= 0 && adjustedNewIndex <= items.length) {
+            listController.reorder(adjustedOldIndex, adjustedNewIndex);
+          }
+        },
+      );
+    } else if (showSeparators && separatorBuilder != null) {
+      listView = ListView.separated(
+        controller: shrinkWrap ? null : scrollController,
+        shrinkWrap: shrinkWrap,
+        physics: effectivePhysics,
+        padding: padding,
+        itemCount: totalItemCount,
+        itemBuilder: buildItem,
+        separatorBuilder: separatorBuilder!,
+      );
+    } else {
+      listView = ListView.builder(
+        controller: shrinkWrap ? null : scrollController,
+        shrinkWrap: shrinkWrap,
+        physics: effectivePhysics,
+        padding: padding,
+        itemCount: totalItemCount,
+        itemBuilder: buildItem,
+      );
+    }
+
+    // Build column with sticky elements
+    final column = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (loading && items.isEmpty) buildLoadingIndicator(context),
+        if (headerBuilder != null && headerSticky == true) headerBuilder!(context),
+        if (shrinkWrap) listView else if (height != null) SizedBox(height: height, child: listView) else Expanded(child: listView),
+        if (footerBuilder != null && footerSticky == true) footerBuilder!(context),
+      ],
+    );
+
+    // Wrap with horizontal scroll if needed
+    final scrollableContent = needsHorizontalScroll ? _buildHorizontalScroll(column, horizontalScrollController) : column;
+
+    return scrollableContent;
+  }
+
+  Widget _buildInfiniteScrollFooter<T>(BuildContext context, List<T> items, bool loading, bool hasMoreItems) {
+    final colors = Theme.of(context).colorScheme;
+
+    if (items.isNotEmpty && loading) {
+      return Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary)),
+            if (loadingMessage.isNotEmpty) ...[
+              const SizedBox(width: 14),
+              Text(loadingMessage, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant)),
+            ],
+          ],
+        ),
+      );
+    }
+
+    if (!hasMoreItems && noMoreItemsMessage.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(noMoreItemsMessage, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant), textAlign: TextAlign.center),
+      );
+    }
+
+    return const SizedBox(height: 50);
+  }
+
+  Widget _buildHorizontalScroll(Widget child, ScrollController controller) {
+    Widget scrollContent = child;
+
+    if (horizontalScrollWidth != null) {
+      scrollContent = SizedBox(
+        width: horizontalScrollWidth,
+        child: scrollContent,
+      );
+    }
+
+    return Scrollbar(
+      controller: controller,
+      thumbVisibility: true,
+      child: SingleChildScrollView(
+        controller: controller,
+        scrollDirection: Axis.horizontal,
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: scrollContent,
+      ),
     );
   }
 
@@ -204,177 +430,6 @@ class TListTheme {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget buildListView<T, K>({
-    required BuildContext context,
-    required List<TListItem<T, K>> items,
-    required ListItemBuilder<T, K> itemBuilder,
-    required AnimationController animationController,
-    required ScrollController scrollController,
-    required ScrollController horizontalScrollController,
-    required TListController<T, K> listController,
-    required bool loading,
-    required bool hasError,
-    required TListError? error,
-    required bool hasMoreItems,
-    double? height,
-  }) {
-    final effectiveInfiniteScroll = infiniteScroll == true && listController.hasMoreItems;
-
-    // Determine if we should show error/empty as a list item
-    final showErrorItem = hasError && error != null;
-    final showEmptyItem = !loading && items.isEmpty && !showErrorItem;
-
-    // Adjust item count for error/empty
-    final itemCountForList = (showErrorItem || showEmptyItem) ? 1 : items.length;
-
-    Widget buildItem(BuildContext context, int index) {
-      // Header (non-sticky)
-      if (headerWidget != null && headerSticky != true && index == 0) {
-        return headerWidget!;
-      }
-
-      // Calculate item index offset
-      final itemOffset = (headerWidget != null && headerSticky != true) ? 1 : 0;
-      final itemIndex = index - itemOffset;
-
-      // Infinite scroll indicator
-      final infiniteScrollIndex = itemCountForList + itemOffset;
-      if (effectiveInfiniteScroll && index == infiniteScrollIndex) {
-        return _buildInfiniteScrollFooter(context, items, loading, hasMoreItems);
-      }
-
-      // Footer (non-sticky)
-      final footerIndex = itemCountForList + itemOffset + (effectiveInfiniteScroll ? 1 : 0);
-      if (footerWidget != null && footerSticky != true && index == footerIndex) {
-        return footerWidget!;
-      }
-
-      // Error or empty state as list item
-      if (showErrorItem) {
-        return buildErrorState(context, error);
-      }
-      if (showEmptyItem) {
-        return buildEmptyState(context);
-      }
-
-      // Regular item
-      final item = items[itemIndex];
-      Widget child = itemBuilder(context, item, itemIndex, listController.isMultiSelect);
-
-      // Apply animation
-      if (animationBuilder != null) {
-        child = animationBuilder!(context, animationController, child, itemIndex);
-      }
-
-      // Add spacing
-      if (itemSpacing > 0) {
-        child = Padding(
-          padding: EdgeInsets.only(bottom: itemSpacing),
-          child: child,
-        );
-      }
-
-      return child;
-    }
-
-    final totalItemCount = itemCountForList +
-        (headerWidget != null && headerSticky != true ? 1 : 0) +
-        (footerWidget != null && footerSticky != true ? 1 : 0) +
-        (effectiveInfiniteScroll ? 1 : 0);
-
-    final effectivePhysics = physics ?? (shrinkWrap ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics());
-
-    Widget listView;
-
-    if (showSeparators && separatorBuilder != null) {
-      listView = ListView.separated(
-        controller: shrinkWrap ? null : scrollController,
-        shrinkWrap: shrinkWrap,
-        physics: effectivePhysics,
-        padding: padding,
-        itemCount: totalItemCount,
-        itemBuilder: buildItem,
-        separatorBuilder: separatorBuilder!,
-      );
-    } else {
-      listView = ListView.builder(
-        controller: shrinkWrap ? null : scrollController,
-        shrinkWrap: shrinkWrap,
-        physics: effectivePhysics,
-        padding: padding,
-        itemCount: totalItemCount,
-        itemBuilder: buildItem,
-      );
-    }
-
-    // Build column with sticky elements
-    final column = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (loading && items.isEmpty) buildLoadingIndicator(context),
-        if (headerWidget != null && headerSticky == true) headerWidget!,
-        if (shrinkWrap) listView else if (height != null) SizedBox(height: height, child: listView) else Expanded(child: listView),
-        if (footerWidget != null && footerSticky == true) footerWidget!,
-      ],
-    );
-
-    // Wrap with horizontal scroll if needed
-    final scrollableContent = needsHorizontalScroll ? _buildHorizontalScroll(column, horizontalScrollController) : column;
-
-    return scrollableContent;
-  }
-
-  Widget _buildInfiniteScrollFooter<T>(BuildContext context, List<T> items, bool loading, bool hasMoreItems) {
-    final colors = Theme.of(context).colorScheme;
-
-    if (items.isNotEmpty && loading) {
-      return Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary)),
-            if (loadingMessage.isNotEmpty) ...[
-              const SizedBox(width: 14),
-              Text(loadingMessage, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant)),
-            ],
-          ],
-        ),
-      );
-    }
-
-    if (!hasMoreItems && noMoreItemsMessage.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(noMoreItemsMessage, style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant), textAlign: TextAlign.center),
-      );
-    }
-
-    return const SizedBox(height: 50);
-  }
-
-  Widget _buildHorizontalScroll(Widget child, ScrollController controller) {
-    Widget scrollContent = child;
-
-    if (horizontalScrollWidth != null) {
-      scrollContent = SizedBox(
-        width: horizontalScrollWidth,
-        child: scrollContent,
-      );
-    }
-
-    return Scrollbar(
-      controller: controller,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: controller,
-        scrollDirection: Axis.horizontal,
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: scrollContent,
       ),
     );
   }

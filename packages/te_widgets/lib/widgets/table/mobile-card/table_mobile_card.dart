@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TTableMobileCard<T> extends StatelessWidget {
-  final T item;
-  final List<TTableHeader<T>> headers;
+class TTableMobileCard<T, K> extends StatelessWidget {
+  final int index;
+  final TListItem<T, K> item;
+  final List<TTableHeader<T, K>> headers;
   final TTableMobileCardTheme theme;
   final double? width;
 
@@ -20,6 +21,7 @@ class TTableMobileCard<T> extends StatelessWidget {
 
   const TTableMobileCard({
     super.key,
+    required this.index,
     required this.item,
     required this.headers,
     this.theme = const TTableMobileCardTheme(),
@@ -62,7 +64,7 @@ class TTableMobileCard<T> extends StatelessWidget {
                           value: isSelected,
                           onValueChanged: (value) => onSelectionChanged?.call(),
                         )),
-                  _buildMainContent(colors),
+                  _buildMainContent(context),
                   if (expandable)
                     Positioned(
                       bottom: 0,
@@ -95,8 +97,8 @@ class TTableMobileCard<T> extends StatelessWidget {
     );
   }
 
-  Widget _buildMainContent(ColorScheme colors) {
-    final values = TKeyValue.mapHeaders(headers, item);
+  Widget _buildMainContent(BuildContext ctx) {
+    final values = TKeyValue.mapHeaders(ctx, headers, item, index);
     return Padding(
       padding: EdgeInsets.only(
         top: theme.padding.top + (selectable ? 6 : 0),

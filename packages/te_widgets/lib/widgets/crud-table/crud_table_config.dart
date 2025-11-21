@@ -22,6 +22,7 @@ class TCrudConfig<T, K> {
 
   final List<TCrudCustomAction<T>> activeActions;
   final List<TCrudCustomAction<T>> archiveActions;
+  final double actionButtonWidth;
 
   final List<Widget> topBarActions;
 
@@ -41,6 +42,7 @@ class TCrudConfig<T, K> {
     this.activeActions = const [],
     this.archiveActions = const [],
     this.topBarActions = const [],
+    this.actionButtonWidth = 50.0,
   });
 }
 

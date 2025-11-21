@@ -5,7 +5,7 @@ part 'crud_table_top_bar.dart';
 part 'crud_table_builder.dart';
 
 class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
-  final List<TTableHeader<T>> headers;
+  final List<TTableHeader<T, K>> headers;
 
   final List<T>? items;
   final TLoadListener<T>? onLoad;
@@ -26,7 +26,7 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   final Future<bool> Function(T item)? onDelete;
 
   final TCrudConfig<T, K> config;
-  final Widget Function(T item, int index)? expandedBuilder;
+  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index)? expandedBuilder;
 
   const TCrudTable({
     super.key,
@@ -106,7 +106,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     return _tableBuilder._buildContent(
       theme,
       theme.tableTheme.copyWith(
-        headerWidget: LayoutBuilder(builder: (_, constraints) => _topBar.build(context, constraints)),
+        headerBuilder: (_) => LayoutBuilder(builder: (_, constraints) => _topBar.build(context, constraints)),
       ),
     );
   }

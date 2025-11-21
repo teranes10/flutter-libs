@@ -7,6 +7,7 @@ class TButtonGroup extends StatelessWidget {
   final TButtonSize? size;
   final Color? color;
   final List<TButtonGroupItem> items;
+  final WrapAlignment alignment;
 
   const TButtonGroup({
     super.key,
@@ -15,6 +16,7 @@ class TButtonGroup extends StatelessWidget {
     this.color,
     this.size,
     this.items = const [],
+    this.alignment = WrapAlignment.start,
   });
 
   @override
@@ -63,7 +65,7 @@ class TButtonGroup extends StatelessWidget {
       }
     }
 
-    return Wrap(children: children);
+    return Wrap(alignment: alignment, children: children);
   }
 
   Widget _buildButton(

@@ -1,7 +1,6 @@
 part of 'list_controller.dart';
 
 extension TListControllerExpansion<T, K> on TListController<T, K> {
-  TExpansionMode get expansionMode => value.expansionMode;
   bool get expandable => expansionMode != TExpansionMode.none;
   LinkedHashSet<K> get expandedKeys => value.expandedKeys;
   List<T> get expandedItems => getItemsFromKeys(expandedKeys);
@@ -59,7 +58,7 @@ extension TListControllerExpansion<T, K> on TListController<T, K> {
 
   void expandItems(Iterable<T> items) => expandItemKeys(items.map((item) => itemKey(item)));
 
-  void expandAll() => expandItemKeys(displayItemKeys);
+  void expandAll() => expandItemKeys(listItemKeys);
 
   void collapseAll() {
     if (expandedKeys.isEmpty) return;

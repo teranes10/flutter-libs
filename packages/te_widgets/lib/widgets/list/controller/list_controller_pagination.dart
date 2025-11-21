@@ -4,8 +4,8 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   int get page => value.page;
   int get itemsPerPage => value.itemsPerPage;
   int get totalItems => value.totalItems;
-  int get totalPages => value.totalPages;
   int get totalDisplayItems => value.displayItems.length;
+  int get totalPages => totalItems > 0 ? (totalItems / itemsPerPage).ceil() : 1;
   int get computedItemsPerPage => totalItems < itemsPerPage ? totalItems : itemsPerPage;
   int get pageStartedAt => totalItems == 0 ? 0 : ((page - 1) * itemsPerPage) + 1;
   int get pageEndedAt => (page * itemsPerPage).clamp(0, totalItems);
@@ -98,12 +98,12 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   }
 
   void _applyLocalPagination({String? who, int? page, int? itemsPerPage, String? search, bool append = false}) {
-    final effectiveItems = _localPaginationItems;
+    final effectiveItems = localItems;
     final effectivePage = page ?? value.page;
     final effectiveItemsPerPage = itemsPerPage ?? value.itemsPerPage;
     final effectiveSearch = search ?? value.search;
 
-    final filteredItems = filter.apply(effectiveItems, effectiveSearch);
+    final filteredItems = _filter.apply(effectiveItems, effectiveSearch);
     final filteredCount = filteredItems.length;
 
     List<TListItem<T, K>> rawDisplayItems;

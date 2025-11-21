@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TTableRowCard<T> extends StatelessWidget {
-  final T item;
-  final List<TTableHeader<T>> headers;
+class TTableRowCard<T, K> extends StatelessWidget {
+  final int index;
+  final TListItem<T, K> item;
+  final List<TTableHeader<T, K>> headers;
   final TTableRowCardTheme theme;
   final double? width;
   final Map<int, TableColumnWidth>? columnWidths;
@@ -21,6 +22,7 @@ class TTableRowCard<T> extends StatelessWidget {
 
   const TTableRowCard({
     super.key,
+    required this.index,
     required this.item,
     required this.headers,
     this.columnWidths,
@@ -76,14 +78,14 @@ class TTableRowCard<T> extends StatelessWidget {
                   ),
                 ...headers.map((header) {
                   return Container(
-                    constraints: BoxConstraints(minWidth: header.minWidth ?? 0, maxWidth: header.maxWidth ?? double.infinity),
+                    constraints: BoxConstraints(minWidth: header.minWidth ?? 50, maxWidth: header.maxWidth ?? double.infinity),
                     child: Align(
                       alignment: header.alignment ?? Alignment.centerLeft,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 5),
                         child: header.builder != null
-                            ? Builder(builder: (context) => header.builder!(context, item))
-                            : Text(header.getValue(item), style: theme.getContentTextStyle(colors)),
+                            ? Builder(builder: (context) => header.builder!(context, item, index))
+                            : Text(header.getValue(item.data), style: theme.getContentTextStyle(colors)),
                       ),
                     ),
                   );

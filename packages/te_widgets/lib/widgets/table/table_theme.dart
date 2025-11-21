@@ -24,10 +24,10 @@ class TTableTheme extends TListTheme {
     // Loading state
     super.loadingBuilder,
     // Header
-    super.headerWidget,
+    super.headerBuilder,
     super.headerSticky,
     // Footer
-    super.footerWidget,
+    super.footerBuilder,
     super.footerSticky,
     // Horizontal scroll
     super.needsHorizontalScroll = false,
@@ -56,7 +56,7 @@ class TTableTheme extends TListTheme {
     Duration? animationDuration,
     bool? shrinkWrap,
     ScrollPhysics? physics,
-    EdgeInsetsGeometry? padding,
+    EdgeInsets? padding,
     // Empty state
     Widget Function(BuildContext context)? emptyStateBuilder,
     String? emptyStateMessage,
@@ -68,10 +68,10 @@ class TTableTheme extends TListTheme {
     Widget Function(BuildContext context)? loadingBuilder,
     Widget Function(BuildContext context)? loadingOverlayBuilder,
     // Header
-    Widget? headerWidget,
+    Widget Function(BuildContext context)? headerBuilder,
     bool? headerSticky,
     // Footer
-    Widget? footerWidget,
+    Widget Function(BuildContext context)? footerBuilder,
     bool? footerSticky,
     // Horizontal scroll
     bool? needsHorizontalScroll,
@@ -105,9 +105,9 @@ class TTableTheme extends TListTheme {
       errorStateBuilder: errorStateBuilder ?? this.errorStateBuilder,
       errorStateMessage: errorStateMessage ?? this.errorStateMessage,
       loadingBuilder: loadingBuilder ?? this.loadingBuilder,
-      headerWidget: headerWidget ?? this.headerWidget,
+      headerBuilder: headerBuilder ?? this.headerBuilder,
       headerSticky: headerSticky ?? this.headerSticky,
-      footerWidget: footerWidget ?? this.footerWidget,
+      footerBuilder: footerBuilder ?? this.footerBuilder,
       footerSticky: footerSticky ?? this.footerSticky,
       needsHorizontalScroll: needsHorizontalScroll ?? this.needsHorizontalScroll,
       horizontalScrollWidth: horizontalScrollWidth ?? this.horizontalScrollWidth,
@@ -144,7 +144,7 @@ class TTableTheme extends TListTheme {
     );
   }
 
-  static Map<int, TableColumnWidth> calculateColumnWidths<T>(List<TTableHeader<T>> headers, bool selectable, bool expandable) {
+  static Map<int, TableColumnWidth> calculateColumnWidths<T, K>(List<TTableHeader<T, K>> headers, bool selectable, bool expandable) {
     Map<int, TableColumnWidth> columnWidths = {};
     int columnIndex = 0;
 
@@ -174,7 +174,7 @@ class TTableTheme extends TListTheme {
     return columnWidths;
   }
 
-  static double calculateTotalRequiredWidth<T>(List<TTableHeader<T>> headers, bool selectable, bool expandable) {
+  static double calculateTotalRequiredWidth<T, K>(List<TTableHeader<T, K>> headers, bool selectable, bool expandable) {
     double totalWidth = 0;
 
     // Add width for expand/select columns

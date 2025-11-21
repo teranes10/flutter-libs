@@ -33,7 +33,7 @@ class CrudPage extends StatelessWidget {
       ],
     );
 
-    List<TTableHeader<ProductDto>> headers = [
+    List<TTableHeader<ProductDto, int>> headers = [
       TTableHeader.image("Image", (x) => x.thumbnail),
       TTableHeader.map('SKU', (x) => x.sku),
       TTableHeader.map('Title', (x) => x.title),
@@ -101,17 +101,21 @@ class CrudPage extends StatelessWidget {
           ),
         ],
       ),
-      expandedBuilder: (item, index) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(8)),
-        child: TKeyValueSection(values: [
-          TKeyValue('QR Code', widget: item.meta?.qrCode != null ? Image.network(item.meta!.qrCode, width: 80) : SizedBox.shrink()),
-          TKeyValue.text('Description', item.description),
-          TKeyValue.text('Barcode', item.meta?.barcode),
-          TKeyValue.text('Created At', item.meta?.createdAt),
-          TKeyValue.text('Updated At', item.meta?.updatedAt),
-        ]),
-      ),
+      expandedBuilder: (ctx, item, index) {
+        final data = item.data;
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(8)),
+          child: TKeyValueSection(values: [
+            TKeyValue('QR Code', widget: data.meta?.qrCode != null ? Image.network(data.meta!.qrCode, width: 80) : SizedBox.shrink()),
+            TKeyValue.text('Description', data.description),
+            TKeyValue.text('Barcode', data.meta?.barcode),
+            TKeyValue.text('Created At', data.meta?.createdAt),
+            TKeyValue.text('Updated At', data.meta?.updatedAt),
+          ]),
+        );
+      },
       controller: controller,
     );
   }

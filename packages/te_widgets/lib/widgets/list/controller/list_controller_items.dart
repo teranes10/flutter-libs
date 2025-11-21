@@ -2,12 +2,16 @@ part of 'list_controller.dart';
 
 extension TListControllerItems<T, K> on TListController<T, K> {
   Map<K, T> get itemsMap => _itemsMap;
-  Iterable<T> get flatItems => _itemsMap.values;
-  List<T> get localItems => _localPaginationItems;
+  List<T> get flatItems => _itemsMap.values.toList();
+  List<T> get localItems => !isHierarchical ? flatItems : _localPaginationItems;
   List<TListItem<T, K>> get listItems => value.displayItems;
+  List<K> get listItemKeys => listItems.map((x) => x.key).toList();
+  bool get isEmpty => listItems.isEmpty;
+  bool get isNotEmpty => listItems.isNotEmpty;
+  bool get _useLocalPaginationItems => !isServerSide && isHierarchical;
 
   void updateItems(List<T> items) {
-    if (!isServerSide) {
+    if (_useLocalPaginationItems) {
       _localPaginationItems.clear();
       _localPaginationItems.addAll(items);
     }
@@ -49,9 +53,13 @@ extension TListControllerItems<T, K> on TListController<T, K> {
 
   void addItem(T item, [bool prepend = true]) {
     final key = itemKey(item);
+    if (_itemsMap.containsKey(key)) {
+      throw ArgumentError.value(key, 'key', 'Item already exists');
+    }
+
     _itemsMap[key] = item;
 
-    if (!isServerSide) {
+    if (_useLocalPaginationItems) {
       if (prepend) {
         _localPaginationItems.insert(0, item);
       } else {
@@ -74,7 +82,7 @@ extension TListControllerItems<T, K> on TListController<T, K> {
       _itemsMap[key] = item;
     }
 
-    if (!isServerSide) {
+    if (_useLocalPaginationItems) {
       if (prepend) {
         _localPaginationItems.insertAll(0, newItems);
       } else {
@@ -99,7 +107,7 @@ extension TListControllerItems<T, K> on TListController<T, K> {
 
     _itemsMap[key] = item;
 
-    if (!isServerSide) {
+    if (_useLocalPaginationItems) {
       final index = _localPaginationItems.indexWhere((x) => itemKey(x) == key);
       if (index != -1) {
         _localPaginationItems[index] = item;
@@ -125,7 +133,7 @@ extension TListControllerItems<T, K> on TListController<T, K> {
 
     _itemsMap.remove(key);
 
-    if (!isServerSide) {
+    if (_useLocalPaginationItems) {
       _localPaginationItems.removeWhere((x) => itemKey(x) == key);
     }
 
@@ -152,7 +160,7 @@ extension TListControllerItems<T, K> on TListController<T, K> {
 
     _itemsMap.removeWhere((k, _) => existingKeys.contains(k));
 
-    if (!isServerSide) {
+    if (_useLocalPaginationItems) {
       _localPaginationItems.removeWhere((x) => existingKeys.contains(itemKey(x)));
     }
 
@@ -178,9 +186,17 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     removeItemsByKeys(value.selectedKeys);
   }
 
+  void reorder(int oldIndex, int newIndex) {
+    updateState(
+      who: 'reorder',
+      displayItems: listItems.reorder(oldIndex, newIndex),
+    );
+    onReorder?.call(oldIndex, newIndex);
+  }
+
   void clear() {
     _itemsMap.clear();
-    if (!isServerSide) {
+    if (_useLocalPaginationItems) {
       _localPaginationItems.clear();
     }
 

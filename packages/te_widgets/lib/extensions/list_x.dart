@@ -153,4 +153,11 @@ extension ListX<T> on List<T> {
     }
     return (sublist(0, index), sublist(index));
   }
+
+  List<T> reorder(int oldIndex, int newIndex) {
+    final newList = List<T>.from(this);
+    final item = newList.removeAt(oldIndex);
+    newList.insert(newIndex, item);
+    return newList;
+  }
 }

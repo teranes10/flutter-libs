@@ -13,7 +13,7 @@ typedef ItemTextAccessor<T> = String Function(T item);
 typedef ItemKeyAccessor<T, K> = K Function(T item);
 typedef ListItemTap<T, K> = void Function(TListItem<T, K> item);
 typedef ListItemFactory<T, K> = TListItem<T, K> Function(T item);
-typedef ListItemBuilder<T, K> = Widget Function(BuildContext context, TListItem<T, K> item, int index, bool multiple);
+typedef ListItemBuilder<T, K> = Widget Function(BuildContext context, TListItem<T, K> item, int index);
 typedef TLoadListener<T> = Future<TLoadResult<T>> Function(TLoadOptions<T> options);
 
 class TLoadOptions<T> {

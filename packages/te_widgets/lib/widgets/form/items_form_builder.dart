@@ -56,7 +56,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
         TList<T, int>(
           theme: TListTheme(shrinkWrap: true, infiniteScroll: false, padding: EdgeInsets.all(0)),
           controller: _listController,
-          itemBuilder: (ctx, item, i, multiple) => TCard(
+          itemBuilder: (ctx, item, i) => TCard(
               padding: EdgeInsets.all(0),
               margin: EdgeInsets.only(bottom: 10),
               child: Stack(

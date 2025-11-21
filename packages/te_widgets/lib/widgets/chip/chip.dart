@@ -8,7 +8,7 @@ class TChip extends StatelessWidget {
   final Color? background;
   final Color? textColor;
   final VoidCallback? onTap;
-  final EdgeInsetsGeometry? padding;
+  final EdgeInsets? padding;
   final BorderRadius? borderRadius;
   final TVariant? type;
 

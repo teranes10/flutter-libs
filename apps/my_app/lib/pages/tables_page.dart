@@ -62,7 +62,7 @@ class _TablesPageState extends State<TablesPage> {
                     TButtonGroupItem(tooltip: 'Archive', icon: Icons.archive, color: AppColors.warning, onPressed: (_) => {}),
                     TButtonGroupItem(tooltip: 'Delete', icon: Icons.delete_forever, color: AppColors.danger, onPressed: (_) => {}),
                   ],
-                  maxWidth: 45 * 5,
+                  count: 5,
                 ),
               ],
               items: products,
@@ -99,7 +99,7 @@ class Product {
   Product(this.id, this.name, this.price, this.stock);
 }
 
-final List<TTableHeader<Product>> productHeaders = [
+final List<TTableHeader<Product, int>> productHeaders = [
   TTableHeader.map("Name", (x) => x.name),
   TTableHeader.map("Price", (x) => x.price),
   TTableHeader.map("Stock", (x) => x.stock),

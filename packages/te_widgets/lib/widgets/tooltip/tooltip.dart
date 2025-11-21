@@ -21,7 +21,7 @@ class TTooltip extends StatefulWidget {
   final TextStyle? textStyle;
   final TextAlign? textAlign;
   final EdgeInsetsGeometry margin;
-  final EdgeInsetsGeometry? padding;
+  final EdgeInsets? padding;
   final double verticalOffset;
   final bool preferBelow;
   final bool enableHapticFeedback;
@@ -263,7 +263,7 @@ class _TooltipContent extends StatelessWidget {
   final TextStyle? textStyle;
   final TextAlign? textAlign;
   final EdgeInsetsGeometry margin;
-  final EdgeInsetsGeometry? padding;
+  final EdgeInsets? padding;
   final double verticalOffset;
   final bool preferBelow;
   final bool showArrow;

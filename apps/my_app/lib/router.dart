@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:my_app/pages/buttons_page.dart';
 import 'package:my_app/pages/chips_page.dart';
 import 'package:my_app/pages/crud_page.dart';
+import 'package:my_app/pages/editor_page.dart';
 import 'package:my_app/pages/forms_page.dart';
 import 'package:my_app/pages/input_fields_page.dart';
 import 'package:my_app/pages/popups_page.dart';
@@ -23,6 +24,7 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Popups', route: '/popups', page: PopupsPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Tables', route: '/tables', page: TablesPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Crud', route: '/crud', page: CrudPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Editor', route: '/editor', page: EditorPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Forms', route: '/forms', page: FormsPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Item', children: [
     TSidebarItem(icon: Icons.line_style_rounded, text: 'Sub Item', children: [

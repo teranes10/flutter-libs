@@ -15,16 +15,15 @@ class TKeyValue {
     return TKeyValue(key, value: value);
   }
 
-  static TKeyValue mapHeader<T>(TTableHeader<T> header, T item) {
-    return TKeyValue(
-      header.text,
-      value: header.getValue(item),
-      widget: header.builder != null ? Builder(builder: (context) => header.builder!(context, item)) : null,
-    );
-  }
-
-  static List<TKeyValue> mapHeaders<T>(List<TTableHeader<T>> headers, T item) {
-    return headers.map((header) => TKeyValue.mapHeader(header, item)).toList();
+  static List<TKeyValue> mapHeaders<T, K>(BuildContext ctx, List<TTableHeader<T, K>> headers, TListItem<T, K> item, int index) {
+    return headers
+        .map((header) => TKeyValue(
+              header.text,
+              value: header.getValue(item.data),
+              widget: header.builder != null ? header.builder!(ctx, item, index) : null,
+              width: header.minWidth,
+            ))
+        .toList();
   }
 
   double estimateColumnWidth(double availableWidth, TKeyValueTheme theme) {

@@ -9,14 +9,19 @@ part 'list_controller_selection.dart';
 
 class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   final TDebouncer _debouncer;
-  final bool _isServerSide;
-  final TSearchFilter<T> filter;
+  final TSearchFilter<T> _filter;
+  final bool isServerSide;
   final ItemToString<T> itemToString;
   final ItemKeyAccessor<T, K> itemKey;
   final ItemChildrenAccessor<T>? itemChildren;
   final ListItemFactory<T, K> itemFactory;
   final TLoadListener<T>? onLoad;
+  final TSelectionMode selectionMode;
+  final TExpansionMode expansionMode;
+  final bool reorderable;
+  final void Function(int oldIndex, int newIndex)? onReorder;
 
+  bool _disposed = false;
   int _requestId = 0;
   final Set<int> _activeRequests = {};
   final Map<K, T> _itemsMap = {};
@@ -27,19 +32,21 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     int itemsPerPage = 0,
     String search = '',
     int? searchDelay,
-    TSelectionMode selectionMode = TSelectionMode.none,
-    TExpansionMode expansionMode = TExpansionMode.none,
+    this.selectionMode = TSelectionMode.none,
+    this.expansionMode = TExpansionMode.none,
     this.onLoad,
     ItemKeyAccessor<T, K>? itemKey,
     ItemToString<T>? itemToString,
     ListItemFactory<T, K>? itemFactory,
     this.itemChildren,
-  })  : _isServerSide = onLoad != null,
+    this.reorderable = false,
+    this.onReorder,
+  })  : isServerSide = onLoad != null,
         _debouncer = TDebouncer(milliseconds: searchDelay ?? (onLoad != null ? 2500 : 750)),
         itemToString = itemToString ?? _defaultItemToString,
         itemKey = itemKey ?? _defaultItemKey,
         itemFactory = itemFactory ?? _defaultItemFactory(itemKey ?? _defaultItemKey, itemChildren),
-        filter = TSearchFilter(itemToString: itemToString ?? _defaultItemToString),
+        _filter = TSearchFilter(itemToString: itemToString ?? _defaultItemToString),
         super(
           TListState<T, K>(
             displayItems: const [],
@@ -51,8 +58,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
             loading: false,
             hasMoreItems: true,
             search: search,
-            selectionMode: selectionMode,
-            expansionMode: expansionMode,
             error: null,
           ),
         ) {
@@ -96,13 +101,9 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
 
   // Getters
   bool get mounted => hasListeners;
-  bool get isServerSide => _isServerSide;
   bool get isHierarchical => itemChildren != null;
   bool get hasError => value.error != null;
   bool get isLoading => value.loading;
-  bool get isEmpty => value.displayItems.isEmpty;
-  bool get isNotEmpty => value.displayItems.isNotEmpty;
-  List<K> get displayItemKeys => value.displayItems.map((x) => x.key).toList();
 
   void clearError() {
     if (value.error != null) {
@@ -121,6 +122,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
 
   @override
   void dispose() {
+    _disposed = true;
     _debouncer.dispose();
     cancelPendingOperations();
     super.dispose();
@@ -141,6 +143,11 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     TExpansionMode? expansionMode,
     TListError? error,
   }) {
+    if (_disposed) {
+      debugPrint('Controller already disposed.');
+      return;
+    }
+
     var effectiveSelectedKeys = selectedKeys ?? value.selectedKeys;
     var effectiveExpandedKeys = expandedKeys ?? value.expandedKeys;
     var effectiveDisplayItems = displayItems ?? value.displayItems;
@@ -163,8 +170,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       loading: loading ?? value.loading,
       hasMoreItems: hasMoreItems ?? value.hasMoreItems,
       search: search ?? value.search,
-      selectionMode: selectionMode ?? value.selectionMode,
-      expansionMode: expansionMode ?? value.expansionMode,
       error: error ?? value.error,
     );
 

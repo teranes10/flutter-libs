@@ -1,9 +1,8 @@
 part of 'list_controller.dart';
 
 extension TListControllerSelection<T, K> on TListController<T, K> {
-  TSelectionMode get selectionMode => value.selectionMode;
-  bool get selectable => value.selectionMode != TSelectionMode.none;
-  bool get isMultiSelect => value.selectionMode == TSelectionMode.multiple;
+  bool get selectable => selectionMode != TSelectionMode.none;
+  bool get isMultiSelect => selectionMode == TSelectionMode.multiple;
   LinkedHashSet<K> get selectedKeys => value.selectedKeys;
   List<T> get selectedItems => getItemsFromKeys(selectedKeys);
   bool get hasSelection => selectedKeys.isNotEmpty;
@@ -11,6 +10,11 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
   int get selectedCount => selectedKeys.length;
   bool get isAllSelected => value.displayItems.isNotEmpty && value.displayItems.length == selectedCount;
   bool get isSomeSelected => hasSelection && !isAllSelected;
+  bool? get selectionTristate => isAllSelected
+      ? true
+      : isSomeSelected
+          ? null
+          : false;
 
   String get selectionInfo {
     if (selectedCount == 0) return 'No items selected';
@@ -60,7 +64,7 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
 
   void selectItems(Iterable<T> items) => selectItemKeys(items.map((item) => itemKey(item)));
 
-  void selectAll() => selectItemKeys(displayItemKeys);
+  void selectAll() => selectItemKeys(listItemKeys);
 
   void clearSelection() {
     if (selectedKeys.isEmpty) return;

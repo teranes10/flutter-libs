@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
-  final List<TTableHeader<T>> headers;
+  final List<TTableHeader<T, K>> headers;
   final TTableTheme? theme;
 
   //List
@@ -22,7 +22,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   final TListController<T, K>? controller;
 
   // Expandable configuration
-  final Widget Function(T item, int index)? expandedBuilder;
+  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index)? expandedBuilder;
 
   final int paginationTotalVisible;
   final List<int> itemsPerPageOptions;
@@ -72,15 +72,11 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
                 infiniteScroll: infiniteScroll,
                 headerSticky: wTheme.headerSticky ?? canSticky,
                 footerSticky: wTheme.footerSticky ?? canSticky,
-                footerWidget: Column(
+                footerBuilder: (ctx) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (!infiniteScroll)
-                      ValueListenableBuilder(
-                        valueListenable: listController,
-                        builder: (ctx, state, _) => _buildToolbar(colors, constraints.maxWidth),
-                      ),
-                    if (wTheme.footerWidget != null) wTheme.footerWidget!,
+                    if (!infiniteScroll) _buildToolbar(colors, constraints.maxWidth),
+                    if (wTheme.footerBuilder != null) wTheme.footerBuilder!(ctx),
                   ],
                 ),
               ),

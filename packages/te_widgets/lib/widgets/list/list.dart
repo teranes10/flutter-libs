@@ -73,24 +73,33 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
     return item.toString();
   }
 
-  static ListItemBuilder<T, K> defaultItemBuilder<T, K>(TListCardTheme? theme, ItemTextAccessor<T>? itemTitle,
-      ItemTextAccessor<T>? itemSubTitle, ItemTextAccessor<T>? itemImageUrl, ListItemTap<T, K>? onTap) {
-    TListCard toListCard(TListItem<T, K> item, bool multiple) {
-      return TListCard(
-        title: itemTitle?.call(item.data) ?? '',
-        subTitle: itemSubTitle?.call(item.data),
-        imageUrl: itemImageUrl?.call(item.data),
-        isSelected: item.isSelected,
-        isExpanded: item.isExpanded,
-        level: item.level,
-        theme: theme,
-        multiple: multiple,
-        onTap: () => onTap?.call(item),
-        children: item.children?.map((child) => toListCard(child, multiple)).toList(),
-      );
-    }
+  static ListItemBuilder<T, K> defaultItemBuilder<T, K>(
+    TListCardTheme? theme,
+    ItemTextAccessor<T>? itemTitle,
+    ItemTextAccessor<T>? itemSubTitle,
+    ItemTextAccessor<T>? itemImageUrl,
+    ListItemTap<T, K>? onTap,
+  ) {
+    return (ctx, item, index) {
+      final controller = TListScope.of<T, K>(ctx).controller;
 
-    return (ctx, item, index, multiple) => toListCard(item, multiple);
+      TListCard toListCard(TListItem<T, K> item) {
+        return TListCard(
+          title: itemTitle?.call(item.data) ?? '',
+          subTitle: itemSubTitle?.call(item.data),
+          imageUrl: itemImageUrl?.call(item.data),
+          isSelected: item.isSelected,
+          isExpanded: item.isExpanded,
+          level: item.level,
+          theme: theme,
+          multiple: controller.isMultiSelect,
+          onTap: () => onTap?.call(item),
+          children: item.children?.map((child) => toListCard(child)).toList(),
+        );
+      }
+
+      return toListCard(item);
+    };
   }
 
   @override
@@ -200,8 +209,9 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
+    return TListScope(
+      controller: listController,
+      child: LayoutBuilder(builder: (context, constraints) {
         if (widget.autoItemsPerPage) {
           _handleAutoItemsPerPage(constraints);
         }
@@ -235,7 +245,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
             );
           },
         );
-      },
+      }),
     );
   }
 

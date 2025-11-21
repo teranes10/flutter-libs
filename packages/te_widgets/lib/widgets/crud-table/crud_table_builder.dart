@@ -1,7 +1,7 @@
 part of 'crud_table.dart';
 
 class TCrudTableContent<T, K> {
-  final List<TTableHeader<T>> headers;
+  final List<TTableHeader<T, K>> headers;
   final TListController<T, K> controller;
 
   TCrudTableContent({required this.headers, required this.controller});
@@ -14,7 +14,7 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
 
   Widget _buildContent(TWidgetThemeExtension theme, TTableTheme tableTheme) {
     Widget buildTable({
-      required List<TTableHeader<T>> headers,
+      required List<TTableHeader<T, K>> headers,
       required TListController<T, K> controller,
     }) {
       return TDataTable<T, K>(
@@ -36,37 +36,51 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
     );
   }
 
-  List<TTableHeader<T>> _buildActiveHeaders(TWidgetThemeExtension theme) {
+  List<TTableHeader<T, K>> _buildActiveHeaders(TWidgetThemeExtension theme) {
     final headers = [...parent.widget.headers];
 
     if (parent.widget.config.showActions && parent.hasActiveActions) {
-      headers.add(TTableHeader<T>(
-        'Actions',
-        maxWidth: (27.0 * (3 + parent.widget.config.activeActions.length)),
-        alignment: Alignment.center,
-        builder: (context, item) => _buildActiveActionButtons(theme, item),
+      headers.add(TTableHeader<T, K>.actions(
+        (item) => _buildActiveActionButtons(theme, item.data),
+        maxWidth: parent.widget.config.actionButtonWidth * _activeActionsCount(),
       ));
     }
 
     return headers;
   }
 
-  List<TTableHeader<T>> _buildArchiveHeaders(TWidgetThemeExtension theme) {
+  List<TTableHeader<T, K>> _buildArchiveHeaders(TWidgetThemeExtension theme) {
     final headers = [...parent.widget.headers];
 
     if (parent.widget.config.showActions && parent.hasArchiveActions) {
-      headers.add(TTableHeader<T>(
-        'Actions',
-        maxWidth: (27.0 * (3 + parent.widget.config.activeActions.length)),
-        alignment: Alignment.center,
-        builder: (context, item) => _buildArchiveActionButtons(theme, item),
+      headers.add(TTableHeader<T, K>.actions(
+        (item) => _buildArchiveActionButtons(theme, item.data),
+        minWidth: parent.widget.config.actionButtonWidth * _archiveActionsCount(),
       ));
     }
 
     return headers;
   }
 
-  Widget _buildActiveActionButtons(TWidgetThemeExtension theme, T item) {
+  int _activeActionsCount() {
+    int count = 0;
+
+    if (parent.widget.onView != null) {
+      count++;
+    }
+    if (parent.canEdit) {
+      count++;
+    }
+    if (parent.widget.onArchive != null) {
+      count++;
+    }
+
+    count += parent.widget.config.activeActions.length;
+
+    return count;
+  }
+
+  List<TButtonGroupItem> _buildActiveActionButtons(TWidgetThemeExtension theme, T item) {
     final buttons = <TButtonGroupItem>[];
 
     if (parent.widget.onView != null && parent.canPerformActionSync(item, parent.widget.config.canView)) {
@@ -107,15 +121,28 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
       }
     }
 
-    return buttons.isEmpty
-        ? const SizedBox.shrink()
-        : TButtonGroup(
-            type: TButtonGroupType.icon,
-            items: buttons,
-          );
+    return buttons;
   }
 
-  Widget _buildArchiveActionButtons(TWidgetThemeExtension theme, T item) {
+  int _archiveActionsCount() {
+    int count = 0;
+
+    if (parent.widget.onView != null) {
+      count++;
+    }
+    if (parent.widget.onRestore != null) {
+      count++;
+    }
+    if (parent.widget.onDelete != null) {
+      count++;
+    }
+
+    count += parent.widget.config.archiveActions.length;
+
+    return count;
+  }
+
+  List<TButtonGroupItem> _buildArchiveActionButtons(TWidgetThemeExtension theme, T item) {
     final buttons = <TButtonGroupItem>[];
 
     // View action
@@ -160,11 +187,6 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
       }
     }
 
-    return buttons.isEmpty
-        ? const SizedBox.shrink()
-        : TButtonGroup(
-            type: TButtonGroupType.icon,
-            items: buttons,
-          );
+    return buttons;
   }
 }
