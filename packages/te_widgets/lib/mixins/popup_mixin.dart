@@ -97,7 +97,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   Widget buildWithDropdownTarget({required Widget child}) {
     return CompositedTransformTarget(
       link: _layerLink,
-      child: Container(key: _dropdownTargetKey, child: child),
+      child: KeyedSubtree(key: _dropdownTargetKey, child: child),
     );
   }
 

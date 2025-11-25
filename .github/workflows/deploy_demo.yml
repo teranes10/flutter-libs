@@ -21,16 +21,32 @@ jobs:
           flutter-version: "3.32.2" # or 'stable'
           cache: true
 
-      - name: Flutter Pub Get
+      # APP 1
+      - name: Pub Get (myApp)
         working-directory: apps/my_app
         run: flutter pub get
 
-      - name: Build Flutter Web
+      - name: Build Web (myApp)
         working-directory: apps/my_app
-        run: flutter build web --base-href /flutter-libs/
+        run: flutter build web --base-href /flutter-libs/myapp/
+
+      # APP 2
+      - name: Pub Get (myPos)
+        working-directory: apps/my_pos
+        run: flutter pub get
+
+      - name: Build Web (myPos)
+        working-directory: apps/my_pos
+        run: flutter build web --base-href /flutter-libs/mypos/
+
+      - name: Copy outputs
+        run: |
+          mkdir public
+          cp -r apps/my_app/build/web public/myapp
+          cp -r apps/my_pos/build/web public/mypos
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: apps/my_app/build/web
+          publish_dir: ./public

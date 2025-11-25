@@ -34,11 +34,13 @@ class TListState<T, K> {
 }
 
 class TListError {
+  final String title;
   final String message;
   final Object error;
   final StackTrace stackTrace;
 
   const TListError({
+    this.title = 'An error occurred',
     required this.message,
     required this.error,
     required this.stackTrace,

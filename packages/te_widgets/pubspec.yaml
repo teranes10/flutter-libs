@@ -20,7 +20,7 @@ dependencies:
   pdf: ^3.11.3
   file_saver: ^0.3.1
   file_picker: ^10.3.2
-  flutter_riverpod: ^2.6.1
+  flutter_riverpod: ^3.0.3
   shared_preferences: ^2.5.3
   calendar_date_picker2: ^2.0.1
   photo_view: ^0.15.0

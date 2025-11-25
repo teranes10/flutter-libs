@@ -16,11 +16,13 @@ extension ColorX on Color {
       700 => Color.lerp(this, Colors.black, 0.2)!,
       800 => Color.lerp(this, Colors.black, 0.3)!,
       900 => Color.lerp(this, Colors.black, 0.4)!,
-      _ => this,
+      _ => throw ArgumentError("Invalid shade value."),
     };
   }
 
   MaterialColor toMaterial() {
+    if (this is MaterialColor) return (this as MaterialColor);
+
     return MaterialColor(toARGB32(), <int, Color>{
       50: Color.lerp(this, Colors.white, 0.9)!,
       100: Color.lerp(this, Colors.white, 0.8)!,
@@ -40,7 +42,7 @@ extension ColorX on Color {
   }
 
   Color o(double opacity) {
-    if (a == 0) return this;
+    if (isTransparent) return this;
     return withAlpha((opacity.clamp(0.0, 1.0) * 255).round());
   }
 

@@ -55,7 +55,7 @@ final GoRouter router = GoRouter(
             return TLayout(
               isMinimized: sidebarMinified,
               logo: TLogo(text: 'Te Widgets'),
-              profile: TAvatar(name: 'Teranes', role: 'Super Admin'),
+              profile: TImage.profile(name: 'Teranes', role: 'Super Admin'),
               actions: [
                 TButton(
                     size: TButtonSize.xs.copyWith(icon: 16),

@@ -22,7 +22,7 @@ class GridPage extends StatelessWidget {
     return TTable<ProductDto, int>(
       theme: context.theme.tableTheme.copyWith(
         grid: TGridMode.aligned,
-        gridDelegateBuilder: (context) => context.isMobile ? TGridDelegate(crossAxisCount: 1) : TGridDelegate(maxCrossAxisExtent: 350),
+        gridDelegate: (context) => context.isMobile ? TGridDelegate(crossAxisCount: 1) : TGridDelegate(maxCrossAxisExtent: 350),
       ),
       headers: headers,
       onLoad: ProductsClient().loadMore,

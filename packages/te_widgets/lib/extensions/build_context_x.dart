@@ -16,7 +16,7 @@ extension BuildContextX on BuildContext {
     return ext;
   }
 
-  TWidgetTheme getWidgetTheme(TVariant type, Color? color) => TThemeResolver.getWidgetTheme(isDarkMode, color ?? theme.primary, type);
+  TWidgetTheme getWidgetTheme(TVariant type, Color? color) => TWidgetTheme.from(isDarkMode, color ?? theme.primary, type);
 
   MediaQueryData get mediaQuery => MediaQuery.of(this);
   double get screenWidth => mediaQuery.screenWidth;

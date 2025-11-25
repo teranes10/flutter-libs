@@ -179,8 +179,9 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(24),
         child: CircleAvatar(
             radius: 16,
-            backgroundColor: colors.surfaceContainerHigh,
-            child: Icon(widget.isMinimized ? Icons.chevron_right_rounded : Icons.chevron_left_rounded, size: 20, color: colors.onSurface)),
+            backgroundColor: colors.surfaceContainerLow,
+            child: Icon(widget.isMinimized ? Icons.chevron_right_rounded : Icons.chevron_left_rounded,
+                size: 20, color: colors.onSurfaceVariant)),
       );
     });
   }

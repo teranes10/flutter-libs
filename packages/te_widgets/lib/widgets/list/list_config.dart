@@ -17,6 +17,16 @@ typedef ListItemFactory<T, K> = TListItem<T, K> Function(T item);
 typedef ListItemBuilder<T, K> = Widget Function(BuildContext context, TListItem<T, K> item, int index);
 typedef TLoadListener<T> = Future<TLoadResult<T>> Function(TLoadOptions<T> options);
 
+typedef TListEmptyBuilder = Widget Function(BuildContext context);
+typedef TListErrorBuilder = Widget Function(BuildContext context, TListError error);
+typedef TListLoadingBuilder = Widget Function(BuildContext context);
+typedef TListHeaderBuilder = Widget Function(BuildContext context);
+typedef TListFooterBuilder = Widget Function(BuildContext context);
+typedef TListSeparatorBuilder = Widget? Function(BuildContext context, int index);
+typedef TListDragProxyDecorator = Widget Function(Widget, int, Animation<double>);
+typedef TListReorderCallback = void Function(int, int);
+typedef TGridDelegateBuilder = TGridDelegate Function(BuildContext context);
+
 class TLoadOptions<T> {
   final int page;
   final int itemsPerPage;

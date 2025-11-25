@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class ChipsPage extends StatelessWidget {
@@ -62,10 +63,15 @@ class ChipsPage extends StatelessWidget {
             ],
           ),
           RoleTest(),
-          TAvatar(
+          TImage.profile(
             name: "Teranes",
             role: "Admin",
-          )
+          ),
+          TNavbar(items: [
+            TNavItem(icon: Icons.home_rounded, label: 'Home', isActive: true, onTap: () {}),
+            TNavItem(icon: Icons.receipt_rounded, label: 'Bills', isActive: false, onTap: () {}),
+            TNavItem(icon: Icons.settings, label: 'Settings', isActive: false, onTap: () {}),
+          ])
         ],
       ),
     );

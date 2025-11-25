@@ -29,7 +29,7 @@ class TScrollbar extends StatelessWidget {
           interactive: true,
           thickness: 8.0,
           radius: const Radius.circular(8.0),
-          thumbColor: isHovered ? colors.surfaceContainerLow : colors.surfaceContainerHigh,
+          thumbColor: isHovered ? colors.surfaceContainerLowest : colors.surfaceContainerLow,
           trackColor: Colors.transparent,
           trackBorderColor: Colors.transparent,
           crossAxisMargin: 0.0,

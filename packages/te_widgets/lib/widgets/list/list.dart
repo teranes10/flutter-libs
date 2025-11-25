@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_widgets/widgets/list/list_view.dart';
 
 class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   final ListItemBuilder<T, K> itemBuilder;
@@ -206,18 +207,38 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               });
             }
 
-            return wTheme.buildListView<T, K>(
-              context: context,
+            return TListView(
               items: state.displayItems,
-              itemBuilder: widget.itemBuilder,
-              animationController: _animationController,
-              listController: listController,
-              scrollController: _scrollController,
-              loading: state.loading,
-              hasError: state.error != null,
               error: state.error,
-              hasMoreItems: state.hasMoreItems,
+              headerSticky: wTheme.headerSticky ?? false,
+              headerBuilder: wTheme.headerBuilder,
+              footerSticky: wTheme.footerSticky ?? false,
+              footerBuilder: wTheme.footerBuilder,
+              loading: state.loading,
+              loadingBuilder: wTheme.loadingBuilder,
+              infiniteScroll: wTheme.infiniteScroll ?? false,
+              infiniteScrollFooterBuilder: wTheme.infiniteScrollFooterBuilder,
+              errorStateBuilder: wTheme.errorStateBuilder,
+              emptyStateBuilder: wTheme.emptyStateBuilder,
+              itemBuilder: (context, item, index) {
+                final child = widget.itemBuilder(context, item, index);
+                final animationBuilder = wTheme.animationBuilder;
+
+                if (animationBuilder != null) {
+                  return animationBuilder(context, _animationController, child, index);
+                }
+                return child;
+              },
+              listSeparatorBuilder: wTheme.listSeparatorBuilder,
+              padding: wTheme.padding,
+              reorderable: listController.reorderable,
+              dragProxyDecorator: wTheme.dragProxyDecorator,
+              onReorder: listController.reorder,
+              grid: wTheme.grid,
+              gridDelegate: wTheme.gridDelegate,
               height: _calculateHeight(state),
+              shrinkWrap: wTheme.shrinkWrap,
+              scrollController: _scrollController,
             );
           },
         );
@@ -246,9 +267,9 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
       int perRow = 1;
 
       if (wTheme.grid != null) {
-        final config = wTheme.gridDelegateBuilder?.call(context);
+        final config = wTheme.gridDelegate?.call(context);
         if (config == null) {
-          throw ArgumentError("gridDelegateBuilder can not be null.");
+          throw ArgumentError("gridDelegate can not be null.");
         }
 
         final maxWidth = constraints.maxWidth;

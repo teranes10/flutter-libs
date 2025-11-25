@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:te_widgets/te_widgets.dart';
+part of 'button.dart';
 
 enum TButtonGroupType {
   solid,
@@ -88,7 +87,6 @@ class TButtonGroupTheme {
     return type == TButtonGroupType.text ||
         type == TButtonGroupType.softText ||
         type == TButtonGroupType.filledText ||
-        type == TButtonGroupType.icon ||
         type == TButtonGroupType.boxed;
   }
 

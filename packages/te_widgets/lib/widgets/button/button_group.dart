@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:te_widgets/te_widgets.dart';
+part of 'button.dart';
 
 class TButtonGroup extends StatelessWidget {
   final TButtonGroupTheme? theme;
@@ -83,7 +82,6 @@ class TButtonGroup extends StatelessWidget {
 
     final isSingle = total == 1;
     final buttonTheme = (button.theme ?? context.theme.buttonTheme).copyWith(
-      type: type?.buttonType,
       color: item.color ?? groupTheme.color,
       size: size,
     );

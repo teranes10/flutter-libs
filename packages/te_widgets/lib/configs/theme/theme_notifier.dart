@@ -23,13 +23,13 @@ Future<void> initializeApp() async {
   _initialSidebarMinified = _prefs.getBool(sidebarMinifiedKey) ?? false;
 }
 
-class ThemeNotifier extends StateNotifier<ThemeMode> {
-  ThemeNotifier(super.initialTheme);
+class ThemeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => _initialTheme;
 
   void toggleTheme() {
-    final newMode = state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    state = newMode;
-    _saveThemeMode(newMode);
+    state = state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    _saveThemeMode(state);
   }
 
   Future<void> _saveThemeMode(ThemeMode mode) async {
@@ -38,20 +38,20 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   }
 }
 
-class SidebarNotifier extends StateNotifier<bool> {
-  SidebarNotifier(super.initialState);
+class SidebarNotifier extends Notifier<bool> {
+  @override
+  bool build() => _initialSidebarMinified;
 
   void toggleSidebar() {
-    final newState = !state;
-    state = newState;
-    _saveSidebar(newState);
+    state = !state;
+    _saveSidebar(state);
   }
 
-  Future<void> _saveSidebar(bool minified) async {
+  Future<void> _saveSidebar(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(sidebarMinifiedKey, minified);
+    await prefs.setBool(sidebarMinifiedKey, value);
   }
 }
 
-final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>((ref) => ThemeNotifier(_initialTheme));
-final sidebarNotifierProvider = StateNotifierProvider<SidebarNotifier, bool>((ref) => SidebarNotifier(_initialSidebarMinified));
+final themeNotifierProvider = NotifierProvider<ThemeNotifier, ThemeMode>(() => ThemeNotifier());
+final sidebarNotifierProvider = NotifierProvider<SidebarNotifier, bool>(() => SidebarNotifier());

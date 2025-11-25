@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+part 'button_config.dart';
+part 'button_group_theme.dart';
+part 'button_group.dart';
+part 'button_theme.dart';
+
 class TButton extends StatefulWidget {
   final TButtonTheme? theme;
+  final TWidgetTheme? baseTheme;
   final TButtonShape? shape;
   final TButtonType? type;
   final TButtonSize? size;
   final IconData? icon;
+  final String? imageUrl;
   final Color? color;
   final String? text;
   final bool loading;
@@ -23,6 +30,7 @@ class TButton extends StatefulWidget {
 
   const TButton({
     super.key,
+    this.baseTheme,
     this.theme,
     this.shape,
     this.type,
@@ -31,6 +39,7 @@ class TButton extends StatefulWidget {
     this.loading = false,
     this.loadingText = 'Loading...',
     this.icon,
+    this.imageUrl,
     this.text,
     this.tooltip,
     this.onTap,
@@ -41,8 +50,13 @@ class TButton extends StatefulWidget {
     this.child,
     this.onChanged,
     this.duration = const Duration(milliseconds: 400),
-  }) : assert(theme == null || (type == null && size == null && shape == null && color == null),
-            'If theme is provided, type, shape, color and size must be null.');
+  })  : assert(
+          theme == null || (baseTheme == null && type == null && size == null && shape == null && color == null),
+          'If theme is provided, baseTheme, type, shape, color and size must be null.',
+        ),
+        assert(baseTheme == null || (type == null && color == null && activeColor == null),
+            'If baseTheme is provided, type, color and activeColor must be null.'),
+        assert(imageUrl == null || icon == null, 'Provide either `imageUrl` or `icon`, but not both.');
 
   @override
   State<TButton> createState() => _TButtonState();
@@ -69,6 +83,14 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _isActive = widget.active;
+  }
+
+  @override
+  void didUpdateWidget(TButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.active != _isActive) {
+      setState(() => _isActive = widget.active);
+    }
   }
 
   @override
@@ -121,21 +143,22 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final defaultTheme = context.theme.buttonTheme;
-    final baseTheme = widget.theme?.baseTheme ?? defaultTheme.baseTheme;
-    final size = widget.size ?? defaultTheme.size;
-
+    final size = widget.size ?? widget.theme?.size ?? defaultTheme.size;
     final activeColor = _isActive ? (widget.activeColor ?? widget.color) : widget.color;
     final icon = _isActive ? (widget.activeIcon ?? widget.icon) : widget.icon;
     final text = widget.text;
+
+    final baseTheme =
+        widget.baseTheme ?? (widget.theme?.baseTheme ?? defaultTheme.baseTheme).rebuild(color: activeColor, type: widget.type?.colorType);
 
     final theme = widget.theme ??
         defaultTheme.copyWith(
           size: size,
           shape: widget.shape,
-          baseTheme: baseTheme.copyWidth(color: activeColor, type: widget.type?.colorType),
+          baseTheme: baseTheme,
         );
 
-    assert(theme.shape != TButtonShape.circle || widget.text.isNullOrBlank, 'Circle shape only supports icon, no text.');
+    assert(theme.shape != TButtonShape.circle || text.isNullOrBlank, 'Circle shape only supports icon, no text.');
 
     final buttonContent = AnimatedContainer(
       duration: widget.duration,
@@ -151,7 +174,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
               height: size.icon,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation(baseTheme.foregroundState.resolve(_currentStates)),
+                valueColor: AlwaysStoppedAnimation(theme.baseTheme.foregroundState.resolve(_currentStates)),
               ),
             )
           else if (icon != null)
@@ -159,7 +182,23 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
               duration: widget.duration,
               transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
               child: Icon(key: ValueKey(_isActive), icon, size: size.icon),
-            ),
+            )
+          else if (widget.imageUrl != null)
+            if (theme.shape == TButtonShape.normal)
+              TImage(
+                size: size.icon,
+                url: widget.imageUrl,
+                color: theme.baseTheme.onContainerVariant.withAlpha(50),
+                disabled: true,
+                border: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+              )
+            else
+              TImage.circle(
+                size: size.icon,
+                url: widget.imageUrl,
+                color: theme.baseTheme.onContainerVariant.withAlpha(50),
+                disabled: true,
+              ),
           if (!text.isNullOrBlank) Text(_isLoading ? widget.loadingText : text!),
           if (widget.child != null) widget.child!,
         ],

@@ -53,7 +53,7 @@ class TListCardTheme {
     return TListCardTheme(
       backgroundColor: colors.surface,
       selectedBackgroundColor: colors.primaryContainer,
-      disabledBackgroundColor: colors.surfaceContainerHighest.o(0.5),
+      disabledBackgroundColor: colors.surfaceContainerHighest,
       expansionIndicatorBuilder: defaultExpansionIndicatorBuilder(colors),
       selectionIndicatorBuilder: defaultSelectionIndicatorBuilder(colors),
       contentBuilder: defaultContentBuilder(colors),
@@ -141,7 +141,7 @@ class TListCardTheme {
             TImage(
               url: imageUrl,
               size: 45,
-              backgroundColor: colors.surfaceDim,
+              color: colors.surfaceDim,
               disabled: true,
             ),
             const SizedBox(width: 15),

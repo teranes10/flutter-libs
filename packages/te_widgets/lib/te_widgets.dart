@@ -61,12 +61,6 @@ export 'widgets/alert/alert_service.dart';
 export 'widgets/alert/alert_theme.dart';
 export 'widgets/alert/alert.dart';
 
-export 'widgets/avatar/avatar.dart';
-
-export 'widgets/button/button_config.dart';
-export 'widgets/button/button_group_theme.dart';
-export 'widgets/button/button_group.dart';
-export 'widgets/button/button_theme.dart';
 export 'widgets/button/button.dart';
 
 export 'widgets/card/card.dart';
@@ -117,6 +111,7 @@ export 'widgets/list/list_mixin.dart';
 export 'widgets/list/list_scope.dart';
 export 'widgets/list/list_state.dart';
 export 'widgets/list/list_theme.dart';
+export 'widgets/list/list_view.dart';
 export 'widgets/list/list.dart';
 
 export 'widgets/loading-icon/loading_icon.dart';
@@ -124,6 +119,8 @@ export 'widgets/loading-icon/loading_icon.dart';
 export 'widgets/modal/modal_config.dart';
 export 'widgets/modal/modal_service.dart';
 export 'widgets/modal/modal.dart';
+
+export 'widgets/nav-bar/nav_bar.dart';
 
 export 'widgets/number-field/number_field.dart';
 export 'widgets/number-field/number_field_theme.dart';

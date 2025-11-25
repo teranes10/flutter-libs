@@ -38,7 +38,7 @@ class TIcon extends StatelessWidget {
       icon: Icons.cancel_outlined,
       onTap: onTap,
       size: size,
-      color: colors.surfaceContainerLowest,
+      color: colors.surfaceContainerHighest,
       hoverColor: colors.error,
     );
   }

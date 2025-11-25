@@ -1,11 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:te_widgets/te_widgets.dart';
-
-enum TButtonShape {
-  normal,
-  pill,
-  circle;
-}
+part of 'button.dart';
 
 enum TButtonType {
   solid,
@@ -17,13 +10,6 @@ enum TButtonType {
   softText,
   filledText,
   icon;
-
-  FontWeight get fontWeight {
-    return switch (this) {
-      solid || tonal || text || softText || filledText || icon => FontWeight.w400,
-      outline || softOutline || filledOutline => FontWeight.w300,
-    };
-  }
 
   TVariant get colorType {
     return switch (this) {
@@ -39,11 +25,28 @@ enum TButtonType {
   }
 }
 
+class TButtonShape {
+  final OutlinedBorder border;
+
+  const TButtonShape({
+    required this.border,
+  });
+
+  static const TButtonShape normal = TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(6.0))));
+  static const TButtonShape pill = TButtonShape(border: StadiumBorder());
+  static const TButtonShape circle = TButtonShape(border: CircleBorder());
+  static TButtonShape custom(double radius) =>
+      TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(radius))));
+}
+
 @immutable
 class TButtonSize {
   final double minW, minH, hPad, vPad, font, icon, spacing;
 
   WidgetStateProperty<EdgeInsets> get paddingState => WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: hPad, vertical: vPad));
+  WidgetStateProperty<EdgeInsets> get pillPaddingState =>
+      WidgetStateProperty.all(EdgeInsets.only(top: vPad, bottom: vPad, left: hPad, right: hPad + spacing));
+
   WidgetStateProperty<Size> get minimumSizeState => WidgetStateProperty.all(Size(minW, minH));
 
   const TButtonSize._({
@@ -80,14 +83,22 @@ class TButtonSize {
   static const TButtonSize xs = TButtonSize._(minW: 28, minH: 28, hPad: 6, vPad: 2, font: 11, icon: 14, spacing: 4);
   static const TButtonSize sm = TButtonSize._(minW: 32, minH: 32, hPad: 10, vPad: 4, font: 12, icon: 16, spacing: 5);
   static const TButtonSize md = TButtonSize._(minW: 38, minH: 38, hPad: 12, vPad: 6, font: 13, icon: 18, spacing: 6);
-  static const TButtonSize lg = TButtonSize._(minW: 45, minH: 45, hPad: 16, vPad: 8, font: 14, icon: 20, spacing: 8);
+  static const TButtonSize lg = TButtonSize._(minW: 45, minH: 45, hPad: 16, vPad: 8, font: 16, icon: 22, spacing: 8);
   static const TButtonSize block = TButtonSize._(minW: double.infinity, minH: 38, hPad: 12, vPad: 6, font: 13, icon: 18, spacing: 6);
+
+  TButtonSize.fromInputSize(TInputSize size)
+      : minW = size.height,
+        minH = size.height,
+        hPad = size.padding.vertical,
+        vPad = size.padding.vertical,
+        font = size.fontSize,
+        icon = size.fontSize + 6,
+        spacing = size.padding.right;
 }
 
 @immutable
 class TButtonTheme {
   final TWidgetTheme baseTheme;
-  final TButtonType type;
   final TButtonSize size;
   final TButtonShape shape;
   final Color color;
@@ -95,7 +106,6 @@ class TButtonTheme {
   final double? scaleOnPress;
 
   const TButtonTheme({
-    this.type = TButtonType.solid,
     required this.baseTheme,
     required this.size,
     required this.shape,
@@ -106,64 +116,58 @@ class TButtonTheme {
 
   TButtonTheme copyWith({
     TWidgetTheme? baseTheme,
-    TButtonType? type,
     TButtonSize? size,
     TButtonShape? shape,
     Color? color,
     ButtonStyle? buttonStyle,
     double? scaleOnPress,
   }) {
-    final effectiveType = type ?? this.type;
     final effectiveColor = color ?? this.color;
-    final effectiveBaseTheme = baseTheme ?? this.baseTheme.copyWidth(type: effectiveType.colorType, color: effectiveColor);
+    final effectiveBaseTheme = baseTheme ?? this.baseTheme.rebuild(color: effectiveColor);
     final effectiveSize = size ?? this.size;
     final effectiveShape = shape ?? this.shape;
 
     return TButtonTheme(
-      type: effectiveType,
       baseTheme: effectiveBaseTheme,
       size: effectiveSize,
       shape: effectiveShape,
       color: effectiveColor,
-      buttonStyle: buttonStyle ?? buildButtonStyle(effectiveBaseTheme, effectiveType, effectiveShape, effectiveSize),
+      buttonStyle: buttonStyle ?? buildButtonStyle(effectiveBaseTheme, effectiveShape, effectiveSize),
       scaleOnPress: scaleOnPress ?? this.scaleOnPress,
     );
   }
 
   factory TButtonTheme.defaultTheme(
     ColorScheme colors, {
-    TButtonType type = TButtonType.solid,
+    TVariant type = TVariant.solid,
     TButtonShape shape = TButtonShape.normal,
-    TButtonSize size = TButtonSize.md,
+    TButtonSize size = TButtonSize.sm,
   }) {
     final color = colors.primary;
-    final baseTheme = TWidgetTheme.from(colors.isDarkMode, color, type.colorType);
+    final baseTheme = TWidgetTheme.from(colors.isDarkMode, color, type);
 
     return TButtonTheme(
       baseTheme: baseTheme,
       shape: shape,
       size: size,
       color: color,
-      buttonStyle: buildButtonStyle(baseTheme, type, shape, size),
+      buttonStyle: buildButtonStyle(baseTheme, shape, size),
     );
   }
 
-  static ButtonStyle buildButtonStyle(TWidgetTheme baseTheme, TButtonType type, TButtonShape shape, TButtonSize size) {
+  static ButtonStyle buildButtonStyle(TWidgetTheme baseTheme, TButtonShape shape, TButtonSize size) {
     return ButtonStyle(
       backgroundColor: baseTheme.backgroundState,
       foregroundColor: baseTheme.foregroundState,
       iconColor: baseTheme.foregroundState,
       side: baseTheme.borderSideState,
-      padding: shape == TButtonShape.circle ? WidgetStateProperty.all(EdgeInsets.zero) : size.paddingState,
+      padding: shape == TButtonShape.pill ? size.pillPaddingState : size.paddingState,
       minimumSize: size.minimumSizeState,
+      visualDensity: VisualDensity.standard,
       overlayColor: WidgetStateProperty.all(Colors.transparent),
       elevation: WidgetStateProperty.all(0.0),
-      textStyle: WidgetStateProperty.all(TextStyle(fontSize: size.font, fontWeight: type.fontWeight, letterSpacing: 0.65)),
-      shape: WidgetStateProperty.all(switch (shape) {
-        TButtonShape.normal => RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.0)),
-        TButtonShape.pill => RoundedRectangleBorder(borderRadius: BorderRadius.circular(size.minH / 2)),
-        TButtonShape.circle => const CircleBorder(),
-      }),
+      textStyle: WidgetStateProperty.all(TextStyle(fontSize: size.font, fontWeight: baseTheme.type.fontWeight, letterSpacing: 0.65)),
+      shape: WidgetStateProperty.all(shape.border),
     );
   }
 }
