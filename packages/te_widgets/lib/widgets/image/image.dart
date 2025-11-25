@@ -96,6 +96,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isPackageAsset = widget.placeholder.startsWith('package:');
+
     String assetPath = widget.placeholder;
     String? package;
     if (isPackageAsset) {
@@ -126,7 +127,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
       width: widget.size,
       height: widget.size / widget.aspectRatio,
       alignment: Alignment.center,
-      decoration: ShapeDecoration(color: widget.color ?? colors.surfaceDim, shape: widget.border),
+      decoration: ShapeDecoration(color: widget.color ?? colors.surfaceContainerLowest, shape: widget.border),
       child: ClipPath(clipper: ShapeBorderClipper(shape: widget.border), child: image),
     );
 
@@ -134,28 +135,37 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
       child: InkWell(
         onTap: widget.disabled || widget.url.isNullOrBlank ? null : () => showPopup(context),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 7.5,
           children: [
             imageFrame,
             if (!widget.title.isNullOrBlank || !widget.subTitle.isNullOrBlank)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 1.5,
-                children: [
-                  if (!widget.title.isNullOrBlank)
-                    Text(
-                      widget.title!,
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: widget.titleColor ?? colors.onSurface),
-                    ),
-                  if (!widget.subTitle.isNullOrBlank)
-                    Text(
-                      widget.subTitle!,
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w300, color: widget.subTitleColor ?? colors.onSurfaceVariant),
-                    ),
-                ],
-              ),
+              Flexible(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 1.5,
+                  children: [
+                    if (!widget.title.isNullOrBlank)
+                      Text(
+                        widget.title!,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: widget.titleColor ?? colors.onSurface),
+                      ),
+                    if (!widget.subTitle.isNullOrBlank)
+                      Text(
+                        widget.subTitle!,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w300, color: widget.subTitleColor ?? colors.onSurfaceVariant),
+                      ),
+                  ],
+                ),
+              )
           ],
         ),
       ),

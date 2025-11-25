@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_pos/features/cart/cart_provider.dart';
 import 'package:my_pos/features/product/products.dart';
 import 'package:my_pos/models/product.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -15,20 +16,11 @@ class TProductGrid extends ConsumerWidget {
       gridDelegate: (context) => TGridDelegate(maxCrossAxisExtent: 275),
       items: products.map((x) => TListItem(key: x.id, data: x)).toList(),
       itemBuilder: (context, item, index) {
-        return TProductCard(product: item.data, onTap: () {});
+        return TProductCard(product: item.data, onTap: () => ref.read(cartProvider.notifier).add(item.data));
       },
       emptyStateBuilder: (context) =>
           TListTheme.buildEmptyState(context.colors, title: 'No Products Found', message: 'There are no products in this category yet.'),
     );
-    // return TList<Product, int>(
-    //   items: products,
-    //   theme: context.theme.listTheme,
-    //   // .copyWith(
-    //   //   grid: TGridMode.masonry,
-    //   //   gridDelegate: (context) => TGridDelegate(maxCrossAxisExtent: 275),
-    //   // ),
-    //   itemBuilder: (context, item, index) => TProductCard(product: item.data, onTap: () {}),
-    // );
   }
 }
 

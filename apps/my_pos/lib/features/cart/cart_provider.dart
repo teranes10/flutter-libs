@@ -7,37 +7,50 @@ part 'cart_provider.g.dart';
 @riverpod
 class CartNotifier extends _$CartNotifier {
   @override
-  List<CartItem> build() => [];
+  Map<String, CartItem> build() => {};
 
   void add(Product product, {int qty = 1}) {
-    final existing = state.where((i) => i.product.id == product.id).toList();
-
-    if (existing.isEmpty) {
-      state = [...state, CartItem(product: product, quantity: qty)];
+    final existing = state[product.id];
+    if (existing == null) {
+      state = {...state, product.id: CartItem(product: product, quantity: qty)};
     } else {
-      final current = existing.first;
-      final updated = current.copyWith(quantity: current.quantity + qty);
-      state = [
-        for (final item in state)
-          if (item.product.id == product.id) updated else item,
-      ];
+      state = {...state, product.id: existing.copyWith(quantity: existing.quantity + qty)};
     }
   }
 
   void updateQty(String productId, int qty) {
-    state = [
-      for (final item in state)
-        if (item.product.id == productId) item.copyWith(quantity: qty) else item,
-    ];
+    final existing = state[productId];
+    if (existing == null) return;
+
+    state = {...state, productId: existing.copyWith(quantity: qty)};
+  }
+
+  void changeQty(String productId, int delta) {
+    final existing = state[productId];
+    if (existing == null) return;
+
+    final newQty = existing.quantity + delta;
+
+    if (newQty <= 0) {
+      final newState = Map.of(state);
+      newState.remove(productId);
+      state = newState;
+    } else {
+      state = {...state, productId: existing.copyWith(quantity: newQty)};
+    }
   }
 
   void remove(String productId) {
-    state = state.where((i) => i.product.id != productId).toList();
+    final newState = Map.of(state);
+    newState.remove(productId);
+    state = newState;
   }
 
-  void clear() => state = [];
+  void clear() => state = {};
 
-  double get subtotal => state.fold(0, (sum, item) => sum + item.lineSubtotal);
-  double get totalTax => state.fold(0, (sum, item) => sum + item.lineTax);
+  double get subtotal => state.values.fold(0, (sum, item) => sum + item.lineSubtotal);
+
+  double get totalTax => state.values.fold(0, (sum, item) => sum + item.lineTax);
+
   double get grandTotal => subtotal + totalTax;
 }

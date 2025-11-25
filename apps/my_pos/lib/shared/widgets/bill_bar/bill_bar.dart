@@ -4,7 +4,6 @@ import 'package:my_pos/features/cart/cart_provider.dart';
 import 'package:my_pos/shared/widgets/bill_bar/bill_footer.dart';
 import 'package:my_pos/shared/widgets/bill_bar/bill_header.dart';
 import 'package:my_pos/shared/widgets/bill_bar/bill_item.dart';
-import 'package:my_pos/models/cart_item.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TBillBar extends ConsumerWidget {
@@ -13,7 +12,8 @@ class TBillBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
-    final cartItems = ref.watch(cartProvider);
+    final cartItems = ref.watch(cartProvider).values.toList();
+    final cartNotifier = ref.read(cartProvider.notifier);
 
     return Container(
       width: 325,
@@ -25,10 +25,22 @@ class TBillBar extends ConsumerWidget {
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 7.5, vertical: 10),
-              child: TList<CartItem, int>(
-                theme: context.theme.listTheme.copyWith(footerBuilder: (context) => TBillFooter(onPlaceOrder: () {}), footerSticky: true),
-                items: cartItems,
-                itemBuilder: (context, item, index) => TBillItem(item: item.data, onRemove: () {}, onIncrement: () {}, onDecrement: () {}),
+              child: TListView(
+                footerBuilder: (context) => TBillFooter(onPlaceOrder: () {}),
+                footerSticky: true,
+                items: cartItems.map((x) => TListItem(key: x.product.id, data: x)).toList(),
+                itemBuilder: (context, item, index) => TBillItem(
+                  item: item.data,
+                  onRemove: () => cartNotifier.remove(item.data.product.id),
+                  onIncrement: () => cartNotifier.changeQty(item.data.product.id, 1),
+                  onDecrement: () => cartNotifier.changeQty(item.data.product.id, -1),
+                ),
+                emptyStateBuilder: (context) => TListTheme.buildEmptyState(
+                  context.colors,
+                  icon: Icons.shopping_cart_outlined,
+                  title: 'Your Cart is Empty',
+                  message: 'Add some products to get started!',
+                ),
               ),
             ),
           ),

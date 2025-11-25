@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_pos/features/cart/cart_provider.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TBillFooter extends StatelessWidget {
+class TBillFooter extends ConsumerWidget {
   final VoidCallback onPlaceOrder;
 
   const TBillFooter({super.key, required this.onPlaceOrder});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
+    final cartNotifier = ref.read(cartProvider.notifier);
 
     return Column(
       children: [
-        buildPaymentDetail(colors, label: 'Sub Total', value: '\$50.00'),
-        buildPaymentDetail(colors, label: 'Tax 10% (VAT Included)', value: '\$5.00'),
+        buildPaymentDetail(colors, label: 'Sub Total', value: '\$${cartNotifier.subtotal.toStringAsFixed(2)}'),
+        buildPaymentDetail(colors, label: 'Tax 10% (VAT Included)', value: '\$${cartNotifier.totalTax.toStringAsFixed(2)}'),
         Container(
           margin: const EdgeInsets.only(top: 5),
           padding: const EdgeInsets.only(top: 5),
@@ -30,7 +33,7 @@ class TBillFooter extends StatelessWidget {
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: colors.primary),
               ),
               Text(
-                '\$55.00',
+                '\$${cartNotifier.grandTotal.toStringAsFixed(2)}',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: colors.primary),
               ),
             ],

@@ -13,7 +13,7 @@ part of 'cart_provider.dart';
 const cartProvider = CartNotifierProvider._();
 
 final class CartNotifierProvider
-    extends $NotifierProvider<CartNotifier, List<CartItem>> {
+    extends $NotifierProvider<CartNotifier, Map<String, CartItem>> {
   const CartNotifierProvider._()
     : super(
         from: null,
@@ -33,28 +33,28 @@ final class CartNotifierProvider
   CartNotifier create() => CartNotifier();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(List<CartItem> value) {
+  Override overrideWithValue(Map<String, CartItem> value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<List<CartItem>>(value),
+      providerOverride: $SyncValueProvider<Map<String, CartItem>>(value),
     );
   }
 }
 
-String _$cartNotifierHash() => r'a3c090df69705ca301011b87559b2675a146e3ac';
+String _$cartNotifierHash() => r'4109ec44810537234095b72696caad072371e9d3';
 
-abstract class _$CartNotifier extends $Notifier<List<CartItem>> {
-  List<CartItem> build();
+abstract class _$CartNotifier extends $Notifier<Map<String, CartItem>> {
+  Map<String, CartItem> build();
   @$mustCallSuper
   @override
   void runBuild() {
     final created = build();
-    final ref = this.ref as $Ref<List<CartItem>, List<CartItem>>;
+    final ref = this.ref as $Ref<Map<String, CartItem>, Map<String, CartItem>>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<List<CartItem>, List<CartItem>>,
-              List<CartItem>,
+              AnyNotifier<Map<String, CartItem>, Map<String, CartItem>>,
+              Map<String, CartItem>,
               Object?,
               Object?
             >;
