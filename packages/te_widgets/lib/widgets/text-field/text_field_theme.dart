@@ -250,21 +250,4 @@ class TTextFieldTheme extends TInputFieldTheme {
   TextInputAction _resolveTextInputAction(bool isMultiline, TextInputAction? overrideAction) {
     return textInputAction ?? (isMultiline ? TextInputAction.newline : overrideAction ?? TextInputAction.next);
   }
-
-  static TextInputType getKeyboardTypeForValueType(BaseValueType? type) {
-    return switch (type) {
-      BaseValueType.integer => TextInputType.number,
-      BaseValueType.floating || BaseValueType.numeric => const TextInputType.numberWithOptions(decimal: true),
-      BaseValueType.dateTime || BaseValueType.timeOfDay => TextInputType.datetime,
-      _ => TextInputType.text,
-    };
-  }
-
-  static List<TextInputFormatter> getInputFormattersForValueType(BaseValueType? type, int? decimals) {
-    return switch (type) {
-      BaseValueType.integer => [IntegerInputFormatter()],
-      BaseValueType.floating || BaseValueType.numeric => [DecimalInputFormatter(decimals: decimals)],
-      _ => [],
-    };
-  }
 }

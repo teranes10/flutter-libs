@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/list/controller/list_controller.dart';
+import 'package:te_widgets/te_widgets.dart';
 
-class TTableScope<T, K> extends InheritedWidget {
-  final TListController<T, K> controller;
+class TTableScope extends InheritedWidget {
+  final TListController controller;
   final ValueNotifier<String?>? activeCellNotifier;
 
   const TTableScope({
@@ -12,12 +12,12 @@ class TTableScope<T, K> extends InheritedWidget {
     required super.child,
   });
 
-  static TTableScope<T, K>? maybeOf<T, K>(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<TTableScope<T, K>>();
+  static TTableScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<TTableScope>();
   }
 
-  static TTableScope<T, K> of<T, K>(BuildContext context) {
-    final result = maybeOf<T, K>(context);
+  static TTableScope of(BuildContext context) {
+    final result = maybeOf(context);
     assert(result != null, 'TTableScope not found in context');
     return result!;
   }

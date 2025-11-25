@@ -14,6 +14,7 @@ export 'enum/value_type.dart';
 
 export 'extensions/box_constraints_x.dart';
 export 'extensions/build_context_x.dart';
+export 'extensions/color_scheme_x.dart';
 export 'extensions/color_x.dart';
 export 'extensions/date_format_x.dart';
 export 'extensions/date_time_x.dart';
@@ -47,7 +48,6 @@ export 'layouts/widgets/sidebar/sidebar_items.dart';
 export 'layouts/widgets/sidebar/sidebar.dart';
 
 export 'layouts/widgets/logo.dart';
-export 'layouts/widgets/profile.dart';
 export 'layouts/layout.dart';
 
 export 'mixins/focus_mixin.dart';
@@ -60,6 +60,8 @@ export 'mixins/scroll_mixin.dart';
 export 'widgets/alert/alert_service.dart';
 export 'widgets/alert/alert_theme.dart';
 export 'widgets/alert/alert.dart';
+
+export 'widgets/avatar/avatar.dart';
 
 export 'widgets/button/button_config.dart';
 export 'widgets/button/button_group_theme.dart';
@@ -74,8 +76,6 @@ export 'widgets/checkbox/checkbox_group.dart';
 export 'widgets/checkbox/checkbox_config.dart';
 
 export 'widgets/chip/chip.dart';
-
-export 'widgets/circle-toggle-button/circle_toggle_button.dart';
 
 export 'widgets/crud-table/crud_table_config.dart';
 export 'widgets/crud-table/crud_table.dart';

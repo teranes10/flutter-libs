@@ -89,7 +89,7 @@ class TTableHeader<T, K> {
     this.alignment,
   })  : map = get,
         builder = ((ctx, item, index) {
-          final activeCursor = TTableScope.maybeOf<T, K>(ctx)?.activeCellNotifier;
+          final activeCursor = TTableScope.maybeOf(ctx)?.activeCellNotifier;
           final data = item.data;
           final cellKey = "${item.key}_$text";
           final textStyle = ctx.theme.tableTheme.rowCardTheme.getContentTextStyle(ctx.colors);

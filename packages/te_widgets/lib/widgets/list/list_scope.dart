@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/list/controller/list_controller.dart';
+import 'package:te_widgets/te_widgets.dart';
 
-class TListScope<T, K> extends InheritedWidget {
-  final TListController<T, K> controller;
+class TListScope extends InheritedWidget {
+  final TListController controller;
 
   const TListScope({
     super.key,
@@ -10,12 +10,12 @@ class TListScope<T, K> extends InheritedWidget {
     required super.child,
   });
 
-  static TListScope<T, K>? maybeOf<T, K>(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<TListScope<T, K>>();
+  static TListScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<TListScope>();
   }
 
-  static TListScope<T, K> of<T, K>(BuildContext context) {
-    final result = maybeOf<T, K>(context);
+  static TListScope of(BuildContext context) {
+    final result = maybeOf(context);
     assert(result != null, 'TListScope not found in context');
     return result!;
   }

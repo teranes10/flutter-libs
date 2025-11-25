@@ -67,12 +67,12 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     final colors = context.colors;
     final requiredWidth = TTableTheme.calculateTotalRequiredWidth(widget.headers, listController.selectable, listController.expandable);
 
-    return TTableScope<T, K>(
+    return TTableScope(
       controller: listController,
       activeCellNotifier: _activeCellNotifier,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final shouldShowCardView = wTheme.forceCardStyle ?? constraints.maxWidth < requiredWidth;
+          final shouldShowCardView = wTheme.forceCardStyle ?? wTheme.grid != null || constraints.maxWidth < requiredWidth;
           return shouldShowCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
         },
       ),
@@ -93,16 +93,6 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
               controller: listController,
               columnWidths: columnWidths,
             ),
-            if (listController.isLoading)
-              SizedBox(
-                height: 4,
-                child: LinearProgressIndicator(
-                  backgroundColor: colors.primaryContainer,
-                  valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
-                ),
-              )
-            else
-              SizedBox.shrink()
           ],
         ),
       ),
@@ -113,23 +103,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
 
   Widget _buildCardView(ColorScheme colors, BoxConstraints constraints) {
     return TList<T, K>(
-      theme: wTheme.copyWith(
-        headerBuilder: (ctx) => Column(
-          children: [
-            if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx),
-            if (listController.isLoading)
-              SizedBox(
-                height: 4,
-                child: LinearProgressIndicator(
-                  backgroundColor: colors.primaryContainer,
-                  valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
-                ),
-              )
-            else
-              SizedBox.shrink()
-          ],
-        ),
-      ),
+      theme: wTheme,
       controller: listController,
       itemBuilder: (ctx, item, index) => _buildMobileCard(ctx, item, index),
     );

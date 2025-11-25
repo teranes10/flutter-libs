@@ -61,7 +61,11 @@ class ChipsPage extends StatelessWidget {
               TTab(icon: Icons.access_time, text: 'Time', value: 1),
             ],
           ),
-          RoleTest()
+          RoleTest(),
+          TAvatar(
+            name: "Teranes",
+            role: "Admin",
+          )
         ],
       ),
     );

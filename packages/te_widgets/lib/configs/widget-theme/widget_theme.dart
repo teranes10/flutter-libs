@@ -5,6 +5,8 @@ enum TVariant { solid, tonal, outline, softOutline, filledOutline, text, softTex
 
 @immutable
 class TWidgetTheme {
+  final bool isDarkMode;
+  final TVariant type;
   final MaterialColor color;
   final Color container;
   final Color containerVariant;
@@ -15,6 +17,8 @@ class TWidgetTheme {
   final Color? shadow;
 
   const TWidgetTheme({
+    required this.isDarkMode,
+    required this.type,
     required this.color,
     required this.container,
     required this.containerVariant,
@@ -41,14 +45,15 @@ class TWidgetTheme {
         disabled: outline != null ? BorderSide(color: outline!.o(0.4)) : BorderSide.none,
       );
 
-  factory TWidgetTheme.from(BuildContext context, Color color, TVariant type) {
-    final isDarkMode = context.isDarkMode;
+  factory TWidgetTheme.from(bool isDarkMode, Color color, TVariant type) {
     MaterialColor mColor = color.toMaterial();
     Color shade(int value) => mColor.shade(value);
     Color alpha(Color color, int a) => color.withAlpha(a);
 
     return switch (type) {
       TVariant.solid => TWidgetTheme(
+          isDarkMode: isDarkMode,
+          type: TVariant.solid,
           color: mColor,
           container: isDarkMode ? shade(500) : shade(400),
           containerVariant: alpha(shade(400), 200),
@@ -57,6 +62,8 @@ class TWidgetTheme {
           shadow: alpha(shade(900), 35),
         ),
       TVariant.tonal => TWidgetTheme(
+          isDarkMode: isDarkMode,
+          type: TVariant.tonal,
           color: mColor,
           container: isDarkMode ? shade(900) : shade(50),
           containerVariant: isDarkMode ? shade(800) : shade(100),
@@ -65,6 +72,8 @@ class TWidgetTheme {
           shadow: alpha(shade(600), 35),
         ),
       TVariant.outline => TWidgetTheme(
+          isDarkMode: isDarkMode,
+          type: TVariant.outline,
           color: mColor,
           container: Colors.transparent,
           containerVariant: Colors.transparent,
@@ -75,6 +84,8 @@ class TWidgetTheme {
           shadow: alpha(shade(400), 35),
         ),
       TVariant.softOutline => TWidgetTheme(
+          isDarkMode: isDarkMode,
+          type: TVariant.softOutline,
           color: mColor,
           container: Colors.transparent,
           containerVariant: isDarkMode ? shade(700) : shade(50),
@@ -85,6 +96,8 @@ class TWidgetTheme {
           shadow: alpha(shade(400), 35),
         ),
       TVariant.filledOutline => TWidgetTheme(
+          isDarkMode: isDarkMode,
+          type: TVariant.filledOutline,
           color: mColor,
           container: Colors.transparent,
           containerVariant: shade(400),
@@ -94,6 +107,8 @@ class TWidgetTheme {
           shadow: alpha(shade(400), 35),
         ),
       TVariant.text => TWidgetTheme(
+          isDarkMode: isDarkMode,
+          type: TVariant.text,
           color: mColor,
           container: Colors.transparent,
           containerVariant: Colors.transparent,
@@ -101,6 +116,8 @@ class TWidgetTheme {
           onContainerVariant: isDarkMode ? shade(300) : shade(500),
         ),
       TVariant.softText => TWidgetTheme(
+          isDarkMode: isDarkMode,
+          type: TVariant.softText,
           color: mColor,
           container: Colors.transparent,
           containerVariant: isDarkMode ? shade(700) : shade(50),
@@ -108,6 +125,8 @@ class TWidgetTheme {
           onContainerVariant: isDarkMode ? shade(300) : shade(500),
         ),
       TVariant.filledText => TWidgetTheme(
+          isDarkMode: isDarkMode,
+          type: TVariant.filledText,
           color: mColor,
           container: Colors.transparent,
           containerVariant: shade(400),
@@ -115,6 +134,14 @@ class TWidgetTheme {
           onContainerVariant: shade(50),
         )
     };
+  }
+
+  TWidgetTheme copyWidth({Color? color, TVariant? type}) {
+    return TWidgetTheme.from(
+      isDarkMode,
+      color ?? this.color,
+      type ?? this.type,
+    );
   }
 }
 
@@ -125,9 +152,9 @@ class TThemeResolver {
     return '${color.toARGB32()}_${variant.name}_$isDark';
   }
 
-  static TWidgetTheme getWidgetTheme(BuildContext context, Color color, TVariant variant) {
-    final key = _cacheKey(color, variant, context.isDarkMode);
-    return _baseThemeCache.putIfAbsent(key, () => TWidgetTheme.from(context, color, variant));
+  static TWidgetTheme getWidgetTheme(bool isDarkMode, Color color, TVariant variant) {
+    final key = _cacheKey(color, variant, isDarkMode);
+    return _baseThemeCache.putIfAbsent(key, () => TWidgetTheme.from(isDarkMode, color, variant));
   }
 
   static void clearCache() {

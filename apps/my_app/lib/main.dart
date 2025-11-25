@@ -17,10 +17,12 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeNotifierProvider);
-    var theme = TAppTheme.defaultTheme().copyWith(
+    final theme = TAppTheme.defaultTheme().copyWith(
       widgetThemeBuilder: (scheme) {
-        return TWidgetThemeExtension.defaultTheme(scheme).copyWith(
-          tableTheme: TTableTheme(
+        final wTheme = TWidgetThemeExtension.defaultTheme(scheme);
+
+        return wTheme.copyWith(
+          tableTheme: wTheme.tableTheme.copyWith(
             animationBuilder: TListAnimationBuilders.staggered,
           ),
         );

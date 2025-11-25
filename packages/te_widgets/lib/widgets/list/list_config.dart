@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 enum TItemAddPosition { first, last }
@@ -86,4 +87,49 @@ class TLoadResult<T> {
 
   @override
   int get hashCode => Object.hash(items, totalItems);
+}
+
+enum TGridMode { masonry, aligned }
+
+class TGridDelegate {
+  final int? crossAxisCount;
+  final double? maxCrossAxisExtent;
+  final double mainAxisSpacing;
+  final double crossAxisSpacing;
+
+  const TGridDelegate({
+    this.crossAxisCount,
+    this.maxCrossAxisExtent,
+    this.mainAxisSpacing = 8.0,
+    this.crossAxisSpacing = 8.0,
+  }) : assert(
+          (crossAxisCount != null) ^ (maxCrossAxisExtent != null),
+          'Either crossAxisCount OR maxCrossAxisExtent must be provided, but not both.',
+        );
+
+  SliverSimpleGridDelegate get simpleGridDelegate {
+    final count = crossAxisCount;
+    if (count != null) {
+      return SliverSimpleGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: count,
+      );
+    }
+
+    final extent = maxCrossAxisExtent;
+    return SliverSimpleGridDelegateWithMaxCrossAxisExtent(
+      maxCrossAxisExtent: extent ?? 350,
+    );
+  }
+
+  int calculateItemsPerRow(double maxWidth) {
+    if (crossAxisCount != null) {
+      return crossAxisCount!;
+    }
+
+    final extent = maxCrossAxisExtent!;
+    if (extent <= 0) return 1;
+
+    final total = maxWidth;
+    return (total / extent).ceil().clamp(1, 100);
+  }
 }

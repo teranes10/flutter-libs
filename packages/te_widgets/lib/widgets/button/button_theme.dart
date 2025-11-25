@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+enum TButtonShape {
+  normal,
+  pill,
+  circle;
+}
+
 enum TButtonType {
   solid,
   tonal,
@@ -80,102 +86,84 @@ class TButtonSize {
 
 @immutable
 class TButtonTheme {
+  final TWidgetTheme baseTheme;
   final TButtonType type;
   final TButtonSize size;
-  final OutlinedBorder? shape;
-  final double? borderRadius;
-  final double? elevation;
-  final Duration? animationDuration;
-  final Curve? animationCurve;
+  final TButtonShape shape;
+  final Color color;
+  final ButtonStyle buttonStyle;
   final double? scaleOnPress;
-
-  final WidgetStateProperty<TextStyle?>? textStyle;
-  final WidgetStateProperty<Color?>? shadowColor;
-
-  ButtonStyle getButtonStyle(TWidgetTheme baseTheme) {
-    return ButtonStyle(
-      backgroundColor: baseTheme.backgroundState,
-      foregroundColor: baseTheme.foregroundState,
-      iconColor: baseTheme.foregroundState,
-      side: baseTheme.borderSideState,
-      padding: size.paddingState,
-      minimumSize: size.minimumSizeState,
-      shadowColor: shadowColor,
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      elevation: WidgetStateProperty.all(elevation ?? 0.0),
-      shape: WidgetStateProperty.all(shape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius ?? 6.0))),
-      textStyle: textStyle ?? WidgetStateProperty.all(TextStyle(fontSize: size.font, fontWeight: type.fontWeight, letterSpacing: 0.65)),
-    );
-  }
-
-  Widget buildButtonContent(
-    TWidgetTheme baseTheme, {
-    IconData? icon,
-    String? text,
-    bool isLoading = false,
-    String loadingText = 'Loading...',
-    Widget? child,
-    Set<WidgetState> states = const {},
-  }) {
-    final resolvedFgColor = baseTheme.foregroundState.resolve(states);
-
-    return Row(
-      mainAxisSize: size.minW.isInfinite ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (isLoading)
-          SizedBox(
-              width: size.icon,
-              height: size.icon,
-              child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(resolvedFgColor)))
-        else if (icon != null)
-          Icon(icon, size: size.icon),
-        if (text?.isNotEmpty ?? false) ...[
-          if (icon != null || isLoading) SizedBox(width: size.spacing),
-          Text(isLoading ? loadingText : text!),
-        ],
-        if (child != null) child,
-      ],
-    );
-  }
 
   const TButtonTheme({
     this.type = TButtonType.solid,
-    this.size = TButtonSize.md,
-    this.shape,
-    this.borderRadius = 6.0,
-    this.elevation = 0.0,
-    this.animationDuration = const Duration(milliseconds: 100),
-    this.animationCurve = Curves.easeInOut,
+    required this.baseTheme,
+    required this.size,
+    required this.shape,
+    required this.buttonStyle,
+    required this.color,
     this.scaleOnPress = 0.95,
-    this.textStyle,
-    this.shadowColor,
   });
 
   TButtonTheme copyWith({
     TWidgetTheme? baseTheme,
     TButtonType? type,
     TButtonSize? size,
-    OutlinedBorder? shape,
-    double? borderRadius,
-    double? elevation,
-    Duration? animationDuration,
-    Curve? animationCurve,
+    TButtonShape? shape,
+    Color? color,
+    ButtonStyle? buttonStyle,
     double? scaleOnPress,
-    WidgetStateProperty<TextStyle?>? textStyle,
-    WidgetStateProperty<Color?>? shadowColor,
   }) {
+    final effectiveType = type ?? this.type;
+    final effectiveColor = color ?? this.color;
+    final effectiveBaseTheme = baseTheme ?? this.baseTheme.copyWidth(type: effectiveType.colorType, color: effectiveColor);
+    final effectiveSize = size ?? this.size;
+    final effectiveShape = shape ?? this.shape;
+
     return TButtonTheme(
-      type: type ?? this.type,
-      size: size ?? this.size,
-      shape: shape ?? this.shape,
-      borderRadius: borderRadius ?? this.borderRadius,
-      elevation: elevation ?? this.elevation,
-      animationDuration: animationDuration ?? this.animationDuration,
-      animationCurve: animationCurve ?? this.animationCurve,
+      type: effectiveType,
+      baseTheme: effectiveBaseTheme,
+      size: effectiveSize,
+      shape: effectiveShape,
+      color: effectiveColor,
+      buttonStyle: buttonStyle ?? buildButtonStyle(effectiveBaseTheme, effectiveType, effectiveShape, effectiveSize),
       scaleOnPress: scaleOnPress ?? this.scaleOnPress,
-      textStyle: textStyle ?? this.textStyle,
-      shadowColor: shadowColor ?? this.shadowColor,
+    );
+  }
+
+  factory TButtonTheme.defaultTheme(
+    ColorScheme colors, {
+    TButtonType type = TButtonType.solid,
+    TButtonShape shape = TButtonShape.normal,
+    TButtonSize size = TButtonSize.md,
+  }) {
+    final color = colors.primary;
+    final baseTheme = TWidgetTheme.from(colors.isDarkMode, color, type.colorType);
+
+    return TButtonTheme(
+      baseTheme: baseTheme,
+      shape: shape,
+      size: size,
+      color: color,
+      buttonStyle: buildButtonStyle(baseTheme, type, shape, size),
+    );
+  }
+
+  static ButtonStyle buildButtonStyle(TWidgetTheme baseTheme, TButtonType type, TButtonShape shape, TButtonSize size) {
+    return ButtonStyle(
+      backgroundColor: baseTheme.backgroundState,
+      foregroundColor: baseTheme.foregroundState,
+      iconColor: baseTheme.foregroundState,
+      side: baseTheme.borderSideState,
+      padding: shape == TButtonShape.circle ? WidgetStateProperty.all(EdgeInsets.zero) : size.paddingState,
+      minimumSize: size.minimumSizeState,
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      elevation: WidgetStateProperty.all(0.0),
+      textStyle: WidgetStateProperty.all(TextStyle(fontSize: size.font, fontWeight: type.fontWeight, letterSpacing: 0.65)),
+      shape: WidgetStateProperty.all(switch (shape) {
+        TButtonShape.normal => RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.0)),
+        TButtonShape.pill => RoundedRectangleBorder(borderRadius: BorderRadius.circular(size.minH / 2)),
+        TButtonShape.circle => const CircleBorder(),
+      }),
     );
   }
 }

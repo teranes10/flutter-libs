@@ -28,6 +28,8 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   final TCrudConfig<T, K> config;
   final Widget Function(BuildContext ctx, TListItem<T, K> item, int index)? expandedBuilder;
 
+  final TTableTheme? theme;
+
   const TCrudTable({
     super.key,
     required this.headers,
@@ -47,6 +49,7 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.controller,
     this.archiveController,
     this.expandedBuilder,
+    this.theme,
   })  : assert(
           (controller == null && (items != null || onLoad != null)) || (controller != null && items == null && onLoad == null),
           'Provide either `controller` OR (`items` / `onLoad`), not both.',
@@ -102,10 +105,11 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final tableTheme = widget.theme ?? theme.tableTheme;
 
     return _tableBuilder._buildContent(
       theme,
-      theme.tableTheme.copyWith(
+      tableTheme.copyWith(
         headerBuilder: (_) => LayoutBuilder(builder: (_, constraints) => _topBar.build(context, constraints)),
       ),
     );

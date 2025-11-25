@@ -58,26 +58,30 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
 
     return buildWithDropdownTarget(
       child: InkWell(
-        onTap: widget.disabled ? null : () => showPopup(context),
+        onTap: widget.disabled || widget.url.isNullOrBlank ? null : () => showPopup(context),
         child: Container(
           width: widget.size + widget.padding,
           height: widget.size + widget.padding,
           alignment: Alignment.center,
           decoration: BoxDecoration(color: widget.backgroundColor, borderRadius: BorderRadius.circular(12.0)),
           child: widget.url == null || widget.url!.isEmpty
-              ? Image.asset(assetPath, package: package, width: widget.size, height: widget.size, fit: BoxFit.contain)
+              ? buildFallbackImage(assetPath, package)
               : Image.network(
                   widget.url!,
                   width: widget.size,
                   height: widget.size,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(assetPath, package: package, width: widget.size, height: widget.size, fit: BoxFit.contain);
+                    return buildFallbackImage(assetPath, package);
                   },
                 ),
         ),
       ),
     );
+  }
+
+  Widget buildFallbackImage(String assetPath, String? package) {
+    return Image.asset(assetPath, package: package, width: widget.size, height: widget.size, fit: BoxFit.cover);
   }
 
   @override

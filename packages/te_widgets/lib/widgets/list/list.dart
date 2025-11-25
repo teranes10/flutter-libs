@@ -22,7 +22,6 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   final TListController<T, K>? controller;
 
   // Scroll configuration
-  final ScrollController? horizontalScrollController;
   final ScrollController? scrollController;
   final VoidCallback? onScrollEnd;
   final double scrollEndThreshold;
@@ -51,7 +50,6 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.itemKey,
     this.controller,
     // Scroll
-    this.horizontalScrollController,
     this.scrollController,
     this.onScrollEnd,
     this.scrollEndThreshold = 0.0,
@@ -81,7 +79,7 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
     ListItemTap<T, K>? onTap,
   ) {
     return (ctx, item, index) {
-      final controller = TListScope.of<T, K>(ctx).controller;
+      final controller = TListScope.of(ctx).controller;
 
       TListCard toListCard(TListItem<T, K> item) {
         return TListCard(
@@ -109,9 +107,7 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
 class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStateMixin, TListStateMixin<T, K, TList<T, K>> {
   late AnimationController _animationController;
   late ScrollController _scrollController;
-  late ScrollController _horizontalScrollController;
   bool _scrollControllerOwned = false;
-  bool _horizontalScrollControllerOwned = false;
 
   TListTheme get wTheme => widget.theme ?? context.theme.listTheme;
 
@@ -122,9 +118,6 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
 
     _scrollController = widget.scrollController ?? ScrollController();
     _scrollControllerOwned = widget.scrollController == null;
-
-    _horizontalScrollController = widget.horizontalScrollController ?? ScrollController();
-    _horizontalScrollControllerOwned = widget.horizontalScrollController == null;
 
     if (!wTheme.shrinkWrap) {
       _scrollController.addListener(_onScroll);
@@ -153,16 +146,6 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
       }
     }
 
-    // Handle horizontal scroll controller changes
-    if (oldWidget.horizontalScrollController != widget.horizontalScrollController) {
-      if (_horizontalScrollControllerOwned) {
-        _horizontalScrollController.dispose();
-      }
-
-      _horizontalScrollController = widget.horizontalScrollController ?? ScrollController();
-      _horizontalScrollControllerOwned = widget.horizontalScrollController == null;
-    }
-
     // Handle theme animation duration changes
     if (oldWidget.theme?.animationDuration != widget.theme?.animationDuration) {
       _animationController.duration = wTheme.animationDuration;
@@ -181,10 +164,6 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
       _scrollController.dispose();
     }
 
-    if (_horizontalScrollControllerOwned) {
-      _horizontalScrollController.dispose();
-    }
-
     super.dispose();
   }
 
@@ -196,13 +175,11 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
     widget.onScrollPositionChanged?.call(scrollPosition);
 
     // Handle scroll end
-    if (widget.onScrollEnd != null || wTheme.infiniteScroll == true) {
+    if (widget.onScrollEnd != null || wTheme.infiniteScroll != false) {
       final threshold = widget.scrollEndThreshold;
       if (position.pixels >= position.maxScrollExtent - threshold) {
         widget.onScrollEnd?.call();
-        if (wTheme.infiniteScroll == true) {
-          listController.handleLoadMore();
-        }
+        listController.handleLoadMore();
       }
     }
   }
@@ -236,7 +213,6 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               animationController: _animationController,
               listController: listController,
               scrollController: _scrollController,
-              horizontalScrollController: _horizontalScrollController,
               loading: state.loading,
               hasError: state.error != null,
               error: state.error,
@@ -267,12 +243,24 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
       }
     } else if (constraints.maxHeight.isFinite) {
       final maxHeight = constraints.maxHeight;
-      final itemHeight = wTheme.itemBaseHeight;
+      int perRow = 1;
 
+      if (wTheme.grid != null) {
+        final config = wTheme.gridDelegateBuilder?.call(context);
+        if (config == null) {
+          throw ArgumentError("gridDelegateBuilder can not be null.");
+        }
+
+        final maxWidth = constraints.maxWidth;
+        perRow = config.calculateItemsPerRow(maxWidth);
+      }
+
+      final itemHeight = wTheme.itemBaseHeight;
       if (maxHeight <= 0 || itemHeight <= 0) return;
       if (_previousHeight != null && _previousHeight! > maxHeight) return;
 
-      final count = (maxHeight / itemHeight).floor().clamp(1, 100);
+      final rowCount = (maxHeight / itemHeight).floor().clamp(1, 100);
+      final count = rowCount * perRow;
       if (_resolvedItemsPerPage != count) {
         _previousHeight = maxHeight;
         _resolvedItemsPerPage = count;

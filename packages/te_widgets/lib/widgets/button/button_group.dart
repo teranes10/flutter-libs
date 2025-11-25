@@ -50,13 +50,7 @@ class TButtonGroup extends StatelessWidget {
 
     for (int i = 0; i < items.length; i++) {
       final item = items[i];
-      final button = _buildButton(
-        context,
-        groupTheme: groupTheme,
-        item: item,
-        index: i,
-        total: total,
-      );
+      final button = _buildButton(context, groupTheme: groupTheme, item: item, index: i, total: total);
 
       children.add(button);
 
@@ -76,7 +70,6 @@ class TButtonGroup extends StatelessWidget {
     required int total,
   }) {
     TButton button = TButton(
-      color: item.color ?? groupTheme.color,
       text: item.text,
       icon: item.icon,
       loading: item.loading,
@@ -88,11 +81,34 @@ class TButtonGroup extends StatelessWidget {
       child: item.child,
     );
 
-    return groupTheme.applyGroupStyling(
-      context,
-      button: button,
-      index: index,
-      total: total,
+    final isSingle = total == 1;
+    final buttonTheme = (button.theme ?? context.theme.buttonTheme).copyWith(
+      type: type?.buttonType,
+      color: item.color ?? groupTheme.color,
+      size: size,
+    );
+
+    if (isSingle) {
+      return button.copyWith(theme: buttonTheme);
+    }
+
+    final isFirst = index == 0;
+    final isLast = index == total - 1;
+    final borderRadius = groupTheme.borderRadius;
+
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(isFirst ? borderRadius : 0),
+        bottomLeft: Radius.circular(isFirst ? borderRadius : 0),
+        topRight: Radius.circular(isLast ? borderRadius : 0),
+        bottomRight: Radius.circular(isLast ? borderRadius : 0),
+      ),
+    );
+
+    return button.copyWith(
+      theme: buttonTheme.copyWith(
+        buttonStyle: buttonTheme.buttonStyle.copyWith(shape: WidgetStateProperty.all(shape)),
+      ),
     );
   }
 }

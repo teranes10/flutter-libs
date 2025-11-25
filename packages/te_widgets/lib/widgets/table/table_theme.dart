@@ -14,35 +14,20 @@ class TTableTheme extends TListTheme {
     super.shrinkWrap = false,
     super.physics,
     super.padding,
-    // Empty state
     super.emptyStateBuilder,
-    super.emptyStateMessage = 'No items found',
-    super.emptyStateIcon = Icons.inbox_outlined,
-    // Error state
     super.errorStateBuilder,
-    super.errorStateMessage = 'An error occurred',
-    // Loading state
     super.loadingBuilder,
-    // Header
     super.headerBuilder,
     super.headerSticky,
-    // Footer
     super.footerBuilder,
     super.footerSticky,
-    // Horizontal scroll
-    super.needsHorizontalScroll = false,
-    super.horizontalScrollWidth,
-    // Infinite scroll
     super.infiniteScroll,
-    super.itemBaseHeight = 50,
-    super.loadingMessage = 'Loading...',
-    super.noMoreItemsMessage = 'No more items to display.',
-    // Separators
+    super.itemBaseHeight,
+    required super.infiniteScrollFooterBuilder,
     super.separatorBuilder,
-    super.showSeparators = false,
-    // Spacing
-    super.itemSpacing = 0,
-    // Table
+    super.dragProxyDecorator,
+    super.grid,
+    super.gridDelegateBuilder,
     this.cardWidth,
     this.forceCardStyle,
     this.headerTheme = const TTableRowHeaderTheme(),
@@ -57,36 +42,20 @@ class TTableTheme extends TListTheme {
     bool? shrinkWrap,
     ScrollPhysics? physics,
     EdgeInsets? padding,
-    // Empty state
     Widget Function(BuildContext context)? emptyStateBuilder,
-    String? emptyStateMessage,
-    IconData? emptyStateIcon,
-    // Error state
     Widget Function(BuildContext context, TListError error)? errorStateBuilder,
-    String? errorStateMessage,
-    // Loading state
     Widget Function(BuildContext context)? loadingBuilder,
-    Widget Function(BuildContext context)? loadingOverlayBuilder,
-    // Header
     Widget Function(BuildContext context)? headerBuilder,
     bool? headerSticky,
-    // Footer
     Widget Function(BuildContext context)? footerBuilder,
     bool? footerSticky,
-    // Horizontal scroll
-    bool? needsHorizontalScroll,
-    double? horizontalScrollWidth,
-    // Infinite scroll
     bool? infiniteScroll,
     double? itemBaseHeight,
-    String? loadingMessage,
-    String? noMoreItemsMessage,
-    // Separators
+    Widget Function(BuildContext context)? infiniteScrollFooterBuilder,
     Widget Function(BuildContext context, int index)? separatorBuilder,
-    bool? showSeparators,
-    // Spacing
-    double? itemSpacing,
-    // Table
+    Widget Function(Widget, int, Animation<double>)? dragProxyDecorator,
+    TGridMode? grid,
+    TGridDelegate Function(BuildContext context)? gridDelegateBuilder,
     double? cardWidth,
     bool? forceCardStyle,
     TTableRowHeaderTheme? headerTheme,
@@ -100,24 +69,19 @@ class TTableTheme extends TListTheme {
       physics: physics ?? this.physics,
       padding: padding ?? this.padding,
       emptyStateBuilder: emptyStateBuilder ?? this.emptyStateBuilder,
-      emptyStateMessage: emptyStateMessage ?? this.emptyStateMessage,
-      emptyStateIcon: emptyStateIcon ?? this.emptyStateIcon,
       errorStateBuilder: errorStateBuilder ?? this.errorStateBuilder,
-      errorStateMessage: errorStateMessage ?? this.errorStateMessage,
       loadingBuilder: loadingBuilder ?? this.loadingBuilder,
       headerBuilder: headerBuilder ?? this.headerBuilder,
       headerSticky: headerSticky ?? this.headerSticky,
       footerBuilder: footerBuilder ?? this.footerBuilder,
       footerSticky: footerSticky ?? this.footerSticky,
-      needsHorizontalScroll: needsHorizontalScroll ?? this.needsHorizontalScroll,
-      horizontalScrollWidth: horizontalScrollWidth ?? this.horizontalScrollWidth,
       infiniteScroll: infiniteScroll ?? this.infiniteScroll,
       itemBaseHeight: itemBaseHeight ?? this.itemBaseHeight,
-      loadingMessage: loadingMessage ?? this.loadingMessage,
-      noMoreItemsMessage: noMoreItemsMessage ?? this.noMoreItemsMessage,
+      infiniteScrollFooterBuilder: infiniteScrollFooterBuilder ?? this.infiniteScrollFooterBuilder,
       separatorBuilder: separatorBuilder ?? this.separatorBuilder,
-      showSeparators: showSeparators ?? this.showSeparators,
-      itemSpacing: itemSpacing ?? this.itemSpacing,
+      dragProxyDecorator: dragProxyDecorator ?? this.dragProxyDecorator,
+      grid: grid ?? this.grid,
+      gridDelegateBuilder: gridDelegateBuilder ?? this.gridDelegateBuilder,
       cardWidth: cardWidth ?? this.cardWidth,
       forceCardStyle: forceCardStyle ?? this.forceCardStyle,
       headerTheme: headerTheme ?? this.headerTheme,
@@ -141,6 +105,18 @@ class TTableTheme extends TListTheme {
           textAlign: TextAlign.center,
         ),
       ),
+    );
+  }
+
+  factory TTableTheme.defaultTheme(ColorScheme colors) {
+    final listTheme = TListTheme.defaultTheme(colors);
+
+    return TTableTheme(
+      loadingBuilder: listTheme.loadingBuilder,
+      infiniteScrollFooterBuilder: listTheme.infiniteScrollFooterBuilder,
+      emptyStateBuilder: listTheme.emptyStateBuilder,
+      errorStateBuilder: listTheme.errorStateBuilder,
+      dragProxyDecorator: listTheme.dragProxyDecorator,
     );
   }
 
@@ -196,10 +172,5 @@ class TTableTheme extends TListTheme {
     totalWidth += 32; // Account for horizontal padding
 
     return totalWidth;
-  }
-
-  @override
-  buildLoadingIndicator(BuildContext context) {
-    return SizedBox.shrink();
   }
 }

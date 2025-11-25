@@ -63,7 +63,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
       children: [
         Expanded(
           child: LayoutBuilder(builder: (_, constraints) {
-            final canSticky = constraints.maxWidth > 600 && constraints.maxHeight > 600;
+            final canSticky = constraints.maxWidth > 600 && constraints.maxHeight > 750;
             final infiniteScroll = wTheme.infiniteScroll ?? isMobile;
 
             return TTable<T, K>(
@@ -97,7 +97,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
     final needWrap = maxWidth < totalWidth;
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 10),
+      padding: EdgeInsets.only(top: 15),
       width: double.infinity,
       child: needWrap
           ? Column(

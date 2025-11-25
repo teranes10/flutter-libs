@@ -6,6 +6,7 @@ import 'package:my_app/pages/chips_page.dart';
 import 'package:my_app/pages/crud_page.dart';
 import 'package:my_app/pages/editor_page.dart';
 import 'package:my_app/pages/forms_page.dart';
+import 'package:my_app/pages/grid_page.dart';
 import 'package:my_app/pages/input_fields_page.dart';
 import 'package:my_app/pages/popups_page.dart';
 import 'package:my_app/pages/select_fields_page.dart';
@@ -23,6 +24,7 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Chips', route: '/chips', page: ChipsPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Popups', route: '/popups', page: PopupsPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Tables', route: '/tables', page: TablesPage()),
+  TSidebarItem(icon: Icons.line_style_rounded, text: 'Grid', route: '/grid', page: GridPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Crud', route: '/crud', page: CrudPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Editor', route: '/editor', page: EditorPage()),
   TSidebarItem(icon: Icons.line_style_rounded, text: 'Forms', route: '/forms', page: FormsPage()),
@@ -53,19 +55,21 @@ final GoRouter router = GoRouter(
             return TLayout(
               isMinimized: sidebarMinified,
               logo: TLogo(text: 'Te Widgets'),
-              profile: TProfile(icon: 'assets/icons/profile.png', text: 'Teranes'),
+              profile: TAvatar(name: 'Teranes', role: 'Super Admin'),
               actions: [
-                CircleToggleButton(
-                    size: 24,
-                    iconSize: 18,
-                    falseIcon: Icon(Icons.wb_sunny, color: Colors.yellow.shade700),
-                    trueIcon: Icon(Icons.nights_stay, color: Colors.cyan.shade600),
-                    initialValue: context.isDarkMode,
+                TButton(
+                    size: TButtonSize.xs.copyWith(icon: 16),
+                    type: TButtonType.icon,
+                    icon: Icons.wb_sunny,
+                    color: Colors.yellow.shade700,
+                    activeIcon: Icons.nights_stay,
+                    activeColor: Colors.cyan.shade600,
+                    active: context.isDarkMode,
                     onChanged: (_) => themeNotifier.toggleTheme()),
                 TButton(
                     type: TButtonType.icon,
                     icon: Icons.logout_rounded,
-                    size: TButtonSize.xxs.copyWith(icon: 16),
+                    size: TButtonSize.xs.copyWith(icon: 16),
                     color: AppColors.grey,
                     onPressed: (_) {}),
               ],

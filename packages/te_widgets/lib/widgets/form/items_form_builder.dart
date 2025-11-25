@@ -54,7 +54,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
       children: [
         _buildToolbar(colors),
         TList<T, int>(
-          theme: TListTheme(shrinkWrap: true, infiniteScroll: false, padding: EdgeInsets.all(0)),
+          theme: context.theme.listTheme.copyWith(shrinkWrap: true, infiniteScroll: false, padding: EdgeInsets.all(0)),
           controller: _listController,
           itemBuilder: (ctx, item, i) => TCard(
               padding: EdgeInsets.all(0),
