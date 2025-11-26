@@ -30,20 +30,10 @@ jobs:
         working-directory: apps/my_app
         run: flutter build web --base-href /flutter-libs/myapp/
 
-      # APP 2
-      - name: Pub Get (myPos)
-        working-directory: apps/my_pos
-        run: flutter pub get
-
-      - name: Build Web (myPos)
-        working-directory: apps/my_pos
-        run: flutter build web --base-href /flutter-libs/mypos/
-
       - name: Copy outputs
         run: |
           mkdir public
           cp -r apps/my_app/build/web public/myapp
-          cp -r apps/my_pos/build/web public/mypos
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
