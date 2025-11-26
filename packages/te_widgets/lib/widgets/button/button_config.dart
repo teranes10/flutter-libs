@@ -13,9 +13,9 @@ class TButtonGroupItem {
   final Color? color;
   final String? tooltip;
   final bool active;
-  final Widget? child;
   final VoidCallback? onTap;
   final Function(TButtonPressOptions)? onPressed;
+  final Widget? child;
 
   TButtonGroupItem({
     this.icon,

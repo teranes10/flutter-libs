@@ -60,13 +60,23 @@ class TButton extends StatefulWidget {
 
   @override
   State<TButton> createState() => _TButtonState();
+
+  static custom({required Widget child, VoidCallback? onTap, String? tooltip}) {
+    return TButton(
+      size: TButtonSize.zero,
+      shape: TButtonShape.normal,
+      onTap: onTap,
+      tooltip: tooltip,
+      child: child,
+    );
+  }
 }
 
 class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   bool _isLoading = false;
-  bool _isHovered = false;
-  bool _isFocused = false;
   bool _isActive = false;
+
+  late final WidgetStatesController _statesController;
 
   late final AnimationController _pressController = AnimationController(
     duration: const Duration(milliseconds: 100),
@@ -83,6 +93,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _isActive = widget.active;
+    _statesController = WidgetStatesController();
   }
 
   @override
@@ -96,6 +107,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _pressController.dispose();
+    _statesController.dispose();
     super.dispose();
   }
 
@@ -131,15 +143,6 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     }
   }
 
-  Set<WidgetState> get _currentStates {
-    return {
-      if (widget.onPressed == null && widget.onTap == null && widget.onChanged == null) WidgetState.disabled,
-      if (_isHovered) WidgetState.hovered,
-      if (_isFocused) WidgetState.focused,
-      if (_isActive) WidgetState.pressed,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     final defaultTheme = context.theme.buttonTheme;
@@ -147,16 +150,9 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     final activeColor = _isActive ? (widget.activeColor ?? widget.color) : widget.color;
     final icon = _isActive ? (widget.activeIcon ?? widget.icon) : widget.icon;
     final text = widget.text;
-
     final baseTheme =
-        widget.baseTheme ?? (widget.theme?.baseTheme ?? defaultTheme.baseTheme).rebuild(color: activeColor, type: widget.type?.colorType);
-
-    final theme = widget.theme ??
-        defaultTheme.copyWith(
-          size: size,
-          shape: widget.shape,
-          baseTheme: baseTheme,
-        );
+        widget.baseTheme ?? widget.theme?.baseTheme ?? defaultTheme.baseTheme.rebuild(color: activeColor, type: widget.type?.colorType);
+    final theme = widget.theme ?? defaultTheme.copyWith(size: size, shape: widget.shape, baseTheme: baseTheme);
 
     assert(theme.shape != TButtonShape.circle || text.isNullOrBlank, 'Circle shape only supports icon, no text.');
 
@@ -174,7 +170,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
               height: size.icon,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation(theme.baseTheme.foregroundState.resolve(_currentStates)),
+                valueColor: AlwaysStoppedAnimation(theme.baseTheme.foregroundState.resolve(_statesController.value)),
               ),
             )
           else if (icon != null)
@@ -205,21 +201,12 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       ),
     );
 
-    final button = ElevatedButton(
-      onPressed: (widget.onPressed == null && widget.onTap == null && widget.onChanged == null) ? null : _handlePress,
-      style: theme.buttonStyle,
-      child: buttonContent,
-    );
-
-    final wrapped = Focus(
-      onFocusChange: (focused) => setState(() => _isFocused = focused),
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: button,
-        ),
+    final button = ScaleTransition(
+      scale: _scaleAnimation,
+      child: ElevatedButton(
+        onPressed: (widget.onPressed == null && widget.onTap == null && widget.onChanged == null) ? null : _handlePress,
+        style: theme.buttonStyle,
+        child: buttonContent,
       ),
     );
 
@@ -227,10 +214,10 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       return TTooltip(
         message: widget.tooltip!,
         color: theme.baseTheme.color,
-        child: wrapped,
+        child: button,
       );
     }
 
-    return wrapped;
+    return button;
   }
 }

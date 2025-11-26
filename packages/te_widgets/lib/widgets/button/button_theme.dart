@@ -79,6 +79,7 @@ class TButtonSize {
     );
   }
 
+  static const TButtonSize zero = TButtonSize._(minW: 0, minH: 0, hPad: 0, vPad: 0, font: 0, icon: 0, spacing: 0);
   static const TButtonSize xxs = TButtonSize._(minW: 22, minH: 22, hPad: 2, vPad: 2, font: 10, icon: 12, spacing: 3);
   static const TButtonSize xs = TButtonSize._(minW: 28, minH: 28, hPad: 6, vPad: 2, font: 11, icon: 14, spacing: 4);
   static const TButtonSize sm = TButtonSize._(minW: 32, minH: 32, hPad: 10, vPad: 4, font: 12, icon: 16, spacing: 5);
@@ -101,7 +102,6 @@ class TButtonTheme {
   final TWidgetTheme baseTheme;
   final TButtonSize size;
   final TButtonShape shape;
-  final Color color;
   final ButtonStyle buttonStyle;
   final double? scaleOnPress;
 
@@ -110,7 +110,6 @@ class TButtonTheme {
     required this.size,
     required this.shape,
     required this.buttonStyle,
-    required this.color,
     this.scaleOnPress = 0.95,
   });
 
@@ -118,12 +117,10 @@ class TButtonTheme {
     TWidgetTheme? baseTheme,
     TButtonSize? size,
     TButtonShape? shape,
-    Color? color,
     ButtonStyle? buttonStyle,
     double? scaleOnPress,
   }) {
-    final effectiveColor = color ?? this.color;
-    final effectiveBaseTheme = baseTheme ?? this.baseTheme.rebuild(color: effectiveColor);
+    final effectiveBaseTheme = baseTheme ?? this.baseTheme;
     final effectiveSize = size ?? this.size;
     final effectiveShape = shape ?? this.shape;
 
@@ -131,7 +128,6 @@ class TButtonTheme {
       baseTheme: effectiveBaseTheme,
       size: effectiveSize,
       shape: effectiveShape,
-      color: effectiveColor,
       buttonStyle: buttonStyle ?? buildButtonStyle(effectiveBaseTheme, effectiveShape, effectiveSize),
       scaleOnPress: scaleOnPress ?? this.scaleOnPress,
     );
@@ -150,7 +146,6 @@ class TButtonTheme {
       baseTheme: baseTheme,
       shape: shape,
       size: size,
-      color: color,
       buttonStyle: buildButtonStyle(baseTheme, shape, size),
     );
   }

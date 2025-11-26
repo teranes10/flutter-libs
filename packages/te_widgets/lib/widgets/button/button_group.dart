@@ -16,7 +16,10 @@ class TButtonGroup extends StatelessWidget {
     this.size,
     this.items = const [],
     this.alignment = WrapAlignment.start,
-  });
+  }) : assert(
+          theme == null || (type == null && size == null && color == null),
+          'If theme is provided, type, color and size must be null.',
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -69,23 +72,27 @@ class TButtonGroup extends StatelessWidget {
     required int total,
   }) {
     TButton button = TButton(
-      text: item.text,
       icon: item.icon,
+      text: item.text,
       loading: item.loading,
       loadingText: item.loadingText,
-      active: item.active,
       tooltip: item.tooltip,
+      active: item.active,
       onTap: item.onTap,
       onPressed: item.onPressed,
       child: item.child,
     );
 
-    final isSingle = total == 1;
-    final buttonTheme = (button.theme ?? context.theme.buttonTheme).copyWith(
-      color: item.color ?? groupTheme.color,
+    final defaultTheme = context.theme.buttonTheme;
+    final buttonTheme = defaultTheme.copyWith(
+      baseTheme: defaultTheme.baseTheme.rebuild(
+        color: item.color ?? groupTheme.color,
+        type: groupTheme.type.buttonType.colorType,
+      ),
       size: size,
     );
 
+    final isSingle = total == 1;
     if (isSingle) {
       return button.copyWith(theme: buttonTheme);
     }

@@ -280,6 +280,16 @@ class _ButtonsPageState extends State<ButtonsPage> {
               onTap: () {},
             ),
           ]),
+          _buildRow("Custom", [
+            TButton.custom(
+              onTap: () {},
+              child: Container(
+                width: 100,
+                height: 100,
+                color: Colors.amber,
+              ),
+            ),
+          ]),
         ],
       ),
     );

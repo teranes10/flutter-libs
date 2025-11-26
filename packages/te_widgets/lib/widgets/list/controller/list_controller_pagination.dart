@@ -128,8 +128,6 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       }
     }
 
-    print('cc ${effectiveItems.length} ${filteredItems.length}');
-
     updateState(
       who: who ?? '_applyLocalPagination',
       page: effectivePage,
