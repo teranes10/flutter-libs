@@ -1,3 +1,12 @@
+# 2.0.4
+
+    - Select infinite scroll fix
+    - Data table items per page dropdown fix
+
+## 2.0.0
+
+    - List View & List Controller
+
 ## 0.0.9
 
     - Sidebar overlay (remove deeper levels fix)
