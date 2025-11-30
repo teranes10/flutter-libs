@@ -12,7 +12,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
 
     const spacing = 8.0;
     const rowSpacing = 12.0;
-    final tabsWidth = TTab.calculateTabsWidth(parent.widget.config.tabs);
+    final tabsWidth = TTab.calculateTabsWidth(parent.tabs);
     const searchWidth = 300.0;
 
     var currentRow = <Widget>[];
@@ -57,13 +57,13 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
     }
 
     // Tabs + Search
-    if (parent.hasArchive || currentRow.isNotEmpty) {
-      final tabsAndSearchWidth = (parent.hasArchive ? tabsWidth + spacing : 0) + searchWidth;
+    if (parent.showTabs || currentRow.isNotEmpty) {
+      final tabsAndSearchWidth = (parent.showTabs ? tabsWidth + spacing : 0) + searchWidth;
 
       if (currentRow.isNotEmpty && currentRowWidth + spacing + tabsAndSearchWidth <= maxWidth) {
         // Same row
         currentRow.add(const Spacer());
-        if (parent.hasArchive) {
+        if (parent.showTabs) {
           currentRow.add(_buildTabs(constraints));
           currentRow.add(const SizedBox(width: spacing));
         }
@@ -76,14 +76,14 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
         if (tabsAndSearchWidth <= maxWidth) {
           // Tabs + Search in one row
           final tabSearchRow = <Widget>[
-            if (parent.hasArchive) _buildTabs(constraints),
-            if (parent.hasArchive) const SizedBox(width: spacing),
+            if (parent.showTabs) _buildTabs(constraints),
+            if (parent.showTabs) const SizedBox(width: spacing),
             _buildSearchBar(ctx, constraints),
           ];
           rows.add(_buildAlignedRow(tabSearchRow, MainAxisAlignment.end));
         } else {
           // Stack them
-          if (parent.hasArchive) {
+          if (parent.showTabs) {
             rows.add(_buildAlignedRow([_buildTabs(constraints)], MainAxisAlignment.center));
           }
           rows.add(_buildAlignedRow([_buildSearchBar(ctx, constraints)], MainAxisAlignment.end));
@@ -135,7 +135,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
       inline: !constraints.isMobile,
       selectedValue: parent.currentTab,
       onTabChanged: (i) => parent.currentTab = i,
-      tabs: parent.widget.config.tabs,
+      tabs: parent.tabs,
     );
     return !constraints.isMobile ? tabs : Flexible(child: tabs);
   }

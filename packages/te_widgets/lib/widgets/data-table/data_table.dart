@@ -59,34 +59,28 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
     final colors = context.colors;
     final isMobile = context.isMobile;
 
-    return Column(
-      children: [
-        Expanded(
-          child: LayoutBuilder(builder: (_, constraints) {
-            final canSticky = constraints.maxWidth > 600 && constraints.maxHeight > 750;
-            final infiniteScroll = wTheme.infiniteScroll ?? isMobile;
+    return LayoutBuilder(builder: (_, constraints) {
+      final canSticky = wTheme.shrinkWrap ? false : constraints.maxWidth > 600 && constraints.maxHeight > 750;
+      final infiniteScroll = wTheme.infiniteScroll ?? isMobile;
 
-            return TTable<T, K>(
-              headers: widget.headers,
-              theme: wTheme.copyWith(
-                infiniteScroll: infiniteScroll,
-                headerSticky: wTheme.headerSticky ?? canSticky,
-                footerSticky: wTheme.footerSticky ?? canSticky,
-                footerBuilder: (ctx) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (!infiniteScroll) _buildToolbar(colors, constraints.maxWidth),
-                    if (wTheme.footerBuilder != null) wTheme.footerBuilder!(ctx),
-                  ],
-                ),
-              ),
-              controller: listController,
-              expandedBuilder: widget.expandedBuilder,
-            );
-          }),
+      return TTable<T, K>(
+        headers: widget.headers,
+        theme: wTheme.copyWith(
+          infiniteScroll: infiniteScroll,
+          headerSticky: wTheme.headerSticky ?? canSticky,
+          footerSticky: wTheme.footerSticky ?? canSticky,
+          footerBuilder: (ctx) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!infiniteScroll) _buildToolbar(colors, constraints.maxWidth),
+              if (wTheme.footerBuilder != null) wTheme.footerBuilder!(ctx),
+            ],
+          ),
         ),
-      ],
-    );
+        controller: listController,
+        expandedBuilder: widget.expandedBuilder,
+      );
+    });
   }
 
   Widget _buildToolbar(ColorScheme colors, double maxWidth) {
@@ -105,7 +99,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
               children: [
                 _buildPaginationBar(listController.page, listController.totalPages),
                 _buildPaginationInfo(colors, listController.paginationInfo),
-                _buildItemsPerPage(listController.itemsPerPage, listController.totalItems),
+                _buildItemsPerPage(),
               ],
             )
           : Wrap(
@@ -117,10 +111,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   spacing: 15,
-                  children: [
-                    _buildPaginationInfo(colors, listController.paginationInfo),
-                    _buildItemsPerPage(listController.itemsPerPage, listController.totalItems)
-                  ],
+                  children: [_buildPaginationInfo(colors, listController.paginationInfo), _buildItemsPerPage()],
                 ),
               ],
             ),
@@ -136,16 +127,19 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
     );
   }
 
-  Widget _buildItemsPerPage(int itemsPerPage, int total) {
-    final itemsPerPageOptions = <int>{itemsPerPage, ...widget.itemsPerPageOptions}.where((x) => x <= total && x > 0).toList()..sort();
+  Widget _buildItemsPerPage() {
     return SizedBox(
       width: 100,
       child: TSelect<int, int, int>(
         theme: theme.textFieldTheme.copyWith(size: TInputSize.sm),
         cardTheme: theme.listCardTheme.copyWith(showSelectionIndicator: false),
+        listTheme: theme.listTheme.copyWith(
+          animationBuilder: TListAnimationBuilders.fadeIn,
+          animationDuration: Duration(milliseconds: 400),
+        ),
         filterable: false,
-        value: itemsPerPage,
-        items: itemsPerPageOptions,
+        value: listController.computedItemsPerPage,
+        items: listController.computeItemsPerPageOptions(widget.itemsPerPageOptions),
         onValueChanged: (value) {
           listController.handleItemsPerPageChange(value!);
         },

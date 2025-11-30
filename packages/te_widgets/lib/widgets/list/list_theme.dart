@@ -46,7 +46,7 @@ class TListTheme {
   })  : assert(!shrinkWrap || infiniteScroll != true, 'TListTheme: shrinkWrap disables scrolling, so infiniteScroll cannot be used.'),
         assert(!shrinkWrap || headerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so headerSticky cannot be used.'),
         assert(!shrinkWrap || footerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so footerSticky cannot be used.'),
-        itemBaseHeight = grid != null ? 200 : 50;
+        itemBaseHeight = grid != null ? 200 : 40;
 
   TListTheme copyWith({
     TListAnimationBuilder? animationBuilder,
@@ -106,7 +106,7 @@ class TListTheme {
       infiniteScrollFooterBuilder: (BuildContext context) {
         final controller = TListScope.maybeOf(context)?.controller;
         final showLoading = controller != null ? controller.listItems.isNotEmpty && controller.isLoading : false;
-        final showNoMoreItems = controller != null ? !controller.hasMoreItems : false;
+        final showNoMoreItems = controller != null ? controller.page > 1 && !controller.hasMoreItems : false;
 
         if (showLoading) {
           return Container(
@@ -130,7 +130,7 @@ class TListTheme {
           );
         }
 
-        return const SizedBox(height: 50);
+        return const SizedBox(height: 40);
       },
       dragProxyDecorator: (Widget child, int index, Animation<double> animation) {
         return AnimatedBuilder(

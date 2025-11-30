@@ -15,6 +15,10 @@ class CrudPage extends StatelessWidget {
       onLoad: ProductsClient().loadMore,
     );
 
+    final archiveController = TListController<ProductDto, int>(
+      onLoad: ProductsClient().loadMore,
+    );
+
     final otherController = TListController<ProductDto, int>(
       selectionMode: TSelectionMode.multiple,
       expansionMode: TExpansionMode.single,
@@ -46,7 +50,6 @@ class CrudPage extends StatelessWidget {
 
     return TCrudTable<ProductDto, int, ProductForm>(
       headers: headers,
-      onArchiveLoad: ProductsClient().loadMore,
       createForm: () => ProductForm(),
       editForm: (ProductDto item) => ProductForm(),
       onCreate: (input) async {
@@ -117,6 +120,7 @@ class CrudPage extends StatelessWidget {
         );
       },
       controller: controller,
+      archiveController: archiveController,
     );
   }
 }

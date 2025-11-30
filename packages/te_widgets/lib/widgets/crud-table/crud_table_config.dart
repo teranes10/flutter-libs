@@ -10,7 +10,7 @@ class TCrudConfig<T, K> {
 
   // UI Labels
   final String addButtonText;
-  final List<TTab<int>> tabs;
+  final List<TTab<int>>? tabs;
   final List<TCrudTableContent<T, K>> tabContents;
   final String searchPlaceholder;
 
@@ -33,7 +33,7 @@ class TCrudConfig<T, K> {
     this.canArchive,
     this.canRestore,
     this.addButtonText = 'Add New',
-    this.tabs = const [TTab(text: "Active", value: 0), TTab(text: "Archive", value: 1)],
+    this.tabs,
     this.tabContents = const [],
     this.searchPlaceholder = 'Search...',
     this.showActions = true,

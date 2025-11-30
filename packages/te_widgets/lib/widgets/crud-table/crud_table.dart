@@ -116,7 +116,9 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   }
 
   // Getters for child classes
-  bool get hasArchive => widget.archivedItems != null || widget.onArchiveLoad != null;
+  bool get hasArchive => widget.archivedItems != null || widget.onArchiveLoad != null || widget.archiveController != null;
+  bool get showTabs => hasArchive || widget.config.tabs != null;
+  List<TTab> get tabs => widget.config.tabs ?? const [TTab(text: "Active", value: 0), TTab(text: "Archive", value: 1)];
   bool get canCreate => widget.createForm != null && widget.onCreate != null;
   bool get canEdit => widget.editForm != null && widget.onEdit != null;
   bool get hasActiveActions => widget.onView != null || canEdit || widget.onArchive != null || widget.config.activeActions.isNotEmpty;

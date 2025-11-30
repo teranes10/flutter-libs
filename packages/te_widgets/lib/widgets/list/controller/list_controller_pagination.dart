@@ -74,12 +74,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   List<int> computeItemsPerPageOptions(List<int> options) {
     if (totalItems == 0) return options.where((x) => x > 0).toList()..sort();
 
-    final optionsSet = <int>{
-      computedItemsPerPage,
-      totalItems,
-      ...options,
-    };
-
+    final optionsSet = <int>{computedItemsPerPage, ...options};
     return optionsSet.where((x) => x <= totalItems && x > 0).toList()..sort();
   }
 

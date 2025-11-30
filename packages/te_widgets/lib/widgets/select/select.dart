@@ -83,7 +83,7 @@ class TSelect<T, V, K> extends StatefulWidget
     // List
     this.listTheme,
     this.items,
-    this.itemsPerPage = 6,
+    this.itemsPerPage = 7,
     this.search,
     this.searchDelay,
     this.onLoad,
@@ -133,8 +133,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
   double get contentMaxHeight {
     final itemsPerPage =
         listController.isServerSide ? listController.itemsPerPage : min(listController.itemsPerPage, listController.flatItems.length);
-
-    return (itemsPerPage * listTheme.itemBaseHeight) + 12 + (listController.isServerSide ? 4 : 0) + (shouldCenteredOverlay ? 62 : 0);
+    return (itemsPerPage * listTheme.itemBaseHeight) + 20 + (shouldCenteredOverlay && widget.filterable ? 62 : 0);
   }
 
   @override
@@ -166,10 +165,10 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
     );
 
     return shouldCenteredOverlay
-        ? Column(spacing: 7.5, children: [
+        ? Column(children: [
             if (widget.filterable)
               Padding(
-                padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 5),
+                padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 12.5),
                 child: TTextField(
                     placeholder: 'Search...',
                     theme: context.theme.textFieldTheme.copyWith(decorationType: TInputDecorationType.underline),

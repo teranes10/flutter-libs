@@ -21,7 +21,7 @@ class TListCardTheme {
     required this.selectionIndicatorBuilder,
     required this.contentBuilder,
     this.showSelectionIndicator = true,
-    this.padding = const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+    this.padding = const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
     this.levelIndentation = 18.0,
   });
 

@@ -95,10 +95,10 @@ class TWidgetTheme {
     );
   }
 
-  static TWidgetTheme surfaceTheme(ColorScheme colors, {bool active = false}) {
+  static TWidgetTheme surfaceTheme(ColorScheme colors, {TVariant variant = TVariant.tonal, bool active = false}) {
     return TWidgetTheme(
       isDarkMode: colors.isDarkMode,
-      type: TVariant.tonal,
+      type: variant,
       color: active ? AppColors.primary : AppColors.grey,
       container: active ? colors.primaryContainer : colors.surfaceContainer,
       containerVariant: active ? colors.primaryContainer : colors.surfaceContainerLow,

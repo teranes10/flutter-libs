@@ -147,7 +147,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-                  spacing: 1.5,
+                  spacing: 2,
                   children: [
                     if (!widget.title.isNullOrBlank)
                       Text(

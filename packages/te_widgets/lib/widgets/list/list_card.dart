@@ -49,6 +49,7 @@ class TListCard extends StatelessWidget {
           child: InkWell(
             onTap: isDisabled ? null : onTap,
             child: Container(
+              constraints: BoxConstraints(minHeight: 40),
               padding: EdgeInsets.only(
                 left: wTheme.padding.left + (level * wTheme.levelIndentation),
                 right: wTheme.padding.right,
