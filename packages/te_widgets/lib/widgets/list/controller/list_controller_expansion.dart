@@ -1,15 +1,55 @@
 part of 'list_controller.dart';
 
+/// Extension providing expansion functionality for hierarchical lists.
+///
+/// Enables single and multiple item expansion with methods to:
+/// - Expand/collapse individual items
+/// - Expand/collapse all items
+/// - Toggle expansion states
+/// - Query expansion status
+///
+/// Example:
+/// ```dart
+/// // Expand an item
+/// controller.expandItem(category);
+///
+/// // Expand multiple items
+/// controller.expandItems([category1, category2]);
+///
+/// // Check expansion
+/// if (controller.hasExpansion) {
+///   print('Expanded: ${controller.expandedCount}');
+/// }
+///
+/// // Collapse all
+/// controller.collapseAll();
+/// ```
 extension TListControllerExpansion<T, K> on TListController<T, K> {
+  /// Whether expansion is enabled.
   bool get expandable => expansionMode != TExpansionMode.none;
+
+  /// The set of expanded item keys.
   LinkedHashSet<K> get expandedKeys => value.expandedKeys;
+
+  /// The list of expanded items.
   List<T> get expandedItems => getItemsFromKeys(expandedKeys);
+
+  /// Whether any items are expanded.
   bool get hasExpansion => expandedKeys.isNotEmpty;
+
+  /// Whether multiple items are expanded.
   bool get hasMultipleExpansion => expandedKeys.length > 1;
+
+  /// The number of expanded items.
   int get expandedCount => expandedKeys.length;
+
+  /// Whether all items are expanded.
   bool get isAllExpanded => value.displayItems.isNotEmpty && value.displayItems.length == expandedCount;
+
+  /// Whether some (but not all) items are expanded.
   bool get isSomeExpanded => hasExpansion && !isAllExpanded;
 
+  /// Human-readable expansion information.
   String get expansionInfo {
     if (expandedCount == 0) return 'No items expanded';
     if (expandedCount == 1) return '1 item expanded';

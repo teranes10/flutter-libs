@@ -2,29 +2,114 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// An image widget with preview, fallback, and optional title/subtitle.
+///
+/// `TImage` provides an advanced image display with:
+/// - Network image loading with fallback
+/// - Click to preview with zoom (using PhotoView)
+/// - Custom shapes (rounded, circle)
+/// - Title and subtitle support
+/// - Aspect ratio control
+/// - Placeholder images
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TImage(
+///   url: 'https://example.com/image.jpg',
+///   size: 100,
+/// )
+/// ```
+///
+/// ## Circle Image
+///
+/// ```dart
+/// TImage.circle(
+///   url: user.avatarUrl,
+///   size: 60,
+///   title: user.name,
+///   subTitle: user.role,
+/// )
+/// ```
+///
+/// ## Profile Image
+///
+/// ```dart
+/// TImage.profile(
+///   url: user.avatarUrl,
+///   name: user.name,
+///   role: user.role,
+///   size: 42,
+/// )
+/// ```
+///
+/// See also:
+/// - [TIcon] for icon display
 class TImage extends StatefulWidget with TPopupMixin {
+  /// The URL of the image to display.
   final String? url;
+
+  /// The size of the image (width and height for square images).
+  ///
+  /// Defaults to 80.
   final double size;
+
+  /// The size of the preview when clicked.
+  ///
+  /// Defaults to 350.
   final double previewSize;
+
+  /// The aspect ratio of the image.
+  ///
+  /// Defaults to 1 (square).
   final double aspectRatio;
+
+  /// The placeholder image path (supports package assets).
+  ///
+  /// Defaults to 'package:te_widgets/assets/icons/no_image.png'.
   final String placeholder;
+
+  /// The border shape of the image.
   final ShapeBorder border;
+
+  /// Padding around the image.
+  ///
+  /// Defaults to 5.
   final double padding;
+
+  /// How the image should fit within its bounds.
+  ///
+  /// Defaults to [BoxFit.cover].
   final BoxFit fit;
+
+  /// Background color for the image container.
   final Color? color;
 
+  /// Optional title text displayed next to the image.
   final String? title;
+
+  /// Optional subtitle text displayed below the title.
   final String? subTitle;
+
+  /// Custom color for the title text.
   final Color? titleColor;
+
+  /// Custom color for the subtitle text.
   final Color? subTitleColor;
 
+  /// Whether the image preview is disabled.
   @override
   final bool disabled;
+
+  /// Callback fired when the preview is shown.
   @override
   final VoidCallback? onShow;
+
+  /// Callback fired when the preview is hidden.
   @override
   final VoidCallback? onHide;
 
+  /// Creates an image widget.
   const TImage({
     super.key,
     this.url,
@@ -45,6 +130,7 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.onHide,
   });
 
+  /// Creates a circular image widget.
   const TImage.circle({
     super.key,
     this.url,
@@ -65,6 +151,9 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.onHide,
   });
 
+  /// Creates a profile image with default styling.
+  ///
+  /// Uses a circular shape with a profile placeholder.
   static TImage profile({String? url, String? name, String? role, double size = 42, double padding = 5}) {
     return TImage.circle(
       url: url,

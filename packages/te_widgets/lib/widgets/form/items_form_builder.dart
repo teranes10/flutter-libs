@@ -1,6 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A dynamic form builder for managing lists of sub-forms.
+///
+/// `TItemsFormBuilder` provides dynamic list management with:
+/// - Add/remove items dynamically
+/// - Each item is a complete form (TFormBase)
+/// - Configurable add button position
+/// - Automatic value synchronization
+///
+/// ## Usage Example
+///
+/// ```dart
+/// class AddressForm extends TFormBase {
+///   final street = TFieldProp<String>('');
+///   final city = TFieldProp<String>('');
+///
+///   @override
+///   List<TFormField> get fields => [
+///     TFormField.text(street, 'Street'),
+///     TFormField.text(city, 'City'),
+///   ];
+/// }
+///
+/// final addresses = TFieldProp<List<AddressForm>>([]);
+///
+/// TFormField.items(
+///   addresses,
+///   () => AddressForm(),
+///   label: 'Addresses',
+///   buttonLabel: 'Add Address',
+/// )
+/// ```
+///
+/// Type parameter:
+/// - [T]: The form type (must extend TFormBase)
+///
+/// See also:
+/// - [TFormBase] for form models
+/// - [TFormField.items] for field creation
 class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputValueMixin<List<T>> {
   @override
   final List<T>? value;
@@ -9,11 +47,19 @@ class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputV
   @override
   final ValueNotifier<List<T>?>? valueNotifier;
 
+  /// Optional label for the form list.
   final String? label;
+
+  /// Label for the add button.
   final String buttonLabel;
+
+  /// Factory function to create new items.
   final T Function() onNewItem;
+
+  /// Where to add new items (first or last).
   final TItemAddPosition itemAddPosition;
 
+  /// Creates an items form builder.
   const TItemsFormBuilder({
     super.key,
     this.value,

@@ -1,35 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A toggle switch input with validation support.
+///
+/// `TSwitch` provides a Material Design switch with:
+/// - Optional label text
+/// - Validation support
+/// - Custom colors and sizes
+/// - Disabled state
+/// - Value binding with ValueNotifier
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TSwitch(
+///   label: 'Enable notifications',
+///   value: true,
+///   onValueChanged: (value) => print('Switch: \$value'),
+/// )
+/// ```
+///
+/// ## With ValueNotifier
+///
+/// ```dart
+/// final notificationsEnabled = ValueNotifier<bool>(false);
+///
+/// TSwitch(
+///   label: 'Notifications',
+///   valueNotifier: notificationsEnabled,
+/// )
+/// ```
+///
+/// See also:
+/// - [TCheckbox] for checkbox input
 class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, TInputValidationMixin<bool> {
+  /// The current value of the switch.
   @override
   final bool? value;
 
+  /// A ValueNotifier for two-way binding.
   @override
   final ValueNotifier<bool?>? valueNotifier;
 
+  /// Callback fired when the value changes.
   @override
   final ValueChanged<bool?>? onValueChanged;
 
+  /// Custom focus node.
   @override
   final FocusNode? focusNode;
 
+  /// Label text displayed next to the switch.
   @override
   final String? label;
 
+  /// Whether this switch is required.
   @override
   final bool isRequired;
 
+  /// Validation rules for the switch value.
   @override
   final List<String? Function(bool?)>? rules;
 
+  /// Debounce duration for validation.
   @override
   final Duration? validationDebounce;
 
-  // Switch specific properties
+  /// Whether the switch should auto-focus.
   final bool autoFocus;
+
+  /// Whether the switch is disabled.
   final bool disabled;
+
+  /// Custom color for the switch.
   final Color? color;
+
+  /// The size of the switch.
   final TInputSize? size;
 
   const TSwitch({

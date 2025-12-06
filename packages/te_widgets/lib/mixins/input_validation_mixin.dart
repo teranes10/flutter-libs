@@ -3,12 +3,21 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Mixin for input validation logic.
 mixin TInputValidationMixin<T> on TInputValueMixin<T>, TFocusMixin {
+  /// The label used in error messages.
   String? get label;
+
+  /// Whether the input is required.
   bool get isRequired;
+
+  /// List of validation rules.
   List<String? Function(T?)>? get rules;
+
+  /// Debounce duration for validation trigger.
   Duration? get validationDebounce;
 
+  /// Validates the given value against the rules.
   List<String> validateValue(T? value) {
     List<String> errors = [];
 
@@ -36,17 +45,26 @@ mixin TInputValidationMixin<T> on TInputValueMixin<T>, TFocusMixin {
   }
 }
 
+/// State mixin for managing validation state.
 mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W>, TInputValueStateMixin<T, W>, TFocusStateMixin<W> {
   Timer? _validationTimer;
   final ValueNotifier<List<String>> _errorsNotifier = ValueNotifier([]);
 
   TInputValidationMixin<T> get _widget => widget as TInputValidationMixin<T>;
 
+  /// Notifier for the list of validation errors.
   ValueNotifier<List<String>> get errorsNotifier => _errorsNotifier;
+
+  /// Current validation errors.
   List<String> get errors => _errorsNotifier.value;
+
+  /// Whether there are any validation errors.
   bool get hasErrors => _errorsNotifier.value.isNotEmpty;
+
+  /// Whether validation is required for this field.
   bool get isNeedToValidate => _widget.isRequired == true || _widget.rules?.isNotEmpty == true;
 
+  /// Triggers validation immediately.
   void triggerValidation(T? value) {
     if (!isNeedToValidate) return;
 

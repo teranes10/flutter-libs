@@ -1,5 +1,6 @@
 part of 'button.dart';
 
+/// Defines the display type of a button group.
 enum TButtonGroupType {
   solid,
   tonal,
@@ -12,6 +13,7 @@ enum TButtonGroupType {
   icon,
   boxed;
 
+  /// Maps the group type to an individual [TButtonType].
   TButtonType get buttonType {
     return switch (this) {
       TButtonGroupType.solid => TButtonType.solid,
@@ -27,6 +29,13 @@ enum TButtonGroupType {
   }
 }
 
+/// Theme configuration for [TButtonGroup].
+///
+/// `TButtonGroupTheme` styles a group of buttons, including:
+/// - Group type (solid, outline, etc.)
+/// - Button size and shape
+/// - Spacing and separators
+/// - Boxed mode decoration
 @immutable
 class TButtonGroupTheme {
   final TButtonGroupType type;
@@ -41,6 +50,7 @@ class TButtonGroupTheme {
   final double? separatorWidth;
   final Color? separatorColor;
 
+  /// Creates a button group theme.
   const TButtonGroupTheme({
     this.type = TButtonGroupType.solid,
     this.size = TButtonSize.md,
@@ -55,6 +65,7 @@ class TButtonGroupTheme {
     this.separatorColor,
   });
 
+  /// Creates a theme from the base context.
   factory TButtonGroupTheme.fromBaseTheme({
     required BuildContext context,
     TButtonGroupType type = TButtonGroupType.solid,
@@ -83,6 +94,7 @@ class TButtonGroupTheme {
     );
   }
 
+  /// Whether separators should be shown based on the group type.
   bool needsSeparator() {
     return type == TButtonGroupType.text ||
         type == TButtonGroupType.softText ||
@@ -90,6 +102,7 @@ class TButtonGroupTheme {
         type == TButtonGroupType.boxed;
   }
 
+  /// Builds a visual separator widget.
   Widget buildSeparator() {
     return Container(
       width: separatorWidth,
@@ -98,6 +111,7 @@ class TButtonGroupTheme {
     );
   }
 
+  /// Creates a copy of the theme with updated properties.
   TButtonGroupTheme copyWith({
     TButtonGroupType? type,
     TButtonSize? size,

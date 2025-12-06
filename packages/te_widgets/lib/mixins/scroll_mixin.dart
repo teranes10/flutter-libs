@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
 
+/// Mixin for widgets that implement infinite scrolling or scroll tracking.
 mixin TScrollMixin {
+  /// The scroll controller.
   ScrollController? get scrollController;
+
+  /// Callback when scroll reaches the end.
   VoidCallback? get onScrollEnd;
+
+  /// Distance from bottom to trigger `onScrollEnd`.
   double get scrollEndThreshold;
+
+  /// Notifier for the current scroll position.
   ValueNotifier<double>? get scrollPositionNotifier;
+
+  /// Callback when scroll position changes.
   ValueChanged<double>? get onScrollPositionChanged;
 }
 
+/// State mixin for managing scroll listeners and position updates.
 mixin TScrollStateMixin<W extends StatefulWidget> on State<W> {
   TScrollMixin get _widget {
     assert(widget is TScrollMixin, 'Widget must mix in TScrollMixin');
@@ -17,6 +28,7 @@ mixin TScrollStateMixin<W extends StatefulWidget> on State<W> {
   late ScrollController _scrollController;
   bool _isScrollEndTriggered = false;
 
+  /// The active scroll controller.
   ScrollController get scrollController => _scrollController;
 
   @override
@@ -96,5 +108,6 @@ mixin TScrollStateMixin<W extends StatefulWidget> on State<W> {
     }
   }
 
+  /// Override this method to handle scroll end events.
   void onScrollEnd() {}
 }

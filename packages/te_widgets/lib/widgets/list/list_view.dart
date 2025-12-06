@@ -2,39 +2,90 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A versatile list/grid view with robust features.
+///
+/// `TListView` serves as the core rendering engine for [TList] and supports:
+/// - List and Grid layouts (including Masonry and Aligned)
+/// - Sliver-based scrolling
+/// - Sticky headers and footers
+/// - Infinite scroll support
+/// - Pull-to-refresh integration
+/// - Empty, Error, and Loading states
+/// - Reordering (Drag and Drop)
+///
+/// This widget is typically used internally by [TList], but can be used directly
+/// for advanced custom layouts.
 class TListView<T, K> extends StatelessWidget {
+  /// The list of items to display.
   final List<TListItem<T, K>> items;
+
+  /// Error object if in error state.
   final TListError? error;
 
+  /// Whether the header is sticky.
   final bool headerSticky;
+
+  /// Builder for the list header.
   final TListHeaderBuilder? headerBuilder;
 
+  /// Whether the footer is sticky.
   final bool footerSticky;
+
+  /// Builder for the list footer.
   final TListFooterBuilder? footerBuilder;
 
+  /// Whether the list is loading.
   final bool loading;
+
+  /// Builder for loading state.
   final TListLoadingBuilder? loadingBuilder;
 
+  /// Whether infinite scroll is enabled.
   final bool infiniteScroll;
+
+  /// Builder for infinite scroll footer.
   final TListFooterBuilder? infiniteScrollFooterBuilder;
 
+  /// Builder for error state.
   final TListErrorBuilder? errorStateBuilder;
+
+  /// Builder for empty state.
   final TListEmptyBuilder? emptyStateBuilder;
+
+  /// Builder for individual list items.
   final ListItemBuilder<T, K> itemBuilder;
+
+  /// Builder for list separators.
   final TListSeparatorBuilder? listSeparatorBuilder;
+
+  /// Padding around the list content.
   final EdgeInsets? padding;
 
+  /// Whether items can be reordered.
   final bool reorderable;
+
+  /// Decorator for item while dragging.
   final TListDragProxyDecorator? dragProxyDecorator;
+
+  /// Callback when reorder completes.
   final TListReorderCallback? onReorder;
 
+  /// Grid mode (masonry, aligned, or null for list).
   final TGridMode? grid;
+
+  /// Delegate for grid layout configuration.
   final TGridDelegateBuilder? gridDelegate;
 
+  /// Fixed height for the list (optional).
   final double? height;
+
+  /// Whether to shrink wrap the scroll view.
   final bool shrinkWrap;
+
+  /// Custom scroll controller.
   final ScrollController? scrollController;
 
+  /// Creates a list view.
   const TListView({
     super.key,
     required this.items,
@@ -90,6 +141,7 @@ class TListView<T, K> extends StatelessWidget {
     );
   }
 
+  /// Builds the slivers for the scroll view.
   List<Widget> buildSlivers(BuildContext context) {
     return [
       // Non-sticky header
@@ -112,6 +164,7 @@ class TListView<T, K> extends StatelessWidget {
     ];
   }
 
+  /// Builds the main content sliver.
   Widget buildContentSliver(BuildContext context) {
     if (error != null) {
       return SliverToBoxAdapter(
@@ -181,6 +234,7 @@ class TListView<T, K> extends StatelessWidget {
     throw UnimplementedError();
   }
 
+  /// Builds a single list item helper.
   Widget buildItem(BuildContext context, int index) {
     final item = items[index];
     final child = itemBuilder(context, item, index);

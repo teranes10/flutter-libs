@@ -1,24 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A card representation of a table row for mobile views.
+///
+/// `TTableMobileCard` transforms a table row into a self-contained card
+/// displaying key-value pairs. It supports:
+/// - Expandable details
+/// - Selection checkbox
+/// - Custom styling
 class TTableMobileCard<T, K> extends StatelessWidget {
+  /// The index of the item.
   final int index;
+
+  /// The list item data.
   final TListItem<T, K> item;
+
+  /// The table headers definitions.
   final List<TTableHeader<T, K>> headers;
+
+  /// Theme for the mobile card.
   final TTableMobileCardTheme theme;
+
+  /// Optional fixed width.
   final double? width;
 
   //expandable
+  /// Whether the card is expandable.
   final bool expandable;
+
+  /// Whether the card is currently expanded.
   final bool isExpanded;
+
+  /// Callback when expansion toggles.
   final VoidCallback? onExpansionChanged;
+
+  /// Content to show when expanded.
   final Widget? expandedContent;
 
   //selectable
+  /// Whether the card is selectable.
   final bool selectable;
+
+  /// Whether the card is selected.
   final bool isSelected;
+
+  /// Callback when selection toggles.
   final VoidCallback? onSelectionChanged;
 
+  /// Creates a mobile table card.
   const TTableMobileCard({
     super.key,
     required this.index,

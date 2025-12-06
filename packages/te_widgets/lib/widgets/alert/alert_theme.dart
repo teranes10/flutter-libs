@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Theme configuration for [TAlert].
+///
+/// `TAlertTheme` defines the visual style of alerts, including:
+/// - Background color
+/// - Padding and alignment
+/// - Text styles (title, content)
+/// - Button styles (close, confirm)
+/// - Icon size
+///
+/// ## Usage
+///
+/// ```dart
+/// TAlertTheme(
+///   backgroundColor: Colors.white,
+///   contentStyle: TextStyle(fontSize: 16),
+///   confirmButtonType: TButtonType.solid,
+/// )
+/// ```
 class TAlertTheme {
   final Color backgroundColor;
   final EdgeInsets? insetPadding;
@@ -17,6 +35,7 @@ class TAlertTheme {
   final double? confirmButtonWidth;
   final TButtonType? confirmButtonType;
 
+  /// Creates an alert theme.
   const TAlertTheme({
     required this.backgroundColor,
     this.insetPadding = const EdgeInsets.all(12.0),
@@ -34,6 +53,7 @@ class TAlertTheme {
     this.closeButtonColor,
   });
 
+  /// Creates a copy of the theme with updated properties.
   TAlertTheme copyWith({
     Color? backgroundColor,
     EdgeInsets? insetPadding,
@@ -66,6 +86,7 @@ class TAlertTheme {
     );
   }
 
+  /// Creates a default theme derived from the context colors.
   factory TAlertTheme.defaultTheme(ColorScheme colors) {
     return TAlertTheme(
       backgroundColor: colors.surface,

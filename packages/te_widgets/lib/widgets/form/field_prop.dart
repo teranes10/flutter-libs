@@ -1,9 +1,28 @@
 part of 'form_builder.dart';
 
+/// A reactive property for form fields with subscription support.
+///
+/// `TFieldProp` provides reactive state management for form fields with:
+/// - Value change notifications
+/// - Subscription to other properties
+/// - User input tracking
+/// - Reset to initial value
+/// - Automatic disposal
+///
+/// Type parameter:
+/// - [T]: The type of the property value
+///
+/// See also:
+/// - [TFormField] for creating form fields
+/// - [TFormBuilder] for building forms
 class TFieldProp<T> {
   T? _value;
   ValueNotifier<T?>? _valueNotifier;
+
+  /// The initial value of the property.
   final T? initialValue;
+
+  /// Callback fired when the value changes.
   final ValueChanged<T?>? onValueChanged;
   final Map<TFieldProp, _TPropSubscriber> _subscribers = {};
 

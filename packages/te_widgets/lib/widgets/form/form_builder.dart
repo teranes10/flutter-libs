@@ -6,13 +6,51 @@ part 'field_prop.dart';
 part 'form_field.dart';
 part 'form_builder_config.dart';
 
+/// A responsive form builder with grid layout.
+///
+/// `TFormBuilder` provides automatic form layout with:
+/// - 12-column responsive grid system
+/// - Automatic field sizing based on breakpoints
+/// - Integration with TFormBase
+/// - Nested form support
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// class UserForm extends TFormBase {
+///   final name = TFieldProp<String>('');
+///   final email = TFieldProp<String>('');
+///
+///   @override
+///   List<TFormField> get fields => [
+///     TFormField.text(name, 'Name').size(6),
+///     TFormField.text(email, 'Email').size(6),
+///   ];
+/// }
+///
+/// TFormBuilder(input: UserForm())
+/// ```
+///
+/// See also:
+/// - [TFormField] for field creation
+/// - [TFormBase] for form models
 class TFormBuilder extends StatelessWidget {
+  /// The form model to build.
   final TFormBase? input;
+
+  /// Manual list of fields (alternative to input).
   final List<TFormField>? fields;
+
+  /// Spacing between fields.
   final double gutter;
+
+  /// Callback fired when any field value changes.
   final VoidCallback? onValueChanged;
+
+  /// Optional label for the form.
   final String? label;
 
+  /// Creates a form builder.
   const TFormBuilder({
     super.key,
     this.input,

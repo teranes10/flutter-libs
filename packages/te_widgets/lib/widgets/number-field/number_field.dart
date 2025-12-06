@@ -1,31 +1,125 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A numeric input field with formatting and validation support.
+///
+/// `TNumberField` provides a specialized input for numeric values with:
+/// - Support for both integer and decimal numbers
+/// - Automatic formatting with decimal places
+/// - Optional stepper buttons for increment/decrement
+/// - Validation rules for min/max values and ranges
+/// - Value binding with ValueNotifier
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TNumberField<double>(
+///   label: 'Price',
+///   placeholder: 'Enter price',
+///   onValueChanged: (value) => print('Price: \$value'),
+/// )
+/// ```
+///
+/// ## Integer Field
+///
+/// ```dart
+/// TNumberField<int>(
+///   label: 'Quantity',
+///   placeholder: 'Enter quantity',
+///   rules: [
+///     Validations.minValue(1, 'Minimum 1'),
+///     Validations.maxValue(100, 'Maximum 100'),
+///   ],
+/// )
+/// ```
+///
+/// ## With Decimal Places
+///
+/// ```dart
+/// TNumberField<double>(
+///   label: 'Amount',
+///   theme: TNumberFieldTheme(decimals: 2),
+///   onValueChanged: (value) => print('Amount: \$value'),
+/// )
+/// ```
+///
+/// Type parameter:
+/// - [T]: The numeric type (int or double)
+///
+/// See also:
+/// - [TTextField] for text input
+/// - [Validations] for numeric validation rules
 class TNumberField<T extends num> extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<T>, TInputValidationMixin<T> {
+  /// The label text displayed above the field.
   @override
-  final String? label, tag, helperText, placeholder;
+  final String? label;
+
+  /// An optional tag displayed next to the label.
   @override
-  final bool isRequired, disabled, autoFocus, readOnly;
+  final String? tag;
+
+  /// Helper text displayed below the field.
+  @override
+  final String? helperText;
+
+  /// Placeholder text shown when the field is empty.
+  @override
+  final String? placeholder;
+
+  /// Whether this field is required.
+  @override
+  final bool isRequired;
+
+  /// Whether the field is disabled.
+  @override
+  final bool disabled;
+
+  /// Whether the field should auto-focus.
+  @override
+  final bool autoFocus;
+
+  /// Whether the field is read-only.
+  @override
+  final bool readOnly;
+
+  /// Custom theme for this number field.
   @override
   final TNumberFieldTheme? theme;
+
+  /// Callback fired when the field is tapped.
   @override
   final VoidCallback? onTap;
+
+  /// Custom focus node.
   @override
   final FocusNode? focusNode;
+
+  /// Custom text editing controller.
   @override
   final TextEditingController? textController;
+
+  /// The initial numeric value.
   @override
   final T? value;
+
+  /// A ValueNotifier for two-way binding.
   @override
   final ValueNotifier<T?>? valueNotifier;
+
+  /// Callback fired when the value changes.
   @override
   final ValueChanged<T?>? onValueChanged;
+
+  /// Validation rules for the numeric value.
   @override
   final List<String? Function(T?)>? rules;
+
+  /// Debounce duration for validation.
   @override
   final Duration? validationDebounce;
 
+  /// Creates a numeric input field.
   const TNumberField({
     super.key,
     this.label,

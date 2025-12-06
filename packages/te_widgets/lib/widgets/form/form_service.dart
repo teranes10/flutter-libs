@@ -1,7 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A service for displaying form modals with validation.
+///
+/// `TFormService` provides modal dialogs for forms with:
+/// - Automatic form layout
+/// - Built-in validation
+/// - Save/Cancel actions
+/// - Mobile-friendly with zoom support
+/// - Integration with TFormBase
+///
+/// ## Usage Example
+///
+/// ```dart
+/// class UserForm extends TFormBase {
+///   final name = TFieldProp<String>('');
+///   final email = TFieldProp<String>('');
+///
+///   @override
+///   List<TFormField> get fields => [
+///     TFormField.text(name, 'Name', isRequired: true),
+///     TFormField.text(email, 'Email', isRequired: true),
+///   ];
+///
+///   @override
+///   String get formTitle => 'Edit User';
+/// }
+///
+/// final result = await TFormService.show(context, UserForm());
+/// if (result != null) {
+///   // Form was saved
+///   print('Name: ${result.name.value}');
+/// }
+/// ```
+///
+/// See also:
+/// - [TFormBase] for form models
+/// - [TModalService] for generic modals
 class TFormService {
+  /// Shows a form in a modal dialog.
+  ///
+  /// Returns the form instance if saved, null if cancelled.
   static Future<T?> show<T extends TFormBase>(BuildContext context, T input) {
     final theme = context.theme;
 
@@ -34,9 +73,8 @@ class TFormService {
                   spacing: 5,
                   children: [
                     TButton(
+                        baseTheme: TWidgetTheme.surfaceTheme(context.colors),
                         size: TButtonSize.md.copyWith(minW: 125),
-                        color: theme.grey,
-                        type: TButtonType.tonal,
                         text: 'Cancel',
                         onPressed: (_) => mContext.close()),
                     TButton(

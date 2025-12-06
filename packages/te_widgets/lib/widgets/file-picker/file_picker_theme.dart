@@ -3,10 +3,20 @@ import 'package:te_widgets/te_widgets.dart';
 
 typedef FileTagBuilder = Widget Function(TFile file, VoidCallback onRemove);
 
+/// Theme configuration for [TFilePicker].
+///
+/// `TFilePickerTheme` extends [TInputFieldTheme] with specific properties for
+/// file pickers, such as:
+/// - File tag builder
+/// - Hint styling
 class TFilePickerTheme extends TInputFieldTheme {
+  /// Style for the hint text.
   final WidgetStateProperty<TextStyle> hintStyle;
+
+  /// Builder for the file tags (chips) displayed in the field.
   final FileTagBuilder fileTagBuilder;
 
+  /// Creates a file picker theme.
   const TFilePickerTheme({
     required super.color,
     required super.backgroundColor,
@@ -109,6 +119,7 @@ class TFilePickerTheme extends TInputFieldTheme {
     );
   }
 
+  /// Creates a default theme derived from the context colors.
   factory TFilePickerTheme.defaultTheme(ColorScheme colors) {
     final baseTheme = TInputFieldTheme.defaultTheme(colors);
 
@@ -165,6 +176,7 @@ class TFilePickerTheme extends TInputFieldTheme {
     );
   }
 
+  /// Builds the file tag implementation.
   Widget buildFilesField(
       {required Set<WidgetState> states, required List<TFile> files, String? placeholder, ValueChanged<TFile>? onRemove}) {
     return Wrap(

@@ -1,38 +1,107 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A checkbox input with validation and theming support.
+///
+/// `TCheckbox` provides a customizable checkbox with:
+/// - Optional label text
+/// - Validation support
+/// - Tristate mode (true/false/null)
+/// - Custom colors and sizes
+/// - Disabled state
+/// - Value binding with ValueNotifier
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TCheckbox(
+///   label: 'Accept terms and conditions',
+///   onValueChanged: (value) => print('Checked: \$value'),
+/// )
+/// ```
+///
+/// ## With Validation
+///
+/// ```dart
+/// TCheckbox(
+///   label: 'I agree to the terms',
+///   isRequired: true,
+///   rules: [
+///     (value) => value == true ? null : 'You must accept the terms',
+///   ],
+/// )
+/// ```
+///
+/// ## Tristate Checkbox
+///
+/// ```dart
+/// TCheckbox(
+///   label: 'Select all',
+///   tristate: true,
+///   onValueChanged: (value) {
+///     // value can be true, false, or null
+///     print('State: \$value');
+///   },
+/// )
+/// ```
+///
+/// See also:
+/// - [TCheckboxGroup] for multiple checkboxes
+/// - [TRadio] for single selection
 class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin, TInputValidationMixin<bool?> {
+  /// The current value of the checkbox.
   @override
   final bool? value;
 
+  /// A ValueNotifier for two-way binding.
   @override
   final ValueNotifier<bool?>? valueNotifier;
 
+  /// Callback fired when the value changes.
   @override
   final ValueChanged<bool?>? onValueChanged;
 
+  /// Custom focus node.
   @override
   final FocusNode? focusNode;
 
+  /// Label text displayed next to the checkbox.
   @override
   final String? label;
 
+  /// Whether this checkbox is required.
   @override
   final bool isRequired;
 
+  /// Validation rules for the checkbox value.
   @override
   final List<String? Function(bool?)>? rules;
 
+  /// Debounce duration for validation.
   @override
   final Duration? validationDebounce;
 
-  // Checkbox specific properties
+  /// Whether the checkbox should auto-focus.
   final bool autoFocus;
+
+  /// Whether the checkbox is disabled.
   final bool disabled;
+
+  /// Custom color for the checkbox.
   final Color? color;
+
+  /// The size of the checkbox.
+  ///
+  /// Defaults to [TInputSize.md].
   final TInputSize? size;
+
+  /// Whether to enable tristate mode.
+  ///
+  /// When true, the checkbox can have three states: true, false, or null.
+  /// Defaults to false.
   final bool tristate;
 
+  /// Creates a checkbox input.
   const TCheckbox({
     super.key,
     this.value,

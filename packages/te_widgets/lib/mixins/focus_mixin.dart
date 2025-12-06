@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// Mixin for widgets that manage focus.
 mixin TFocusMixin {
+  /// Custom focus node.
   FocusNode? get focusNode;
 }
 
+/// State mixin for managing focus state.
 mixin TFocusStateMixin<T extends StatefulWidget> on State<T> {
   TFocusMixin get _widget => widget as TFocusMixin;
 
@@ -11,7 +14,10 @@ mixin TFocusStateMixin<T extends StatefulWidget> on State<T> {
   late final bool _shouldDisposeFocusNode;
   bool _isFocused = false;
 
+  /// The active focus node.
   FocusNode get focusNode => _focusNode;
+
+  /// Whether the widget is currently focused.
   bool get isFocused => _isFocused;
 
   void _onFocusChanged() {
@@ -35,5 +41,6 @@ mixin TFocusStateMixin<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 
+  /// Callback called when focus state changes.
   void onFocusChanged(bool hasFocus);
 }

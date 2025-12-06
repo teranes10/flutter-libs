@@ -1,14 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-enum TLoadingType { oval, dots, linear }
+/// Loading animation types.
+enum TLoadingType {
+  /// Spinning oval/circle loader
+  oval,
 
+  /// Pulsing dots loader
+  dots,
+
+  /// Linear progress bar
+  linear
+}
+
+/// An animated loading indicator with multiple styles.
+///
+/// `TLoadingIcon` provides loading animations with:
+/// - Three animation types (oval, dots, linear)
+/// - Customizable colors and size
+/// - Smooth animations
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TLoadingIcon()
+/// ```
+///
+/// ## Custom Style
+///
+/// ```dart
+/// TLoadingIcon(
+///   type: TLoadingType.dots,
+///   color: Colors.blue,
+///   size: 40,
+/// )
+/// ```
+///
+/// ## Linear Progress
+///
+/// ```dart
+/// TLoadingIcon(
+///   type: TLoadingType.linear,
+///   color: Colors.green,
+/// )
+/// ```
+///
+/// See also:
+/// - [CircularProgressIndicator] for Material loading
 class TLoadingIcon extends StatefulWidget {
+  /// The type of loading animation.
   final TLoadingType type;
+
+  /// The color of the loading indicator.
   final Color? color;
+
+  /// The background color (for oval and linear types).
   final Color? background;
+
+  /// The size of the loading indicator.
   final double size;
 
+  /// Creates a loading icon.
   const TLoadingIcon({
     super.key,
     this.type = TLoadingType.oval,

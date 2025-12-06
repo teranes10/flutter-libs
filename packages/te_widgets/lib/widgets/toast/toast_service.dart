@@ -2,7 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:toastification/toastification.dart';
 
+/// A service for displaying toast notifications.
+///
+/// `TToastService` provides toast messages with:
+/// - Success, info, warning, and error variants
+/// - Auto-dismiss with configurable duration
+/// - Pause on hover
+/// - Mobile and desktop positioning
+/// - Custom icons and colors
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TToastService.success(context, 'Operation completed!');
+/// TToastService.error(context, 'Something went wrong');
+/// ```
+///
+/// ## With Title
+///
+/// ```dart
+/// TToastService.info(context, 'Your changes have been saved', 'Success');
+/// ```
+///
+/// ## Custom Toast
+///
+/// ```dart
+/// TToastService.show(
+///   context,
+///   'Custom message',
+///   title: 'Custom Title',
+///   icon: Icons.star,
+///   color: Colors.purple,
+///   duration: Duration(seconds: 5),
+/// )
+/// ```
+///
+/// See also:
+/// - [TAlert] for dialog alerts
 class TToastService {
+  /// Shows a custom toast notification.
   static void show(
     BuildContext context,
     String message, {
@@ -67,18 +105,22 @@ class TToastService {
     );
   }
 
+  /// Shows a success toast.
   static void success(BuildContext context, String message, [String? title]) {
     show(context, message, title: title, icon: Icons.check_circle_outline_rounded, color: context.theme.success);
   }
 
+  /// Shows an info toast.
   static void info(BuildContext context, String message, [String? title]) {
     show(context, message, title: title, icon: Icons.info_outline_rounded, color: context.theme.info);
   }
 
+  /// Shows a warning toast.
   static void warning(BuildContext context, String message, [String? title]) {
     show(context, message, title: title, icon: Icons.warning_amber_rounded, color: context.theme.warning);
   }
 
+  /// Shows an error toast.
   static void error(BuildContext context, String message, [String? title]) {
     show(context, message, title: title, icon: Icons.error_outline_rounded, color: context.theme.danger);
   }

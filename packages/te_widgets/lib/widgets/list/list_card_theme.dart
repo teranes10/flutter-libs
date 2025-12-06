@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Theme configuration for [TListCard].
+///
+/// `TListCardTheme` defines the visual style of list items/cards, including:
+/// - Background colors (normal, selected, disabled)
+/// - Padding and indentation
+/// - Builders for indicators (selection, expansion) and content
 class TListCardTheme {
   final Color backgroundColor;
   final Color selectedBackgroundColor;
@@ -13,6 +19,7 @@ class TListCardTheme {
   final Widget Function(bool multiple, bool isSelected, bool isDisabled) selectionIndicatorBuilder;
   final Widget Function(String title, String? subTitle, String? imageUrl, bool isSelected, bool isDisabled) contentBuilder;
 
+  /// Creates a list card theme.
   const TListCardTheme({
     required this.backgroundColor,
     required this.selectedBackgroundColor,
@@ -25,6 +32,7 @@ class TListCardTheme {
     this.levelIndentation = 18.0,
   });
 
+  /// Creates a copy of the theme with updated properties.
   TListCardTheme copyWith({
     Color? backgroundColor,
     Color? selectedBackgroundColor,
@@ -49,6 +57,7 @@ class TListCardTheme {
     );
   }
 
+  /// Creates a default theme derived from the context colors.
   factory TListCardTheme.defaultTheme(ColorScheme colors) {
     return TListCardTheme(
       backgroundColor: colors.surface,
@@ -143,6 +152,7 @@ class TListCardTheme {
               size: 45,
               color: colors.surfaceDim,
               disabled: true,
+              border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
             const SizedBox(width: 15),
             Expanded(child: textContent),

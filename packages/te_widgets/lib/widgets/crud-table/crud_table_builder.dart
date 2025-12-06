@@ -1,9 +1,14 @@
 part of 'crud_table.dart';
 
+/// Defines the content for a specific tab in [TCrudTable].
 class TCrudTableContent<T, K> {
+  /// The headers specific to this tab's table.
   final List<TTableHeader<T, K>> headers;
+
+  /// The list controller managing data for this tab.
   final TListController<T, K> controller;
 
+  /// Creates a content definition for a CRUD table tab.
   TCrudTableContent({required this.headers, required this.controller});
 }
 

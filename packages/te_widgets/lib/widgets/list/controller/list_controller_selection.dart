@@ -1,21 +1,65 @@
 part of 'list_controller.dart';
 
+/// Extension providing selection functionality for [TListController].
+///
+/// Enables single and multiple item selection with methods to:
+/// - Select/deselect individual items
+/// - Select/deselect all items
+/// - Toggle selection states
+/// - Query selection status
+///
+/// Example:
+/// ```dart
+/// // Select an item
+/// controller.selectItem(product);
+///
+/// // Select multiple items
+/// controller.selectItems([product1, product2]);
+///
+/// // Check selection
+/// if (controller.hasSelection) {
+///   print('Selected: ${controller.selectedCount}');
+/// }
+///
+/// // Clear selection
+/// controller.clearSelection();
+/// ```
 extension TListControllerSelection<T, K> on TListController<T, K> {
+  /// Whether selection is enabled.
   bool get selectable => selectionMode != TSelectionMode.none;
+
+  /// Whether multiple selection is enabled.
   bool get isMultiSelect => selectionMode == TSelectionMode.multiple;
+
+  /// The set of selected item keys.
   LinkedHashSet<K> get selectedKeys => value.selectedKeys;
+
+  /// The list of selected items.
   List<T> get selectedItems => getItemsFromKeys(selectedKeys);
+
+  /// Whether any items are selected.
   bool get hasSelection => selectedKeys.isNotEmpty;
+
+  /// Whether multiple items are selected.
   bool get hasMultipleSelection => selectedKeys.length > 1;
+
+  /// The number of selected items.
   int get selectedCount => selectedKeys.length;
+
+  /// Whether all items are selected.
   bool get isAllSelected => value.displayItems.isNotEmpty && value.displayItems.length == selectedCount;
+
+  /// Whether some (but not all) items are selected.
   bool get isSomeSelected => hasSelection && !isAllSelected;
+
+  /// Tristate selection value (true/null/false).
   bool? get selectionTristate => isAllSelected
       ? true
       : isSomeSelected
           ? null
           : false;
 
+  /// Human-readable selection information.
   String get selectionInfo {
     if (selectedCount == 0) return 'No items selected';
     if (selectedCount == 1) return '1 item selected';

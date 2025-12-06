@@ -1,8 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A rich data table with responsive layout.
+///
+/// `TTable` displays tabular data with:
+/// - Responsive design (switches to cards on mobile)
+/// - Sortable, filterable columns
+/// - Pagination
+/// - Selection (single/multiple)
+/// - Expandable rows
+/// - Editable cells
+/// - Async loading
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TTable<User, String>(
+///   headers: [
+///     TTableHeader(text: 'Name', map: (user) => user.name),
+///     TTableHeader(text: 'Email', map: (user) => user.email),
+///   ],
+///   items: users,
+/// )
+/// ```
+///
+/// ## Advanced Usage
+///
+/// ```dart
+/// TTable<User, String>(
+///   headers: [
+///     TTableHeader.image('Avatar', (user) => user.avatarUrl),
+///     TTableHeader(text: 'Name', map: (user) => user.name),
+///     TTableHeader.actions((user) => [
+///       TButton.icon(icon: Icons.edit, onPressed: () => edit(user)),
+///     ]),
+///   ],
+///   controller: listController,
+///   customTheme: myTableTheme,
+/// )
+/// ```
+///
+/// See also:
+/// - [TTableHeader] for column definitions
+/// - [TListController] for state management
 class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
+  /// Defines the columns of the table.
   final List<TTableHeader<T, K>> headers;
+
+  /// Custom theme for the table.
   final TTableTheme? theme;
 
   //List
@@ -22,9 +67,13 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   final TListController<T, K>? controller;
 
   // Expandable configuration
+  /// Builder for expanded content of a row.
   final Widget Function(BuildContext ctx, TListItem<T, K> item, int index)? expandedBuilder;
+
+  /// Whether specific cells are editable.
   final bool editable;
 
+  /// Creates a data table.
   const TTable({
     super.key,
     required this.headers,

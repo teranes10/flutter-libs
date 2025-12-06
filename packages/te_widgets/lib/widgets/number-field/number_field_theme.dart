@@ -5,15 +5,35 @@ import 'package:te_widgets/te_widgets.dart';
 typedef StepperButtonBuilder = Widget Function(VoidCallback onTap, bool enabled);
 typedef StepperBuilder = Widget Function(BuildContext ctx, ValueChanged<num> onValueChanged, bool canIncrease, bool canDecrease);
 
+/// Theme configuration for [TNumberField].
+///
+/// `TNumberFieldTheme` extends [TTextFieldTheme] with numeric specific
+/// properties like:
+/// - Increment/Decrement values
+/// - Decimal precision
+/// - Stepper buttons (plus/minus) builders
+/// - Custom numeric formatting/parsing
 class TNumberFieldTheme extends TTextFieldTheme {
   // Numeric Configuration
+  /// The amount to increase the value by.
   final num increment;
+
+  /// The amount to decrease the value by.
   final num decrement;
+
+  /// The number of decimal places to allow (null for infinite).
   final int? decimals;
+
+  /// Builder for the decrease (-) button.
   final StepperButtonBuilder? decreaseButtonBuilder;
+
+  /// Builder for the increase (+) button.
   final StepperButtonBuilder? increaseButtonBuilder;
+
+  /// Builder for the entire stepper widget (grouping buttons).
   final StepperBuilder? stepperBuilder;
 
+  /// Creates a number field theme.
   const TNumberFieldTheme({
     required super.color,
     required super.backgroundColor,
@@ -174,6 +194,7 @@ class TNumberFieldTheme extends TTextFieldTheme {
     );
   }
 
+  /// Creates a default theme derived from the context colors.
   factory TNumberFieldTheme.defaultTheme(ColorScheme colors) {
     final baseTheme = TTextFieldTheme.defaultTheme(colors);
     final increment = 1;
@@ -239,6 +260,7 @@ class TNumberFieldTheme extends TTextFieldTheme {
     );
   }
 
+  /// Formats a number to a string based on the theme properties.
   String formatValue<T extends num>(T? value) {
     if (value == null || value == 0) return '';
 
@@ -249,6 +271,7 @@ class TNumberFieldTheme extends TTextFieldTheme {
     return decimals != null ? value.toStringAsFixed(decimals!) : value.toString();
   }
 
+  /// Parses a string to a number.
   T? parseValue<T extends num>(String text) {
     if (text.trim().isEmpty) return null;
 

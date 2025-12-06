@@ -3,18 +3,29 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Represents a single key-value item in a [TKeyValueSection].
 class TKeyValue {
+  /// The label/key text.
   final String key;
+
+  /// The value text.
   final String? value;
+
+  /// Custom widget to display instead of text value.
   final Widget? widget;
+
+  /// Optional fixed width for the column.
   final double? width;
 
+  /// Creates a key-value item.
   TKeyValue(this.key, {this.value, this.widget, this.width});
 
+  /// Creates a key-value item with text value.
   factory TKeyValue.text(String key, String? value) {
     return TKeyValue(key, value: value);
   }
 
+  /// Maps table headers to key-value items for list view representation.
   static List<TKeyValue> mapHeaders<T, K>(BuildContext ctx, List<TTableHeader<T, K>> headers, TListItem<T, K> item, int index) {
     return headers
         .map((header) => TKeyValue(
@@ -26,6 +37,7 @@ class TKeyValue {
         .toList();
   }
 
+  /// Estimates the width of the column based on content and theme.
   double estimateColumnWidth(double availableWidth, TKeyValueTheme theme) {
     if (width != null) {
       return width!;

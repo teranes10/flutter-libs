@@ -2,6 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A group of checkboxes for multiple selection.
+///
+/// `TCheckboxGroup` provides a multi-select input with:
+/// - Multiple checkbox selection
+/// - Keyboard navigation support
+/// - Validation support
+/// - Vertical or horizontal layout
+/// - Value binding with ValueNotifier
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TCheckboxGroup<String>(
+///   label: 'Select options',
+///   items: [
+///     TCheckboxGroupItem(value: 'option1', label: 'Option 1'),
+///     TCheckboxGroupItem(value: 'option2', label: 'Option 2'),
+///     TCheckboxGroupItem(value: 'option3', label: 'Option 3'),
+///   ],
+///   onValueChanged: (values) => print('Selected: \$values'),
+/// )
+/// ```
+///
+/// ## With Validation
+///
+/// ```dart
+/// TCheckboxGroup<String>(
+///   label: 'Select at least one',
+///   isRequired: true,
+///   items: items,
+///   rules: [
+///     (values) => values == null || values.isEmpty
+///         ? 'Please select at least one option'
+///         : null,
+///   ],
+/// )
+/// ```
+///
+/// Type parameter:
+/// - [T]: The type of values for the checkboxes
+///
+/// See also:
+/// - [TCheckbox] for single checkbox
+/// - [TRadioGroup] for single selection
 class TCheckboxGroup<T> extends StatefulWidget
     with TInputFieldMixin, TInputValueMixin<List<T>>, TFocusMixin, TInputValidationMixin<List<T>> {
   @override
@@ -25,12 +69,22 @@ class TCheckboxGroup<T> extends StatefulWidget
   @override
   final Duration? validationDebounce;
 
+  /// The list of checkbox items.
   final List<TCheckboxGroupItem<T>> items;
+
+  /// Custom color for the checkboxes.
   final Color? color;
+
+  /// Whether to display in block mode.
   final bool block;
+
+  /// Whether to display vertically.
   final bool vertical;
+
+  /// Whether to auto-focus the first checkbox.
   final bool autoFocus;
 
+  /// Creates a checkbox group.
   const TCheckboxGroup({
     super.key,
     this.label,

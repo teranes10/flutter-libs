@@ -1,20 +1,74 @@
 part of 'list_controller.dart';
 
+/// Extension providing pagination functionality for [TListController].
+///
+/// Handles both client-side and server-side pagination with methods to:
+/// - Navigate between pages
+/// - Change items per page
+/// - Load more items (infinite scroll)
+/// - Refresh data
+/// - Handle search
+///
+/// Example:
+/// ```dart
+/// // Navigate pages
+/// controller.goToNextPage();
+/// controller.goToFirstPage();
+///
+/// // Change page size
+/// controller.handleItemsPerPageChange(25);
+///
+/// // Infinite scroll
+/// controller.handleLoadMore();
+///
+/// // Search
+/// controller.handleSearchChange('query');
+///
+/// // Get pagination info
+/// print(controller.paginationInfo);
+/// // "Showing 1 to 10 of 100 entries"
+/// ```
 extension TListControllerPagination<T, K> on TListController<T, K> {
+  /// The current page number (1-indexed).
   int get page => value.page;
+
+  /// The number of items per page.
   int get itemsPerPage => value.itemsPerPage;
+
+  /// The total number of items.
   int get totalItems => value.totalItems;
+
+  /// The number of items currently displayed.
   int get totalDisplayItems => value.displayItems.length;
+
+  /// The total number of pages.
   int get totalPages => totalItems > 0 ? (totalItems / itemsPerPage).ceil() : 1;
+
+  /// The computed items per page (adjusted for last page).
   int get computedItemsPerPage => totalItems < itemsPerPage ? totalItems : itemsPerPage;
+
+  /// The starting index of the current page.
   int get pageStartedAt => totalItems == 0 ? 0 : ((page - 1) * itemsPerPage) + 1;
+
+  /// The ending index of the current page.
   int get pageEndedAt => (page * itemsPerPage).clamp(0, totalItems);
+
+  /// Whether there is a next page.
   bool get canGoToNextPage => page < totalPages;
+
+  /// Whether there is a previous page.
   bool get canGoToPreviousPage => page > 1;
+
+  /// Whether this is the first page.
   bool get isFirstPage => page == 1;
+
+  /// Whether this is the last page.
   bool get isLastPage => totalItems == 0 || page == totalPages;
+
+  /// Whether there are more items to load.
   bool get hasMoreItems => value.hasMoreItems;
 
+  /// Human-readable pagination information.
   String get paginationInfo {
     if (totalItems == 0) return 'No entries';
     return 'Showing $pageStartedAt to $pageEndedAt of $totalItems entries';
@@ -72,10 +126,9 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   }
 
   List<int> computeItemsPerPageOptions(List<int> options) {
-    if (totalItems == 0) return options.where((x) => x > 0).toList()..sort();
+    if (totalItems == 0) return [];
 
-    final optionsSet = <int>{computedItemsPerPage, ...options};
-    return optionsSet.where((x) => x <= totalItems && x > 0).toList()..sort();
+    return <int>{computedItemsPerPage, ...options}.where((x) => x <= totalItems && x > 0).toList()..sort();
   }
 
   void _executePaginationAction(String who, {int? page, int? itemsPerPage, String? search, bool append = false}) {

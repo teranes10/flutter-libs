@@ -7,18 +7,113 @@ part 'list_controller_items.dart';
 part 'list_controller_pagination.dart';
 part 'list_controller_selection.dart';
 
+/// A powerful controller for managing list state and operations.
+///
+/// `TListController` provides comprehensive list management with:
+/// - **Pagination**: Client-side and server-side pagination
+/// - **Selection**: Single and multiple item selection
+/// - **Expansion**: Hierarchical item expansion/collapse
+/// - **Search**: Debounced search with filtering
+/// - **Reordering**: Drag-and-drop item reordering
+/// - **Loading**: Async data loading with error handling
+///
+/// ## Client-Side Usage
+///
+/// ```dart
+/// final controller = TListController<Product, int>(
+///   items: products,
+///   itemsPerPage: 10,
+///   itemKey: (product) => product.id,
+///   selectionMode: TSelectionMode.multiple,
+/// );
+///
+/// // Use with TList
+/// TList<Product, int>(
+///   controller: controller,
+///   itemBuilder: (context, item, index) {
+///     return ProductCard(product: item.data);
+///   },
+/// )
+/// ```
+///
+/// ## Server-Side Usage
+///
+/// ```dart
+/// final controller = TListController<User, int>(
+///   itemsPerPage: 25,
+///   itemKey: (user) => user.id,
+///   onLoad: (options) async {
+///     final response = await api.getUsers(
+///       page: options.page,
+///       limit: options.itemsPerPage,
+///       search: options.search,
+///     );
+///     return TLoadResult(
+///       items: response.users,
+///       totalItems: response.total,
+///     );
+///   },
+/// );
+/// ```
+///
+/// ## With Selection
+///
+/// ```dart
+/// // Select items
+/// controller.selectItem(product);
+/// controller.selectAll();
+///
+/// // Get selected items
+/// final selected = controller.selectedItems;
+/// print('Selected: ${controller.selectedCount}');
+/// ```
+///
+/// ## With Search
+///
+/// ```dart
+/// controller.handleSearchChange('query');
+/// ```
+///
+/// Type parameters:
+/// - [T]: The type of items in the list
+/// - [K]: The type of the item key (must be String, int, double, num, or bool)
+///
+/// See also:
+/// - [TList] for the list widget
+/// - [TDataTable] for tabular data display
+/// - [TListState] for the state model
 class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   final TDebouncer _debouncer;
   final TSearchFilter<T> _filter;
+
+  /// Whether this controller uses server-side data loading.
   final bool isServerSide;
+
+  /// Function to convert an item to a string for search filtering.
   final ItemToString<T> itemToString;
+
+  /// Function to extract a unique key from an item.
   final ItemKeyAccessor<T, K> itemKey;
+
+  /// Function to extract child items for hierarchical lists.
   final ItemChildrenAccessor<T>? itemChildren;
+
+  /// Factory function to create list items.
   final ListItemFactory<T, K> itemFactory;
+
+  /// Callback for loading data from a server.
   final TLoadListener<T>? onLoad;
+
+  /// The selection mode for the list.
   final TSelectionMode selectionMode;
+
+  /// The expansion mode for hierarchical lists.
   final TExpansionMode expansionMode;
+
+  /// Whether items can be reordered.
   final bool reorderable;
+
+  /// Callback fired when items are reordered.
   final void Function(int oldIndex, int newIndex)? onReorder;
 
   bool _disposed = false;
@@ -27,6 +122,10 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   final Map<K, T> _itemsMap = {};
   final List<T> _localPaginationItems = [];
 
+  /// Creates a list controller.
+  ///
+  /// For client-side lists, provide [items].
+  /// For server-side lists, provide [onLoad].
   TListController({
     List<T> items = const [],
     int itemsPerPage = 0,

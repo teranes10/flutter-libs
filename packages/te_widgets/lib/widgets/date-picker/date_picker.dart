@@ -3,6 +3,51 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A date picker input field with calendar popup.
+///
+/// `TDatePicker` provides a date selection widget with:
+/// - Calendar popup for date selection
+/// - Formatted date display
+/// - Min/max date constraints
+/// - Custom date formatting
+/// - Validation support
+/// - Value binding with ValueNotifier
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TDatePicker(
+///   label: 'Birth Date',
+///   placeholder: 'Select date',
+///   onValueChanged: (date) => print('Selected: \$date'),
+/// )
+/// ```
+///
+/// ## With Date Range
+///
+/// ```dart
+/// TDatePicker(
+///   label: 'Appointment Date',
+///   firstDate: DateTime.now(),
+///   lastDate: DateTime.now().add(Duration(days: 365)),
+///   format: DateFormat('dd/MM/yyyy'),
+/// )
+/// ```
+///
+/// ## With ValueNotifier
+///
+/// ```dart
+/// final selectedDate = ValueNotifier<DateTime?>(null);
+///
+/// TDatePicker(
+///   label: 'Event Date',
+///   valueNotifier: selectedDate,
+/// )
+/// ```
+///
+/// See also:
+/// - [TDateTimePicker] for date and time selection
+/// - [TTimePicker] for time-only selection
 class TDatePicker extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<DateTime>, TInputValidationMixin<DateTime>, TPopupMixin {
   @override
@@ -32,10 +77,18 @@ class TDatePicker extends StatefulWidget
   @override
   final VoidCallback? onHide;
 
+  /// The earliest selectable date.
   final DateTime? firstDate;
+
+  /// The latest selectable date.
   final DateTime? lastDate;
+
+  /// Custom date format for display.
+  ///
+  /// Defaults to 'MMM dd, yyyy' (e.g., "Jan 15, 2024").
   final DateFormat? format;
 
+  /// Creates a date picker input.
   const TDatePicker({
     super.key,
     this.label,

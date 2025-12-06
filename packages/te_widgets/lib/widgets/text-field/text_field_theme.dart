@@ -2,24 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Theme configuration for [TTextField].
+///
+/// `TTextFieldTheme` extends [TInputFieldTheme] with specific properties for
+/// text input, including:
+/// - Text styles (input, hint)
+/// - Keyboard configuration (type, action)
+/// - Input formatters and behavior (autocorrect, suggestions, obscure)
 class TTextFieldTheme extends TInputFieldTheme {
   // Text Styling
+  /// Style for the input text.
   final WidgetStateProperty<TextStyle> textStyle;
+
+  /// Style for the hint text.
   final WidgetStateProperty<TextStyle> hintStyle;
 
   // Input Configuration
+  /// Input formatters to apply.
   final List<TextInputFormatter>? inputFormatters;
+
+  /// The keyboard type to use.
   final TextInputType? keyboardType;
+
+  /// Text capitalization behavior.
   final TextCapitalization textCapitalization;
+
+  /// The text input action (e.g., done, next).
   final TextInputAction? textInputAction;
 
   // Input Behavior
+  /// Whether to enable autocorrect.
   final bool autocorrect;
+
+  /// Whether to show suggestions.
   final bool enableSuggestions;
+
+  /// Whether to obscure the text (for passwords).
   final bool obscureText;
+
+  /// Maximum character length.
   final int? maxLength;
+
+  /// Policy for enforcing max length.
   final MaxLengthEnforcement? maxLengthEnforcement;
 
+  /// Creates a text field theme.
   const TTextFieldTheme({
     required super.color,
     required super.backgroundColor,
@@ -149,6 +176,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     );
   }
 
+  /// Creates a default theme derived from the context colors.
   factory TTextFieldTheme.defaultTheme(ColorScheme colors) {
     final baseTheme = TInputFieldTheme.defaultTheme(colors);
 
@@ -189,6 +217,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     );
   }
 
+  /// Builds a raw [TextField] with the theme applied.
   TextField buildTextField(
     Set<WidgetState> states, {
     String? label,

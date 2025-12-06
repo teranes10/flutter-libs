@@ -2,6 +2,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Theme configuration for [TList].
+///
+/// `TListTheme` defines global list behavior and appearance, including:
+/// - Animations
+/// - Scroll physics
+/// - Padding
+/// - Builders for states (empty, error, loading)
+/// - Sticky headers/footers
+/// - Drag and drop styling
 class TListTheme {
   final TListAnimationBuilder? animationBuilder;
   final Duration animationDuration;
@@ -23,6 +32,7 @@ class TListTheme {
   final TGridMode? grid;
   final TGridDelegateBuilder? gridDelegate;
 
+  /// Creates a list theme.
   const TListTheme({
     this.animationBuilder = TListAnimationBuilders.staggered,
     this.animationDuration = const Duration(milliseconds: 800),
@@ -48,6 +58,7 @@ class TListTheme {
         assert(!shrinkWrap || footerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so footerSticky cannot be used.'),
         itemBaseHeight = grid != null ? 200 : 40;
 
+  /// Creates a copy of the theme with updated properties.
   TListTheme copyWith({
     TListAnimationBuilder? animationBuilder,
     Duration? animationDuration,
@@ -92,6 +103,7 @@ class TListTheme {
     );
   }
 
+  /// Creates a default theme derived from the context colors.
   factory TListTheme.defaultTheme(ColorScheme colors) {
     return TListTheme(
       loadingBuilder: (BuildContext context) {
@@ -157,6 +169,7 @@ class TListTheme {
     );
   }
 
+  /// Builds a default empty state widget.
   static Widget buildEmptyState(
     ColorScheme colors, {
     IconData icon = Icons.inbox_outlined,
@@ -188,6 +201,7 @@ class TListTheme {
     });
   }
 
+  /// Builds a default error state widget.
   static Widget buildErrorState(
     ColorScheme colors, {
     IconData icon = Icons.error_outline,

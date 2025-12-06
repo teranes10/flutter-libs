@@ -4,6 +4,42 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:te_widgets/widgets/tags-field/tags_field_mixin.dart';
 
+/// A multi-select dropdown field with search and tags support.
+///
+/// `TMultiSelect` combines a list selection UI with a tag-based input field.
+/// It supports:
+/// - Multiple item selection
+/// - Search/Filtering
+/// - Displaying selected items as tags
+/// - Async loading of items
+/// - Custom item rendering
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TMultiSelect<String, String, String>(
+///   label: 'Select Fruits',
+///   items: ['Apple', 'Banana', 'Orange'],
+///   onValueChanged: (selected) => print(selected),
+/// )
+/// ```
+///
+/// ## With Custom Objects
+///
+/// ```dart
+/// TMultiSelect<User, String, String>(
+///   label: 'Assign Users',
+///   items: users,
+///   itemText: (user) => user.name,
+///   itemValue: (user) => user.id,
+///   onValueChanged: (ids) => updateUserAssignments(ids),
+/// )
+/// ```
+///
+/// Type parameters:
+/// - [T]: The type of the item object
+/// - [V]: The type of the value to return (e.g. ID)
+/// - [K]: The type of the key used for uniqueness
 class TMultiSelect<T, V, K> extends StatefulWidget
     with
         TInputFieldMixin,
@@ -71,6 +107,7 @@ class TMultiSelect<T, V, K> extends StatefulWidget
   final ValueChanged<String>? onInputChanged;
 
   //Select
+  /// Whether to show a search bar in the dropdown.
   final bool filterable;
   final ItemTextAccessor<T> itemText;
   final ItemTextAccessor<T>? itemSubText;

@@ -1,13 +1,58 @@
 part of 'form_builder.dart';
 
+/// A form field wrapper with factory methods for all input types.
+///
+/// `TFormField` provides a unified interface for creating form fields with:
+/// - Automatic value binding to TFieldProp
+/// - Factory methods for all widget types
+/// - Responsive sizing (sm, md, lg)
+/// - Integration with TFormBuilder
+///
+/// ## Factory Methods
+///
+/// - `text()` - Text input
+/// - `number()` - Number input
+/// - `date()` - Date picker
+/// - `time()` - Time picker
+/// - `dateTime()` - Date-time picker
+/// - `select()` - Single selection
+/// - `multiSelect()` - Multiple selection
+/// - `toggle()` - Switch
+/// - `checkbox()` - Checkbox
+/// - `checkboxGroup()` - Checkbox group
+/// - `filePicker()` - File upload
+/// - `group()` - Nested form
+/// - `items()` - Dynamic list of forms
+///
+/// ## Usage Example
+///
+/// ```dart
+/// final name = TFieldProp<String>('');
+///
+/// TFormField.text(name, 'Name',
+///   isRequired: true,
+///   rules: [Validations.required],
+/// ).size(6)  // 6 columns on medium screens
+/// ```
+///
+/// Type parameter:
+/// - [T]: The type of the field value
+///
+/// See also:
+/// - [TFieldProp] for reactive properties
+/// - [TFormBuilder] for form layout
 class TFormField<T> {
+  /// The reactive property for this field.
   final TFieldProp<T> prop;
+
+  /// Builder function that creates the widget.
   final Widget Function(ValueChanged<T?>) builder;
 
   late final Widget _field;
   TFieldSize _size = const TFieldSize();
   VoidCallback? _callback;
 
+  /// Creates a form field.
   TFormField({required this.builder, required this.prop}) {
     _field = builder.call(_onValueChanged);
   }
@@ -22,6 +67,11 @@ class TFormField<T> {
     _callback = callback;
   }
 
+  /// Sets the responsive size of the field.
+  ///
+  /// - [md]: Medium screen size (required, 1-12 columns)
+  /// - [sm]: Small screen size (optional, 1-12 columns)
+  /// - [lg]: Large screen size (optional, 1-12 columns)
   TFormField<T> size(int md, {int? sm, int? lg}) {
     _size = TFieldSize(sm: sm, md: md, lg: lg);
     return this;

@@ -1,25 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A standard table row rendered as a card.
+///
+/// `TTableRowCard` renders a single row in a [TTable] using a [Table] layout.
+/// It integrates with:
+/// - [TTableHeader] for cell rendering
+/// - [TListController] for selection/expansion state
 class TTableRowCard<T, K> extends StatelessWidget {
+  /// The index of the item.
   final int index;
+
+  /// The list item data.
   final TListItem<T, K> item;
+
+  /// The table headers definitions.
   final List<TTableHeader<T, K>> headers;
+
+  /// Theme for the row card.
   final TTableRowCardTheme theme;
+
+  /// Optional fixed width.
   final double? width;
+
+  /// Column width configuration for the underlying [Table].
   final Map<int, TableColumnWidth>? columnWidths;
 
   //expandable
+  /// Whether the row is expandable.
   final bool expandable;
+
+  /// Whether the row is currently expanded.
   final bool isExpanded;
+
+  /// Callback when expansion toggles.
   final VoidCallback? onExpansionChanged;
+
+  /// Content to show when expanded.
   final Widget? expandedContent;
 
   //selectable
+  /// Whether the row is selectable.
   final bool selectable;
+
+  /// Whether the row is selected.
   final bool isSelected;
+
+  /// Callback when selection toggles.
   final VoidCallback? onSelectionChanged;
 
+  /// Creates a table row card.
   const TTableRowCard({
     super.key,
     required this.index,

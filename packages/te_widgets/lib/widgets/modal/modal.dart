@@ -1,21 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A customizable modal dialog component.
+///
+/// `TModal` provides a centered modal overlay with:
+/// - Optional header and footer
+/// - Scrollable content area
+/// - Persistent or dismissible modes
+/// - Custom width and sizing
+/// - Close button support
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// showDialog(
+///   context: context,
+///   builder: (context) => TModal(
+///     Text('Modal content goes here'),
+///     title: 'Modal Title',
+///     showCloseButton: true,
+///     onClose: () => Navigator.pop(context),
+///   ),
+/// );
+/// ```
+///
+/// ## With Custom Header and Footer
+///
+/// ```dart
+/// showDialog(
+///   context: context,
+///   builder: (context) => TModal(
+///     YourContentWidget(),
+///     header: CustomHeaderWidget(),
+///     footer: Row(
+///       children: [
+///         TButton(text: 'Cancel', onTap: () => Navigator.pop(context)),
+///         TButton(text: 'Save', onTap: () => save()),
+///       ],
+///     ),
+///   ),
+/// );
+/// ```
+///
+/// ## Persistent Modal
+///
+/// ```dart
+/// TModal(
+///   YourContent(),
+///   persistent: true,  // Cannot be dismissed by tapping outside
+///   title: 'Important',
+///   showCloseButton: true,
+/// )
+/// ```
+///
+/// See also:
+/// - [TAlert] for simple alert dialogs
 class TModal extends StatelessWidget {
+  /// Whether the modal is persistent (cannot be dismissed by tapping outside).
+  ///
+  /// Defaults to false.
   final bool persistent;
+
+  /// The width of the modal.
+  ///
+  /// Defaults to 500.
   final double width;
+
+  /// The content widget to display in the modal.
   final Widget child;
 
+  /// Custom header widget.
+  ///
+  /// If null and [title] or [showCloseButton] is provided, a default header is shown.
   final Widget? header;
+
+  /// Custom footer widget.
   final Widget? footer;
 
+  /// The title text for the default header.
   final String? title;
+
+  /// Whether to show the close button in the default header.
   final bool? showCloseButton;
 
+  /// Callback fired when the modal is closed.
   final VoidCallback? onClose;
 
+  /// Gap/margin around the modal.
+  ///
+  /// Defaults to 15.
   final double gap;
 
+  /// Creates a modal dialog.
   const TModal(
     this.child, {
     super.key,

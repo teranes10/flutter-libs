@@ -1,10 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A responsive key-value display section.
+///
+/// `TKeyValueSection` provides adaptive layout for key-value pairs with:
+/// - Grid layout on wide screens
+/// - Key-value layout on narrow screens
+/// - Custom breakpoint control
+/// - Widget support for values
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TKeyValueSection(
+///   values: [
+///     TKeyValue(key: 'Name', value: 'John Doe'),
+///     TKeyValue(key: 'Email', value: 'john@example.com'),
+///     TKeyValue(key: 'Phone', value: '+1234567890'),
+///   ],
+/// )
+/// ```
+///
+/// ## With Custom Widgets
+///
+/// ```dart
+/// TKeyValueSection(
+///   values: [
+///     TKeyValue(key: 'Status', widget: TChip(text: 'Active')),
+///     TKeyValue(key: 'Actions', widget: Row(children: [...])),
+///   ],
+/// )
+/// ```
+///
+/// See also:
+/// - [TKeyValue] for key-value pairs
+/// - [TKeyValueTheme] for styling
 class TKeyValueSection extends StatelessWidget {
+  /// The list of key-value pairs to display.
   final List<TKeyValue> values;
+
+  /// Theme configuration for the section.
   final TKeyValueTheme theme;
 
+  /// Creates a key-value section.
   const TKeyValueSection({
     super.key,
     required this.values,

@@ -3,6 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A date and time picker with tabbed interface.
+///
+/// `TDateTimePicker` provides combined date and time selection with:
+/// - Tabbed interface (Date and Time tabs)
+/// - Calendar for date selection
+/// - Clock for time selection
+/// - Formatted date-time display
+/// - Min/max date constraints
+/// - Validation support
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TDateTimePicker(
+///   label: 'Appointment',
+///   placeholder: 'Select date and time',
+///   onValueChanged: (dateTime) => print('Selected: \$dateTime'),
+/// )
+/// ```
+///
+/// ## With Custom Format
+///
+/// ```dart
+/// TDateTimePicker(
+///   label: 'Event Time',
+///   format: DateFormat('dd/MM/yyyy HH:mm'),
+///   firstDate: DateTime.now(),
+/// )
+/// ```
+///
+/// See also:
+/// - [TDatePicker] for date-only selection
+/// - [TTimePicker] for time-only selection
 class TDateTimePicker extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<DateTime>, TInputValidationMixin<DateTime>, TPopupMixin {
   @override
@@ -32,10 +65,16 @@ class TDateTimePicker extends StatefulWidget
   @override
   final VoidCallback? onHide;
 
+  /// The earliest selectable date.
   final DateTime? firstDate;
+
+  /// The latest selectable date.
   final DateTime? lastDate;
+
+  /// Custom date-time format for display.
   final DateFormat? format;
 
+  /// Creates a date-time picker.
   const TDateTimePicker({
     super.key,
     this.label,

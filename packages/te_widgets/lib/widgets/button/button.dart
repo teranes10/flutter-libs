@@ -6,28 +6,168 @@ part 'button_group_theme.dart';
 part 'button_group.dart';
 part 'button_theme.dart';
 
+/// A customizable button widget with multiple variants, sizes, and states.
+///
+/// `TButton` provides a comprehensive button solution with support for:
+/// - Multiple visual types (solid, tonal, outline, text, icon)
+/// - Different sizes (xxs, xs, sm, md, lg, block)
+/// - Various shapes (normal, pill, circle)
+/// - Loading states with automatic management
+/// - Active/toggle states
+/// - Icons and images
+/// - Custom theming
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TButton(
+///   text: 'Click Me',
+///   icon: Icons.check,
+///   color: AppColors.primary,
+///   onTap: () => print('Tapped!'),
+/// )
+/// ```
+///
+/// ## With Loading State
+///
+/// ```dart
+/// TButton(
+///   text: 'Submit',
+///   loading: true,
+///   onPressed: (options) async {
+///     await performAsyncOperation();
+///     options.stopLoading();
+///   },
+/// )
+/// ```
+///
+/// ## Toggle Button
+///
+/// ```dart
+/// TButton(
+///   icon: Icons.favorite_border,
+///   activeIcon: Icons.favorite,
+///   color: Colors.grey,
+///   activeColor: Colors.red,
+///   onChanged: (isActive) => print('Active: $isActive'),
+/// )
+/// ```
+///
+/// See also:
+/// - [TButtonTheme] for customizing button appearance
+/// - [TButtonSize] for available size options
+/// - [TButtonType] for available visual variants
 class TButton extends StatefulWidget {
+  /// The theme configuration for this button.
+  ///
+  /// If provided, [baseTheme], [type], [size], [shape], and [color] must be null.
   final TButtonTheme? theme;
+
+  /// The base widget theme to use.
+  ///
+  /// If provided, [type], [color], and [activeColor] must be null.
   final TWidgetTheme? baseTheme;
+
+  /// The shape of the button.
+  ///
+  /// Available options: [TButtonShape.normal], [TButtonShape.pill], [TButtonShape.circle].
+  /// Defaults to the theme's default shape.
   final TButtonShape? shape;
+
+  /// The visual type/variant of the button.
+  ///
+  /// Available options: solid, tonal, outline, softOutline, filledOutline,
+  /// text, softText, filledText, icon.
+  /// Defaults to the theme's default type.
   final TButtonType? type;
+
+  /// The size configuration for the button.
+  ///
+  /// Available presets: [TButtonSize.xxs], [TButtonSize.xs], [TButtonSize.sm],
+  /// [TButtonSize.md], [TButtonSize.lg], [TButtonSize.block].
+  /// Defaults to [TButtonSize.md].
   final TButtonSize? size;
+
+  /// The icon to display in the button.
+  ///
+  /// Cannot be used together with [imageUrl].
   final IconData? icon;
+
+  /// The URL of an image to display in the button.
+  ///
+  /// Cannot be used together with [icon].
   final String? imageUrl;
+
+  /// The primary color of the button.
+  ///
+  /// This affects the button's background, border, or text color depending on [type].
   final Color? color;
+
+  /// The text to display in the button.
   final String? text;
+
+  /// Whether to show a loading indicator when [onPressed] is called.
+  ///
+  /// When true, a loading indicator will be shown automatically when [onPressed]
+  /// is triggered. Call `options.stopLoading()` to hide it.
+  /// Defaults to false.
   final bool loading;
+
+  /// The text to display while loading.
+  ///
+  /// Only shown when [loading] is true and the button is in loading state.
+  /// Defaults to 'Loading...'.
   final String loadingText;
+
+  /// The tooltip message to show on hover.
   final String? tooltip;
+
+  /// Whether the button is in an active state.
+  ///
+  /// When true, [activeIcon] and [activeColor] will be used if provided.
+  /// Defaults to false.
   final bool active;
+
+  /// The icon to display when the button is active.
+  ///
+  /// Falls back to [icon] if not provided.
   final IconData? activeIcon;
+
+  /// The color to use when the button is active.
+  ///
+  /// Falls back to [color] if not provided.
   final Color? activeColor;
+
+  /// A custom child widget to display in the button.
+  ///
+  /// If provided, this takes precedence over [icon], [imageUrl], and [text].
   final Widget? child;
+
+  /// Callback fired when the button is tapped.
+  ///
+  /// This is a simple tap handler without loading state management.
   final VoidCallback? onTap;
+
+  /// Callback fired when the button is pressed with loading state support.
+  ///
+  /// Provides [TButtonPressOptions] to control the loading state.
+  /// Call `options.stopLoading()` when the async operation completes.
   final Function(TButtonPressOptions)? onPressed;
+
+  /// Callback fired when the button's active state changes.
+  ///
+  /// Useful for toggle buttons. The callback receives the new active state.
   final ValueChanged<bool>? onChanged;
+
+  /// The duration for animations (icon changes, color transitions).
+  ///
+  /// Defaults to 400 milliseconds.
   final Duration duration;
 
+  /// Creates a customizable button widget.
+  ///
+  /// At least one of [onTap], [onPressed], or [onChanged] should be provided
+  /// for the button to be interactive.
   const TButton({
     super.key,
     this.baseTheme,
@@ -61,6 +201,24 @@ class TButton extends StatefulWidget {
   @override
   State<TButton> createState() => _TButtonState();
 
+  /// Creates a custom button with minimal styling.
+  ///
+  /// This factory provides a button with zero padding and normal shape,
+  /// allowing complete customization via the [child] parameter.
+  ///
+  /// Example:
+  /// ```dart
+  /// TButton.custom(
+  ///   onTap: () => print('Custom button tapped'),
+  ///   child: Container(
+  ///     padding: EdgeInsets.all(16),
+  ///     decoration: BoxDecoration(
+  ///       gradient: LinearGradient(colors: [Colors.blue, Colors.purple]),
+  ///     ),
+  ///     child: Text('Custom Styled Button'),
+  ///   ),
+  /// )
+  /// ```
   static custom({required Widget child, VoidCallback? onTap, String? tooltip}) {
     return TButton(
       size: TButtonSize.zero,

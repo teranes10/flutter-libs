@@ -1,10 +1,29 @@
 import 'package:flutter/material.dart';
 
+/// Builder for list item animations.
 typedef TListAnimationBuilder = Widget Function(BuildContext context, Animation<double> animation, Widget child, int index);
 
+/// Collection of predefined list item animations.
+///
+/// `TListAnimationBuilders` provides standard entrance animations for lists:
+/// - slides (left, right, up, down)
+/// - fade
+/// - bounce
+/// - elastic
+/// - staggered
+///
+/// ## Usage
+///
+/// ```dart
+/// TList(
+///   animationBuilder: TListAnimationBuilders.slideInLeft,
+///   // ...
+/// )
+/// ```
 class TListAnimationBuilders {
   const TListAnimationBuilders._();
 
+  /// Slides items in from the left.
   static const TListAnimationBuilder slideInLeft = _slideInLeft;
   static Widget _slideInLeft(BuildContext context, Animation<double> animation, Widget child, int index) {
     return AnimatedBuilder(
@@ -18,6 +37,7 @@ class TListAnimationBuilders {
     );
   }
 
+  /// Slides items in from the right.
   static const TListAnimationBuilder slideInRight = _slideInRight;
   static Widget _slideInRight(BuildContext context, Animation<double> animation, Widget child, int index) {
     return AnimatedBuilder(
@@ -31,6 +51,7 @@ class TListAnimationBuilders {
     );
   }
 
+  /// Slides items in from the bottom.
   static const TListAnimationBuilder slideInUp = _slideInUp;
   static Widget _slideInUp(BuildContext context, Animation<double> animation, Widget child, int index) {
     return AnimatedBuilder(
@@ -44,6 +65,7 @@ class TListAnimationBuilders {
     );
   }
 
+  /// Slides items in from the top.
   static const TListAnimationBuilder slideInDown = _slideInDown;
   static Widget _slideInDown(BuildContext context, Animation<double> animation, Widget child, int index) {
     return AnimatedBuilder(
@@ -57,6 +79,7 @@ class TListAnimationBuilders {
     );
   }
 
+  /// Fades items in.
   static const TListAnimationBuilder fadeIn = _fadeIn;
   static Widget _fadeIn(BuildContext context, Animation<double> animation, Widget child, int index) {
     return AnimatedBuilder(
@@ -67,6 +90,7 @@ class TListAnimationBuilders {
     );
   }
 
+  /// Bounces items in.
   static const TListAnimationBuilder bounceIn = _bounceIn;
   static Widget _bounceIn(BuildContext context, Animation<double> animation, Widget child, int index) {
     final bounceAnimation = CurvedAnimation(
@@ -84,6 +108,7 @@ class TListAnimationBuilders {
     );
   }
 
+  /// Slides items in with elastic effect.
   static const TListAnimationBuilder elasticSlide = _elasticSlide;
   static Widget _elasticSlide(BuildContext context, Animation<double> animation, Widget child, int index) {
     final slideAnimation = CurvedAnimation(
@@ -101,6 +126,7 @@ class TListAnimationBuilders {
     );
   }
 
+  /// Alternates slide direction based on index (odd/even).
   static const TListAnimationBuilder alternatingSlide = _alternatingSlide;
   static Widget _alternatingSlide(BuildContext context, Animation<double> animation, Widget child, int index) {
     return AnimatedBuilder(
@@ -115,6 +141,7 @@ class TListAnimationBuilders {
     );
   }
 
+  /// Staggers animation based on index.
   static const TListAnimationBuilder staggered = _staggered;
   static Widget _staggered(BuildContext context, Animation<double> animation, Widget child, int index) {
     final delayedAnimation = CurvedAnimation(
@@ -140,6 +167,7 @@ class TListAnimationBuilders {
     );
   }
 
+  /// No animation.
   static const TListAnimationBuilder none = _none;
   static Widget _none(BuildContext context, Animation<double> animation, Widget child, int index) {
     return child;

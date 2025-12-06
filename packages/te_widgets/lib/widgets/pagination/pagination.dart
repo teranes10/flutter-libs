@@ -1,12 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A pagination component for navigating through pages.
+///
+/// `TPagination` provides navigation controls with:
+/// - First/last page buttons
+/// - Previous/next page buttons
+/// - Numbered page buttons
+/// - Ellipsis for skipped pages
+/// - Configurable visible pages
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TPagination(
+///   currentPage: 1,
+///   totalPages: 10,
+///   onPageChanged: (page) => print('Page: $page'),
+/// )
+/// ```
+///
+/// ## With Custom Visible Pages
+///
+/// ```dart
+/// TPagination(
+///   currentPage: currentPage,
+///   totalPages: totalPages,
+///   totalVisible: 7,  // Must be odd
+///   onPageChanged: (page) {
+///     setState(() => currentPage = page);
+///     loadData(page);
+///   },
+/// )
+/// ```
+///
+/// See also:
+/// - [TDataTable] which uses pagination
 class TPagination extends StatefulWidget {
+  /// The current active page (1-indexed).
   final int currentPage;
+
+  /// The total number of pages.
   final int totalPages;
+
+  /// Number of page buttons to show (must be odd).
+  ///
+  /// Defaults to 9.
   final int totalVisible;
+
+  /// Callback fired when a page is selected.
   final ValueChanged<int> onPageChanged;
 
+  /// Creates a pagination component.
   const TPagination({
     super.key,
     required this.currentPage,

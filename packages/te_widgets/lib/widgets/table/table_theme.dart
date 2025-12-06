@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Theme configuration for [TTable].
+///
+/// `TTableTheme` extends [TListTheme] and aggregates sub-themes for:
+/// - Header row ([TTableRowHeaderTheme])
+/// - Desktop rows ([TTableRowCardTheme])
+/// - Mobile cards ([TTableMobileCardTheme])
+///
+/// It also defines layout properties like column width calculation logic
+/// and breakpoints for switching between card/table views.
 class TTableTheme extends TListTheme {
   final double? cardWidth;
   final bool? forceCardStyle;
@@ -8,6 +17,7 @@ class TTableTheme extends TListTheme {
   final TTableMobileCardTheme mobileCardTheme;
   final TTableRowCardTheme rowCardTheme;
 
+  /// Creates a table theme.
   const TTableTheme({
     super.animationBuilder = TListAnimationBuilders.staggered,
     super.animationDuration = const Duration(milliseconds: 800),
@@ -90,6 +100,7 @@ class TTableTheme extends TListTheme {
     );
   }
 
+  /// Builds a default simplified expanded content widget.
   Widget buildDefaultExpandedContent<T>(ColorScheme colors, T item, int index) {
     return Container(
       height: 100,
@@ -108,6 +119,7 @@ class TTableTheme extends TListTheme {
     );
   }
 
+  /// Creates a default theme derived from the context colors.
   factory TTableTheme.defaultTheme(ColorScheme colors) {
     final listTheme = TListTheme.defaultTheme(colors);
 
@@ -120,6 +132,7 @@ class TTableTheme extends TListTheme {
     );
   }
 
+  /// Calculates column widths based on headers and available options.
   static Map<int, TableColumnWidth> calculateColumnWidths<T, K>(List<TTableHeader<T, K>> headers, bool selectable, bool expandable) {
     Map<int, TableColumnWidth> columnWidths = {};
     int columnIndex = 0;
@@ -150,6 +163,7 @@ class TTableTheme extends TListTheme {
     return columnWidths;
   }
 
+  /// Calculates the minimum total width required for the table view.
   static double calculateTotalRequiredWidth<T, K>(List<TTableHeader<T, K>> headers, bool selectable, bool expandable) {
     double totalWidth = 0;
 

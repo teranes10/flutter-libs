@@ -1,8 +1,13 @@
 import 'package:flutter/widgets.dart';
 
+/// Value type for [TTagsController].
+///
+/// Contains the current text input, selection, composition, and the list of tags.
 class TagsEditingValue extends TextEditingValue {
+  /// The list of tags.
   final List<String> tags;
 
+  /// Creates a [TagsEditingValue].
   const TagsEditingValue({
     super.text = '',
     super.selection = const TextSelection.collapsed(offset: 0),
@@ -48,15 +53,28 @@ class TagsEditingValue extends TextEditingValue {
   }
 }
 
+/// Controller for [TTagsField].
+///
+/// Manages the list of tags and text input state.
 class TTagsController extends TextEditingController {
+  /// Whether to allow duplicate tags.
   final bool allowDuplicates;
+
+  /// Whether tag matching should be case-sensitive.
   final bool caseSensitive;
+
+  /// Delimiters that trigger tag creation (e.g., comma, space).
   final List<String> delimiters;
+
+  /// Callback when a tag is added.
   final void Function(String)? onTagAdded;
+
+  /// Callback when a tag is removed.
   final void Function(String)? onTagRemoved;
 
   late TagsEditingValue _value;
 
+  /// Creates a tags controller.
   TTagsController({
     List<String>? tags,
     String? text,
@@ -91,14 +109,19 @@ class TTagsController extends TextEditingController {
     notifyListeners();
   }
 
+  /// The current list of tags.
   List<String> get tags => _value.tags;
 
+  /// The current text in the input field.
   String get filterText => _value.text;
 
+  /// The trimmed text in the input field.
   String get trimmedFilterText => filterText.trim();
 
+  /// Whether the input field contains text.
   bool get hasFilterText => trimmedFilterText.isNotEmpty;
 
+  /// Checks if a tag already exists.
   bool hasTag(String tag) {
     if (caseSensitive) {
       return tags.contains(tag);
@@ -107,6 +130,9 @@ class TTagsController extends TextEditingController {
     return tags.any((t) => t.toLowerCase() == lowerTag);
   }
 
+  /// Adds a tag from the current text input value.
+  ///
+  /// Splits input by delimiters and adds valid tags.
   void addTagFromInput() {
     var input = trimmedFilterText;
     if (input.isEmpty) return;
@@ -159,6 +185,7 @@ class TTagsController extends TextEditingController {
     }
   }
 
+  /// Adds a specific tag programmatically.
   bool addTag(String tag) {
     final trimmed = tag.trim();
     if (trimmed.isEmpty) return false;
@@ -172,6 +199,7 @@ class TTagsController extends TextEditingController {
     return true;
   }
 
+  /// Removes a specific tag.
   bool removeTag(String tag) {
     if (!hasTag(tag)) return false;
 
@@ -183,6 +211,7 @@ class TTagsController extends TextEditingController {
     return true;
   }
 
+  /// Removes the last tag in the list.
   String? removeLastTag() {
     if (tags.isEmpty) return null;
 
@@ -195,6 +224,7 @@ class TTagsController extends TextEditingController {
     return lastTag;
   }
 
+  /// Removes a tag at a specific index.
   String? removeTagAt(int index) {
     if (index < 0 || index >= tags.length) return null;
 
@@ -207,6 +237,7 @@ class TTagsController extends TextEditingController {
     return removedTag;
   }
 
+  /// Updates the controller state.
   void updateState({String? text, List<String>? tags}) {
     final resolvedText = text ?? value.text;
 
@@ -218,6 +249,7 @@ class TTagsController extends TextEditingController {
     notifyListeners();
   }
 
+  /// Clears all tags and text.
   void clearAll() {
     _value = TagsEditingValue(
       text: '',

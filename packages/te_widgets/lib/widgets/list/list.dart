@@ -1,44 +1,152 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/list/list_view.dart';
 
+
+/// A powerful list component with pagination, search, and infinite scroll.
+///
+/// `TList` provides a feature-rich list widget with:
+/// - Pagination with automatic or manual items per page
+/// - Server-side data loading with `onLoad`
+/// - Search and filtering
+/// - Infinite scroll support
+/// - Reorderable items
+/// - Grid layout support
+/// - Selection (single/multiple)
+/// - Expandable/hierarchical items
+/// - Custom animations
+/// - Scroll position tracking
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TList<String, String>(
+///   items: ['Item 1', 'Item 2', 'Item 3'],
+///   itemBuilder: (context, item, index) {
+///     return ListTile(title: Text(item.data));
+///   },
+/// )
+/// ```
+///
+/// ## With Server-Side Loading
+///
+/// ```dart
+/// TList<Product, int>(
+///   itemsPerPage: 10,
+///   itemKey: (product) => product.id,
+///   onLoad: (page, search) async {
+///     final response = await api.getProducts(page, search);
+///     return (response.items, response.hasMore);
+///   },
+///   itemTitle: (product) => product.name,
+///   itemSubTitle: (product) => product.description,
+/// )
+/// ```
+///
+/// ## With Search
+///
+/// ```dart
+/// TList<User, int>(
+///   items: users,
+///   search: searchQuery,
+///   searchDelay: 300,
+///   itemKey: (user) => user.id,
+///   itemTitle: (user) => user.name,
+/// )
+/// ```
+///
+/// Type parameters:
+/// - [T]: The type of items in the list
+/// - [K]: The type of the item key (for tracking items)
+///
+/// See also:
+/// - [TListController] for programmatic control
+/// - [TDataTable] for tabular data
+/// - [TListCard] for default card rendering
 class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
+  /// Custom builder for rendering each list item.
   final ListItemBuilder<T, K> itemBuilder;
+
+  /// Custom theme for the list.
   final TListTheme? theme;
 
   // List configuration
+  
+  /// The list of items to display.
+  ///
+  /// If null, items must be loaded via [onLoad].
   @override
   final List<T>? items;
+
+  /// Number of items to display per page.
+  ///
+  /// If null or 0, will auto-calculate based on available height.
   @override
   final int? itemsPerPage;
+
+  /// Initial search query.
   @override
   final String? search;
+
+  /// Debounce delay for search in milliseconds.
   @override
   final int? searchDelay;
+
+  /// Callback for loading items from a server.
+  ///
+  /// Returns a tuple of (items, hasMore).
   @override
   final TLoadListener<T>? onLoad;
+
+  /// Function to extract a unique key from an item.
   @override
   final ItemKeyAccessor<T, K>? itemKey;
+
+  /// Controller for managing list state.
   @override
   final TListController<T, K>? controller;
 
   // Scroll configuration
+
+  /// Custom scroll controller.
   final ScrollController? scrollController;
+
+  /// Callback fired when scrolled to the end.
   final VoidCallback? onScrollEnd;
+
+  /// Threshold distance from bottom to trigger scroll end.
   final double scrollEndThreshold;
+
+  /// ValueNotifier for tracking scroll position (0.0 to 1.0).
   final ValueNotifier<double>? scrollPositionNotifier;
+
+  /// Callback fired when scroll position changes.
   final ValueChanged<double>? onScrollPositionChanged;
 
   // Auto items per page
+
+  /// Whether to automatically calculate items per page based on height.
+  ///
+  /// Defaults to true.
   final bool autoItemsPerPage;
 
   // List card
+
+  /// Custom theme for list item cards.
   final TListCardTheme? cardTheme;
+
+  /// Function to extract title text from an item.
   final ItemTextAccessor<T>? itemTitle;
+
+  /// Function to extract subtitle text from an item.
   final ItemTextAccessor<T>? itemSubTitle;
+
+  /// Function to extract image URL from an item.
   final ItemTextAccessor<T>? itemImageUrl;
+
+  /// Callback fired when an item is tapped.
   final ListItemTap<T, K>? onTap;
 
+  /// Creates a list component.
   TList({
     super.key,
     this.theme,

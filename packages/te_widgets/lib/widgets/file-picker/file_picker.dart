@@ -2,6 +2,49 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A file picker input with preview and validation.
+///
+/// `TFilePicker` provides file selection with:
+/// - Single or multiple file selection
+/// - File type filtering
+/// - Extension filtering
+/// - File preview with thumbnails
+/// - Remove file capability
+/// - Validation support
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TFilePicker(
+///   label: 'Upload Files',
+///   allowMultiple: true,
+///   onValueChanged: (files) => print('Selected: ${files?.length} files'),
+/// )
+/// ```
+///
+/// ## With File Type Filter
+///
+/// ```dart
+/// TFilePicker(
+///   label: 'Upload Images',
+///   fileType: TFileType.image,
+///   allowMultiple: true,
+/// )
+/// ```
+///
+/// ## With Extension Filter
+///
+/// ```dart
+/// TFilePicker(
+///   label: 'Upload Documents',
+///   fileType: TFileType.custom,
+///   allowedExtensions: ['pdf', 'doc', 'docx'],
+/// )
+/// ```
+///
+/// See also:
+/// - [TFile] for file model
+/// - [TFileType] for file type options
 class TFilePicker extends StatefulWidget
     with TInputFieldMixin, TInputValueMixin<List<TFile>>, TFocusMixin, TInputValidationMixin<List<TFile>> {
   @override
@@ -25,13 +68,22 @@ class TFilePicker extends StatefulWidget
   @override
   final Duration? validationDebounce;
 
-  // FileSelector specific properties
+  /// Placeholder text when no files are selected.
   final String? placeholder;
+
+  /// Whether to auto-focus the picker.
   final bool autoFocus;
+
+  /// Whether to allow multiple file selection.
   final bool allowMultiple;
+
+  /// Allowed file extensions (without dots).
   final List<String>? allowedExtensions;
+
+  /// The type of files to allow.
   final TFileType fileType;
 
+  /// Creates a file picker.
   const TFilePicker({
     super.key,
     this.label,

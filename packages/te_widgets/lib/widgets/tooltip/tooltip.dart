@@ -2,36 +2,146 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A customizable tooltip with rich content and positioning options.
+///
+/// `TTooltip` provides an advanced tooltip widget with:
+/// - Auto-positioning based on available space
+/// - Manual position control (top/bottom/left/right)
+/// - Rich content support (text or custom widgets)
+/// - Icons and custom styling
+/// - Hover or tap trigger modes
+/// - Interactive tooltips
+/// - Configurable delays and durations
+/// - Arrow indicators
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TTooltip(
+///   message: 'Click to edit',
+///   child: IconButton(
+///     icon: Icon(Icons.edit),
+///     onPressed: () {},
+///   ),
+/// )
+/// ```
+///
+/// ## With Custom Position
+///
+/// ```dart
+/// TTooltip(
+///   message: 'This is a tooltip',
+///   position: TTooltipPosition.right,
+///   icon: Icons.info,
+///   child: Text('Hover me'),
+/// )
+/// ```
+///
+/// ## Interactive Tooltip
+///
+/// ```dart
+/// TTooltip(
+///   message: 'Click anywhere to close',
+///   interactive: true,
+///   triggerMode: TTooltipTriggerMode.tap,
+///   child: ElevatedButton(
+///     onPressed: () {},
+///     child: Text('Show Tooltip'),
+///   ),
+/// )
+/// ```
+///
+/// See also:
+/// - [TTooltipPosition] for position options
+/// - [TTooltipTriggerMode] for trigger modes
 class TTooltip extends StatefulWidget {
+  /// The text message to display in the tooltip.
   final String message;
+
+  /// Rich content widget to display instead of plain text.
   final Widget? richMessage;
+
+  /// The widget that triggers the tooltip.
   final Widget child;
+
+  /// The position of the tooltip relative to the child.
+  ///
+  /// Defaults to [TTooltipPosition.auto].
   final TTooltipPosition position;
+
+  /// Custom color for the tooltip.
   final Color? color;
+
+  /// Optional icon to display in the tooltip.
   final IconData? icon;
+
+  /// The size of the tooltip.
   final TTooltipSize size;
+
+  /// Delay before showing the tooltip.
   final Duration showDelay;
+
+  /// Delay before hiding the tooltip.
   final Duration hideDelay;
+
+  /// Wait duration before the tooltip can be shown again.
   final Duration waitDuration;
+
+  /// Duration to show the tooltip (for tap mode).
   final Duration showDuration;
+
+  /// How the tooltip is triggered (hover or tap).
   final TTooltipTriggerMode triggerMode;
+
+  /// Whether to provide haptic feedback.
   final bool enableFeedback;
+
+  /// Whether to exclude from semantics.
   final bool excludeFromSemantics;
+
+  /// Custom decoration for the tooltip.
   final Decoration? decoration;
+
+  /// Custom text style for the message.
   final TextStyle? textStyle;
+
+  /// Text alignment for the message.
   final TextAlign? textAlign;
+
+  /// Margin around the tooltip.
   final EdgeInsetsGeometry margin;
+
+  /// Padding inside the tooltip.
   final EdgeInsets? padding;
+
+  /// Vertical offset from the child.
   final double verticalOffset;
+
+  /// Whether to prefer showing below the child.
   final bool preferBelow;
+
+  /// Whether to enable haptic feedback on show.
   final bool enableHapticFeedback;
+
+  /// Whether to show the arrow indicator.
   final bool showArrow;
+
+  /// Whether the tooltip is interactive (can be clicked).
   final bool interactive;
+
+  /// Maximum width of the tooltip.
   final double maxWidth;
+
+  /// Callback fired when the tooltip is shown.
   final VoidCallback? onShow;
+
+  /// Callback fired when the tooltip is hidden.
   final VoidCallback? onHide;
+
+  /// The variant type for theming.
   final TVariant? type;
 
+  /// Creates a tooltip.
   const TTooltip(
       {super.key,
       required this.message,

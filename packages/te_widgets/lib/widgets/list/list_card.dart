@@ -1,20 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A standard card widget for list items.
+///
+/// `TListCard` displays item content with support for:
+/// - Selection state
+/// - Expansion state
+/// - Hierarchy levels (indentation)
+/// - Disabled state
+/// - Images and subtitles
+///
+/// ## Usage Example
+///
+/// ```dart
+/// TListCard(
+///   title: 'Item Title',
+///   subTitle: 'Item description',
+///   isSelected: true,
+///   onTap: () => print('Tapped'),
+/// )
+/// ```
+///
+/// ## Hierarchical Usage
+///
+/// ```dart
+/// TListCard(
+///   title: 'Parent',
+///   isExpanded: true,
+///   level: 0,
+///   children: [
+///     TListCard(title: 'Child', level: 1),
+///   ],
+/// )
+/// ```
 class TListCard extends StatelessWidget {
+  /// The main title text.
   final String title;
+
+  /// Optional subtitle text.
   final String? subTitle;
+
+  /// Optional image URL.
   final String? imageUrl;
+
+  /// Whether the card is selected.
   final bool isSelected;
+
+  /// Whether the card is expanded (shows children).
   final bool isExpanded;
+
+  /// Whether the card is disabled.
   final bool isDisabled;
+
+  /// Whether in multiple selection mode.
   final bool multiple;
+
+  /// The indentation level (0 for root).
   final int level;
 
+  /// Callback when tapped.
   final VoidCallback? onTap;
+
+  /// Custom theme for the card.
   final TListCardTheme? theme;
+
+  /// Child cards to display when expanded.
   final List<TListCard>? children;
 
+  /// Creates a list card.
   const TListCard({
     super.key,
     required this.title,
@@ -73,6 +126,7 @@ class TListCard extends StatelessWidget {
     );
   }
 
+  /// Creates a copy of the card with updated properties.
   TListCard copyWith({int? level, TListCardTheme? theme}) {
     return TListCard(
       title: title,

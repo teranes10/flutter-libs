@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A time picker using scrolling wheels (springs).
+///
+/// `TSpinnerTimePicker` provides a vertical scrolling interface for selecting
+/// hours and minutes, imitating native iOS style pickers.
 class TSpinnerTimePicker extends StatefulWidget {
+  /// The current time.
   final TimeOfDay time;
+
+  /// Callback fired when time changes.
   final ValueChanged<TimeOfDay> onTimeChanged;
+
+  /// Whether scroll direction matches gesture (true) or is inverted (false).
   final bool reverseScroll;
 
+  /// Creates a spinner time picker.
   const TSpinnerTimePicker({
     super.key,
     required this.time,

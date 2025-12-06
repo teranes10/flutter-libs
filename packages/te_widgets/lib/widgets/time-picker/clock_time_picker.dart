@@ -2,7 +2,25 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A clock-face time picker widget.
+///
+/// `TClockTimePicker` provides a visual clock interface for selecting hours and minutes.
+/// It supports both 12-hour and 24-hour formats (implicitly handled by TimeOfDay) and
+/// adjusts layout based on orientation.
 class TClockTimePicker extends StatefulWidget {
+  /// The initial time to display.
+  final TimeOfDay initialTime;
+
+  /// Callback fired when the time changes.
+  final ValueChanged<TimeOfDay> onTimeChanged;
+
+  /// Optional width constraint.
+  final double? width;
+
+  /// Optional height constraint.
+  final double? height;
+
+  /// Creates a clock time picker.
   const TClockTimePicker({
     super.key,
     required this.initialTime,
@@ -10,11 +28,6 @@ class TClockTimePicker extends StatefulWidget {
     this.width,
     this.height,
   });
-
-  final TimeOfDay initialTime;
-  final ValueChanged<TimeOfDay> onTimeChanged;
-  final double? width;
-  final double? height;
 
   @override
   State<TClockTimePicker> createState() => _TClockTimePickerState();

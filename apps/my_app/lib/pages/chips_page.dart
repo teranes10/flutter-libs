@@ -1,154 +1,181 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:my_app/widgets/widget_doc_card.dart';
 
+/// Documentation page for Chip widgets.
 class ChipsPage extends StatelessWidget {
   const ChipsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildRow('Solid Chips', [
-            TChip(type: TVariant.solid, icon: Icons.home, text: 'Primary', color: AppColors.primary),
-            TChip(type: TVariant.solid, icon: Icons.home, text: 'Secondary', color: AppColors.secondary),
-            TChip(type: TVariant.solid, icon: Icons.home, text: 'Success', color: AppColors.success),
-            TChip(type: TVariant.solid, icon: Icons.home, text: 'Info', color: AppColors.info),
-            TChip(type: TVariant.solid, icon: Icons.home, text: 'Warning', color: AppColors.warning),
-            TChip(type: TVariant.solid, icon: Icons.home, text: 'Danger', color: AppColors.danger),
-            TChip(type: TVariant.solid, icon: Icons.home, text: 'Grey', color: AppColors.grey),
-          ]),
-          _buildRow('Tonal Chips', [
-            TChip(type: TVariant.tonal, icon: Icons.home, text: 'Primary', color: AppColors.primary),
-            TChip(type: TVariant.tonal, icon: Icons.home, text: 'Secondary', color: AppColors.secondary),
-            TChip(type: TVariant.tonal, icon: Icons.home, text: 'Success', color: AppColors.success),
-            TChip(type: TVariant.tonal, icon: Icons.home, text: 'Info', color: AppColors.info),
-            TChip(type: TVariant.tonal, icon: Icons.home, text: 'Warning', color: AppColors.warning),
-            TChip(type: TVariant.tonal, icon: Icons.home, text: 'Danger', color: AppColors.danger),
-            TChip(type: TVariant.tonal, icon: Icons.home, text: 'Grey', color: AppColors.grey),
-          ]),
-          _buildRow('Outline Chips', [
-            TChip(type: TVariant.outline, icon: Icons.home, text: 'Primary', color: AppColors.primary),
-            TChip(type: TVariant.outline, icon: Icons.home, text: 'Secondary', color: AppColors.secondary),
-            TChip(type: TVariant.outline, icon: Icons.home, text: 'Success', color: AppColors.success),
-            TChip(type: TVariant.outline, icon: Icons.home, text: 'Info', color: AppColors.info),
-            TChip(type: TVariant.outline, icon: Icons.home, text: 'Warning', color: AppColors.warning),
-            TChip(type: TVariant.outline, icon: Icons.home, text: 'Danger', color: AppColors.danger),
-            TChip(type: TVariant.outline, icon: Icons.home, text: 'Grey', color: AppColors.grey),
-          ]),
-          _buildRow('Text Chips', [
-            TChip(type: TVariant.text, icon: Icons.home, text: 'Primary', color: AppColors.primary),
-            TChip(type: TVariant.text, icon: Icons.home, text: 'Secondary', color: AppColors.secondary),
-            TChip(type: TVariant.text, icon: Icons.home, text: 'Success', color: AppColors.success),
-            TChip(type: TVariant.text, icon: Icons.home, text: 'Info', color: AppColors.info),
-            TChip(type: TVariant.text, icon: Icons.home, text: 'Warning', color: AppColors.warning),
-            TChip(type: TVariant.text, icon: Icons.home, text: 'Danger', color: AppColors.danger),
-            TChip(type: TVariant.text, icon: Icons.home, text: 'Grey', color: AppColors.grey),
-          ]),
-          TLoadingIcon(color: AppColors.warning),
-          TLoadingIcon(type: TLoadingType.dots, color: AppColors.secondary),
-          TLoadingIcon(
-            type: TLoadingType.linear,
-            color: AppColors.secondary,
-            size: 8,
-          ),
-          TTabs(
-            tabs: [
-              TTab(icon: Icons.calendar_today, text: 'Date', value: 0),
-              TTab(icon: Icons.access_time, text: 'Time', value: 1),
-            ],
-          ),
-          RoleTest(),
-          TImage.profile(
-            name: "Teranes",
-            role: "Admin",
-          ),
-          TNavbar(items: [
-            TNavItem(icon: Icons.home_rounded, label: 'Home', isActive: true, onTap: () {}),
-            TNavItem(icon: Icons.receipt_rounded, label: 'Bills', isActive: false, onTap: () {}),
-            TNavItem(icon: Icons.settings, label: 'Settings', isActive: false, onTap: () {}),
-          ])
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRow(String label, List<Widget> buttons) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          // Page Header
           Text(
-            label,
+            'Chips',
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: context.colors.onSurface,
             ),
           ),
-          SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: buttons,
+          const SizedBox(height: 8),
+          Text(
+            'Compact elements that represent an attribute, text, entity, or action.',
+            style: TextStyle(
+              fontSize: 16,
+              color: context.colors.onSurface.withAlpha(179),
+            ),
           ),
+          const SizedBox(height: 32),
+
+          // Solid Chips
+          WidgetDocCard(
+            title: 'Solid Chips',
+            description: 'Filled chips with solid background colors',
+            icon: Icons.label,
+            preview: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                TChip(type: TVariant.solid, text: 'Primary', color: AppColors.primary),
+                TChip(type: TVariant.solid, text: 'Secondary', color: AppColors.secondary),
+                TChip(type: TVariant.solid, text: 'Success', color: AppColors.success),
+                TChip(type: TVariant.solid, text: 'Danger', color: AppColors.danger),
+              ],
+            ),
+            code: '''TChip(
+  type: TVariant.solid,
+  text: 'Primary',
+  color: AppColors.primary,
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'type',
+                type: 'TVariant?',
+                defaultValue: 'TVariant.tonal',
+                description: 'The visual variant of the chip',
+              ),
+              PropertyDoc(
+                name: 'label',
+                type: 'String?',
+                description: 'The text to display',
+              ),
+            ],
+          ),
+
+          // Tonal Chips
+          WidgetDocCard(
+            title: 'Tonal Chips',
+            description: 'Chips with subtle background tint (Default)',
+            icon: Icons.label_outline,
+            preview: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                TChip(type: TVariant.tonal, icon: Icons.face, text: 'User', color: AppColors.primary),
+                TChip(type: TVariant.tonal, icon: Icons.settings, text: 'Settings', color: AppColors.secondary),
+                TChip(type: TVariant.tonal, icon: Icons.check_circle, text: 'Active', color: AppColors.success),
+                TChip(type: TVariant.tonal, icon: Icons.warning, text: 'Warning', color: AppColors.warning),
+              ],
+            ),
+            code: '''TChip(
+  type: TVariant.tonal,
+  icon: Icons.check_circle,
+  text: 'Active',
+  color: AppColors.success,
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'icon',
+                type: 'IconData?',
+                description: 'Optional icon to display before text',
+              ),
+            ],
+          ),
+
+          // Outline Chips
+          WidgetDocCard(
+            title: 'Outline Chips',
+            description: 'Chips with border and transparent background',
+            icon: Icons.border_style,
+            preview: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                TChip(type: TVariant.outline, text: 'Outline Primary', color: AppColors.primary),
+                TChip(type: TVariant.outline, text: 'Outline Info', color: AppColors.info),
+                TChip(type: TVariant.outline, text: 'Outline Danger', color: AppColors.danger),
+              ],
+            ),
+            code: '''TChip(
+  type: TVariant.outline,
+  text: 'Outline',
+  color: AppColors.primary,
+)''',
+          ),
+
+          // Custom Chips
+          WidgetDocCard(
+            title: 'Custom Chips',
+            description: 'Fully customizable appearance',
+            icon: Icons.palette,
+            preview: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                TChip(
+                  text: 'Custom Gradient',
+                  background: Colors.purple.shade50,
+                  textColor: Colors.purple,
+                  icon: Icons.star,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                TChip(
+                  text: 'Click Me',
+                  color: AppColors.info,
+                  type: TVariant.tonal,
+                  onTap: () {},
+                ),
+              ],
+            ),
+            code: '''TChip(
+  text: 'Custom',
+  background: Colors.purple.shade50,
+  textColor: Colors.purple,
+  icon: Icons.star,
+  borderRadius: BorderRadius.circular(20),
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'background',
+                type: 'Color?',
+                description: 'Custom background color',
+              ),
+              PropertyDoc(
+                name: 'textColor',
+                type: 'Color?',
+                description: 'Custom text and icon color',
+              ),
+              PropertyDoc(
+                name: 'borderRadius',
+                type: 'BorderRadius?',
+                description: 'Custom border radius',
+              ),
+              PropertyDoc(
+                name: 'onTap',
+                type: 'VoidCallback?',
+                description: 'Callback when chip is tapped',
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 40),
         ],
       ),
     );
   }
-}
-
-final rolesProvider = StateProvider<List<String>>((ref) => ['guest']);
-
-class RoleTest extends ConsumerWidget {
-  const RoleTest({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final roles = ref.watch(rolesProvider);
-    return Column(
-      children: [
-        ...roles.map((x) => Text(x)),
-        TButton(
-          text: 'Add admin role',
-          onPressed: (_) {
-            ref.read(rolesProvider.notifier).update((roles) {
-              return roles.contains('admin') ? roles : [...roles, 'admin'];
-            });
-          },
-        ),
-        TButton(text: 'Need Admin Access', onPressed: (_) => _showSnackBar(context, 'Clicked by Admin')).role('admin')
-      ],
-    );
-  }
-}
-
-extension RoleGuardExtension on Widget {
-  Widget role(String role) {
-    return Consumer(
-      builder: (context, ref, _) {
-        final roles = ref.watch(rolesProvider);
-
-        return TGuard(
-          condition: roles.contains(role),
-          action: TGuardAction.disable,
-          child: this,
-        );
-      },
-    );
-  }
-}
-
-void _showSnackBar(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      duration: Duration(seconds: 1),
-    ),
-  );
 }

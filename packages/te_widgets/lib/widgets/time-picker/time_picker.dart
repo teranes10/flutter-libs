@@ -2,6 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A time picker input with clock interface.
+///
+/// `TTimePicker` provides time selection with:
+/// - Clock-style time picker
+/// - Custom time format
+/// - Validation support
+/// - ValueNotifier integration
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TTimePicker(
+///   label: 'Meeting Time',
+///   placeholder: 'Select time',
+///   onValueChanged: (time) => print('Selected: \$time'),
+/// )
+/// ```
+///
+/// ## With Custom Format
+///
+/// ```dart
+/// TTimePicker(
+///   label: 'Start Time',
+///   format: DateFormat('HH:mm'),  // 24-hour format
+/// )
+/// ```
+///
+/// See also:
+/// - [TDatePicker] for date selection
+/// - [TDateTimePicker] for combined date-time selection
 class TTimePicker extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<TimeOfDay>, TInputValidationMixin<TimeOfDay>, TPopupMixin {
   @override
@@ -31,8 +61,10 @@ class TTimePicker extends StatefulWidget
   @override
   final VoidCallback? onHide;
 
+  /// Custom time format for display.
   final DateFormat? format;
 
+  /// Creates a time picker.
   const TTimePicker({
     super.key,
     this.label,

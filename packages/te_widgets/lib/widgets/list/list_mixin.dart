@@ -1,16 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Mixin for widgets that implement list behavior.
+///
+/// This mixin defines the interface for list-based widgets,
+/// requiring properties for items, pagination, and data loading.
 mixin TListMixin<T, K> {
+  /// The list of items to display.
   List<T>? get items;
+
+  /// The number of items to display per page.
   int? get itemsPerPage;
+
+  /// The current search query.
   String? get search;
+
+  /// Debounce delay for search in milliseconds.
   int? get searchDelay;
+
+  /// Callback for loading items from a server.
   TLoadListener<T>? get onLoad;
+
+  /// Function to extract a unique key from an item.
   ItemKeyAccessor<T, K>? get itemKey;
+
+  /// The controller managing the list state.
   TListController<T, K>? get controller;
 }
 
+/// State mixin for widgets using [TListController].
+///
+/// Handles initialization and lifecycle of the list controller,
+/// including disposal and verification of configuration.
 mixin TListStateMixin<T, K, W extends StatefulWidget> on State<W> {
   TListMixin<T, K> get _widget {
     assert(widget is TListMixin<T, K>, 'Widget must implement TListMixin<$T>');
@@ -21,8 +42,13 @@ mixin TListStateMixin<T, K, W extends StatefulWidget> on State<W> {
   late int _providedItemsPerPage;
   bool _isControllerOwned = false;
 
+  /// The active list controller.
   TListController<T, K> get listController => _listController;
+
+  /// The initial items per page provided by the widget.
   int get providedItemsPerPage => _providedItemsPerPage;
+
+  /// Whether the controller was provided externally.
   bool get hasExternalController => !_isControllerOwned;
 
   @override
@@ -87,6 +113,7 @@ mixin TListStateMixin<T, K, W extends StatefulWidget> on State<W> {
     super.dispose();
   }
 
+  /// Builds a new controller instance based on widget properties.
   TListController<T, K> buildController() {
     return TListController<T, K>(
       items: _widget.items ?? [],
@@ -98,6 +125,7 @@ mixin TListStateMixin<T, K, W extends StatefulWidget> on State<W> {
     );
   }
 
+  /// Validates that no conflicting properties are provided when using an external controller.
   void validateExternalController() {
     final hasConfig = _widget.items != null ||
         _widget.itemsPerPage != null ||
@@ -120,5 +148,6 @@ mixin TListStateMixin<T, K, W extends StatefulWidget> on State<W> {
     }
   }
 
+  /// Callback fired when the list state changes.
   void onListStateChanged() {}
 }

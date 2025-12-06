@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/clients/posts_client.dart';
-import 'package:my_app/clients/products_client.dart';
-import 'package:my_app/models/post_dto.dart';
-import 'package:my_app/models/product_dto.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:my_app/widgets/widget_doc_card.dart';
 
+/// Documentation page showcasing select and dropdown widgets.
 class SelectFieldsPage extends StatefulWidget {
   const SelectFieldsPage({super.key});
 
@@ -13,160 +11,264 @@ class SelectFieldsPage extends StatefulWidget {
 }
 
 class _SelectFieldsPageState extends State<SelectFieldsPage> {
-  String? singleValue = 'CA';
-  static List<PostDto> defaultPosts = [PostDto(userId: 12345, id: 234546, title: "Default Post", body: "")];
-  int? selectedPost = defaultPosts.first.id;
-  User? selectedUser;
-  List<User>? selectedUsers;
-  List<String> multiValue = ['Flutter Development'];
-  final countries = {
-    'United States': 'US',
-    'Canada': 'CA',
-    'Mexico': 'MX',
-    'Brazil': 'BR',
-    'Argentina': 'AR',
-    'United Kingdom': 'GB',
-    'Germany': 'DE',
-    'France': 'FR',
-    'Italy': 'IT',
-    'Spain': 'ES',
-    'India': 'IN',
-    'China': 'CN',
-    'Japan': 'JP',
-    'South Korea': 'KR',
-    'Australia': 'AU',
-    'New Zealand': 'NZ',
-    'South Africa': 'ZA',
-  }.entries.toList();
+  final _countryNotifier = ValueNotifier<String?>('');
+  final _userNotifier = ValueNotifier<int?>(null);
 
-  final skills = [
-    'Flutter Development',
-    'Android Development',
-    'iOS Development',
-    'Dart Programming',
-    'Firebase Integration',
-    'RESTful API Integration',
-    'State Management (Provider, Riverpod, Bloc)',
-    'Cross-Platform App Architecture',
-    'Unit & Widget Testing',
-    'Material Design Implementation',
-    'App Store & Play Store Deployment',
-  ];
-
-  final users = [
-    User(id: '1', name: 'Alice', role: 'Developer'),
-    User(id: '2', name: 'Bob', role: 'Manager'),
-  ];
-
-  final hierarch = [
-    Category('Tech', 'tech', [
-      Category('Mobile', 'mobile'),
-      Category('Web', 'web'),
-    ])
-  ];
+  @override
+  void dispose() {
+    _countryNotifier.dispose();
+    _userNotifier.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Basic TSelect (String)', style: TextStyle(fontWeight: FontWeight.w400)),
-        TSelect<MapEntry<String, String>, String, String>(
-          label: 'Country',
-          placeholder: 'Choose a country',
-          helperText: 'This field is required',
-          isRequired: true,
-          items: countries,
-          itemText: (x) => x.key,
-          itemValue: (x) => x.value,
-          value: singleValue,
-        ),
-        const SizedBox(height: 20),
-        const Text('Disabled Select', style: TextStyle(fontWeight: FontWeight.w400)),
-        TSelect<MapEntry<String, String>, String, String>(
-          label: 'Disabled',
-          disabled: true,
-          items: countries,
-          itemText: (x) => x.key,
-          itemValue: (x) => x.value,
-        ),
-        const SizedBox(height: 20),
-        const Text('With Custom Text & Value Accessor', style: TextStyle(fontWeight: FontWeight.w400)),
-        TSelect<User, User, String>(
-          label: 'Select User',
-          items: users,
-          itemText: (u) => u.name,
-          itemKey: (u) => u.id,
-          value: selectedUser,
-        ),
-        const SizedBox(height: 20),
-        const Text('Multiselect Basic', style: TextStyle(fontWeight: FontWeight.w400)),
-        TMultiSelect<String, String, String>(
-          label: 'Select Skills',
-          items: skills,
-          value: multiValue,
-        ),
-        const SizedBox(height: 20),
-        const Text('Multiselect with Custom ItemText', style: TextStyle(fontWeight: FontWeight.w400)),
-        TMultiSelect<User, User, int>(
-          label: 'Select Users',
-          items: users,
-          itemText: (u) => '${u.name} (${u.role})',
-          value: selectedUsers,
-        ),
-        const SizedBox(height: 20),
-        const Text('With Multi-Level (for hierarchy)', style: TextStyle(fontWeight: FontWeight.w400)),
-        TSelect<Category, String, String>(
-          label: 'Categories',
-          items: hierarch,
-          itemText: (x) => x.name,
-          itemValue: (x) => x.code,
-          itemChildren: (x) => x.subCategories,
-          value: 'mobile',
-        ),
-        const SizedBox(height: 20),
-        TSelect<PostDto, int, int>(
-          label: 'Server side rendering',
-          onLoad: PostsClient().loadMore,
-          itemText: (x) => x.title,
-          itemSubText: (x) => x.body,
-          itemValue: (x) => x.id,
-          items: defaultPosts,
-          // In server-side rendering, include the default selected item in the items list so its text can be displayed, even if it’s not on the first page.
-          // This is required only when itemValue is provided — if value is of type T, the text is automatically taken from the provided value item.
-          value: selectedPost,
-        ),
-        const SizedBox(height: 20),
-        TSelect<ProductDto, int, int>(
-          label: 'Server side rendering',
-          onLoad: ProductsClient().loadMore,
-          itemText: (x) => x.title,
-          itemSubText: (x) => x.category,
-          itemImageUrl: (x) => x.thumbnail ?? '',
-          itemValue: (x) => x.id,
-          value: 1,
-        )
-      ],
-    ));
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Page Header
+          Text(
+            'Select Field Components',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: context.colors.onSurface,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Dropdown selects with search, pagination, and hierarchical support.',
+            style: TextStyle(
+              fontSize: 13,
+              color: context.colors.onSurface.withAlpha(179),
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          // Basic Select
+          WidgetDocCard(
+            title: 'Basic Select',
+            description: 'Simple dropdown with string values',
+            icon: Icons.arrow_drop_down_circle,
+            preview: TSelect<String, String, String>(
+              label: 'Country',
+              placeholder: 'Select a country',
+              items: ['USA', 'Canada', 'Mexico', 'Brazil', 'Argentina'],
+              valueNotifier: _countryNotifier,
+            ),
+            code: '''TSelect<String, String, String>(
+  label: 'Country',
+  placeholder: 'Select a country',
+  items: ['USA', 'Canada', 'Mexico', 'Brazil', 'Argentina'],
+  onValueChanged: (value) {
+    print('Selected: \$value');
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'items',
+                type: 'List<T>?',
+                description: 'The list of items to display in the dropdown',
+              ),
+              PropertyDoc(
+                name: 'placeholder',
+                type: 'String?',
+                description: 'Placeholder text shown when no item is selected',
+              ),
+              PropertyDoc(
+                name: 'onValueChanged',
+                type: 'ValueChanged<V?>?',
+                description: 'Callback fired when the selected value changes',
+              ),
+            ],
+          ),
+
+          // Searchable Select
+          WidgetDocCard(
+            title: 'Searchable Select',
+            description: 'Dropdown with built-in search functionality',
+            icon: Icons.search,
+            preview: TSelect<String, String, String>(
+              label: 'City',
+              placeholder: 'Search for a city',
+              filterable: true,
+              items: [
+                'New York',
+                'Los Angeles',
+                'Chicago',
+                'Houston',
+                'Phoenix',
+                'Philadelphia',
+                'San Antonio',
+                'San Diego',
+                'Dallas',
+                'San Jose',
+              ],
+              valueNotifier: ValueNotifier<String?>(''),
+            ),
+            code: '''TSelect<String, String, String>(
+  label: 'City',
+  placeholder: 'Search for a city',
+  filterable: true,
+  items: [
+    'New York',
+    'Los Angeles',
+    'Chicago',
+    // ... more cities
+  ],
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'filterable',
+                type: 'bool',
+                defaultValue: 'true',
+                description: 'Whether users can type to filter items',
+              ),
+              PropertyDoc(
+                name: 'searchDelay',
+                type: 'int?',
+                description: 'Debounce delay for search in milliseconds',
+              ),
+            ],
+          ),
+
+          // Select with Custom Objects
+          WidgetDocCard(
+            title: 'Custom Object Select',
+            description: 'Dropdown with custom data objects',
+            icon: Icons.category,
+            preview: TSelect<_User, int, int>(
+              label: 'User',
+              placeholder: 'Select a user',
+              items: [
+                _User(1, 'John Doe', 'john@example.com'),
+                _User(2, 'Jane Smith', 'jane@example.com'),
+                _User(3, 'Bob Johnson', 'bob@example.com'),
+              ],
+              itemText: (user) => user.name,
+              itemSubText: (user) => user.email,
+              itemValue: (user) => user.id,
+              valueNotifier: _userNotifier,
+            ),
+            code: '''class User {
+  final int id;
+  final String name;
+  final String email;
+  User(this.id, this.name, this.email);
+}
+
+TSelect<User, int, int>(
+  label: 'User',
+  placeholder: 'Select a user',
+  items: users,
+  itemText: (user) => user.name,
+  itemSubText: (user) => user.email,
+  itemValue: (user) => user.id,
+  onValueChanged: (userId) {
+    print('Selected user ID: \$userId');
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'itemText',
+                type: 'ItemTextAccessor<T>',
+                description: 'Function to extract display text from an item',
+              ),
+              PropertyDoc(
+                name: 'itemSubText',
+                type: 'ItemTextAccessor<T>?',
+                description: 'Function to extract subtitle text from an item',
+              ),
+              PropertyDoc(
+                name: 'itemValue',
+                type: 'ItemValueAccessor<T, V>?',
+                description: 'Function to extract the value to store when selected',
+              ),
+            ],
+          ),
+
+          // Required Select with Validation
+          WidgetDocCard(
+            title: 'Required Select',
+            description: 'Dropdown with validation rules',
+            icon: Icons.rule,
+            preview: TSelect<String, String, String>(
+              label: 'Department',
+              placeholder: 'Select department',
+              isRequired: true,
+              items: ['Engineering', 'Marketing', 'Sales', 'HR'],
+              valueNotifier: ValueNotifier<String?>(''),
+              rules: [
+                (value) => value == null || value.isEmpty ? 'Department is required' : null,
+              ],
+            ),
+            code: '''TSelect<String, String, String>(
+  label: 'Department',
+  placeholder: 'Select department',
+  isRequired: true,
+  items: ['Engineering', 'Marketing', 'Sales', 'HR'],
+  rules: [
+    (value) => value == null || value.isEmpty 
+        ? 'Department is required' 
+        : null,
+  ],
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'isRequired',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether this field is required',
+              ),
+              PropertyDoc(
+                name: 'rules',
+                type: 'List<String? Function(V?)>?',
+                description: 'Validation rules for the selected value',
+              ),
+            ],
+          ),
+
+          // Disabled Select
+          WidgetDocCard(
+            title: 'Disabled Select',
+            description: 'Non-interactive dropdown',
+            icon: Icons.block,
+            preview: TSelect<String, String, String>(
+              label: 'Status',
+              value: 'Active',
+              items: ['Active', 'Inactive', 'Pending'],
+              disabled: true,
+            ),
+            code: '''TSelect<String, String, String>(
+  label: 'Status',
+  value: 'Active',
+  items: ['Active', 'Inactive', 'Pending'],
+  disabled: true,
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'disabled',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether the select is disabled',
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
   }
 }
 
-class User {
-  final String id;
+// Example model class
+class _User {
+  final int id;
   final String name;
-  final String role;
+  final String email;
 
-  User({required this.id, required this.name, required this.role});
-
-  @override
-  String toString() => '$name ($role)';
-}
-
-class Category {
-  final String name;
-  final String code;
-  final List<Category> subCategories;
-
-  Category(this.name, this.code, [this.subCategories = const []]);
+  _User(this.id, this.name, this.email);
 }

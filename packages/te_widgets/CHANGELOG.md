@@ -1,4 +1,8 @@
-# 2.0.4
+# 2.0.5
+
+    - Documentation Added
+
+## 2.0.4
 
     - Select infinite scroll fix
     - Data table items per page dropdown fix

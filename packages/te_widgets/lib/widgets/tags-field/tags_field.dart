@@ -1,8 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:te_widgets/te_widgets.dart';
 import 'package:te_widgets/widgets/tags-field/tags_field_mixin.dart';
 
+/// A tags input field for managing string lists.
+///
+/// `TTagsField` provides tag management with:
+/// - Add tags by typing and pressing Enter
+/// - Remove tags by clicking
+/// - Delimiter support (comma, semicolon, newline)
+/// - Duplicate prevention
+/// - Validation support
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TTagsField(
+///   label: 'Tags',
+///   placeholder: 'Add tags...',
+///   onValueChanged: (tags) => print('Tags: \$tags'),
+/// )
+/// ```
+///
+/// ## With Initial Values
+///
+/// ```dart
+/// TTagsField(
+///   label: 'Skills',
+///   value: ['Flutter', 'Dart', 'Firebase'],
+///   onValueChanged: (tags) => saveTags(tags),
+/// )
+/// ```
+///
+/// ## With Validation
+///
+/// ```dart
+/// TTagsField(
+///   label: 'Keywords',
+///   isRequired: true,
+///   rules: [
+///     (tags) => tags == null || tags.isEmpty
+///         ? 'At least one tag is required'
+///         : null,
+///   ],
+/// )
+/// ```
+///
+/// See also:
+/// - [TTextField] for single-line text input
+/// - [TMultiSelect] for predefined options
 class TTagsField extends StatefulWidget
     with
         TInputFieldMixin,
@@ -42,6 +89,7 @@ class TTagsField extends StatefulWidget
   @override
   final ValueChanged<String>? onInputChanged;
 
+  /// Creates a tags field.
   const TTagsField({
     super.key,
     this.label,

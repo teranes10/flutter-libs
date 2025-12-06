@@ -1,13 +1,62 @@
 part of 'button.dart';
 
+/// A group of connected buttons with shared styling.
+///
+/// `TButtonGroup` displays multiple buttons as a unified component with:
+/// - Shared theme and styling
+/// - Connected appearance (no gaps between buttons)
+/// - Optional boxed mode with container
+/// - Customizable alignment
+/// - Individual button customization
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TButtonGroup(
+///   items: [
+///     TButtonGroupItem(text: 'Left', onPressed: () {}),
+///     TButtonGroupItem(text: 'Center', onPressed: () {}),
+///     TButtonGroupItem(text: 'Right', onPressed: () {}),
+///   ],
+/// )
+/// ```
+///
+/// ## With Icons
+///
+/// ```dart
+/// TButtonGroup(
+///   type: TButtonGroupType.outline,
+///   items: [
+///     TButtonGroupItem(icon: Icons.format_bold, onPressed: () {}),
+///     TButtonGroupItem(icon: Icons.format_italic, onPressed: () {}),
+///     TButtonGroupItem(icon: Icons.format_underlined, onPressed: () {}),
+///   ],
+/// )
+/// ```
+///
+/// See also:
+/// - [TButton] for individual buttons
+/// - [TButtonGroupItem] for item configuration
 class TButtonGroup extends StatelessWidget {
+  /// Custom theme for the button group.
   final TButtonGroupTheme? theme;
+
+  /// The visual style of the button group.
   final TButtonGroupType? type;
+
+  /// The size of buttons in the group.
   final TButtonSize? size;
+
+  /// The color scheme for the button group.
   final Color? color;
+
+  /// The list of button items to display.
   final List<TButtonGroupItem> items;
+
+  /// Alignment of the button group.
   final WrapAlignment alignment;
 
+  /// Creates a button group.
   const TButtonGroup({
     super.key,
     this.theme,

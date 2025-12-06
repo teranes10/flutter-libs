@@ -2,12 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:te_widgets/enum/value_type.dart';
 
+/// Mixin for widgets that hold a typed value.
 mixin TInputValueMixin<T> {
+  /// The initial value.
   T? get value;
+
+  /// A ValueNotifier for two-way binding.
   ValueNotifier<T?>? get valueNotifier;
+
+  /// Callback fired when the value changes.
   ValueChanged<T?>? get onValueChanged;
 }
 
+/// State mixin for managing widget value state.
+///
+/// Handles initialization from ValueNotifier or initial value,
+/// and synchronizes state between internal value and external Notifier.
 mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   TInputValueMixin<T> get _widget {
     assert(widget is TInputValueMixin<T>, 'Widget must mix in TInputValueMixin<$T>, but got ${widget.runtimeType}');
@@ -15,6 +25,8 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   }
 
   T? _currentValue;
+
+  /// The current value of the input.
   T? get currentValue => _currentValue;
 
   @override
@@ -70,6 +82,7 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
     }
   }
 
+  /// Updates the value and notifies listeners.
   void notifyValueChanged(T? newValue) {
     if (newValue != currentValue) {
       _currentValue = newValue;
@@ -79,6 +92,7 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
     }
   }
 
+  /// Returns the type of the value being managed.
   ValueType getValueType() {
     return ValueType.from(T.toString());
   }

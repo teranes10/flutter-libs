@@ -1,22 +1,47 @@
 part of 'button.dart';
 
+/// Options passed to the `onPressed` callback.
 class TButtonPressOptions {
+  /// Callback to stop the button's loading state.
   final VoidCallback stopLoading;
+
+  /// Creates button press options.
   TButtonPressOptions({required this.stopLoading});
 }
 
+/// Defines an item within a [TButtonGroup].
 class TButtonGroupItem {
+  /// Optional icon for the button.
   final IconData? icon;
+
+  /// Optional text label.
   final String? text;
+
+  /// Whether the button is in a loading state.
   final bool loading;
+
+  /// Text to display while loading.
   final String loadingText;
+
+  /// Custom color for the button.
   final Color? color;
+
+  /// Tooltip text.
   final String? tooltip;
+
+  /// Whether the button is currently active/selected.
   final bool active;
+
+  /// Simple tap callback.
   final VoidCallback? onTap;
+
+  /// Async press callback with loading control.
   final Function(TButtonPressOptions)? onPressed;
+
+  /// Custom child widget (overrides icon/text).
   final Widget? child;
 
+  /// Creates a button group item.
   TButtonGroupItem({
     this.icon,
     this.text,
@@ -31,7 +56,9 @@ class TButtonGroupItem {
   });
 }
 
+/// Utility extension for [TButton] updates.
 extension TButtonExtension on TButton {
+  /// Creates a copy of the button with updated properties.
   TButton copyWith({
     TButtonTheme? theme,
     TButtonType? type,
@@ -64,6 +91,7 @@ extension TButtonExtension on TButton {
     );
   }
 
+  /// Estimates the width of the button based on its content and size settings.
   double estimateWidth() {
     final sizeData = size ?? TButtonSize.md;
 

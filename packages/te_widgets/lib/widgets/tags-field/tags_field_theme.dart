@@ -4,10 +4,17 @@ import 'package:te_widgets/te_widgets.dart';
 
 typedef TagBuilder = Widget Function(String tag, VoidCallback onRemove);
 
+/// Theme configuration for [TTagsField].
+///
+/// `TTagsFieldTheme` extends [TTextFieldTheme] to include:
+/// - A custom `tagBuilder` for rendering tags (chips) inside the field.
+/// - Inherited text field styling.
 class TTagsFieldTheme extends TTextFieldTheme {
   // Custom Builder
+  /// Builder for individual tags.
   final TagBuilder tagBuilder;
 
+  /// Creates a tags field theme.
   const TTagsFieldTheme({
     required super.color,
     required super.backgroundColor,
@@ -153,6 +160,7 @@ class TTagsFieldTheme extends TTextFieldTheme {
     );
   }
 
+  /// Creates a default theme derived from the context colors.
   factory TTagsFieldTheme.defaultTheme(ColorScheme colors) {
     final baseTheme = TTextFieldTheme.defaultTheme(colors);
 
@@ -190,13 +198,13 @@ class TTagsFieldTheme extends TTextFieldTheme {
                 Flexible(
                   child: Text(
                     tag,
-                    style: TextStyle(color: colors.onSurfaceVariant, fontSize: baseTheme.fieldFontSize, fontWeight: FontWeight.w400),
+                    style: TextStyle(color: colors.onSurface, fontSize: baseTheme.fieldFontSize, fontWeight: FontWeight.w400),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
                 ),
                 const SizedBox(width: 5.0),
-                InkWell(onTap: onRemove, child: Icon(Icons.close, size: 14, color: colors.onSurfaceVariant)),
+                InkWell(onTap: onRemove, child: Icon(Icons.close, size: 14, color: colors.onSurface)),
               ],
             ),
           ),
@@ -205,6 +213,7 @@ class TTagsFieldTheme extends TTextFieldTheme {
     );
   }
 
+  /// Builds the tag list widget.
   Widget buildTagsField({
     required Widget child,
     required TTagsController controller,

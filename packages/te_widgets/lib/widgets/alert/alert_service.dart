@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Service for displaying alert dialogs.
+///
+/// `TAlertService` provides static methods to show varying types of alerts:
+/// - Info, Success, Warning, Error
+/// - Confirmations (Archive, Restore, Delete)
+/// - Custom alerts with [show]
 class TAlertService {
+  /// Shows a custom alert dialog.
   static Future<void> show(
     BuildContext context, {
     final dynamic text,
@@ -39,22 +46,27 @@ class TAlertService {
     });
   }
 
+  /// Shows an informational alert.
   static void info(BuildContext context, String title, String message) {
     show(context, title: title, text: message, icon: Icons.info_outline_rounded, color: context.theme.info);
   }
 
+  /// Shows a success alert.
   static void success(BuildContext context, String title, String message) {
     show(context, title: title, text: message, icon: Icons.check_circle_outline_rounded, color: context.theme.success);
   }
 
+  /// Shows a warning alert.
   static void warning(BuildContext context, String title, String message) {
     show(context, title: title, text: message, icon: Icons.warning_amber_rounded, color: context.theme.warning);
   }
 
+  /// Shows an error alert.
   static void error(BuildContext context, String title, String message) {
     show(context, title: title, text: message, icon: Icons.error_outline_rounded, color: context.theme.danger);
   }
 
+  /// Shows a confirmation dialog for archiving an item.
   static void confirmArchive(BuildContext context, VoidCallback onConfirm, {String? name}) {
     final msg = name != null
         ? Text.rich(TextSpan(
@@ -72,6 +84,7 @@ class TAlertService {
         confirmButton: AlertButton(text: 'Archive', onClick: onConfirm));
   }
 
+  /// Shows a confirmation dialog for restoring an item.
   static void confirmRestore(BuildContext context, VoidCallback onConfirm, {String? name}) {
     final msg = name != null
         ? Text.rich(TextSpan(
@@ -89,6 +102,7 @@ class TAlertService {
         confirmButton: AlertButton(text: 'Restore', onClick: onConfirm));
   }
 
+  /// Shows a confirmation dialog for deleting an item.
   static void confirmDelete(BuildContext context, VoidCallback onConfirm, {String? name}) {
     final msg = name != null
         ? Text.rich(TextSpan(

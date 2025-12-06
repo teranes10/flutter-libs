@@ -4,32 +4,132 @@ import 'package:te_widgets/te_widgets.dart';
 part 'crud_table_top_bar.dart';
 part 'crud_table_builder.dart';
 
+/// A complete CRUD (Create, Read, Update, Delete) table component.
+///
+/// `TCrudTable` provides a full-featured data table with:
+/// - Create, edit, view, archive, restore, and delete operations
+/// - Form-based create/edit dialogs
+/// - Active and archive tabs
+/// - Permission-based action visibility
+/// - Expandable rows
+/// - Server-side or client-side data
+/// - Custom actions
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TCrudTable<Product, int, ProductForm>(
+///   headers: productHeaders,
+///   items: products,
+///   createForm: () => ProductForm(),
+///   editForm: (product) => ProductForm.fromProduct(product),
+///   onCreate: (form) async {
+///     return await api.createProduct(form.toJson());
+///   },
+///   onEdit: (product, form) async {
+///     return await api.updateProduct(product.id, form.toJson());
+///   },
+///   onArchive: (product) async {
+///     await api.archiveProduct(product.id);
+///     return true;
+///   },
+/// )
+/// ```
+///
+/// ## With Archive Support
+///
+/// ```dart
+/// TCrudTable<User, int, UserForm>(
+///   headers: userHeaders,
+///   onLoad: (options) async {
+///     final response = await api.getUsers(options);
+///     return TLoadResult(
+///       items: response.users,
+///       totalItems: response.total,
+///     );
+///   },
+///   onArchiveLoad: (options) async {
+///     final response = await api.getArchivedUsers(options);
+///     return TLoadResult(
+///       items: response.users,
+///       totalItems: response.total,
+///     );
+///   },
+///   onRestore: (user) async {
+///     await api.restoreUser(user.id);
+///     return true;
+///   },
+///   onDelete: (user) async {
+///     await api.deleteUser(user.id);
+///     return true;
+///   },
+/// )
+/// ```
+///
+/// Type parameters:
+/// - [T]: The type of items in the table
+/// - [K]: The type of the item key
+/// - [F]: The form type (must extend TFormBase)
+///
+/// See also:
+/// - [TDataTable] for simple data tables
+/// - [TFormBase] for form definitions
 class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
+  /// The column headers for the table.
   final List<TTableHeader<T, K>> headers;
 
+  /// The list of active items (for client-side).
   final List<T>? items;
+
+  /// Callback for loading active items (for server-side).
   final TLoadListener<T>? onLoad;
+
+  /// Controller for managing active items.
   final TListController<T, K>? controller;
 
+  /// The list of archived items (for client-side).
   final List<T>? archivedItems;
+
+  /// Callback for loading archived items (for server-side).
   final TLoadListener<T>? onArchiveLoad;
+
+  /// Controller for managing archived items.
   final TListController<T, K>? archiveController;
 
+  /// Factory function to create a new form.
   final F Function()? createForm;
+
+  /// Factory function to create an edit form from an item.
   final F Function(T item)? editForm;
 
+  /// Callback for creating a new item.
   final Future<T?> Function(F form)? onCreate;
+
+  /// Callback for editing an existing item.
   final Future<T?> Function(T item, F form)? onEdit;
+
+  /// Callback for viewing an item.
   final Future<void> Function(T item)? onView;
+
+  /// Callback for archiving an item.
   final Future<bool> Function(T item)? onArchive;
+
+  /// Callback for restoring an archived item.
   final Future<bool> Function(T item)? onRestore;
+
+  /// Callback for permanently deleting an item.
   final Future<bool> Function(T item)? onDelete;
 
+  /// Configuration for the CRUD table.
   final TCrudConfig<T, K> config;
+
+  /// Builder for expanded row content.
   final Widget Function(BuildContext ctx, TListItem<T, K> item, int index)? expandedBuilder;
 
+  /// Custom theme for the table.
   final TTableTheme? theme;
 
+  /// Creates a CRUD table.
   const TCrudTable({
     super.key,
     required this.headers,

@@ -1,19 +1,85 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// An interactive icon with hover, active states, and rotation.
+///
+/// `TIcon` provides an enhanced icon widget with:
+/// - Hover and active states
+/// - Color transitions
+/// - Rotation animations
+/// - Tap handling
+/// - Custom sizing and padding
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TIcon(
+///   icon: Icons.favorite,
+///   onTap: () => print('Tapped'),
+/// )
+/// ```
+///
+/// ## With Active State
+///
+/// ```dart
+/// TIcon(
+///   icon: Icons.favorite_border,
+///   activeIcon: Icons.favorite,
+///   active: isFavorite,
+///   color: Colors.grey,
+///   activeColor: Colors.red,
+///   onTap: () => setState(() => isFavorite = !isFavorite),
+/// )
+/// ```
+///
+/// ## With Rotation
+///
+/// ```dart
+/// TIcon(
+///   icon: Icons.refresh,
+///   turns: (0, 1),  // Rotate 360° when active
+///   active: isRefreshing,
+///   onTap: () => refresh(),
+/// )
+/// ```
+///
+/// See also:
+/// - [TImage] for image display
 class TIcon extends StatelessWidget {
+  /// The icon to display.
   final IconData icon;
+
+  /// The size of the icon.
   final double size;
+
+  /// Padding around the icon.
   final EdgeInsets padding;
+
+  /// Alternative icon to show when active.
   final IconData? activeIcon;
+
+  /// Callback fired when the icon is tapped.
   final VoidCallback? onTap;
+
+  /// The default color of the icon.
   final Color? color;
+
+  /// The color when active.
   final Color? activeColor;
+
+  /// The color on hover.
   final Color? hoverColor;
+
+  /// Rotation turns (initial, active) for animation.
   final (double initial, double active)? turns;
+
+  /// Whether the icon is in active state.
   final bool active;
+
+  /// Duration of rotation animation in milliseconds.
   final int animationMilliseconds;
 
+  /// Creates an icon.
   const TIcon({
     super.key,
     required this.icon,
@@ -29,6 +95,7 @@ class TIcon extends StatelessWidget {
     this.hoverColor,
   });
 
+  /// Creates a close icon with default styling.
   factory TIcon.close(
     ColorScheme colors, {
     VoidCallback? onTap,

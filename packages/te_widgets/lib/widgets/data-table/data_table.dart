@@ -1,32 +1,129 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A data table component with pagination, sorting, and expandable rows.
+///
+/// `TDataTable` provides a full-featured table widget with:
+/// - Column headers with sorting
+/// - Pagination with page size selection
+/// - Server-side data loading
+/// - Expandable rows for detailed views
+/// - Responsive layout (mobile/desktop)
+/// - Infinite scroll on mobile
+/// - Sticky headers and footers
+///
+/// ## Basic Usage
+///
+/// ```dart
+/// TDataTable<User, int>(
+///   headers: [
+///     TTableHeader(
+///       text: 'Name',
+///       value: (user) => user.name,
+///       sortable: true,
+///     ),
+///     TTableHeader(
+///       text: 'Email',
+///       value: (user) => user.email,
+///     ),
+///     TTableHeader(
+///       text: 'Status',
+///       value: (user) => user.status,
+///     ),
+///   ],
+///   items: users,
+///   itemsPerPage: 10,
+/// )
+/// ```
+///
+/// ## With Server-Side Loading
+///
+/// ```dart
+/// TDataTable<Product, int>(
+///   headers: productHeaders,
+///   itemsPerPage: 25,
+///   onLoad: (page, search) async {
+///     final response = await api.getProducts(page, search);
+///     return (response.items, response.hasMore);
+///   },
+/// )
+/// ```
+///
+/// ## With Expandable Rows
+///
+/// ```dart
+/// TDataTable<Order, int>(
+///   headers: orderHeaders,
+///   items: orders,
+///   expandedBuilder: (context, item, index) {
+///     return OrderDetailsWidget(order: item.data);
+///   },
+/// )
+/// ```
+///
+/// Type parameters:
+/// - [T]: The type of items in the table
+/// - [K]: The type of the item key
+///
+/// See also:
+/// - [TTableHeader] for column configuration
+/// - [TListController] for programmatic control
+/// - [TList] for list-based data display
 class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
+  /// The column headers for the table.
   final List<TTableHeader<T, K>> headers;
+
+  /// Custom theme for the table.
   final TTableTheme? theme;
 
   //List
+  
+  /// The list of items to display.
   @override
   final List<T>? items;
+
+  /// Number of items to display per page.
   @override
   final int? itemsPerPage;
+
+  /// Initial search query.
   @override
   final String? search;
+
+  /// Debounce delay for search in milliseconds.
   @override
   final int? searchDelay;
+
+  /// Callback for loading items from a server.
   @override
   final TLoadListener<T>? onLoad;
+
+  /// Function to extract a unique key from an item.
   @override
   final ItemKeyAccessor<T, K>? itemKey;
+
+  /// Controller for managing table state.
   @override
   final TListController<T, K>? controller;
 
   // Expandable configuration
+
+  /// Builder for expanded row content.
+  ///
+  /// When provided, rows can be expanded to show additional details.
   final Widget Function(BuildContext ctx, TListItem<T, K> item, int index)? expandedBuilder;
 
+  /// Number of pagination buttons to show.
+  ///
+  /// Defaults to 7.
   final int paginationTotalVisible;
+
+  /// Available options for items per page selection.
+  ///
+  /// Defaults to [5, 10, 15, 25, 50].
   final List<int> itemsPerPageOptions;
 
+  /// Creates a data table component.
   const TDataTable({
     super.key,
     required this.headers,

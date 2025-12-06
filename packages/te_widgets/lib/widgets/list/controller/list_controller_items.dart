@@ -1,15 +1,38 @@
 part of 'list_controller.dart';
 
+/// Extension providing item management for [TListController].
+///
+/// Handles CRUD operations for list items:
+/// - Add, update, remove items
+/// - Clear all items
+/// - Manage local pagination state updates
 extension TListControllerItems<T, K> on TListController<T, K> {
+  /// Map of all items by key.
   Map<K, T> get itemsMap => _itemsMap;
-  List<T> get flatItems => _itemsMap.values.toList();
-  List<T> get localItems => !isHierarchical ? flatItems : _localPaginationItems;
-  List<TListItem<T, K>> get listItems => value.displayItems;
-  List<K> get listItemKeys => listItems.map((x) => x.key).toList();
-  bool get isEmpty => listItems.isEmpty;
-  bool get isNotEmpty => listItems.isNotEmpty;
-  bool get _useLocalPaginationItems => !isServerSide && isHierarchical;
 
+  /// List of all items (flattened).
+  List<T> get flatItems => _itemsMap.values.toList();
+
+  /// List of currently displayed items (paginated/filtered).
+  List<TListItem<T, K>> get listItems => value.displayItems;
+
+  /// Keys of currently displayed items.
+  List<K> get listItemKeys => listItems.map((x) => x.key).toList();
+
+  /// Whether the display list is empty.
+  bool get isEmpty => listItems.isEmpty;
+
+  /// Whether the display list is not empty.
+  bool get isNotEmpty => listItems.isNotEmpty;
+
+  bool get _useLocalPaginationItems => !isServerSide;
+
+  /// The items available for local pagination.
+  List<T> get localItems => _useLocalPaginationItems ? _localPaginationItems : flatItems;
+
+  /// Updates the entire list of items.
+  ///
+  /// Preserves selection and expansion state where possible.
   void updateItems(List<T> items) {
     if (_useLocalPaginationItems) {
       _localPaginationItems.clear();
@@ -51,6 +74,9 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     }
   }
 
+  /// Adds a single item.
+  ///
+  /// Throws if an item with the same key already exists.
   void addItem(T item, [bool prepend = true]) {
     final key = itemKey(item);
     if (_itemsMap.containsKey(key)) {
@@ -74,6 +100,7 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     );
   }
 
+  /// Adds multiple items.
   void addItems(List<T> newItems, {bool prepend = true}) {
     if (newItems.isEmpty) return;
 
@@ -100,6 +127,7 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     );
   }
 
+  /// Updates an item by its key.
   void updateItemByKey(K key, T item) {
     if (!_itemsMap.containsKey(key)) {
       throw ArgumentError.value(key, 'key', 'Item not found');
@@ -124,8 +152,10 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     }
   }
 
+  /// Updates an existing item.
   void updateItem(T oldItem, T item) => updateItemByKey(itemKey(oldItem), item);
 
+  /// Removes an item by key.
   void removeItemByKey(K key) {
     if (!_itemsMap.containsKey(key)) {
       throw ArgumentError.value(key, 'key', 'Item not found');
@@ -150,8 +180,10 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     }
   }
 
+  /// Removes a specific item.
   void removeItem(T item) => removeItemByKey(itemKey(item));
 
+  /// Removes multiple items by keys.
   void removeItemsByKeys(Set<K> keys) {
     final existingKeys = keys.where(_itemsMap.containsKey).toSet();
     if (existingKeys.isEmpty) {
@@ -179,13 +211,16 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     );
   }
 
+  /// Removes multiple items.
   void removeItems(List<T> items) => removeItemsByKeys(items.map((x) => itemKey(x)).toSet());
 
+  /// Removes all currently selected items.
   void removeSelectedItems() {
     if (selectedKeys.isEmpty) return;
     removeItemsByKeys(value.selectedKeys);
   }
 
+  /// Reorders items in the list.
   void reorder(int oldIndex, int newIndex) {
     updateState(
       who: 'reorder',
@@ -194,6 +229,7 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     onReorder?.call(oldIndex, newIndex);
   }
 
+  /// Clears all items and resets state.
   void clear() {
     _itemsMap.clear();
     if (_useLocalPaginationItems) {
@@ -210,6 +246,7 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     );
   }
 
+  /// Retrieves a list of items corresponding to the provided keys.
   List<T> getItemsFromKeys(Iterable<K> keys) {
     if (keys.isEmpty) return [];
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Alignment options for the popup relative to its target.
 enum TPopupAlignment {
   bottomLeft,
   bottomRight,
@@ -12,14 +13,27 @@ enum TPopupAlignment {
   rightBottom,
 }
 
+/// Mixin for widgets that display a popup or dropdown.
 mixin TPopupMixin {
+  /// Whether the popup is disabled.
   bool get disabled;
+
+  /// Preferred alignment of the popup.
   TPopupAlignment get alignment => TPopupAlignment.bottomLeft;
+
+  /// Offset from the target widget.
   double get offset => 8;
+
+  /// Callback when popup shows.
   VoidCallback? get onShow;
+
+  /// Callback when popup hides.
   VoidCallback? get onHide;
 }
 
+/// State mixin for managing popup overlay logic.
+///
+/// Handles overlay creation, positioning, and dismissal.
 mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   late final TPopupMixin _widget = widget as TPopupMixin;
 
@@ -29,10 +43,16 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   OverlayEntry? _overlayEntry;
   bool _isOverlayVisible = false;
 
+  /// Whether the popup persists when tapping outside (defaults to false).
   bool get persistent => false;
+
+  /// Whether the popup is currently visible.
   bool get isPopupShowing => _overlayEntry != null && _isOverlayVisible;
+
+  /// Whether to use centered overlay mode (e.g. for mobile).
   bool get shouldCenteredOverlay => MediaQuery.of(context).isMobile;
 
+  /// Returns the decoration for the dropdown container.
   BoxDecoration getDropdownDecoration(ColorScheme colors) {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(8),
@@ -52,9 +72,13 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     return renderBox?.size.height ?? 200;
   }
 
+  /// Maximum width of the popup content.
   double get contentMaxWidth => _targetWidth;
+
+  /// Maximum height of the popup content.
   double get contentMaxHeight => MediaQuery.of(context).size.height;
 
+  /// Computes constraints and alignment for the popup content.
   ({double maxWidth, double maxHeight, FractionalOffset alignment}) get contentConstraints {
     final mediaQuery = MediaQuery.of(context);
     final screenSize = mediaQuery.size;
@@ -72,28 +96,34 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
+  /// Returns the content widget to display in the popup.
   Widget getContentWidget(BuildContext context);
 
+  /// Shows the popup.
   void showPopup(BuildContext context) {
     if (_widget.disabled || isPopupShowing) return;
     _showOverlay(context);
   }
 
+  /// Hides the popup.
   void hidePopup() {
     if (isPopupShowing) {
       _hideOverlay();
     }
   }
 
+  /// Toggles popup visibility.
   void togglePopup(BuildContext context) {
     isPopupShowing ? hidePopup() : showPopup(context);
   }
 
+  /// Forces a rebuild of the popup if it is open.
   void rebuildPopup() {
     if (!mounted || !isPopupShowing) return;
     _overlayEntry?.markNeedsBuild();
   }
 
+  /// Wraps the child widget with a compositor target for the popup to anchor to.
   Widget buildWithDropdownTarget({required Widget child}) {
     return CompositedTransformTarget(
       link: _layerLink,

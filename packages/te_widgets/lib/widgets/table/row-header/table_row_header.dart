@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// The header row of a [TTable].
+///
+/// `TTableRowHeader` renders the column titles and optional "Select All" checkbox.
+/// It automatically adjusts to match column widths of [TTableRowCard].
 class TTableRowHeader<T, K> extends StatelessWidget {
+  /// Theme text and decoration.
   final TTableRowHeaderTheme theme;
+
+  /// Column definitions.
   final List<TTableHeader<T, K>> headers;
+
+  /// The list controller (for select all state).
   final TListController<T, K> controller;
+
+  /// Width configuration for columns.
   final Map<int, TableColumnWidth>? columnWidths;
 
+  /// Creates a table header row.
   const TTableRowHeader({
     super.key,
     required this.controller,
@@ -44,6 +56,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
     );
   }
 
+  /// Builds a single header cell.
   Widget buildHeaderCell(ColorScheme colors, TTableHeader<T, K> header) {
     return Container(
       constraints: BoxConstraints(minWidth: header.minWidth ?? 50, maxWidth: header.maxWidth ?? double.infinity),

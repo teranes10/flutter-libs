@@ -1,5 +1,6 @@
 part of 'button.dart';
 
+/// Defines the visual variant of a button.
 enum TButtonType {
   solid,
   tonal,
@@ -11,6 +12,7 @@ enum TButtonType {
   filledText,
   icon;
 
+  /// Maps the button type to a [TVariant] color scheme.
   TVariant get colorType {
     return switch (this) {
       TButtonType.solid => TVariant.solid,
@@ -25,6 +27,7 @@ enum TButtonType {
   }
 }
 
+/// Defines the shape of a button.
 class TButtonShape {
   final OutlinedBorder border;
 
@@ -32,13 +35,21 @@ class TButtonShape {
     required this.border,
   });
 
+  /// Standard rounded rectangle (radius 6.0).
   static const TButtonShape normal = TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(6.0))));
+
+  /// Pill shape (stadium border).
   static const TButtonShape pill = TButtonShape(border: StadiumBorder());
+
+  /// Circular shape.
   static const TButtonShape circle = TButtonShape(border: CircleBorder());
+
+  /// Custom rounded rectangle with defined radius.
   static TButtonShape custom(double radius) =>
       TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(radius))));
 }
 
+/// Defines the size metrics of a button.
 @immutable
 class TButtonSize {
   final double minW, minH, hPad, vPad, font, icon, spacing;
@@ -87,16 +98,18 @@ class TButtonSize {
   static const TButtonSize lg = TButtonSize._(minW: 45, minH: 45, hPad: 16, vPad: 8, font: 16, icon: 22, spacing: 8);
   static const TButtonSize block = TButtonSize._(minW: double.infinity, minH: 38, hPad: 12, vPad: 6, font: 13, icon: 18, spacing: 6);
 
+  /// Creates a button size from an input size.
   TButtonSize.fromInputSize(TInputSize size)
       : minW = size.height,
-        minH = size.height,
-        hPad = size.padding.vertical,
-        vPad = size.padding.vertical,
-        font = size.fontSize,
-        icon = size.fontSize + 6,
-        spacing = size.padding.right;
+      minH = size.height,
+      hPad = size.padding.vertical,
+      vPad = size.padding.vertical,
+      font = size.fontSize,
+      icon = size.fontSize + 6,
+      spacing = size.padding.right;
 }
 
+/// Theme configuration for [TButton].
 @immutable
 class TButtonTheme {
   final TWidgetTheme baseTheme;
