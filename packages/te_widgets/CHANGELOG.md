@@ -1,4 +1,8 @@
-# 2.0.5
+# 2.0.6
+
+    - Screenshots Added
+
+## 2.0.5
 
     - Documentation Added
 

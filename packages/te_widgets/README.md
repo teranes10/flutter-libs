@@ -4,9 +4,10 @@ A comprehensive, opinionated collection of high-quality Flutter widgets designed
 
 `te_widgets` provides a robust set of UI components, form builders, and layout utilities that adhere to a unified design system. From powerful data tables and dynamic forms to responsive sidebars and polished input fields, this package aims to reduce boilerplate and ensure visual consistency across your app.
 
-![Screenshot 1](screenshot-1.png)
-![Screenshot 2](screenshot-2.png)
-![Screenshot 3](screenshot-3.png)
+![Screenshot 1](https://raw.githubusercontent.com/teranes10/flutter-libs/master/packages/te_widgets/screenshot-1.png)
+![Screenshot 2](https://raw.githubusercontent.com/teranes10/flutter-libs/master/packages/te_widgets/screenshot-2.png)
+![Screenshot 3](https://raw.githubusercontent.com/teranes10/flutter-libs/master/packages/te_widgets/screenshot-3.png)
+
 
 ## ✨ Key Features
 
