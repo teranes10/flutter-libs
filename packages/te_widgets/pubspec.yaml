@@ -1,6 +1,6 @@
 name: te_widgets
 description: "Te Flutter Widgets"
-version: 2.0.6
+version: 2.0.7
 
 homepage: https://teranes10.github.io/flutter-libs/myapp
 repository: https://github.com/teranes10/flutter-libs/tree/master/packages/te_widgets
@@ -13,24 +13,25 @@ dependencies:
   flutter:
     sdk: flutter
 
-  go_router: ^15.1.2
+  go_router: ^17.0.1
   intl: ^0.20.2
   responsive_builder: ^0.7.1
   toastification: ^3.0.3
   pdf: ^3.11.3
   file_saver: ^0.3.1
-  file_picker: ^10.3.2
+  file_picker: ^10.3.8
   flutter_riverpod: ^3.0.3
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.4
   calendar_date_picker2: ^2.0.1
   photo_view: ^0.15.0
   flutter_staggered_grid_view: ^0.7.0
+  cached_network_image: ^3.4.1
   
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

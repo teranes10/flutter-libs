@@ -83,6 +83,10 @@ class TNumberField<T extends num> extends StatefulWidget
   @override
   final bool readOnly;
 
+  /// Whether to show a clear button when the field has a value.
+  @override
+  final bool clearable;
+
   /// Custom theme for this number field.
   @override
   final TNumberFieldTheme? theme;
@@ -130,6 +134,7 @@ class TNumberField<T extends num> extends StatefulWidget
     this.disabled = false,
     this.autoFocus = false,
     this.readOnly = false,
+    this.clearable = false,
     this.theme,
     this.onTap,
     this.focusNode,
@@ -154,6 +159,18 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
         TInputValidationStateMixin<T, TNumberField<T>> {
   @override
   TNumberFieldTheme get wTheme => widget.theme ?? context.theme.numberFieldTheme;
+  @override
+  void onValueChanged(T? value, {bool initial = false, T? oldValue}) {
+    super.onValueChanged(value, initial: initial, oldValue: oldValue);
+
+    final wasEmpty = oldValue == null;
+    final isEmpty = value != null;
+    print('vv: $value, $oldValue : $currentValue');
+    if (wasEmpty != isEmpty) {
+      setState(() {});
+    }
+  }
+
   @override
   void onExternalValueChanged(T? value) {
     super.onExternalValueChanged(value);
@@ -192,6 +209,11 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
     final disabled = widget.disabled;
 
     return buildContainer(
+      showClearButton: currentValue != null,
+      onClear: () {
+        textController.clear();
+        notifyValueChanged(null);
+      },
       postWidget: wTheme.stepperBuilder?.call(context, _changeValueBy, !disabled, !disabled),
       child: buildTextField(
         keyboardType: type.keyboardType,

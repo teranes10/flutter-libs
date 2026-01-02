@@ -39,6 +39,8 @@ class TTimePicker extends StatefulWidget
   @override
   final bool isRequired, disabled, autoFocus, readOnly;
   @override
+  final bool clearable;
+  @override
   final TTextFieldTheme? theme;
   @override
   final VoidCallback? onTap;
@@ -75,6 +77,7 @@ class TTimePicker extends StatefulWidget
     this.disabled = false,
     this.autoFocus = false,
     this.readOnly = true,
+    this.clearable = false,
     this.theme,
     this.onTap,
     this.focusNode,
@@ -115,10 +118,10 @@ class _TTimePickerState extends State<TTimePicker>
     textController.text = currentValue != null ? dateFormat.formatTimeOfDay(currentValue!) : '';
   }
 
-  void _onTimeSelected(TimeOfDay time) {
+  void _onTimeSelected(TimeOfDay? time) {
     notifyValueChanged(time);
     setState(() {
-      textController.text = dateFormat.formatTimeOfDay(time);
+      textController.text = time != null ? dateFormat.formatTimeOfDay(time) : '';
     });
   }
 
@@ -142,6 +145,10 @@ class _TTimePickerState extends State<TTimePicker>
   Widget build(BuildContext context) {
     return buildWithDropdownTarget(
       child: buildContainer(
+        showClearButton: currentValue != null,
+        onClear: () {
+          _onTimeSelected(null);
+        },
         preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: colors.onSurfaceVariant),
         child: IgnorePointer(child: buildTextField()),
         onTap: () {

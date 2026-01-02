@@ -1,4 +1,9 @@
-# 2.0.6
+# 2.0.7
+
+    - Tabs improved with scrollable + wraps + navigation buttons
+    - inputs clearable option
+
+## 2.0.6
 
     - Screenshots Added
 

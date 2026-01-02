@@ -88,6 +88,7 @@ class WidgetDocCard extends StatefulWidget {
   /// Whether to start with the code tab expanded.
   final bool defaultShowCode;
 
+  // Removed const to allow dynamic preview widgets that depend on parent state
   const WidgetDocCard({
     super.key,
     required this.title,
@@ -150,12 +151,12 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                 ),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                spacing: 5,
-                children: [
-                  // Icon
-                  Row(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isSmallScreen = constraints.maxWidth < 600;
+
+                  final titleSection = Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       if (widget.icon != null)
                         Container(
@@ -170,58 +171,85 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                             size: 24,
                           ),
                         ),
-                      SizedBox(width: 10),
+                      if (widget.icon != null) const SizedBox(width: 10),
                       // Title and Subtitle
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            widget.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          if (widget.description != null) ...[
-                            const SizedBox(height: 2),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Text(
-                              widget.description!,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: colors.onSurface.withAlpha(179),
+                              widget.title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
+                            if (widget.description != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                widget.description!,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: colors.onSurface.withAlpha(179),
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ],
-                  ),
+                  );
 
-                  // Tabs
-                  Container(
-                    width: 125,
+                  final tabsSection = Container(
+                    constraints: BoxConstraints(
+                      minWidth: isSmallScreen ? 100 : 125,
+                      maxWidth: 125,
+                    ),
                     decoration: BoxDecoration(
                       color: colors.surface.withAlpha(128),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: ValueListenableBuilder(
-                        valueListenable: _tabController,
-                        builder: (ctx, value, _) {
-                          return TTabs(
-                            tabPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
-                            selectedValue: value,
-                            inline: true,
-                            tabs: [
-                              TTab(value: 0, icon: Icons.remove_red_eye),
-                              TTab(value: 1, icon: Icons.code),
-                              if (widget.properties.isNotEmpty) TTab(value: 2, icon: Icons.list_alt),
+                      valueListenable: _tabController,
+                      builder: (ctx, value, _) {
+                        return TTabs(
+                          tabPadding: EdgeInsets.symmetric(vertical: 4, horizontal: isSmallScreen ? 6 : 8),
+                          selectedValue: value,
+                          inline: true,
+                          tabs: [
+                            TTab(value: 0, icon: Icons.remove_red_eye),
+                            TTab(value: 1, icon: Icons.code),
+                            if (widget.properties.isNotEmpty) TTab(value: 2, icon: Icons.list_alt),
+                          ],
+                          onTabChanged: (value) => _tabController.value = value,
+                        );
+                      },
+                    ),
+                  );
+
+                  return isSmallScreen
+                      ? SizedBox(
+                          width: double.infinity,
+                          child: Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              titleSection,
+                              tabsSection,
                             ],
-                            onTabChanged: (value) => _tabController.value = value,
-                          );
-                        }),
-                  ),
-                ],
+                          ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(child: titleSection),
+                            tabsSection,
+                          ],
+                        );
+                },
               ),
             ),
 
@@ -317,103 +345,113 @@ class PropertyDocumentation extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Table(
-          border: TableBorder.all(
-            color: colors.outline.withAlpha(51),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          columnWidths: const {
-            0: FlexColumnWidth(2),
-            1: FlexColumnWidth(2),
-            2: FlexColumnWidth(1.5),
-            3: FlexColumnWidth(4),
-          },
-          children: [
-            // Header
-            TableRow(
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest.withAlpha(128),
-              ),
-              children: [
-                _buildHeaderCell('Name'),
-                _buildHeaderCell('Type'),
-                _buildHeaderCell('Default'),
-                _buildHeaderCell('Description'),
-              ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: MediaQuery.of(context).size.width - 64, // Account for padding
             ),
-            // Rows
-            ...properties.map((prop) => TableRow(
+            child: Table(
+              border: TableBorder.all(
+                color: colors.outline.withAlpha(51),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              columnWidths: const {
+                0: IntrinsicColumnWidth(),
+                1: IntrinsicColumnWidth(),
+                2: IntrinsicColumnWidth(),
+                3: FlexColumnWidth(1),
+              },
+              defaultColumnWidth: const IntrinsicColumnWidth(),
+              children: [
+                // Header
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: colors.surfaceContainerHighest.withAlpha(128),
+                  ),
                   children: [
-                    _buildCell(
-                      context,
-                      Row(
-                        children: [
-                          Text(
-                            prop.name,
-                            style: const TextStyle(
-                              fontFamily: 'Courier',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          if (prop.isRequired) ...[
-                            const SizedBox(width: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.danger.withAlpha(26),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                'required',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: AppColors.danger,
-                                  fontWeight: FontWeight.w600,
+                    _buildHeaderCell('Name'),
+                    _buildHeaderCell('Type'),
+                    _buildHeaderCell('Default'),
+                    _buildHeaderCell('Description'),
+                  ],
+                ),
+                // Rows
+                ...properties.map((prop) => TableRow(
+                      children: [
+                        _buildCell(
+                          context,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                prop.name,
+                                style: const TextStyle(
+                                  fontFamily: 'Courier',
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
+                              if (prop.isRequired) ...[
+                                const SizedBox(width: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.danger.withAlpha(26),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'required',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: AppColors.danger,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        _buildCell(
+                          context,
+                          Text(
+                            prop.type,
+                            style: TextStyle(
+                              fontFamily: 'Courier',
+                              fontSize: 12,
+                              color: AppColors.info,
                             ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    _buildCell(
-                      context,
-                      Text(
-                        prop.type,
-                        style: TextStyle(
-                          fontFamily: 'Courier',
-                          fontSize: 12,
-                          color: AppColors.info,
+                          ),
                         ),
-                      ),
-                    ),
-                    _buildCell(
-                      context,
-                      Text(
-                        prop.defaultValue ?? '-',
-                        style: TextStyle(
-                          fontFamily: 'Courier',
-                          fontSize: 12,
-                          color: colors.onSurface.withAlpha(179),
+                        _buildCell(
+                          context,
+                          Text(
+                            prop.defaultValue ?? '-',
+                            style: TextStyle(
+                              fontFamily: 'Courier',
+                              fontSize: 12,
+                              color: colors.onSurface.withAlpha(179),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    _buildCell(
-                      context,
-                      Text(
-                        prop.description,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: colors.onSurface.withAlpha(204),
+                        _buildCell(
+                          context,
+                          Text(
+                            prop.description,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: colors.onSurface.withAlpha(204),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                )),
-          ],
+                      ],
+                    )),
+              ],
+            ),
+          ),
         ),
       ],
     );

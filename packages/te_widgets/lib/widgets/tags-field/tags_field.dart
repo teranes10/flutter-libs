@@ -63,6 +63,8 @@ class TTagsField extends StatefulWidget
   @override
   final bool isRequired, disabled, autoFocus, readOnly;
   @override
+  final bool clearable;
+  @override
   final TTagsFieldTheme? theme;
   @override
   final VoidCallback? onTap;
@@ -100,6 +102,7 @@ class TTagsField extends StatefulWidget
     this.disabled = false,
     this.autoFocus = false,
     this.readOnly = false,
+    this.clearable = false,
     this.theme,
     this.onTap,
     this.focusNode,
@@ -160,6 +163,13 @@ class _TTagsFieldState extends State<TTagsField>
   Widget build(BuildContext context) {
     return buildContainer(
       isMultiline: true,
+      showClearButton: tagsController.tags.isNotEmpty,
+      onClear: () {
+        setState(() {
+          tagsController.updateState(tags: []);
+          notifyValueChanged([]);
+        });
+      },
       child: buildTagsField(onKeyEvent: _onKeyEvent),
     );
   }

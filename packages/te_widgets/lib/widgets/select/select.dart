@@ -74,7 +74,7 @@ typedef ItemValueAccessor<T, V> = V Function(T item);
 class TSelect<T, V, K> extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<V>, TInputValidationMixin<V>, TPopupMixin, TListMixin<T, K> {
   // Input Field Properties
-  
+
   /// The label text displayed above the field.
   @override
   final String? label;
@@ -108,6 +108,10 @@ class TSelect<T, V, K> extends StatefulWidget
   /// Defaults to the opposite of [filterable].
   @override
   final bool readOnly;
+
+  /// Whether to show a clear button when an item is selected.
+  @override
+  final bool clearable;
 
   /// Custom theme for the text field.
   @override
@@ -234,6 +238,7 @@ class TSelect<T, V, K> extends StatefulWidget
     this.isRequired = false,
     this.disabled = false,
     this.autoFocus = false,
+    this.clearable = false,
     this.theme,
     this.onTap,
     this.focusNode,
@@ -349,6 +354,11 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
 
     return buildWithDropdownTarget(
       child: buildContainer(
+        showClearButton: currentValue != null,
+        onClear: () {
+          listController.updateSelectionState(LinkedHashSet<K>());
+          notifyValueChanged(null);
+        },
         child: IgnorePointer(
           child: buildTextField(onValueChanged: widget.filterable && isPopupShowing ? listController.handleSearchChange : null),
         ),

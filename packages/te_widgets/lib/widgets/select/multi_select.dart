@@ -55,6 +55,8 @@ class TMultiSelect<T, V, K> extends StatefulWidget
   @override
   final bool isRequired, disabled, autoFocus, readOnly;
   @override
+  final bool clearable;
+  @override
   final TTagsFieldTheme? theme;
   @override
   final VoidCallback? onTap;
@@ -125,6 +127,7 @@ class TMultiSelect<T, V, K> extends StatefulWidget
     this.isRequired = false,
     this.disabled = false,
     this.autoFocus = false,
+    this.clearable = false,
     this.theme,
     this.onTap,
     this.focusNode,
@@ -257,6 +260,12 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
     return buildWithDropdownTarget(
       child: buildContainer(
         isMultiline: true,
+        showClearButton: listController.hasSelection,
+        onClear: () {
+          listController.updateSelectionState(LinkedHashSet<K>());
+          tagsController.updateState(tags: []);
+          notifyValueChanged([]);
+        },
         child: buildTagsField(onInputChanged: widget.filterable && isPopupShowing ? listController.handleSearchChange : null),
         postWidget: Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
         onTap: () {

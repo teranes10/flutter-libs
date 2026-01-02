@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:te_widgets/te_widgets.dart';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 /// An image widget with preview, fallback, and optional title/subtitle.
 ///
@@ -109,6 +112,18 @@ class TImage extends StatefulWidget with TPopupMixin {
   @override
   final VoidCallback? onHide;
 
+  /// Custom cache key for the image.
+  ///
+  /// If null, uses the image URL as the cache key.
+  final String? cacheKey;
+
+  /// Custom cache manager for advanced cache control.
+  ///
+  /// If null, uses the default cache manager from CachedNetworkImage.
+  /// Allows you to provide a custom [BaseCacheManager] implementation
+  /// for fine-grained control over caching behavior.
+  final BaseCacheManager? cacheManager;
+
   /// Creates an image widget.
   const TImage({
     super.key,
@@ -128,6 +143,8 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.disabled = false,
     this.onShow,
     this.onHide,
+    this.cacheKey,
+    this.cacheManager,
   });
 
   /// Creates a circular image widget.
@@ -149,6 +166,8 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.disabled = false,
     this.onShow,
     this.onHide,
+    this.cacheKey,
+    this.cacheManager,
   });
 
   /// Creates a profile image with default styling.
@@ -181,9 +200,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   @override
   bool get shouldCenteredOverlay => true;
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
+  Widget get fallbackImage {
     final isPackageAsset = widget.placeholder.startsWith('package:');
 
     String assetPath = widget.placeholder;
@@ -194,22 +211,30 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
       assetPath = parts.sublist(1).join('/');
     }
 
-    final fallbackImage = Image.asset(
+    return Image.asset(
       assetPath,
       package: package,
       width: widget.size - widget.padding,
       height: (widget.size - widget.padding) / widget.aspectRatio,
       fit: widget.fit,
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
 
     final image = widget.url == null || widget.url!.isEmpty
         ? fallbackImage
-        : Image.network(
-            widget.url!,
+        : CachedNetworkImage(
+            imageUrl: widget.url!,
+            cacheKey: widget.cacheKey,
+            cacheManager: widget.cacheManager,
             width: widget.size - widget.padding,
             height: (widget.size - widget.padding) / widget.aspectRatio,
             fit: widget.fit,
-            errorBuilder: (context, error, stackTrace) => fallbackImage,
+            placeholder: (context, url) => fallbackImage,
+            errorWidget: (context, error, stackTrace) => fallbackImage,
           );
 
     final imageFrame = Container(
@@ -264,7 +289,11 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   @override
   Widget getContentWidget(BuildContext context) {
     final content = PhotoView(
-      imageProvider: NetworkImage(widget.url!),
+      imageProvider: CachedNetworkImageProvider(
+        widget.url!,
+        cacheKey: widget.cacheKey,
+        cacheManager: widget.cacheManager,
+      ),
       minScale: PhotoViewComputedScale.contained,
       maxScale: PhotoViewComputedScale.covered * 2,
       backgroundDecoration: const BoxDecoration(color: Colors.transparent),

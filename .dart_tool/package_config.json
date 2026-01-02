@@ -249,8 +249,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.8.1",
-  "flutterRoot": "file:///Volumes/External%20SSD/Development/flutter",
-  "flutterVersion": "3.32.8",
+  "generatorVersion": "3.10.4",
+  "flutterRoot": "file:///Volumes/ExternalSSD/Development/Development/flutter",
+  "flutterVersion": "3.38.5",
   "pubCache": "file:///Users/teranesranjith/.pub-cache"
 }

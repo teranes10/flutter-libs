@@ -97,8 +97,8 @@ mixin TInputValidationStateMixin<T, W extends StatefulWidget> on State<W>, TInpu
   }
 
   @override
-  void onValueChanged(value, {bool initial = false}) {
-    super.onValueChanged(value);
+  void onValueChanged(value, {bool initial = false, oldValue}) {
+    super.onValueChanged(value, initial: initial, oldValue: oldValue);
 
     if (!initial) {
       _triggerValidationWithDebounce(value);

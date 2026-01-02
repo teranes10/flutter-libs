@@ -55,6 +55,8 @@ class TDatePicker extends StatefulWidget
   @override
   final bool isRequired, disabled, autoFocus, readOnly;
   @override
+  final bool clearable;
+  @override
   final TTextFieldTheme? theme;
   @override
   final VoidCallback? onTap;
@@ -99,6 +101,7 @@ class TDatePicker extends StatefulWidget
     this.disabled = false,
     this.autoFocus = false,
     this.readOnly = true,
+    this.clearable = false,
     this.theme,
     this.onTap,
     this.focusNode,
@@ -141,10 +144,10 @@ class _TDatePickerState extends State<TDatePicker>
     textController.text = currentValue != null ? dateFormat.format(currentValue!) : '';
   }
 
-  void _onDateSelected(DateTime date) {
+  void _onDateSelected(DateTime? date) {
     notifyValueChanged(date);
     setState(() {
-      textController.text = dateFormat.format(date);
+      textController.text = date != null ? dateFormat.format(date) : '';
     });
 
     hidePopup();
@@ -174,6 +177,10 @@ class _TDatePickerState extends State<TDatePicker>
   Widget build(BuildContext context) {
     return buildWithDropdownTarget(
       child: buildContainer(
+        showClearButton: currentValue != null,
+        onClear: () {
+          _onDateSelected(null);
+        },
         preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: colors.onSurfaceVariant),
         child: IgnorePointer(child: buildTextField()),
         onTap: () {

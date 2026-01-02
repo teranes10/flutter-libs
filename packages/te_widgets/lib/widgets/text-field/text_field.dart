@@ -96,6 +96,12 @@ class TTextField extends StatefulWidget
   @override
   final bool readOnly;
 
+  /// Whether to show a clear button when the field has a value.
+  ///
+  /// Defaults to false.
+  @override
+  final bool clearable;
+
   /// Custom theme for this text field.
   @override
   final TTextFieldTheme? theme;
@@ -156,6 +162,7 @@ class TTextField extends StatefulWidget
     this.disabled = false,
     this.autoFocus = false,
     this.readOnly = false,
+    this.clearable = false,
     this.theme,
     this.onTap,
     this.focusNode,
@@ -180,6 +187,18 @@ class _TTextFieldState extends State<TTextField>
         TInputValueStateMixin<String, TTextField>,
         TInputValidationStateMixin<String, TTextField> {
   @override
+  void onValueChanged(String? value, {bool initial = false, String? oldValue}) {
+    super.onValueChanged(value, initial: initial, oldValue: oldValue);
+
+    final wasEmpty = (oldValue?.isEmpty ?? true);
+    final isEmpty = (value?.isEmpty ?? true);
+
+    if (wasEmpty != isEmpty) {
+      setState(() {});
+    }
+  }
+
+  @override
   void onExternalValueChanged(String? value) {
     super.onExternalValueChanged(value);
     if (textController.text != value) {
@@ -194,6 +213,11 @@ class _TTextFieldState extends State<TTextField>
   Widget build(BuildContext context) {
     return buildContainer(
       isMultiline: widget.rows > 1,
+      showClearButton: textController.text.isNotEmpty,
+      onClear: () {
+        textController.clear();
+        notifyValueChanged('');
+      },
       child: buildTextField(
         maxLines: widget.rows,
         onValueChanged: notifyValueChanged,

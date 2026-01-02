@@ -52,6 +52,8 @@ class TFilePicker extends StatefulWidget
   @override
   final bool isRequired, disabled;
   @override
+  final bool clearable;
+  @override
   final TFilePickerTheme? theme;
   @override
   final VoidCallback? onTap;
@@ -91,6 +93,7 @@ class TFilePicker extends StatefulWidget
     this.helperText,
     this.isRequired = false,
     this.disabled = false,
+    this.clearable = false,
     this.theme,
     this.onTap,
     this.focusNode,
@@ -171,6 +174,10 @@ class _TFilePickerState extends State<TFilePicker>
     return buildContainer(
       onTap: _pickFiles,
       isMultiline: true,
+      showClearButton: currentValue != null && currentValue!.isNotEmpty,
+      onClear: () {
+        setState(() => notifyValueChanged([]));
+      },
       preWidget: Icon(Icons.attach_file_rounded, size: 16, color: colors.onSurfaceVariant),
       child: Focus(
         focusNode: focusNode,

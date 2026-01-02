@@ -53,6 +53,8 @@ class TCheckboxGroup<T> extends StatefulWidget
   @override
   final bool isRequired, disabled;
   @override
+  final bool clearable;
+  @override
   final TInputFieldTheme? theme;
   @override
   final VoidCallback? onTap;
@@ -92,6 +94,7 @@ class TCheckboxGroup<T> extends StatefulWidget
     this.helperText,
     this.isRequired = false,
     this.disabled = false,
+    this.clearable = false,
     this.theme,
     this.onTap,
     this.focusNode,
@@ -272,6 +275,13 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
       child: buildContainer(
         block: widget.block,
         isMultiline: true,
+        showClearButton: _selectedValues.isNotEmpty,
+        onClear: () {
+          setState(() {
+            _selectedValues.clear();
+          });
+          notifyValueChanged([]);
+        },
         child: Focus(
           focusNode: focusNode,
           autofocus: widget.autoFocus,

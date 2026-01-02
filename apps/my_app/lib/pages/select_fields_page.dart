@@ -257,6 +257,43 @@ TSelect<User, int, int>(
             ],
           ),
 
+          // Clear Button Example
+          WidgetDocCard(
+            title: 'Select with Clear Button',
+            description: 'Enable clear button to quickly deselect items',
+            icon: Icons.clear,
+            preview: TSelect<String, String, String>(
+              label: 'Favorite Color',
+              placeholder: 'Select a color',
+              clearable: true,
+              items: ['Red', 'Blue', 'Green', 'Yellow', 'Purple'],
+              valueNotifier: ValueNotifier<String?>(''),
+            ),
+            code: '''TSelect<String, String, String>(
+  label: 'Favorite Color',
+  placeholder: 'Select a color',
+  clearable: true, // Show clear button when item is selected
+  items: ['Red', 'Blue', 'Green', 'Yellow', 'Purple'],
+  onValueChanged: (value) => print(value),
+)
+
+// Also works with TMultiSelect
+TMultiSelect<String, String, String>(
+  label: 'Tags',
+  clearable: true, // Show clear button when items are selected
+  items: ['Tag1', 'Tag2', 'Tag3'],
+  onValueChanged: (values) => print(values),
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'clearable',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether to show a clear button when field has a value',
+              ),
+            ],
+          ),
+
           const SizedBox(height: 40),
         ],
       ),

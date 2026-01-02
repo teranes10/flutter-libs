@@ -18,6 +18,11 @@ mixin TInputFieldMixin {
   /// Whether the field is disabled.
   bool get disabled;
 
+  /// Whether the field shows a clear button when it has a value.
+  ///
+  /// Defaults to false.
+  bool get clearable;
+
   /// Custom theme.
   TInputFieldTheme? get theme;
 
@@ -30,10 +35,10 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
   TInputFieldMixin get _widget => widget as TInputFieldMixin;
   TFocusStateMixin? get focusMixin => this is TFocusStateMixin ? this as TFocusStateMixin : null;
   TInputValidationStateMixin? get validationMixin => this is TInputValidationStateMixin ? this as TInputValidationStateMixin : null;
-  
+
   /// Access to current color scheme.
   ColorScheme get colors => context.colors;
-  
+
   /// Access to current widget theme.
   TInputFieldTheme get wTheme => _widget.theme ?? context.theme.inputFieldTheme;
 
@@ -52,9 +57,36 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     Widget? postWidget,
     Widget? preWidget,
     VoidCallback? onTap,
+    VoidCallback? onClear,
+    bool showClearButton = false,
     bool block = true,
     bool focusOnTap = true,
   }) {
+    Widget? effectivePostWidget = postWidget;
+
+    // Add clear button if enabled and should be shown
+    if (_widget.clearable && showClearButton && !_widget.disabled && onClear != null) {
+      final clearButton = TIcon.close(
+        colors,
+        onTap: onClear,
+        size: 16,
+      );
+
+      // Combine with existing postWidget if present
+      if (postWidget != null) {
+        effectivePostWidget = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            clearButton,
+            SizedBox(width: 4),
+            postWidget,
+          ],
+        );
+      } else {
+        effectivePostWidget = clearButton;
+      }
+    }
+
     return InkWell(
       onTap: _widget.disabled
           ? null
@@ -69,7 +101,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
       child: wTheme.buildContainer(
         states,
         child: child,
-        additionalPostWidget: postWidget,
+        additionalPostWidget: effectivePostWidget,
         additionalPreWidget: preWidget,
         label: _widget.label,
         tag: _widget.tag,

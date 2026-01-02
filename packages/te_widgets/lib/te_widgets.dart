@@ -154,7 +154,11 @@ export 'widgets/table/table_scope.dart';
 export 'widgets/table/table_theme.dart';
 export 'widgets/table/table.dart';
 
+export 'widgets/tabs/tab.dart';
 export 'widgets/tabs/tabs.dart';
+export 'widgets/tabs/tab_controller.dart';
+export 'widgets/tabs/tab_content.dart';
+export 'widgets/tabs/tab_view.dart';
 
 export 'widgets/tags-field/tags_controller.dart';
 export 'widgets/tags-field/tags_field_theme.dart';

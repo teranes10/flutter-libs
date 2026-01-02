@@ -76,8 +76,9 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
 
   void _updateValue(T? newValue, {bool fromExternal = false, bool initial = false, bool force = false}) {
     if (force || newValue != currentValue) {
+      final oldValue = _currentValue;
       _currentValue = newValue;
-      onValueChanged(newValue, initial: initial);
+      onValueChanged(newValue, initial: initial, oldValue: oldValue);
       if (fromExternal) onExternalValueChanged(newValue);
     }
   }
@@ -85,8 +86,9 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   /// Updates the value and notifies listeners.
   void notifyValueChanged(T? newValue) {
     if (newValue != currentValue) {
+      final oldValue = _currentValue;
       _currentValue = newValue;
-      onValueChanged(newValue);
+      onValueChanged(newValue, oldValue: oldValue);
       _widget.onValueChanged?.call(newValue);
       _widget.valueNotifier?.value = newValue;
     }
@@ -98,7 +100,7 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   }
 
   @protected
-  void onValueChanged(T? value, {bool initial = false}) {}
+  void onValueChanged(T? value, {bool initial = false, T? oldValue}) {}
 
   @protected
   void onExternalValueChanged(T? value) {}

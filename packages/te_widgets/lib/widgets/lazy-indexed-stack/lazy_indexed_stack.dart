@@ -44,11 +44,11 @@ class _TLazyIndexedStackState extends State<TLazyIndexedStack> {
   void initState() {
     super.initState();
     _builtChildren = List<Widget?>.filled(widget.children.length, null);
-    _buildChild(widget.index);
+    // Don't build immediately - defer to build method to avoid context issues
   }
 
   void _buildChild(int index) {
-    if (_builtChildren[index] == null) {
+    if (index >= 0 && index < _builtChildren.length && _builtChildren[index] == null) {
       _builtChildren[index] = widget.children[index](context);
     }
   }
@@ -61,9 +61,10 @@ class _TLazyIndexedStackState extends State<TLazyIndexedStack> {
 
   @override
   Widget build(BuildContext context) {
+    _buildChild(widget.index);
     return IndexedStack(
       index: widget.index,
-      children: _builtChildren.map((child) => child ?? SizedBox()).toList(),
+      children: _builtChildren.map((child) => child ?? const SizedBox()).toList(),
     );
   }
 }

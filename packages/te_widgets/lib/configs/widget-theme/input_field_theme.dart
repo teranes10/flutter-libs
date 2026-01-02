@@ -224,7 +224,7 @@ class TInputFieldTheme {
       children: [
         labelBuilder.resolve(states)(label, tag, isRequired),
         Container(
-          height: fieldHeight,
+          constraints: BoxConstraints(minHeight: fieldHeight, maxHeight: isMultiline ? double.infinity : fieldHeight),
           decoration: decoration.resolve(states),
           child: Row(
             mainAxisSize: block ? MainAxisSize.max : MainAxisSize.min,
