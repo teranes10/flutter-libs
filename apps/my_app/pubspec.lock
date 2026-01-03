@@ -1059,7 +1059,7 @@ packages:
       path: "../../packages/te_widgets"
       relative: true
     source: path
-    version: "2.0.6"
+    version: "2.0.7"
   term_glyph:
     dependency: transitive
     description:
