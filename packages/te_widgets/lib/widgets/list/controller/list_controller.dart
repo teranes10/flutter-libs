@@ -49,8 +49,8 @@ part 'list_controller_selection.dart';
 ///       search: options.search,
 ///     );
 ///     return TLoadResult(
-///       items: response.users,
-///       totalItems: response.total,
+///        response.users,
+///        response.total,
 ///     );
 ///   },
 /// );
@@ -241,6 +241,10 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     TSelectionMode? selectionMode,
     TExpansionMode? expansionMode,
     TListError? error,
+    String? currentCursor,
+    String? nextCursor,
+    List<String>? cursorHistory,
+    Map<String, dynamic>? advancedSearch,
   }) {
     if (_disposed) {
       debugPrint('Controller already disposed.');
@@ -270,6 +274,10 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       hasMoreItems: hasMoreItems ?? value.hasMoreItems,
       search: search ?? value.search,
       error: error ?? value.error,
+      currentCursor: currentCursor ?? value.currentCursor,
+      nextCursor: nextCursor ?? value.nextCursor,
+      cursorHistory: cursorHistory ?? value.cursorHistory,
+      advancedSearch: advancedSearch ?? value.advancedSearch,
     );
 
     //debugPrint("$who: $value");

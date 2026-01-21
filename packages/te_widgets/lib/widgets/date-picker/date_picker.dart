@@ -161,15 +161,18 @@ class _TDatePickerState extends State<TDatePicker>
 
   @override
   Widget getContentWidget(BuildContext context) {
-    return CalendarDatePicker2(
-      config: CalendarDatePicker2Config(
-        firstDate: widget.firstDate,
-        lastDate: widget.lastDate,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(6, 16, 6, 0),
+      child: CalendarDatePicker2(
+        config: CalendarDatePicker2Config(
+          firstDate: widget.firstDate,
+          lastDate: widget.lastDate,
+        ),
+        value: [currentValue],
+        onValueChanged: (v) {
+          _onDateSelected(v.first);
+        },
       ),
-      value: [currentValue],
-      onValueChanged: (v) {
-        _onDateSelected(v.first);
-      },
     );
   }
 

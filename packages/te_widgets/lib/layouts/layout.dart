@@ -221,7 +221,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
             SizedBox(height: isMobile ? 4 : 8),
             Expanded(
                 child: Padding(
-              padding: EdgeInsets.all(isMobile ? 16 : 32),
+              padding: isMobile ? const EdgeInsets.all(16) : EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 16),
               child: child,
             )),
           ],

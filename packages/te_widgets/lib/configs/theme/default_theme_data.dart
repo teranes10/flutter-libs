@@ -61,7 +61,7 @@ class TAppTheme {
         errorContainer: danger.shade700,
         onErrorContainer: danger.shade200,
         surface: grey[950]!,
-        surfaceDim: grey.shade900,
+        surfaceDim: grey[975]!,
         surfaceContainerLowest: grey.shade900,
         surfaceContainerLow: grey.shade900.withAlpha(200),
         surfaceContainer: grey.shade900.withAlpha(150),

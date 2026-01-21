@@ -42,7 +42,6 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
     if (parent.canCreate) {
       final btn = TButton(
         type: TButtonType.softOutline,
-        size: TButtonSize.lg,
         icon: Icons.add,
         text: parent.widget.config.addButtonText,
         onPressed: (_) => parent.handleCreate(),
@@ -145,7 +144,6 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
       placeholder: parent.widget.config.searchPlaceholder,
       theme: ctx.theme.textFieldTheme.copyWith(
         postWidget: Icon(Icons.search_rounded, size: 18, color: ctx.colors.onSurface),
-        size: TInputSize.sm,
       ),
       onValueChanged: (String? input) {
         if (parent.currentTab == 0) {

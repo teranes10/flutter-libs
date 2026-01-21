@@ -15,9 +15,7 @@ class CrudPage extends StatelessWidget {
       onLoad: ProductsClient().loadMore,
     );
 
-    final archiveController = TListController<ProductDto, int>(
-      onLoad: ProductsClient().loadMore,
-    );
+    final archiveController = TListController<ProductDto, int>(onLoad: ProductsClient().loadMore);
 
     final otherController = TListController<ProductDto, int>(
       selectionMode: TSelectionMode.multiple,
@@ -33,7 +31,7 @@ class CrudPage extends StatelessWidget {
           stock: 100,
           category: 'category',
           sku: 'sku',
-        )
+        ),
       ],
     );
 
@@ -45,7 +43,7 @@ class CrudPage extends StatelessWidget {
       TTableHeader.map('Price', (x) => x.price),
       TTableHeader.map('Discount', (x) => x.discountPercentage),
       TTableHeader.map('Rating', (x) => x.rating),
-      TTableHeader.chip('Stock', (x) => x.stock, color: AppColors.info)
+      TTableHeader.chip('Stock', (x) => x.stock, color: (_) => AppColors.info),
     ];
 
     return TCrudTable<ProductDto, int, ProductForm>(
@@ -78,23 +76,16 @@ class CrudPage extends StatelessWidget {
         return true;
       },
       config: TCrudConfig(
-        tabs: [TTab(text: "Active", value: 0), TTab(text: "Others", value: 2), TTab(text: "Archive", value: 1)],
+        tabs: [
+          TTab(text: "Active", value: 0),
+          TTab(text: "Others", value: 2),
+          TTab(text: "Archive", value: 1),
+        ],
         // Tab values: Active = 0, Archive = 1, Others = 2
         // Note: The order of [tabContents] follows the order of this list,
-        tabContents: [
-          TCrudTableContent(
-            headers: headers,
-            controller: otherController,
-          )
-        ],
+        tabContents: [TCrudTableContent(headers: headers, controller: otherController)],
         topBarActions: [
-          TButton(
-            type: TButtonType.outline,
-            size: TButtonSize.lg,
-            icon: Icons.upload_file,
-            text: 'Upload File',
-            onPressed: (_) => {},
-          ),
+          TButton(type: TButtonType.outline, size: TButtonSize.lg, icon: Icons.upload_file, text: 'Upload File', onPressed: (_) => {}),
           TButton(
             type: TButtonType.outline,
             size: TButtonSize.lg,
@@ -110,13 +101,15 @@ class CrudPage extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(8)),
-          child: TKeyValueSection(values: [
-            TKeyValue('QR Code', widget: data.meta?.qrCode != null ? Image.network(data.meta!.qrCode, width: 80) : SizedBox.shrink()),
-            TKeyValue.text('Description', data.description),
-            TKeyValue.text('Barcode', data.meta?.barcode),
-            TKeyValue.text('Created At', data.meta?.createdAt),
-            TKeyValue.text('Updated At', data.meta?.updatedAt),
-          ]),
+          child: TKeyValueSection(
+            values: [
+              TKeyValue('QR Code', widget: data.meta?.qrCode != null ? Image.network(data.meta!.qrCode, width: 80) : SizedBox.shrink()),
+              TKeyValue.text('Description', data.description),
+              TKeyValue.text('Barcode', data.meta?.barcode),
+              TKeyValue.text('Created At', data.meta?.createdAt),
+              TKeyValue.text('Updated At', data.meta?.updatedAt),
+            ],
+          ),
         );
       },
       controller: controller,

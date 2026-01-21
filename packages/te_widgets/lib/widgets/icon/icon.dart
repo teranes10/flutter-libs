@@ -100,6 +100,7 @@ class TIcon extends StatelessWidget {
     ColorScheme colors, {
     VoidCallback? onTap,
     double size = 20,
+    EdgeInsets padding = const EdgeInsets.all(8),
   }) {
     return TIcon(
       icon: Icons.cancel_outlined,
@@ -107,6 +108,7 @@ class TIcon extends StatelessWidget {
       size: size,
       color: colors.surfaceContainerHighest,
       hoverColor: colors.error,
+      padding: padding,
     );
   }
 

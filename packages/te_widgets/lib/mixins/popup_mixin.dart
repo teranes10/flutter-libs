@@ -62,15 +62,23 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
+  static const _defaultSize = 100.0;
+
   double get _targetWidth {
     final renderBox = _dropdownTargetKey.currentContext?.findRenderObject() as RenderBox?;
-    return renderBox?.size.width ?? 200;
+    return renderBox?.size.width ?? _defaultSize;
   }
 
   double get _targetHeight {
     final renderBox = _dropdownTargetKey.currentContext?.findRenderObject() as RenderBox?;
-    return renderBox?.size.height ?? 200;
+    return renderBox?.size.height ?? _defaultSize;
   }
+
+  /// Minimum width of the popup content.
+  double get contentMinWidth => _defaultSize;
+
+  /// Minimum height of the popup content.
+  double get contentMinHeight => _defaultSize;
 
   /// Maximum width of the popup content.
   double get contentMaxWidth => _targetWidth;
@@ -79,7 +87,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   double get contentMaxHeight => MediaQuery.of(context).size.height;
 
   /// Computes constraints and alignment for the popup content.
-  ({double maxWidth, double maxHeight, FractionalOffset alignment}) get contentConstraints {
+  ({double minWidth, double minHeight, double maxWidth, double maxHeight, FractionalOffset alignment}) get contentConstraints {
     final mediaQuery = MediaQuery.of(context);
     final screenSize = mediaQuery.size;
     final viewInsets = mediaQuery.viewInsets;
@@ -89,9 +97,18 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     final availableHeight = mediaQuery.isMobile ? screenSize.height - keyboardHeight - 25 : screenSize.height * 0.85;
     final alignment = mediaQuery.isMobile ? const FractionalOffset(0.5, 0.05) : const FractionalOffset(0.5, 0.1);
 
+    final safeAvailableWidth = availableWidth < _defaultSize ? _defaultSize : availableWidth;
+    final safeAvailableHeight = availableHeight < _defaultSize ? _defaultSize : availableHeight;
+    final minWidth = contentMinWidth.clamp(_defaultSize, safeAvailableWidth);
+    final minHeight = contentMinHeight.clamp(_defaultSize, safeAvailableHeight);
+    final maxWidth = contentMaxWidth.clamp(minWidth, safeAvailableWidth);
+    final maxHeight = contentMaxHeight.clamp(minHeight, safeAvailableHeight);
+
     return (
-      maxWidth: contentMaxWidth.clamp(100.0, availableWidth),
-      maxHeight: contentMaxHeight.clamp(100.0, availableHeight),
+      minWidth: minWidth,
+      minHeight: minHeight,
+      maxWidth: maxWidth,
+      maxHeight: maxHeight,
       alignment: alignment,
     );
   }
@@ -143,8 +160,8 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         decoration: dropdownDecoration,
         child: Stack(
           children: [
-            Padding(padding: EdgeInsets.fromLTRB(3, 9, 3, 0), child: getContentWidget(context)),
-            Positioned(top: 2, right: 2, child: TIcon.close(colors, size: 20, onTap: hidePopup)),
+            getContentWidget(context),
+            Positioned(top: 0, right: 0, child: TIcon.close(colors, size: 20, padding: EdgeInsets.all(5), onTap: hidePopup)),
           ],
         ),
       ),
@@ -170,7 +187,12 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
           Align(
             alignment: constraints.alignment,
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: constraints.maxWidth, maxHeight: constraints.maxHeight),
+              constraints: BoxConstraints(
+                minWidth: constraints.minWidth,
+                minHeight: constraints.minHeight,
+                maxWidth: constraints.maxWidth,
+                maxHeight: constraints.maxHeight,
+              ),
               child: _buildContentWidget(context),
             ),
           ),
@@ -196,10 +218,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         children: [
           if (!persistent)
             Positioned.fill(
-              child: GestureDetector(
-                onTap: hidePopup,
-                child: Container(color: Colors.transparent),
-              ),
+              child: GestureDetector(onTap: hidePopup, child: Container(color: Colors.transparent)),
             ),
           CompositedTransformFollower(
             link: _layerLink,
@@ -209,6 +228,8 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
             offset: position.offset,
             child: ConstrainedBox(
               constraints: BoxConstraints(
+                minWidth: constraints.minWidth,
+                minHeight: constraints.minHeight,
                 maxWidth: constraints.maxWidth,
                 maxHeight: constraints.maxHeight,
               ),

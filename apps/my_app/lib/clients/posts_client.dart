@@ -8,14 +8,8 @@ class PostsClient {
   Future<(List<PostDto>, int)> fetchPosts({int start = 0, int limit = 10, String? query}) async {
     final response = await _dio.get(
       '/posts',
-      queryParameters: {
-        '_start': start,
-        '_limit': limit,
-        'title_like': query,
-      },
-      options: Options(headers: {
-        'Accept': 'application/json',
-      }),
+      queryParameters: {'_start': start, '_limit': limit, 'title_like': query},
+      options: Options(headers: {'Accept': 'application/json'}),
     );
 
     final total = int.tryParse(response.headers['x-total-count']?.first ?? '0') ?? 0;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-
 /// A powerful list component with pagination, search, and infinite scroll.
 ///
 /// `TList` provides a feature-rich list widget with:
@@ -70,7 +69,7 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   final TListTheme? theme;
 
   // List configuration
-  
+
   /// The list of items to display.
   ///
   /// If null, items must be loaded via [onLoad].
@@ -401,12 +400,14 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
   }
 
   void _updateItemsPerPage(int value) {
-    if (listController.isEmpty && !listController.isLoading) {
-      if (listController.itemsPerPage != value) {
-        listController.handleItemsPerPageChange(value);
-      } else {
-        listController.handleRefresh();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (listController.isEmpty && !listController.isLoading) {
+        if (listController.itemsPerPage != value) {
+          listController.handleItemsPerPageChange(value);
+        } else {
+          listController.handleRefresh();
+        }
       }
-    }
+    });
   }
 }

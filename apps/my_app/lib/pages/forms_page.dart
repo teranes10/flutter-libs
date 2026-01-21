@@ -8,24 +8,30 @@ class FormsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      TButton(
+    return Column(
+      children: [
+        TButton(
           text: 'Show User Form Modal',
           onPressed: (_) async {
             final value = await TFormService.show(context, UserForm());
             if (value != null) {
               debugPrint('__save $value');
             }
-          }),
-    ]);
+          },
+        ),
+      ],
+    );
   }
 }
 
 class UserForm extends TFormBase {
   final select = TFieldProp<PostDto?>(null, useNotifier: true);
-  final firstName = TFieldProp('', onValueChanged: (v) {
-    debugPrint(v);
-  });
+  final firstName = TFieldProp(
+    '',
+    onValueChanged: (v) {
+      debugPrint(v);
+    },
+  );
   final lastName = TFieldProp('');
   final username = TFieldProp('', useNotifier: true);
   final email = TFieldProp('');
@@ -73,7 +79,7 @@ class UserForm extends TFormBase {
       TFormField.toggle(toggle, "Toggle").size(3),
       TFormField.filePicker(files, "File Picker"),
       TFormField.group(subForm, label: 'Sub Form'),
-      TFormField.items(subForms, () => SubForm(), label: 'Sub Forms', buttonLabel: 'Add New')
+      TFormField.items(subForms, () => SubForm(), label: 'Sub Forms', buttonLabel: 'Add New'),
     ];
   }
 

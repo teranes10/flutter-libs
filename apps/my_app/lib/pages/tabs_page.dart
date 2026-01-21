@@ -37,10 +37,15 @@ class _TabsPageState extends State<TabsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Page Header
-          Text('Tabs', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.colors.onSurface)),
+          Text(
+            'Tabs',
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.colors.onSurface),
+          ),
           const SizedBox(height: 8),
-          Text('Tab navigation components with multiple layout modes and customization options.',
-              style: TextStyle(fontSize: 16, color: context.colors.onSurface.withAlpha(179))),
+          Text(
+            'Tab navigation components with multiple layout modes and customization options.',
+            style: TextStyle(fontSize: 16, color: context.colors.onSurface.withAlpha(179)),
+          ),
           const SizedBox(height: 32),
 
           // Basic Tabs
@@ -88,21 +93,9 @@ TTabs<int>(
   onTabChanged: (value) => setState(() => _selectedTab = value),
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'tabs',
-                type: 'List<TTab<T>>',
-                description: 'List of tabs to display',
-              ),
-              PropertyDoc(
-                name: 'selectedValue',
-                type: 'T?',
-                description: 'Currently selected tab value',
-              ),
-              PropertyDoc(
-                name: 'onTabChanged',
-                type: 'ValueChanged<T>?',
-                description: 'Callback when tab is selected',
-              ),
+              PropertyDoc(name: 'tabs', type: 'List<TTab<T>>', description: 'List of tabs to display'),
+              PropertyDoc(name: 'selectedValue', type: 'T?', description: 'Currently selected tab value'),
+              PropertyDoc(name: 'onTabChanged', type: 'ValueChanged<T>?', description: 'Callback when tab is selected'),
             ],
           ),
 
@@ -203,20 +196,21 @@ TTabs<int>(
                           icon: Icons.dashboard,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withAlpha(26),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            decoration: BoxDecoration(color: AppColors.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.dashboard, color: AppColors.primary, size: 32),
                                 const SizedBox(height: 8),
-                                Text('Dashboard Content',
-                                    style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
+                                Text(
+                                  'Dashboard Content',
+                                  style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16),
+                                ),
                                 const SizedBox(height: 4),
-                                Text('View your main dashboard',
-                                    style: TextStyle(color: context.colors.onSurface.withAlpha(179), fontSize: 13)),
+                                Text(
+                                  'View your main dashboard',
+                                  style: TextStyle(color: context.colors.onSurface.withAlpha(179), fontSize: 13),
+                                ),
                               ],
                             ),
                           ),
@@ -227,17 +221,16 @@ TTabs<int>(
                           icon: Icons.analytics,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.info.withAlpha(26),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            decoration: BoxDecoration(color: AppColors.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.analytics, color: AppColors.info, size: 32),
                                 const SizedBox(height: 8),
-                                Text('Analytics Content',
-                                    style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
+                                Text(
+                                  'Analytics Content',
+                                  style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16),
+                                ),
                                 const SizedBox(height: 4),
                                 Text('Analyze your data', style: TextStyle(color: context.colors.onSurface.withAlpha(179), fontSize: 13)),
                               ],
@@ -250,17 +243,16 @@ TTabs<int>(
                           icon: Icons.assessment,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.warning.withAlpha(26),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            decoration: BoxDecoration(color: AppColors.warning.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.assessment, color: AppColors.warning, size: 32),
                                 const SizedBox(height: 8),
-                                Text('Reports Content',
-                                    style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
+                                Text(
+                                  'Reports Content',
+                                  style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16),
+                                ),
                                 const SizedBox(height: 4),
                                 Text('Generate reports', style: TextStyle(color: context.colors.onSurface.withAlpha(179), fontSize: 13)),
                               ],
@@ -273,17 +265,16 @@ TTabs<int>(
                           icon: Icons.settings,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.success.withAlpha(26),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            decoration: BoxDecoration(color: AppColors.success.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Icon(Icons.settings, color: AppColors.success, size: 32),
                                 const SizedBox(height: 8),
-                                Text('Settings Content',
-                                    style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16)),
+                                Text(
+                                  'Settings Content',
+                                  style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16),
+                                ),
                                 const SizedBox(height: 4),
                                 Text('Configure settings', style: TextStyle(color: context.colors.onSurface.withAlpha(179), fontSize: 13)),
                               ],
@@ -333,10 +324,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Showing all items', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -349,10 +337,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Showing active items', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -364,10 +349,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Showing pending items', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -379,10 +361,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Showing completed items', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -394,10 +373,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Showing archived items', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -409,10 +385,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Showing deleted items', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -436,12 +409,7 @@ TTabs<int>(
   wrap: true,
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'inline',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Use inline layout instead of full-width',
-              ),
+              PropertyDoc(name: 'inline', type: 'bool', defaultValue: 'false', description: 'Use inline layout instead of full-width'),
               PropertyDoc(
                 name: 'wrap',
                 type: 'bool',
@@ -468,10 +436,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Design View', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -484,10 +449,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Code View', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -500,10 +462,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Preview View', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -516,45 +475,42 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
                         child: Text('Preview View', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
                   ),
                 ],
-                tabBuilder: (context, tab, isSelected) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected ? context.colors.primaryContainer : context.colors.surfaceContainerHighest,
+                tabBuilder: (context, tab, isSelected, onTap) {
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: onTap,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isSelected ? context.colors.primary : Colors.transparent,
-                        width: 2,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (tab.icon != null) ...[
-                          Icon(
-                            tab.icon,
-                            size: 18,
-                            color: isSelected ? context.colors.onPrimaryContainer : context.colors.onSurface,
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                        Text(
-                          tab.text ?? '',
-                          style: TextStyle(
-                            color: isSelected ? context.colors.onPrimaryContainer : context.colors.onSurface,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? context.colors.primaryContainer : context.colors.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: isSelected ? context.colors.primary : Colors.transparent, width: 2),
                         ),
-                      ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (tab.icon != null) ...[
+                              Icon(tab.icon, size: 18, color: isSelected ? context.colors.onPrimaryContainer : context.colors.onSurface),
+                              const SizedBox(width: 8),
+                            ],
+                            Text(
+                              tab.text ?? '',
+                              style: TextStyle(
+                                color: isSelected ? context.colors.onPrimaryContainer : context.colors.onSurface,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 },
@@ -570,20 +526,27 @@ TTabs<int>(
   ],
   selectedValue: _selectedTab,
   onTabChanged: (value) => setState(() => _selectedTab = value),
-  tabBuilder: (context, tab, isSelected) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.blue : Colors.grey.shade200,
+  tabBuilder: (context, tab, isSelected, onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (tab.icon != null) Icon(tab.icon, size: 18),
-          SizedBox(width: 8),
-          Text(tab.text ?? ''),
-        ],
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.blue : Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (tab.icon != null) Icon(tab.icon, size: 18),
+              SizedBox(width: 8),
+              Text(tab.text ?? ''),
+            ],
+          ),
+        ),
       ),
     );
   },
@@ -591,8 +554,9 @@ TTabs<int>(
             properties: const [
               PropertyDoc(
                 name: 'tabBuilder',
-                type: 'Widget Function(BuildContext, TTab<T>, bool)?',
-                description: 'Custom builder for tab widgets. Receives context, tab, and isSelected state.',
+                type: 'Widget Function(BuildContext, TTab<T>, bool, VoidCallback?)?',
+                description:
+                    'Custom builder for tab widgets. Receives context, tab, isSelected state, and onTap callback. Builder should handle its own Material/InkWell.',
               ),
             ],
           ),
@@ -605,63 +569,55 @@ TTabs<int>(
             preview: SizedBox(
               height: 150,
               child: TTabView<int>(
-                  tabs: [
-                    TTab(
-                      value: 0,
-                      text: 'Overview',
-                      icon: Icons.dashboard,
-                      content: (context) => Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: context.colors.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text('Overview Content', style: TextStyle(color: context.colors.onSurface)),
-                        ),
+                tabs: [
+                  TTab(
+                    value: 0,
+                    text: 'Overview',
+                    icon: Icons.dashboard,
+                    content: (context) => Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        child: Text('Overview Content', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
-                    TTab(
-                      value: 1,
-                      text: 'Details',
-                      icon: Icons.info,
-                      content: (context) => Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: context.colors.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text('Details Content', style: TextStyle(color: context.colors.onSurface)),
-                        ),
+                  ),
+                  TTab(
+                    value: 1,
+                    text: 'Details',
+                    icon: Icons.info,
+                    content: (context) => Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        child: Text('Details Content', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
-                    TTab(
-                      value: 2,
-                      text: 'History',
-                      icon: Icons.history,
-                      content: (context) => Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: context.colors.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text('History Content', style: TextStyle(color: context.colors.onSurface)),
-                        ),
+                  ),
+                  TTab(
+                    value: 2,
+                    text: 'History',
+                    icon: Icons.history,
+                    content: (context) => Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        child: Text('History Content', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
-                  ],
-                  selectedColor: AppColors.primary,
-                  unselectedColor: context.colors.onSurfaceVariant,
-                  indicatorColor: AppColors.primary,
-                  indicatorWidth: 3,
-                  borderColor: context.colors.outlineVariant,
-                  tabPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  wrap: true),
+                  ),
+                ],
+                selectedColor: AppColors.primary,
+                unselectedColor: context.colors.onSurfaceVariant,
+                indicatorColor: AppColors.primary,
+                indicatorWidth: 3,
+                borderColor: context.colors.outlineVariant,
+                tabPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                wrap: true,
+              ),
             ),
             code: '''TTabs<int>(
   tabs: [
@@ -679,32 +635,11 @@ TTabs<int>(
   tabPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'selectedColor',
-                type: 'Color?',
-                description: 'Color for selected tab text and icon',
-              ),
-              PropertyDoc(
-                name: 'unselectedColor',
-                type: 'Color?',
-                description: 'Color for unselected tab text and icon',
-              ),
-              PropertyDoc(
-                name: 'indicatorColor',
-                type: 'Color?',
-                description: 'Color for the selection indicator',
-              ),
-              PropertyDoc(
-                name: 'indicatorWidth',
-                type: 'double?',
-                defaultValue: '1',
-                description: 'Width of the selection indicator',
-              ),
-              PropertyDoc(
-                name: 'borderColor',
-                type: 'Color?',
-                description: 'Border color for the tab bar',
-              ),
+              PropertyDoc(name: 'selectedColor', type: 'Color?', description: 'Color for selected tab text and icon'),
+              PropertyDoc(name: 'unselectedColor', type: 'Color?', description: 'Color for unselected tab text and icon'),
+              PropertyDoc(name: 'indicatorColor', type: 'Color?', description: 'Color for the selection indicator'),
+              PropertyDoc(name: 'indicatorWidth', type: 'double?', defaultValue: '1', description: 'Width of the selection indicator'),
+              PropertyDoc(name: 'borderColor', type: 'Color?', description: 'Border color for the tab bar'),
               PropertyDoc(
                 name: 'tabPadding',
                 type: 'EdgeInsets?',
@@ -736,8 +671,10 @@ TTabs<int>(
                           Icon(Icons.home, color: AppColors.primary, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: Text('Home Content - This is the home page with all your recent activity',
-                                style: TextStyle(color: context.colors.onSurface)),
+                            child: Text(
+                              'Home Content - This is the home page with all your recent activity',
+                              style: TextStyle(color: context.colors.onSurface),
+                            ),
                           ),
                         ],
                       ),
@@ -755,8 +692,10 @@ TTabs<int>(
                           Icon(Icons.person, color: AppColors.success, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: Text('Profile Content - View and edit your profile information',
-                                style: TextStyle(color: context.colors.onSurface)),
+                            child: Text(
+                              'Profile Content - View and edit your profile information',
+                              style: TextStyle(color: context.colors.onSurface),
+                            ),
                           ),
                         ],
                       ),
@@ -774,8 +713,10 @@ TTabs<int>(
                           Icon(Icons.settings, color: AppColors.info, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: Text('Settings Content - Manage your preferences and account settings',
-                                style: TextStyle(color: context.colors.onSurface)),
+                            child: Text(
+                              'Settings Content - Manage your preferences and account settings',
+                              style: TextStyle(color: context.colors.onSurface),
+                            ),
                           ),
                         ],
                       ),
@@ -808,21 +749,9 @@ TTabs<int>(
   ],
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'tabs',
-                type: 'List<TTab<T>>',
-                description: 'List of tabs with content builders',
-              ),
-              PropertyDoc(
-                name: 'initialValue',
-                type: 'T?',
-                description: 'Initial selected tab value',
-              ),
-              PropertyDoc(
-                name: 'controller',
-                type: 'TTabController<T>?',
-                description: 'Optional controller for managing tab state',
-              ),
+              PropertyDoc(name: 'tabs', type: 'List<TTab<T>>', description: 'List of tabs with content builders'),
+              PropertyDoc(name: 'initialValue', type: 'T?', description: 'Initial selected tab value'),
+              PropertyDoc(name: 'controller', type: 'TTabController<T>?', description: 'Optional controller for managing tab state'),
             ],
           ),
 
@@ -865,8 +794,10 @@ TTabs<int>(
                               children: [
                                 Icon(Icons.dashboard, color: AppColors.primary, size: 40),
                                 const SizedBox(height: 12),
-                                Text('Dashboard',
-                                    style: TextStyle(color: context.colors.onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
+                                Text(
+                                  'Dashboard',
+                                  style: TextStyle(color: context.colors.onSurface, fontSize: 18, fontWeight: FontWeight.w600),
+                                ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'View your main dashboard with key metrics and insights',
@@ -881,10 +812,7 @@ TTabs<int>(
                           text: 'Analytics',
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: AppColors.info.withAlpha(26),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            decoration: BoxDecoration(color: AppColors.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -892,11 +820,7 @@ TTabs<int>(
                                 const SizedBox(height: 12),
                                 Text(
                                   'Analytics',
-                                  style: TextStyle(
-                                    color: context.colors.onSurface,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: TextStyle(color: context.colors.onSurface, fontSize: 18, fontWeight: FontWeight.w600),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -918,11 +842,15 @@ TTabs<int>(
                               children: [
                                 Icon(Icons.assessment, color: AppColors.warning, size: 40),
                                 const SizedBox(height: 12),
-                                Text('Reports',
-                                    style: TextStyle(color: context.colors.onSurface, fontSize: 18, fontWeight: FontWeight.w600)),
+                                Text(
+                                  'Reports',
+                                  style: TextStyle(color: context.colors.onSurface, fontSize: 18, fontWeight: FontWeight.w600),
+                                ),
                                 const SizedBox(height: 8),
-                                Text('Generate and view comprehensive reports',
-                                    style: TextStyle(color: context.colors.onSurface.withAlpha(179))),
+                                Text(
+                                  'Generate and view comprehensive reports',
+                                  style: TextStyle(color: context.colors.onSurface.withAlpha(179)),
+                                ),
                               ],
                             ),
                           ),
@@ -961,11 +889,7 @@ TTabContent(
                 type: 'TTabController<T>',
                 description: 'Shared controller for synchronizing tabs and content',
               ),
-              PropertyDoc(
-                name: 'tabs',
-                type: 'List<TTab<T>>',
-                description: 'List of tabs with content builders',
-              ),
+              PropertyDoc(name: 'tabs', type: 'List<TTab<T>>', description: 'List of tabs with content builders'),
             ],
           ),
 

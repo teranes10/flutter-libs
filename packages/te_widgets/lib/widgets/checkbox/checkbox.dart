@@ -127,6 +127,8 @@ class _TCheckboxState<T> extends State<TCheckbox>
     with TInputValueStateMixin<bool?, TCheckbox>, TFocusStateMixin<TCheckbox>, TInputValidationStateMixin<bool?, TCheckbox> {
   double _getCheckboxSize() {
     switch (widget.size) {
+      case TInputSize.xs:
+        return 1.0;
       case TInputSize.sm:
         return 1.1;
       case TInputSize.md:
@@ -139,6 +141,8 @@ class _TCheckboxState<T> extends State<TCheckbox>
 
   double _getLabelFontSize() {
     switch (widget.size) {
+      case TInputSize.xs:
+        return 11.0;
       case TInputSize.sm:
         return 12.0;
       case TInputSize.md:

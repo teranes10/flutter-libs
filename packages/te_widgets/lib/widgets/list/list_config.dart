@@ -43,6 +43,12 @@ class TLoadOptions<T> {
   /// Search query string.
   final String? search;
 
+  /// Cursor for cursor-based pagination (nullable).
+  final String? cursor;
+
+  /// Advanced search filters as a generic map for endpoint-specific parameters.
+  final Map<String, dynamic>? advancedSearch;
+
   /// Calculated offset for pagination.
   int get offset => (page - 1) * itemsPerPage;
 
@@ -54,6 +60,8 @@ class TLoadOptions<T> {
     required this.page,
     required this.itemsPerPage,
     this.search,
+    this.cursor,
+    this.advancedSearch,
   });
 
   /// Creates a copy with updated properties.
@@ -61,16 +69,21 @@ class TLoadOptions<T> {
     int? page,
     int? itemsPerPage,
     String? search,
+    String? cursor,
+    Map<String, dynamic>? advancedSearch,
   }) {
     return TLoadOptions<T>(
       page: page ?? this.page,
       itemsPerPage: itemsPerPage ?? this.itemsPerPage,
       search: search ?? this.search,
+      cursor: cursor ?? this.cursor,
+      advancedSearch: advancedSearch ?? this.advancedSearch,
     );
   }
 
   @override
-  String toString() => 'TLoadOptions<$T>(page: $page, itemsPerPage: $itemsPerPage, search: $search)';
+  String toString() =>
+      'TLoadOptions<$T>(page: $page, itemsPerPage: $itemsPerPage, search: $search, cursor: $cursor, advancedSearch: $advancedSearch)';
 
   @override
   bool operator ==(Object other) =>
@@ -79,10 +92,12 @@ class TLoadOptions<T> {
           runtimeType == other.runtimeType &&
           page == other.page &&
           itemsPerPage == other.itemsPerPage &&
-          search == other.search;
+          search == other.search &&
+          cursor == other.cursor &&
+          advancedSearch == other.advancedSearch;
 
   @override
-  int get hashCode => Object.hash(page, itemsPerPage, search);
+  int get hashCode => Object.hash(page, itemsPerPage, search, cursor, advancedSearch);
 }
 
 /// Result of a data load operation.
@@ -91,40 +106,63 @@ class TLoadResult<T> {
   final List<T> items;
 
   /// Total number of items available (for pagination).
+  /// In cursor pagination, this may be 0 or approximate.
   final int totalItems;
 
+  /// Cursor for the next page (nullable, for cursor-based pagination).
+  final String? nextCursor;
+
+  /// Whether there are more items after the current page.
+  /// If null, computed from items.length and totalItems.
+  final bool? hasNextPage;
+
   /// Creates a load result.
-  const TLoadResult(this.items, this.totalItems);
+  const TLoadResult(
+    this.items,
+    this.totalItems, {
+    this.nextCursor,
+    this.hasNextPage,
+  });
 
   /// Creates a copy with updated properties.
   TLoadResult<T> copyWith({
     List<T>? items,
     int? totalItems,
+    String? nextCursor,
+    bool? hasNextPage,
   }) {
     return TLoadResult<T>(
       items ?? this.items,
       totalItems ?? this.totalItems,
+      nextCursor: nextCursor ?? this.nextCursor,
+      hasNextPage: hasNextPage ?? this.hasNextPage,
     );
   }
 
   @override
   String toString() {
-    return 'TLoadResult<$T>(items: ${items.length}, totalItems: $totalItems)';
+    return 'TLoadResult<$T>(items: ${items.length}, totalItems: $totalItems, nextCursor: $nextCursor, hasNextPage: $hasNextPage)';
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TLoadResult<T> && runtimeType == other.runtimeType && items == other.items && totalItems == other.totalItems;
+      other is TLoadResult<T> &&
+          runtimeType == other.runtimeType &&
+          items == other.items &&
+          totalItems == other.totalItems &&
+          nextCursor == other.nextCursor &&
+          hasNextPage == other.hasNextPage;
 
   @override
-  int get hashCode => Object.hash(items, totalItems);
+  int get hashCode => Object.hash(items, totalItems, nextCursor, hasNextPage);
 }
 
 /// Grid layout mode.
 enum TGridMode {
   /// Masonry layout (staggered).
   masonry,
+
   /// Aligned grid layout.
   aligned
 }

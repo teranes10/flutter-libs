@@ -213,42 +213,44 @@ class _TDateTimePickerState extends State<TDateTimePicker>
   double get contentMaxWidth => 425;
 
   @override
-  double get contentMaxHeight => 380;
+  double get contentMaxHeight => 385;
 
   @override
   Widget getContentWidget(BuildContext context) {
     final colors = context.colors;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        TTabs(
-          tabPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          borderColor: colors.outline,
-          tabs: [
-            TTab(icon: Icons.calendar_today, text: 'Date', isActive: _selectedDate != null, value: 0),
-            TTab(icon: Icons.access_time, text: 'Time', value: 1),
-          ],
-          selectedValue: _currentTabIndex,
-          onTabChanged: _onTabChanged,
-        ),
-        Padding(
-          padding: EdgeInsets.all(10),
-          child: SizedBox(
-            height: 300,
-            child: IndexedStack(
-              index: _currentTabIndex,
-              alignment: Alignment.center,
-              children: [
-                _buildDateTab(colors),
-                _buildTimeTab(),
+    return Padding(
+        padding: EdgeInsets.fromLTRB(6, 16, 6, 0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TTabs(
+              tabPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              borderColor: colors.outline,
+              tabs: [
+                TTab(icon: Icons.calendar_today, text: 'Date', isActive: _selectedDate != null, value: 0),
+                TTab(icon: Icons.access_time, text: 'Time', value: 1),
               ],
+              selectedValue: _currentTabIndex,
+              onTabChanged: _onTabChanged,
             ),
-          ),
-        ),
-      ],
-    );
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: SizedBox(
+                height: 300,
+                child: IndexedStack(
+                  index: _currentTabIndex,
+                  alignment: Alignment.center,
+                  children: [
+                    _buildDateTab(colors),
+                    _buildTimeTab(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ));
   }
 
   @override

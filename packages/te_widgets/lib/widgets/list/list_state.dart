@@ -12,6 +12,14 @@ class TListState<T, K> {
   final String search;
   final TListError? error;
 
+  // Cursor pagination fields
+  final String? currentCursor;
+  final String? nextCursor;
+  final List<String> cursorHistory; // Stack of previous cursors for backward navigation
+
+  // Advanced search filters
+  final Map<String, dynamic>? advancedSearch;
+
   const TListState({
     required this.selectedKeys,
     required this.expandedKeys,
@@ -23,13 +31,18 @@ class TListState<T, K> {
     required this.hasMoreItems,
     required this.search,
     this.error,
+    this.currentCursor,
+    this.nextCursor,
+    this.cursorHistory = const [],
+    this.advancedSearch,
   });
 
   @override
   String toString() {
     return 'TListState(page: $page, itemsPerPage: $itemsPerPage, total: $totalItems,'
         'displayed: ${displayItems.length}, selected: ${selectedKeys.length}, expanded: ${expandedKeys.length}, '
-        '\n\tloading: $loading, hasMoreItems: $hasMoreItems, search: $search)';
+        '\n\tloading: $loading, hasMoreItems: $hasMoreItems, search: $search, '
+        'nextCursor: $nextCursor, cursorHistory: ${cursorHistory.length})';
   }
 }
 

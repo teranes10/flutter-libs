@@ -40,7 +40,8 @@ class AppColors {
     700: Color(0xFF647F9E),
     800: Color(0xFF536980),
     900: Color(0xFF3b3b3f),
-    950: Color(0xFF1f1f1f),
+    975: Color(0xFF1f1f1f),
+    950: Color(0xFF1D1D1D),
   });
 
   static const MaterialColor success = MaterialColor(0xFF44BDB7, {

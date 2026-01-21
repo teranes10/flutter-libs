@@ -140,7 +140,7 @@ class TKeyValueSection extends StatelessWidget {
       return keyValue.widget!;
     }
 
-    return Text(keyValue.value ?? '', style: theme.getValueStyle(colors));
+    return SelectableText(keyValue.value ?? '', style: theme.getValueStyle(colors));
   }
 
   List<_RowData> _createRowData(double availableWidth) {

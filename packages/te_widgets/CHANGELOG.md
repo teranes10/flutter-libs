@@ -1,4 +1,10 @@
-# 2.0.7
+# 2.0.8
+
+    - Cursor pagination support
+    - Tabs fix
+    - SelectableText in Table
+  
+## 2.0.7
 
     - Tabs improved with scrollable + wraps + navigation buttons
     - inputs clearable option

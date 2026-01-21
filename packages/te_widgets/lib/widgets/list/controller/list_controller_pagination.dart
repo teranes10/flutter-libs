@@ -45,19 +45,23 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   int get totalPages => totalItems > 0 ? (totalItems / itemsPerPage).ceil() : 1;
 
   /// The computed items per page (adjusted for last page).
-  int get computedItemsPerPage => totalItems < itemsPerPage ? totalItems : itemsPerPage;
+  int get computedItemsPerPage => itemsPerPage.clamp(0, totalDisplayItems);
 
   /// The starting index of the current page.
-  int get pageStartedAt => totalItems == 0 ? 0 : ((page - 1) * itemsPerPage) + 1;
+  int get pageStartedAt => totalDisplayItems == 0 ? 0 : ((page - 1) * itemsPerPage) + 1;
 
   /// The ending index of the current page.
-  int get pageEndedAt => (page * itemsPerPage).clamp(0, totalItems);
+  int get pageEndedAt => totalDisplayItems == 0 ? 0 : pageStartedAt + totalDisplayItems - 1;
 
   /// Whether there is a next page.
-  bool get canGoToNextPage => page < totalPages;
+  /// For cursor pagination, checks hasMoreItems (from server's hasNextPage).
+  /// For offset pagination, checks if page < totalPages.
+  bool get canGoToNextPage => hasMoreItems || page < totalPages;
 
   /// Whether there is a previous page.
-  bool get canGoToPreviousPage => page > 1;
+  /// For cursor pagination, checks if there's cursor history.
+  /// For offset pagination, checks if page > 1.
+  bool get canGoToPreviousPage => cursorHistory.isNotEmpty || page > 1;
 
   /// Whether this is the first page.
   bool get isFirstPage => page == 1;
@@ -69,17 +73,53 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   bool get hasMoreItems => value.hasMoreItems;
 
   /// Human-readable pagination information.
+  /// For cursor pagination (when totalItems is 0 or unavailable), shows current page info.
+  /// For offset pagination, shows range and total.
   String get paginationInfo {
-    if (totalItems == 0) return 'No entries';
-    return 'Showing $pageStartedAt to $pageEndedAt of $totalItems entries';
+    if (totalDisplayItems == 0) return 'No entries';
+
+    if (totalItems > 0) {
+      return 'Showing $pageStartedAt - $pageEndedAt of $totalItems entries';
+    }
+
+    return 'Showing entries $pageStartedAt - $pageEndedAt';
   }
 
+  /// Current cursor for cursor-based pagination.
+  String? get currentCursor => value.currentCursor;
+
+  /// Next cursor for cursor-based pagination.
+  String? get nextCursor => value.nextCursor;
+
+  /// Cursor history stack for backward navigation.
+  List<String> get cursorHistory => value.cursorHistory;
+
+  /// Current advanced search filters.
+  Map<String, dynamic>? get advancedSearch => value.advancedSearch;
+
+  bool get isCursorPagination => nextCursor != null || cursorHistory.isNotEmpty;
+
   void goToNextPage() {
-    if (canGoToNextPage) handlePageChange(page + 1);
+    if (!canGoToNextPage) return;
+
+    // Use cursor if available, otherwise use offset pagination
+    if (nextCursor != null) {
+      _executePaginationAction('goToNextPage', cursor: nextCursor, page: page + 1);
+    } else {
+      handlePageChange(page + 1);
+    }
   }
 
   void goToPreviousPage() {
-    if (canGoToPreviousPage) handlePageChange(page - 1);
+    if (!canGoToPreviousPage) return;
+
+    // Use cursor history if available (cursor pagination)
+    if (cursorHistory.isNotEmpty) {
+      final previousCursor = cursorHistory.last;
+      _executePaginationAction('goToPreviousPage', cursor: previousCursor, page: page > 1 ? page - 1 : 1);
+    } else {
+      handlePageChange(page - 1);
+    }
   }
 
   void goToFirstPage() => handlePageChange(1);
@@ -125,15 +165,38 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     }
   }
 
+  void handleAdvancedSearchChange(Map<String, dynamic> filters) {
+    if (value.advancedSearch != filters) {
+      _executePaginationAction('handleAdvancedSearchChange', advancedSearch: filters, page: 1);
+    }
+  }
+
   List<int> computeItemsPerPageOptions(List<int> options) {
-    if (totalItems == 0) return [];
+    if (totalDisplayItems == 0) return [];
+    if (totalItems == 0) return <int>{computedItemsPerPage, ...options}.toList()..sort();
 
     return <int>{computedItemsPerPage, ...options}.where((x) => x <= totalItems && x > 0).toList()..sort();
   }
 
-  void _executePaginationAction(String who, {int? page, int? itemsPerPage, String? search, bool append = false}) {
+  void _executePaginationAction(
+    String who, {
+    int? page,
+    int? itemsPerPage,
+    String? search,
+    String? cursor,
+    Map<String, dynamic>? advancedSearch,
+    bool append = false,
+  }) {
     if (isServerSide) {
-      _loadData(who: who, page: page, itemsPerPage: itemsPerPage, search: search, append: append);
+      _loadData(
+        who: who,
+        page: page,
+        itemsPerPage: itemsPerPage,
+        search: search,
+        cursor: cursor,
+        advancedSearch: advancedSearch,
+        append: append,
+      );
     } else {
       _applyLocalPagination(
         who: who,
@@ -187,7 +250,15 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     );
   }
 
-  void _loadData({String? who, int? page, int? itemsPerPage, String? search, bool append = false}) async {
+  void _loadData({
+    String? who,
+    int? page,
+    int? itemsPerPage,
+    String? search,
+    String? cursor,
+    Map<String, dynamic>? advancedSearch,
+    bool append = false,
+  }) async {
     assert(onLoad != null, "ListControllerError: onLoad is required for server-side rendering.");
 
     updateState(
@@ -195,6 +266,8 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       page: page,
       itemsPerPage: itemsPerPage,
       search: search,
+      currentCursor: cursor,
+      advancedSearch: advancedSearch,
       loading: true,
       error: null,
     );
@@ -206,6 +279,8 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       page: value.page,
       itemsPerPage: value.itemsPerPage,
       search: value.search.isEmpty ? null : value.search,
+      cursor: value.currentCursor,
+      advancedSearch: value.advancedSearch,
     );
 
     try {
@@ -223,11 +298,31 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       }
 
       updateItems(result.items);
+
+      // Manage cursor history for backward navigation
+      List<String> newCursorHistory = List.from(cursorHistory);
+      final currentCursorValue = currentCursor;
+
+      if (cursor != null && currentCursorValue != null && cursor != currentCursorValue) {
+        // Going backward - pop from history
+        if (newCursorHistory.isNotEmpty && newCursorHistory.last == cursor) {
+          newCursorHistory.removeLast();
+        }
+      } else if (result.nextCursor != null && currentCursorValue != null) {
+        // Going forward - push current cursor to history
+        if (!newCursorHistory.contains(currentCursorValue)) {
+          newCursorHistory.add(currentCursorValue);
+        }
+      }
+
       updateState(
         who: '$who _loadData',
         totalItems: result.totalItems,
         displayItems: rawDisplayItems,
-        hasMoreItems: rawDisplayItems.length < result.totalItems,
+        hasMoreItems: result.hasNextPage ?? (rawDisplayItems.length < result.totalItems),
+        currentCursor: cursor,
+        nextCursor: result.nextCursor,
+        cursorHistory: newCursorHistory,
         loading: false,
         error: null,
       );

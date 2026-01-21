@@ -16,7 +16,7 @@ class GridPage extends StatelessWidget {
       TTableHeader.map('Price', (x) => x.price),
       TTableHeader.map('Discount', (x) => x.discountPercentage),
       TTableHeader.map('Rating', (x) => x.rating),
-      TTableHeader.chip('Stock', (x) => x.stock, color: AppColors.info)
+      TTableHeader.chip('Stock', (x) => x.stock, color: (_) => AppColors.info),
     ];
 
     return TTable<ProductDto, int>(

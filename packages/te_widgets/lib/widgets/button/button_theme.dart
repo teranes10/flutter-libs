@@ -101,12 +101,12 @@ class TButtonSize {
   /// Creates a button size from an input size.
   TButtonSize.fromInputSize(TInputSize size)
       : minW = size.height,
-      minH = size.height,
-      hPad = size.padding.vertical,
-      vPad = size.padding.vertical,
-      font = size.fontSize,
-      icon = size.fontSize + 6,
-      spacing = size.padding.right;
+        minH = size.height,
+        hPad = size.padding.vertical,
+        vPad = size.padding.vertical,
+        font = size.fontSize,
+        icon = size.fontSize + 6,
+        spacing = size.padding.right;
 }
 
 /// Theme configuration for [TButton].
@@ -150,7 +150,7 @@ class TButtonTheme {
     ColorScheme colors, {
     TVariant type = TVariant.solid,
     TButtonShape shape = TButtonShape.normal,
-    TButtonSize size = TButtonSize.sm,
+    TButtonSize size = TButtonSize.md,
   }) {
     final color = colors.primary;
     final baseTheme = TWidgetTheme.from(colors.isDarkMode, color, type);

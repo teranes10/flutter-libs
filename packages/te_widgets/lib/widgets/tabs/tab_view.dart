@@ -76,7 +76,7 @@ class TTabView<T> extends StatefulWidget {
   final bool wrap;
 
   /// Custom builder for tab widgets.
-  final Widget Function(BuildContext context, TTab<T> tab, bool isSelected)? tabBuilder;
+  final Widget Function(BuildContext context, TTab<T> tab, bool isSelected, VoidCallback? onTap)? tabBuilder;
 
   /// Color for navigation buttons.
   final Color? navigationButtonColor;

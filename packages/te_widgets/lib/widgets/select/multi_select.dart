@@ -140,7 +140,7 @@ class TMultiSelect<T, V, K> extends StatefulWidget
     // List
     this.listTheme,
     this.items,
-    this.itemsPerPage = 6,
+    this.itemsPerPage,
     this.search,
     this.searchDelay,
     this.onLoad,
@@ -205,7 +205,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   TListController<T, K> buildController() {
     return TListController<T, K>(
       items: widget.items ?? [],
-      itemsPerPage: widget.itemsPerPage ?? 0,
+      itemsPerPage: widget.itemsPerPage ?? 6,
       search: widget.search ?? '',
       searchDelay: widget.searchDelay,
       onLoad: widget.onLoad,
@@ -237,7 +237,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
       onTap: _onItemSelected,
     );
 
-    return shouldCenteredOverlay
+    final content = shouldCenteredOverlay
         ? Column(spacing: 7.5, children: [
             if (widget.filterable)
               Padding(
@@ -251,6 +251,8 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
             Expanded(child: list),
           ])
         : list;
+
+    return Padding(padding: EdgeInsets.fromLTRB(6, 16, 6, 0), child: content);
   }
 
   @override

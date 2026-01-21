@@ -105,9 +105,9 @@ class TTableHeader<T, K> {
     this.minWidth,
     this.maxWidth,
     this.alignment,
-    Color? color,
+    Color Function(T)? color,
     TVariant? type,
-  }) : builder = ((_, item, __) => TChip(text: map?.call(item.data).toString(), color: color, type: type));
+  }) : builder = ((_, item, __) => TChip(text: map?.call(item.data).toString(), color: color?.call(item.data), type: type));
 
   /// Creates a header for row actions.
   TTableHeader.actions(

@@ -18,10 +18,7 @@ class _TablesPageState extends State<TablesPage> {
       pw.MultiPage(
         pageTheme: pw.PageTheme(
           margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 25),
-          buildBackground: (context) => pw.FullPage(
-            ignoreMargins: true,
-            child: pw.Container(color: colors.surface.toPdfColor()),
-          ),
+          buildBackground: (context) => pw.FullPage(ignoreMargins: true, child: pw.Container(color: colors.surface.toPdfColor())),
         ),
         build: (context) => [
           pw.Text('Table 1: List of Participants', style: pw.TextStyle(fontSize: 16, color: colors.onSurfaceVariant.toPdfColor())),
@@ -43,17 +40,13 @@ class _TablesPageState extends State<TablesPage> {
           spacing: 25,
           children: [
             TButton(text: 'Print', onPressed: (_) => generatePdfWithTable(context)),
-            TTable<Product, int>(
-              theme: context.theme.tableTheme.copyWith(shrinkWrap: true),
-              headers: productHeaders,
-              items: products,
-            ),
+            TTable<Product, int>(theme: context.theme.tableTheme.copyWith(shrinkWrap: true), headers: productHeaders, items: products),
             TTable<Product, int>(
               theme: context.theme.tableTheme.copyWith(shrinkWrap: true),
               headers: [
                 TTableHeader.map("Name", (x) => x.name),
                 TTableHeader.map("Price", (x) => x.price),
-                TTableHeader.chip("Stock", (x) => x.stock, color: AppColors.info),
+                TTableHeader.chip("Stock", (x) => x.stock, color: (_) => AppColors.info),
                 TTableHeader.actions(
                   (x) => [
                     TButtonGroupItem(tooltip: 'View', icon: Icons.remove_red_eye, color: AppColors.success, onPressed: (_) => {}),
@@ -81,13 +74,7 @@ class User {
   final String role;
   final DateTime createdAt;
 
-  User({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.role,
-    required this.createdAt,
-  });
+  User({required this.id, required this.name, required this.email, required this.role, required this.createdAt});
 }
 
 class Product {
@@ -107,10 +94,5 @@ final List<TTableHeader<Product, int>> productHeaders = [
 
 final List<Product> products = List.generate(
   3,
-  (index) => Product(
-    'ID-${index + 1}',
-    'Product Description ${index + 1}',
-    10.0 + (index * 0.5),
-    100 - index,
-  ),
+  (index) => Product('ID-${index + 1}', 'Product Description ${index + 1}', 10.0 + (index * 0.5), 100 - index),
 );

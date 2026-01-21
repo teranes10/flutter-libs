@@ -27,6 +27,21 @@ class TTab<T> {
   /// Used with [TTabContent] or [TTabView] widgets.
   final Widget Function(BuildContext context)? content;
 
+  /// Optional additional data to attach to this tab.
+  ///
+  /// Can be used to pass custom metadata, configuration, or any other
+  /// information that should be associated with the tab.
+  ///
+  /// Example:
+  /// ```dart
+  /// TTab(
+  ///   value: 0,
+  ///   text: 'Products',
+  ///   data: {'color': Colors.blue, 'badge': 5, 'route': '/products'},
+  /// )
+  /// ```
+  final Map<String, dynamic>? data;
+
   /// Creates a tab item.
   const TTab({
     required this.value,
@@ -35,6 +50,7 @@ class TTab<T> {
     this.isEnabled = true,
     this.isActive = false,
     this.content,
+    this.data,
   }) : assert(icon != null || text != null, 'Either icon or text must be provided');
 
   /// Calculates the approximate width of this tab.

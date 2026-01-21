@@ -44,15 +44,15 @@ part 'crud_table_builder.dart';
 ///   onLoad: (options) async {
 ///     final response = await api.getUsers(options);
 ///     return TLoadResult(
-///       items: response.users,
-///       totalItems: response.total,
+///        response.users,
+///        response.total,
 ///     );
 ///   },
 ///   onArchiveLoad: (options) async {
 ///     final response = await api.getArchivedUsers(options);
 ///     return TLoadResult(
-///       items: response.users,
-///       totalItems: response.total,
+///        response.users,
+///        response.total,
 ///     );
 ///   },
 ///   onRestore: (user) async {
@@ -155,8 +155,9 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
           'Provide either `controller` OR (`items` / `onLoad`), not both.',
         ),
         assert(
-          (archiveController == null && (archivedItems != null || onArchiveLoad != null)) ||
-              (archiveController != null && archivedItems == null && onArchiveLoad == null),
+          (archiveController == null && archivedItems == null && onArchiveLoad == null) ||
+              (archiveController == null && (archivedItems != null || onArchiveLoad != null)) ||
+              (archiveController != null && (archivedItems == null && onArchiveLoad == null)),
           'Provide either `archiveController` OR (`archivedItems` / `onArchiveLoad`), not both.',
         );
 

@@ -102,6 +102,8 @@ class _TSwitchState<T> extends State<TSwitch>
     with TInputValueStateMixin<bool, TSwitch>, TFocusStateMixin<TSwitch>, TInputValidationStateMixin<bool, TSwitch> {
   (double, double, double) _getSwitchSize() {
     switch (widget.size) {
+      case TInputSize.xs:
+        return (26, 16, 0.5);
       case TInputSize.sm:
         return (36, 22, 0.7);
       case TInputSize.md:
@@ -114,6 +116,8 @@ class _TSwitchState<T> extends State<TSwitch>
 
   double _getLabelFontSize() {
     switch (widget.size) {
+      case TInputSize.xs:
+        return 11.0;
       case TInputSize.sm:
         return 12.0;
       case TInputSize.md:

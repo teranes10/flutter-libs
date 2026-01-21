@@ -115,7 +115,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 5),
                         child: header.builder != null
                             ? Builder(builder: (context) => header.builder!(context, item, index))
-                            : Text(header.getValue(item.data), style: theme.getContentTextStyle(colors)),
+                            : SelectableText(header.getValue(item.data), style: theme.getContentTextStyle(colors)),
                       ),
                     ),
                   );

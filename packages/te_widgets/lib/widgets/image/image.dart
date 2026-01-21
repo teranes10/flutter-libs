@@ -194,11 +194,9 @@ class TImage extends StatefulWidget with TPopupMixin {
 
 class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   @override
-  double get contentMaxWidth => widget.previewSize + 25;
+  double get contentMinWidth => (widget.previewSize / widget.aspectRatio);
   @override
-  double get contentMaxHeight => (widget.previewSize + 25) / widget.aspectRatio;
-  @override
-  bool get shouldCenteredOverlay => true;
+  double get contentMinHeight => (widget.previewSize / widget.aspectRatio);
 
   Widget get fallbackImage {
     final isPackageAsset = widget.placeholder.startsWith('package:');
@@ -288,18 +286,23 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
 
   @override
   Widget getContentWidget(BuildContext context) {
-    final content = PhotoView(
-      imageProvider: CachedNetworkImageProvider(
-        widget.url!,
-        cacheKey: widget.cacheKey,
-        cacheManager: widget.cacheManager,
-      ),
-      minScale: PhotoViewComputedScale.contained,
-      maxScale: PhotoViewComputedScale.covered * 2,
-      backgroundDecoration: const BoxDecoration(color: Colors.transparent),
-    );
-    return shouldCenteredOverlay
-        ? content
-        : SizedBox(width: widget.previewSize, height: widget.previewSize / widget.aspectRatio, child: content);
+    final photoView = ClipPath(
+        clipper: ShapeBorderClipper(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
+        child: PhotoView(
+          imageProvider: CachedNetworkImageProvider(
+            widget.url!,
+            cacheKey: widget.cacheKey,
+            cacheManager: widget.cacheManager,
+          ),
+          minScale: PhotoViewComputedScale.contained,
+          maxScale: PhotoViewComputedScale.covered * 2,
+          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
+        ));
+
+    final content = shouldCenteredOverlay
+        ? photoView
+        : SizedBox(width: widget.previewSize, height: widget.previewSize / widget.aspectRatio, child: photoView);
+
+    return content;
   }
 }

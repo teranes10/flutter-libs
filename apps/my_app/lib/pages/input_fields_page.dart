@@ -39,19 +39,12 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           // Page Header
           Text(
             'Input Field Components',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: context.colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: context.colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'Text inputs, number fields, and other input components with validation support.',
-            style: TextStyle(
-              fontSize: 13,
-              color: context.colors.onSurface.withAlpha(179),
-            ),
+            style: TextStyle(fontSize: 13, color: context.colors.onSurface.withAlpha(179)),
           ),
           const SizedBox(height: 32),
 
@@ -75,26 +68,10 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'label',
-                type: 'String?',
-                description: 'The label text displayed above the field',
-              ),
-              PropertyDoc(
-                name: 'placeholder',
-                type: 'String?',
-                description: 'Placeholder text shown when field is empty',
-              ),
-              PropertyDoc(
-                name: 'helperText',
-                type: 'String?',
-                description: 'Helper text displayed below the field',
-              ),
-              PropertyDoc(
-                name: 'onValueChanged',
-                type: 'ValueChanged<String?>?',
-                description: 'Callback fired when the value changes',
-              ),
+              PropertyDoc(name: 'label', type: 'String?', description: 'The label text displayed above the field'),
+              PropertyDoc(name: 'placeholder', type: 'String?', description: 'Placeholder text shown when field is empty'),
+              PropertyDoc(name: 'helperText', type: 'String?', description: 'Helper text displayed below the field'),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<String?>?', description: 'Callback fired when the value changes'),
             ],
           ),
 
@@ -108,10 +85,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
               placeholder: 'Enter your email',
               isRequired: true,
               valueNotifier: _emailNotifier,
-              rules: [
-                Validations.requiredString('Email is required'),
-                Validations.email('Please enter a valid email'),
-              ],
+              rules: [Validations.requiredString('Email is required'), Validations.email('Please enter a valid email')],
             ),
             code: '''TTextField(
   label: 'Email',
@@ -137,11 +111,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
                 type: 'List<String? Function(String?)>?',
                 description: 'Validation rules. Each returns error message or null',
               ),
-              PropertyDoc(
-                name: 'validationDebounce',
-                type: 'Duration?',
-                description: 'Delay validation after user stops typing',
-              ),
+              PropertyDoc(name: 'validationDebounce', type: 'Duration?', description: 'Delay validation after user stops typing'),
             ],
           ),
 
@@ -155,9 +125,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
               placeholder: 'Enter a detailed description...',
               rows: 4,
               valueNotifier: ValueNotifier<String?>(''),
-              rules: [
-                Validations.maxLength(500, 'Description must be at most 500 characters'),
-              ],
+              rules: [Validations.maxLength(500, 'Description must be at most 500 characters')],
             ),
             code: '''TTextField(
   label: 'Description',
@@ -171,12 +139,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
   ],
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'rows',
-                type: 'int',
-                defaultValue: '1',
-                description: 'Number of rows. When > 1, becomes a text area',
-              ),
+              PropertyDoc(name: 'rows', type: 'int', defaultValue: '1', description: 'Number of rows. When > 1, becomes a text area'),
             ],
           ),
 
@@ -190,10 +153,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
               placeholder: 'Enter quantity',
               isRequired: true,
               valueNotifier: _quantityNotifier,
-              rules: [
-                Validations.minValue(1, 'Quantity must be at least 1'),
-                Validations.maxValue(999, 'Quantity cannot exceed 999'),
-              ],
+              rules: [Validations.minValue(1, 'Quantity must be at least 1'), Validations.maxValue(999, 'Quantity cannot exceed 999')],
             ),
             code: '''TNumberField(
   label: 'Quantity',
@@ -214,11 +174,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
                 defaultValue: 'ValueType.decimal',
                 description: 'Type of number: decimal or integer',
               ),
-              PropertyDoc(
-                name: 'decimalPlaces',
-                type: 'int?',
-                description: 'Number of decimal places for decimal type',
-              ),
+              PropertyDoc(name: 'decimalPlaces', type: 'int?', description: 'Number of decimal places for decimal type'),
             ],
           ),
 
@@ -227,12 +183,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             title: 'Number Field with Clear Button',
             description: 'Number field with clearable option to reset value',
             icon: Icons.clear,
-            preview: TNumberField(
-              label: 'Price',
-              placeholder: 'Enter price',
-              clearable: true,
-              valueNotifier: ValueNotifier<double?>(null),
-            ),
+            preview: TNumberField(label: 'Price', placeholder: 'Enter price', clearable: true, valueNotifier: ValueNotifier<double?>(null)),
             code: '''TNumberField(
   label: 'Price',
   placeholder: 'Enter price',
@@ -256,11 +207,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             title: 'Disabled Field',
             description: 'Non-editable field with grayed out appearance',
             icon: Icons.block,
-            preview: TTextField(
-              label: 'Account ID',
-              value: 'ACC-12345',
-              disabled: true,
-            ),
+            preview: TTextField(label: 'Account ID', value: 'ACC-12345', disabled: true),
             code: '''TTextField(
   label: 'Account ID',
   value: 'ACC-12345',
@@ -281,12 +228,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             title: 'Read-Only Field',
             description: 'Field that displays value but cannot be edited',
             icon: Icons.visibility,
-            preview: TTextField(
-              label: 'Username',
-              value: 'john.doe',
-              readOnly: true,
-              helperText: 'Username cannot be changed',
-            ),
+            preview: TTextField(label: 'Username', value: 'john.doe', readOnly: true, helperText: 'Username cannot be changed'),
             code: '''TTextField(
   label: 'Username',
   value: 'john.doe',
@@ -294,12 +236,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
   helperText: 'Username cannot be changed',
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'readOnly',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether the field is read-only',
-              ),
+              PropertyDoc(name: 'readOnly', type: 'bool', defaultValue: 'false', description: 'Whether the field is read-only'),
             ],
           ),
 
@@ -324,16 +261,8 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'textController',
-                type: 'TTagsController?',
-                description: 'Controller for managing the list of tags',
-              ),
-              PropertyDoc(
-                name: 'onValueChanged',
-                type: 'ValueChanged<List<String>?>?',
-                description: 'Callback fired when tags change',
-              ),
+              PropertyDoc(name: 'textController', type: 'TTagsController?', description: 'Controller for managing the list of tags'),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<List<String>?>?', description: 'Callback fired when tags change'),
             ],
           ),
 
@@ -377,21 +306,14 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TTextField(
-                  label: 'Password',
-                  placeholder: 'Enter password',
-                  valueNotifier: _passwordNotifier,
-                ),
+                TTextField(label: 'Password', placeholder: 'Enter password', valueNotifier: _passwordNotifier),
                 const SizedBox(height: 12),
                 ValueListenableBuilder<String?>(
                   valueListenable: _passwordNotifier,
                   builder: (context, value, _) {
                     return Text(
                       'Password length: ${value?.length ?? 0} characters',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: context.colors.onSurface.withAlpha(153),
-                      ),
+                      style: TextStyle(fontSize: 13, color: context.colors.onSurface.withAlpha(153)),
                     );
                   },
                 ),
@@ -418,11 +340,7 @@ ValueListenableBuilder<String?>(
                 type: 'ValueNotifier<String?>?',
                 description: 'ValueNotifier for two-way binding with the field value',
               ),
-              PropertyDoc(
-                name: 'value',
-                type: 'String?',
-                description: 'Initial value of the field',
-              ),
+              PropertyDoc(name: 'value', type: 'String?', description: 'Initial value of the field'),
             ],
           ),
 
@@ -462,10 +380,7 @@ ValueListenableBuilder<String?>(
             title: 'Checkbox',
             description: 'Single checkbox for boolean selection',
             icon: Icons.check_box,
-            preview: TCheckbox(
-              label: 'I agree to the terms and conditions',
-              valueNotifier: _termsNotifier,
-            ),
+            preview: TCheckbox(label: 'I agree to the terms and conditions', valueNotifier: _termsNotifier),
             code: '''TCheckbox(
   label: 'I agree to the terms and conditions',
   onValueChanged: (value) {
@@ -473,21 +388,9 @@ ValueListenableBuilder<String?>(
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'label',
-                type: 'String?',
-                description: 'Label text displayed next to the checkbox',
-              ),
-              PropertyDoc(
-                name: 'value',
-                type: 'bool?',
-                description: 'Current checkbox state (true, false, or null for indeterminate)',
-              ),
-              PropertyDoc(
-                name: 'onValueChanged',
-                type: 'ValueChanged<bool?>?',
-                description: 'Callback fired when checkbox state changes',
-              ),
+              PropertyDoc(name: 'label', type: 'String?', description: 'Label text displayed next to the checkbox'),
+              PropertyDoc(name: 'value', type: 'bool?', description: 'Current checkbox state (true, false, or null for indeterminate)'),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<bool?>?', description: 'Callback fired when checkbox state changes'),
             ],
           ),
 
@@ -519,17 +422,8 @@ ValueListenableBuilder<String?>(
   onValueChanged: (value) => print(value),
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'isRequired',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether the checkbox is required',
-              ),
-              PropertyDoc(
-                name: 'rules',
-                type: 'List<String? Function(bool?)>?',
-                description: 'Validation rules for the checkbox',
-              ),
+              PropertyDoc(name: 'isRequired', type: 'bool', defaultValue: 'false', description: 'Whether the checkbox is required'),
+              PropertyDoc(name: 'rules', type: 'List<String? Function(bool?)>?', description: 'Validation rules for the checkbox'),
             ],
           ),
 
@@ -563,21 +457,9 @@ ValueListenableBuilder<String?>(
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'items',
-                type: 'List<TCheckboxGroupItem<T>>',
-                description: 'List of checkbox items to display',
-              ),
-              PropertyDoc(
-                name: 'value',
-                type: 'List<T>?',
-                description: 'Currently selected values',
-              ),
-              PropertyDoc(
-                name: 'onValueChanged',
-                type: 'ValueChanged<List<T>?>?',
-                description: 'Callback fired when selection changes',
-              ),
+              PropertyDoc(name: 'items', type: 'List<TCheckboxGroupItem<T>>', description: 'List of checkbox items to display'),
+              PropertyDoc(name: 'value', type: 'List<T>?', description: 'Currently selected values'),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<List<T>?>?', description: 'Callback fired when selection changes'),
             ],
           ),
 
@@ -591,31 +473,19 @@ ValueListenableBuilder<String?>(
               children: [
                 Text(
                   'Horizontal Layout',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.onSurface,
-                  ),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.onSurface),
                 ),
                 const SizedBox(height: 8),
                 TCheckboxGroup<String>(
                   label: 'Preferences',
-                  items: [
-                    TCheckboxGroupItem.map('Email'),
-                    TCheckboxGroupItem.map('SMS'),
-                    TCheckboxGroupItem.map('Push'),
-                  ],
+                  items: [TCheckboxGroupItem.map('Email'), TCheckboxGroupItem.map('SMS'), TCheckboxGroupItem.map('Push')],
                   vertical: false,
                   valueNotifier: ValueNotifier<List<String>>([]),
                 ),
                 const SizedBox(height: 20),
                 Text(
                   'Vertical Layout',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.onSurface,
-                  ),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.onSurface),
                 ),
                 const SizedBox(height: 8),
                 TCheckboxGroup<String>(
@@ -652,18 +522,8 @@ TCheckboxGroup<String>(
   vertical: true, // Vertical layout (default)
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'vertical',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether to display checkboxes vertically',
-              ),
-              PropertyDoc(
-                name: 'block',
-                type: 'bool',
-                defaultValue: 'true',
-                description: 'Whether checkboxes should take full width',
-              ),
+              PropertyDoc(name: 'vertical', type: 'bool', defaultValue: 'false', description: 'Whether to display checkboxes vertically'),
+              PropertyDoc(name: 'block', type: 'bool', defaultValue: 'true', description: 'Whether checkboxes should take full width'),
             ],
           ),
 
@@ -724,11 +584,7 @@ TCheckboxGroup<String>(
   ],
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'rules',
-                type: 'List<String? Function(List<T>?)>?',
-                description: 'Validation rules for the checkbox group',
-              ),
+              PropertyDoc(name: 'rules', type: 'List<String? Function(List<T>?)>?', description: 'Validation rules for the checkbox group'),
             ],
           ),
 
@@ -779,10 +635,7 @@ TCheckboxGroup<String>(
             title: 'Switch (Toggle)',
             description: 'Toggle switch for boolean settings',
             icon: Icons.toggle_on,
-            preview: TSwitch(
-              label: 'Enable Notifications',
-              valueNotifier: _notificationsNotifier,
-            ),
+            preview: TSwitch(label: 'Enable Notifications', valueNotifier: _notificationsNotifier),
             code: '''TSwitch(
   label: 'Enable Notifications',
   onValueChanged: (value) {
@@ -790,22 +643,9 @@ TCheckboxGroup<String>(
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'label',
-                type: 'String?',
-                description: 'Label text displayed next to the switch',
-              ),
-              PropertyDoc(
-                name: 'value',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Current switch state',
-              ),
-              PropertyDoc(
-                name: 'onValueChanged',
-                type: 'ValueChanged<bool?>?',
-                description: 'Callback fired when switch state changes',
-              ),
+              PropertyDoc(name: 'label', type: 'String?', description: 'Label text displayed next to the switch'),
+              PropertyDoc(name: 'value', type: 'bool', defaultValue: 'false', description: 'Current switch state'),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<bool?>?', description: 'Callback fired when switch state changes'),
             ],
           ),
 
@@ -817,45 +657,19 @@ TCheckboxGroup<String>(
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TSwitch(
-                  label: 'Enabled (On)',
-                  value: true,
-                  onValueChanged: (_) {},
-                ),
+                TSwitch(label: 'Enabled (On)', value: true, onValueChanged: (_) {}),
                 const SizedBox(height: 12),
-                TSwitch(
-                  label: 'Enabled (Off)',
-                  value: false,
-                  onValueChanged: (_) {},
-                ),
+                TSwitch(label: 'Enabled (Off)', value: false, onValueChanged: (_) {}),
                 const SizedBox(height: 12),
-                TSwitch(
-                  label: 'Disabled (On)',
-                  value: true,
-                  disabled: true,
-                  onValueChanged: (_) {},
-                ),
+                TSwitch(label: 'Disabled (On)', value: true, disabled: true, onValueChanged: (_) {}),
                 const SizedBox(height: 12),
-                TSwitch(
-                  label: 'Disabled (Off)',
-                  value: false,
-                  disabled: true,
-                  onValueChanged: (_) {},
-                ),
+                TSwitch(label: 'Disabled (Off)', value: false, disabled: true, onValueChanged: (_) {}),
                 const SizedBox(height: 12),
-                TSwitch(
-                  label: 'Small Size',
-                  value: true,
-                  size: TInputSize.sm,
-                  onValueChanged: (_) {},
-                ),
+                TSwitch(label: 'Extra Small Size', value: true, size: TInputSize.xs, onValueChanged: (_) {}),
                 const SizedBox(height: 12),
-                TSwitch(
-                  label: 'Large Size',
-                  value: true,
-                  size: TInputSize.lg,
-                  onValueChanged: (_) {},
-                ),
+                TSwitch(label: 'Small Size', value: true, size: TInputSize.sm, onValueChanged: (_) {}),
+                const SizedBox(height: 12),
+                TSwitch(label: 'Large Size', value: true, size: TInputSize.lg, onValueChanged: (_) {}),
               ],
             ),
             code: '''// On state
@@ -890,22 +704,9 @@ TSwitch(
   size: TInputSize.lg,
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'disabled',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether the switch is disabled',
-              ),
-              PropertyDoc(
-                name: 'size',
-                type: 'TInputSize?',
-                description: 'Size of the switch (sm, md, lg)',
-              ),
-              PropertyDoc(
-                name: 'color',
-                type: 'Color?',
-                description: 'Custom color for the switch when active',
-              ),
+              PropertyDoc(name: 'disabled', type: 'bool', defaultValue: 'false', description: 'Whether the switch is disabled'),
+              PropertyDoc(name: 'size', type: 'TInputSize?', description: 'Size of the switch (sm, md, lg)'),
+              PropertyDoc(name: 'color', type: 'Color?', description: 'Custom color for the switch when active'),
             ],
           ),
 
@@ -937,17 +738,8 @@ TSwitch(
   onValueChanged: (value) => print(value),
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'isRequired',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether the switch is required',
-              ),
-              PropertyDoc(
-                name: 'rules',
-                type: 'List<String? Function(bool?)>?',
-                description: 'Validation rules for the switch',
-              ),
+              PropertyDoc(name: 'isRequired', type: 'bool', defaultValue: 'false', description: 'Whether the switch is required'),
+              PropertyDoc(name: 'rules', type: 'List<String? Function(bool?)>?', description: 'Validation rules for the switch'),
             ],
           ),
 
@@ -958,11 +750,7 @@ TSwitch(
             title: 'File Picker',
             description: 'File upload widget with file type restrictions',
             icon: Icons.upload_file,
-            preview: TFilePicker(
-              label: 'Upload Document',
-              placeholder: 'Choose file',
-              valueNotifier: ValueNotifier<List<TFile>>([]),
-            ),
+            preview: TFilePicker(label: 'Upload Document', placeholder: 'Choose file', valueNotifier: ValueNotifier<List<TFile>>([])),
             code: '''TFilePicker(
   label: 'Upload Document',
   placeholder: 'Choose file',
@@ -971,16 +759,8 @@ TSwitch(
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'label',
-                type: 'String?',
-                description: 'Label text displayed above the field',
-              ),
-              PropertyDoc(
-                name: 'placeholder',
-                type: 'String?',
-                description: 'Placeholder text when no file is selected',
-              ),
+              PropertyDoc(name: 'label', type: 'String?', description: 'Label text displayed above the field'),
+              PropertyDoc(name: 'placeholder', type: 'String?', description: 'Placeholder text when no file is selected'),
               PropertyDoc(
                 name: 'onValueChanged',
                 type: 'ValueChanged<List<TFile>?>?',

@@ -251,7 +251,7 @@ class TSelect<T, V, K> extends StatefulWidget
     // List
     this.listTheme,
     this.items,
-    this.itemsPerPage = 7,
+    this.itemsPerPage,
     this.search,
     this.searchDelay,
     this.onLoad,
@@ -308,7 +308,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
   TListController<T, K> buildController() {
     return TListController<T, K>(
       items: widget.items ?? [],
-      itemsPerPage: widget.itemsPerPage ?? 0,
+      itemsPerPage: widget.itemsPerPage ?? 7,
       search: widget.search ?? '',
       searchDelay: widget.searchDelay,
       onLoad: widget.onLoad,
@@ -332,7 +332,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
       onTap: _onItemSelected,
     );
 
-    return shouldCenteredOverlay
+    final content = shouldCenteredOverlay
         ? Column(children: [
             if (widget.filterable)
               Padding(
@@ -346,6 +346,8 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
             Expanded(child: list),
           ])
         : list;
+
+    return Padding(padding: EdgeInsets.fromLTRB(6, 16, 6, 0), child: content);
   }
 
   @override

@@ -149,8 +149,9 @@ class TTabs<T> extends StatefulWidget {
 
   /// Custom builder for tab widgets.
   /// When provided, this builder is used instead of the default tab rendering.
-  /// Receives the tab, whether it's selected, and should return a widget.
-  final Widget Function(BuildContext context, TTab<T> tab, bool isSelected)? tabBuilder;
+  /// Receives the context, tab, whether it's selected, and the onTap callback.
+  /// The builder should handle its own Material/InkWell for interaction.
+  final Widget Function(BuildContext context, TTab<T> tab, bool isSelected, VoidCallback? onTap)? tabBuilder;
 
   /// Color for navigation buttons.
   final Color? navigationButtonColor;
@@ -321,12 +322,13 @@ class _TTabsState<T> extends State<TTabs<T>> {
     final isSelected = selectedValue == tab.value;
 
     final tabWidget = widget.tabBuilder != null
-        ? Material(
-            color: Colors.transparent,
-            child: InkWell(
-              key: _tabKeys[tab.value],
-              onTap: tab.isEnabled ? () => _onSelectTab(tab) : null,
-              child: widget.tabBuilder!(context, tab, isSelected),
+        ? Container(
+            key: _tabKeys[tab.value],
+            child: widget.tabBuilder!(
+              context,
+              tab,
+              isSelected,
+              tab.isEnabled ? () => _onSelectTab(tab) : null,
             ),
           )
         : TabRenderer.buildDefaultTab<T>(
