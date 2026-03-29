@@ -29,7 +29,6 @@ class TTableRowHeader<T, K> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final wTheme = theme ?? context.theme.tableTheme.headerTheme;
 
     return Container(
