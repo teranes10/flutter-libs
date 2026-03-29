@@ -239,7 +239,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
       width: widget.size,
       height: widget.size / widget.aspectRatio,
       alignment: Alignment.center,
-      decoration: ShapeDecoration(color: widget.color ?? colors.surfaceContainerLowest, shape: widget.border),
+      decoration: ShapeDecoration(color: widget.color ?? colors.surfaceContainerLow, shape: widget.border),
       child: ClipPath(clipper: ShapeBorderClipper(shape: widget.border), child: image),
     );
 

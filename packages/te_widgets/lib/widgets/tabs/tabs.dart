@@ -237,12 +237,12 @@ class _TTabsState<T> extends State<TTabs<T>> {
     super.didUpdateWidget(oldWidget);
 
     // Debug logging for Basic Tabs
-    if (widget.tabs.isNotEmpty && widget.tabs.first.text == 'Home') {
-      print('TTabs [Basic]: didUpdateWidget called');
-      print('  oldWidget.selectedValue: ${oldWidget.selectedValue}');
-      print('  widget.selectedValue: ${widget.selectedValue}');
-      print('  controller: ${widget.controller}');
-    }
+    // if (widget.tabs.isNotEmpty && widget.tabs.first.text == 'Home') {
+    //   print('TTabs [Basic]: didUpdateWidget called');
+    //   print('  oldWidget.selectedValue: ${oldWidget.selectedValue}');
+    //   print('  widget.selectedValue: ${widget.selectedValue}');
+    //   print('  controller: ${widget.controller}');
+    // }
 
     // Update keys if tabs changed
     if (oldWidget.tabs != widget.tabs) {
@@ -254,9 +254,9 @@ class _TTabsState<T> extends State<TTabs<T>> {
 
     // Scroll to selected tab if it changed
     if (oldWidget.selectedValue != widget.selectedValue && widget.selectedValue != null) {
-      if (widget.tabs.isNotEmpty && widget.tabs.first.text == 'Home') {
-        print('TTabs [Basic]: selectedValue changed, will scroll');
-      }
+      // if (widget.tabs.isNotEmpty && widget.tabs.first.text == 'Home') {
+      //   print('TTabs [Basic]: selectedValue changed, will scroll');
+      // }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _scrollToSelectedTab();
       });
@@ -360,7 +360,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
     final colors = context.colors;
     final defaultBorderColor = widget.borderColor ?? Colors.transparent;
     final defaultNavButtonColor = widget.navigationButtonColor ?? colors.onSurface;
-    final defaultNavButtonBgColor = widget.navigationButtonBackgroundColor ?? colors.surface.withOpacity(0.9);
+    final defaultNavButtonBgColor = widget.navigationButtonBackgroundColor ?? colors.surface.o(0.9);
 
     final tabWidgets = widget.tabs.map((tab) => _buildTab(context, tab, colors)).toList();
 
@@ -476,7 +476,7 @@ class _NavigationButton extends StatelessWidget {
         color: backgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.o(0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

@@ -90,7 +90,7 @@ class TListItem<T, K> {
     List<TListItem<T, K>>? children,
   }) {
     return TListItem<T, K>(
-      key: this.key,
+      key: key,
       data: data ?? this.data,
       isSelected: isSelected ?? this.isSelected,
       isExpanded: isExpanded ?? this.isExpanded,

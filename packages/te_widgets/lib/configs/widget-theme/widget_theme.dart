@@ -101,7 +101,7 @@ class TWidgetTheme {
       type: variant,
       color: active ? AppColors.primary : AppColors.grey,
       container: active ? colors.primaryContainer : colors.surfaceContainer,
-      containerVariant: active ? colors.primaryContainer : colors.surfaceContainerLow,
+      containerVariant: active ? colors.primaryContainer : colors.surfaceContainerHigh,
       onContainer: active ? colors.onPrimaryContainer : colors.onSurface,
       onContainerVariant: active ? colors.onPrimaryContainer : colors.onSurfaceVariant,
       shadow: colors.shadow,

@@ -19,7 +19,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
   final List<TTableHeader<T, K>> headers;
 
   /// Theme for the mobile card.
-  final TTableMobileCardTheme theme;
+  final TTableMobileCardTheme? theme;
 
   /// Optional fixed width.
   final double? width;
@@ -53,7 +53,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     required this.index,
     required this.item,
     required this.headers,
-    this.theme = const TTableMobileCardTheme(),
+    this.theme,
     this.width,
 
     //expandable
@@ -71,16 +71,19 @@ class TTableMobileCard<T, K> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final wTheme = theme ?? context.theme.tableTheme.mobileCardTheme;
+
+    final states = <WidgetState>{if (isSelected) WidgetState.selected};
 
     return Container(
       width: width,
-      margin: theme.margin,
+      margin: wTheme.margin,
       child: Material(
-        elevation: theme.elevation,
-        borderRadius: theme.borderRadius,
-        color: theme.getBackgroundColor(colors, isSelected),
+        elevation: wTheme.elevation,
+        borderRadius: wTheme.borderRadius,
+        color: wTheme.backgroundColor.resolve(states),
         child: Container(
-          decoration: BoxDecoration(borderRadius: theme.borderRadius, border: theme.getBorder(colors, isSelected)),
+          decoration: BoxDecoration(borderRadius: wTheme.borderRadius, border: wTheme.border.resolve(states)),
           child: Column(
             children: [
               Stack(
@@ -93,7 +96,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
                           value: isSelected,
                           onValueChanged: (value) => onSelectionChanged?.call(),
                         )),
-                  _buildMainContent(context),
+                  _buildMainContent(context, wTheme),
                   if (expandable)
                     Positioned(
                       bottom: 0,
@@ -112,9 +115,9 @@ class TTableMobileCard<T, K> extends StatelessWidget {
               if (isExpanded && expandedContent != null) ...[
                 Padding(
                   padding: EdgeInsets.only(
-                    left: theme.padding.left + (selectable ? 3 : 0),
-                    right: theme.padding.right + (expandable ? 3 : 0),
-                    bottom: theme.padding.bottom,
+                    left: wTheme.padding.left + (selectable ? 3 : 0),
+                    right: wTheme.padding.right + (expandable ? 3 : 0),
+                    bottom: wTheme.padding.bottom,
                   ),
                   child: expandedContent!,
                 ),
@@ -126,14 +129,14 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     );
   }
 
-  Widget _buildMainContent(BuildContext ctx) {
+  Widget _buildMainContent(BuildContext ctx, TTableMobileCardTheme wTheme) {
     final values = TKeyValue.mapHeaders(ctx, headers, item, index);
     return Padding(
       padding: EdgeInsets.only(
-        top: theme.padding.top + (selectable ? 6 : 0),
-        left: (theme.padding.left) + (selectable ? 3 : 0),
-        right: (theme.padding.right) + (expandable ? 3 : 0),
-        bottom: (theme.padding.bottom) + (expandable ? 6 : 0),
+        top: wTheme.padding.top + (selectable ? 6 : 0),
+        left: (wTheme.padding.left) + (selectable ? 3 : 0),
+        right: (wTheme.padding.right) + (expandable ? 3 : 0),
+        bottom: (wTheme.padding.bottom) + (expandable ? 6 : 0),
       ),
       child: TKeyValueSection(values: values),
     );

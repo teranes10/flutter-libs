@@ -18,7 +18,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
   final List<TTableHeader<T, K>> headers;
 
   /// Theme for the row card.
-  final TTableRowCardTheme theme;
+  final TTableRowCardTheme? theme;
 
   /// Optional fixed width.
   final double? width;
@@ -56,7 +56,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
     required this.item,
     required this.headers,
     this.columnWidths,
-    this.theme = const TTableRowCardTheme(),
+    this.theme,
     this.width,
 
     //expandable
@@ -74,13 +74,15 @@ class TTableRowCard<T, K> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final wTheme = theme ?? context.theme.tableTheme.rowCardTheme;
+    final states = <WidgetState>{if (isSelected) WidgetState.selected};
 
     return TCard(
-      margin: theme.margin,
-      elevation: theme.elevation,
-      borderRadius: theme.borderRadius,
-      backgroundColor: theme.getBackgroundColor(colors, isSelected),
-      padding: theme.padding,
+      margin: wTheme.margin,
+      elevation: wTheme.elevation,
+      borderRadius: wTheme.borderRadius,
+      backgroundColor: wTheme.backgroundColor.resolve(states),
+      padding: wTheme.padding,
       boxShadow: [BoxShadow(color: colors.shadow, offset: const Offset(0, 1), blurRadius: 0, spreadRadius: 0)],
       child: Column(
         children: [
@@ -96,6 +98,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
                       icon: Icons.keyboard_arrow_down,
                       size: 20,
                       color: colors.onSurfaceVariant,
+                      background: colors.surfaceContainerLowest,
                       turns: (0, 0.5),
                       active: isExpanded,
                       onTap: onExpansionChanged,
@@ -115,7 +118,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 5),
                         child: header.builder != null
                             ? Builder(builder: (context) => header.builder!(context, item, index))
-                            : SelectableText(header.getValue(item.data), style: theme.getContentTextStyle(colors)),
+                            : SelectableText(header.getValue(item.data), style: wTheme.contentTextStyle),
                       ),
                     ),
                   );
@@ -130,7 +133,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
               child: isExpanded
                   ? Container(
                       width: double.infinity,
-                      margin: EdgeInsets.only(top: theme.padding.top),
+                      margin: EdgeInsets.only(top: wTheme.padding.top),
                       child: expandedContent,
                     )
                   : const SizedBox.shrink(),

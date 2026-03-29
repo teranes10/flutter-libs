@@ -124,7 +124,7 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   final TCrudConfig<T, K> config;
 
   /// Builder for expanded row content.
-  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index)? expandedBuilder;
+  final TListExpandedBuilder<T, K>? expandedBuilder;
 
   /// Custom theme for the table.
   final TTableTheme? theme;
@@ -169,6 +169,9 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   late final TListController<T, K> _listController;
   late final TListController<T, K> _archiveListController;
 
+  late final bool _isControllerOwned;
+  late final bool _isArchiveControllerOwned;
+
   late final _TCrudTopBar<T, K, F> _topBar;
   late final _TCrudTableBuilder<T, K, F> _tableBuilder;
 
@@ -179,6 +182,9 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   void initState() {
     super.initState();
 
+    _isControllerOwned = widget.controller == null;
+    _isArchiveControllerOwned = widget.archiveController == null;
+
     _listController = widget.controller ??
         TListController<T, K>(
           itemsPerPage: widget.config.itemsPerPage,
@@ -188,18 +194,37 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
     _archiveListController = widget.archiveController ??
         TListController<T, K>(
-          itemsPerPage: widget.config.itemsPerPage,
-          items: widget.archivedItems ?? [],
-          onLoad: widget.onArchiveLoad,
-        );
+            itemsPerPage: widget.config.itemsPerPage,
+            items: widget.archivedItems ?? [],
+            onLoad: widget.onArchiveLoad,
+            itemKey: _listController.itemKey);
 
     _topBar = _TCrudTopBar<T, K, F>(parent: this);
     _tableBuilder = _TCrudTableBuilder<T, K, F>(parent: this);
   }
 
   @override
+  void didUpdateWidget(covariant TCrudTable<T, K, F> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if ((oldWidget.items != null && widget.items != null) && !oldWidget.items!.listEquals(widget.items!)) {
+      _listController.updateItems(widget.items ?? []);
+    }
+
+    if ((oldWidget.archivedItems != null && widget.archivedItems != null) && !oldWidget.archivedItems!.listEquals(widget.archivedItems!)) {
+      _archiveListController.updateItems(widget.archivedItems ?? []);
+    }
+  }
+
+  @override
   void dispose() {
     _permissionCache.clear();
+    if (_isControllerOwned) {
+      _listController.dispose();
+    }
+    if (_isArchiveControllerOwned) {
+      _archiveListController.dispose();
+    }
     super.dispose();
   }
 

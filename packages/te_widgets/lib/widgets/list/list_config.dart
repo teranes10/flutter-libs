@@ -30,6 +30,7 @@ typedef TListFooterBuilder = Widget Function(BuildContext context);
 typedef TListSeparatorBuilder = Widget? Function(BuildContext context, int index);
 typedef TListDragProxyDecorator = Widget Function(Widget, int, Animation<double>);
 typedef TListReorderCallback = void Function(int, int);
+typedef TListExpandedBuilder<T, K> = Widget Function(BuildContext ctx, TListItem<T, K> item, int index);
 typedef TGridDelegateBuilder = TGridDelegate Function(BuildContext context);
 
 /// Options for loading data in the list.

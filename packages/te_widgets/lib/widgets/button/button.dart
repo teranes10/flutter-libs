@@ -219,7 +219,7 @@ class TButton extends StatefulWidget {
   ///   ),
   /// )
   /// ```
-  static custom({required Widget child, VoidCallback? onTap, String? tooltip}) {
+  static TButton custom({required Widget child, VoidCallback? onTap, String? tooltip}) {
     return TButton(
       size: TButtonSize.zero,
       shape: TButtonShape.normal,

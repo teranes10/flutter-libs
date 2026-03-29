@@ -141,9 +141,9 @@ class TInputFieldTheme {
 
     final backgroundColor = WidgetStateProperty.resolveWith((states) {
       if (decorationType == TInputDecorationType.filled) {
-        return states.contains(WidgetState.disabled) ? colors.surfaceDim.withAlpha(50) : colors.surfaceContainer;
+        return states.contains(WidgetState.disabled) ? colors.surfaceDim : colors.surfaceContainer;
       }
-      return states.contains(WidgetState.disabled) ? colors.surfaceDim.withAlpha(50) : colors.surface;
+      return states.contains(WidgetState.disabled) ? colors.surfaceDim : colors.surface;
     });
 
     final borderColor = WidgetStateProperty.resolveWith((states) {

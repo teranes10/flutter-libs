@@ -7,7 +7,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// It automatically adjusts to match column widths of [TTableRowCard].
 class TTableRowHeader<T, K> extends StatelessWidget {
   /// Theme text and decoration.
-  final TTableRowHeaderTheme theme;
+  final TTableRowHeaderTheme? theme;
 
   /// Column definitions.
   final List<TTableHeader<T, K>> headers;
@@ -24,17 +24,18 @@ class TTableRowHeader<T, K> extends StatelessWidget {
     required this.controller,
     required this.headers,
     this.columnWidths,
-    this.theme = const TTableRowHeaderTheme(),
+    this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final wTheme = theme ?? context.theme.tableTheme.headerTheme;
 
     return Container(
       width: double.infinity,
-      padding: controller.reorderable ? theme.padding.copyWith(left: theme.padding.left + 25) : theme.padding,
-      decoration: theme.decoration,
+      padding: controller.reorderable ? wTheme.padding.copyWith(left: wTheme.padding.left + 25) : wTheme.padding,
+      decoration: wTheme.decoration,
       child: Table(
         columnWidths: columnWidths,
         children: [
@@ -49,7 +50,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
                   onValueChanged: (value) => controller.toggleSelectAll(),
                 ),
               ),
-            ...headers.map((header) => buildHeaderCell(colors, header)),
+            ...headers.map((header) => buildHeaderCell(wTheme, header)),
           ])
         ],
       ),
@@ -57,14 +58,14 @@ class TTableRowHeader<T, K> extends StatelessWidget {
   }
 
   /// Builds a single header cell.
-  Widget buildHeaderCell(ColorScheme colors, TTableHeader<T, K> header) {
+  Widget buildHeaderCell(TTableRowHeaderTheme wTheme, TTableHeader<T, K> header) {
     return Container(
       constraints: BoxConstraints(minWidth: header.minWidth ?? 50, maxWidth: header.maxWidth ?? double.infinity),
       child: Align(
         alignment: header.alignment ?? Alignment.centerLeft,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: Text(header.text, style: theme.getHeaderStyle(colors), textAlign: header.getTextAlign()),
+          child: Text(header.text, style: wTheme.textStyle, textAlign: header.getTextAlign()),
         ),
       ),
     );

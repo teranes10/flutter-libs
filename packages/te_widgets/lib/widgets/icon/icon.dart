@@ -79,6 +79,10 @@ class TIcon extends StatelessWidget {
   /// Duration of rotation animation in milliseconds.
   final int animationMilliseconds;
 
+  final BoxShape shape;
+  final Color? background;
+  final BorderRadius? borderRadius;
+
   /// Creates an icon.
   const TIcon({
     super.key,
@@ -86,13 +90,16 @@ class TIcon extends StatelessWidget {
     this.onTap,
     this.size = 16,
     this.active = false,
-    this.padding = const EdgeInsets.all(8),
+    this.padding = const EdgeInsets.all(6),
     this.turns,
     this.animationMilliseconds = 200,
     this.color,
     this.activeIcon,
     this.activeColor,
     this.hoverColor,
+    this.shape = BoxShape.rectangle,
+    this.background,
+    this.borderRadius = const BorderRadius.all(Radius.circular(10)),
   });
 
   /// Creates a close icon with default styling.
@@ -106,7 +113,7 @@ class TIcon extends StatelessWidget {
       icon: Icons.cancel_outlined,
       onTap: onTap,
       size: size,
-      color: colors.surfaceContainerHighest,
+      color: colors.surfaceDim,
       hoverColor: colors.error,
       padding: padding,
     );
@@ -142,8 +149,9 @@ class TIcon extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
+      borderRadius: borderRadius,
+      child: Container(
+        decoration: BoxDecoration(shape: shape, color: background, borderRadius: borderRadius),
         padding: padding,
         child: hoverOrActiveColor == null
             ? buildIcon(isHovering: false)

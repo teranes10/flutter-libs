@@ -1,67 +1,78 @@
-# 2.0.8
+# 2.0.9
 
-    - Cursor pagination support
-    - Tabs fix
-    - SelectableText in Table
-  
+- Table row card background color, border props added
+
+## 2.0.8
+
+- Added cursor-based pagination support
+- Fixed tabs selection issues
+- Enabled selectable text in tables
+
 ## 2.0.7
 
-    - Tabs improved with scrollable + wraps + navigation buttons
-    - inputs clearable option
+- Improved tabs (scrollable, wrapping, navigation buttons)
+- Added clearable option for inputs
 
 ## 2.0.6
 
-    - Screenshots Added
+- Added screenshots
 
 ## 2.0.5
 
-    - Documentation Added
+- Added documentation
 
 ## 2.0.4
 
-    - Select infinite scroll fix
-    - Data table items per page dropdown fix
+- Fixed select infinite scroll issue
+- Fixed data table items-per-page dropdown
 
 ## 2.0.0
 
-    - List View & List Controller
+- Added ListView and ListController
 
 ## 0.0.9
 
-    - Sidebar overlay (remove deeper levels fix)
-    - Select (selected item text display fix)
+- Fixed sidebar overlay issue when removing deeper levels
+- Fixed selected item text display in Select
 
 ## 0.0.8
 
-    - TCrudTable actions
+- Added actions to TCrudTable
 
 ## 0.0.7
 
-    - TFormBuilder (sub form & sub form list)
+- Added TFormBuilder support for sub-forms and sub-form lists
 
 ## 0.0.6
 
-    - TModalService overflow issue fixed
+- Fixed overflow issue in TModalService
 
 ## 0.0.5
 
-    - (tags, select, multiSelect, number, date, time, dateTime) field types added to TFormField
+- Added new field types to TFormField:
+  - tags
+  - select
+  - multiSelect
+  - number
+  - date
+  - time
+  - dateTime
 
 ## 0.0.4
 
-    - TPagination Controller
-    - TToastService
-    - TFormService
-    - TCrudTable (Add Item option)
+- Added TPaginationController
+- Added TToastService
+- Added TFormService
+- Added “Add Item” option to TCrudTable
 
 ## 0.0.3
 
-    - TDataTable filtering logic
+- Implemented filtering logic for TDataTable
 
 ## 0.0.2
 
-    - **FEAT**(te_widgets): test version bump.
+- **FEAT(te_widgets):** version bump for testing
 
 ## 0.0.1
 
-    - TODO: Describe initial release.
+- Initial release

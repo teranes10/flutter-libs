@@ -16,18 +16,9 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
     final themeMode = ref.watch(themeNotifierProvider);
-    final theme = TAppTheme.defaultTheme().copyWith(
-      widgetThemeBuilder: (scheme) {
-        final wTheme = TWidgetThemeExtension.defaultTheme(scheme);
-
-        return wTheme.copyWith(
-          tableTheme: wTheme.tableTheme.copyWith(
-            animationBuilder: TListAnimationBuilders.staggered,
-          ),
-        );
-      },
-    );
+    final theme = TAppTheme.defaultTheme();
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,

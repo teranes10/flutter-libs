@@ -68,7 +68,7 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
 
   // Expandable configuration
   /// Builder for expanded content of a row.
-  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index)? expandedBuilder;
+  final TListExpandedBuilder<T, K>? expandedBuilder;
 
   /// Whether specific cells are editable.
   final bool editable;
@@ -158,7 +158,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     );
   }
 
-  _buildRowCard(Map<int, TableColumnWidth> columnWidths, BuildContext ctx, TListItem<T, K> item, int index) {
+  TTableRowCard<T, K> _buildRowCard(Map<int, TableColumnWidth> columnWidths, BuildContext ctx, TListItem<T, K> item, int index) {
     return TTableRowCard<T, K>(
       index: index,
       item: item,
@@ -176,7 +176,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     );
   }
 
-  _buildMobileCard(BuildContext ctx, TListItem<T, K> item, int index) {
+  TTableMobileCard<T, K> _buildMobileCard(BuildContext ctx, TListItem<T, K> item, int index) {
     return TTableMobileCard<T, K>(
       index: index,
       item: item,

@@ -203,7 +203,7 @@ class _TTextFieldState extends State<TTextField>
     super.onExternalValueChanged(value);
     if (textController.text != value) {
       textController.value = textController.value.copyWith(
-        text: value,
+        text: value ?? '',
         selection: TextSelection.collapsed(offset: value?.length ?? 0),
       );
     }

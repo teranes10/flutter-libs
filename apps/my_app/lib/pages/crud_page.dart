@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:my_app/clients/products_client.dart';
 import 'package:my_app/models/product_dto.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_widgets/widgets/table/row_expand.dart';
 
 class CrudPage extends StatelessWidget {
   const CrudPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     final controller = TListController<ProductDto, int>(
       selectionMode: TSelectionMode.multiple,
       expansionMode: TExpansionMode.single,
@@ -98,19 +98,13 @@ class CrudPage extends StatelessWidget {
       expandedBuilder: (ctx, item, index) {
         final data = item.data;
 
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(8)),
-          child: TKeyValueSection(
-            values: [
-              TKeyValue('QR Code', widget: data.meta?.qrCode != null ? Image.network(data.meta!.qrCode, width: 80) : SizedBox.shrink()),
-              TKeyValue.text('Description', data.description),
-              TKeyValue.text('Barcode', data.meta?.barcode),
-              TKeyValue.text('Created At', data.meta?.createdAt),
-              TKeyValue.text('Updated At', data.meta?.updatedAt),
-            ],
-          ),
-        );
+        return TRowExpandedBuilder.keyValue(ctx, [
+          TKeyValue('QR Code', widget: data.meta?.qrCode != null ? Image.network(data.meta!.qrCode, width: 80) : SizedBox.shrink()),
+          TKeyValue.text('Description', data.description),
+          TKeyValue.text('Barcode', data.meta?.barcode),
+          TKeyValue.text('Created At', data.meta?.createdAt),
+          TKeyValue.text('Updated At', data.meta?.updatedAt),
+        ]);
       },
       controller: controller,
       archiveController: archiveController,

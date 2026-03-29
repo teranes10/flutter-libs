@@ -14,10 +14,8 @@ class TTableMobileCardTheme extends TKeyValueTheme {
   final EdgeInsets padding;
   final double elevation;
   final BorderRadius borderRadius;
-  final Color? backgroundColor;
-  final Color? selectedBackgroundColor;
-  final Border? border;
-  final Border? selectedBorder;
+  final WidgetStateProperty<Color> backgroundColor;
+  final WidgetStateProperty<Border> border;
 
   /// Creates a mobile card theme.
   const TTableMobileCardTheme({
@@ -25,21 +23,31 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     this.padding = const EdgeInsets.all(16),
     this.elevation = 1,
     this.borderRadius = const BorderRadius.all(Radius.circular(12)),
-    this.backgroundColor,
-    this.selectedBackgroundColor,
-    this.border,
-    this.selectedBorder,
+    required this.backgroundColor,
+    required this.border,
+    required super.keyStyle,
+    required super.labelStyle,
+    required super.valueStyle,
+    super.gridSpacing = 0,
+    super.minGridColWidth = 110,
+    super.forceKeyValue = false,
+    super.keyValueBreakPoint = 350,
   });
 
-  /// Returns the background color based on selection state.
-  Color getBackgroundColor(ColorScheme colors, bool isSelected) {
-    return isSelected ? (selectedBackgroundColor ?? colors.primaryContainer.withAlpha(25)) : (backgroundColor ?? colors.surface);
-  }
-
-  /// Returns the border based on selection state.
-  Border getBorder(ColorScheme colors, bool isSelected) {
-    return isSelected
-        ? (selectedBorder ?? Border.all(color: colors.primary.withAlpha(50), width: 2))
-        : (border ?? Border.all(color: colors.outline));
+  factory TTableMobileCardTheme.defaultTheme(ColorScheme colors) {
+    final baseTheme = TKeyValueTheme.defaultTheme(colors);
+    return TTableMobileCardTheme(
+      keyStyle: baseTheme.keyStyle,
+      labelStyle: baseTheme.labelStyle,
+      valueStyle: baseTheme.valueStyle,
+      backgroundColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected) ? colors.primaryContainer.withAlpha(25) : colors.surface,
+      ),
+      border: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.selected)
+            ? Border.all(color: colors.primary.withAlpha(50), width: 2)
+            : Border.all(color: colors.outline),
+      ),
+    );
   }
 }

@@ -126,7 +126,8 @@ extension ListX<T> on List<T> {
   }
 
   /// Checks if this list equals another element by element
-  bool equalsEach(List<T> other) {
+  bool listEquals(List<T> other) {
+    if (identical(this, other)) return true;
     if (length != other.length) return false;
     for (int i = 0; i < length; i++) {
       if (this[i] != other[i]) return false;
@@ -159,5 +160,13 @@ extension ListX<T> on List<T> {
     final item = newList.removeAt(oldIndex);
     newList.insert(newIndex, item);
     return newList;
+  }
+
+  Map<S, List<T>> groupBy<S>(S Function(T) key) {
+    var map = <S, List<T>>{};
+    for (var element in this) {
+      (map[key(element)] ??= []).add(element);
+    }
+    return map;
   }
 }

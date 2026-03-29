@@ -4,6 +4,7 @@ import 'package:te_widgets/te_widgets.dart';
 extension BuildContextX on BuildContext {
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
   ColorScheme get colors => Theme.of(this).colorScheme;
+  TextTheme get textTheme => Theme.of(this).textTheme;
 
   TWidgetThemeExtension get theme {
     final ext = Theme.of(this).extension<TWidgetThemeExtension>();

@@ -134,7 +134,7 @@ class _TTagsFieldState extends State<TTagsField>
   void onExternalValueChanged(List<String>? value) {
     super.onExternalValueChanged(value);
     final tags = currentValue ?? [];
-    if (!tagsController.tags.equalsEach(tags)) {
+    if (!tagsController.tags.listEquals(tags)) {
       tagsController.updateState(tags: tags);
     }
   }

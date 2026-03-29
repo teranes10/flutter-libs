@@ -99,7 +99,7 @@ mixin TListStateMixin<T, K, W extends StatefulWidget> on State<W> {
       }
     }
 
-    if ((oldMixin.items != null && _widget.items != null) && !oldMixin.items!.equalsEach(_widget.items!)) {
+    if ((oldMixin.items != null && _widget.items != null) && !oldMixin.items!.listEquals(_widget.items!)) {
       _listController.updateItems(_widget.items ?? []);
     }
   }

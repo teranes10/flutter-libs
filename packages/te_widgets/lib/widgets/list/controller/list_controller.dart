@@ -165,7 +165,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       'Invalid key type <$K>. '
       'Allowed key types are: String, int, double, num, bool.',
     );
-
     assert(
       itemKey != null || (allowedKeyTypes.contains(T) && K == T) || K == int,
       'If `itemKey` is not provided, generic type K must be int.',

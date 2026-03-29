@@ -40,36 +40,40 @@ class TKeyValueSection extends StatelessWidget {
   final List<TKeyValue> values;
 
   /// Theme configuration for the section.
-  final TKeyValueTheme theme;
+  final TKeyValueTheme? theme;
 
   /// Creates a key-value section.
   const TKeyValueSection({
     super.key,
     required this.values,
-    this.theme = const TKeyValueTheme(),
+    this.theme,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final wTheme = theme ?? context.theme.keyValueTheme;
 
-    if (theme.forceKeyValue) {
-      return _buildKeyValueLayout(colors);
+    if (wTheme.forceKeyValue) {
+      return _buildKeyValueLayout(colors, wTheme);
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableWidth = constraints.maxWidth;
-        if (availableWidth > theme.keyValueBreakPoint) {
-          return _buildGridLayoutWidget(colors, availableWidth);
+        if (availableWidth > wTheme.keyValueBreakPoint) {
+          return _buildGridLayoutWidget(colors, wTheme, availableWidth);
         } else {
-          return _buildKeyValueLayout(colors);
+          return _buildKeyValueLayout(colors, wTheme);
         }
       },
     );
   }
 
-  Widget _buildKeyValueLayout(ColorScheme colors) {
+  Widget _buildKeyValueLayout(
+    ColorScheme colors,
+    TKeyValueTheme wTheme,
+  ) {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Column(
@@ -83,9 +87,9 @@ class TKeyValueSection extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(flex: 2, child: Text(keyValue.key, style: theme.getKeyStyle(colors))),
+                  Expanded(flex: 2, child: Text(keyValue.key, style: wTheme.keyStyle)),
                   const SizedBox(width: 12),
-                  Expanded(flex: 3, child: Align(alignment: Alignment.centerRight, child: _buildCellContent(colors, keyValue))),
+                  Expanded(flex: 3, child: Align(alignment: Alignment.centerRight, child: _buildCellContent(wTheme, keyValue))),
                 ],
               ),
             );
@@ -93,13 +97,13 @@ class TKeyValueSection extends StatelessWidget {
         ));
   }
 
-  Widget _buildGridLayoutWidget(ColorScheme colors, double availableWidth) {
-    final gridData = _createRowData(availableWidth);
+  Widget _buildGridLayoutWidget(ColorScheme colors, TKeyValueTheme wTheme, double availableWidth) {
+    final gridData = _createRowData(wTheme, availableWidth);
 
     return Column(
       children: gridData.map((rowData) {
         return Padding(
-          padding: EdgeInsets.only(bottom: theme.gridSpacing),
+          padding: EdgeInsets.only(bottom: wTheme.gridSpacing),
           child: Table(
             columnWidths: _createColumnWidths(rowData.columnWidths),
             children: [
@@ -109,7 +113,7 @@ class TKeyValueSection extends StatelessWidget {
                   final header = entry.value;
                   final isFirst = index == 0;
 
-                  return _buildGridCell(colors, header, isFirst);
+                  return _buildGridCell(colors, wTheme, header, isFirst);
                 }).toList(),
               ),
             ],
@@ -119,7 +123,7 @@ class TKeyValueSection extends StatelessWidget {
     );
   }
 
-  Widget _buildGridCell(ColorScheme colors, TKeyValue keyValue, bool isFirstInRow) {
+  Widget _buildGridCell(ColorScheme colors, TKeyValueTheme wTheme, TKeyValue keyValue, bool isFirstInRow) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(border: isFirstInRow ? null : Border(left: BorderSide(color: colors.outline.withAlpha(100), width: 1))),
@@ -127,31 +131,31 @@ class TKeyValueSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(keyValue.key, style: theme.getLabelStyle(colors)),
+          Text(keyValue.key, style: wTheme.labelStyle),
           const SizedBox(height: 4),
-          _buildCellContent(colors, keyValue),
+          _buildCellContent(wTheme, keyValue),
         ],
       ),
     );
   }
 
-  Widget _buildCellContent(ColorScheme colors, TKeyValue keyValue) {
+  Widget _buildCellContent(TKeyValueTheme wTheme, TKeyValue keyValue) {
     if (keyValue.widget != null) {
       return keyValue.widget!;
     }
 
-    return SelectableText(keyValue.value ?? '', style: theme.getValueStyle(colors));
+    return SelectableText(keyValue.value ?? '', style: wTheme.valueStyle);
   }
 
-  List<_RowData> _createRowData(double availableWidth) {
+  List<_RowData> _createRowData(TKeyValueTheme wTheme, double availableWidth) {
     final List<_RowData> rows = [];
     List<TKeyValue> currentRowValues = [];
     List<double> currentRowWidths = [];
     double currentRowTotalWidth = 0;
 
     for (final keyValue in values) {
-      final columnWidth = keyValue.estimateColumnWidth(availableWidth, theme);
-      final spacingNeeded = currentRowValues.isEmpty ? 0 : theme.gridSpacing;
+      final columnWidth = keyValue.estimateColumnWidth(availableWidth, wTheme);
+      final spacingNeeded = currentRowValues.isEmpty ? 0 : wTheme.gridSpacing;
 
       if (currentRowTotalWidth + spacingNeeded + columnWidth <= availableWidth) {
         currentRowValues.add(keyValue);

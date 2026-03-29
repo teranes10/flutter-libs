@@ -165,7 +165,7 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
 
     final wasEmpty = oldValue == null;
     final isEmpty = value != null;
-    print('vv: $value, $oldValue : $currentValue');
+
     if (wasEmpty != isEmpty) {
       setState(() {});
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 /// Value type for [TTagsController].
 ///
@@ -38,19 +39,11 @@ class TagsEditingValue extends TextEditingValue {
     if (identical(this, other)) return true;
     if (other is! TagsEditingValue) return false;
 
-    return text == other.text && selection == other.selection && composing == other.composing && _listEquals(tags, other.tags);
+    return text == other.text && selection == other.selection && composing == other.composing && tags.listEquals(other.tags);
   }
 
   @override
   int get hashCode => Object.hash(text, selection, composing, Object.hashAll(tags));
-
-  bool _listEquals(List<String> a, List<String> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
 }
 
 /// Controller for [TTagsField].

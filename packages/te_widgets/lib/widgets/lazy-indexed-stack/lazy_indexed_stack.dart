@@ -48,7 +48,7 @@ class _TLazyIndexedStackState extends State<TLazyIndexedStack> {
   }
 
   void _buildChild(int index) {
-    if (index >= 0 && index < _builtChildren.length && _builtChildren[index] == null) {
+    if (index >= 0 && index < _builtChildren.length) {
       _builtChildren[index] = widget.children[index](context);
     }
   }

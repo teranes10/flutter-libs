@@ -21,7 +21,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// ```
 class TTableHelper {
   /// Creates a PDF table widget from headers and items.
-  static from<T, K>(
+  static Table from<T, K>(
     BuildContext context,
     List<TTableHeader<T, K>> headers,
     List<T> items, {

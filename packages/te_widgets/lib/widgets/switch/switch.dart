@@ -183,7 +183,7 @@ class _TSwitchState<T> extends State<TSwitch>
                       splashRadius: 0,
                       value: currentValue ?? false,
                       onChanged: widget.disabled ? null : _onSwitchChanged,
-                      activeColor: Colors.white,
+                      activeThumbColor: Colors.white,
                       inactiveThumbColor: Colors.white,
                       activeTrackColor: wTheme.container,
                       inactiveTrackColor: colors.surfaceDim,

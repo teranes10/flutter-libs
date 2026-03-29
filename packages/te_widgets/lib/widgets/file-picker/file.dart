@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:te_widgets/extensions/u_int8_list_x.dart';
 
 /// Represents a file selected by [TFilePicker].
 ///
@@ -35,31 +36,13 @@ class TFile {
     if (other is! TFile) return false;
 
     final sameName = name == other.name;
-    final sameBytes = _listEquals(bytes, other.bytes);
+    final sameBytes = bytes.listEquals(other.bytes);
     final sameFile = (file != null && other.file != null) ? file!.path == other.file!.path : true;
     return sameName && sameBytes && sameFile;
   }
 
   @override
   int get hashCode {
-    return Object.hash(name, _bytesHash(bytes), file?.path);
-  }
-
-  static bool _listEquals(Uint8List a, Uint8List b) {
-    if (a.lengthInBytes != b.lengthInBytes) return false;
-    for (int i = 0; i < a.lengthInBytes; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
-
-  static int _bytesHash(Uint8List bytes) {
-    int hash = 0;
-    for (final b in bytes) {
-      hash = 0x1fffffff & (hash + b);
-      hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-      hash ^= (hash >> 6);
-    }
-    return hash;
+    return Object.hash(name, bytes.bytesHash(), file?.path);
   }
 }

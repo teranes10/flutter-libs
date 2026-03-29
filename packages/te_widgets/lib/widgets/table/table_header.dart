@@ -59,7 +59,7 @@ class TTableHeader<T, K> {
 
   /// Gets the string display value for an item.
   String getValue(T item) {
-    return this.map?.call(item)?.toString() ?? '';
+    return map?.call(item)?.toString() ?? '';
   }
 
   /// Gets the text alignment based on [alignment].
@@ -107,7 +107,9 @@ class TTableHeader<T, K> {
     this.alignment,
     Color Function(T)? color,
     TVariant? type,
-  }) : builder = ((_, item, __) => TChip(text: map?.call(item.data).toString(), color: color?.call(item.data), type: type));
+    void Function()? Function(T)? onTap,
+  }) : builder = ((_, item, __) =>
+            TChip(text: map?.call(item.data).toString(), color: color?.call(item.data), type: type, onTap: onTap?.call(item.data)));
 
   /// Creates a header for row actions.
   TTableHeader.actions(
@@ -119,7 +121,11 @@ class TTableHeader<T, K> {
     double? maxWidth,
     int? count,
   })  : map = null,
-        maxWidth = maxWidth ?? (count != null ? (50.0 * count).clamp(50.0, 150.0) : null),
+        maxWidth = maxWidth != null
+            ? maxWidth.clamp(75.0, 150.0)
+            : count != null
+                ? (50.0 * count).clamp(75.0, 150.0)
+                : null,
         builder = ((ctx, item, __) => TButtonGroup(type: TButtonGroupType.icon, alignment: WrapAlignment.end, items: builder(item)));
 
   /// Creates an editable cell header.
@@ -136,7 +142,7 @@ class TTableHeader<T, K> {
           final activeCursor = TTableScope.maybeOf(ctx)?.activeCellNotifier;
           final data = item.data;
           final cellKey = "${item.key}_$text";
-          final textStyle = ctx.theme.tableTheme.rowCardTheme.getContentTextStyle(ctx.colors);
+          final textStyle = ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
 
           if (activeCursor != null) {
             return InkWell(

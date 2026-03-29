@@ -40,9 +40,9 @@ class TTableTheme extends TListTheme {
     super.gridDelegate,
     this.cardWidth,
     this.forceCardStyle,
-    this.headerTheme = const TTableRowHeaderTheme(),
-    this.mobileCardTheme = const TTableMobileCardTheme(),
-    this.rowCardTheme = const TTableRowCardTheme(),
+    required this.headerTheme,
+    required this.mobileCardTheme,
+    required this.rowCardTheme,
   });
 
   @override
@@ -124,12 +124,14 @@ class TTableTheme extends TListTheme {
     final listTheme = TListTheme.defaultTheme(colors);
 
     return TTableTheme(
-      loadingBuilder: listTheme.loadingBuilder,
-      infiniteScrollFooterBuilder: listTheme.infiniteScrollFooterBuilder,
-      emptyStateBuilder: listTheme.emptyStateBuilder,
-      errorStateBuilder: listTheme.errorStateBuilder,
-      dragProxyDecorator: listTheme.dragProxyDecorator,
-    );
+        loadingBuilder: listTheme.loadingBuilder,
+        infiniteScrollFooterBuilder: listTheme.infiniteScrollFooterBuilder,
+        emptyStateBuilder: listTheme.emptyStateBuilder,
+        errorStateBuilder: listTheme.errorStateBuilder,
+        dragProxyDecorator: listTheme.dragProxyDecorator,
+        headerTheme: TTableRowHeaderTheme.defaultTheme(colors),
+        rowCardTheme: TTableRowCardTheme.defaultTheme(colors),
+        mobileCardTheme: TTableMobileCardTheme.defaultTheme(colors));
   }
 
   /// Calculates column widths based on headers and available options.
@@ -138,12 +140,12 @@ class TTableTheme extends TListTheme {
     int columnIndex = 0;
 
     if (selectable) {
-      columnWidths[columnIndex] = const FixedColumnWidth(40);
+      columnWidths[columnIndex] = const FixedColumnWidth(50);
       columnIndex++;
     }
 
     if (expandable) {
-      columnWidths[columnIndex] = const FixedColumnWidth(40);
+      columnWidths[columnIndex] = const FixedColumnWidth(50);
       columnIndex++;
     }
 
@@ -168,8 +170,8 @@ class TTableTheme extends TListTheme {
     double totalWidth = 0;
 
     // Add width for expand/select columns
-    if (expandable) totalWidth += 40;
-    if (selectable) totalWidth += 40;
+    if (expandable) totalWidth += 50;
+    if (selectable) totalWidth += 50;
 
     for (final header in headers) {
       if (header.maxWidth != null && header.maxWidth != double.infinity) {

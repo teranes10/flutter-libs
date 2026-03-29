@@ -9,17 +9,16 @@ import 'package:flutter/material.dart';
 class TTableRowHeaderTheme {
   final EdgeInsets padding;
   final Decoration? decoration;
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   /// Creates a table row header theme.
   const TTableRowHeaderTheme({
     this.decoration,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    this.textStyle,
+    required this.textStyle,
   });
 
-  /// Returns the text style for headers.
-  TextStyle getHeaderStyle(ColorScheme colors) {
-    return textStyle ?? TextStyle(fontSize: 13.6, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant);
+  factory TTableRowHeaderTheme.defaultTheme(ColorScheme colors) {
+    return TTableRowHeaderTheme(textStyle: TextStyle(fontSize: 13.6, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant));
   }
 }

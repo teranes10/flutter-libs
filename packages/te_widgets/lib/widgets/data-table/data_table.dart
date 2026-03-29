@@ -111,7 +111,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Builder for expanded row content.
   ///
   /// When provided, rows can be expanded to show additional details.
-  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index)? expandedBuilder;
+  final TListExpandedBuilder<T, K>? expandedBuilder;
 
   /// Number of pagination buttons to show.
   ///
@@ -198,7 +198,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: colors.surfaceContainerHigh,
+        color: colors.surfaceContainer,
       ),
       child: needWrap
           ? Column(
