@@ -208,18 +208,16 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
     final type = getValueType().type;
     final disabled = widget.disabled;
 
-    return buildContainer(
-      showClearButton: currentValue != null,
+    return buildTextField(
+      keyboardType: type.keyboardType,
+      inputFormatters: type.getInputFormatters(wTheme.decimals),
+      onValueChanged: _onValueChanged,
+      hasValue: currentValue != null,
       onClear: () {
         textController.clear();
         notifyValueChanged(null);
       },
-      postWidget: wTheme.stepperBuilder?.call(context, _changeValueBy, !disabled, !disabled),
-      child: buildTextField(
-        keyboardType: type.keyboardType,
-        inputFormatters: type.getInputFormatters(wTheme.decimals),
-        onValueChanged: _onValueChanged,
-      ),
+      beforePostWidget: wTheme.stepperBuilder?.call(context, _changeValueBy, !disabled, !disabled),
     );
   }
 }

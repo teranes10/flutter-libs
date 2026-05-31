@@ -14,9 +14,6 @@ class TTextFieldTheme extends TInputFieldTheme {
   /// Style for the input text.
   final WidgetStateProperty<TextStyle> textStyle;
 
-  /// Style for the hint text.
-  final WidgetStateProperty<TextStyle> hintStyle;
-
   // Input Configuration
   /// Input formatters to apply.
   final List<TextInputFormatter>? inputFormatters;
@@ -55,16 +52,16 @@ class TTextFieldTheme extends TInputFieldTheme {
     required super.helperTextStyle,
     required super.errorTextStyle,
     required super.tagStyle,
-    required super.decoration,
     required super.borderRadius,
     required super.borderWidth,
     required super.labelBuilder,
     required super.helperTextBuilder,
     required super.errorsBuilder,
+    required super.hintStyle,
     required this.textStyle,
-    required this.hintStyle,
-    super.size,
-    super.decorationType,
+    required super.size,
+    required super.decorationType,
+    required super.labelPosition,
     super.preWidget,
     super.postWidget,
     super.height,
@@ -85,6 +82,7 @@ class TTextFieldTheme extends TInputFieldTheme {
   TTextFieldTheme copyWith({
     TInputSize? size,
     TInputDecorationType? decorationType,
+    TLabelPosition? labelPosition,
     WidgetStateProperty<Color>? color,
     WidgetStateProperty<Color>? backgroundColor,
     WidgetStateProperty<Color>? borderColor,
@@ -92,14 +90,13 @@ class TTextFieldTheme extends TInputFieldTheme {
     WidgetStateProperty<TextStyle>? helperTextStyle,
     WidgetStateProperty<TextStyle>? errorTextStyle,
     WidgetStateProperty<TextStyle>? tagStyle,
-    WidgetStateProperty<BoxDecoration>? decoration,
+    WidgetStateProperty<TextStyle>? hintStyle,
     WidgetStateProperty<double>? borderRadius,
     WidgetStateProperty<double>? borderWidth,
     WidgetStateProperty<LabelBuilder>? labelBuilder,
     WidgetStateProperty<HelperTextBuilder>? helperTextBuilder,
     WidgetStateProperty<ErrorsBuilder>? errorsBuilder,
     WidgetStateProperty<TextStyle>? textStyle,
-    WidgetStateProperty<TextStyle>? hintStyle,
     Widget? preWidget,
     Widget? postWidget,
     double? height,
@@ -118,6 +115,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     final baseTheme = super.copyWith(
       size: size,
       decorationType: decorationType,
+      labelPosition: labelPosition,
       color: color,
       backgroundColor: backgroundColor,
       borderColor: borderColor,
@@ -125,7 +123,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       helperTextStyle: helperTextStyle,
       errorTextStyle: errorTextStyle,
       tagStyle: tagStyle,
-      decoration: decoration,
+      hintStyle: hintStyle,
       borderRadius: borderRadius,
       borderWidth: borderWidth,
       labelBuilder: labelBuilder,
@@ -142,6 +140,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       // Base theme properties from parent
       size: baseTheme.size,
       decorationType: baseTheme.decorationType,
+      labelPosition: baseTheme.labelPosition,
       color: baseTheme.color,
       backgroundColor: baseTheme.backgroundColor,
       borderColor: baseTheme.borderColor,
@@ -149,7 +148,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       helperTextStyle: baseTheme.helperTextStyle,
       errorTextStyle: baseTheme.errorTextStyle,
       tagStyle: baseTheme.tagStyle,
-      decoration: baseTheme.decoration,
+      hintStyle: baseTheme.hintStyle,
       borderRadius: baseTheme.borderRadius,
       borderWidth: baseTheme.borderWidth,
       labelBuilder: baseTheme.labelBuilder,
@@ -163,7 +162,6 @@ class TTextFieldTheme extends TInputFieldTheme {
 
       // Text-specific properties
       textStyle: textStyle ?? this.textStyle,
-      hintStyle: hintStyle ?? this.hintStyle,
       inputFormatters: inputFormatters ?? this.inputFormatters,
       keyboardType: keyboardType ?? this.keyboardType,
       textCapitalization: textCapitalization ?? this.textCapitalization,
@@ -183,6 +181,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     return TTextFieldTheme(
       size: baseTheme.size,
       decorationType: baseTheme.decorationType,
+      labelPosition: baseTheme.labelPosition,
       color: baseTheme.color,
       backgroundColor: baseTheme.backgroundColor,
       borderColor: baseTheme.borderColor,
@@ -190,7 +189,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       helperTextStyle: baseTheme.helperTextStyle,
       errorTextStyle: baseTheme.errorTextStyle,
       tagStyle: baseTheme.tagStyle,
-      decoration: baseTheme.decoration,
+      hintStyle: baseTheme.hintStyle,
       borderRadius: baseTheme.borderRadius,
       borderWidth: baseTheme.borderWidth,
       labelBuilder: baseTheme.labelBuilder,
@@ -208,20 +207,12 @@ class TTextFieldTheme extends TInputFieldTheme {
           color: isDisabled ? colors.onSurfaceVariant : colors.onSurface,
         );
       }),
-      hintStyle: WidgetStateProperty.all(
-        TextStyle(
-          fontSize: baseTheme.fieldFontSize,
-          color: colors.onSurfaceVariant.withAlpha(150),
-        ),
-      ),
     );
   }
 
   /// Builds a raw [TextField] with the theme applied.
-  TextField buildTextField(
+  Widget buildTextField(
     Set<WidgetState> states, {
-    String? label,
-    String? placeholder,
     bool autoFocus = false,
     bool readOnly = false,
     int maxLines = 1,
@@ -231,17 +222,11 @@ class TTextFieldTheme extends TInputFieldTheme {
     List<TextInputFormatter>? inputFormatters,
     TextEditingController? controller,
     ValueChanged<String>? onValueChanged,
+    VoidCallback? onTap,
+    required InputDecoration inputDecoration,
   }) {
     final isDisabled = states.contains(WidgetState.disabled);
     final isMultiline = maxLines > 1;
-
-    final inputDecoration = InputDecoration(
-      border: InputBorder.none,
-      hintText: placeholder ?? label,
-      hintStyle: hintStyle.resolve(states),
-      isCollapsed: true,
-      contentPadding: const EdgeInsets.symmetric(vertical: 5),
-    );
 
     return TextField(
       controller: controller,
@@ -267,6 +252,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       textInputAction: _resolveTextInputAction(isMultiline, textInputAction),
       textAlignVertical: isMultiline ? TextAlignVertical.top : TextAlignVertical.center,
       onChanged: onValueChanged,
+      onTap: onTap,
     );
   }
 

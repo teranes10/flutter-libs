@@ -100,7 +100,9 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
       children: [
         _buildToolbar(colors),
         TList<T, int>(
-          theme: context.theme.listTheme.copyWith(shrinkWrap: true, infiniteScroll: false, padding: EdgeInsets.all(0)),
+          shrinkWrap: true,
+          infiniteScroll: false,
+          padding: EdgeInsets.all(0),
           controller: _listController,
           itemBuilder: (ctx, item, i) => TCard(
               padding: EdgeInsets.all(0),
@@ -108,7 +110,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
               child: Stack(
                 children: [
                   Padding(padding: EdgeInsets.all(10), child: TFormBuilder(input: item.data, onValueChanged: _update)),
-                  Positioned(top: 2, right: 2, child: TIcon.close(colors, size: 14, onTap: () => _removeItem(item.data)))
+                  Positioned(top: 2, right: 2, child: TIcon.close(size: 14, onTap: () => _removeItem(item.data)))
                 ],
               )),
         )

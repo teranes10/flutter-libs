@@ -179,15 +179,16 @@ class _TDatePickerState extends State<TDatePicker>
   @override
   Widget build(BuildContext context) {
     return buildWithDropdownTarget(
-      child: buildContainer(
-        showClearButton: currentValue != null,
+      child: buildTextField(
+        hasValue: currentValue != null,
+        beforePreWidget: Icon(Icons.calendar_today_rounded, size: 16, color: colors.onSurfaceVariant),
         onClear: () {
           _onDateSelected(null);
         },
-        preWidget: Icon(Icons.calendar_today_rounded, size: 16, color: colors.onSurfaceVariant),
-        child: IgnorePointer(child: buildTextField()),
         onTap: () {
-          showPopup(context);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showPopup(context);
+          });
         },
       ),
     );

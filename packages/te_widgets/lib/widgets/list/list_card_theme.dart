@@ -62,7 +62,7 @@ class TListCardTheme {
     return TListCardTheme(
       backgroundColor: colors.surface,
       selectedBackgroundColor: colors.primaryContainer,
-      disabledBackgroundColor: colors.surfaceContainerHighest,
+      disabledBackgroundColor: colors.surfaceDim,
       expansionIndicatorBuilder: defaultExpansionIndicatorBuilder(colors),
       selectionIndicatorBuilder: defaultSelectionIndicatorBuilder(colors),
       contentBuilder: defaultContentBuilder(colors),

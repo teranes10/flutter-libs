@@ -245,11 +245,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             title: 'Tags Field',
             description: 'Input field for managing multiple tags',
             icon: Icons.label,
-            preview: TTagsField(
-              label: 'Tags',
-              placeholder: 'Add tags...',
-              textController: TTagsController(tags: ['Flutter', 'Dart', 'Mobile']),
-            ),
+            preview: TTagsField(label: 'Tags', placeholder: 'Add tags...'),
             code: '''TTagsField(
   label: 'Tags',
   placeholder: 'Add tags...',
@@ -294,6 +290,64 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
                 type: 'bool',
                 defaultValue: 'false',
                 description: 'Whether to show a clear button to remove all tags',
+              ),
+            ],
+          ),
+
+          // Date Time Text Field
+          WidgetDocCard(
+            title: 'Date/Time Formatted Field',
+            description: 'Text field with automatic date/time formatting and masking',
+            icon: Icons.calendar_month,
+            preview: Column(
+              children: [
+                TDateTimeTextField(
+                  label: 'Date',
+                  formatType: TDateTimeFormatType.date,
+                  onValueChanged: (v) => debugPrint('Date: $v'),
+                ),
+                const SizedBox(height: 16),
+                TDateTimeTextField(
+                  label: 'Time',
+                  formatType: TDateTimeFormatType.time,
+                  onValueChanged: (v) => debugPrint('Time: $v'),
+                ),
+                const SizedBox(height: 16),
+                TDateTimeTextField(
+                  label: 'Date & Time',
+                  formatType: TDateTimeFormatType.dateTime,
+                  onValueChanged: (v) => debugPrint('DateTime: $v'),
+                ),
+              ],
+            ),
+            code: '''TDateTimeTextField(
+  label: 'Date',
+  formatType: TDateTimeFormatType.date,
+  onValueChanged: (value) {
+    print('Date: \$value');
+  },
+)
+
+TDateTimeTextField(
+  label: 'Time',
+  formatType: TDateTimeFormatType.time,
+)
+
+TDateTimeTextField(
+  label: 'Date & Time',
+  formatType: TDateTimeFormatType.dateTime,
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'formatType',
+                type: 'TDateTimeFormatType',
+                defaultValue: 'TDateTimeFormatType.date',
+                description: 'Format to apply: date (DD/MM/YY), time (HH:MM), or dateTime',
+              ),
+              PropertyDoc(
+                name: 'placeholder',
+                type: 'String?',
+                description: 'Custom placeholder. Defaults to format (e.g., DD/MM/YY)',
               ),
             ],
           ),
@@ -625,6 +679,74 @@ TCheckboxGroup<String>(
                 defaultValue: 'false',
                 description: 'Whether to show a clear button to deselect all items',
               ),
+            ],
+          ),
+
+          // ==================== RADIO GROUP ====================
+
+          // Basic Radio Group
+          WidgetDocCard(
+            title: 'Radio Group',
+            description: 'Single selection from a set of options',
+            icon: Icons.radio_button_checked,
+            preview: TRadioGroup<String>(
+              label: 'Preferred Contact Method',
+              items: const [
+                TRadioGroupItem(value: 'email', label: 'Email'),
+                TRadioGroupItem(value: 'phone', label: 'Phone'),
+                TRadioGroupItem(value: 'mail', label: 'Mail'),
+              ],
+              onValueChanged: (value) => debugPrint('Selected: $value'),
+            ),
+            code: '''TRadioGroup<String>(
+  label: 'Preferred Contact Method',
+  items: [
+    TRadioGroupItem(value: 'email', label: 'Email'),
+    TRadioGroupItem(value: 'phone', label: 'Phone'),
+    TRadioGroupItem(value: 'mail', label: 'Mail'),
+  ],
+  onValueChanged: (value) => print('Selected: \$value'),
+)''',
+            properties: const [
+              PropertyDoc(name: 'items', type: 'List<TRadioGroupItem<T>>', description: 'List of radio items to display'),
+              PropertyDoc(name: 'value', type: 'T?', description: 'Currently selected value'),
+              PropertyDoc(name: 'vertical', type: 'bool', defaultValue: 'false', description: 'Whether to display items vertically'),
+            ],
+          ),
+
+          // Radio Group Layouts
+          WidgetDocCard(
+            title: 'Radio Group Layouts',
+            description: 'Vertical and horizontal layouts for radio groups',
+            icon: Icons.view_headline,
+            preview: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TRadioGroup<String>(
+                  label: 'Vertical Layout',
+                  vertical: true,
+                  items: const [
+                    TRadioGroupItem(value: 'option1', label: 'Option 1'),
+                    TRadioGroupItem(value: 'option2', label: 'Option 2'),
+                    TRadioGroupItem(value: 'option3', label: 'Option 3'),
+                  ],
+                  onValueChanged: (value) => debugPrint('Selected: $value'),
+                ),
+              ],
+            ),
+            code: '''TRadioGroup<String>(
+  label: 'Layout',
+  vertical: true, // Display items in a column
+  items: [
+    TRadioGroupItem(value: 'option1', label: 'Option 1'),
+    TRadioGroupItem(value: 'option2', label: 'Option 2'),
+    TRadioGroupItem(value: 'option3', label: 'Option 3'),
+  ],
+)''',
+            properties: const [
+              PropertyDoc(name: 'vertical', type: 'bool', defaultValue: 'false', description: 'Whether to display items vertically'),
+              PropertyDoc(name: 'spacing', type: 'double', defaultValue: '16', description: 'Horizontal spacing between items'),
+              PropertyDoc(name: 'runSpacing', type: 'double', defaultValue: '8', description: 'Vertical spacing between items/rows'),
             ],
           ),
 

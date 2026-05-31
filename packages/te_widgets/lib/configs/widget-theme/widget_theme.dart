@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+enum TThemeType {
+  success,
+  warning,
+  error,
+  info;
+
+  Color getColor(BuildContext context) {
+    return switch (this) {
+      TThemeType.success => context.theme.success,
+      TThemeType.warning => context.theme.warning,
+      TThemeType.error => context.theme.danger,
+      TThemeType.info => context.theme.info,
+    };
+  }
+}
+
 enum TVariant {
   solid,
   tonal,

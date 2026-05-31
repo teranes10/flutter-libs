@@ -1,3 +1,13 @@
+# 2.1.0
+
+- Added direct theme properties to `TList`, `TTable`, `TDataTable`, and `TTextField` for easier customization
+- `TList` & `TTable`: Added `grid`, `gridDelegate`, `shrinkWrap`, `header`, `footer`, `infiniteScroll`, `headerSticky`, `footerSticky`
+- `TDataTable`: Added `grid`, `gridDelegate`, `shrinkWrap`, `headerBuilder`, `footerBuilder`, `infiniteScroll`, `headerSticky`, `footerSticky`
+- `TTextField`: Added `preWidget`, `postWidget`, `size`, `decorationType`
+- Implemented a flexible theme override system where individual properties override the global theme when no local theme is provided
+- Updated `TListTheme` and `TTableTheme` with `header` and `footer` (Widget?) support
+- Added assertions to prevent conflicting theme configurations
+
 # 2.0.9
 
 - Table row card background color, border props added

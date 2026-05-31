@@ -14,7 +14,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TListTheme {
   final TListAnimationBuilder? animationBuilder;
   final Duration animationDuration;
-  final bool shrinkWrap;
+  final bool? shrinkWrap;
   final ScrollPhysics? physics;
   final EdgeInsets? padding;
   final TListEmptyBuilder? emptyStateBuilder;
@@ -43,8 +43,8 @@ class TListTheme {
     this.errorStateBuilder,
     this.loadingBuilder,
     this.headerBuilder,
-    this.headerSticky,
     this.footerBuilder,
+    this.headerSticky,
     this.footerSticky,
     this.infiniteScroll,
     double? itemBaseHeight,
@@ -53,9 +53,10 @@ class TListTheme {
     this.dragProxyDecorator,
     this.grid,
     this.gridDelegate,
-  })  : assert(!shrinkWrap || infiniteScroll != true, 'TListTheme: shrinkWrap disables scrolling, so infiniteScroll cannot be used.'),
-        assert(!shrinkWrap || headerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so headerSticky cannot be used.'),
-        assert(!shrinkWrap || footerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so footerSticky cannot be used.'),
+  })  : assert(
+            shrinkWrap != true || infiniteScroll != true, 'TListTheme: shrinkWrap disables scrolling, so infiniteScroll cannot be used.'),
+        assert(shrinkWrap != true || headerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so headerSticky cannot be used.'),
+        assert(shrinkWrap != true || footerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so footerSticky cannot be used.'),
         itemBaseHeight = grid != null ? 200 : 40;
 
   /// Creates a copy of the theme with updated properties.
@@ -90,8 +91,8 @@ class TListTheme {
       errorStateBuilder: errorStateBuilder ?? this.errorStateBuilder,
       loadingBuilder: loadingBuilder ?? this.loadingBuilder,
       headerBuilder: headerBuilder ?? this.headerBuilder,
-      headerSticky: headerSticky ?? this.headerSticky,
       footerBuilder: footerBuilder ?? this.footerBuilder,
+      headerSticky: headerSticky ?? this.headerSticky,
       footerSticky: footerSticky ?? this.footerSticky,
       infiniteScroll: infiniteScroll ?? this.infiniteScroll,
       itemBaseHeight: itemBaseHeight ?? this.itemBaseHeight,

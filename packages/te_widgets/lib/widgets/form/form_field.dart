@@ -20,6 +20,7 @@ part of 'form_builder.dart';
 /// - `toggle()` - Switch
 /// - `checkbox()` - Checkbox
 /// - `checkboxGroup()` - Checkbox group
+/// - `radioGroup()` - Radio group
 /// - `filePicker()` - File upload
 /// - `group()` - Nested form
 /// - `items()` - Dynamic list of forms
@@ -592,6 +593,49 @@ class TFormField<T> {
     return TFormField<List<T>>(
       prop: prop,
       builder: (onValueChanged) => TCheckboxGroup<T>(
+        label: label,
+        tag: tag,
+        helperText: helperText,
+        isRequired: isRequired,
+        disabled: disabled,
+        autoFocus: autoFocus,
+        clearable: clearable,
+        theme: theme,
+        focusNode: focusNode,
+        onTap: onTap,
+        rules: rules,
+        items: items,
+        color: color,
+        block: block,
+        vertical: vertical,
+        value: prop.value,
+        valueNotifier: prop.valueNotifier,
+        onValueChanged: onValueChanged,
+      ),
+    );
+  }
+
+  static TFormField<T?> radioGroup<T>(
+    TFieldProp<T?> prop,
+    String? label,
+    List<TRadioGroupItem<T>> items, {
+    String? tag,
+    String? helperText,
+    bool isRequired = false,
+    bool disabled = false,
+    bool autoFocus = false,
+    bool clearable = false,
+    TInputFieldTheme? theme,
+    FocusNode? focusNode,
+    VoidCallback? onTap,
+    List<String? Function(T?)>? rules,
+    Color? color,
+    bool block = true,
+    bool vertical = false,
+  }) {
+    return TFormField<T?>(
+      prop: prop,
+      builder: (onValueChanged) => TRadioGroup<T>(
         label: label,
         tag: tag,
         helperText: helperText,

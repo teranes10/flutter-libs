@@ -13,6 +13,7 @@ class TKeyValueTheme {
   final double minGridColWidth;
   final bool forceKeyValue;
   final double keyValueBreakPoint;
+  final bool showLeftBorder;
 
   /// Creates a key-value theme.
   const TKeyValueTheme({
@@ -23,6 +24,7 @@ class TKeyValueTheme {
     this.minGridColWidth = 110,
     this.forceKeyValue = false,
     this.keyValueBreakPoint = 350,
+    this.showLeftBorder = false,
   });
 
   factory TKeyValueTheme.defaultTheme(ColorScheme colors) {

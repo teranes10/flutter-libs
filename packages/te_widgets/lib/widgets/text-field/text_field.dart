@@ -106,6 +106,18 @@ class TTextField extends StatefulWidget
   @override
   final TTextFieldTheme? theme;
 
+  /// Custom pre-widget.
+  final Widget? preWidget;
+
+  /// Custom post-widget.
+  final Widget? postWidget;
+
+  /// The size of the text field.
+  final TInputSize? size;
+
+  /// The decoration type of the text field.
+  final TInputDecorationType? decorationType;
+
   /// Callback fired when the field is tapped.
   @override
   final VoidCallback? onTap;
@@ -164,6 +176,10 @@ class TTextField extends StatefulWidget
     this.readOnly = false,
     this.clearable = false,
     this.theme,
+    this.preWidget,
+    this.postWidget,
+    this.size,
+    this.decorationType,
     this.onTap,
     this.focusNode,
     this.textController,
@@ -173,7 +189,10 @@ class TTextField extends StatefulWidget
     this.rules,
     this.validationDebounce,
     this.rows = 1,
-  });
+  }) : assert(
+          theme == null || (preWidget == null && postWidget == null && size == null && decorationType == null),
+          'Cannot provide both theme and individual theme properties.',
+        );
 
   @override
   State<TTextField> createState() => _TTextFieldState();
@@ -187,15 +206,15 @@ class _TTextFieldState extends State<TTextField>
         TInputValueStateMixin<String, TTextField>,
         TInputValidationStateMixin<String, TTextField> {
   @override
-  void onValueChanged(String? value, {bool initial = false, String? oldValue}) {
-    super.onValueChanged(value, initial: initial, oldValue: oldValue);
+  TTextFieldTheme get wTheme {
+    if (widget.theme != null) return widget.theme!;
 
-    final wasEmpty = (oldValue?.isEmpty ?? true);
-    final isEmpty = (value?.isEmpty ?? true);
-
-    if (wasEmpty != isEmpty) {
-      setState(() {});
-    }
+    return context.theme.textFieldTheme.copyWith(
+      preWidget: widget.preWidget,
+      postWidget: widget.postWidget,
+      size: widget.size,
+      decorationType: widget.decorationType,
+    );
   }
 
   @override
@@ -211,17 +230,14 @@ class _TTextFieldState extends State<TTextField>
 
   @override
   Widget build(BuildContext context) {
-    return buildContainer(
-      isMultiline: widget.rows > 1,
-      showClearButton: textController.text.isNotEmpty,
+    return buildTextField(
+      maxLines: widget.rows,
+      onValueChanged: notifyValueChanged,
+      hasValue: textController.text.isNotEmpty,
       onClear: () {
         textController.clear();
         notifyValueChanged('');
       },
-      child: buildTextField(
-        maxLines: widget.rows,
-        onValueChanged: notifyValueChanged,
-      ),
     );
   }
 }

@@ -314,49 +314,58 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
 
     assert(theme.shape != TButtonShape.circle || text.isNullOrBlank, 'Circle shape only supports icon, no text.');
 
+    final contentChildren = [
+      if (_isLoading)
+        SizedBox(
+          width: size.icon,
+          height: size.icon,
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            valueColor: AlwaysStoppedAnimation(theme.baseTheme.foregroundState.resolve(_statesController.value)),
+          ),
+        )
+      else if (icon != null)
+        AnimatedSwitcher(
+          duration: widget.duration,
+          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+          child: Icon(key: ValueKey(_isActive), icon, size: size.icon),
+        )
+      else if (widget.imageUrl != null)
+        if (theme.shape == TButtonShape.normal)
+          TImage(
+            size: size.icon,
+            url: widget.imageUrl,
+            color: theme.baseTheme.onContainerVariant.withAlpha(50),
+            disabled: true,
+            border: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+          )
+        else
+          TImage.circle(
+            size: size.icon,
+            url: widget.imageUrl,
+            color: theme.baseTheme.onContainerVariant.withAlpha(50),
+            disabled: true,
+          ),
+      if (!text.isNullOrBlank) Text(_isLoading ? widget.loadingText : text!),
+      if (widget.child != null) widget.child!,
+    ];
+
     final buttonContent = AnimatedContainer(
       duration: widget.duration,
       curve: Curves.easeInOut,
-      child: Row(
-        mainAxisSize: size.minW.isInfinite ? MainAxisSize.max : MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: size.spacing,
-        children: [
-          if (_isLoading)
-            SizedBox(
-              width: size.icon,
-              height: size.icon,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation(theme.baseTheme.foregroundState.resolve(_statesController.value)),
-              ),
+      child: theme.shape == TButtonShape.tile
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: size.spacing,
+              children: contentChildren,
             )
-          else if (icon != null)
-            AnimatedSwitcher(
-              duration: widget.duration,
-              transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-              child: Icon(key: ValueKey(_isActive), icon, size: size.icon),
-            )
-          else if (widget.imageUrl != null)
-            if (theme.shape == TButtonShape.normal)
-              TImage(
-                size: size.icon,
-                url: widget.imageUrl,
-                color: theme.baseTheme.onContainerVariant.withAlpha(50),
-                disabled: true,
-                border: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
-              )
-            else
-              TImage.circle(
-                size: size.icon,
-                url: widget.imageUrl,
-                color: theme.baseTheme.onContainerVariant.withAlpha(50),
-                disabled: true,
-              ),
-          if (!text.isNullOrBlank) Text(_isLoading ? widget.loadingText : text!),
-          if (widget.child != null) widget.child!,
-        ],
-      ),
+          : Row(
+              mainAxisSize: size.minW.isInfinite ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: size.spacing,
+              children: contentChildren,
+            ),
     );
 
     final button = ScaleTransition(

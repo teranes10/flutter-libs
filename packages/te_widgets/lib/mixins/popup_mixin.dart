@@ -13,6 +13,14 @@ enum TPopupAlignment {
   rightBottom,
 }
 
+typedef TPopupConstraints = ({
+  Size screenSize,
+  Size targetSize,
+  Offset targetOffset,
+  BoxConstraints contentBox,
+  FractionalOffset contentAlignment
+});
+
 /// Mixin for widgets that display a popup or dropdown.
 mixin TPopupMixin {
   /// Whether the popup is disabled.
@@ -37,17 +45,18 @@ mixin TPopupMixin {
 mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   late final TPopupMixin _widget = widget as TPopupMixin;
 
-  final LayerLink _layerLink = LayerLink();
+  final OverlayPortalController _overlayController = OverlayPortalController();
+
   final GlobalKey _dropdownTargetKey = GlobalKey();
   final GlobalKey _contentKey = GlobalKey();
-  OverlayEntry? _overlayEntry;
+
   bool _isOverlayVisible = false;
 
   /// Whether the popup persists when tapping outside (defaults to false).
   bool get persistent => false;
 
   /// Whether the popup is currently visible.
-  bool get isPopupShowing => _overlayEntry != null && _isOverlayVisible;
+  bool get isPopupShowing => _isOverlayVisible;
 
   /// Whether to use centered overlay mode (e.g. for mobile).
   bool get shouldCenteredOverlay => MediaQuery.of(context).isMobile;
@@ -64,16 +73,6 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
 
   static const _defaultSize = 100.0;
 
-  double get _targetWidth {
-    final renderBox = _dropdownTargetKey.currentContext?.findRenderObject() as RenderBox?;
-    return renderBox?.size.width ?? _defaultSize;
-  }
-
-  double get _targetHeight {
-    final renderBox = _dropdownTargetKey.currentContext?.findRenderObject() as RenderBox?;
-    return renderBox?.size.height ?? _defaultSize;
-  }
-
   /// Minimum width of the popup content.
   double get contentMinWidth => _defaultSize;
 
@@ -81,37 +80,10 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   double get contentMinHeight => _defaultSize;
 
   /// Maximum width of the popup content.
-  double get contentMaxWidth => _targetWidth;
+  double? get contentMaxWidth => null;
 
   /// Maximum height of the popup content.
-  double get contentMaxHeight => MediaQuery.of(context).size.height;
-
-  /// Computes constraints and alignment for the popup content.
-  ({double minWidth, double minHeight, double maxWidth, double maxHeight, FractionalOffset alignment}) get contentConstraints {
-    final mediaQuery = MediaQuery.of(context);
-    final screenSize = mediaQuery.size;
-    final viewInsets = mediaQuery.viewInsets;
-
-    final keyboardHeight = viewInsets.bottom;
-    final availableWidth = mediaQuery.isMobile ? screenSize.width - 25 : screenSize.width * 0.85;
-    final availableHeight = mediaQuery.isMobile ? screenSize.height - keyboardHeight - 25 : screenSize.height * 0.85;
-    final alignment = mediaQuery.isMobile ? const FractionalOffset(0.5, 0.05) : const FractionalOffset(0.5, 0.1);
-
-    final safeAvailableWidth = availableWidth < _defaultSize ? _defaultSize : availableWidth;
-    final safeAvailableHeight = availableHeight < _defaultSize ? _defaultSize : availableHeight;
-    final minWidth = contentMinWidth.clamp(_defaultSize, safeAvailableWidth);
-    final minHeight = contentMinHeight.clamp(_defaultSize, safeAvailableHeight);
-    final maxWidth = contentMaxWidth.clamp(minWidth, safeAvailableWidth);
-    final maxHeight = contentMaxHeight.clamp(minHeight, safeAvailableHeight);
-
-    return (
-      minWidth: minWidth,
-      minHeight: minHeight,
-      maxWidth: maxWidth,
-      maxHeight: maxHeight,
-      alignment: alignment,
-    );
-  }
+  double? get contentMaxHeight => null;
 
   /// Returns the content widget to display in the popup.
   Widget getContentWidget(BuildContext context);
@@ -119,14 +91,17 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   /// Shows the popup.
   void showPopup(BuildContext context) {
     if (_widget.disabled || isPopupShowing) return;
-    _showOverlay(context);
+    _overlayController.show();
+    _isOverlayVisible = true;
+    _widget.onShow?.call();
   }
 
   /// Hides the popup.
   void hidePopup() {
-    if (isPopupShowing) {
-      _hideOverlay();
-    }
+    if (!isPopupShowing) return;
+    _overlayController.hide();
+    _isOverlayVisible = false;
+    _widget.onHide?.call();
   }
 
   /// Toggles popup visibility.
@@ -137,14 +112,84 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   /// Forces a rebuild of the popup if it is open.
   void rebuildPopup() {
     if (!mounted || !isPopupShowing) return;
-    _overlayEntry?.markNeedsBuild();
+    setState(() {});
   }
 
-  /// Wraps the child widget with a compositor target for the popup to anchor to.
+  /// Wraps the child widget with an [OverlayPortal] anchored to the trigger.
+  ///
+  /// Call this instead of the old [buildWithDropdownTarget].  The returned
+  /// widget is the trigger itself; the overlay child is built lazily via
+  /// [overlayChildLayoutBuilder] and positioned without any
+  /// [CompositedTransformTarget] / [CompositedTransformFollower].
   Widget buildWithDropdownTarget({required Widget child}) {
-    return CompositedTransformTarget(
-      link: _layerLink,
+    return OverlayPortal.overlayChildLayoutBuilder(
+      controller: _overlayController,
+      overlayChildBuilder: (ctx, layoutInfo) {
+        final mediaQuery = MediaQuery.of(context);
+        final screenSize = mediaQuery.size;
+        final viewInsets = mediaQuery.viewInsets;
+        final keyboardHeight = viewInsets.bottom;
+        final targetSize = layoutInfo.childSize;
+        final translation = layoutInfo.childPaintTransform.getTranslation();
+
+        final availableWidth = mediaQuery.isMobile ? screenSize.width - 25 : screenSize.width * 0.85;
+        final availableHeight = mediaQuery.isMobile ? screenSize.height - keyboardHeight - 25 : screenSize.height * 0.85;
+        final safeAvailableWidth = availableWidth < _defaultSize ? _defaultSize : availableWidth;
+        final safeAvailableHeight = availableHeight < _defaultSize ? _defaultSize : availableHeight;
+        final alignment = mediaQuery.isMobile ? const FractionalOffset(0.5, 0.05) : const FractionalOffset(0.5, 0.1);
+
+        final minWidth = contentMinWidth.clamp(_defaultSize, safeAvailableWidth);
+        final minHeight = contentMinHeight.clamp(_defaultSize, safeAvailableHeight);
+        final maxWidth = (contentMaxWidth ?? targetSize.width).clamp(minWidth, safeAvailableWidth);
+        final maxHeight = (contentMaxHeight ?? screenSize.height).clamp(minHeight, safeAvailableHeight);
+
+        TPopupConstraints constraints = (
+          screenSize: screenSize,
+          targetSize: layoutInfo.childSize,
+          targetOffset: Offset(translation.x, translation.y),
+          contentBox: BoxConstraints(minWidth: minWidth, minHeight: minHeight, maxWidth: maxWidth, maxHeight: maxHeight),
+          contentAlignment: alignment,
+        );
+
+        return shouldCenteredOverlay ? _buildCenteredOverlayChild(context, constraints) : _buildAnchoredOverlayChild(context, constraints);
+      },
       child: KeyedSubtree(key: _dropdownTargetKey, child: child),
+    );
+  }
+
+  Widget _buildCenteredOverlayChild(BuildContext context, TPopupConstraints constraints) {
+    final colors = context.colors;
+
+    return Stack(
+      children: [
+        if (!persistent) Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: colors.scrim))),
+        Align(
+          alignment: constraints.contentAlignment,
+          child: ConstrainedBox(
+            constraints: constraints.contentBox,
+            child: _buildContentWidget(context),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnchoredOverlayChild(BuildContext context, TPopupConstraints constraints) {
+    return Stack(
+      children: [
+        if (!persistent) Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: Colors.transparent))),
+        CustomSingleChildLayout(
+          delegate: PopupPositionDelegate(
+            constraints: constraints,
+            alignment: _widget.alignment,
+            offset: _widget.offset,
+          ),
+          child: ConstrainedBox(
+            constraints: constraints.contentBox,
+            child: _buildContentWidget(context),
+          ),
+        ),
+      ],
     );
   }
 
@@ -161,133 +206,52 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         child: Stack(
           children: [
             getContentWidget(context),
-            Positioned(top: 0, right: 0, child: TIcon.close(colors, size: 20, padding: EdgeInsets.all(5), onTap: hidePopup)),
+            Positioned(top: 0, right: 0, child: TIcon.close(size: 20, padding: EdgeInsets.all(5), onTap: hidePopup)),
           ],
         ),
       ),
     );
   }
+}
 
-  void _showOverlay(BuildContext context) {
-    if (shouldCenteredOverlay) {
-      _showCenteredOverlay(context);
-    } else {
-      _showAnchoredOverlay(context);
-    }
-  }
+class PopupPositionDelegate extends SingleChildLayoutDelegate {
+  const PopupPositionDelegate({
+    required this.constraints,
+    required this.alignment,
+    required this.offset,
+  });
 
-  void _showCenteredOverlay(BuildContext context) {
-    final colors = context.colors;
-    final constraints = contentConstraints;
+  final TPopupConstraints constraints;
+  final TPopupAlignment alignment;
+  final double offset;
 
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          if (!persistent) Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: colors.scrim))),
-          Align(
-            alignment: constraints.alignment,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: constraints.minWidth,
-                minHeight: constraints.minHeight,
-                maxWidth: constraints.maxWidth,
-                maxHeight: constraints.maxHeight,
-              ),
-              child: _buildContentWidget(context),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
-    _isOverlayVisible = true;
-    _widget.onShow?.call();
-  }
-
-  void _showAnchoredOverlay(BuildContext context) {
-    final constraints = contentConstraints;
-
-    final position = _calculateDropdownPosition(
-      width: constraints.maxWidth,
-      height: constraints.maxHeight,
-    );
-
-    _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          if (!persistent)
-            Positioned.fill(
-              child: GestureDetector(onTap: hidePopup, child: Container(color: Colors.transparent)),
-            ),
-          CompositedTransformFollower(
-            link: _layerLink,
-            showWhenUnlinked: false,
-            targetAnchor: position.targetAnchor,
-            followerAnchor: position.followerAnchor,
-            offset: position.offset,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: constraints.minWidth,
-                minHeight: constraints.minHeight,
-                maxWidth: constraints.maxWidth,
-                maxHeight: constraints.maxHeight,
-              ),
-              child: _buildContentWidget(context),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
-    _isOverlayVisible = true;
-    _widget.onShow?.call();
-  }
-
-  void _hideOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-    _isOverlayVisible = false;
-    _widget.onHide?.call();
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints incoming) {
+    return constraints.contentBox;
   }
 
   @override
-  void dispose() {
-    if (isPopupShowing) hidePopup();
-    super.dispose();
-  }
+  Offset getPositionForChild(Size size, Size childSize) {
+    final targetOffset = constraints.targetOffset;
+    final targetSize = constraints.targetSize;
+    final screenSize = constraints.screenSize;
+    final contentWidth = childSize.width; // actual rendered width
+    final contentHeight = childSize.height; // actual rendered height
 
-  ({Alignment targetAnchor, Alignment followerAnchor, Offset offset}) _calculateDropdownPosition({
-    required double width,
-    required double height,
-  }) {
-    final renderBox = _dropdownTargetKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) {
-      return (
-        targetAnchor: Alignment.bottomLeft,
-        followerAnchor: Alignment.topLeft,
-        offset: Offset(0, _widget.offset),
-      );
-    }
+    final spaceBelow = screenSize.height - (targetOffset.dy + targetSize.height);
+    final spaceAbove = targetOffset.dy;
+    final spaceRight = screenSize.width - (targetOffset.dx + targetSize.width);
+    final spaceLeft = targetOffset.dx;
 
-    final position = renderBox.localToGlobal(Offset.zero);
-    final screenSize = MediaQuery.of(context).size;
-
-    final spaceBelow = screenSize.height - (position.dy + _targetHeight);
-    final spaceAbove = position.dy;
-    final spaceRight = screenSize.width - (position.dx + _targetWidth);
-    final spaceLeft = position.dx;
-
-    final requiredHeightSpace = height + _widget.offset;
-    final extraWidthNeeded = width > _targetWidth ? width - _targetWidth : 0;
+    final requiredHeightSpace = contentHeight + offset;
+    final extraWidthNeeded = contentWidth > targetSize.width ? contentWidth - targetSize.width : 0.0;
 
     final canShowBelow = spaceBelow >= requiredHeightSpace;
     final canShowAbove = spaceAbove >= requiredHeightSpace;
     final canShowRight = spaceRight >= extraWidthNeeded;
     final canShowLeft = spaceLeft >= extraWidthNeeded;
 
-    final (openUpward, openToRight, openOnSide) = switch (_widget.alignment) {
+    final (openUpward, openToRight, openOnSide) = switch (alignment) {
       TPopupAlignment.bottomLeft => (
           canShowBelow ? false : (canShowAbove ? true : spaceAbove > spaceBelow),
           canShowRight ? true : (canShowLeft ? false : spaceRight > spaceLeft),
@@ -330,30 +294,38 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         ),
     };
 
-    return openOnSide ? _getSideAnchors(openToRight, openUpward) : _getVerticalAnchors(openUpward, openToRight);
+    double dx;
+    double dy;
+
+    if (openOnSide) {
+      if (openToRight) {
+        dx = targetOffset.dx + targetSize.width + offset;
+      } else {
+        dx = targetOffset.dx - contentWidth - offset;
+      }
+      if (openUpward) {
+        dy = targetOffset.dy + targetSize.height - contentHeight;
+      } else {
+        dy = targetOffset.dy;
+      }
+    } else {
+      if (openUpward) {
+        dy = targetOffset.dy - contentHeight - offset;
+      } else {
+        dy = targetOffset.dy + targetSize.height + offset;
+      }
+      if (openToRight) {
+        dx = targetOffset.dx;
+      } else {
+        dx = targetOffset.dx + targetSize.width - contentWidth;
+      }
+    }
+
+    return Offset(dx, dy);
   }
 
-  ({Alignment targetAnchor, Alignment followerAnchor, Offset offset}) _getSideAnchors(bool openToRight, bool openUpward) {
-    if (openToRight) {
-      return openUpward
-          ? (targetAnchor: Alignment.bottomRight, followerAnchor: Alignment.bottomLeft, offset: Offset(_widget.offset, 0))
-          : (targetAnchor: Alignment.topRight, followerAnchor: Alignment.topLeft, offset: Offset(_widget.offset, 0));
-    } else {
-      return openUpward
-          ? (targetAnchor: Alignment.bottomLeft, followerAnchor: Alignment.bottomRight, offset: Offset(-_widget.offset, 0))
-          : (targetAnchor: Alignment.topLeft, followerAnchor: Alignment.topRight, offset: Offset(-_widget.offset, 0));
-    }
-  }
-
-  ({Alignment targetAnchor, Alignment followerAnchor, Offset offset}) _getVerticalAnchors(bool openUpward, bool openToRight) {
-    if (openUpward) {
-      return openToRight
-          ? (targetAnchor: Alignment.topLeft, followerAnchor: Alignment.bottomLeft, offset: Offset(0, -_widget.offset))
-          : (targetAnchor: Alignment.topRight, followerAnchor: Alignment.bottomRight, offset: Offset(0, -_widget.offset));
-    } else {
-      return openToRight
-          ? (targetAnchor: Alignment.bottomLeft, followerAnchor: Alignment.topLeft, offset: Offset(0, _widget.offset))
-          : (targetAnchor: Alignment.bottomRight, followerAnchor: Alignment.topRight, offset: Offset(0, _widget.offset));
-    }
+  @override
+  bool shouldRelayout(PopupPositionDelegate oldDelegate) {
+    return oldDelegate.constraints != constraints || oldDelegate.alignment != alignment || oldDelegate.offset != offset;
   }
 }

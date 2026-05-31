@@ -123,6 +123,32 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Defaults to [5, 10, 15, 25, 50].
   final List<int> itemsPerPageOptions;
 
+  // Theme overrides
+
+  /// Grid layout mode.
+  final TGridMode? grid;
+
+  /// Delegate for controlling grid layout.
+  final TGridDelegateBuilder? gridDelegate;
+
+  /// Whether the table should shrink-wrap its content.
+  final bool? shrinkWrap;
+
+  /// Custom header builder.
+  final TListHeaderBuilder? headerBuilder;
+
+  /// Custom footer builder.
+  final TListFooterBuilder? footerBuilder;
+
+  /// Whether to enable infinite scroll.
+  final bool? infiniteScroll;
+
+  /// Whether the header should be sticky.
+  final bool? headerSticky;
+
+  /// Whether the footer should be sticky.
+  final bool? footerSticky;
+
   /// Creates a data table component.
   const TDataTable({
     super.key,
@@ -141,7 +167,27 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     //DataTable
     this.paginationTotalVisible = 7,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
-  });
+    // Theme overrides
+    this.grid,
+    this.gridDelegate,
+    this.shrinkWrap,
+    this.headerBuilder,
+    this.footerBuilder,
+    this.infiniteScroll,
+    this.headerSticky,
+    this.footerSticky,
+  }) : assert(
+          theme == null ||
+              (grid == null &&
+                  gridDelegate == null &&
+                  shrinkWrap == null &&
+                  headerBuilder == null &&
+                  footerBuilder == null &&
+                  infiniteScroll == null &&
+                  headerSticky == null &&
+                  footerSticky == null),
+          'Cannot provide both theme and individual theme properties.',
+        );
 
   @override
   State<TDataTable<T, K>> createState() => _TDataTableState<T, K>();
@@ -149,7 +195,21 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
 
 class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixin<T, K, TDataTable<T, K>> {
   TWidgetThemeExtension get theme => context.theme;
-  TTableTheme get wTheme => widget.theme ?? context.theme.tableTheme;
+
+  TTableTheme get wTheme {
+    if (widget.theme != null) return widget.theme!;
+
+    return context.theme.tableTheme.copyWith(
+      grid: widget.grid,
+      gridDelegate: widget.gridDelegate,
+      shrinkWrap: widget.shrinkWrap,
+      headerBuilder: widget.headerBuilder,
+      footerBuilder: widget.footerBuilder,
+      infiniteScroll: widget.infiniteScroll,
+      headerSticky: widget.headerSticky,
+      footerSticky: widget.footerSticky,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,23 +217,21 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
     final isMobile = context.isMobile;
 
     return LayoutBuilder(builder: (_, constraints) {
-      final canHeaderSticky = wTheme.shrinkWrap ? false : constraints.maxWidth > 600 && constraints.maxHeight > 625;
-      final canFooterSticky = wTheme.shrinkWrap ? false : constraints.maxWidth > 600 && constraints.maxHeight > 750;
+      final canHeaderSticky = wTheme.shrinkWrap == true ? false : constraints.maxWidth > 600 && constraints.maxHeight > 625;
+      final canFooterSticky = wTheme.shrinkWrap == true ? false : constraints.maxWidth > 600 && constraints.maxHeight > 750;
       final infiniteScroll = wTheme.infiniteScroll ?? isMobile;
 
       return TTable<T, K>(
         headers: widget.headers,
-        theme: wTheme.copyWith(
-          infiniteScroll: infiniteScroll,
-          headerSticky: wTheme.headerSticky ?? canHeaderSticky,
-          footerSticky: wTheme.footerSticky ?? canFooterSticky,
-          footerBuilder: (ctx) => Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!infiniteScroll) _buildToolbar(colors, constraints.maxWidth),
-              if (wTheme.footerBuilder != null) wTheme.footerBuilder!(ctx),
-            ],
-          ),
+        infiniteScroll: infiniteScroll,
+        headerSticky: wTheme.headerSticky ?? canHeaderSticky,
+        footerSticky: wTheme.footerSticky ?? canFooterSticky,
+        footerBuilder: (ctx) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!infiniteScroll) _buildToolbar(colors, constraints.maxWidth),
+            if (wTheme.footerBuilder != null) wTheme.footerBuilder!(ctx),
+          ],
         ),
         controller: listController,
         expandedBuilder: widget.expandedBuilder,
@@ -198,7 +256,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: colors.surfaceContainer,
+        color: colors.surfaceContainerLowest,
       ),
       child: needWrap
           ? Column(

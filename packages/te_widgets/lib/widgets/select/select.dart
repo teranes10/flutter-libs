@@ -324,7 +324,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
   Widget getContentWidget(BuildContext context) {
     final list = TList<T, K>(
       controller: listController,
-      theme: listTheme.copyWith(infiniteScroll: true),
+      infiniteScroll: true,
       cardTheme: widget.cardTheme,
       itemTitle: widget.itemText,
       itemSubTitle: widget.itemSubText,
@@ -339,7 +339,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
                 padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 12.5),
                 child: TTextField(
                     placeholder: 'Search...',
-                    theme: context.theme.textFieldTheme.copyWith(decorationType: TInputDecorationType.underline),
+                    decorationType: TInputDecorationType.underline,
                     textController: textController,
                     onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
               ),
@@ -355,16 +355,15 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
     final colors = context.colors;
 
     return buildWithDropdownTarget(
-      child: buildContainer(
-        showClearButton: currentValue != null,
+      child: buildTextField(
+        onValueChanged: widget.filterable && isPopupShowing ? listController.handleSearchChange : null,
+        hasValue: currentValue != null,
+        beforePostWidget:
+            Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
         onClear: () {
           listController.updateSelectionState(LinkedHashSet<K>());
           notifyValueChanged(null);
         },
-        child: IgnorePointer(
-          child: buildTextField(onValueChanged: widget.filterable && isPopupShowing ? listController.handleSearchChange : null),
-        ),
-        postWidget: Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
         onTap: () {
           if (widget.disabled) return;
           togglePopup(context);

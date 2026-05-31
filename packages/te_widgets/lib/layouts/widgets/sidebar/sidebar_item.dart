@@ -114,7 +114,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
 
   void _navigateAndExecute() {
     if (widget.item.route != null) {
-      context.go(widget.item.route!);
+      context.go(widget.item.route!, extra: widget.item.extra);
     }
     widget.item.onTap?.call();
     TSidebarOverlayController.hideAllOverlays();
@@ -272,6 +272,9 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   }
 
   Widget _buildChildren() {
+    final visibleChildren = widget.item.children!.where((child) => !child.hidden).toList();
+    if (visibleChildren.isEmpty) return const SizedBox.shrink();
+
     return SizeTransition(
       axisAlignment: 1.0,
       sizeFactor: _slideAnimation,
@@ -280,7 +283,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
         child: Container(
           decoration: BoxDecoration(border: Border(left: BorderSide(color: widget.theme.borderColor, width: 1, style: BorderStyle.solid))),
           child: Column(
-            children: widget.item.children!.map((child) {
+            children: visibleChildren.map((child) {
               return TSidebarItemWidget(
                 item: child,
                 isMinimized: false,

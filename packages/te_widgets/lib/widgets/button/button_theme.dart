@@ -44,6 +44,9 @@ class TButtonShape {
   /// Circular shape.
   static const TButtonShape circle = TButtonShape(border: CircleBorder());
 
+  /// Tile shape (icon above text, radius 12.0).
+  static const TButtonShape tile = TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))));
+
   /// Custom rounded rectangle with defined radius.
   static TButtonShape custom(double radius) =>
       TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(radius))));
@@ -57,6 +60,8 @@ class TButtonSize {
   WidgetStateProperty<EdgeInsets> get paddingState => WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: hPad, vertical: vPad));
   WidgetStateProperty<EdgeInsets> get pillPaddingState =>
       WidgetStateProperty.all(EdgeInsets.only(top: vPad, bottom: vPad, left: hPad, right: hPad + spacing));
+  WidgetStateProperty<EdgeInsets> get tilePaddingState =>
+      WidgetStateProperty.all(EdgeInsets.only(top: vPad * 1.75, bottom: vPad * 1.25, left: hPad, right: hPad));
 
   WidgetStateProperty<Size> get minimumSizeState => WidgetStateProperty.all(Size(minW, minH));
 
@@ -164,12 +169,15 @@ class TButtonTheme {
   }
 
   static ButtonStyle buildButtonStyle(TWidgetTheme baseTheme, TButtonShape shape, TButtonSize size) {
+    final padding =
+        switch (shape) { TButtonShape.pill => size.pillPaddingState, TButtonShape.tile => size.tilePaddingState, _ => size.paddingState };
+
     return ButtonStyle(
       backgroundColor: baseTheme.backgroundState,
       foregroundColor: baseTheme.foregroundState,
       iconColor: baseTheme.foregroundState,
       side: baseTheme.borderSideState,
-      padding: shape == TButtonShape.pill ? size.pillPaddingState : size.paddingState,
+      padding: padding,
       minimumSize: size.minimumSizeState,
       visualDensity: VisualDensity.standard,
       overlayColor: WidgetStateProperty.all(Colors.transparent),

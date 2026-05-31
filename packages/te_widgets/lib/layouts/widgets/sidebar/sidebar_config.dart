@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TSidebarItem {
@@ -6,18 +7,24 @@ class TSidebarItem {
   final String? text;
   final String? route;
   final Widget? page;
+  final Widget Function(BuildContext context, GoRouterState state)? builder;
   final List<TSidebarItem>? children;
   final VoidCallback? onTap;
   final bool initiallyExpanded;
+  final Object? extra;
+  final bool hidden;
 
   const TSidebarItem({
     this.page,
+    this.builder,
     this.icon,
     this.text,
     this.route,
     this.children,
     this.onTap,
     this.initiallyExpanded = false,
+    this.extra,
+    this.hidden = false,
   });
 
   bool containsRoute(String currentRoute) {

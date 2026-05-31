@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-enum TInputDecorationType { box, underline, filled, outline, none }
+enum TInputDecorationType { underline, filled, outline, none }
+
+enum TLabelPosition { aboveField, floating }
 
 typedef LabelBuilder = Widget Function(String? label, String? tag, bool isRequired);
 typedef HelperTextBuilder = Widget Function(String? helperText);
 typedef ErrorsBuilder = Widget Function(List<String> errors);
+
+const TInputSize defaultInputSize = TInputSize.md;
+const TInputDecorationType defaultInputDecorationType = TInputDecorationType.filled;
+const TLabelPosition defaultLabelPosition = TLabelPosition.floating;
 
 @immutable
 class TInputFieldTheme {
   // Core Configuration
   final TInputSize size;
   final TInputDecorationType decorationType;
+  final TLabelPosition labelPosition;
 
   // State-based Properties
   final WidgetStateProperty<Color> color;
@@ -21,11 +28,11 @@ class TInputFieldTheme {
   final WidgetStateProperty<TextStyle> helperTextStyle;
   final WidgetStateProperty<TextStyle> errorTextStyle;
   final WidgetStateProperty<TextStyle> tagStyle;
+  final WidgetStateProperty<TextStyle> hintStyle;
   final WidgetStateProperty<double> borderWidth;
   final WidgetStateProperty<double> borderRadius;
-  final WidgetStateProperty<BoxDecoration> decoration;
   final WidgetStateProperty<LabelBuilder> labelBuilder;
-  final WidgetStateProperty<HelperTextBuilder> helperTextBuilder;
+  final WidgetStateProperty<HelperTextBuilder>? helperTextBuilder;
   final WidgetStateProperty<ErrorsBuilder> errorsBuilder;
 
   // Static Widget Properties
@@ -50,19 +57,20 @@ class TInputFieldTheme {
     required this.helperTextStyle,
     required this.errorTextStyle,
     required this.tagStyle,
-    required this.decoration,
+    required this.hintStyle,
     required this.borderRadius,
     required this.borderWidth,
     required this.labelBuilder,
-    required this.helperTextBuilder,
     required this.errorsBuilder,
+    this.helperTextBuilder,
     this.preWidget,
     this.postWidget,
     this.height,
     this.padding,
     this.fontSize,
-    this.size = TInputSize.md,
-    this.decorationType = TInputDecorationType.box,
+    required this.size,
+    required this.decorationType,
+    required this.labelPosition,
   });
 
   TInputFieldTheme copyWith({
@@ -73,6 +81,7 @@ class TInputFieldTheme {
     EdgeInsets? padding,
     double? fontSize,
     TInputDecorationType? decorationType,
+    TLabelPosition? labelPosition,
     WidgetStateProperty<Color>? color,
     WidgetStateProperty<Color>? backgroundColor,
     WidgetStateProperty<Color>? borderColor,
@@ -80,36 +89,30 @@ class TInputFieldTheme {
     WidgetStateProperty<TextStyle>? helperTextStyle,
     WidgetStateProperty<TextStyle>? errorTextStyle,
     WidgetStateProperty<TextStyle>? tagStyle,
+    WidgetStateProperty<TextStyle>? hintStyle,
     WidgetStateProperty<double>? borderRadius,
     WidgetStateProperty<double>? borderWidth,
-    WidgetStateProperty<BoxDecoration>? decoration,
     WidgetStateProperty<LabelBuilder>? labelBuilder,
     WidgetStateProperty<HelperTextBuilder>? helperTextBuilder,
     WidgetStateProperty<ErrorsBuilder>? errorsBuilder,
   }) {
-    final newDecorationType = decorationType ?? this.decorationType;
     final newBackgroundColor = backgroundColor ?? this.backgroundColor;
-    final newBorderColor = borderColor ?? this.borderColor;
-    final newBorderWidth = borderWidth ?? this.borderWidth;
-    final newBorderRadius = borderRadius ?? this.borderRadius;
     final newLabelStyle = labelStyle ?? this.labelStyle;
-    final newHelperTextStyle = helperTextStyle ?? this.helperTextStyle;
     final newErrorTextStyle = errorTextStyle ?? this.errorTextStyle;
     final newTagStyle = tagStyle ?? this.tagStyle;
-
-    final shouldRebuildDecoration =
-        decorationType != null || borderWidth != null || borderRadius != null || backgroundColor != null || borderColor != null;
 
     final shouldRebuildLabel = labelStyle != null || tagStyle != null || errorTextStyle != null || backgroundColor != null;
 
     return TInputFieldTheme(
-      decorationType: newDecorationType,
+      decorationType: decorationType ?? this.decorationType,
+      labelPosition: labelPosition ?? this.labelPosition,
       backgroundColor: newBackgroundColor,
-      borderColor: newBorderColor,
+      borderColor: borderColor ?? this.borderColor,
       labelStyle: newLabelStyle,
-      helperTextStyle: newHelperTextStyle,
+      helperTextStyle: helperTextStyle ?? this.helperTextStyle,
       errorTextStyle: newErrorTextStyle,
       tagStyle: newTagStyle,
+      hintStyle: hintStyle ?? this.hintStyle,
       size: size ?? this.size,
       color: color ?? this.color,
       preWidget: preWidget ?? this.preWidget,
@@ -117,21 +120,21 @@ class TInputFieldTheme {
       height: height ?? this.height,
       padding: padding ?? this.padding,
       fontSize: fontSize ?? this.fontSize,
-      borderRadius: newBorderRadius,
-      borderWidth: newBorderWidth,
-      decoration: decoration ??
-          (shouldRebuildDecoration
-              ? _createDecoration(newDecorationType, newBorderWidth, newBorderRadius, newBackgroundColor, newBorderColor)
-              : this.decoration),
+      borderRadius: borderRadius ?? this.borderRadius,
+      borderWidth: borderWidth ?? this.borderWidth,
       labelBuilder: labelBuilder ??
-          (shouldRebuildLabel ? _createLabelBuilder(newLabelStyle, newTagStyle, newErrorTextStyle, newBackgroundColor) : this.labelBuilder),
-      helperTextBuilder:
-          helperTextBuilder ?? (helperTextStyle != null ? _createHelperTextBuilder(newHelperTextStyle) : this.helperTextBuilder),
-      errorsBuilder: errorsBuilder ?? (errorTextStyle != null ? _createErrorsBuilder(newErrorTextStyle) : this.errorsBuilder),
+          (shouldRebuildLabel ? _buildLabelBuilder(newLabelStyle, newTagStyle, newErrorTextStyle, newBackgroundColor) : this.labelBuilder),
+      helperTextBuilder: helperTextBuilder ?? this.helperTextBuilder,
+      errorsBuilder: errorsBuilder ?? (errorTextStyle != null ? _buildErrorsBuilder(newErrorTextStyle) : this.errorsBuilder),
     );
   }
 
-  factory TInputFieldTheme.defaultTheme(ColorScheme colors, {TInputDecorationType decorationType = TInputDecorationType.box}) {
+  factory TInputFieldTheme.defaultTheme(
+    ColorScheme colors, {
+    TInputSize size = defaultInputSize,
+    TInputDecorationType decorationType = defaultInputDecorationType,
+    TLabelPosition labelPosition = defaultLabelPosition,
+  }) {
     final color = WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.error)) return colors.error;
       if (states.contains(WidgetState.focused)) return colors.primary;
@@ -141,7 +144,11 @@ class TInputFieldTheme {
 
     final backgroundColor = WidgetStateProperty.resolveWith((states) {
       if (decorationType == TInputDecorationType.filled) {
-        return states.contains(WidgetState.disabled) ? colors.surfaceDim : colors.surfaceContainer;
+        return states.contains(WidgetState.disabled)
+            ? colors.surfaceDim
+            : states.contains(WidgetState.error)
+                ? colors.errorContainer
+                : colors.surfaceContainerLowest;
       }
       return states.contains(WidgetState.disabled) ? colors.surfaceDim : colors.surface;
     });
@@ -154,41 +161,37 @@ class TInputFieldTheme {
     });
 
     final labelStyle = WidgetStateProperty.resolveWith((states) {
-      final isDisabled = states.contains(WidgetState.disabled);
       return TextStyle(
-        fontSize: 12.0,
+        fontSize: labelPosition == TLabelPosition.aboveField ? 12.0 : 14.0,
         fontWeight: FontWeight.w500,
-        color: isDisabled ? colors.onSurfaceVariant.withAlpha(100) : colors.onSurfaceVariant,
+        color: states.contains(WidgetState.disabled)
+            ? colors.onSurfaceVariant
+            : states.contains(WidgetState.error)
+                ? colors.error
+                : colors.onSurfaceVariant,
       );
     });
 
-    final helperTextStyle = WidgetStateProperty.all(
-      TextStyle(
-        fontSize: 12.0,
-        fontWeight: FontWeight.w300,
-        color: colors.onSurfaceVariant.withAlpha(200),
-      ),
-    );
+    final helperTextStyle =
+        WidgetStateProperty.all(TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: colors.onSurfaceVariant.withAlpha(200)));
 
     final errorTextStyle = WidgetStateProperty.all(TextStyle(fontSize: 12.0, color: colors.error));
-
-    final tagStyle = WidgetStateProperty.all(TextStyle(fontSize: 11.0, fontWeight: FontWeight.w300, color: colors.onSurfaceVariant));
 
     final borderWidth = WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.focused) ? 2.0 : 1.0);
 
     final borderRadius = WidgetStateProperty.resolveWith((states) {
       return switch (decorationType) {
-        TInputDecorationType.outline => 12.0,
+        TInputDecorationType.outline => 8.0,
         TInputDecorationType.filled => 8.0,
         TInputDecorationType.underline => 0.0,
         TInputDecorationType.none => 0.0,
-        TInputDecorationType.box => 6.0,
       };
     });
 
     return TInputFieldTheme(
-      size: TInputSize.md,
+      size: size,
       decorationType: decorationType,
+      labelPosition: labelPosition,
       borderRadius: borderRadius,
       borderWidth: borderWidth,
       color: color,
@@ -197,50 +200,96 @@ class TInputFieldTheme {
       labelStyle: labelStyle,
       helperTextStyle: helperTextStyle,
       errorTextStyle: errorTextStyle,
-      tagStyle: tagStyle,
-      decoration: _createDecoration(decorationType, borderWidth, borderRadius, backgroundColor, borderColor),
-      labelBuilder: _createLabelBuilder(labelStyle, tagStyle, errorTextStyle, backgroundColor),
-      helperTextBuilder: _createHelperTextBuilder(helperTextStyle),
-      errorsBuilder: _createErrorsBuilder(errorTextStyle),
+      tagStyle: labelStyle,
+      hintStyle: WidgetStateProperty.all(TextStyle(color: colors.onSurfaceVariant.withAlpha(150))),
+      labelBuilder: _buildLabelBuilder(labelStyle, labelStyle, errorTextStyle, backgroundColor),
+      errorsBuilder: _buildErrorsBuilder(errorTextStyle),
     );
   }
 
-  Widget buildContainer(
+  InputBorder buildInputBorder(Set<WidgetState> states) {
+    final rBorderSide = BorderSide(color: borderColor.resolve(states), width: borderWidth.resolve(states));
+    final rBorderRadius = BorderRadius.circular(borderRadius.resolve(states));
+
+    return switch (decorationType) {
+      TInputDecorationType.underline => UnderlineInputBorder(borderSide: rBorderSide, borderRadius: rBorderRadius),
+      TInputDecorationType.outline => OutlineInputBorder(borderSide: rBorderSide, borderRadius: rBorderRadius),
+      TInputDecorationType.filled ||
+      TInputDecorationType.none =>
+        OutlineInputBorder(borderSide: BorderSide.none, borderRadius: rBorderRadius)
+    };
+  }
+
+  InputDecoration buildInputDecoration(
     Set<WidgetState> states, {
-    required Widget? child,
-    Widget? additionalPostWidget,
-    Widget? additionalPreWidget,
+    Widget? beforePostWidget,
+    Widget? beforePreWidget,
     String? label,
+    String? placeholder,
     String? tag,
     String? helperText,
     List<String>? errors,
     bool isRequired = false,
-    bool isMultiline = false,
-    bool block = true,
+    VoidCallback? onClear,
   }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        labelBuilder.resolve(states)(label, tag, isRequired),
-        Container(
-          constraints: BoxConstraints(minHeight: fieldHeight, maxHeight: isMultiline ? double.infinity : fieldHeight),
-          decoration: decoration.resolve(states),
-          child: Row(
-            mainAxisSize: block ? MainAxisSize.max : MainAxisSize.min,
-            children: [
-              if (preWidget != null) _buildPaddedWidget(preWidget!, isPrefix: true),
-              if (additionalPreWidget != null) _buildPaddedWidget(additionalPreWidget, isPrefix: true),
-              block ? Expanded(child: Padding(padding: fieldPadding, child: child)) : Padding(padding: fieldPadding, child: child),
-              if (additionalPostWidget != null) _buildPaddedWidget(additionalPostWidget, isPrefix: false),
-              if (postWidget != null) _buildPaddedWidget(postWidget!, isPrefix: false),
-            ],
-          ),
-        ),
-        helperTextBuilder.resolve(states)(helperText),
-        if (errors != null && errors.isNotEmpty) errorsBuilder.resolve(states)(errors),
-      ],
+    final inputBorder = buildInputBorder(states);
+
+    return InputDecoration(
+      border: inputBorder,
+      enabledBorder: inputBorder,
+      focusedErrorBorder: inputBorder,
+      disabledBorder: inputBorder,
+      focusedBorder: inputBorder,
+      errorBorder: inputBorder,
+      contentPadding: fieldPadding,
+      label: labelPosition == TLabelPosition.aboveField ? null : labelBuilder.resolve(states)(label, tag, isRequired),
+      labelStyle: labelStyle.resolve(states),
+      floatingLabelStyle: labelStyle.resolve(states),
+      floatingLabelBehavior: switch (labelPosition) {
+        TLabelPosition.aboveField => FloatingLabelBehavior.never,
+        TLabelPosition.floating => FloatingLabelBehavior.auto,
+      },
+      helperStyle: helperTextStyle.resolve(states),
+      helperText: helperText,
+      hintText: placeholder,
+      hintStyle: hintStyle.resolve(states),
+      error: errors != null && errors.isNotEmpty ? errorsBuilder.resolve(states)(errors) : null,
+      prefixIcon: _buildPreWidget(beforePreWidget),
+      suffixIcon: _buildPostWidget(beforePostWidget: beforePostWidget, onClear: onClear),
+      filled: decorationType == TInputDecorationType.filled,
+      fillColor: backgroundColor.resolve(states),
     );
+  }
+
+  Widget? _buildPreWidget(Widget? beforePreWidget) {
+    if (preWidget != null && beforePreWidget != null) {
+      return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [_buildPaddedWidget(beforePreWidget, isPrefix: true), _buildPaddedWidget(preWidget!, isPrefix: true)]);
+    } else if (preWidget != null) {
+      return _buildPaddedWidget(preWidget!, isPrefix: true);
+    } else if (beforePreWidget != null) {
+      return _buildPaddedWidget(beforePreWidget, isPrefix: true);
+    } else {
+      return null;
+    }
+  }
+
+  Widget? _buildPostWidget({Widget? beforePostWidget, VoidCallback? onClear}) {
+    final children = [
+      if (onClear != null) _buildPaddedWidget(TIcon.close(onTap: onClear, size: fieldFontSize + 3), isPrefix: false),
+      if (beforePostWidget != null) _buildPaddedWidget(beforePostWidget, isPrefix: false),
+      if (postWidget != null) _buildPaddedWidget(postWidget!, isPrefix: false)
+    ];
+
+    if (children.isEmpty) return SizedBox.shrink();
+    if (children.length == 1) return children[0];
+
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      if (onClear != null) _buildPaddedWidget(TIcon.close(onTap: onClear, size: fieldFontSize + 3), isPrefix: false),
+      if (beforePostWidget != null) _buildPaddedWidget(beforePostWidget, isPrefix: false),
+      if (postWidget != null) _buildPaddedWidget(postWidget!, isPrefix: false)
+    ]);
   }
 
   Widget _buildPaddedWidget(Widget widget, {required bool isPrefix}) {
@@ -251,54 +300,11 @@ class TInputFieldTheme {
         left: isPrefix ? fieldPadding.left : 0,
         right: isPrefix ? 0 : fieldPadding.right,
       ),
-      child: Center(child: widget),
+      child: widget,
     );
   }
 
-  static WidgetStateProperty<BoxDecoration> _createDecoration(
-    TInputDecorationType decorationType,
-    WidgetStateProperty<double> borderWidth,
-    WidgetStateProperty<double> borderRadius,
-    WidgetStateProperty<Color> backgroundColor,
-    WidgetStateProperty<Color> borderColor,
-  ) {
-    return WidgetStateProperty.resolveWith((states) {
-      final isFocused = states.contains(WidgetState.focused);
-      final bWidth = borderWidth.resolve(states);
-      final bRadius = borderRadius.resolve(states);
-      final bColor = borderColor.resolve(states);
-      final bgColor = backgroundColor.resolve(states);
-
-      final focusShadow = isFocused ? [BoxShadow(color: bColor.withAlpha(100), blurRadius: 4.0, offset: const Offset(0, 2))] : null;
-
-      return switch (decorationType) {
-        TInputDecorationType.underline => BoxDecoration(
-            border: Border(bottom: BorderSide(color: bColor, width: bWidth)),
-            color: bgColor,
-          ),
-        TInputDecorationType.filled => BoxDecoration(
-            borderRadius: BorderRadius.circular(bRadius),
-            color: bgColor,
-            border: isFocused ? Border.all(color: bColor, width: bWidth) : null,
-          ),
-        TInputDecorationType.outline => BoxDecoration(
-            border: Border.all(color: bColor, width: bWidth),
-            borderRadius: BorderRadius.circular(bRadius),
-            color: Colors.transparent,
-            boxShadow: focusShadow,
-          ),
-        TInputDecorationType.none => BoxDecoration(color: bgColor),
-        TInputDecorationType.box => BoxDecoration(
-            border: Border.all(color: bColor, width: bWidth),
-            borderRadius: BorderRadius.circular(bRadius),
-            color: bgColor,
-            boxShadow: focusShadow,
-          ),
-      };
-    });
-  }
-
-  static WidgetStateProperty<LabelBuilder> _createLabelBuilder(
+  static WidgetStateProperty<LabelBuilder> _buildLabelBuilder(
     WidgetStateProperty<TextStyle> labelStyle,
     WidgetStateProperty<TextStyle> tagStyle,
     WidgetStateProperty<TextStyle> errorTextStyle,
@@ -306,54 +312,30 @@ class TInputFieldTheme {
   ) {
     return WidgetStateProperty.resolveWith((states) {
       return (label, tag, isRequired) {
-        if (label == null && tag == null) return const SizedBox.shrink();
+        final children = [
+          if (label != null)
+            RichText(
+              text: TextSpan(
+                text: label,
+                style: labelStyle.resolve(states),
+                children: isRequired ? [TextSpan(text: ' *', style: TextStyle(color: errorTextStyle.resolve(states).color))] : null,
+              ),
+            ),
+          if (tag != null) Text(tag, style: tagStyle.resolve(states))
+        ];
 
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (label != null)
-                Flexible(
-                  child: RichText(
-                    text: TextSpan(
-                      text: label,
-                      style: labelStyle.resolve(states),
-                      children: isRequired ? [TextSpan(text: ' *', style: TextStyle(color: errorTextStyle.resolve(states).color))] : null,
-                    ),
-                  ),
-                ),
-              if (tag != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5.0),
-                    color: backgroundColor.resolve(states),
-                  ),
-                  child: Text(tag, style: tagStyle.resolve(states)),
-                ),
-            ],
-          ),
+        if (children.isEmpty) return SizedBox.shrink();
+        if (children.length == 1) return children[0];
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: children,
         );
       };
     });
   }
 
-  static WidgetStateProperty<HelperTextBuilder> _createHelperTextBuilder(
-    WidgetStateProperty<TextStyle> helperTextStyle,
-  ) {
-    return WidgetStateProperty.resolveWith((states) {
-      return (helperText) {
-        if (helperText == null) return const SizedBox.shrink();
-        return Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text(helperText, style: helperTextStyle.resolve(states)),
-        );
-      };
-    });
-  }
-
-  static WidgetStateProperty<ErrorsBuilder> _createErrorsBuilder(
+  static WidgetStateProperty<ErrorsBuilder> _buildErrorsBuilder(
     WidgetStateProperty<TextStyle> errorTextStyle,
   ) {
     return WidgetStateProperty.resolveWith((states) {

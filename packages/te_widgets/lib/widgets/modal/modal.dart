@@ -178,7 +178,7 @@ class TModal extends StatelessWidget {
                 ? Text(title ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: colors.onSurface))
                 : SizedBox.shrink(),
           ),
-          if (showCloseButton == true) TIcon.close(colors, size: 20, onTap: () => onClose?.call()),
+          if (showCloseButton == true) TIcon.close(size: 20, onTap: () => onClose?.call()),
         ],
       ),
     );

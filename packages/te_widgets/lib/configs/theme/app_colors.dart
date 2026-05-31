@@ -30,17 +30,16 @@ class AppColors {
   });
 
   static const MaterialColor grey = MaterialColor(0xFF90A1B9, {
-    50: Color(0xFFF7F9FD),
-    100: Color(0xFFEBEEF4),
-    200: Color(0xFFE1E5ED),
-    300: Color(0xFFBFD8E2),
-    400: Color(0xFFA5C3D4),
-    500: Color(0xFF8EAEC6),
-    600: Color(0xFF7393B3),
-    700: Color(0xFF647F9E),
-    800: Color(0xFF536980),
-    900: Color(0xFF3b3b3f),
-    975: Color(0xFF1f1f1f),
+    50: Color(0xFFF5F7F9),
+    100: Color(0xFFE7EEF2),
+    200: Color(0xFFD5E1E8),
+    300: Color(0xFFB9CDD7),
+    400: Color(0xFF97B3C3),
+    500: Color(0xFF7D9CB4),
+    600: Color(0xFF6B88A5),
+    700: Color(0xFF657E9D),
+    800: Color(0xFF51637C),
+    900: Color(0xFF445264),
     950: Color(0xFF1D1D1D),
   });
 

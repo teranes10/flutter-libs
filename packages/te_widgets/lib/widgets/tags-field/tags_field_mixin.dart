@@ -17,6 +17,9 @@ mixin TTagsFieldMixin on TTextFieldMixin, TInputFieldMixin, TFocusMixin {
 
   /// Callback fired when the text input changes.
   ValueChanged<String>? get onInputChanged;
+
+  @override
+  TTagsController? get textController;
 }
 
 /// State mixin for the tags field widget.
@@ -27,6 +30,8 @@ mixin TTagsFieldStateMixin<W extends StatefulWidget> on State<W>, TTextFieldStat
     assert(widget is TTagsFieldMixin, 'Widget must mix in TTagsFieldMixin');
     return widget as TTagsFieldMixin;
   }
+
+  TTextFieldMixin? get _textFieldMixin => widget is TTextFieldMixin ? widget as TTextFieldMixin : null;
 
   /// The controller for managing tags.
   TTagsController get tagsController => textController as TTagsController;
@@ -45,16 +50,25 @@ mixin TTagsFieldStateMixin<W extends StatefulWidget> on State<W>, TTextFieldStat
   }
 
   /// Builds the tags field UI.
-  Widget buildTagsField({KeyEventResult Function(FocusNode, KeyEvent)? onKeyEvent, ValueChanged<String>? onInputChanged}) {
-    final textField = IgnorePointer(
-      ignoring: onInputChanged == null,
-      child: buildTextField(
-        textInputAction: TextInputAction.unspecified,
-        onValueChanged: (String input) {
-          onInputChanged?.call(input);
-          _widget.onInputChanged?.call(input);
-        },
+  Widget buildTagsField(
+      {KeyEventResult Function(FocusNode, KeyEvent)? onKeyEvent, ValueChanged<String>? onInputChanged, VoidCallback? onTap}) {
+    final textField = TextField(
+      focusNode: focusNode,
+      controller: textController,
+      textInputAction: TextInputAction.unspecified,
+      style: TextStyle(height: 1.0),
+      decoration: InputDecoration(
+        hintText: states.contains(WidgetState.focused) && !states.contains(WidgetState.selected) ? _textFieldMixin?.placeholder : null,
+        isDense: true,
+        border: InputBorder.none,
+        contentPadding: EdgeInsets.zero,
+        floatingLabelBehavior: FloatingLabelBehavior.never,
       ),
+      onChanged: (String input) {
+        onInputChanged?.call(input);
+        _widget.onInputChanged?.call(input);
+      },
+      onTap: onTap,
     );
 
     return wTheme.buildTagsField(

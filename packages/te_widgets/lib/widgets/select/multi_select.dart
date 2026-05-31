@@ -229,7 +229,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   Widget getContentWidget(BuildContext context) {
     final list = TList<T, K>(
       controller: listController,
-      theme: listTheme.copyWith(infiniteScroll: true),
+      infiniteScroll: true,
       cardTheme: widget.cardTheme,
       itemTitle: widget.itemText,
       itemSubTitle: widget.itemSubText,
@@ -244,7 +244,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
                 padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 5),
                 child: TTextField(
                     placeholder: 'Search...',
-                    theme: context.theme.textFieldTheme.copyWith(decorationType: TInputDecorationType.underline),
+                    decorationType: TInputDecorationType.underline,
                     value: listController.value.search,
                     onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
               ),
@@ -259,21 +259,24 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   Widget build(BuildContext context) {
     final colors = context.colors;
 
+    onTap() {
+      if (widget.disabled) return;
+      togglePopup(context);
+    }
+
     return buildWithDropdownTarget(
       child: buildContainer(
         isMultiline: true,
-        showClearButton: listController.hasSelection,
+        hasValue: listController.hasSelection,
         onClear: () {
           listController.updateSelectionState(LinkedHashSet<K>());
           tagsController.updateState(tags: []);
           notifyValueChanged([]);
         },
-        child: buildTagsField(onInputChanged: widget.filterable && isPopupShowing ? listController.handleSearchChange : null),
-        postWidget: Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
-        onTap: () {
-          if (widget.disabled) return;
-          togglePopup(context);
-        },
+        child: buildTagsField(onInputChanged: widget.filterable && isPopupShowing ? listController.handleSearchChange : null, onTap: onTap),
+        beforePostWidget:
+            Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
+        onTap: onTap,
       ),
     );
   }

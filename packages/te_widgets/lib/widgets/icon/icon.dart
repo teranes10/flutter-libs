@@ -82,29 +82,29 @@ class TIcon extends StatelessWidget {
   final BoxShape shape;
   final Color? background;
   final BorderRadius? borderRadius;
+  final TThemeType? themeType;
 
   /// Creates an icon.
-  const TIcon({
-    super.key,
-    required this.icon,
-    this.onTap,
-    this.size = 16,
-    this.active = false,
-    this.padding = const EdgeInsets.all(6),
-    this.turns,
-    this.animationMilliseconds = 200,
-    this.color,
-    this.activeIcon,
-    this.activeColor,
-    this.hoverColor,
-    this.shape = BoxShape.rectangle,
-    this.background,
-    this.borderRadius = const BorderRadius.all(Radius.circular(10)),
-  });
+  const TIcon(
+      {super.key,
+      required this.icon,
+      this.onTap,
+      this.size = 16,
+      this.active = false,
+      this.padding = const EdgeInsets.all(6),
+      this.turns,
+      this.animationMilliseconds = 200,
+      this.color,
+      this.activeIcon,
+      this.activeColor,
+      this.hoverColor,
+      this.shape = BoxShape.rectangle,
+      this.background,
+      this.borderRadius = const BorderRadius.all(Radius.circular(10)),
+      this.themeType});
 
   /// Creates a close icon with default styling.
-  factory TIcon.close(
-    ColorScheme colors, {
+  factory TIcon.close({
     VoidCallback? onTap,
     double size = 20,
     EdgeInsets padding = const EdgeInsets.all(8),
@@ -113,9 +113,8 @@ class TIcon extends StatelessWidget {
       icon: Icons.cancel_outlined,
       onTap: onTap,
       size: size,
-      color: colors.surfaceDim,
-      hoverColor: colors.error,
       padding: padding,
+      themeType: TThemeType.error,
     );
   }
 
@@ -123,7 +122,7 @@ class TIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final baseColor = color ?? colors.onSurfaceVariant;
-    final hoverOrActiveColor = hoverColor ?? activeColor;
+    final hoverOrActiveColor = hoverColor ?? activeColor ?? themeType?.getColor(context);
 
     Widget buildIcon({required bool isHovering}) {
       final effectiveIcon = active ? activeIcon ?? icon : icon;

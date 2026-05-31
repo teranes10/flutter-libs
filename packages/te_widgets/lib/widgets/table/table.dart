@@ -73,6 +73,32 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Whether specific cells are editable.
   final bool editable;
 
+  // Theme overrides
+
+  /// Grid layout mode.
+  final TGridMode? grid;
+
+  /// Delegate for controlling grid layout.
+  final TGridDelegateBuilder? gridDelegate;
+
+  /// Whether the table should shrink-wrap its content.
+  final bool? shrinkWrap;
+
+  /// Custom header widget.
+  final TListHeaderBuilder? headerBuilder;
+
+  /// Custom footer widget.
+  final TListFooterBuilder? footerBuilder;
+
+  /// Whether to enable infinite scroll.
+  final bool? infiniteScroll;
+
+  /// Whether the header should be sticky.
+  final bool? headerSticky;
+
+  /// Whether the footer should be sticky.
+  final bool? footerSticky;
+
   /// Creates a data table.
   const TTable({
     super.key,
@@ -89,14 +115,48 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     //Expandable
     this.expandedBuilder,
     this.editable = false,
-  });
+    // Theme overrides
+    this.grid,
+    this.gridDelegate,
+    this.shrinkWrap,
+    this.headerBuilder,
+    this.footerBuilder,
+    this.infiniteScroll,
+    this.headerSticky,
+    this.footerSticky,
+  }) : assert(
+          theme == null ||
+              (grid == null &&
+                  gridDelegate == null &&
+                  shrinkWrap == null &&
+                  headerBuilder == null &&
+                  footerBuilder == null &&
+                  infiniteScroll == null &&
+                  headerSticky == null &&
+                  footerSticky == null),
+          'Cannot provide both theme and individual theme properties.',
+        );
 
   @override
   State<TTable<T, K>> createState() => _TTableState<T, K>();
 }
 
 class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, TTable<T, K>> {
-  TTableTheme get wTheme => widget.theme ?? context.theme.tableTheme;
+  TTableTheme get wTheme {
+    if (widget.theme != null) return widget.theme!;
+
+    return context.theme.tableTheme.copyWith(
+      grid: widget.grid,
+      gridDelegate: widget.gridDelegate,
+      shrinkWrap: widget.shrinkWrap,
+      headerBuilder: widget.headerBuilder,
+      footerBuilder: widget.footerBuilder,
+      infiniteScroll: widget.infiniteScroll,
+      headerSticky: widget.headerSticky,
+      footerSticky: widget.footerSticky,
+    );
+  }
+
   late final ValueNotifier<String?>? _activeCellNotifier;
 
   @override

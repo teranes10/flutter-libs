@@ -145,6 +145,35 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Callback fired when an item is tapped.
   final ListItemTap<T, K>? onTap;
 
+  // Theme overrides
+
+  /// Grid layout mode.
+  final TGridMode? grid;
+
+  /// Delegate for controlling grid layout.
+  final TGridDelegateBuilder? gridDelegate;
+
+  /// Whether the list should shrink-wrap its content.
+  final bool? shrinkWrap;
+
+  /// Custom header widget.
+  final TListHeaderBuilder? headerBuilder;
+
+  /// Custom footer widget.
+  final TListFooterBuilder? footerBuilder;
+
+  /// Whether to enable infinite scroll.
+  final bool? infiniteScroll;
+
+  /// Whether the header should be sticky.
+  final bool? headerSticky;
+
+  /// Whether the footer should be sticky.
+  final bool? footerSticky;
+
+  // Padding
+  final EdgeInsets? padding;
+
   /// Creates a list component.
   TList({
     super.key,
@@ -172,7 +201,30 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.itemImageUrl,
     this.onTap,
     ListItemBuilder<T, K>? itemBuilder,
-  })  : itemTitle = itemTitle ?? defaultItemTitle,
+    // Theme overrides
+    this.grid,
+    this.gridDelegate,
+    this.shrinkWrap,
+    this.headerBuilder,
+    this.footerBuilder,
+    this.infiniteScroll,
+    this.headerSticky,
+    this.footerSticky,
+    this.padding,
+  })  : assert(
+          theme == null ||
+              (grid == null &&
+                  gridDelegate == null &&
+                  shrinkWrap == null &&
+                  headerBuilder == null &&
+                  footerBuilder == null &&
+                  infiniteScroll == null &&
+                  headerSticky == null &&
+                  footerSticky == null &&
+                  padding == null),
+          'Cannot provide both theme and individual theme properties.',
+        ),
+        itemTitle = itemTitle ?? defaultItemTitle,
         itemBuilder = itemBuilder ?? defaultItemBuilder<T, K>(cardTheme, itemTitle ?? defaultItemTitle, itemSubTitle, itemImageUrl, onTap);
 
   static String defaultItemTitle<T>(T item) {
@@ -217,7 +269,21 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
   late ScrollController _scrollController;
   bool _scrollControllerOwned = false;
 
-  TListTheme get wTheme => widget.theme ?? context.theme.listTheme;
+  TListTheme get wTheme {
+    if (widget.theme != null) return widget.theme!;
+
+    return context.theme.listTheme.copyWith(
+      grid: widget.grid,
+      gridDelegate: widget.gridDelegate,
+      shrinkWrap: widget.shrinkWrap,
+      headerBuilder: widget.headerBuilder,
+      footerBuilder: widget.footerBuilder,
+      infiniteScroll: widget.infiniteScroll,
+      headerSticky: widget.headerSticky,
+      footerSticky: widget.footerSticky,
+      padding: widget.padding,
+    );
+  }
 
   @override
   void initState() {
@@ -227,7 +293,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
     _scrollController = widget.scrollController ?? ScrollController();
     _scrollControllerOwned = widget.scrollController == null;
 
-    if (!wTheme.shrinkWrap) {
+    if (wTheme.shrinkWrap != true) {
       _scrollController.addListener(_onScroll);
     }
   }
@@ -238,7 +304,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
 
     // Handle scroll controller changes
     if (oldWidget.scrollController != widget.scrollController) {
-      if (!wTheme.shrinkWrap) {
+      if (wTheme.shrinkWrap != true) {
         _scrollController.removeListener(_onScroll);
       }
 
@@ -249,7 +315,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
       _scrollController = widget.scrollController ?? ScrollController();
       _scrollControllerOwned = widget.scrollController == null;
 
-      if (!wTheme.shrinkWrap) {
+      if (wTheme.shrinkWrap != true) {
         _scrollController.addListener(_onScroll);
       }
     }
@@ -264,7 +330,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
   void dispose() {
     _animationController.dispose();
 
-    if (!wTheme.shrinkWrap) {
+    if (wTheme.shrinkWrap != true) {
       _scrollController.removeListener(_onScroll);
     }
 
@@ -344,7 +410,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               grid: wTheme.grid,
               gridDelegate: wTheme.gridDelegate,
               height: _calculateHeight(state),
-              shrinkWrap: wTheme.shrinkWrap,
+              shrinkWrap: wTheme.shrinkWrap ?? false,
               scrollController: _scrollController,
             );
           },

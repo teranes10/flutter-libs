@@ -86,6 +86,9 @@ class TCheckboxGroup<T> extends StatefulWidget
   /// Whether to auto-focus the first checkbox.
   final bool autoFocus;
 
+  final double spacing;
+  final double runSpacing;
+
   /// Creates a checkbox group.
   const TCheckboxGroup({
     super.key,
@@ -108,6 +111,8 @@ class TCheckboxGroup<T> extends StatefulWidget
     this.block = true,
     this.vertical = false,
     this.autoFocus = false,
+    this.spacing = 16,
+    this.runSpacing = 8,
   });
 
   @override
@@ -275,7 +280,7 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
       child: buildContainer(
         block: widget.block,
         isMultiline: true,
-        showClearButton: _selectedValues.isNotEmpty,
+        hasValue: _selectedValues.isNotEmpty,
         onClear: () {
           setState(() {
             _selectedValues.clear();
@@ -316,7 +321,19 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
     }
 
     return widget.vertical
-        ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: items)
-        : Wrap(spacing: 16, runSpacing: 8, alignment: WrapAlignment.start, children: items);
+        ? Padding(
+            padding: EdgeInsets.symmetric(vertical: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: widget.runSpacing,
+              children: items,
+            ),
+          )
+        : Wrap(
+            spacing: widget.spacing,
+            runSpacing: widget.runSpacing,
+            alignment: WrapAlignment.start,
+            children: items,
+          );
   }
 }

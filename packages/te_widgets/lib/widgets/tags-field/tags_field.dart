@@ -163,7 +163,7 @@ class _TTagsFieldState extends State<TTagsField>
   Widget build(BuildContext context) {
     return buildContainer(
       isMultiline: true,
-      showClearButton: tagsController.tags.isNotEmpty,
+      hasValue: tagsController.tags.isNotEmpty,
       onClear: () {
         setState(() {
           tagsController.updateState(tags: []);

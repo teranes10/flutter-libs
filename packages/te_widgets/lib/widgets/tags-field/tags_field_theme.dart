@@ -23,7 +23,6 @@ class TTagsFieldTheme extends TTextFieldTheme {
     required super.helperTextStyle,
     required super.errorTextStyle,
     required super.tagStyle,
-    required super.decoration,
     required super.borderRadius,
     required super.borderWidth,
     required super.labelBuilder,
@@ -32,7 +31,8 @@ class TTagsFieldTheme extends TTextFieldTheme {
     required super.textStyle,
     required super.hintStyle,
     super.size = TInputSize.md,
-    super.decorationType,
+    required super.decorationType,
+    required super.labelPosition,
     super.preWidget,
     super.postWidget,
     super.height,
@@ -54,6 +54,7 @@ class TTagsFieldTheme extends TTextFieldTheme {
   TTagsFieldTheme copyWith({
     TInputSize? size,
     TInputDecorationType? decorationType,
+    TLabelPosition? labelPosition,
     WidgetStateProperty<Color>? color,
     WidgetStateProperty<Color>? backgroundColor,
     WidgetStateProperty<Color>? borderColor,
@@ -61,7 +62,6 @@ class TTagsFieldTheme extends TTextFieldTheme {
     WidgetStateProperty<TextStyle>? helperTextStyle,
     WidgetStateProperty<TextStyle>? errorTextStyle,
     WidgetStateProperty<TextStyle>? tagStyle,
-    WidgetStateProperty<BoxDecoration>? decoration,
     WidgetStateProperty<double>? borderRadius,
     WidgetStateProperty<double>? borderWidth,
     WidgetStateProperty<LabelBuilder>? labelBuilder,
@@ -90,6 +90,7 @@ class TTagsFieldTheme extends TTextFieldTheme {
     final baseTheme = super.copyWith(
       size: size,
       decorationType: decorationType,
+      labelPosition: labelPosition,
       color: color,
       backgroundColor: backgroundColor,
       borderColor: borderColor,
@@ -97,7 +98,6 @@ class TTagsFieldTheme extends TTextFieldTheme {
       helperTextStyle: helperTextStyle,
       errorTextStyle: errorTextStyle,
       tagStyle: tagStyle,
-      decoration: decoration,
       borderRadius: borderRadius,
       borderWidth: borderWidth,
       labelBuilder: labelBuilder,
@@ -125,6 +125,7 @@ class TTagsFieldTheme extends TTextFieldTheme {
       // Text field properties from parent
       size: baseTheme.size,
       decorationType: baseTheme.decorationType,
+      labelPosition: baseTheme.labelPosition,
       color: baseTheme.color,
       backgroundColor: baseTheme.backgroundColor,
       borderColor: baseTheme.borderColor,
@@ -132,7 +133,6 @@ class TTagsFieldTheme extends TTextFieldTheme {
       helperTextStyle: baseTheme.helperTextStyle,
       errorTextStyle: baseTheme.errorTextStyle,
       tagStyle: baseTheme.tagStyle,
-      decoration: baseTheme.decoration,
       borderRadius: baseTheme.borderRadius,
       borderWidth: baseTheme.borderWidth,
       labelBuilder: baseTheme.labelBuilder,
@@ -167,6 +167,7 @@ class TTagsFieldTheme extends TTextFieldTheme {
     return TTagsFieldTheme(
       size: baseTheme.size,
       decorationType: baseTheme.decorationType,
+      labelPosition: baseTheme.labelPosition,
       color: baseTheme.color,
       backgroundColor: baseTheme.backgroundColor,
       borderColor: baseTheme.borderColor,
@@ -174,7 +175,6 @@ class TTagsFieldTheme extends TTextFieldTheme {
       helperTextStyle: baseTheme.helperTextStyle,
       errorTextStyle: baseTheme.errorTextStyle,
       tagStyle: baseTheme.tagStyle,
-      decoration: baseTheme.decoration,
       borderRadius: baseTheme.borderRadius,
       borderWidth: baseTheme.borderWidth,
       labelBuilder: baseTheme.labelBuilder,
@@ -214,11 +214,7 @@ class TTagsFieldTheme extends TTextFieldTheme {
   }
 
   /// Builds the tag list widget.
-  Widget buildTagsField({
-    required Widget child,
-    required TTagsController controller,
-    required bool canRemove,
-  }) {
+  Widget buildTagsField({required Widget child, required TTagsController controller, required bool canRemove}) {
     void removeTag(String tag) {
       if (canRemove) {
         controller.removeTag(tag);
@@ -230,17 +226,20 @@ class TTagsFieldTheme extends TTextFieldTheme {
       builder: (context, value, _) {
         final tags = (value as TagsEditingValue).tags;
 
-        return Wrap(
-          spacing: 6.0,
-          runSpacing: 6.0,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            ...tags.map((tag) => tagBuilder(tag, () => removeTag(tag))),
-            ConstrainedBox(
-              constraints: BoxConstraints(minWidth: 150, maxWidth: double.infinity),
-              child: IntrinsicWidth(child: child),
-            ),
-          ],
+        return Padding(
+          padding: EdgeInsetsGeometry.symmetric(vertical: 12),
+          child: Wrap(
+            spacing: 6.0,
+            runSpacing: 6.0,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              ...tags.map((tag) => tagBuilder(tag, () => removeTag(tag))),
+              ConstrainedBox(
+                constraints: BoxConstraints(minWidth: 150, maxWidth: double.infinity),
+                child: IntrinsicWidth(child: child),
+              ),
+            ],
+          ),
         );
       },
     );

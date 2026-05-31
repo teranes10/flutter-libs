@@ -143,9 +143,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
     final searchBar = TTextField(
       value: parent.listController.value.search,
       placeholder: parent.widget.config.searchPlaceholder,
-      theme: ctx.theme.textFieldTheme.copyWith(
-        postWidget: Icon(Icons.search_rounded, size: 18, color: ctx.colors.onSurface),
-      ),
+      postWidget: Icon(Icons.search_rounded, size: 18, color: ctx.colors.onSurface),
       onValueChanged: (String? input) {
         if (parent.currentTab == 0) {
           parent.listController.handleSearchChange(input ?? '');

@@ -27,6 +27,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
   final TListCardTheme listCardTheme;
   final TKeyValueTheme keyValueTheme;
   final TAlertTheme alertTheme;
+  final TDropdownTheme dropdownTheme;
 
   const TWidgetThemeExtension({
     this.primary = AppColors.primary,
@@ -51,6 +52,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
     required this.listCardTheme,
     required this.keyValueTheme,
     required this.alertTheme,
+    required this.dropdownTheme,
   });
 
   @override
@@ -77,6 +79,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
     TListCardTheme? listCardTheme,
     TKeyValueTheme? keyValueTheme,
     TAlertTheme? alertTheme,
+    TDropdownTheme? dropdownTheme,
   }) {
     return TWidgetThemeExtension(
       primary: primary ?? this.primary,
@@ -101,6 +104,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
       listCardTheme: listCardTheme ?? this.listCardTheme,
       keyValueTheme: keyValueTheme ?? this.keyValueTheme,
       alertTheme: alertTheme ?? this.alertTheme,
+      dropdownTheme: dropdownTheme ?? this.dropdownTheme,
     );
   }
 
@@ -123,6 +127,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
       listCardTheme: TListCardTheme.defaultTheme(colors),
       keyValueTheme: TKeyValueTheme.defaultTheme(colors),
       alertTheme: TAlertTheme.defaultTheme(colors),
+      dropdownTheme: TDropdownTheme.defaultTheme(colors),
     );
   }
 }

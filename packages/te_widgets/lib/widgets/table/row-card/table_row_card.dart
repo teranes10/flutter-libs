@@ -98,7 +98,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
                       icon: Icons.keyboard_arrow_down,
                       size: 20,
                       color: colors.onSurfaceVariant,
-                      background: colors.surfaceContainerLowest,
+                      background: colors.surfaceContainerLow,
                       turns: (0, 0.5),
                       active: isExpanded,
                       onTap: onExpansionChanged,

@@ -174,11 +174,11 @@ class _TFilePickerState extends State<TFilePicker>
     return buildContainer(
       onTap: _pickFiles,
       isMultiline: true,
-      showClearButton: currentValue != null && currentValue!.isNotEmpty,
+      hasValue: currentValue != null && currentValue!.isNotEmpty,
       onClear: () {
         setState(() => notifyValueChanged([]));
       },
-      preWidget: Icon(Icons.attach_file_rounded, size: 16, color: colors.onSurfaceVariant),
+      beforePreWidget: Icon(Icons.attach_file_rounded, size: 16, color: colors.onSurfaceVariant),
       child: Focus(
         focusNode: focusNode,
         autofocus: widget.autoFocus,

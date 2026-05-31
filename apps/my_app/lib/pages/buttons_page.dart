@@ -364,6 +364,59 @@ TButton(
             ],
           ),
 
+          // Tile Buttons
+          WidgetDocCard(
+            title: 'Tile Buttons',
+            description: 'Buttons with icon above and text below (Tile Shape)',
+            icon: Icons.grid_view,
+            preview: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                TButton(
+                  shape: TButtonShape.tile,
+                  type: TButtonType.tonal,
+                  icon: Icons.dashboard_outlined,
+                  text: 'Dashboard',
+                  color: AppColors.primary,
+                  onTap: () {},
+                ),
+                TButton(
+                  shape: TButtonShape.tile,
+                  type: TButtonType.solid,
+                  icon: Icons.shopping_cart_outlined,
+                  text: 'Orders',
+                  color: AppColors.secondary,
+                  onTap: () {},
+                ),
+                TButton(
+                  shape: TButtonShape.tile,
+                  type: TButtonType.outline,
+                  icon: Icons.people_outline,
+                  text: 'Customers',
+                  color: AppColors.success,
+                  onTap: () {},
+                ),
+                TButton(
+                  shape: TButtonShape.tile,
+                  type: TButtonType.filledOutline,
+                  icon: Icons.analytics_outlined,
+                  text: 'Reports',
+                  color: AppColors.danger,
+                  onTap: () {},
+                ),
+              ],
+            ),
+            code: '''TButton(
+  shape: TButtonShape.tile,
+  type: TButtonType.tonal,
+  icon: Icons.dashboard_outlined,
+  text: 'Dashboard',
+  color: AppColors.primary,
+  onTap: () {},
+)''',
+          ),
+
           // Button Group
           WidgetDocCard(
             title: 'Button Group',

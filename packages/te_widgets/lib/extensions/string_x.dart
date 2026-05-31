@@ -29,4 +29,10 @@ extension StringNonNullX on String {
 
   /// Returns true if string is not blank
   bool get isNotBlank => !isBlank;
+
+  /// Capitalizes the first letter of the string
+  String capitalize() {
+    if (isEmpty) return this;
+    return this[0].toUpperCase() + substring(1).toLowerCase();
+  }
 }

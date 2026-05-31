@@ -34,7 +34,8 @@ class SidebarItems extends StatelessWidget {
   }
 
   List<Widget> _buildAnimatedItems(TSidebarTheme sidebarTheme) {
-    return List.generate(items.length, (index) {
+    final visibleItems = items.where((item) => !item.hidden).toList();
+    return List.generate(visibleItems.length, (index) {
       return TweenAnimationBuilder<Offset>(
         tween: Tween<Offset>(
           begin: Offset(isMinimized ? -0.5 : 0.25, 0),
@@ -57,11 +58,11 @@ class SidebarItems extends StatelessWidget {
           );
         },
         child: TSidebarItemWidget(
-          item: items[index],
+          item: visibleItems[index],
           isMinimized: isMinimized,
           level: 0,
           theme: sidebarTheme,
-          onTap: () => onTap?.call(items[index]),
+          onTap: () => onTap?.call(visibleItems[index]),
         ),
       );
     });

@@ -7,7 +7,7 @@ class TRowExpandedBuilder {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: colors.surfaceContainerLow, borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(color: colors.surfaceContainerLowest, borderRadius: BorderRadius.circular(8)),
       child: TKeyValueSection(
         values: values,
       ),

@@ -31,19 +31,12 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           // Page Header
           Text(
             'Select Field Components',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: context.colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: context.colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'Dropdown selects with search, pagination, and hierarchical support.',
-            style: TextStyle(
-              fontSize: 13,
-              color: context.colors.onSurface.withAlpha(179),
-            ),
+            style: TextStyle(fontSize: 13, color: context.colors.onSurface.withAlpha(179)),
           ),
           const SizedBox(height: 32),
 
@@ -67,21 +60,9 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'items',
-                type: 'List<T>?',
-                description: 'The list of items to display in the dropdown',
-              ),
-              PropertyDoc(
-                name: 'placeholder',
-                type: 'String?',
-                description: 'Placeholder text shown when no item is selected',
-              ),
-              PropertyDoc(
-                name: 'onValueChanged',
-                type: 'ValueChanged<V?>?',
-                description: 'Callback fired when the selected value changes',
-              ),
+              PropertyDoc(name: 'items', type: 'List<T>?', description: 'The list of items to display in the dropdown'),
+              PropertyDoc(name: 'placeholder', type: 'String?', description: 'Placeholder text shown when no item is selected'),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<V?>?', description: 'Callback fired when the selected value changes'),
             ],
           ),
 
@@ -120,17 +101,8 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
   ],
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'filterable',
-                type: 'bool',
-                defaultValue: 'true',
-                description: 'Whether users can type to filter items',
-              ),
-              PropertyDoc(
-                name: 'searchDelay',
-                type: 'int?',
-                description: 'Debounce delay for search in milliseconds',
-              ),
+              PropertyDoc(name: 'filterable', type: 'bool', defaultValue: 'true', description: 'Whether users can type to filter items'),
+              PropertyDoc(name: 'searchDelay', type: 'int?', description: 'Debounce delay for search in milliseconds'),
             ],
           ),
 
@@ -171,16 +143,8 @@ TSelect<User, int, int>(
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'itemText',
-                type: 'ItemTextAccessor<T>',
-                description: 'Function to extract display text from an item',
-              ),
-              PropertyDoc(
-                name: 'itemSubText',
-                type: 'ItemTextAccessor<T>?',
-                description: 'Function to extract subtitle text from an item',
-              ),
+              PropertyDoc(name: 'itemText', type: 'ItemTextAccessor<T>', description: 'Function to extract display text from an item'),
+              PropertyDoc(name: 'itemSubText', type: 'ItemTextAccessor<T>?', description: 'Function to extract subtitle text from an item'),
               PropertyDoc(
                 name: 'itemValue',
                 type: 'ItemValueAccessor<T, V>?',
@@ -200,9 +164,7 @@ TSelect<User, int, int>(
               isRequired: true,
               items: ['Engineering', 'Marketing', 'Sales', 'HR'],
               valueNotifier: ValueNotifier<String?>(''),
-              rules: [
-                (value) => value == null || value.isEmpty ? 'Department is required' : null,
-              ],
+              rules: [(value) => value == null || value.isEmpty ? 'Department is required' : null],
             ),
             code: '''TSelect<String, String, String>(
   label: 'Department',
@@ -216,17 +178,8 @@ TSelect<User, int, int>(
   ],
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'isRequired',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether this field is required',
-              ),
-              PropertyDoc(
-                name: 'rules',
-                type: 'List<String? Function(V?)>?',
-                description: 'Validation rules for the selected value',
-              ),
+              PropertyDoc(name: 'isRequired', type: 'bool', defaultValue: 'false', description: 'Whether this field is required'),
+              PropertyDoc(name: 'rules', type: 'List<String? Function(V?)>?', description: 'Validation rules for the selected value'),
             ],
           ),
 
@@ -248,12 +201,7 @@ TSelect<User, int, int>(
   disabled: true,
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'disabled',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether the select is disabled',
-              ),
+              PropertyDoc(name: 'disabled', type: 'bool', defaultValue: 'false', description: 'Whether the select is disabled'),
             ],
           ),
 
@@ -262,12 +210,11 @@ TSelect<User, int, int>(
             title: 'Select with Clear Button',
             description: 'Enable clear button to quickly deselect items',
             icon: Icons.clear,
-            preview: TSelect<String, String, String>(
+            preview: TMultiSelect<String, String, String>(
               label: 'Favorite Color',
               placeholder: 'Select a color',
               clearable: true,
               items: ['Red', 'Blue', 'Green', 'Yellow', 'Purple'],
-              valueNotifier: ValueNotifier<String?>(''),
             ),
             code: '''TSelect<String, String, String>(
   label: 'Favorite Color',

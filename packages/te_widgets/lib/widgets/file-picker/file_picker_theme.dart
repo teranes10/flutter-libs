@@ -10,9 +10,6 @@ typedef FileTagBuilder = Widget Function(TFile file, VoidCallback onRemove);
 /// - File tag builder
 /// - Hint styling
 class TFilePickerTheme extends TInputFieldTheme {
-  /// Style for the hint text.
-  final WidgetStateProperty<TextStyle> hintStyle;
-
   /// Builder for the file tags (chips) displayed in the field.
   final FileTagBuilder fileTagBuilder;
 
@@ -25,16 +22,16 @@ class TFilePickerTheme extends TInputFieldTheme {
     required super.helperTextStyle,
     required super.errorTextStyle,
     required super.tagStyle,
-    required super.decoration,
     required super.borderRadius,
     required super.borderWidth,
     required super.labelBuilder,
     required super.helperTextBuilder,
     required super.errorsBuilder,
     required this.fileTagBuilder,
-    required this.hintStyle,
+    required super.hintStyle,
     super.size = TInputSize.md,
-    super.decorationType,
+    required super.decorationType,
+    required super.labelPosition,
     super.preWidget,
     super.postWidget,
     super.height,
@@ -46,6 +43,7 @@ class TFilePickerTheme extends TInputFieldTheme {
   TFilePickerTheme copyWith({
     TInputSize? size,
     TInputDecorationType? decorationType,
+    TLabelPosition? labelPosition,
     WidgetStateProperty<Color>? color,
     WidgetStateProperty<Color>? backgroundColor,
     WidgetStateProperty<Color>? borderColor,
@@ -70,6 +68,7 @@ class TFilePickerTheme extends TInputFieldTheme {
     final baseTheme = super.copyWith(
       size: size,
       decorationType: decorationType,
+      labelPosition: labelPosition,
       color: color,
       backgroundColor: backgroundColor,
       borderColor: borderColor,
@@ -77,7 +76,6 @@ class TFilePickerTheme extends TInputFieldTheme {
       helperTextStyle: helperTextStyle,
       errorTextStyle: errorTextStyle,
       tagStyle: tagStyle,
-      decoration: decoration,
       borderRadius: borderRadius,
       borderWidth: borderWidth,
       labelBuilder: labelBuilder,
@@ -94,6 +92,7 @@ class TFilePickerTheme extends TInputFieldTheme {
       // Base properties from parent
       size: baseTheme.size,
       decorationType: baseTheme.decorationType,
+      labelPosition: baseTheme.labelPosition,
       color: baseTheme.color,
       backgroundColor: baseTheme.backgroundColor,
       borderColor: baseTheme.borderColor,
@@ -101,7 +100,6 @@ class TFilePickerTheme extends TInputFieldTheme {
       helperTextStyle: baseTheme.helperTextStyle,
       errorTextStyle: baseTheme.errorTextStyle,
       tagStyle: baseTheme.tagStyle,
-      decoration: baseTheme.decoration,
       borderRadius: baseTheme.borderRadius,
       borderWidth: baseTheme.borderWidth,
       labelBuilder: baseTheme.labelBuilder,
@@ -126,6 +124,7 @@ class TFilePickerTheme extends TInputFieldTheme {
     return TFilePickerTheme(
       size: baseTheme.size,
       decorationType: baseTheme.decorationType,
+      labelPosition: baseTheme.labelPosition,
       color: baseTheme.color,
       backgroundColor: baseTheme.backgroundColor,
       borderColor: baseTheme.borderColor,
@@ -133,7 +132,6 @@ class TFilePickerTheme extends TInputFieldTheme {
       helperTextStyle: baseTheme.helperTextStyle,
       errorTextStyle: baseTheme.errorTextStyle,
       tagStyle: baseTheme.tagStyle,
-      decoration: baseTheme.decoration,
       borderRadius: baseTheme.borderRadius,
       borderWidth: baseTheme.borderWidth,
       labelBuilder: baseTheme.labelBuilder,

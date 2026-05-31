@@ -60,26 +60,40 @@ mixin TTextFieldStateMixin<W extends StatefulWidget> on State<W>, TInputFieldSta
   }
 
   /// Builds the text field widget.
-  TextField buildTextField({
+  Widget buildTextField({
     int maxLines = 1,
     TextInputType? keyboardType,
     TextInputAction? textInputAction,
     List<TextInputFormatter>? inputFormatters,
     ValueChanged<String>? onValueChanged,
+    Widget? beforePostWidget,
+    Widget? beforePreWidget,
+    bool hasValue = false,
+    VoidCallback? onClear,
+    VoidCallback? onTap,
+    String? placeholder,
   }) {
-    return wTheme.buildTextField(
-      states,
-      label: _widget.label,
-      placeholder: _widget.placeholder,
-      autoFocus: _widget.autoFocus,
-      readOnly: _widget.readOnly,
-      focusNode: focusNode,
-      controller: _textController,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      inputFormatters: inputFormatters,
-      onValueChanged: onValueChanged,
+    return buildWithLabel(
+      child: wTheme.buildTextField(
+        states,
+        autoFocus: _widget.autoFocus,
+        readOnly: _widget.readOnly,
+        focusNode: focusNode,
+        controller: _textController,
+        maxLines: maxLines,
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        inputFormatters: inputFormatters,
+        onValueChanged: onValueChanged,
+        onTap: onTap,
+        inputDecoration: buildInputDecoration(
+          beforePostWidget: beforePostWidget,
+          beforePreWidget: beforePreWidget,
+          hasValue: hasValue,
+          onClear: onClear,
+          placeholder: placeholder,
+        ),
+      ),
     );
   }
 }

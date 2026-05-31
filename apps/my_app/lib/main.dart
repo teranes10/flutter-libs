@@ -16,7 +16,6 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
     final themeMode = ref.watch(themeNotifierProvider);
     final theme = TAppTheme.defaultTheme();
 
