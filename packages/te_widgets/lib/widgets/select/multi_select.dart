@@ -229,7 +229,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   Widget getContentWidget(BuildContext context) {
     final list = TList<T, K>(
       controller: listController,
-      infiniteScroll: true,
+      theme: listTheme.copyWith(infiniteScroll: true),
       cardTheme: widget.cardTheme,
       itemTitle: widget.itemText,
       itemSubTitle: widget.itemSubText,
@@ -266,7 +266,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
 
     return buildWithDropdownTarget(
       child: buildContainer(
-        isMultiline: true,
+        expands: true,
         hasValue: listController.hasSelection,
         onClear: () {
           listController.updateSelectionState(LinkedHashSet<K>());

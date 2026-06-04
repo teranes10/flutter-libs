@@ -226,8 +226,8 @@ class PopupPositionDelegate extends SingleChildLayoutDelegate {
   final double offset;
 
   @override
-  BoxConstraints getConstraintsForChild(BoxConstraints incoming) {
-    return constraints.contentBox;
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    return this.constraints.contentBox;
   }
 
   @override

@@ -1,3 +1,11 @@
+# 2.2.0
+
+- Added PDF and CSV export functionality to `TCrudTable`
+- Implemented inline form editing for `TCrudTable` (row-flipping)
+- Added `rowBuilder` and `rowColorBuilder` to `TTable`, `TDataTable`, and `TCrudTable`
+- Refactored `TTableMobileCard` to use `TCard` for visual consistency
+- Refined `TCard` default shadow for better UI appearance
+
 # 2.1.0
 
 - Added direct theme properties to `TList`, `TTable`, `TDataTable`, and `TTextField` for easier customization

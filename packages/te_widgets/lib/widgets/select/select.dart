@@ -324,7 +324,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
   Widget getContentWidget(BuildContext context) {
     final list = TList<T, K>(
       controller: listController,
-      infiniteScroll: true,
+      theme: listTheme.copyWith(infiniteScroll: true),
       cardTheme: widget.cardTheme,
       itemTitle: widget.itemText,
       itemSubTitle: widget.itemSubText,
@@ -337,7 +337,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
             if (widget.filterable)
               Padding(
                 padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 12.5),
-                child: TTextField(
+                child: TTextField<String?>(
                     placeholder: 'Search...',
                     decorationType: TInputDecorationType.underline,
                     textController: textController,

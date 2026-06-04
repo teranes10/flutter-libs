@@ -162,7 +162,7 @@ class _TTagsFieldState extends State<TTagsField>
   @override
   Widget build(BuildContext context) {
     return buildContainer(
-      isMultiline: true,
+      expands: true,
       hasValue: tagsController.tags.isNotEmpty,
       onClear: () {
         setState(() {

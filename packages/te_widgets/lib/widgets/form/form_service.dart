@@ -70,7 +70,7 @@ class TFormService {
                 padding: EdgeInsets.only(top: isMobile ? 20 : 30),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  spacing: 5,
+                  spacing: 10,
                   children: [
                     TButton(
                         baseTheme: TWidgetTheme.surfaceTheme(context.colors),

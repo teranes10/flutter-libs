@@ -49,7 +49,7 @@ class CrudPage extends StatelessWidget {
     return TCrudTable<ProductDto, int, ProductForm>(
       headers: headers,
       createForm: () => ProductForm(),
-      editForm: (ProductDto item) => ProductForm(),
+      editForm: (ProductDto item) => ProductForm(item),
       onCreate: (input) async {
         return ProductDto(
           id: productId++,
@@ -64,7 +64,11 @@ class CrudPage extends StatelessWidget {
         );
       },
       onEdit: (item, form) async {
-        return item;
+        return item.copyWith(
+          title: form.title.value,
+          description: form.description.value,
+          price: form.price.value,
+        );
       },
       onArchive: (item) async {
         return true;
@@ -85,10 +89,9 @@ class CrudPage extends StatelessWidget {
         // Note: The order of [tabContents] follows the order of this list,
         tabContents: [TCrudTableContent(headers: headers, controller: otherController)],
         topBarActions: [
-          TButton(type: TButtonType.outline, size: TButtonSize.lg, icon: Icons.upload_file, text: 'Upload File', onPressed: (_) => {}),
+          TButton(type: TButtonType.tonal, icon: Icons.upload_file, text: 'Upload File', onPressed: (_) => {}),
           TButton(
-            type: TButtonType.outline,
-            size: TButtonSize.lg,
+            type: TButtonType.tonal,
             icon: Icons.select_all_sharp,
             text: 'Selected',
             onPressed: (_) => {TToastService.info(context, 'Selected Items: ${controller.selectedItems.map((x) => x.title).join("\n")}')},
@@ -106,6 +109,11 @@ class CrudPage extends StatelessWidget {
           TKeyValue.text('Updated At', data.meta?.updatedAt),
         ]);
       },
+      rowColorBuilder: (item, index) {
+        if (item.data.stock < 5) return Colors.red.withAlpha(15);
+        if (item.data.stock < 10) return Colors.orange.withAlpha(15);
+        return null; // Use default background color
+      },
       controller: controller,
       archiveController: archiveController,
     );
@@ -122,14 +130,28 @@ class ProductForm extends TFormBase {
   final date = TFieldProp(DateTime.now());
   final category = TFieldProp('Category 1');
 
+  ProductForm([ProductDto? product]) {
+    if (product != null) {
+      title.value = product.title;
+      description.value = product.description;
+      price.value = product.price.toDouble();
+      category.value = product.category;
+
+      final createdAt = product.meta?.createdAt;
+      if (createdAt != null) {
+        date.value = DateTime.tryParse(createdAt) ?? DateTime.now();
+      }
+    }
+  }
+
   @override
   double get formWidth => 750;
 
   @override
-  String get formTitle => 'Add New Product';
+  String get formTitle => title.value.isEmpty ? 'Add New Product' : 'Edit Product: ${title.value}';
 
   @override
-  String get formActionName => 'Add New Product';
+  String get formActionName => title.value.isEmpty ? 'Add New Product' : 'Update Product';
 
   @override
   List<TFormField> get fields {

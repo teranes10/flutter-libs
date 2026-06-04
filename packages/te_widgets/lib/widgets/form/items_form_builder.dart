@@ -102,7 +102,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
         TList<T, int>(
           shrinkWrap: true,
           infiniteScroll: false,
-          padding: EdgeInsets.all(0),
+          padding: EdgeInsets.zero,
           controller: _listController,
           itemBuilder: (ctx, item, i) => TCard(
               padding: EdgeInsets.all(0),
@@ -142,7 +142,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           widget.label != null
-              ? Text(widget.label!, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: colors.onSurface))
+              ? Text(widget.label!, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 16, color: colors.onSurface))
               : SizedBox.shrink(),
           TButton(
               type: TButtonType.softText,

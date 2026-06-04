@@ -123,7 +123,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             preview: TTextField(
               label: 'Description',
               placeholder: 'Enter a detailed description...',
-              rows: 4,
+              rows: 3,
               valueNotifier: ValueNotifier<String?>(''),
               rules: [Validations.maxLength(500, 'Description must be at most 500 characters')],
             ),
@@ -301,17 +301,9 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             icon: Icons.calendar_month,
             preview: Column(
               children: [
-                TDateTimeTextField(
-                  label: 'Date',
-                  formatType: TDateTimeFormatType.date,
-                  onValueChanged: (v) => debugPrint('Date: $v'),
-                ),
+                TDateTimeTextField(label: 'Date', formatType: TDateTimeFormatType.date, onValueChanged: (v) => debugPrint('Date: $v')),
                 const SizedBox(height: 16),
-                TDateTimeTextField(
-                  label: 'Time',
-                  formatType: TDateTimeFormatType.time,
-                  onValueChanged: (v) => debugPrint('Time: $v'),
-                ),
+                TDateTimeTextField(label: 'Time', formatType: TDateTimeFormatType.time, onValueChanged: (v) => debugPrint('Time: $v')),
                 const SizedBox(height: 16),
                 TDateTimeTextField(
                   label: 'Date & Time',
@@ -344,11 +336,7 @@ TDateTimeTextField(
                 defaultValue: 'TDateTimeFormatType.date',
                 description: 'Format to apply: date (DD/MM/YY), time (HH:MM), or dateTime',
               ),
-              PropertyDoc(
-                name: 'placeholder',
-                type: 'String?',
-                description: 'Custom placeholder. Defaults to format (e.g., DD/MM/YY)',
-              ),
+              PropertyDoc(name: 'placeholder', type: 'String?', description: 'Custom placeholder. Defaults to format (e.g., DD/MM/YY)'),
             ],
           ),
 
@@ -361,7 +349,7 @@ TDateTimeTextField(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TTextField(label: 'Password', placeholder: 'Enter password', valueNotifier: _passwordNotifier),
-                const SizedBox(height: 12),
+                const SizedBox(height: 4),
                 ValueListenableBuilder<String?>(
                   valueListenable: _passwordNotifier,
                   builder: (context, value, _) {

@@ -279,7 +279,8 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
       },
       child: buildContainer(
         block: widget.block,
-        isMultiline: true,
+        expands: true,
+        floatingLabelAlways: true,
         hasValue: _selectedValues.isNotEmpty,
         onClear: () {
           setState(() {
@@ -321,13 +322,10 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
     }
 
     return widget.vertical
-        ? Padding(
-            padding: EdgeInsets.symmetric(vertical: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: widget.runSpacing,
-              children: items,
-            ),
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: widget.runSpacing,
+            children: items,
           )
         : Wrap(
             spacing: widget.spacing,

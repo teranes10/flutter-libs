@@ -13,7 +13,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
     const spacing = 8.0;
     const rowSpacing = 12.0;
     final tabsWidth = TTab.calculateTabsWidth(parent.tabs);
-    const searchWidth = 300.0;
+    const searchWidth = 370.0; // 250 search bar width + 8 spacing + ~52 cycle button width + 8 spacing + ~52 export button width
 
     var currentRow = <Widget>[];
     var currentRowWidth = 0.0;
@@ -41,7 +41,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
     // Create button
     if (parent.canCreate) {
       final btn = TButton(
-        type: TButtonType.softOutline,
+        type: TButtonType.tonal,
         icon: Icons.add,
         text: parent.widget.config.addButtonText,
         onPressed: (_) => parent.handleCreate(),
@@ -55,7 +55,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
       addWidget(action, width);
     }
 
-    // Tabs + Search
+    // Tabs + Search + View Cycle Button
     if (parent.showTabs || currentRow.isNotEmpty) {
       final tabsAndSearchWidth = (parent.showTabs ? tabsWidth + spacing : 0) + searchWidth;
 
@@ -66,7 +66,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
           currentRow.add(_buildTabs(constraints));
           currentRow.add(const SizedBox(width: spacing));
         }
-        currentRow.add(_buildSearchBar(ctx, constraints));
+        currentRow.add(_buildSearchAndCycle(ctx, constraints));
         pushRow();
       } else {
         // Push actions row
@@ -77,7 +77,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
           final tabSearchRow = <Widget>[
             if (parent.showTabs) _buildTabs(constraints),
             if (parent.showTabs) const SizedBox(width: spacing),
-            _buildSearchBar(ctx, constraints),
+            _buildSearchAndCycle(ctx, constraints),
           ];
           rows.add(_buildAlignedRow(tabSearchRow, MainAxisAlignment.end));
         } else {
@@ -85,7 +85,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
           if (parent.showTabs) {
             rows.add(_buildAlignedRow([_buildTabs(constraints)], MainAxisAlignment.center));
           }
-          rows.add(_buildAlignedRow([_buildSearchBar(ctx, constraints)], MainAxisAlignment.end));
+          rows.add(_buildAlignedRow([_buildSearchAndCycle(ctx, constraints)], MainAxisAlignment.end));
         }
       }
     } else {
@@ -109,6 +109,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
   Widget _buildAlignedRow(List<Widget> widgets, MainAxisAlignment alignment) {
     return Row(
       mainAxisAlignment: alignment,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: _withSpacing(widgets, 8),
     );
   }
@@ -140,10 +141,15 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
   }
 
   Widget _buildSearchBar(BuildContext ctx, BoxConstraints constraints) {
-    final searchBar = TTextField(
+    return TTextField(
       value: parent.listController.value.search,
+      theme: ctx.theme.textFieldTheme.copyWith(
+        size: TInputSize.sm,
+        labelPosition: TLabelPosition.aboveField,
+        decorationType: TInputDecorationType.filled,
+        postWidget: Icon(Icons.search_rounded, size: 18, color: ctx.colors.onSurface),
+      ),
       placeholder: parent.widget.config.searchPlaceholder,
-      postWidget: Icon(Icons.search_rounded, size: 18, color: ctx.colors.onSurface),
       onValueChanged: (String? input) {
         if (parent.currentTab == 0) {
           parent.listController.handleSearchChange(input ?? '');
@@ -152,6 +158,88 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
         }
       },
     );
-    return !constraints.isMobile ? SizedBox(width: 250, child: searchBar) : Flexible(child: searchBar);
+  }
+
+  Widget _buildCycleButton(BuildContext ctx) {
+    return TButtonGroup(
+      type: TButtonGroupType.tonal,
+      size: TButtonSize.md,
+      cycle: true,
+      initialIndex: parent.viewMode,
+      onIndexChanged: (index) {
+        parent.viewMode = index;
+      },
+      items: [
+        TButtonGroupItem(
+          icon: Icons.view_list_rounded,
+          tooltip: 'Table View',
+        ),
+        TButtonGroupItem(
+          icon: Icons.view_agenda_rounded,
+          tooltip: 'Card View',
+        ),
+        TButtonGroupItem(
+          icon: Icons.grid_view_rounded,
+          tooltip: 'Grid View',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExportButton(BuildContext ctx) {
+    return TDropdown(
+      items: [
+        TDropdownItem(
+          icon: Icons.picture_as_pdf_rounded,
+          text: 'Export as PDF',
+          onTap: () => parent.handleExportPdf(),
+        ),
+        TDropdownItem(
+          icon: Icons.table_chart_rounded,
+          text: 'Export as CSV',
+          onTap: () => parent.handleExportCsv(),
+        ),
+      ],
+      child: TButton(
+        type: TButtonType.tonal,
+        size: TButtonSize.md,
+        icon: Icons.download_rounded,
+        tooltip: 'Export',
+      ),
+    );
+  }
+
+  Widget _buildSearchAndCycle(BuildContext ctx, BoxConstraints constraints) {
+    final search = _buildSearchBar(ctx, constraints);
+    final cycleBtn = _buildCycleButton(ctx);
+    final exportBtn = _buildExportButton(ctx);
+
+    if (constraints.isMobile) {
+      return Flexible(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(child: search),
+            const SizedBox(width: 8),
+            cycleBtn,
+            const SizedBox(width: 8),
+            exportBtn,
+          ],
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        SizedBox(width: 250, child: search),
+        const SizedBox(width: 8),
+        cycleBtn,
+        const SizedBox(width: 8),
+        exportBtn,
+      ],
+    );
   }
 }

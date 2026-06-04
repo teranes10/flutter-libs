@@ -141,12 +141,10 @@ class _TRadioState<T> extends State<TRadio<T>>
       builder: (context, validationErrors, child) {
         if (validationErrors.isEmpty) return const SizedBox.shrink();
 
-        return Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: colors.error))).toList(),
-          ),
+        return Column(
+          spacing: 4.0,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: colors.error))).toList(),
         );
       },
     );

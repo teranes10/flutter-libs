@@ -288,12 +288,15 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(vsync: this, duration: wTheme.animationDuration);
+    final animationDuration = widget.theme?.animationDuration ?? Duration(milliseconds: 800);
+    final shrinkWrap = widget.theme?.shrinkWrap ?? widget.shrinkWrap ?? false;
+
+    _animationController = AnimationController(vsync: this, duration: animationDuration);
 
     _scrollController = widget.scrollController ?? ScrollController();
     _scrollControllerOwned = widget.scrollController == null;
 
-    if (wTheme.shrinkWrap != true) {
+    if (shrinkWrap != true) {
       _scrollController.addListener(_onScroll);
     }
   }

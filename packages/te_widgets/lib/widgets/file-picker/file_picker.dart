@@ -173,7 +173,7 @@ class _TFilePickerState extends State<TFilePicker>
   Widget build(BuildContext context) {
     return buildContainer(
       onTap: _pickFiles,
-      isMultiline: true,
+      expands: true,
       hasValue: currentValue != null && currentValue!.isNotEmpty,
       onClear: () {
         setState(() => notifyValueChanged([]));

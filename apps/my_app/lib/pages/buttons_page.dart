@@ -21,19 +21,12 @@ class _ButtonsPageState extends State<ButtonsPage> {
           // Page Header
           Text(
             'Button Components',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: context.colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'Customizable button widgets with multiple variants, sizes, and states.',
-            style: TextStyle(
-              fontSize: 16,
-              color: context.colors.onSurface.withAlpha(179),
-            ),
+            style: TextStyle(fontSize: 16, color: context.colors.onSurface.withAlpha(179)),
           ),
           const SizedBox(height: 32),
 
@@ -65,21 +58,9 @@ class _ButtonsPageState extends State<ButtonsPage> {
                 defaultValue: 'TButtonType.solid',
                 description: 'The visual variant of the button',
               ),
-              PropertyDoc(
-                name: 'text',
-                type: 'String?',
-                description: 'The text to display on the button',
-              ),
-              PropertyDoc(
-                name: 'color',
-                type: 'Color?',
-                description: 'The primary color of the button',
-              ),
-              PropertyDoc(
-                name: 'onTap',
-                type: 'VoidCallback?',
-                description: 'Callback fired when the button is tapped',
-              ),
+              PropertyDoc(name: 'text', type: 'String?', description: 'The text to display on the button'),
+              PropertyDoc(name: 'color', type: 'Color?', description: 'The primary color of the button'),
+              PropertyDoc(name: 'onTap', type: 'VoidCallback?', description: 'Callback fired when the button is tapped'),
             ],
           ),
 
@@ -105,13 +86,7 @@ class _ButtonsPageState extends State<ButtonsPage> {
   color: AppColors.primary,
   onTap: () {},
 )''',
-            properties: const [
-              PropertyDoc(
-                name: 'icon',
-                type: 'IconData?',
-                description: 'The icon to display before the text',
-              ),
-            ],
+            properties: const [PropertyDoc(name: 'icon', type: 'IconData?', description: 'The icon to display before the text')],
           ),
 
           // Outline Buttons
@@ -289,12 +264,7 @@ TButton(
                 defaultValue: 'false',
                 description: 'Whether to show loading indicator when onPressed is called',
               ),
-              PropertyDoc(
-                name: 'loadingText',
-                type: 'String',
-                defaultValue: "'Loading...'",
-                description: 'Text to display while loading',
-              ),
+              PropertyDoc(name: 'loadingText', type: 'String', defaultValue: "'Loading...'", description: 'Text to display while loading'),
               PropertyDoc(
                 name: 'onPressed',
                 type: 'Function(TButtonPressOptions)?',
@@ -340,12 +310,7 @@ TButton(
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'active',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether the button is in active state',
-              ),
+              PropertyDoc(name: 'active', type: 'bool', defaultValue: 'false', description: 'Whether the button is in active state'),
               PropertyDoc(
                 name: 'activeIcon',
                 type: 'IconData?',
@@ -356,11 +321,7 @@ TButton(
                 type: 'Color?',
                 description: 'Color to use when active. Falls back to color if not provided',
               ),
-              PropertyDoc(
-                name: 'onChanged',
-                type: 'ValueChanged<bool>?',
-                description: 'Callback fired when active state changes',
-              ),
+              PropertyDoc(name: 'onChanged', type: 'ValueChanged<bool>?', description: 'Callback fired when active state changes'),
             ],
           ),
 
@@ -455,6 +416,95 @@ TButton(
 )''',
           ),
 
+          // Cycle Button Group
+          WidgetDocCard(
+            title: 'Cycle Button Group',
+            description: 'Show only one button at a time and cycle through the items on tap',
+            icon: Icons.sync,
+            preview: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TButtonGroup(
+                  type: TButtonGroupType.solid,
+                  cycle: true,
+                  onIndexChanged: (index) {
+                    _showSnackBar('Cycled to index $index');
+                  },
+                  items: [
+                    TButtonGroupItem(
+                      icon: Icons.play_arrow,
+                      text: 'Play',
+                      color: AppColors.success,
+                      onTap: () => debugPrint('Play tapped'),
+                    ),
+                    TButtonGroupItem(icon: Icons.pause, text: 'Pause', color: AppColors.warning, onTap: () => debugPrint('Pause tapped')),
+                    TButtonGroupItem(icon: Icons.stop, text: 'Stop', color: AppColors.danger, onTap: () => debugPrint('Stop tapped')),
+                  ],
+                ),
+              ],
+            ),
+            code: '''TButtonGroup(
+  type: TButtonGroupType.solid,
+  cycle: true,
+  onIndexChanged: (index) {
+    print('Cycled to index \$index');
+  },
+  items: [
+    TButtonGroupItem(
+      icon: Icons.play_arrow,
+      text: 'Play',
+      color: AppColors.success,
+    ),
+    TButtonGroupItem(
+      icon: Icons.pause,
+      text: 'Pause',
+      color: AppColors.warning,
+    ),
+    TButtonGroupItem(
+      icon: Icons.stop,
+      text: 'Stop',
+      color: AppColors.danger,
+    ),
+  ],
+)''',
+          ),
+
+          // Stateful Button Group
+          WidgetDocCard(
+            title: 'Stateful Button Group',
+            description: 'Show multiple buttons with internal selection state management',
+            icon: Icons.check_box,
+            preview: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TButtonGroup(
+                  type: TButtonGroupType.tonal,
+                  initialIndex: 0,
+                  onIndexChanged: (index) {
+                    _showSnackBar('Selected option index $index');
+                  },
+                  items: [
+                    TButtonGroupItem(text: 'Option A'),
+                    TButtonGroupItem(text: 'Option B'),
+                    TButtonGroupItem(text: 'Option C'),
+                  ],
+                ),
+              ],
+            ),
+            code: '''TButtonGroup(
+  type: TButtonGroupType.outline,
+  initialIndex: 0,
+  onIndexChanged: (index) {
+    print('Selected Option index \$index');
+  },
+  items: [
+    TButtonGroupItem(text: 'Option A'),
+    TButtonGroupItem(text: 'Option B'),
+    TButtonGroupItem(text: 'Option C'),
+  ],
+)''',
+          ),
+
           const SizedBox(height: 40),
         ],
       ),
@@ -462,12 +512,8 @@ TButton(
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), duration: const Duration(seconds: 2), behavior: SnackBarBehavior.floating));
   }
 }

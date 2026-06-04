@@ -36,7 +36,7 @@ class TDateTimeInputFormatter extends TextInputFormatter {
     // Detect if we are deleting
     bool isDeletion = oldValue.text.length > newValue.text.length;
     bool deletedDelimiter = false;
-    
+
     if (isDeletion) {
       final int oldSelectionIndex = oldValue.selection.baseOffset;
       if (oldSelectionIndex > 0 && oldSelectionIndex <= oldValue.text.length) {

@@ -22,12 +22,33 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
       required List<TTableHeader<T, K>> headers,
       required TListController<T, K> controller,
     }) {
+      TTableTheme effectiveTheme = tableTheme;
+      if (parent.viewMode == 1) {
+        effectiveTheme = tableTheme.copyWith(forceCardStyle: true, grid: null);
+      } else if (parent.viewMode == 2) {
+        effectiveTheme = tableTheme.copyWith(
+          forceCardStyle: false,
+          grid: TGridMode.aligned,
+          gridDelegate: (context) => context.isMobile ? TGridDelegate(crossAxisCount: 1) : TGridDelegate(maxCrossAxisExtent: 350),
+        );
+      } else {
+        effectiveTheme = tableTheme.copyWith(forceCardStyle: false, grid: null);
+      }
+
       return TDataTable<T, K>(
-        theme: tableTheme,
+        theme: effectiveTheme,
         headers: headers,
         expandedBuilder: parent.widget.expandedBuilder,
         controller: controller,
         itemsPerPageOptions: parent.widget.config.itemsPerPageOptions,
+        rowBuilder: (ctx, item, index, row) {
+          final editingItem = parent._editingItem;
+          if (editingItem != null && controller.itemKey(editingItem) == item.key) {
+            return parent._buildFormCard(parent._activeForm!, isEditing: true);
+          }
+          return parent.widget.rowBuilder?.call(ctx, item, index, row) ?? row;
+        },
+        rowColorBuilder: parent.widget.rowColorBuilder,
       );
     }
 

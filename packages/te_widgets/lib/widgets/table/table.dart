@@ -99,6 +99,15 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Whether the footer should be sticky.
   final bool? footerSticky;
 
+  /// Custom builder for the row.
+  ///
+  /// If provided, this builder is called for each row and can be used to
+  /// wrap or replace the default row card.
+  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index, Widget row)? rowBuilder;
+
+  /// Custom builder for the row background color.
+  final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
+
   /// Creates a data table.
   const TTable({
     super.key,
@@ -124,6 +133,8 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.infiniteScroll,
     this.headerSticky,
     this.footerSticky,
+    this.rowBuilder,
+    this.rowColorBuilder,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -181,7 +192,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       activeCellNotifier: _activeCellNotifier,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final shouldShowCardView = wTheme.forceCardStyle ?? wTheme.grid != null || constraints.maxWidth < requiredWidth;
+          final shouldShowCardView = wTheme.forceCardStyle == true || wTheme.grid != null || constraints.maxWidth < requiredWidth;
           return shouldShowCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
         },
       ),
@@ -206,7 +217,10 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         ),
       ),
       controller: listController,
-      itemBuilder: (ctx, item, index) => _buildRowCard(columnWidths, ctx, item, index),
+      itemBuilder: (ctx, item, index) {
+        final row = _buildRowCard(columnWidths, ctx, item, index);
+        return widget.rowBuilder?.call(ctx, item, index, row) ?? row;
+      },
     );
   }
 
@@ -214,7 +228,10 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return TList<T, K>(
       theme: wTheme,
       controller: listController,
-      itemBuilder: (ctx, item, index) => _buildMobileCard(ctx, item, index),
+      itemBuilder: (ctx, item, index) {
+        final row = _buildMobileCard(ctx, item, index);
+        return widget.rowBuilder?.call(ctx, item, index, row) ?? row;
+      },
     );
   }
 
@@ -233,6 +250,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       selectable: listController.selectable,
       isSelected: item.isSelected,
       onSelectionChanged: () => listController.toggleSelectionByKey(item.key),
+      backgroundColor: widget.rowColorBuilder?.call(item, index),
     );
   }
 
@@ -250,6 +268,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       selectable: listController.selectable,
       isSelected: item.isSelected,
       onSelectionChanged: () => listController.toggleSelectionByKey(item.key),
+      backgroundColor: widget.rowColorBuilder?.call(item, index),
     );
   }
 }

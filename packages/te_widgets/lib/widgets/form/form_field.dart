@@ -78,8 +78,8 @@ class TFormField<T> {
     return this;
   }
 
-  static TFormField<String> text(
-    TFieldProp<String> prop,
+  static TFormField<T> text<T extends String?>(
+    TFieldProp<T> prop,
     String? label, {
     String? tag,
     String? placeholder,
@@ -93,12 +93,12 @@ class TFormField<T> {
     FocusNode? focusNode,
     VoidCallback? onTap,
     TextEditingController? textController,
-    List<String? Function(String?)>? rules,
+    List<String? Function(T?)>? rules,
     int rows = 1,
   }) {
-    return TFormField<String>(
+    return TFormField<T>(
       prop: prop,
-      builder: (onValueChanged) => TTextField(
+      builder: (onValueChanged) => TTextField<T>(
         label: label,
         tag: tag,
         placeholder: placeholder,
@@ -166,7 +166,7 @@ class TFormField<T> {
     );
   }
 
-  static TFormField<T> number<T extends num>(
+  static TFormField<T> number<T extends num?>(
     TFieldProp<T> prop,
     String? label, {
     String? tag,
@@ -478,11 +478,12 @@ class TFormField<T> {
     );
   }
 
-  static TFormField<T> group<T extends TFormBase>(TFieldProp<T> prop, {String? label}) {
+  static TFormField<T> group<T extends TFormBase>(TFieldProp<T> prop, {String? label, String? description}) {
     return TFormField<T>(
       prop: prop,
       builder: (onValueChanged) => TFormBuilder(
         label: label,
+        description: description,
         input: prop.value,
         onValueChanged: () {
           onValueChanged(prop.value);
@@ -553,6 +554,7 @@ class TFormField<T> {
     bool disabled = false,
     Color? color,
     TInputSize? size,
+    String? helperText,
   }) {
     return TFormField<bool?>(
       prop: prop,
@@ -565,6 +567,7 @@ class TFormField<T> {
         disabled: disabled,
         color: color,
         size: size,
+        helperText: helperText,
         value: prop.value,
         valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,

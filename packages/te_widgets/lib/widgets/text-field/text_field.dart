@@ -51,8 +51,8 @@ import 'package:te_widgets/te_widgets.dart';
 /// See also:
 /// - [TTextFieldTheme] for customizing appearance
 /// - [Validations] for built-in validation rules
-class TTextField extends StatefulWidget
-    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<String>, TInputValidationMixin<String> {
+class TTextField<T extends String?> extends StatefulWidget
+    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<T>, TInputValidationMixin<T> {
   /// The label text displayed above the field.
   @override
   final String? label;
@@ -134,22 +134,22 @@ class TTextField extends StatefulWidget
 
   /// The initial value of the field.
   @override
-  final String? value;
+  final T? value;
 
   /// A ValueNotifier for two-way binding with the field's value.
   @override
-  final ValueNotifier<String?>? valueNotifier;
+  final ValueNotifier<T?>? valueNotifier;
 
   /// Callback fired when the field's value changes.
   @override
-  final ValueChanged<String?>? onValueChanged;
+  final ValueChanged<T?>? onValueChanged;
 
   /// Validation rules to apply to the field's value.
   ///
   /// Each rule is a function that returns an error message string if validation
   /// fails, or null if validation passes.
   @override
-  final List<String? Function(String?)>? rules;
+  final List<String? Function(T?)>? rules;
 
   /// Debounce duration for validation.
   ///
@@ -195,16 +195,16 @@ class TTextField extends StatefulWidget
         );
 
   @override
-  State<TTextField> createState() => _TTextFieldState();
+  State<TTextField<T>> createState() => _TTextFieldState<T>();
 }
 
-class _TTextFieldState extends State<TTextField>
+class _TTextFieldState<T extends String?> extends State<TTextField<T>>
     with
-        TInputFieldStateMixin<TTextField>,
-        TFocusStateMixin<TTextField>,
-        TTextFieldStateMixin<TTextField>,
-        TInputValueStateMixin<String, TTextField>,
-        TInputValidationStateMixin<String, TTextField> {
+        TInputFieldStateMixin<TTextField<T>>,
+        TFocusStateMixin<TTextField<T>>,
+        TTextFieldStateMixin<TTextField<T>>,
+        TInputValueStateMixin<T, TTextField<T>>,
+        TInputValidationStateMixin<T, TTextField<T>> {
   @override
   TTextFieldTheme get wTheme {
     if (widget.theme != null) return widget.theme!;
@@ -218,7 +218,7 @@ class _TTextFieldState extends State<TTextField>
   }
 
   @override
-  void onExternalValueChanged(String? value) {
+  void onExternalValueChanged(T? value) {
     super.onExternalValueChanged(value);
     if (textController.text != value) {
       textController.value = textController.value.copyWith(
@@ -228,15 +228,20 @@ class _TTextFieldState extends State<TTextField>
     }
   }
 
+  void _onValueChanged(String text) {
+    final value = (text.isEmpty && null is! T) ? '' as T : (text.isEmpty ? null : text) as T;
+    notifyValueChanged(value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return buildTextField(
       maxLines: widget.rows,
-      onValueChanged: notifyValueChanged,
+      onValueChanged: _onValueChanged,
       hasValue: textController.text.isNotEmpty,
       onClear: () {
         textController.clear();
-        notifyValueChanged('');
+        _onValueChanged('');
       },
     );
   }

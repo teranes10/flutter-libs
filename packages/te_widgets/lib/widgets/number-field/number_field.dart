@@ -49,7 +49,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// See also:
 /// - [TTextField] for text input
 /// - [Validations] for numeric validation rules
-class TNumberField<T extends num> extends StatefulWidget
+class TNumberField<T extends num?> extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<T>, TInputValidationMixin<T> {
   /// The label text displayed above the field.
   @override
@@ -150,7 +150,7 @@ class TNumberField<T extends num> extends StatefulWidget
   State<TNumberField<T>> createState() => _TNumberFieldState<T>();
 }
 
-class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
+class _TNumberFieldState<T extends num?> extends State<TNumberField<T>>
     with
         TInputFieldStateMixin<TNumberField<T>>,
         TFocusStateMixin<TNumberField<T>>,
@@ -181,7 +181,7 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
   void onFocusChanged(bool hasFocus) {
     super.onFocusChanged(hasFocus);
 
-    if (T != double) return;
+    if (!T.toString().contains('double')) return;
 
     if (hasFocus) {
       textController.text = currentValue?.toString() ?? '';
@@ -192,12 +192,16 @@ class _TNumberFieldState<T extends num> extends State<TNumberField<T>>
 
   void _onValueChanged(String text) {
     final parsedValue = wTheme.parseValue<T>(text);
-    notifyValueChanged(parsedValue);
+    final isInt = T.toString().contains('int');
+    final value = (parsedValue == null && null is! T) ? (isInt ? 0 : 0.0) as T : parsedValue;
+    notifyValueChanged(value);
   }
 
   void _changeValueBy(num delta) {
-    final base = currentValue ?? (T == int ? 0 : 0.0) as T;
-    final newValue = T == int ? (base.toInt() + delta.toInt()) as T : (base.toDouble() + delta.toDouble()) as T;
+    final typeStr = T.toString();
+    final isInt = typeStr.contains('int');
+    final base = currentValue ?? (isInt ? 0 : 0.0) as T;
+    final newValue = isInt ? (base!.toInt() + delta.toInt()) as T : (base!.toDouble() + delta.toDouble()) as T;
 
     textController.text = wTheme.formatValue(newValue);
     notifyValueChanged(newValue);

@@ -165,52 +165,29 @@ class TTagsFieldTheme extends TTextFieldTheme {
     final baseTheme = TTextFieldTheme.defaultTheme(colors);
 
     return TTagsFieldTheme(
-      size: baseTheme.size,
-      decorationType: baseTheme.decorationType,
-      labelPosition: baseTheme.labelPosition,
-      color: baseTheme.color,
-      backgroundColor: baseTheme.backgroundColor,
-      borderColor: baseTheme.borderColor,
-      labelStyle: baseTheme.labelStyle,
-      helperTextStyle: baseTheme.helperTextStyle,
-      errorTextStyle: baseTheme.errorTextStyle,
-      tagStyle: baseTheme.tagStyle,
-      borderRadius: baseTheme.borderRadius,
-      borderWidth: baseTheme.borderWidth,
-      labelBuilder: baseTheme.labelBuilder,
-      helperTextBuilder: baseTheme.helperTextBuilder,
-      errorsBuilder: baseTheme.errorsBuilder,
-      preWidget: baseTheme.preWidget,
-      postWidget: baseTheme.postWidget,
-      height: baseTheme.height,
-      padding: baseTheme.padding,
-      fontSize: baseTheme.fontSize,
-      textStyle: baseTheme.textStyle,
-      hintStyle: baseTheme.hintStyle,
-      tagBuilder: (tag, onRemove) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-          decoration: BoxDecoration(color: colors.surfaceContainer, borderRadius: BorderRadius.circular(5.0)),
-          child: IntrinsicWidth(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    tag,
-                    style: TextStyle(color: colors.onSurface, fontSize: baseTheme.fieldFontSize, fontWeight: FontWeight.w400),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-                const SizedBox(width: 5.0),
-                InkWell(onTap: onRemove, child: Icon(Icons.close, size: 14, color: colors.onSurface)),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+        size: baseTheme.size,
+        decorationType: baseTheme.decorationType,
+        labelPosition: baseTheme.labelPosition,
+        color: baseTheme.color,
+        backgroundColor: baseTheme.backgroundColor,
+        borderColor: baseTheme.borderColor,
+        labelStyle: baseTheme.labelStyle,
+        helperTextStyle: baseTheme.helperTextStyle,
+        errorTextStyle: baseTheme.errorTextStyle,
+        tagStyle: baseTheme.tagStyle,
+        borderRadius: baseTheme.borderRadius,
+        borderWidth: baseTheme.borderWidth,
+        labelBuilder: baseTheme.labelBuilder,
+        helperTextBuilder: baseTheme.helperTextBuilder,
+        errorsBuilder: baseTheme.errorsBuilder,
+        preWidget: baseTheme.preWidget,
+        postWidget: baseTheme.postWidget,
+        height: baseTheme.height,
+        padding: baseTheme.padding,
+        fontSize: baseTheme.fontSize,
+        textStyle: baseTheme.textStyle,
+        hintStyle: baseTheme.hintStyle,
+        tagBuilder: buildTagBuilder(colors, fontSize: baseTheme.fieldFontSize));
   }
 
   /// Builds the tag list widget.
@@ -226,22 +203,45 @@ class TTagsFieldTheme extends TTextFieldTheme {
       builder: (context, value, _) {
         final tags = (value as TagsEditingValue).tags;
 
-        return Padding(
-          padding: EdgeInsetsGeometry.symmetric(vertical: 12),
-          child: Wrap(
-            spacing: 6.0,
-            runSpacing: 6.0,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              ...tags.map((tag) => tagBuilder(tag, () => removeTag(tag))),
-              ConstrainedBox(
-                constraints: BoxConstraints(minWidth: 150, maxWidth: double.infinity),
-                child: IntrinsicWidth(child: child),
-              ),
-            ],
-          ),
+        return Wrap(
+          spacing: 5.0,
+          runSpacing: 5.0,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            ...tags.map((tag) => tagBuilder(tag, () => removeTag(tag))),
+            ConstrainedBox(
+              constraints: BoxConstraints(minWidth: 150, maxWidth: double.infinity),
+              child: IntrinsicWidth(child: child),
+            ),
+          ],
         );
       },
     );
+  }
+
+  static TagBuilder buildTagBuilder(ColorScheme colors, {double fontSize = 14}) {
+    return (tag, onRemove) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.0),
+        decoration: BoxDecoration(color: colors.surfaceContainer, borderRadius: BorderRadius.circular(5.0)),
+        child: IntrinsicWidth(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  tag,
+                  style: TextStyle(color: colors.onSurface, fontSize: fontSize, fontWeight: FontWeight.w400),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+              const SizedBox(width: 5.0),
+              InkWell(onTap: onRemove, child: Icon(Icons.close, size: 14, color: colors.onSurface)),
+            ],
+          ),
+        ),
+      );
+    };
   }
 }

@@ -49,6 +49,9 @@ class TTableRowCard<T, K> extends StatelessWidget {
   /// Callback when selection toggles.
   final VoidCallback? onSelectionChanged;
 
+  /// Custom background color for the row.
+  final Color? backgroundColor;
+
   /// Creates a table row card.
   const TTableRowCard({
     super.key,
@@ -69,6 +72,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
     this.selectable = false,
     this.isSelected = false,
     this.onSelectionChanged,
+    this.backgroundColor,
   });
 
   @override
@@ -81,9 +85,8 @@ class TTableRowCard<T, K> extends StatelessWidget {
       margin: wTheme.margin,
       elevation: wTheme.elevation,
       borderRadius: wTheme.borderRadius,
-      backgroundColor: wTheme.backgroundColor.resolve(states),
+      backgroundColor: backgroundColor ?? wTheme.backgroundColor.resolve(states),
       padding: wTheme.padding,
-      boxShadow: [BoxShadow(color: colors.shadow, offset: const Offset(0, 1), blurRadius: 0, spreadRadius: 0)],
       child: Column(
         children: [
           Table(

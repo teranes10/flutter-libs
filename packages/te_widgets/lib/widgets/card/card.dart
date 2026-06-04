@@ -107,7 +107,7 @@ class TCard extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               color: backgroundColor ?? colors.surface,
-              boxShadow: boxShadow ?? [BoxShadow(color: colors.shadow, offset: const Offset(0, 2), blurRadius: 0, spreadRadius: 0)],
+              boxShadow: boxShadow ?? [BoxShadow(color: colors.shadow, offset: const Offset(1, 1), blurRadius: 0, spreadRadius: 0)],
               borderRadius: defaultBorderRadius,
             ),
             padding: padding,

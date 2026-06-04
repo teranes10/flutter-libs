@@ -199,12 +199,12 @@ class TNumberFieldTheme extends TTextFieldTheme {
   factory TNumberFieldTheme.defaultTheme(ColorScheme colors) {
     final baseTheme = TTextFieldTheme.defaultTheme(colors);
     final increment = 1;
-    final decrement = 2;
+    final decrement = 1;
 
     Widget decreaseButtonBuilder(onTap, enabled) {
       return TButton(
         type: TButtonType.icon,
-        size: TButtonSize.xxs.copyWith(minW: baseTheme.fieldHeight + 3, minH: baseTheme.fieldHeight, icon: baseTheme.fieldFontSize + 3),
+        size: TButtonSize.xxs.copyWith(minW: baseTheme.fieldFontSize, minH: baseTheme.fieldFontSize, icon: baseTheme.fieldFontSize + 2),
         icon: Icons.remove,
         color: colors.onSurfaceVariant,
         onTap: enabled ? onTap : null,
@@ -214,7 +214,7 @@ class TNumberFieldTheme extends TTextFieldTheme {
     Widget increaseButtonBuilder(onTap, enabled) {
       return TButton(
         type: TButtonType.icon,
-        size: TButtonSize.xxs.copyWith(minW: baseTheme.fieldHeight + 3, minH: baseTheme.fieldHeight, icon: baseTheme.fieldFontSize + 3),
+        size: TButtonSize.xxs.copyWith(minW: baseTheme.fieldFontSize, minH: baseTheme.fieldFontSize, icon: baseTheme.fieldFontSize + 2),
         icon: Icons.add,
         color: colors.onSurfaceVariant,
         onTap: enabled ? onTap : null,
@@ -250,22 +250,27 @@ class TNumberFieldTheme extends TTextFieldTheme {
       increaseButtonBuilder: increaseButtonBuilder,
       decreaseButtonBuilder: decreaseButtonBuilder,
       stepperBuilder: (ctx, onValueChanged, canIncrease, canDecrease) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            decreaseButtonBuilder(() => onValueChanged(-decrement), canDecrease),
-            increaseButtonBuilder(() => onValueChanged(increment), canIncrease),
-          ],
+        return Padding(
+          padding: EdgeInsetsGeometry.only(right: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 12,
+            children: [
+              decreaseButtonBuilder(() => onValueChanged(-decrement), canDecrease),
+              increaseButtonBuilder(() => onValueChanged(increment), canIncrease),
+            ],
+          ),
         );
       },
     );
   }
 
   /// Formats a number to a string based on the theme properties.
-  String formatValue<T extends num>(T? value) {
+  String formatValue<T extends num?>(T? value) {
     if (value == null || value == 0) return '';
 
-    if (T == int) {
+    final typeStr = T.toString();
+    if (typeStr.startsWith('int')) {
       return value.toInt().toString();
     }
 
@@ -273,11 +278,12 @@ class TNumberFieldTheme extends TTextFieldTheme {
   }
 
   /// Parses a string to a number.
-  T? parseValue<T extends num>(String text) {
+  T? parseValue<T extends num?>(String text) {
     if (text.trim().isEmpty) return null;
 
+    final typeStr = T.toString();
     try {
-      if (T == int) {
+      if (typeStr.startsWith('int')) {
         return int.tryParse(text) as T?;
       } else {
         return double.tryParse(text) as T?;

@@ -73,7 +73,7 @@ mixin TTextFieldStateMixin<W extends StatefulWidget> on State<W>, TInputFieldSta
     VoidCallback? onTap,
     String? placeholder,
   }) {
-    return buildWithLabel(
+    return buildWrapper(
       child: wTheme.buildTextField(
         states,
         autoFocus: _widget.autoFocus,
@@ -92,6 +92,7 @@ mixin TTextFieldStateMixin<W extends StatefulWidget> on State<W>, TInputFieldSta
           hasValue: hasValue,
           onClear: onClear,
           placeholder: placeholder,
+          expands: maxLines > 1,
         ),
       ),
     );

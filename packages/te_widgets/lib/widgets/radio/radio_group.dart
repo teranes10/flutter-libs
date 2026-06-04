@@ -245,7 +245,8 @@ class _TRadioGroupState<T> extends State<TRadioGroup<T>>
       },
       child: buildContainer(
         block: widget.block,
-        isMultiline: true,
+        expands: true,
+        floatingLabelAlways: true,
         hasValue: currentValue != null,
         onClear: () {
           notifyValueChanged(null);
@@ -285,13 +286,10 @@ class _TRadioGroupState<T> extends State<TRadioGroup<T>>
     }
 
     return widget.vertical
-        ? Padding(
-            padding: EdgeInsets.symmetric(vertical: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: widget.runSpacing,
-              children: items,
-            ),
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: widget.runSpacing,
+            children: items,
           )
         : Wrap(
             spacing: widget.spacing,

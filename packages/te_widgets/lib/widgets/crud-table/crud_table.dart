@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 part 'crud_table_top_bar.dart';
 part 'crud_table_builder.dart';
@@ -129,6 +134,15 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Custom theme for the table.
   final TTableTheme? theme;
 
+  /// Custom builder for the row.
+  ///
+  /// If provided, this builder is called for each row and can be used to
+  /// wrap or replace the default row card.
+  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index, Widget row)? rowBuilder;
+
+  /// Custom builder for the row background color.
+  final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
+
   /// Creates a CRUD table.
   const TCrudTable({
     super.key,
@@ -150,6 +164,8 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.archiveController,
     this.expandedBuilder,
     this.theme,
+    this.rowBuilder,
+    this.rowColorBuilder,
   })  : assert(
           (controller == null && (items != null || onLoad != null)) || (controller != null && items == null && onLoad == null),
           'Provide either `controller` OR (`items` / `onLoad`), not both.',
@@ -177,6 +193,9 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
   int _currentTab = 0;
   final Map<T, Map<String, bool>> _permissionCache = {};
+
+  F? _activeForm;
+  T? _editingItem;
 
   @override
   void initState() {
@@ -236,7 +255,56 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     return _tableBuilder._buildContent(
       theme,
       tableTheme.copyWith(
-        headerBuilder: (_) => LayoutBuilder(builder: (_, constraints) => _topBar.build(context, constraints)),
+        headerBuilder: (_) => LayoutBuilder(
+          builder: (ctx, constraints) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _topBar.build(ctx, constraints),
+              if (_activeForm != null && _editingItem == null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: _buildFormCard(_activeForm!, isEditing: false),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormCard(F form, {required bool isEditing}) {
+    final theme = context.theme;
+
+    return TCard(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(12),
+      padding: const EdgeInsets.all(25),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 25),
+          TFormBuilder(input: form),
+          const SizedBox(height: 25),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            spacing: 10,
+            children: [
+              TButton(
+                baseTheme: TWidgetTheme.surfaceTheme(context.colors),
+                size: TButtonSize.md.copyWith(minW: 100),
+                text: 'Cancel',
+                onTap: handleCancelForm,
+              ),
+              TButton(
+                loading: true,
+                size: TButtonSize.md.copyWith(minW: 100),
+                color: theme.primary,
+                text: isEditing ? 'Update' : 'Save',
+                onPressed: handleSaveForm,
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -256,6 +324,10 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   TListController<T, K> get archiveListController => _archiveListController;
   int get currentTab => _currentTab;
   set currentTab(int value) => setState(() => _currentTab = value);
+
+  int _viewMode = 0; // 0: Table, 1: Card, 2: Grid
+  int get viewMode => _viewMode;
+  set viewMode(int value) => setState(() => _viewMode = value);
 
   // Permission methods
   bool canPerformActionSync(T item, Future<bool> Function(T)? permission) {
@@ -292,39 +364,65 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
   // Action handlers
   void handleCreate() {
-    _performAction(() async {
-      final form = widget.createForm?.call();
-      if (form == null) return;
-
-      final formData = await TFormService.show(context, form);
-      if (formData == null) return;
-
-      final newItem = await widget.onCreate?.call(formData);
-      if (newItem != null) {
-        _listController.addItem(newItem);
-      }
-
-      form.reset();
-      form.dispose();
+    setState(() {
+      _activeForm?.dispose();
+      _activeForm = widget.createForm?.call();
+      _editingItem = null;
     });
   }
 
   void handleEdit(T item) {
-    _performAction(() async {
-      final form = widget.editForm?.call(item);
-      if (form == null) return;
+    setState(() {
+      _activeForm?.dispose();
+      _activeForm = widget.editForm?.call(item);
+      _editingItem = item;
+    });
+  }
 
-      final formData = await TFormService.show(context, form);
-      if (formData == null) return;
+  void handleCancelForm() {
+    setState(() {
+      _activeForm?.dispose();
+      _activeForm = null;
+      _editingItem = null;
+    });
+  }
 
-      final updatedItem = await widget.onEdit?.call(item, formData);
-      if (updatedItem != null) {
-        _listController.updateItem(item, updatedItem);
+  void handleSaveForm(TButtonPressOptions options) async {
+    final form = _activeForm;
+    if (form == null) {
+      options.stopLoading();
+      return;
+    }
+
+    final errors = form.validationErrors;
+    if (errors.isNotEmpty) {
+      for (var message in errors) {
+        TToastService.error(context, message);
+      }
+      options.stopLoading();
+      return;
+    }
+
+    try {
+      final editingItem = _editingItem;
+      if (editingItem != null) {
+        final updatedItem = await widget.onEdit?.call(editingItem, form);
+        if (updatedItem != null) {
+          _listController.updateItem(editingItem, updatedItem);
+        }
+      } else {
+        final newItem = await widget.onCreate?.call(form);
+        if (newItem != null) {
+          _listController.addItem(newItem);
+        }
       }
 
-      form.reset();
-      form.dispose();
-    });
+      handleCancelForm();
+    } catch (e) {
+      debugPrint('__ TCrudTable save error: $e');
+    } finally {
+      options.stopLoading();
+    }
   }
 
   void handleArchive(T item) {
@@ -371,5 +469,57 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     } catch (e) {
       debugPrint('__ TCrudTable action error: $e');
     }
+  }
+
+  void handleExportPdf() async {
+    final controller = _currentTab == 0 ? _listController : _archiveListController;
+    final items = controller.value.displayItems.map((e) => e.data).toList();
+    if (items.isEmpty) return;
+
+    final pdf = pw.Document();
+    final colors = context.colors;
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageTheme: pw.PageTheme(
+          margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 25),
+          buildBackground: (context) => pw.FullPage(ignoreMargins: true, child: pw.Container(color: colors.surface.toPdfColor())),
+        ),
+        build: (context) => [
+          pw.Text('Exported Data', style: pw.TextStyle(fontSize: 16, color: colors.onSurfaceVariant.toPdfColor())),
+          pw.SizedBox(height: 15),
+          TTableHelper.from(this.context, widget.headers, items),
+        ],
+      ),
+    );
+
+    await pdf.download(fileName: "export_${DateTime.now().millisecondsSinceEpoch}");
+  }
+
+  void handleExportCsv() async {
+    final controller = _currentTab == 0 ? _listController : _archiveListController;
+    final items = controller.value.displayItems.map((e) => e.data).toList();
+    if (items.isEmpty) return;
+
+    final effectiveHeaders = widget.headers.where((h) => h.map != null).toList();
+    final csvRows = <List<String>>[];
+
+    // Headers
+    csvRows.add(effectiveHeaders.map((h) => h.text).toList());
+
+    // Data
+    for (var item in items) {
+      csvRows.add(effectiveHeaders.map((h) => h.getValue(item)).toList());
+    }
+
+    final csvString = csvRows.map((row) => row.map((cell) => '"${cell.replaceAll('"', '""')}"').join(',')).join('\n');
+    final bytes = utf8.encode(csvString);
+
+    await FileSaver.instance.saveFile(
+      name: "export_${DateTime.now().millisecondsSinceEpoch}",
+      bytes: Uint8List.fromList(bytes),
+      fileExtension: "csv",
+      mimeType: MimeType.csv,
+    );
   }
 }

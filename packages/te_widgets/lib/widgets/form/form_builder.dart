@@ -47,17 +47,21 @@ class TFormBuilder extends StatelessWidget {
   /// Callback fired when any field value changes.
   final VoidCallback? onValueChanged;
 
-  /// Optional label for the form.
+  /// Optional title for the form.
   final String? label;
+
+  /// Optional sub title for the form.
+  final String? description;
 
   /// Creates a form builder.
   const TFormBuilder({
     super.key,
     this.input,
     this.fields,
-    this.gutter = 16.0,
+    this.gutter = 26.0,
     this.onValueChanged,
     this.label,
+    this.description,
   }) : assert((input == null) != (fields == null), 'Provide either "input" or "fields", not both.');
 
   @override
@@ -73,12 +77,22 @@ class TFormBuilder extends StatelessWidget {
         spacing: gutter,
         runSpacing: gutter,
         children: [
-          if (label != null)
+          if (label != null || description != null)
             SizedBox(
               width: (unitWidth * 12) + (11 * gutter),
               child: Padding(
                 padding: EdgeInsets.only(bottom: 5),
-                child: Text(label!, style: TextStyle(fontWeight: FontWeight.w400, fontSize: 14, color: colorScheme.onSurface)),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 3,
+                  children: [
+                    if (label != null)
+                      Text(label!, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18, color: colorScheme.onSurface)),
+                    if (description != null)
+                      Text(description!, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12, color: colorScheme.onSurfaceVariant))
+                  ],
+                ),
               ),
             ),
           ...(input?.fields ?? fields ?? []).map((field) {
@@ -96,7 +110,7 @@ class TFormBuilder extends StatelessWidget {
               child: field._field,
             );
 
-            return isForm ? Padding(padding: EdgeInsets.only(top: 15), child: widget) : widget;
+            return isForm ? Padding(padding: EdgeInsets.only(top: 20), child: widget) : widget;
           })
         ],
       );

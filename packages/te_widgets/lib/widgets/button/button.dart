@@ -252,13 +252,21 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     super.initState();
     _isActive = widget.active;
     _statesController = WidgetStatesController();
+    if (_isActive) {
+      _statesController.update(WidgetState.selected, true);
+      _statesController.update(WidgetState.pressed, true);
+    }
   }
 
   @override
   void didUpdateWidget(TButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.active != _isActive) {
-      setState(() => _isActive = widget.active);
+    if (widget.active != oldWidget.active) {
+      setState(() {
+        _isActive = widget.active;
+        _statesController.update(WidgetState.selected, _isActive);
+        _statesController.update(WidgetState.pressed, _isActive);
+      });
     }
   }
 
@@ -278,7 +286,11 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
 
     if (widget.onChanged != null) {
       final newActive = !_isActive;
-      setState(() => _isActive = newActive);
+      setState(() {
+        _isActive = newActive;
+        _statesController.update(WidgetState.selected, _isActive);
+        _statesController.update(WidgetState.pressed, _isActive);
+      });
       widget.onChanged?.call(newActive);
     }
 
@@ -371,6 +383,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     final button = ScaleTransition(
       scale: _scaleAnimation,
       child: ElevatedButton(
+        statesController: _statesController,
         onPressed: (widget.onPressed == null && widget.onTap == null && widget.onChanged == null) ? null : _handlePress,
         style: theme.buttonStyle,
         child: buttonContent,

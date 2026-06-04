@@ -101,6 +101,8 @@ class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin
   /// Defaults to false.
   final bool tristate;
 
+  final String? helperText;
+
   /// Creates a checkbox input.
   const TCheckbox({
     super.key,
@@ -117,6 +119,7 @@ class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin
     this.color,
     this.size = TInputSize.md,
     this.tristate = false,
+    this.helperText,
   });
 
   @override
@@ -140,17 +143,7 @@ class _TCheckboxState<T> extends State<TCheckbox>
   }
 
   double _getLabelFontSize() {
-    switch (widget.size) {
-      case TInputSize.xs:
-        return 11.0;
-      case TInputSize.sm:
-        return 12.0;
-      case TInputSize.md:
-      case null:
-        return 14.0;
-      case TInputSize.lg:
-        return 16.0;
-    }
+    return widget.size.fontSize;
   }
 
   void _onCheckboxChanged(bool? newValue) {
@@ -251,6 +244,11 @@ class _TCheckboxState<T> extends State<TCheckbox>
             ],
           ),
         ),
+        if (widget.helperText != null)
+          Text(
+            widget.helperText!,
+            style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: colors.onSurfaceVariant.withAlpha(200)),
+          ),
         buildValidationErrors(colors, errorsNotifier)
       ],
     );

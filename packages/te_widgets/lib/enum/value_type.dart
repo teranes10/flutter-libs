@@ -37,6 +37,10 @@ class ValueType {
       typeStr = typeStr.substring(5, typeStr.length - 1);
     }
 
+    if (typeStr.endsWith('?')) {
+      typeStr = typeStr.substring(0, typeStr.length - 1);
+    }
+
     final baseType = switch (typeStr) {
       'String' => BaseValueType.string,
       'int' => BaseValueType.integer,

@@ -227,6 +227,7 @@ class TTextFieldTheme extends TInputFieldTheme {
   }) {
     final isDisabled = states.contains(WidgetState.disabled);
     final isMultiline = maxLines > 1;
+    final style = textStyle.resolve(states).copyWith(fontSize: fieldFontSize);
 
     return TextField(
       controller: controller,
@@ -241,16 +242,17 @@ class TTextFieldTheme extends TInputFieldTheme {
       maxLength: maxLength,
       maxLengthEnforcement: maxLengthEnforcement,
       cursorHeight: fieldFontSize + 2,
-      style: textStyle.resolve(states),
+      style: style,
       decoration: inputDecoration,
-      maxLines: maxLines,
+      expands: maxLines == 1,
+      minLines: maxLines > 1 ? maxLines : null,
+      maxLines: null,
       scrollPhysics: const BouncingScrollPhysics(),
       scrollPadding: const EdgeInsets.all(8),
       obscureText: obscureText,
       inputFormatters: inputFormatters ?? this.inputFormatters,
       keyboardType: _resolveKeyboardType(isDisabled, readOnly, isMultiline, keyboardType),
       textInputAction: _resolveTextInputAction(isMultiline, textInputAction),
-      textAlignVertical: isMultiline ? TextAlignVertical.top : TextAlignVertical.center,
       onChanged: onValueChanged,
       onTap: onTap,
     );

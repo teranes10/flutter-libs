@@ -78,7 +78,7 @@ class UserForm extends TFormBase {
       TFormField.checkbox(check, "Check").size(3),
       TFormField.toggle(toggle, "Toggle").size(3),
       TFormField.filePicker(files, "File Picker"),
-      TFormField.group(subForm, label: 'Sub Form'),
+      TFormField.group(subForm, label: 'Sub Form', description: 'Sub Title'),
       TFormField.items(subForms, () => SubForm(), label: 'Sub Forms', buttonLabel: 'Add New'),
     ];
   }

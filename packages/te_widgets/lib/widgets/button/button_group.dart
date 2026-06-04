@@ -8,6 +8,8 @@ part of 'button.dart';
 /// - Optional boxed mode with container
 /// - Customizable alignment
 /// - Individual button customization
+/// - **Cycle Mode**: Show only one button at a time, cycling through items on tap.
+/// - **Stateful Selection**: Maintain active state and highlight selected buttons when cycle is false.
 ///
 /// ## Basic Usage
 ///
@@ -21,15 +23,30 @@ part of 'button.dart';
 /// )
 /// ```
 ///
-/// ## With Icons
+/// ## Cycle Mode (Show Single Button & Cycle on Tap)
 ///
 /// ```dart
 /// TButtonGroup(
-///   type: TButtonGroupType.outline,
+///   cycle: true,
+///   onIndexChanged: (index) => print('Cycled to item $index'),
 ///   items: [
-///     TButtonGroupItem(icon: Icons.format_bold, onPressed: () {}),
-///     TButtonGroupItem(icon: Icons.format_italic, onPressed: () {}),
-///     TButtonGroupItem(icon: Icons.format_underlined, onPressed: () {}),
+///     TButtonGroupItem(icon: Icons.play_arrow, text: 'Play'),
+///     TButtonGroupItem(icon: Icons.pause, text: 'Pause'),
+///     TButtonGroupItem(icon: Icons.stop, text: 'Stop'),
+///   ],
+/// )
+/// ```
+///
+/// ## Stateful Selection Mode
+///
+/// ```dart
+/// TButtonGroup(
+///   initialIndex: 0,
+///   onIndexChanged: (index) => print('Selected item $index'),
+///   items: [
+///     TButtonGroupItem(text: 'Option A'),
+///     TButtonGroupItem(text: 'Option B'),
+///     TButtonGroupItem(text: 'Option C'),
 ///   ],
 /// )
 /// ```
@@ -37,7 +54,7 @@ part of 'button.dart';
 /// See also:
 /// - [TButton] for individual buttons
 /// - [TButtonGroupItem] for item configuration
-class TButtonGroup extends StatelessWidget {
+class TButtonGroup extends StatefulWidget {
   /// Custom theme for the button group.
   final TButtonGroupTheme? theme;
 
@@ -56,6 +73,17 @@ class TButtonGroup extends StatelessWidget {
   /// Alignment of the button group.
   final WrapAlignment alignment;
 
+  /// Whether to show only one button at a time and cycle through the items on tap.
+  final bool cycle;
+
+  /// The initial index of the item to show when [cycle] is true, or the active item index when [cycle] is false.
+  ///
+  /// If provided, this enables stateful selection. If an item in [items] has `active` set to true, that item's index will take precedence.
+  final int? initialIndex;
+
+  /// Callback fired when the active index changes (triggered in both [cycle] mode and stateful selection mode).
+  final ValueChanged<int>? onIndexChanged;
+
   /// Creates a button group.
   const TButtonGroup({
     super.key,
@@ -65,19 +93,74 @@ class TButtonGroup extends StatelessWidget {
     this.size,
     this.items = const [],
     this.alignment = WrapAlignment.start,
+    this.cycle = false,
+    this.initialIndex,
+    this.onIndexChanged,
   }) : assert(
           theme == null || (type == null && size == null && color == null),
           'If theme is provided, type, color and size must be null.',
         );
 
   @override
+  State<TButtonGroup> createState() => _TButtonGroupState();
+}
+
+class _TButtonGroupState extends State<TButtonGroup> {
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _initIndex();
+  }
+
+  @override
+  void didUpdateWidget(TButtonGroup oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialIndex != oldWidget.initialIndex ||
+        widget.cycle != oldWidget.cycle ||
+        widget.items != oldWidget.items) {
+      _initIndex();
+    }
+  }
+
+  void _initIndex() {
+    final activeIndex = widget.items.indexWhere((item) => item.active);
+    if (activeIndex != -1) {
+      _currentIndex = activeIndex;
+    } else if (widget.cycle) {
+      _currentIndex = (widget.initialIndex ?? 0).clamp(0, widget.items.isEmpty ? 0 : widget.items.length - 1);
+    } else if (widget.initialIndex != null) {
+      _currentIndex = widget.initialIndex!.clamp(0, widget.items.isEmpty ? 0 : widget.items.length - 1);
+    } else {
+      _currentIndex = -1;
+    }
+  }
+
+  void _advanceIndex() {
+    if (widget.items.isEmpty) return;
+    setState(() {
+      _currentIndex = (_currentIndex + 1) % widget.items.length;
+    });
+    widget.onIndexChanged?.call(_currentIndex);
+  }
+
+  void _updateIndex(int index) {
+    if (_currentIndex == index) return;
+    setState(() {
+      _currentIndex = index;
+    });
+    widget.onIndexChanged?.call(index);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final effectiveTheme = theme ??
+    final effectiveTheme = widget.theme ??
         TButtonGroupTheme.fromBaseTheme(
           context: context,
-          type: type ?? TButtonGroupType.solid,
-          size: size,
-          color: color,
+          type: widget.type ?? TButtonGroupType.solid,
+          size: widget.size,
+          color: widget.color,
         );
 
     Widget buttonGroup = _buildButtonRow(context, effectiveTheme);
@@ -94,13 +177,26 @@ class TButtonGroup extends StatelessWidget {
   }
 
   Widget _buildButtonRow(BuildContext context, TButtonGroupTheme groupTheme) {
-    if (items.isEmpty) return const SizedBox.shrink();
+    if (widget.items.isEmpty) return const SizedBox.shrink();
+
+    if (widget.cycle) {
+      final index = _currentIndex.clamp(0, widget.items.length - 1);
+      final item = widget.items[index];
+      final button = _buildButton(
+        context,
+        groupTheme: groupTheme,
+        item: item,
+        index: index,
+        total: 1,
+      );
+      return Wrap(alignment: widget.alignment, children: [button]);
+    }
 
     final children = <Widget>[];
-    final total = items.length;
+    final total = widget.items.length;
 
-    for (int i = 0; i < items.length; i++) {
-      final item = items[i];
+    for (int i = 0; i < widget.items.length; i++) {
+      final item = widget.items[i];
       final button = _buildButton(context, groupTheme: groupTheme, item: item, index: i, total: total);
 
       children.add(button);
@@ -110,7 +206,7 @@ class TButtonGroup extends StatelessWidget {
       }
     }
 
-    return Wrap(alignment: alignment, children: children);
+    return Wrap(alignment: widget.alignment, children: children);
   }
 
   Widget _buildButton(
@@ -120,15 +216,55 @@ class TButtonGroup extends StatelessWidget {
     required int index,
     required int total,
   }) {
+    VoidCallback? onTap;
+    Function(TButtonPressOptions)? onPressed;
+
+    final isStateful = widget.cycle || widget.initialIndex != null || widget.onIndexChanged != null;
+
+    if (widget.cycle) {
+      onTap = () {
+        if (item.onTap != null) {
+          item.onTap!();
+        }
+        _advanceIndex();
+      };
+
+      if (item.onPressed != null) {
+        onPressed = (options) {
+          item.onPressed!(options);
+          _advanceIndex();
+        };
+      }
+    } else if (isStateful) {
+      onTap = () {
+        if (item.onTap != null) {
+          item.onTap!();
+        }
+        _updateIndex(index);
+      };
+
+      if (item.onPressed != null) {
+        onPressed = (options) {
+          item.onPressed!(options);
+          _updateIndex(index);
+        };
+      }
+    } else {
+      onTap = item.onTap;
+      onPressed = item.onPressed;
+    }
+
+    final isActive = (isStateful && !widget.cycle) ? (index == _currentIndex) : item.active;
+
     TButton button = TButton(
       icon: item.icon,
       text: item.text,
       loading: item.loading,
       loadingText: item.loadingText,
       tooltip: item.tooltip,
-      active: item.active,
-      onTap: item.onTap,
-      onPressed: item.onPressed,
+      active: isActive,
+      onTap: onTap,
+      onPressed: onPressed,
       child: item.child,
     );
 
@@ -138,7 +274,7 @@ class TButtonGroup extends StatelessWidget {
         color: item.color ?? groupTheme.color,
         type: groupTheme.type.buttonType.colorType,
       ),
-      size: size,
+      size: widget.size,
     );
 
     final isSingle = total == 1;

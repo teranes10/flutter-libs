@@ -149,6 +149,15 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Whether the footer should be sticky.
   final bool? footerSticky;
 
+  /// Custom builder for the row.
+  ///
+  /// If provided, this builder is called for each row and can be used to
+  /// wrap or replace the default row card.
+  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index, Widget row)? rowBuilder;
+
+  /// Custom builder for the row background color.
+  final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
+
   /// Creates a data table component.
   const TDataTable({
     super.key,
@@ -176,6 +185,8 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.infiniteScroll,
     this.headerSticky,
     this.footerSticky,
+    this.rowBuilder,
+    this.rowColorBuilder,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -222,19 +233,23 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
       final infiniteScroll = wTheme.infiniteScroll ?? isMobile;
 
       return TTable<T, K>(
-        headers: widget.headers,
-        infiniteScroll: infiniteScroll,
-        headerSticky: wTheme.headerSticky ?? canHeaderSticky,
-        footerSticky: wTheme.footerSticky ?? canFooterSticky,
-        footerBuilder: (ctx) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!infiniteScroll) _buildToolbar(colors, constraints.maxWidth),
-            if (wTheme.footerBuilder != null) wTheme.footerBuilder!(ctx),
-          ],
+        theme: wTheme.copyWith(
+          infiniteScroll: infiniteScroll,
+          headerSticky: wTheme.headerSticky ?? canHeaderSticky,
+          footerSticky: wTheme.footerSticky ?? canFooterSticky,
+          footerBuilder: (ctx) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!infiniteScroll) _buildToolbar(colors, constraints.maxWidth),
+              if (wTheme.footerBuilder != null) wTheme.footerBuilder!(ctx),
+            ],
+          ),
         ),
+        headers: widget.headers,
         controller: listController,
         expandedBuilder: widget.expandedBuilder,
+        rowBuilder: widget.rowBuilder,
+        rowColorBuilder: widget.rowColorBuilder,
       );
     });
   }

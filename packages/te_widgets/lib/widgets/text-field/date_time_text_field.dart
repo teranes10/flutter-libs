@@ -83,6 +83,7 @@ class TDateTimeTextField extends StatefulWidget
   @override
   State<TDateTimeTextField> createState() => _TDateTimeTextFieldState();
 }
+
 class _TDateTimeTextFieldState extends State<TDateTimeTextField>
     with
         TInputFieldStateMixin<TDateTimeTextField>,
@@ -139,7 +140,6 @@ class _TDateTimeTextFieldState extends State<TDateTimeTextField>
     );
   }
 
-  @override
   String? get placeholder => widget.placeholder ?? widget.formatType.placeholder;
 }
 
@@ -176,7 +176,7 @@ class _TDateTimeEditingController extends TextEditingController {
         children.add(TextSpan(
           text: char,
           style: style?.copyWith(
-            color: style.color?.withOpacity(0.35),
+            color: style.color?.o(0.35),
             fontWeight: FontWeight.w300,
           ),
         ));
@@ -188,4 +188,3 @@ class _TDateTimeEditingController extends TextEditingController {
     return TextSpan(style: style, children: children);
   }
 }
-

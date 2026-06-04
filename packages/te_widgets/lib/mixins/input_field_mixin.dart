@@ -65,9 +65,11 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     bool hasValue = false,
     VoidCallback? onClear,
     String? placeholder,
+    bool expands = false,
   }) {
     return wTheme.buildInputDecoration(
       states,
+      expands: expands,
       beforePreWidget: beforePreWidget,
       beforePostWidget: beforePostWidget,
       label: _widget.label,
@@ -80,7 +82,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     );
   }
 
-  Widget buildWithLabel({required Widget child}) {
+  Widget buildWrapper({required Widget child}) {
     return switch (wTheme.labelPosition) {
       TLabelPosition.aboveField => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,15 +90,24 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
             wTheme.labelBuilder.resolve(states)(_widget.label, _widget.tag, _widget.isRequired),
             const SizedBox(height: 8),
             child,
+            wTheme.helperTextBuilder.resolve(states)(_widget.helperText),
+            wTheme.errorsBuilder.resolve(states)(validationMixin?.errorsNotifier.value),
           ],
         ),
-      TLabelPosition.floating => child,
+      TLabelPosition.floating => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            child,
+            wTheme.helperTextBuilder.resolve(states)(_widget.helperText),
+            wTheme.errorsBuilder.resolve(states)(validationMixin?.errorsNotifier.value),
+          ],
+        ),
     };
   }
 
   /// Builds the container structure for the input field.
   Widget buildContainer({
-    bool isMultiline = false,
+    bool expands = false,
     Widget? child,
     Widget? beforePreWidget,
     Widget? beforePostWidget,
@@ -106,6 +117,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     bool block = true,
     bool focusOnTap = true,
     String? placeholder,
+    bool floatingLabelAlways = false,
   }) {
     return InkWell(
       onTap: _widget.disabled
@@ -118,18 +130,26 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
                 focusMixin?.focusNode.requestFocus();
               }
             },
-      child: buildWithLabel(
+      child: buildWrapper(
         child: InputDecorator(
           isFocused: states.contains(WidgetState.focused),
-          isEmpty: !states.contains(WidgetState.selected),
+          isEmpty: floatingLabelAlways ? false : !states.contains(WidgetState.selected),
           decoration: buildInputDecoration(
             beforePreWidget: beforePreWidget,
             beforePostWidget: beforePostWidget,
             hasValue: hasValue,
             onClear: onClear,
             placeholder: placeholder,
+            expands: expands,
           ),
-          child: child,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: wTheme.fieldHeight - wTheme.fieldPadding.top,
+              minWidth: block ? double.infinity : 0,
+            ),
+            alignment: Alignment.centerLeft,
+            child: child,
+          ),
         ),
       ),
     );
