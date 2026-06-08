@@ -41,6 +41,9 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
         expandedBuilder: parent.widget.expandedBuilder,
         controller: controller,
         itemsPerPageOptions: parent.widget.config.itemsPerPageOptions,
+        beforeItemsBuilder: (parent._activeForm != null && parent._editingItem == null)
+            ? (_) => parent._buildFormCard(parent._activeForm!, isEditing: false)
+            : null,
         rowBuilder: (ctx, item, index, row) {
           final editingItem = parent._editingItem;
           if (editingItem != null && controller.itemKey(editingItem) == item.key) {

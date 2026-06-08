@@ -6,6 +6,9 @@ class TAccordionTheme {
   final Color contentColor;
   final Color borderColor;
   final double borderRadius;
+  final double elevation;
+  final EdgeInsets tilePadding;
+  final EdgeInsets padding;
 
   const TAccordionTheme({
     required this.backgroundColor,
@@ -13,6 +16,9 @@ class TAccordionTheme {
     required this.contentColor,
     required this.borderColor,
     this.borderRadius = 8.0,
+    this.elevation = 0,
+    this.tilePadding = const EdgeInsets.all(16.0),
+    this.padding = const EdgeInsets.fromLTRB(16, 8, 16, 16),
   });
 
   factory TAccordionTheme.defaultTheme(ColorScheme colors) {

@@ -59,4 +59,12 @@ extension ColorX on Color {
       a / 255.0,
     );
   }
+
+  Color lighten([double amount = 0.1]) {
+    return Color.lerp(this, Colors.white, amount)!;
+  }
+
+  Color darken([double amount = 0.1]) {
+    return Color.lerp(this, Colors.black, amount)!;
+  }
 }

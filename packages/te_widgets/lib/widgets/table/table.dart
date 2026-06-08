@@ -105,6 +105,9 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// wrap or replace the default row card.
   final Widget Function(BuildContext ctx, TListItem<T, K> item, int index, Widget row)? rowBuilder;
 
+  /// Builder for content before the list items.
+  final WidgetBuilder? beforeItemsBuilder;
+
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
@@ -135,6 +138,7 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.footerSticky,
     this.rowBuilder,
     this.rowColorBuilder,
+    this.beforeItemsBuilder,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -216,6 +220,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
           ],
         ),
       ),
+      beforeItemsBuilder: widget.beforeItemsBuilder,
       controller: listController,
       itemBuilder: (ctx, item, index) {
         final row = _buildRowCard(columnWidths, ctx, item, index);
@@ -228,6 +233,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return TList<T, K>(
       theme: wTheme,
       controller: listController,
+      beforeItemsBuilder: widget.beforeItemsBuilder,
       itemBuilder: (ctx, item, index) {
         final row = _buildMobileCard(ctx, item, index);
         return widget.rowBuilder?.call(ctx, item, index, row) ?? row;

@@ -71,7 +71,7 @@ class TDropdownTheme {
     this.iconSize = 20.0,
     this.arrowIconSize = 11.0,
     this.gap = 10.0,
-    this.overlayElevation = 12.0,
+    this.overlayElevation = 8.0,
     this.overlayBorderRadius = const BorderRadius.all(Radius.circular(8.0)),
     this.overlayPadding = const EdgeInsets.symmetric(vertical: 8),
     this.itemPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

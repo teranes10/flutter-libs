@@ -59,7 +59,7 @@ class TTagsField extends StatefulWidget
         TInputValueMixin<List<String>>,
         TInputValidationMixin<List<String>> {
   @override
-  final String? label, tag, helperText, placeholder;
+  final String? label, tag, helperText, placeholder, info;
   @override
   final bool isRequired, disabled, autoFocus, readOnly;
   @override
@@ -98,6 +98,7 @@ class TTagsField extends StatefulWidget
     this.tag,
     this.helperText,
     this.placeholder,
+    this.info,
     this.isRequired = false,
     this.disabled = false,
     this.autoFocus = false,

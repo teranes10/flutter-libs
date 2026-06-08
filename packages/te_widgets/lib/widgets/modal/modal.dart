@@ -136,7 +136,6 @@ class TModal extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: colors.surface,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: colors.shadow, blurRadius: 12, spreadRadius: 0)],
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

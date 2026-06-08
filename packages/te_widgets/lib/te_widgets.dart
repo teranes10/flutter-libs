@@ -1,5 +1,7 @@
 library;
 
+export 'package:mobile_scanner/mobile_scanner.dart';
+
 export 'configs/theme/app_colors.dart';
 export 'configs/theme/default_theme_data.dart';
 export 'configs/widget-theme/widget_theme_extension.dart';
@@ -65,6 +67,8 @@ export 'widgets/avatar/avatar.dart';
 
 export 'widgets/badge/badge.dart';
 
+export 'widgets/barcode_scanner/barcode_scanner.dart';
+
 export 'widgets/button/button.dart';
 
 export 'widgets/breadcrumbs/breadcrumbs.dart';
@@ -85,6 +89,11 @@ export 'widgets/data-table/data_table.dart';
 export 'widgets/date-picker/date_picker.dart';
 
 export 'widgets/date-time-picker/date_time_picker.dart';
+
+export 'widgets/slider/slider.dart';
+export 'widgets/slider/range_slider.dart';
+export 'widgets/rating/rating.dart';
+export 'widgets/color-picker/color_picker.dart';
 
 export 'widgets/dropdown/dropdown_config.dart';
 export 'widgets/dropdown/dropdown_overlay_controller.dart';
@@ -153,6 +162,8 @@ export 'widgets/radio/radio_group.dart';
 export 'widgets/radio/radio_config.dart';
 
 export 'widgets/reactive-selector/reactive_selector.dart';
+
+export 'widgets/stepper/stepper.dart';
 
 export 'widgets/scrollbar/scrollbar.dart';
 

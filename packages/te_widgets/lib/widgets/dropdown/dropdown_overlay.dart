@@ -63,7 +63,6 @@ class _TDropdownOverlayState extends State<TDropdownOverlay> with SingleTickerPr
           elevation: widget.theme.overlayElevation,
           borderRadius: widget.theme.overlayBorderRadius,
           color: colors.surface,
-          shadowColor: colors.shadow,
           child: IntrinsicWidth(
             child: Container(
               constraints: widget.theme.boxConstraints,

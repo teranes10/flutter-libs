@@ -39,7 +39,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TDateTimePicker extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<DateTime>, TInputValidationMixin<DateTime>, TPopupMixin {
   @override
-  final String? label, tag, helperText, placeholder;
+  final String? label, tag, helperText, placeholder, info;
   @override
   final bool isRequired, disabled, autoFocus, readOnly;
   @override
@@ -83,6 +83,7 @@ class TDateTimePicker extends StatefulWidget
     this.tag,
     this.helperText,
     this.placeholder,
+    this.info,
     this.isRequired = false,
     this.disabled = false,
     this.autoFocus = false,

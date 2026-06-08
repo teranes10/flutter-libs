@@ -91,6 +91,10 @@ class TSelect<T, V, K> extends StatefulWidget
   @override
   final String? placeholder;
 
+  /// The info text (optional).
+  @override
+  final String? info;
+
   /// Whether this field is required.
   @override
   final bool isRequired;
@@ -235,6 +239,7 @@ class TSelect<T, V, K> extends StatefulWidget
     this.tag,
     this.helperText,
     this.placeholder,
+    this.info,
     this.isRequired = false,
     this.disabled = false,
     this.autoFocus = false,

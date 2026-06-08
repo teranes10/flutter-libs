@@ -256,17 +256,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
       theme,
       tableTheme.copyWith(
         headerBuilder: (_) => LayoutBuilder(
-          builder: (ctx, constraints) => Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _topBar.build(ctx, constraints),
-              if (_activeForm != null && _editingItem == null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: _buildFormCard(_activeForm!, isEditing: false),
-                ),
-            ],
-          ),
+          builder: (ctx, constraints) => _topBar.build(context, constraints),
         ),
       ),
     );
@@ -276,7 +266,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     final theme = context.theme;
 
     return TCard(
-      elevation: 4,
+      elevation: 1,
       borderRadius: BorderRadius.circular(12),
       padding: const EdgeInsets.all(25),
       child: Column(

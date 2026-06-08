@@ -66,11 +66,13 @@ class TToastService {
         return FadeTransition(opacity: animation, child: child);
       },
       builder: (context, holder) {
-        return Container(
+        return TCard(
+          elevation: 8,
+          backgroundColor: wTheme.container,
+          shadowColor: wTheme.shadow,
+          borderColor: wTheme.outline,
           margin: isMobile ? null : const EdgeInsets.fromLTRB(5, 5, 35, 2),
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: title != null ? 6 : 10),
-          decoration: BoxDecoration(
-              color: wTheme.container, borderRadius: BorderRadius.circular(8), border: wTheme.boxBorder, boxShadow: wTheme.boxShadow),
           child: MouseRegion(
             onEnter: (_) => holder.pause(),
             onExit: (_) => holder.start(),

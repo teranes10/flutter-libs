@@ -55,12 +55,14 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             icon: Icons.text_fields,
             preview: TTextField(
               label: 'Full Name',
+              info: 'Please enter your full name as it appears on your ID',
               placeholder: 'Enter your full name',
               helperText: 'First and last name',
               valueNotifier: ValueNotifier<String?>(''),
             ),
             code: '''TTextField(
   label: 'Full Name',
+  info: 'Please enter your full name as it appears on your ID',
   placeholder: 'Enter your full name',
   helperText: 'First and last name',
   onValueChanged: (value) {
@@ -69,6 +71,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
 )''',
             properties: const [
               PropertyDoc(name: 'label', type: 'String?', description: 'The label text displayed above the field'),
+              PropertyDoc(name: 'info', type: 'String?', description: 'Informational text displayed in a tooltip'),
               PropertyDoc(name: 'placeholder', type: 'String?', description: 'Placeholder text shown when field is empty'),
               PropertyDoc(name: 'helperText', type: 'String?', description: 'Helper text displayed below the field'),
               PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<String?>?', description: 'Callback fired when the value changes'),
@@ -219,6 +222,39 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
                 type: 'bool',
                 defaultValue: 'false',
                 description: 'Whether the field is disabled and cannot be edited',
+              ),
+            ],
+          ),
+
+          // Above Label Position
+          WidgetDocCard(
+            title: 'Above Label Position',
+            description: 'Label positioned above the field with info icon next to it',
+            icon: Icons.vertical_align_top,
+            preview: Builder(builder: (context) {
+              return TTextField(
+                label: 'Username',
+                info: 'Your unique identifier on the platform',
+                placeholder: 'Enter username',
+                theme: context.theme.textFieldTheme.copyWith(
+                  labelPosition: TLabelPosition.aboveField,
+                ),
+              );
+            }),
+            code: '''TTextField(
+  label: 'Username',
+  info: 'Your unique identifier on the platform',
+  placeholder: 'Enter username',
+  theme: context.theme.textFieldTheme.copyWith(
+    labelPosition: TLabelPosition.aboveField,
+  ),
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'labelPosition',
+                type: 'TLabelPosition',
+                defaultValue: 'TLabelPosition.floating',
+                description: 'Position of the label: floating (inside) or aboveField (outside)',
               ),
             ],
           ),

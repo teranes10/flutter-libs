@@ -98,10 +98,9 @@ class _TSidebarTooltipState extends State<TSidebarTooltip> with SingleTickerProv
               );
             },
             child: Material(
-              elevation: 12,
+              elevation: 8,
               borderRadius: BorderRadius.circular(8),
               color: colors.surface,
-              shadowColor: colors.shadow,
               child: InkWell(
                 onTap: widget.item.isClickable ? _handleTap : null,
                 borderRadius: BorderRadius.circular(8),

@@ -19,6 +19,9 @@ mixin TInputFieldMixin {
   /// Whether the field is disabled.
   bool get disabled;
 
+  /// The info text (optional).
+  String? get info;
+
   /// Whether the field shows a clear button when it has a value.
   ///
   /// Defaults to false.
@@ -67,6 +70,8 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     String? placeholder,
     bool expands = false,
   }) {
+    final infoIcon = _widget.info != null ? wTheme.buildInfoIcon(_widget.info!, colors) : null;
+
     return wTheme.buildInputDecoration(
       states,
       expands: expands,
@@ -79,15 +84,18 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
       errors: validationMixin?.errorsNotifier.value,
       isRequired: _widget.isRequired,
       onClear: _widget.clearable && hasValue && !_widget.disabled && onClear != null ? onClear : null,
+      infoIcon: infoIcon,
     );
   }
 
   Widget buildWrapper({required Widget child}) {
+    final infoIcon = _widget.info != null ? wTheme.buildInfoIcon(_widget.info!, colors) : null;
+
     return switch (wTheme.labelPosition) {
       TLabelPosition.aboveField => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            wTheme.labelBuilder.resolve(states)(_widget.label, _widget.tag, _widget.isRequired),
+            wTheme.labelBuilder.resolve(states)(_widget.label, _widget.tag, _widget.isRequired, infoIcon),
             const SizedBox(height: 8),
             child,
             wTheme.helperTextBuilder.resolve(states)(_widget.helperText),

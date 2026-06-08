@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:te_widgets/enum/value_type.dart';
 import 'package:te_widgets/widgets/tags-field/tags_controller.dart';
-import 'package:te_widgets/widgets/tags-field/tags_field_mixin.dart';
 import 'package:te_widgets/widgets/text-field/text_field_mixin.dart';
 
 /// Mixin for widgets that hold a typed value.
@@ -28,7 +27,6 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   }
 
   TTextFieldMixin? get _textFieldMixin => widget is TTextFieldMixin ? widget as TTextFieldMixin : null;
-  TTagsFieldMixin? get _tagsFieldMixin => widget is TTagsFieldMixin ? widget as TTagsFieldMixin : null;
 
   T? _currentValue;
 
@@ -37,15 +35,32 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
 
   bool get hasValue => switch (currentValue) {
         String s => s.isNotEmpty,
+        List l => l.isNotEmpty,
         null => false,
         _ => true,
       };
 
-  T? get _notifierValue => (_tagsFieldMixin != null
-      ? _tagsFieldMixin?.textController?.value.tags
-      : _textFieldMixin != null
-          ? _textFieldMixin?.textController?.value.text
-          : _widget.valueNotifier?.value) as T?;
+  T? get _notifierValue {
+    final activeController = _activeTextController;
+    if (activeController is TTagsController) {
+      final tags = activeController.value.tags;
+      if (tags is T) return tags as T;
+    }
+
+    if (activeController != null) {
+      final text = activeController.value.text;
+      if (text is T) return text as T;
+    }
+
+    return _widget.valueNotifier?.value;
+  }
+
+  TextEditingController? get _activeTextController {
+    if (this is TTextFieldStateMixin<W>) {
+      return (this as TTextFieldStateMixin<W>).textController;
+    }
+    return _textFieldMixin?.textController;
+  }
 
   @override
   void initState() {
@@ -55,10 +70,11 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
 
     _widget.valueNotifier?.addListener(_onValueNotifierChanged);
 
-    if (_tagsFieldMixin != null) {
-      _tagsFieldMixin?.textController?.addListener(_onTagsValueChanged);
-    } else if (_textFieldMixin != null) {
-      _textFieldMixin?.textController?.addListener(_onTextValueChanged);
+    final activeController = _activeTextController;
+    if (activeController is TTagsController && activeController.value.tags is T) {
+      activeController.addListener(_onTagsValueChanged);
+    } else if (activeController != null && activeController.value.text is T) {
+      activeController.addListener(_onTextValueChanged);
     }
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -88,41 +104,13 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
       final newValue = _widget.value;
       _updateValue(newValue, fromExternal: true);
     }
-
-    if (_tagsFieldMixin != null) {
-      // tags notifier
-      final oldTagMixin = oldWidget is TTagsFieldMixin ? oldWidget as TTagsFieldMixin : null;
-      final oldTagNotifier = oldTagMixin?.textController;
-      final newTagNotifier = _tagsFieldMixin?.textController;
-
-      if (oldTagNotifier != newTagNotifier) {
-        oldTagNotifier?.removeListener(_onTagsValueChanged);
-        newTagNotifier?.addListener(_onTagsValueChanged);
-
-        final newValue = newTagNotifier?.value.tags;
-        _updateValue(newValue as T?, fromExternal: true);
-      }
-    } else if (_textFieldMixin != null) {
-      // text notifier
-      final oldTextMixin = oldWidget is TTextFieldMixin ? oldWidget as TTextFieldMixin : null;
-      final oldTextNotifier = oldTextMixin?.textController;
-      final newTextNotifier = _textFieldMixin?.textController;
-
-      if (oldTextNotifier != newTextNotifier) {
-        oldTextNotifier?.removeListener(_onTextValueChanged);
-        newTextNotifier?.addListener(_onTextValueChanged);
-
-        final newValue = newTextNotifier?.value.text;
-        _updateValue(newValue as T?, fromExternal: true);
-      }
-    }
   }
 
   @override
   void dispose() {
     _widget.valueNotifier?.removeListener(_onValueNotifierChanged);
-    _tagsFieldMixin?.textController?.removeListener(_onTagsValueChanged);
-    _textFieldMixin?.textController?.removeListener(_onTextValueChanged);
+    _activeTextController?.removeListener(_onTagsValueChanged);
+    _activeTextController?.removeListener(_onTextValueChanged);
     super.dispose();
   }
 
@@ -132,39 +120,65 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   }
 
   void _onTagsValueChanged() {
-    final newValue = _tagsFieldMixin?.textController?.value.tags as T?;
-    _updateValue(newValue, fromExternal: true);
+    final activeController = _activeTextController;
+    if (activeController is TTagsController) {
+      final newValue = activeController.value.tags as T?;
+      if (!_isEqual(newValue, currentValue)) {
+        _updateValue(newValue, notifyExternal: true);
+      }
+    }
   }
 
   void _onTextValueChanged() {
-    final newValue = _textFieldMixin?.textController?.value.text as T?;
-    _updateValue(newValue, fromExternal: true);
+    final activeController = _activeTextController;
+    if (activeController != null) {
+      final newValue = activeController.value.text as T?;
+      if (!_isEqual(newValue, currentValue)) {
+        _updateValue(newValue, notifyExternal: true);
+      }
+    }
   }
 
-  void _updateValue(T? newValue, {bool fromExternal = false, bool initial = false, bool force = false}) {
-    if (force || newValue != currentValue) {
+  bool _isEqual(T? a, T? b) {
+    if (identical(a, b)) return true;
+    if (a == null || b == null) return false;
+    if (a is List && b is List) {
+      if (a.length != b.length) return false;
+      for (int i = 0; i < a.length; i++) {
+        if (a[i] != b[i]) return false;
+      }
+      return true;
+    }
+    return a == b;
+  }
+
+  void _updateValue(T? newValue, {bool fromExternal = false, bool initial = false, bool force = false, bool notifyExternal = false}) {
+    if (force || !_isEqual(newValue, currentValue)) {
       final oldValue = _currentValue;
       _currentValue = newValue;
       onValueChanged(newValue, initial: initial, oldValue: oldValue);
       if (fromExternal) onExternalValueChanged(newValue);
+      if (notifyExternal) {
+        _widget.onValueChanged?.call(newValue);
+        _widget.valueNotifier?.value = newValue;
+      }
     }
   }
 
   /// Updates the value and notifies listeners.
   void notifyValueChanged(T? newValue) {
-    if (newValue != currentValue) {
+    if (!_isEqual(newValue, currentValue)) {
       final oldValue = _currentValue;
       _currentValue = newValue;
       onValueChanged(newValue, oldValue: oldValue);
       _widget.onValueChanged?.call(newValue);
       _widget.valueNotifier?.value = newValue;
 
-      if (_tagsFieldMixin != null) {
-        _tagsFieldMixin?.textController?.value =
-            _tagsFieldMixin?.textController?.value.copyWith(tags: (newValue ?? []) as List<String>) as TagsEditingValue;
-      } else if (_textFieldMixin != null) {
-        _textFieldMixin?.textController?.value =
-            _textFieldMixin?.textController?.value.copyWith(text: (newValue ?? '') as String) as TextEditingValue;
+      final activeController = _activeTextController;
+      if (activeController is TTagsController) {
+        activeController.value = activeController.value.copyWith(tags: (newValue ?? []) as List<String>);
+      } else if (activeController != null) {
+        activeController.value = activeController.value.copyWith(text: (newValue ?? '') as String);
       }
     }
   }
@@ -175,23 +189,7 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   }
 
   @protected
-  void onValueChanged(T? value, {bool initial = false, T? oldValue}) {
-    final wasEmpty = switch (oldValue) {
-      String s => s.isEmpty,
-      null => true,
-      _ => false,
-    };
-
-    final isEmpty = switch (value) {
-      String s => s.isEmpty,
-      null => true,
-      _ => false,
-    };
-
-    if (wasEmpty != isEmpty) {
-      setState(() {});
-    }
-  }
+  void onValueChanged(T? value, {bool initial = false, T? oldValue}) {}
 
   @protected
   void onExternalValueChanged(T? value) {}

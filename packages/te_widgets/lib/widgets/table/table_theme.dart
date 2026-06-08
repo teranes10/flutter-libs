@@ -106,7 +106,7 @@ class TTableTheme extends TListTheme {
       height: 100,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.surfaceDim,
+        color: colors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(

@@ -24,12 +24,9 @@ class TModalService {
     String? title,
     bool? showCloseButton,
   }) {
-    final colors = context.colors;
-
     return showDialog<T>(
       context: context,
       barrierDismissible: persistent,
-      barrierColor: colors.scrim,
       builder: (BuildContext dialogContext) {
         final mContext = TModalContext<T>(dialogContext);
 

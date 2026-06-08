@@ -155,6 +155,9 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// wrap or replace the default row card.
   final Widget Function(BuildContext ctx, TListItem<T, K> item, int index, Widget row)? rowBuilder;
 
+  /// Builder for content before the list items.
+  final WidgetBuilder? beforeItemsBuilder;
+
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
@@ -176,6 +179,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     //DataTable
     this.paginationTotalVisible = 7,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
+    this.beforeItemsBuilder,
     // Theme overrides
     this.grid,
     this.gridDelegate,
@@ -248,6 +252,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
         headers: widget.headers,
         controller: listController,
         expandedBuilder: widget.expandedBuilder,
+        beforeItemsBuilder: widget.beforeItemsBuilder,
         rowBuilder: widget.rowBuilder,
         rowColorBuilder: widget.rowColorBuilder,
       );
@@ -266,53 +271,56 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
     final totalWidth = paginationBarWidth + paginationInfoWidth + itemsPerPageWidth + 100 + 40;
     final needWrap = maxWidth < totalWidth;
 
-    return Container(
-      padding: EdgeInsets.all(8),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: colors.surfaceContainerLowest,
+    return TCard(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(12),
+      backgroundColor: colors.surfaceContainerLowest,
+      shadowColor: colors.shadow,
+      margin: EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      child: SizedBox(
+        width: double.infinity,
+        child: needWrap
+            ? Column(
+                spacing: 12,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 15,
+                    children: [
+                      _buildPaginationInfo(colors, 'Items per page'),
+                      _buildItemsPerPage(itemsPerPageWidth),
+                      _buildPaginationInfo(colors, listController.paginationInfo),
+                    ],
+                  ),
+                  _buildPaginationBar(listController.page, listController.totalPages),
+                ],
+              )
+            : Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                runSpacing: 12,
+                spacing: 12,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 15,
+                    children: [
+                      _buildPaginationInfo(colors, 'Items per page'),
+                      _buildItemsPerPage(itemsPerPageWidth),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 15,
+                    children: [
+                      _buildPaginationInfo(colors, listController.paginationInfo),
+                      _buildPaginationBar(listController.page, listController.totalPages),
+                    ],
+                  ),
+                ],
+              ),
       ),
-      child: needWrap
-          ? Column(
-              spacing: 12,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 15,
-                  children: [
-                    _buildPaginationInfo(colors, 'Items per page'),
-                    _buildItemsPerPage(itemsPerPageWidth),
-                    _buildPaginationInfo(colors, listController.paginationInfo),
-                  ],
-                ),
-                _buildPaginationBar(listController.page, listController.totalPages),
-              ],
-            )
-          : Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              runSpacing: 12,
-              spacing: 12,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 15,
-                  children: [
-                    _buildPaginationInfo(colors, 'Items per page'),
-                    _buildItemsPerPage(itemsPerPageWidth),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 15,
-                  children: [
-                    _buildPaginationInfo(colors, listController.paginationInfo),
-                    _buildPaginationBar(listController.page, listController.totalPages),
-                  ],
-                ),
-              ],
-            ),
     );
   }
 

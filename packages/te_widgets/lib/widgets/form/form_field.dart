@@ -478,7 +478,12 @@ class TFormField<T> {
     );
   }
 
-  static TFormField<T> group<T extends TFormBase>(TFieldProp<T> prop, {String? label, String? description}) {
+  static TFormField<T> group<T extends TFormBase>(
+    TFieldProp<T> prop, {
+    String? label,
+    String? description,
+    bool initiallyExpanded = false,
+  }) {
     return TFormField<T>(
       prop: prop,
       builder: (onValueChanged) => TFormBuilder(
@@ -488,6 +493,7 @@ class TFormField<T> {
         onValueChanged: () {
           onValueChanged(prop.value);
         },
+        initiallyExpanded: initiallyExpanded,
       ),
     );
   }

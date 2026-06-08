@@ -295,7 +295,7 @@ class _TLayoutState extends State<TLayout> with TickerProviderStateMixin {
                             margin: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: colors.surfaceDim,
+                              color: colors.surfaceContainer,
                             ),
                             child: Wrap(
                               alignment: WrapAlignment.center,

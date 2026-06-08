@@ -24,13 +24,7 @@ class PropertyDoc {
   /// A description of what this property does.
   final String description;
 
-  const PropertyDoc({
-    required this.name,
-    required this.type,
-    this.isRequired = false,
-    this.defaultValue,
-    required this.description,
-  });
+  const PropertyDoc({required this.name, required this.type, this.isRequired = false, this.defaultValue, required this.description});
 }
 
 /// A comprehensive documentation card for widgets with preview, code, and properties tabs.
@@ -131,177 +125,137 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
       borderRadius: BorderRadius.circular(16),
       margin: const EdgeInsets.only(bottom: 20),
       padding: EdgeInsets.zero,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: colors.outlineVariant.withAlpha(100)),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with Icon | Title,Subtitle | Tabs
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.primary.withAlpha(13), Colors.transparent],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with Icon | Title,Subtitle | Tabs
+          Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.primary.withAlpha(13), Colors.transparent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isSmallScreen = constraints.maxWidth < 600;
-
-                  final titleSection = Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.icon != null)
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withAlpha(26),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            widget.icon,
-                            color: AppColors.primary,
-                            size: 24,
-                          ),
-                        ),
-                      if (widget.icon != null) const SizedBox(width: 10),
-                      // Title and Subtitle
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              widget.title,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            if (widget.description != null) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                widget.description!,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: colors.onSurface.withAlpha(179),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-
-                  final tabsSection = Container(
-                    constraints: BoxConstraints(
-                      minWidth: isSmallScreen ? 100 : 125,
-                      maxWidth: 125,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colors.surface.withAlpha(128),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: ValueListenableBuilder(
-                      valueListenable: _tabController,
-                      builder: (ctx, value, _) {
-                        return TTabs(
-                          tabPadding: EdgeInsets.symmetric(vertical: 4, horizontal: isSmallScreen ? 6 : 8),
-                          selectedValue: value,
-                          inline: true,
-                          tabs: [
-                            TTab(value: 0, icon: Icons.remove_red_eye),
-                            TTab(value: 1, icon: Icons.code),
-                            if (widget.properties.isNotEmpty) TTab(value: 2, icon: Icons.list_alt),
-                          ],
-                          onTabChanged: (value) => _tabController.value = value,
-                        );
-                      },
-                    ),
-                  );
-
-                  return isSmallScreen
-                      ? SizedBox(
-                          width: double.infinity,
-                          child: Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            alignment: WrapAlignment.spaceBetween,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              titleSection,
-                              tabsSection,
-                            ],
-                          ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(child: titleSection),
-                            tabsSection,
-                          ],
-                        );
-                },
-              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isSmallScreen = constraints.maxWidth < 600;
 
-            // Tab Content with intrinsic height
-            ValueListenableBuilder(
-                valueListenable: _tabController,
-                builder: (context, value, _) {
-                  return TLazyIndexedStack(
-                    index: value,
-                    children: [
-                      // Preview Tab
-                      (_) => Padding(padding: EdgeInsetsGeometry.all(14), child: widget.preview),
+                final titleSection = Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.icon != null)
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: AppColors.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                        child: Icon(widget.icon, color: AppColors.primary, size: 24),
+                      ),
+                    if (widget.icon != null) const SizedBox(width: 10),
+                    // Title and Subtitle
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(widget.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                          if (widget.description != null) ...[
+                            const SizedBox(height: 2),
+                            Text(widget.description!, style: TextStyle(fontSize: 11, color: colors.onSurface.withAlpha(179))),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                );
 
-                      // Code Tab
-                      (_) => Padding(
-                            padding: EdgeInsetsGeometry.all(14),
-                            child: Stack(
-                              children: [
-                                SelectableText(
-                                  widget.code.trim(),
-                                  style: const TextStyle(
-                                    fontFamily: 'Courier',
-                                    fontSize: 13,
-                                    height: 1.5,
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: TButton(
-                                    size: TButtonSize.xs,
-                                    type: TButtonType.tonal,
-                                    icon: _codeCopied ? Icons.check : Icons.copy,
-                                    color: _codeCopied ? AppColors.success : AppColors.primary,
-                                    onTap: _copyCode,
-                                  ),
-                                ),
-                              ],
-                            ),
+                final tabsSection = Container(
+                  constraints: BoxConstraints(minWidth: isSmallScreen ? 100 : 125, maxWidth: 125),
+                  decoration: BoxDecoration(color: colors.surface.withAlpha(128), borderRadius: BorderRadius.circular(8)),
+                  child: ValueListenableBuilder(
+                    valueListenable: _tabController,
+                    builder: (ctx, value, _) {
+                      return TTabs(
+                        tabPadding: EdgeInsets.symmetric(vertical: 4, horizontal: isSmallScreen ? 6 : 8),
+                        selectedValue: value,
+                        inline: true,
+                        tabs: [
+                          TTab(value: 0, icon: Icons.remove_red_eye),
+                          TTab(value: 1, icon: Icons.code),
+                          if (widget.properties.isNotEmpty) TTab(value: 2, icon: Icons.list_alt),
+                        ],
+                        onTabChanged: (value) => _tabController.value = value,
+                      );
+                    },
+                  ),
+                );
+
+                return isSmallScreen
+                    ? SizedBox(
+                        width: double.infinity,
+                        child: Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [titleSection, tabsSection],
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(child: titleSection),
+                          tabsSection,
+                        ],
+                      );
+              },
+            ),
+          ),
+
+          // Tab Content with intrinsic height
+          ValueListenableBuilder(
+            valueListenable: _tabController,
+            builder: (context, value, _) {
+              return TLazyIndexedStack(
+                index: value,
+                children: [
+                  // Preview Tab
+                  (_) => Padding(padding: EdgeInsetsGeometry.all(14), child: widget.preview),
+
+                  // Code Tab
+                  (_) => Padding(
+                    padding: EdgeInsetsGeometry.all(14),
+                    child: Stack(
+                      children: [
+                        SelectableText(widget.code.trim(), style: const TextStyle(fontFamily: 'Courier', fontSize: 13, height: 1.5)),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: TButton(
+                            size: TButtonSize.xs,
+                            type: TButtonType.tonal,
+                            icon: _codeCopied ? Icons.check : Icons.copy,
+                            color: _codeCopied ? AppColors.success : AppColors.primary,
+                            onTap: _copyCode,
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-                      // Properties Tab
-                      if (widget.properties.isNotEmpty)
-                        (_) => Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: PropertyDocumentation(properties: widget.properties),
-                            ),
-                    ],
-                  );
-                }),
-          ],
-        ),
+                  // Properties Tab
+                  if (widget.properties.isNotEmpty)
+                    (_) => Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: PropertyDocumentation(properties: widget.properties),
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -324,10 +278,7 @@ class PropertyDocumentation extends StatelessWidget {
   /// The list of properties to document.
   final List<PropertyDoc> properties;
 
-  const PropertyDocumentation({
-    super.key,
-    required this.properties,
-  });
+  const PropertyDocumentation({super.key, required this.properties});
 
   @override
   Widget build(BuildContext context) {
@@ -338,11 +289,7 @@ class PropertyDocumentation extends StatelessWidget {
       children: [
         Text(
           'Properties',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: colors.onSurface,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: colors.onSurface),
         ),
         const SizedBox(height: 12),
         SingleChildScrollView(
@@ -352,23 +299,13 @@ class PropertyDocumentation extends StatelessWidget {
               minWidth: MediaQuery.of(context).size.width - 64, // Account for padding
             ),
             child: Table(
-              border: TableBorder.all(
-                color: colors.outline.withAlpha(51),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              columnWidths: const {
-                0: IntrinsicColumnWidth(),
-                1: IntrinsicColumnWidth(),
-                2: IntrinsicColumnWidth(),
-                3: FlexColumnWidth(1),
-              },
+              border: TableBorder.all(color: colors.outline.withAlpha(51), borderRadius: BorderRadius.circular(8)),
+              columnWidths: const {0: IntrinsicColumnWidth(), 1: IntrinsicColumnWidth(), 2: IntrinsicColumnWidth(), 3: FlexColumnWidth(1)},
               defaultColumnWidth: const IntrinsicColumnWidth(),
               children: [
                 // Header
                 TableRow(
-                  decoration: BoxDecoration(
-                    color: colors.surfaceContainerHighest.withAlpha(128),
-                  ),
+                  decoration: BoxDecoration(color: colors.surfaceContainerHighest.withAlpha(128)),
                   children: [
                     _buildHeaderCell('Name'),
                     _buildHeaderCell('Type'),
@@ -377,78 +314,50 @@ class PropertyDocumentation extends StatelessWidget {
                   ],
                 ),
                 // Rows
-                ...properties.map((prop) => TableRow(
-                      children: [
-                        _buildCell(
-                          context,
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                prop.name,
-                                style: const TextStyle(
-                                  fontFamily: 'Courier',
-                                  fontWeight: FontWeight.w500,
+                ...properties.map(
+                  (prop) => TableRow(
+                    children: [
+                      _buildCell(
+                        context,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              prop.name,
+                              style: const TextStyle(fontFamily: 'Courier', fontWeight: FontWeight.w500),
+                            ),
+                            if (prop.isRequired) ...[
+                              const SizedBox(width: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                                decoration: BoxDecoration(color: AppColors.danger.withAlpha(26), borderRadius: BorderRadius.circular(4)),
+                                child: Text(
+                                  'required',
+                                  style: TextStyle(fontSize: 10, color: AppColors.danger, fontWeight: FontWeight.w600),
                                 ),
                               ),
-                              if (prop.isRequired) ...[
-                                const SizedBox(width: 4),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.danger.withAlpha(26),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    'required',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: AppColors.danger,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ],
-                          ),
+                          ],
                         ),
-                        _buildCell(
-                          context,
-                          Text(
-                            prop.type,
-                            style: TextStyle(
-                              fontFamily: 'Courier',
-                              fontSize: 12,
-                              color: AppColors.info,
-                            ),
-                          ),
+                      ),
+                      _buildCell(
+                        context,
+                        Text(
+                          prop.type,
+                          style: TextStyle(fontFamily: 'Courier', fontSize: 12, color: AppColors.info),
                         ),
-                        _buildCell(
-                          context,
-                          Text(
-                            prop.defaultValue ?? '-',
-                            style: TextStyle(
-                              fontFamily: 'Courier',
-                              fontSize: 12,
-                              color: colors.onSurface.withAlpha(179),
-                            ),
-                          ),
+                      ),
+                      _buildCell(
+                        context,
+                        Text(
+                          prop.defaultValue ?? '-',
+                          style: TextStyle(fontFamily: 'Courier', fontSize: 12, color: colors.onSurface.withAlpha(179)),
                         ),
-                        _buildCell(
-                          context,
-                          Text(
-                            prop.description,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: colors.onSurface.withAlpha(204),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )),
+                      ),
+                      _buildCell(context, Text(prop.description, style: TextStyle(fontSize: 13, color: colors.onSurface.withAlpha(204)))),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -460,20 +369,11 @@ class PropertyDocumentation extends StatelessWidget {
   Widget _buildHeaderCell(String text) {
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-        ),
-      ),
+      child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
     );
   }
 
   Widget _buildCell(BuildContext context, Widget child) {
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: child,
-    );
+    return Padding(padding: const EdgeInsets.all(12), child: child);
   }
 }

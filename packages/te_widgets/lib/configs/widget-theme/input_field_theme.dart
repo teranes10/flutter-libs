@@ -5,7 +5,7 @@ enum TInputDecorationType { underline, filled, outline, none }
 
 enum TLabelPosition { aboveField, floating }
 
-typedef LabelBuilder = Widget Function(String? label, String? tag, bool isRequired);
+typedef LabelBuilder = Widget Function(String? label, String? tag, bool isRequired, Widget? infoIcon);
 typedef HelperTextBuilder = Widget Function(String? helperText);
 typedef ErrorsBuilder = Widget Function(List<String>? errors);
 
@@ -147,12 +147,12 @@ class TInputFieldTheme {
     final backgroundColor = WidgetStateProperty.resolveWith((states) {
       if (decorationType == TInputDecorationType.filled) {
         return states.contains(WidgetState.disabled)
-            ? colors.surfaceDim
+            ? colors.surface
             : states.contains(WidgetState.error)
                 ? colors.errorContainer
                 : colors.surfaceContainerLowest;
       }
-      return states.contains(WidgetState.disabled) ? colors.surfaceDim : colors.surface;
+      return states.contains(WidgetState.disabled) ? colors.surfaceContainerLowest : colors.surface;
     });
 
     final borderColor = WidgetStateProperty.resolveWith((states) {
@@ -235,6 +235,7 @@ class TInputFieldTheme {
     List<String>? errors,
     bool isRequired = false,
     VoidCallback? onClear,
+    Widget? infoIcon,
   }) {
     final inputBorder = buildInputBorder(states);
 
@@ -246,7 +247,7 @@ class TInputFieldTheme {
       focusedBorder: inputBorder,
       errorBorder: inputBorder,
       contentPadding: fieldPadding,
-      label: labelPosition == TLabelPosition.aboveField ? null : labelBuilder.resolve(states)(label, tag, isRequired),
+      label: labelPosition == TLabelPosition.aboveField ? null : labelBuilder.resolve(states)(label, tag, isRequired, null),
       labelStyle: labelStyle.resolve(states),
       floatingLabelStyle: labelStyle.resolve(states),
       floatingLabelBehavior: switch (labelPosition) {
@@ -259,7 +260,8 @@ class TInputFieldTheme {
       hintText: placeholder,
       hintStyle: hintStyle.resolve(states),
       prefixIcon: _buildPreWidget(beforePreWidget),
-      suffixIcon: _buildPostWidget(beforePostWidget: beforePostWidget, onClear: onClear),
+      suffixIcon: _buildPostWidget(
+          beforePostWidget: beforePostWidget, onClear: onClear, infoIcon: labelPosition == TLabelPosition.floating ? infoIcon : null),
       filled: decorationType == TInputDecorationType.filled,
       fillColor: backgroundColor.resolve(states),
     );
@@ -279,21 +281,34 @@ class TInputFieldTheme {
     }
   }
 
-  Widget? _buildPostWidget({Widget? beforePostWidget, VoidCallback? onClear}) {
+  Widget buildInfoIcon(String info, ColorScheme colors) {
+    return TTooltip(
+      message: info,
+      color: colors.onSurfaceVariant,
+      triggerMode: TTooltipTriggerMode.both,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 4),
+        child: Icon(
+          Icons.info_outline,
+          size: 16,
+          color: colors.onSurfaceVariant.withAlpha(200),
+        ),
+      ),
+    );
+  }
+
+  Widget? _buildPostWidget({Widget? beforePostWidget, VoidCallback? onClear, Widget? infoIcon}) {
     final children = [
       if (onClear != null) _buildPaddedWidget(TIcon.close(onTap: onClear, size: fieldFontSize + 3), isPrefix: false),
       if (beforePostWidget != null) _buildPaddedWidget(beforePostWidget, isPrefix: false),
+      if (infoIcon != null) _buildPaddedWidget(infoIcon, isPrefix: false),
       if (postWidget != null) _buildPaddedWidget(postWidget!, isPrefix: false)
     ];
 
     if (children.isEmpty) return SizedBox.shrink();
     if (children.length == 1) return children[0];
 
-    return Row(mainAxisSize: MainAxisSize.min, children: [
-      if (onClear != null) _buildPaddedWidget(TIcon.close(onTap: onClear, size: fieldFontSize + 3), isPrefix: false),
-      if (beforePostWidget != null) _buildPaddedWidget(beforePostWidget, isPrefix: false),
-      if (postWidget != null) _buildPaddedWidget(postWidget!, isPrefix: false)
-    ]);
+    return Row(mainAxisSize: MainAxisSize.min, children: children);
   }
 
   Widget _buildPaddedWidget(Widget widget, {required bool isPrefix}) {
@@ -315,7 +330,7 @@ class TInputFieldTheme {
     WidgetStateProperty<Color> backgroundColor,
   ) {
     return WidgetStateProperty.resolveWith((states) {
-      return (label, tag, isRequired) {
+      return (label, tag, isRequired, infoIcon) {
         final children = [
           if (label != null)
             RichText(
@@ -325,7 +340,8 @@ class TInputFieldTheme {
                 children: isRequired ? [TextSpan(text: ' *', style: TextStyle(color: errorTextStyle.resolve(states).color))] : null,
               ),
             ),
-          if (tag != null) Text(tag, style: tagStyle.resolve(states))
+          if (tag != null) Text(tag, style: tagStyle.resolve(states)),
+          if (infoIcon != null) infoIcon,
         ];
 
         if (children.isEmpty) return SizedBox.shrink();
@@ -333,6 +349,7 @@ class TInputFieldTheme {
 
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
           children: children,
         );
       };

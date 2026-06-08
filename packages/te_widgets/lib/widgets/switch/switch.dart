@@ -186,7 +186,7 @@ class _TSwitchState<T> extends State<TSwitch>
                       activeThumbColor: Colors.white,
                       inactiveThumbColor: Colors.white,
                       activeTrackColor: wTheme.container,
-                      inactiveTrackColor: colors.surfaceDim,
+                      inactiveTrackColor: colors.surfaceContainerHighest,
                       trackOutlineWidth: WidgetStateProperty.all(0.1),
                       trackOutlineColor: WidgetStateProperty.all(colors.outlineVariant),
                     ),

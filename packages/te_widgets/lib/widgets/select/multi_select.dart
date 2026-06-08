@@ -51,7 +51,7 @@ class TMultiSelect<T, V, K> extends StatefulWidget
         TPopupMixin,
         TListMixin<T, K> {
   @override
-  final String? label, tag, helperText, placeholder;
+  final String? label, tag, helperText, placeholder, info;
   @override
   final bool isRequired, disabled, autoFocus, readOnly;
   @override
@@ -124,6 +124,7 @@ class TMultiSelect<T, V, K> extends StatefulWidget
     this.tag,
     this.helperText,
     this.placeholder,
+    this.info,
     this.isRequired = false,
     this.disabled = false,
     this.autoFocus = false,

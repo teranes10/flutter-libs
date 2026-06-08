@@ -33,7 +33,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// - [TCheckboxGroup] for multiple selection
 class TRadioGroup<T> extends StatefulWidget with TInputFieldMixin, TInputValueMixin<T?>, TFocusMixin, TInputValidationMixin<T?> {
   @override
-  final String? label, tag, helperText;
+  final String? label, tag, helperText, info;
   @override
   final bool isRequired, disabled;
   @override
@@ -79,6 +79,7 @@ class TRadioGroup<T> extends StatefulWidget with TInputFieldMixin, TInputValueMi
     this.label,
     this.tag,
     this.helperText,
+    this.info,
     this.isRequired = false,
     this.disabled = false,
     this.clearable = false,
@@ -286,10 +287,13 @@ class _TRadioGroupState<T> extends State<TRadioGroup<T>>
     }
 
     return widget.vertical
-        ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: widget.runSpacing,
-            children: items,
+        ? Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: widget.runSpacing,
+              children: items,
+            ),
           )
         : Wrap(
             spacing: widget.spacing,

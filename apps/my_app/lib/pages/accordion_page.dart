@@ -29,16 +29,16 @@ class AccordionPage extends StatelessWidget {
             icon: Icons.view_headline,
             preview: const Column(
               children: [
-                TAccordion(title: Text('Accordion Item 1'), content: Text('This is the content for the first item.')),
-                TAccordion(title: Text('Accordion Item 2'), content: Text('This is the content for the second item.')),
+                TAccordion(title: 'Accordion Item 1', content: Text('This is the content for the first item.')),
+                TAccordion(title: 'Accordion Item 2', content: Text('This is the content for the second item.')),
               ],
             ),
             code: '''TAccordion(
-  title: Text('Accordion Item 1'),
+  title: 'Accordion Item 1',
   content: Text('Content here'),
 )''',
             properties: const [
-              PropertyDoc(name: 'title', type: 'Widget', description: 'The title/header widget'),
+              PropertyDoc(name: 'title', type: 'String', description: 'The title text'),
               PropertyDoc(name: 'content', type: 'Widget', description: 'The content displayed when expanded'),
               PropertyDoc(
                 name: 'initiallyExpanded',
@@ -46,6 +46,41 @@ class AccordionPage extends StatelessWidget {
                 defaultValue: 'false',
                 description: 'Whether the accordion starts expanded',
               ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          WidgetDocCard(
+            title: 'Improved Accordion',
+            description: 'Accordion with icon, title and subtitle.',
+            icon: Icons.info_outline,
+            preview: const Column(
+              children: [
+                TAccordion(
+                  leading: Icons.settings,
+                  title: 'Settings',
+                  subtitle: 'Manage your application preferences',
+                  content: Text('Here you can change your language, theme, and notifications settings.'),
+                ),
+                SizedBox(height: 12),
+                TAccordion(
+                  leading: Icons.security,
+                  title: 'Security',
+                  subtitle: 'Privacy and account protection',
+                  content: Text('Manage your passwords, two-factor authentication, and active sessions.'),
+                ),
+              ],
+            ),
+            code: '''TAccordion(
+  leading: Icons.settings,
+  title: 'Settings',
+  subtitle: 'Manage your application preferences',
+  content: Text('Content here'),
+)''',
+            properties: const [
+              PropertyDoc(name: 'leading', type: 'IconData?', description: 'Optional icon before the title'),
+              PropertyDoc(name: 'subtitle', type: 'String?', description: 'Optional subtitle text below the title'),
             ],
           ),
         ],

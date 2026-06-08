@@ -305,7 +305,7 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   }
 
   void _onPointerEnter(PointerEnterEvent event) {
-    if (widget.triggerMode == TTooltipTriggerMode.hover) {
+    if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
       _isHovering = true;
       Future.delayed(widget.showDelay, () {
         if (_isHovering && mounted) _showTooltip();
@@ -314,7 +314,7 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   }
 
   void _onPointerExit(PointerExitEvent event) {
-    if (widget.triggerMode == TTooltipTriggerMode.hover) {
+    if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
       _isHovering = false;
       Future.delayed(widget.hideDelay, () {
         if (!_isHovering && mounted) _hideTooltip();
@@ -323,13 +323,13 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   }
 
   void _onTooltipPointerEnter(PointerEnterEvent event) {
-    if (widget.triggerMode == TTooltipTriggerMode.hover) {
+    if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
       _isHovering = true;
     }
   }
 
   void _onTooltipPointerExit(PointerExitEvent event) {
-    if (widget.triggerMode == TTooltipTriggerMode.hover) {
+    if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
       _isHovering = false;
       Future.delayed(widget.hideDelay, () {
         if (!_isHovering && mounted) _hideTooltip();
@@ -338,7 +338,7 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   }
 
   void _onTap() {
-    if (widget.triggerMode != TTooltipTriggerMode.tap) return;
+    if (widget.triggerMode != TTooltipTriggerMode.tap && widget.triggerMode != TTooltipTriggerMode.both) return;
 
     _isVisible ? _hideTooltip() : _showTooltip();
 

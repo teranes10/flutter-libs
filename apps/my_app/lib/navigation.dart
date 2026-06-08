@@ -18,6 +18,7 @@ import 'package:my_app/pages/popups_page.dart';
 import 'package:my_app/pages/select_fields_page.dart';
 import 'package:my_app/pages/tables_page.dart';
 import 'package:my_app/pages/cursor_pagination_page.dart';
+import 'package:my_app/pages/stepper_page.dart';
 import 'package:my_app/pages/tabs_page.dart';
 
 final sidebarItems = [
@@ -37,6 +38,7 @@ final sidebarItems = [
     hidden: true,
   ),
   TSidebarItem(icon: Icons.tab, text: 'Tabs', route: '/tabs', page: const TabsPage()),
+  TSidebarItem(icon: Icons.linear_scale, text: 'Stepper', route: '/stepper', page: const StepperPage()),
   TSidebarItem(icon: Icons.message, text: 'Popups', route: '/popups', page: const PopupsPage()),
   TSidebarItem(icon: Icons.table_chart, text: 'Tables', route: '/tables', page: const TablesPage()),
   TSidebarItem(icon: Icons.navigate_next, text: 'Cursor Pagination', route: '/cursor-pagination', page: const CursorPaginationPage()),

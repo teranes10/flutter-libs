@@ -47,11 +47,15 @@ class TFormBuilder extends StatelessWidget {
   /// Callback fired when any field value changes.
   final VoidCallback? onValueChanged;
 
+  final IconData? icon;
+
   /// Optional title for the form.
   final String? label;
 
   /// Optional sub title for the form.
   final String? description;
+
+  final bool initiallyExpanded;
 
   /// Creates a form builder.
   const TFormBuilder({
@@ -60,15 +64,15 @@ class TFormBuilder extends StatelessWidget {
     this.fields,
     this.gutter = 26.0,
     this.onValueChanged,
+    this.icon,
     this.label,
     this.description,
+    this.initiallyExpanded = false,
   }) : assert((input == null) != (fields == null), 'Provide either "input" or "fields", not both.');
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = context.colors;
-
-    return LayoutBuilder(builder: (context, constraints) {
+    final formContent = LayoutBuilder(builder: (context, constraints) {
       final breakpoint = TBreakpoint.getBreakpoint(constraints.maxWidth);
       final totalWidth = constraints.maxWidth;
       final unitWidth = (totalWidth - (gutter * 11)) / 12;
@@ -77,24 +81,6 @@ class TFormBuilder extends StatelessWidget {
         spacing: gutter,
         runSpacing: gutter,
         children: [
-          if (label != null || description != null)
-            SizedBox(
-              width: (unitWidth * 12) + (11 * gutter),
-              child: Padding(
-                padding: EdgeInsets.only(bottom: 5),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 3,
-                  children: [
-                    if (label != null)
-                      Text(label!, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 18, color: colorScheme.onSurface)),
-                    if (description != null)
-                      Text(description!, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12, color: colorScheme.onSurfaceVariant))
-                  ],
-                ),
-              ),
-            ),
           ...(input?.fields ?? fields ?? []).map((field) {
             final span = field._size.getSpan(breakpoint);
             final width = (unitWidth * span) + ((span - 1) * gutter);
@@ -110,10 +96,20 @@ class TFormBuilder extends StatelessWidget {
               child: field._field,
             );
 
-            return isForm ? Padding(padding: EdgeInsets.only(top: 20), child: widget) : widget;
+            return isForm ? Padding(padding: const EdgeInsets.only(top: 20), child: widget) : widget;
           })
         ],
       );
     });
+
+    if (label == null) return formContent;
+
+    return TAccordion(
+      title: label!,
+      subtitle: description,
+      leading: icon,
+      initiallyExpanded: initiallyExpanded,
+      content: formContent,
+    );
   }
 }

@@ -62,7 +62,7 @@ class TListCardTheme {
     return TListCardTheme(
       backgroundColor: colors.surface,
       selectedBackgroundColor: colors.primaryContainer,
-      disabledBackgroundColor: colors.surfaceDim,
+      disabledBackgroundColor: colors.surfaceContainerHighest,
       expansionIndicatorBuilder: defaultExpansionIndicatorBuilder(colors),
       selectionIndicatorBuilder: defaultSelectionIndicatorBuilder(colors),
       contentBuilder: defaultContentBuilder(colors),
@@ -150,7 +150,7 @@ class TListCardTheme {
             TImage(
               url: imageUrl,
               size: 45,
-              color: colors.surfaceDim,
+              color: colors.surfaceContainerHighest,
               disabled: true,
               border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),

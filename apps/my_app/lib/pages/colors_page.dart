@@ -18,42 +18,14 @@ class _ColorsPageState extends State<ColorsPage> {
         children: [
           Column(
             children: [
-              Container(
-                width: 200,
-                height: 50,
-                color: context.colors.surfaceDim,
-                child: Center(child: Text('surfaceDim')),
-              ),
-              Container(
-                width: 200,
-                height: 50,
-                color: context.colors.surfaceContainerLowest,
-                child: Center(child: Text('surfaceContainerLowest')),
-              ),
-              Container(
-                width: 200,
-                height: 50,
-                color: context.colors.surfaceContainerLow,
-                child: Center(child: Text('surfaceContainerLow')),
-              ),
-              Container(
-                width: 200,
-                height: 50,
-                color: context.colors.surfaceContainer,
-                child: Center(child: Text('surfaceContainer')),
-              ),
-              Container(
-                width: 200,
-                height: 50,
-                color: context.colors.surfaceContainerHigh,
-                child: Center(child: Text('surfaceContainerHigh')),
-              ),
-              Container(
-                width: 200,
-                height: 50,
-                color: context.colors.surfaceContainerHighest,
-                child: Center(child: Text('surfaceContainerHighest')),
-              ),
+              buildColor(context.colors.shadow, label: 'shadow'),
+              buildColor(context.colors.scrim, label: 'scrim'),
+              buildColor(context.colors.surfaceDim, label: 'surfaceDim'),
+              buildColor(context.colors.surfaceContainerLowest, label: 'surfaceContainerLowest'),
+              buildColor(context.colors.surfaceContainerLow, label: 'surfaceContainerLow'),
+              buildColor(context.colors.surfaceContainer, label: 'surfaceContainer'),
+              buildColor(context.colors.surfaceContainerHigh, label: 'surfaceContainerHigh'),
+              buildColor(context.colors.surfaceContainerHighest, label: 'surfaceContainerHighest'),
             ],
           ),
 
@@ -85,6 +57,15 @@ class _ColorsPageState extends State<ColorsPage> {
                 : SizedBox.shrink(),
           )
           .toList(),
+    );
+  }
+
+  Widget buildColor(Color color, {required String label, double width = 200, double height = 50}) {
+    return Container(
+      width: width,
+      height: height,
+      color: color,
+      child: Center(child: Text(label)),
     );
   }
 }

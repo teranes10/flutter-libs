@@ -48,7 +48,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TFilePicker extends StatefulWidget
     with TInputFieldMixin, TInputValueMixin<List<TFile>>, TFocusMixin, TInputValidationMixin<List<TFile>> {
   @override
-  final String? label, tag, helperText;
+  final String? label, tag, helperText, info;
   @override
   final bool isRequired, disabled;
   @override
@@ -91,6 +91,7 @@ class TFilePicker extends StatefulWidget
     this.label,
     this.tag,
     this.helperText,
+    this.info,
     this.isRequired = false,
     this.disabled = false,
     this.clearable = false,

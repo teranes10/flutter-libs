@@ -52,6 +52,9 @@ class TListView<T, K> extends StatelessWidget {
   /// Builder for empty state.
   final TListEmptyBuilder? emptyStateBuilder;
 
+  /// Builder for content before the list items.
+  final WidgetBuilder? beforeItemsBuilder;
+
   /// Builder for individual list items.
   final ListItemBuilder<T, K> itemBuilder;
 
@@ -99,6 +102,7 @@ class TListView<T, K> extends StatelessWidget {
     this.infiniteScroll = false,
     this.infiniteScrollFooterBuilder,
     this.errorStateBuilder,
+    this.beforeItemsBuilder,
     this.emptyStateBuilder,
     required this.itemBuilder,
     this.listSeparatorBuilder,
@@ -150,7 +154,21 @@ class TListView<T, K> extends StatelessWidget {
           child: Container(key: const ValueKey('list_header'), child: headerBuilder!(context)),
         ),
       // Main content with padding
-      SliverPadding(padding: padding ?? EdgeInsets.zero, sliver: buildContentSliver(context)),
+      SliverPadding(
+        padding: padding ?? EdgeInsets.zero,
+        sliver: SliverMainAxisGroup(
+          slivers: [
+            if (beforeItemsBuilder != null)
+              SliverToBoxAdapter(
+                child: Container(
+                  key: const ValueKey('list_before_items'),
+                  child: beforeItemsBuilder!(context),
+                ),
+              ),
+            buildContentSliver(context),
+          ],
+        ),
+      ),
       // Infinite scroll indicator
       if (infiniteScroll && infiniteScrollFooterBuilder != null)
         SliverToBoxAdapter(

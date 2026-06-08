@@ -70,10 +70,8 @@ class TCard extends StatelessWidget {
   /// If null, the card will not be interactive.
   final VoidCallback? onTap;
 
-  /// Custom box shadows for the card.
-  ///
-  /// If null, uses a default shadow based on the theme.
-  final List<BoxShadow>? boxShadow;
+  final Color? shadowColor;
+  final Color? borderColor;
 
   /// Creates a Material Design card widget.
   const TCard({
@@ -85,7 +83,8 @@ class TCard extends StatelessWidget {
     this.backgroundColor,
     this.padding = const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
     this.onTap,
-    this.boxShadow,
+    this.shadowColor,
+    this.borderColor,
   });
 
   @override
@@ -97,22 +96,17 @@ class TCard extends StatelessWidget {
       width: double.infinity,
       margin: margin ?? const EdgeInsets.only(bottom: 8),
       child: Material(
-        elevation: elevation ?? 1,
-        borderRadius: defaultBorderRadius,
+        elevation: elevation ?? 0,
         color: backgroundColor ?? colors.surface,
+        shadowColor: shadowColor ?? colors.shadow,
+        shape: RoundedRectangleBorder(
+          borderRadius: defaultBorderRadius,
+          side: BorderSide(color: borderColor ?? colors.outlineVariant.withAlpha(75)),
+        ),
         child: InkWell(
           borderRadius: defaultBorderRadius,
           onTap: onTap,
-          child: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: backgroundColor ?? colors.surface,
-              boxShadow: boxShadow ?? [BoxShadow(color: colors.shadow, offset: const Offset(1, 1), blurRadius: 0, spreadRadius: 0)],
-              borderRadius: defaultBorderRadius,
-            ),
-            padding: padding,
-            child: child,
-          ),
+          child: Padding(padding: padding, child: child),
         ),
       ),
     );

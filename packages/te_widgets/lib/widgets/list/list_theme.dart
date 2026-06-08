@@ -158,7 +158,6 @@ class TListTheme {
               child: Material(
                 elevation: elevation,
                 color: Colors.transparent,
-                shadowColor: context.colors.shadow,
                 borderRadius: BorderRadius.circular(8),
                 child: child,
               ),

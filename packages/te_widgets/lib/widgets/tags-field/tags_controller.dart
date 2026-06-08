@@ -89,6 +89,8 @@ class TTagsController extends TextEditingController {
 
   @override
   set value(TextEditingValue newValue) {
+    if (value == newValue) return;
+
     if (newValue is TagsEditingValue) {
       _value = newValue;
     } else {

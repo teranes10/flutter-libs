@@ -28,6 +28,12 @@ class _PickersPageState extends State<PickersPage> {
   final _checkInNotifier = ValueNotifier<DateTime?>(null);
   final _checkOutNotifier = ValueNotifier<DateTime?>(null);
 
+  // New Pickers notifiers
+  final _sliderNotifier = ValueNotifier<double?>(20.0);
+  final _rangeSliderNotifier = ValueNotifier<RangeValues?>(const RangeValues(20, 80));
+  final _ratingNotifier = ValueNotifier<double?>(3.5);
+  final _colorPickerNotifier = ValueNotifier<Color?>(Colors.blue);
+
   @override
   void dispose() {
     _birthDateNotifier.dispose();
@@ -38,6 +44,10 @@ class _PickersPageState extends State<PickersPage> {
     _deliveryTimeNotifier.dispose();
     _checkInNotifier.dispose();
     _checkOutNotifier.dispose();
+    _sliderNotifier.dispose();
+    _rangeSliderNotifier.dispose();
+    _ratingNotifier.dispose();
+    _colorPickerNotifier.dispose();
     super.dispose();
   }
 
@@ -51,19 +61,12 @@ class _PickersPageState extends State<PickersPage> {
           // Page Header
           Text(
             'Picker Components',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: context.colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: context.colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'Date, time, and datetime pickers with calendar and clock interfaces.',
-            style: TextStyle(
-              fontSize: 13,
-              color: context.colors.onSurface.withAlpha(179),
-            ),
+            style: TextStyle(fontSize: 13, color: context.colors.onSurface.withAlpha(179)),
           ),
           const SizedBox(height: 32),
 
@@ -74,11 +77,7 @@ class _PickersPageState extends State<PickersPage> {
             title: 'Date Picker',
             description: 'Calendar-based date selection with formatted display',
             icon: Icons.calendar_today,
-            preview: TDatePicker(
-              label: 'Birth Date',
-              placeholder: 'Select your birth date',
-              valueNotifier: _birthDateNotifier,
-            ),
+            preview: TDatePicker(label: 'Birth Date', placeholder: 'Select your birth date', valueNotifier: _birthDateNotifier),
             code: '''TDatePicker(
   label: 'Birth Date',
   placeholder: 'Select your birth date',
@@ -87,27 +86,15 @@ class _PickersPageState extends State<PickersPage> {
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'label',
-                type: 'String?',
-                description: 'Label text displayed above the field',
-              ),
-              PropertyDoc(
-                name: 'placeholder',
-                type: 'String?',
-                description: 'Placeholder text when no date is selected',
-              ),
+              PropertyDoc(name: 'label', type: 'String?', description: 'Label text displayed above the field'),
+              PropertyDoc(name: 'placeholder', type: 'String?', description: 'Placeholder text when no date is selected'),
               PropertyDoc(
                 name: 'format',
                 type: 'DateFormat?',
                 defaultValue: "DateFormat('MMM dd, yyyy')",
                 description: 'Custom date format for display',
               ),
-              PropertyDoc(
-                name: 'onValueChanged',
-                type: 'ValueChanged<DateTime?>?',
-                description: 'Callback fired when date changes',
-              ),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<DateTime?>?', description: 'Callback fired when date changes'),
             ],
           ),
 
@@ -135,22 +122,9 @@ class _PickersPageState extends State<PickersPage> {
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'firstDate',
-                type: 'DateTime?',
-                description: 'The earliest selectable date',
-              ),
-              PropertyDoc(
-                name: 'lastDate',
-                type: 'DateTime?',
-                description: 'The latest selectable date',
-              ),
-              PropertyDoc(
-                name: 'isRequired',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Shows required indicator (*)',
-              ),
+              PropertyDoc(name: 'firstDate', type: 'DateTime?', description: 'The earliest selectable date'),
+              PropertyDoc(name: 'lastDate', type: 'DateTime?', description: 'The latest selectable date'),
+              PropertyDoc(name: 'isRequired', type: 'bool', defaultValue: 'false', description: 'Shows required indicator (*)'),
             ],
           ),
 
@@ -178,13 +152,7 @@ TDatePicker(
 // DateFormat('yyyy-MM-dd')        // "2024-12-31"
 // DateFormat('EEEE, MMMM d, y')   // "Tuesday, December 31, 2024"
 // DateFormat('MMM d, yyyy')       // "Dec 31, 2024" (default)''',
-            properties: const [
-              PropertyDoc(
-                name: 'format',
-                type: 'DateFormat?',
-                description: 'Custom DateFormat from intl package',
-              ),
-            ],
+            properties: const [PropertyDoc(name: 'format', type: 'DateFormat?', description: 'Custom DateFormat from intl package')],
           ),
 
           // Date Picker with Validation
@@ -228,11 +196,7 @@ TDatePicker(
                 type: 'List<String? Function(DateTime?)>?',
                 description: 'Validation rules. Each returns error message or null',
               ),
-              PropertyDoc(
-                name: 'validationDebounce',
-                type: 'Duration?',
-                description: 'Delay validation after user interaction',
-              ),
+              PropertyDoc(name: 'validationDebounce', type: 'Duration?', description: 'Delay validation after user interaction'),
             ],
           ),
 
@@ -243,11 +207,7 @@ TDatePicker(
             title: 'Time Picker',
             description: 'Clock-style time selection with formatted display',
             icon: Icons.access_time,
-            preview: TTimePicker(
-              label: 'Meeting Time',
-              placeholder: 'Select meeting time',
-              valueNotifier: _meetingTimeNotifier,
-            ),
+            preview: TTimePicker(label: 'Meeting Time', placeholder: 'Select meeting time', valueNotifier: _meetingTimeNotifier),
             code: '''TTimePicker(
   label: 'Meeting Time',
   placeholder: 'Select meeting time',
@@ -256,27 +216,15 @@ TDatePicker(
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'label',
-                type: 'String?',
-                description: 'Label text displayed above the field',
-              ),
-              PropertyDoc(
-                name: 'placeholder',
-                type: 'String?',
-                description: 'Placeholder text when no time is selected',
-              ),
+              PropertyDoc(name: 'label', type: 'String?', description: 'Label text displayed above the field'),
+              PropertyDoc(name: 'placeholder', type: 'String?', description: 'Placeholder text when no time is selected'),
               PropertyDoc(
                 name: 'format',
                 type: 'DateFormat?',
                 defaultValue: "DateFormat('hh:mm a')",
                 description: 'Custom time format for display',
               ),
-              PropertyDoc(
-                name: 'onValueChanged',
-                type: 'ValueChanged<TimeOfDay?>?',
-                description: 'Callback fired when time changes',
-              ),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<TimeOfDay?>?', description: 'Callback fired when time changes'),
             ],
           ),
 
@@ -300,13 +248,7 @@ TTimePicker(
 )
 
 // Default format: DateFormat('hh:mm a') // 12-hour (e.g., "02:30 PM")''',
-            properties: const [
-              PropertyDoc(
-                name: 'format',
-                type: 'DateFormat?',
-                description: 'Custom DateFormat for time display',
-              ),
-            ],
+            properties: const [PropertyDoc(name: 'format', type: 'DateFormat?', description: 'Custom DateFormat for time display')],
           ),
 
           // Time Picker with Initial Value
@@ -314,27 +256,15 @@ TTimePicker(
             title: 'Time Picker with Initial Value',
             description: 'Set a default time value',
             icon: Icons.alarm,
-            preview: TTimePicker(
-              label: 'Alarm Time',
-              placeholder: 'Set alarm',
-              valueNotifier: _alarmTimeNotifier,
-            ),
+            preview: TTimePicker(label: 'Alarm Time', placeholder: 'Set alarm', valueNotifier: _alarmTimeNotifier),
             code: '''TTimePicker(
   label: 'Alarm Time',
   value: TimeOfDay(hour: 7, minute: 0), // 7:00 AM
   onValueChanged: (time) => print(time),
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'value',
-                type: 'TimeOfDay?',
-                description: 'Initial time value',
-              ),
-              PropertyDoc(
-                name: 'valueNotifier',
-                type: 'ValueNotifier<TimeOfDay?>?',
-                description: 'Two-way binding with ValueNotifier',
-              ),
+              PropertyDoc(name: 'value', type: 'TimeOfDay?', description: 'Initial time value'),
+              PropertyDoc(name: 'valueNotifier', type: 'ValueNotifier<TimeOfDay?>?', description: 'Two-way binding with ValueNotifier'),
             ],
           ),
 
@@ -374,11 +304,7 @@ TTimePicker(
   ],
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'rules',
-                type: 'List<String? Function(TimeOfDay?)>?',
-                description: 'Validation rules for time selection',
-              ),
+              PropertyDoc(name: 'rules', type: 'List<String? Function(TimeOfDay?)>?', description: 'Validation rules for time selection'),
             ],
           ),
 
@@ -389,11 +315,7 @@ TTimePicker(
             title: 'DateTime Picker',
             description: 'Combined date and time selection with tabbed interface',
             icon: Icons.event_available,
-            preview: TDateTimePicker(
-              label: 'Event Start',
-              placeholder: 'Select date and time',
-              valueNotifier: _eventStartNotifier,
-            ),
+            preview: TDateTimePicker(label: 'Event Start', placeholder: 'Select date and time', valueNotifier: _eventStartNotifier),
             code: '''TDateTimePicker(
   label: 'Event Start',
   placeholder: 'Select date and time',
@@ -402,27 +324,15 @@ TTimePicker(
   },
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'label',
-                type: 'String?',
-                description: 'Label text displayed above the field',
-              ),
-              PropertyDoc(
-                name: 'placeholder',
-                type: 'String?',
-                description: 'Placeholder text when no datetime is selected',
-              ),
+              PropertyDoc(name: 'label', type: 'String?', description: 'Label text displayed above the field'),
+              PropertyDoc(name: 'placeholder', type: 'String?', description: 'Placeholder text when no datetime is selected'),
               PropertyDoc(
                 name: 'format',
                 type: 'DateFormat?',
                 defaultValue: "DateFormat('MMM dd, yyyy hh:mm a')",
                 description: 'Custom datetime format for display',
               ),
-              PropertyDoc(
-                name: 'onValueChanged',
-                type: 'ValueChanged<DateTime?>?',
-                description: 'Callback fired when datetime changes',
-              ),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<DateTime?>?', description: 'Callback fired when datetime changes'),
             ],
           ),
 
@@ -456,21 +366,9 @@ TDateTimePicker(
 // DateFormat('yyyy-MM-dd HH:mm:ss')      // "2024-12-31 14:30:00"
 // DateFormat('EEEE, MMM d @ h:mm a')     // "Tuesday, Dec 31 @ 2:30 PM"''',
             properties: const [
-              PropertyDoc(
-                name: 'format',
-                type: 'DateFormat?',
-                description: 'Custom DateFormat for datetime display',
-              ),
-              PropertyDoc(
-                name: 'firstDate',
-                type: 'DateTime?',
-                description: 'The earliest selectable date',
-              ),
-              PropertyDoc(
-                name: 'lastDate',
-                type: 'DateTime?',
-                description: 'The latest selectable date',
-              ),
+              PropertyDoc(name: 'format', type: 'DateFormat?', description: 'Custom DateFormat for datetime display'),
+              PropertyDoc(name: 'firstDate', type: 'DateTime?', description: 'The earliest selectable date'),
+              PropertyDoc(name: 'lastDate', type: 'DateTime?', description: 'The latest selectable date'),
             ],
           ),
 
@@ -578,21 +476,14 @@ TDateTimePicker(
                           final nights = checkOut.difference(checkIn).inDays;
                           return Container(
                             padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withAlpha(26),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            decoration: BoxDecoration(color: AppColors.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               children: [
                                 Icon(Icons.info_outline, size: 16, color: AppColors.primary),
                                 SizedBox(width: 8),
                                 Text(
                                   'Total: $nights night${nights != 1 ? 's' : ''}',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  style: TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w500),
                                 ),
                               ],
                             ),
@@ -632,17 +523,8 @@ Column(
   ],
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'disabled',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether the picker is disabled',
-              ),
-              PropertyDoc(
-                name: 'valueNotifier',
-                type: 'ValueNotifier<T?>?',
-                description: 'Two-way binding for reactive state management',
-              ),
+              PropertyDoc(name: 'disabled', type: 'bool', defaultValue: 'false', description: 'Whether the picker is disabled'),
+              PropertyDoc(name: 'valueNotifier', type: 'ValueNotifier<T?>?', description: 'Two-way binding for reactive state management'),
             ],
           ),
 
@@ -701,6 +583,156 @@ TDateTimePicker(
                 description: 'Whether to show a clear button when picker has a value',
               ),
             ],
+          ),
+
+          const SizedBox(height: 32),
+
+          // ==================== SLIDER & RATING ====================
+          Text(
+            'Selection & Rating',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: context.colors.onSurface),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Sliders for ranges and star ratings for feedback.',
+            style: TextStyle(fontSize: 13, color: context.colors.onSurface.withAlpha(179)),
+          ),
+          const SizedBox(height: 32),
+
+          // Slider
+          ValueListenableBuilder<double?>(
+            valueListenable: _sliderNotifier,
+            builder: (context, value, _) {
+              return WidgetDocCard(
+                title: 'Slider (Value: ${value?.toStringAsFixed(0)})',
+                description: 'Select a single value from a range.',
+                icon: Icons.linear_scale,
+                preview: Column(
+                  children: [
+                    TSlider(
+                      label: 'Volume (Stepped)',
+                      valueNotifier: _sliderNotifier,
+                      min: 0,
+                      max: 100,
+                      divisions: 10,
+                      labelFormatter: '{value}%',
+                    ),
+                    const SizedBox(height: 16),
+                    TSlider(label: 'Opacity (Free Move)', valueNotifier: _sliderNotifier, min: 0, max: 100),
+                  ],
+                ),
+                code: '''// Stepped Slider
+TSlider(
+  label: 'Volume',
+  divisions: 10,
+  labelFormatter: '{value}%',
+)
+
+// Free Move (Continuous) Slider
+TSlider(
+  label: 'Opacity',
+  min: 0,
+  max: 1.0,
+  precision: 2, // 0.00 format
+)''',
+                properties: const [
+                  PropertyDoc(name: 'min', type: 'double', defaultValue: '0', description: 'Minimum value'),
+                  PropertyDoc(name: 'max', type: 'double', defaultValue: '100', description: 'Maximum value'),
+                  PropertyDoc(name: 'divisions', type: 'int?', description: 'Number of discrete divisions. Null for free move.'),
+                  PropertyDoc(name: 'precision', type: 'int', defaultValue: '0', description: 'Decimal precision for labels'),
+                ],
+              );
+            },
+          ),
+
+          // Range Slider
+          ValueListenableBuilder<RangeValues?>(
+            valueListenable: _rangeSliderNotifier,
+            builder: (context, range, _) {
+              return WidgetDocCard(
+                title: 'Range Slider (Range: ${range?.start.toStringAsFixed(0)} - ${range?.end.toStringAsFixed(0)})',
+                description: 'Select a range of values.',
+                icon: Icons.sync_alt,
+                preview: Column(
+                  children: [
+                    TRangeSlider(label: 'Price Range (Stepped)', valueNotifier: _rangeSliderNotifier, min: 0, max: 1000, divisions: 20),
+                    const SizedBox(height: 16),
+                    TRangeSlider(label: 'Value Range (Free Move)', valueNotifier: _rangeSliderNotifier, min: 0, max: 1000),
+                  ],
+                ),
+                code: '''// Stepped Range Slider
+          TRangeSlider(
+          label: 'Price Range',
+          min: 0,
+          max: 1000,
+          divisions: 20,
+          )
+
+          // Free Move (Continuous) Range Slider
+          TRangeSlider(
+          label: 'Value Range',
+          min: 0,
+          max: 1.0,
+          precision: 2,
+          )''',
+                properties: const [
+                  PropertyDoc(name: 'min', type: 'double', defaultValue: '0', description: 'Minimum value'),
+                  PropertyDoc(name: 'max', type: 'double', defaultValue: '100', description: 'Maximum value'),
+                  PropertyDoc(name: 'divisions', type: 'int?', description: 'Number of discrete divisions. Null for free move.'),
+                  PropertyDoc(name: 'precision', type: 'int', defaultValue: '0', description: 'Decimal precision for labels'),
+                ],
+              );
+            },
+          ),
+          // Rating
+          ValueListenableBuilder<double?>(
+            valueListenable: _ratingNotifier,
+            builder: (context, rating, _) {
+              return WidgetDocCard(
+                title: 'Rating (Score: ${rating?.toStringAsFixed(1)})',
+                description: 'Star-based rating component.',
+                icon: Icons.star_half,
+                preview: TRating(label: 'Rate your experience', valueNotifier: _ratingNotifier, allowHalfRating: true),
+                code: '''TRating(
+  label: 'Rate your experience',
+  allowHalfRating: true,
+  onValueChanged: (val) => print(val),
+)''',
+                properties: const [
+                  PropertyDoc(name: 'itemCount', type: 'int', defaultValue: '5', description: 'Number of stars'),
+                  PropertyDoc(name: 'allowHalfRating', type: 'bool', defaultValue: 'false', description: 'Allow 0.5 step ratings'),
+                  PropertyDoc(name: 'itemSize', type: 'double', defaultValue: '24.0', description: 'Size of each star icon'),
+                ],
+              );
+            },
+          ),
+
+          // Color Picker
+          ValueListenableBuilder<Color?>(
+            valueListenable: _colorPickerNotifier,
+            builder: (context, color, _) {
+              final hex = color != null ? '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}' : 'None';
+              return WidgetDocCard(
+                title: 'Color Picker (Selected: $hex)',
+                description: 'Simple grid-based color selection with custom gradient picker.',
+                icon: Icons.color_lens,
+                preview: TColorPicker(label: 'Brand Color', valueNotifier: _colorPickerNotifier, enableCustomColor: true),
+                code: '''TColorPicker(
+  label: 'Brand Color',
+  enableCustomColor: true, // Shows "+" button for custom picker
+  onValueChanged: (color) => print(color),
+)''',
+                properties: const [
+                  PropertyDoc(name: 'colors', type: 'List<Color>', description: 'List of predefined colors'),
+                  PropertyDoc(
+                    name: 'enableCustomColor',
+                    type: 'bool',
+                    defaultValue: 'true',
+                    description: 'Enable gradient/spectrum picker',
+                  ),
+                ],
+              );
+            },
           ),
 
           const SizedBox(height: 40),

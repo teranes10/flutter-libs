@@ -65,6 +65,10 @@ class TTextField<T extends String?> extends StatefulWidget
   @override
   final String? helperText;
 
+  /// The info text (optional).
+  @override
+  final String? info;
+
   /// Placeholder text shown when the field is empty.
   @override
   final String? placeholder;
@@ -163,18 +167,25 @@ class TTextField<T extends String?> extends StatefulWidget
   /// Defaults to 1 (single-line).
   final int rows;
 
+  /// Whether to obscure the text (e.g. for passwords).
+  ///
+  /// Defaults to false.
+  final bool obscureText;
+
   /// Creates a text input field.
   const TTextField({
     super.key,
     this.label,
     this.tag,
     this.helperText,
+    this.info,
     this.placeholder,
     this.isRequired = false,
     this.disabled = false,
     this.autoFocus = false,
     this.readOnly = false,
     this.clearable = false,
+    this.obscureText = false,
     this.theme,
     this.preWidget,
     this.postWidget,
@@ -189,9 +200,13 @@ class TTextField<T extends String?> extends StatefulWidget
     this.rules,
     this.validationDebounce,
     this.rows = 1,
-  }) : assert(
-          theme == null || (preWidget == null && postWidget == null && size == null && decorationType == null),
+  })  : assert(
+          theme == null || (preWidget == null && postWidget == null && size == null && decorationType == null && obscureText == false),
           'Cannot provide both theme and individual theme properties.',
+        ),
+        assert(
+          !obscureText || rows == 1,
+          'Obscured fields cannot be multiline.',
         );
 
   @override
@@ -214,6 +229,7 @@ class _TTextFieldState<T extends String?> extends State<TTextField<T>>
       postWidget: widget.postWidget,
       size: widget.size,
       decorationType: widget.decorationType,
+      obscureText: widget.obscureText,
     );
   }
 

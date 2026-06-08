@@ -61,16 +61,6 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   /// Whether to use centered overlay mode (e.g. for mobile).
   bool get shouldCenteredOverlay => MediaQuery.of(context).isMobile;
 
-  /// Returns the decoration for the dropdown container.
-  BoxDecoration getDropdownDecoration(ColorScheme colors) {
-    return BoxDecoration(
-      borderRadius: BorderRadius.circular(8),
-      border: Border.all(color: colors.outline),
-      color: colors.surface,
-      boxShadow: [BoxShadow(color: colors.shadow, blurRadius: 12, spreadRadius: 0)],
-    );
-  }
-
   static const _defaultSize = 100.0;
 
   /// Minimum width of the popup content.
@@ -158,11 +148,10 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   }
 
   Widget _buildCenteredOverlayChild(BuildContext context, TPopupConstraints constraints) {
-    final colors = context.colors;
-
     return Stack(
       children: [
-        if (!persistent) Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: colors.scrim))),
+        if (!persistent)
+          Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: Theme.of(context).dialogTheme.barrierColor))),
         Align(
           alignment: constraints.contentAlignment,
           child: ConstrainedBox(
@@ -194,15 +183,12 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   }
 
   Widget _buildContentWidget(BuildContext context) {
-    final colors = context.colors;
-    final dropdownDecoration = getDropdownDecoration(colors);
-
-    return Material(
-      elevation: 1,
-      borderRadius: dropdownDecoration.borderRadius ?? BorderRadius.circular(8),
+    return TCard(
+      elevation: 8,
+      padding: EdgeInsets.zero,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         key: _contentKey,
-        decoration: dropdownDecoration,
         child: Stack(
           children: [
             getContentWidget(context),

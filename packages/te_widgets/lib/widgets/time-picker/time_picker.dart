@@ -35,7 +35,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TTimePicker extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<TimeOfDay>, TInputValidationMixin<TimeOfDay>, TPopupMixin {
   @override
-  final String? label, tag, helperText, placeholder;
+  final String? label, tag, helperText, placeholder, info;
   @override
   final bool isRequired, disabled, autoFocus, readOnly;
   @override
@@ -73,6 +73,7 @@ class TTimePicker extends StatefulWidget
     this.tag,
     this.helperText,
     this.placeholder,
+    this.info,
     this.isRequired = false,
     this.disabled = false,
     this.autoFocus = false,

@@ -145,10 +145,9 @@ class _TSidebarOverlayState extends State<TSidebarOverlay> with SingleTickerProv
           );
         },
         child: Material(
-          elevation: 12,
+          elevation: 8,
           borderRadius: BorderRadius.circular(8),
           color: colors.surface,
-          shadowColor: colors.shadow,
           child: Container(
             constraints: BoxConstraints(
               minWidth: 180,

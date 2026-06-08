@@ -228,6 +228,13 @@ class TTextFieldTheme extends TInputFieldTheme {
     final isDisabled = states.contains(WidgetState.disabled);
     final isMultiline = maxLines > 1;
     final style = textStyle.resolve(states).copyWith(fontSize: fieldFontSize);
+    final decoration = isMultiline
+        ? inputDecoration.copyWith(
+            contentPadding: fieldPadding.copyWith(
+            top: fieldPadding.top + 8,
+            bottom: fieldPadding.bottom + 8,
+          ))
+        : inputDecoration;
 
     return TextField(
       controller: controller,
@@ -243,10 +250,10 @@ class TTextFieldTheme extends TInputFieldTheme {
       maxLengthEnforcement: maxLengthEnforcement,
       cursorHeight: fieldFontSize + 2,
       style: style,
-      decoration: inputDecoration,
-      expands: maxLines == 1,
+      decoration: decoration,
+      expands: obscureText ? false : maxLines == 1,
       minLines: maxLines > 1 ? maxLines : null,
-      maxLines: null,
+      maxLines: obscureText ? 1 : null,
       scrollPhysics: const BouncingScrollPhysics(),
       scrollPadding: const EdgeInsets.all(8),
       obscureText: obscureText,

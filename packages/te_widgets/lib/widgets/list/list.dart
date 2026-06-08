@@ -162,6 +162,9 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom footer widget.
   final TListFooterBuilder? footerBuilder;
 
+  /// Builder for content before the list items.
+  final WidgetBuilder? beforeItemsBuilder;
+
   /// Whether to enable infinite scroll.
   final bool? infiniteScroll;
 
@@ -201,6 +204,7 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.itemImageUrl,
     this.onTap,
     ListItemBuilder<T, K>? itemBuilder,
+    this.beforeItemsBuilder,
     // Theme overrides
     this.grid,
     this.gridDelegate,
@@ -396,6 +400,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               infiniteScrollFooterBuilder: wTheme.infiniteScrollFooterBuilder,
               errorStateBuilder: wTheme.errorStateBuilder,
               emptyStateBuilder: wTheme.emptyStateBuilder,
+              beforeItemsBuilder: widget.beforeItemsBuilder,
               itemBuilder: (context, item, index) {
                 final child = widget.itemBuilder(context, item, index);
                 final animationBuilder = wTheme.animationBuilder;

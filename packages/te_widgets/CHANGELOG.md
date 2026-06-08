@@ -1,3 +1,11 @@
+# 2.3.0
+
+- Added `TBarcodeScanner` widget for non-traditional popup-based barcode scanning
+- Fixed `TCrudTable` issue where the create form would hide other items and disable scrolling
+- Refactored `TListView` to use `SliverMainAxisGroup` for more robust content grouping
+- Improved `TTable` card view (mobile/grid) to support `beforeItemsBuilder`
+- Exported `mobile_scanner` library from `te_widgets.dart` for easier integration
+
 # 2.2.0
 
 - Added PDF and CSV export functionality to `TCrudTable`

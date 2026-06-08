@@ -50,8 +50,11 @@ mixin TTagsFieldStateMixin<W extends StatefulWidget> on State<W>, TTextFieldStat
   }
 
   /// Builds the tags field UI.
-  Widget buildTagsField(
-      {KeyEventResult Function(FocusNode, KeyEvent)? onKeyEvent, ValueChanged<String>? onInputChanged, VoidCallback? onTap}) {
+  Widget buildTagsField({
+    KeyEventResult Function(FocusNode, KeyEvent)? onKeyEvent,
+    ValueChanged<String>? onInputChanged,
+    VoidCallback? onTap,
+  }) {
     final textField = TextField(
       focusNode: focusNode,
       controller: textController,

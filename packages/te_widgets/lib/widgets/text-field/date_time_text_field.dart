@@ -31,7 +31,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TDateTimeTextField extends StatefulWidget
     with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<String>, TInputValidationMixin<String> {
   @override
-  final String? label, tag, helperText, placeholder;
+  final String? label, tag, helperText, placeholder, info;
   @override
   final bool isRequired, disabled, autoFocus, readOnly, clearable;
   @override
@@ -63,6 +63,7 @@ class TDateTimeTextField extends StatefulWidget
     this.tag,
     this.helperText,
     this.placeholder,
+    this.info,
     this.isRequired = false,
     this.disabled = false,
     this.autoFocus = false,

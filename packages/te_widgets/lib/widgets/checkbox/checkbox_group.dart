@@ -49,7 +49,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TCheckboxGroup<T> extends StatefulWidget
     with TInputFieldMixin, TInputValueMixin<List<T>>, TFocusMixin, TInputValidationMixin<List<T>> {
   @override
-  final String? label, tag, helperText;
+  final String? label, tag, helperText, info;
   @override
   final bool isRequired, disabled;
   @override
@@ -95,6 +95,7 @@ class TCheckboxGroup<T> extends StatefulWidget
     this.label,
     this.tag,
     this.helperText,
+    this.info,
     this.isRequired = false,
     this.disabled = false,
     this.clearable = false,
@@ -322,10 +323,13 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
     }
 
     return widget.vertical
-        ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: widget.runSpacing,
-            children: items,
+        ? Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: widget.runSpacing,
+              children: items,
+            ),
           )
         : Wrap(
             spacing: widget.spacing,
