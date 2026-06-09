@@ -3,28 +3,50 @@ import 'package:te_widgets/te_widgets.dart';
 
 extension SidebarItemListX on List<TSidebarItem> {
   List<GoRoute> toGoRoutes() {
-    return _buildRoutes(this);
+    final resolvedItems = TSidebarItemsResolver.resolve(this);
+    return _buildRoutes(resolvedItems);
   }
 
-  List<GoRoute> _buildRoutes(List<TSidebarItem> items) {
+  List<GoRoute> _buildRoutes(List<TSidebarItem> items, {String? parentPath}) {
     List<GoRoute> routes = [];
 
     for (var item in items) {
-      if (item.route != null && (item.page != null || item.builder != null)) {
+      String? originalPath = item.route;
+      String? path = originalPath;
+
+      if (path != null && parentPath != null) {
+        if (path.startsWith(parentPath)) {
+          path = path.substring(parentPath.length);
+        } else if (path.startsWith('/')) {
+          // Absolute child but not matching parent - force it to be nested anyway
+          path = path.substring(1);
+        }
+
+        if (path.startsWith('/')) {
+          path = path.substring(1);
+        }
+      }
+
+      if (parentPath == null && path != null && !path.startsWith('/')) {
+        path = '/$path';
+      }
+
+      final children = item.children != null ? _buildRoutes(item.children!, parentPath: originalPath) : <GoRoute>[];
+
+      if (path != null) {
         routes.add(
           GoRoute(
-            path: item.route!,
+            path: path,
             name: item.text,
             pageBuilder: (context, state) {
-              final child = item.builder?.call(context, state) ?? item.page!;
+              final child = item.builder?.call(context, state) ?? item.page ?? PlaceholderPage(title: item.text ?? '404');
               return NoTransitionPage(child: child);
             },
+            routes: children,
           ),
         );
-      }
-      
-      if (item.children != null && item.children!.isNotEmpty) {
-        routes.addAll(_buildRoutes(item.children!));
+      } else if (children.isNotEmpty) {
+        routes.addAll(children);
       }
     }
 

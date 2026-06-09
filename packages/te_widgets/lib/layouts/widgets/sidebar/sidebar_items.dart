@@ -62,7 +62,7 @@ class SidebarItems extends StatelessWidget {
           isMinimized: isMinimized,
           level: 0,
           theme: sidebarTheme,
-          onTap: () => onTap?.call(visibleItems[index]),
+          onTap: onTap,
         ),
       );
     });

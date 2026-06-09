@@ -1,3 +1,16 @@
+# 2.4.0
+
+- Added `TBottomBar` for customizable bottom navigation.
+- Added `TBottomBarItem` to define items within the bottom bar.
+- Visual Variants: Support for TVariant (solid, tonal, outline, etc.) for active item highlighting.
+- Label Positions: Added TBottomBarTextPosition enum to support:
+  - rightActive: Label appears to the right of the icon only when active (modern style).
+  - bottomAlways: Label appears below the icon always.
+  - bottomActive: Label appears below the icon only when active.
+  - none: No labels shown.
+- Customization: Added properties for color, background, padding, margin, borderRadius, height, textStyle, and iconSize.
+- Animation: Integrated AnimatedContainer for smooth transitions between active states.
+
 # 2.3.0
 
 - Added `TBarcodeScanner` widget for non-traditional popup-based barcode scanning

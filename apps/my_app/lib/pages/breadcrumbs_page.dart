@@ -31,11 +31,7 @@ class BreadcrumbsPage extends StatelessWidget {
             title: 'Basic Breadcrumbs',
             description: 'Automatically generated from sidebar items and current route',
             icon: Icons.linear_scale,
-            preview: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: context.colors.surfaceContainerLow, borderRadius: BorderRadius.circular(8)),
-              child: TBreadcrumbs(items: sidebarItems),
-            ),
+            preview: TBreadcrumbs(items: sidebarItems),
             code: '''TBreadcrumbs(
   items: sidebarItems,
 )''',
@@ -86,6 +82,7 @@ class BreadcrumbsPage extends StatelessWidget {
                   onPressed: (_) => context.tGo(
                     '/explorer/electronics/phones/iphone',
                     labels: {'electronics': 'Gadgets', 'phones': 'Smartphones', 'iphone': 'iPhone 15 Pro'},
+                    push: true,
                   ),
                 ),
               ],

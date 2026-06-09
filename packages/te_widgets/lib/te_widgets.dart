@@ -143,6 +143,9 @@ export 'widgets/modal/modal_config.dart';
 export 'widgets/modal/modal_service.dart';
 export 'widgets/modal/modal.dart';
 
+export 'widgets/bottom-bar/bottom_bar.dart';
+export 'widgets/bottom-bar/bottom_bar_item.dart';
+
 export 'widgets/nav-bar/nav_bar.dart';
 
 export 'widgets/number-field/number_field.dart';
@@ -156,6 +159,8 @@ export 'widgets/progress-bar/circular_progress.dart';
 export 'widgets/pdf/pdf_config.dart';
 export 'widgets/pdf/pdf_table_config.dart';
 export 'widgets/pdf/pdf_table.dart';
+
+export 'widgets/placeholder/placeholder_page.dart';
 
 export 'widgets/radio/radio.dart';
 export 'widgets/radio/radio_group.dart';

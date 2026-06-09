@@ -172,6 +172,8 @@ class TTextField<T extends String?> extends StatefulWidget
   /// Defaults to false.
   final bool obscureText;
 
+  final TLabelPosition? labelPosition;
+
   /// Creates a text input field.
   const TTextField({
     super.key,
@@ -200,8 +202,15 @@ class TTextField<T extends String?> extends StatefulWidget
     this.rules,
     this.validationDebounce,
     this.rows = 1,
+    this.labelPosition,
   })  : assert(
-          theme == null || (preWidget == null && postWidget == null && size == null && decorationType == null && obscureText == false),
+          theme == null ||
+              (preWidget == null &&
+                  postWidget == null &&
+                  size == null &&
+                  decorationType == null &&
+                  obscureText == false &&
+                  labelPosition == null),
           'Cannot provide both theme and individual theme properties.',
         ),
         assert(
@@ -230,6 +239,7 @@ class _TTextFieldState<T extends String?> extends State<TTextField<T>>
       size: widget.size,
       decorationType: widget.decorationType,
       obscureText: widget.obscureText,
+      labelPosition: widget.labelPosition,
     );
   }
 

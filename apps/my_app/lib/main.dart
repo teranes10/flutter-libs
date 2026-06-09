@@ -29,7 +29,7 @@ class MyApp extends ConsumerWidget {
         final mq = MediaQuery.of(context);
 
         return MediaQuery(
-          data: mq.copyWith(textScaler: mq.scaleText(sm: 1.2)),
+          data: mq.copyWith(textScaler: mq.scaleText(sm: 1.1)),
           child: child!,
         );
       },

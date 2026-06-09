@@ -9,9 +9,16 @@ class TSidebarItemWidget extends StatefulWidget {
   final bool isMinimized;
   final int level;
   final TSidebarTheme theme;
-  final VoidCallback? onTap;
+  final Function(TSidebarItem)? onTap;
 
-  const TSidebarItemWidget({super.key, required this.item, this.isMinimized = false, this.level = 0, required this.theme, this.onTap});
+  const TSidebarItemWidget({
+    super.key,
+    required this.item,
+    this.isMinimized = false,
+    this.level = 0,
+    required this.theme,
+    this.onTap,
+  });
 
   @override
   State<TSidebarItemWidget> createState() => _SidebarItemWidgetState();
@@ -113,12 +120,9 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   }
 
   void _navigateAndExecute() {
-    if (widget.item.route != null) {
-      context.go(widget.item.route!, extra: widget.item.extra);
-    }
-    widget.item.onTap?.call();
+    widget.item.tap(context);
     TSidebarOverlayController.hideAllOverlays();
-    widget.onTap?.call();
+    widget.onTap?.call(widget.item);
   }
 
   void _onHoverEnter() {
@@ -289,6 +293,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
                 isMinimized: false,
                 level: widget.level + 1,
                 theme: widget.theme,
+                onTap: (child) => widget.onTap?.call(child),
               );
             }).toList(),
           ),

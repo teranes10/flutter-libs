@@ -44,12 +44,9 @@ class TBreadcrumbs extends StatelessWidget {
     required this.items,
     this.style,
     this.activeColor,
-    this.separator = const Opacity(
-      opacity: 0.5,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 4),
-        child: Icon(Icons.chevron_right, size: 14),
-      ),
+    this.separator = const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: Text('/', style: TextStyle(color: Colors.grey)),
     ),
     this.includeHome = true,
     this.homeLabel = 'Home',
@@ -112,8 +109,8 @@ class TBreadcrumbs extends StatelessWidget {
           style: style?.copyWith(color: color) ??
               TextStyle(
                 color: color,
-                fontSize: 13,
-                fontWeight: isLast ? FontWeight.w600 : FontWeight.w400,
+                fontSize: 15,
+                fontWeight: isLast ? FontWeight.w400 : FontWeight.w300,
               ),
         ),
       ),

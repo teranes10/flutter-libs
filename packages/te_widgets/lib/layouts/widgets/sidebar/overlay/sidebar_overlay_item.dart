@@ -34,10 +34,7 @@ class _TSidebarOverlayItemState extends State<TSidebarOverlayItem> {
   }
 
   void _handleTap() {
-    if (widget.item.route != null) {
-      context.go(widget.item.route!);
-    }
-    widget.item.onTap?.call();
+    widget.item.tap(context);
     TSidebarOverlayController.hideAllOverlays();
   }
 

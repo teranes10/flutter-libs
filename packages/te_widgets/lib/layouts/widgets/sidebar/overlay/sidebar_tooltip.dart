@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TSidebarTooltip extends StatefulWidget {
@@ -64,10 +63,7 @@ class _TSidebarTooltipState extends State<TSidebarTooltip> with SingleTickerProv
   }
 
   void _handleTap() {
-    if (widget.item.route != null) {
-      context.go(widget.item.route!);
-    }
-    widget.item.onTap?.call();
+    widget.item.tap(context);
     TSidebarOverlayController.hideAllOverlays();
   }
 

@@ -90,13 +90,14 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
 
   Widget buildWrapper({required Widget child}) {
     final infoIcon = _widget.info != null ? wTheme.buildInfoIcon(_widget.info!, colors) : null;
+    final showLabel = !_widget.label.isNullOrBlank || !_widget.tag.isNullOrBlank || infoIcon != null;
 
     return switch (wTheme.labelPosition) {
       TLabelPosition.aboveField => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            wTheme.labelBuilder.resolve(states)(_widget.label, _widget.tag, _widget.isRequired, infoIcon),
-            const SizedBox(height: 8),
+            if (showLabel) wTheme.labelBuilder.resolve(states)(_widget.label, _widget.tag, _widget.isRequired, infoIcon),
+            if (showLabel) const SizedBox(height: 8),
             child,
             wTheme.helperTextBuilder.resolve(states)(_widget.helperText),
             wTheme.errorsBuilder.resolve(states)(validationMixin?.errorsNotifier.value),

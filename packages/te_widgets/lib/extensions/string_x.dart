@@ -35,4 +35,14 @@ extension StringNonNullX on String {
     if (isEmpty) return this;
     return this[0].toUpperCase() + substring(1).toLowerCase();
   }
+
+  bool containsInMiddle(String pattern) {
+    final index = indexOf(pattern);
+    if (index == -1) return false;
+
+    final isAtStart = index == 0;
+    final isAtEnd = index + pattern.length == length;
+
+    return !isAtStart && !isAtEnd;
+  }
 }

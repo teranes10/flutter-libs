@@ -43,7 +43,7 @@ extension BuildContextX on BuildContext {
   ///   }
   /// );
   /// ```
-  void tGo(String location, {Map<String, String>? labels, Map<String, Object>? extra}) {
+  void tGo(String location, {Map<String, String>? labels, Map<String, Object>? extra, bool push = false}) {
     Map<String, Object> finalExtra = extra ?? <String, Object>{};
 
     if (labels != null) {
@@ -54,6 +54,6 @@ extension BuildContextX on BuildContext {
       finalExtra['labels'] = labels;
     }
 
-    go(location, extra: finalExtra);
+    push ? this.push(location, extra: finalExtra) : go(location, extra: finalExtra);
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_app/pages/accordion_page.dart';
 import 'package:my_app/pages/dropdown_sample_page.dart';
 import 'package:my_app/pages/colors_page.dart';
+import 'package:my_app/pages/bottom_bar_page.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:my_app/pages/avatars_page.dart';
 import 'package:my_app/pages/breadcrumbs_page.dart';
@@ -48,6 +49,7 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.assignment, text: 'Forms', route: '/forms', page: const FormsPage()),
   TSidebarItem(icon: Icons.arrow_drop_down_circle, text: 'Dropdown', route: '/dropdown', page: const DropdownSamplePage()),
   TSidebarItem(icon: Icons.view_headline, text: 'Accordion', route: '/accordion', page: const AccordionPage()),
+  TSidebarItem(icon: Icons.vertical_align_bottom, text: 'Bottom Bar', route: '/bottom-bar', page: const BottomBarPage()),
   TSidebarItem(icon: Icons.schema, text: 'Colors', route: '/colors', page: const ColorsPage()),
   TSidebarItem(
     icon: Icons.schema,
@@ -57,18 +59,18 @@ final sidebarItems = [
       TSidebarItem(
         icon: Icons.schema,
         text: 'Child 1',
-        route: '/child 1',
+        route: 'child1',
         page: const PlaceholderPage(title: 'Child'),
       ),
       TSidebarItem(
         icon: Icons.schema,
         text: 'Child 2',
-        route: '/child 2',
+        route: 'child2',
         children: [
           TSidebarItem(
             icon: Icons.schema,
             text: 'Child 3',
-            route: '/child 3',
+            route: 'child3',
             page: const PlaceholderPage(title: 'Child'),
           ),
         ],
@@ -76,22 +78,3 @@ final sidebarItems = [
     ],
   ),
 ];
-
-class PlaceholderPage extends StatelessWidget {
-  final String title;
-  const PlaceholderPage({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          TBreadcrumbs(items: sidebarItems),
-        ],
-      ),
-    );
-  }
-}
