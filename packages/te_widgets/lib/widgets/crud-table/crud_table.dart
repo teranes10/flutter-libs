@@ -468,6 +468,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
     final pdf = pw.Document();
     final colors = context.colors;
+    final table = await TTableHelper.from(context, widget.headers, items);
 
     pdf.addPage(
       pw.MultiPage(
@@ -478,7 +479,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
         build: (context) => [
           pw.Text('Exported Data', style: pw.TextStyle(fontSize: 16, color: colors.onSurfaceVariant.toPdfColor())),
           pw.SizedBox(height: 15),
-          TTableHelper.from(this.context, widget.headers, items),
+          table
         ],
       ),
     );

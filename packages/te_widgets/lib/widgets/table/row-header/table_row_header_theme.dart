@@ -21,4 +21,16 @@ class TTableRowHeaderTheme {
   factory TTableRowHeaderTheme.defaultTheme(ColorScheme colors) {
     return TTableRowHeaderTheme(textStyle: TextStyle(fontSize: 13.6, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant));
   }
+
+  TTableRowHeaderTheme copyWith({
+    EdgeInsets? padding,
+    Decoration? decoration,
+    TextStyle? textStyle,
+  }) {
+    return TTableRowHeaderTheme(
+      padding: padding ?? this.padding,
+      decoration: decoration ?? this.decoration,
+      textStyle: textStyle ?? this.textStyle,
+    );
+  }
 }

@@ -93,7 +93,7 @@ class _EditorPageState extends State<EditorPage> {
           stock: 100,
           category: 'category',
           sku: 'sku 6',
-        )
+        ),
       ],
       itemKey: (item) => item.id,
     );
@@ -107,11 +107,7 @@ class _EditorPageState extends State<EditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    return TTable<Product, int>(
-      headers: headers,
-      controller: listController,
-      editable: true,
-    );
+    return TTable<Product, int>(dense: true, headers: headers, controller: listController, editable: true);
   }
 }
 

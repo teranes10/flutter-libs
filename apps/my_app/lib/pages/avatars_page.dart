@@ -9,26 +9,18 @@ class AvatarsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Page Header
           Text(
             'Avatars',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: context.colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'Visual representations of users or entities, supporting images, initials, and icons.',
-            style: TextStyle(
-              fontSize: 16,
-              color: context.colors.onSurface.withAlpha(179),
-            ),
+            style: TextStyle(fontSize: 16, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 
@@ -42,22 +34,10 @@ class AvatarsPage extends StatelessWidget {
               runSpacing: 16,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                TAvatar(
-                  url: 'https://i.pravatar.cc/150?u=1',
-                  size: TInputSize.xs,
-                ),
-                TAvatar(
-                  url: 'https://i.pravatar.cc/150?u=2',
-                  size: TInputSize.sm,
-                ),
-                TAvatar(
-                  url: 'https://i.pravatar.cc/150?u=3',
-                  size: TInputSize.md,
-                ),
-                TAvatar(
-                  url: 'https://i.pravatar.cc/150?u=4',
-                  size: TInputSize.lg,
-                ),
+                TAvatar(url: 'https://i.pravatar.cc/150?u=1', size: TInputSize.xs),
+                TAvatar(url: 'https://i.pravatar.cc/150?u=2', size: TInputSize.sm),
+                TAvatar(url: 'https://i.pravatar.cc/150?u=3', size: TInputSize.md),
+                TAvatar(url: 'https://i.pravatar.cc/150?u=4', size: TInputSize.lg),
               ],
             ),
             code: '''TAvatar(
@@ -150,12 +130,7 @@ TAvatar.square(
             preview: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TAvatar(
-                  url: 'https://i.pravatar.cc/150?u=5',
-                  title: 'Teranes Ranjith',
-                  subTitle: 'Super Admin',
-                  size: TInputSize.md,
-                ),
+                TAvatar(url: 'https://i.pravatar.cc/150?u=5', title: 'Teranes Ranjith', subTitle: 'Super Admin', size: TInputSize.md),
                 SizedBox(height: 16),
                 TAvatar(
                   name: 'Jane Smith',
@@ -166,12 +141,7 @@ TAvatar.square(
                   foregroundColor: Colors.white,
                 ),
                 SizedBox(height: 16),
-                TAvatar.square(
-                  name: 'Company Inc',
-                  title: 'Company Inc',
-                  subTitle: 'Premium Workspace',
-                  size: TInputSize.lg,
-                ),
+                TAvatar.square(name: 'Company Inc', title: 'Company Inc', subTitle: 'Premium Workspace', size: TInputSize.lg),
               ],
             ),
             code: '''TAvatar(
@@ -194,7 +164,7 @@ TAvatar(
               PropertyDoc(name: 'spacing', type: 'double', defaultValue: '8', description: 'Spacing between avatar and text'),
             ],
           ),
-          
+
           const SizedBox(height: 40),
         ],
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart' show BuildContext;
-import 'package:pdf/widgets.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:te_widgets/te_widgets.dart';
 
 /// Helper class for creating PDF tables from data headers.
@@ -21,18 +21,37 @@ import 'package:te_widgets/te_widgets.dart';
 /// ```
 class TTableHelper {
   /// Creates a PDF table widget from headers and items.
-  static Table from<T, K>(
+  static Future<pw.Table> from<T, K>(
     BuildContext context,
     List<TTableHeader<T, K>> headers,
     List<T> items, {
     TPdfTableDecoration decoration = const TPdfTableDecoration(),
-  }) {
+  }) async {
     final colors = context.colors;
-    final effectiveHeaders = headers.where((header) => header.map != null);
+    final effectiveHeaders = headers.where((header) => header.map != null || header.builder != null).toList();
+    final imageCache = await TPdfWidgetHelper.preCacheImages(context, effectiveHeaders, items);
     final tHeaders = effectiveHeaders.map((header) => header.text).toList();
-    final tData = items.map((item) => effectiveHeaders.map((header) => header.getValue(item)).toList()).toList();
 
-    return TableHelper.fromTextArray(
+    final tData = items.asMap().entries.map((itemEntry) {
+      final index = itemEntry.key;
+      final item = itemEntry.value;
+
+      return effectiveHeaders.map((header) {
+        if (header.builder != null) {
+          final listItem = TListItem<T, K>(key: index as dynamic, data: item);
+          final widget = header.builder!(context, listItem, index);
+          final pdfWidget = TPdfWidgetHelper.convert(widget, colors, imageCache: imageCache);
+
+          // If conversion was successful, return the PDF widget
+          if (pdfWidget is! pw.SizedBox) {
+            return pdfWidget;
+          }
+        }
+        return header.getValue(item);
+      }).toList();
+    }).toList();
+
+    return pw.TableHelper.fromTextArray(
       headers: tHeaders,
       data: tData,
       border: decoration.getBorder(colors),

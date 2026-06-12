@@ -59,7 +59,7 @@ class TAppTheme {
         onSecondaryContainer: secondary.shade200,
         error: danger,
         onError: Colors.white,
-        errorContainer: danger.shade700.o(0.6),
+        errorContainer: danger.shade800.lighten(0.03),
         onErrorContainer: danger.shade100,
         surfaceBright: grey[950]!,
         surface: grey[950]!,

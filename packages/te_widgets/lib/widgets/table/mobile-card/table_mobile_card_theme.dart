@@ -50,4 +50,36 @@ class TTableMobileCardTheme extends TKeyValueTheme {
       ),
     );
   }
+
+  TTableMobileCardTheme copyWith({
+    EdgeInsets? margin,
+    EdgeInsets? padding,
+    double? elevation,
+    BorderRadius? borderRadius,
+    WidgetStateProperty<Color>? backgroundColor,
+    WidgetStateProperty<Border>? border,
+    TextStyle? keyStyle,
+    TextStyle? labelStyle,
+    TextStyle? valueStyle,
+    double? gridSpacing,
+    double? minGridColWidth,
+    bool? forceKeyValue,
+    double? keyValueBreakPoint,
+  }) {
+    return TTableMobileCardTheme(
+      margin: margin ?? this.margin,
+      padding: padding ?? this.padding,
+      elevation: elevation ?? this.elevation,
+      borderRadius: borderRadius ?? this.borderRadius,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      border: border ?? this.border,
+      keyStyle: keyStyle ?? this.keyStyle,
+      labelStyle: labelStyle ?? this.labelStyle,
+      valueStyle: valueStyle ?? this.valueStyle,
+      gridSpacing: gridSpacing ?? this.gridSpacing,
+      minGridColWidth: minGridColWidth ?? this.minGridColWidth,
+      forceKeyValue: forceKeyValue ?? this.forceKeyValue,
+      keyValueBreakPoint: keyValueBreakPoint ?? this.keyValueBreakPoint,
+    );
+  }
 }

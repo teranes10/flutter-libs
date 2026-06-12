@@ -85,13 +85,13 @@ class TBottomBar extends StatelessWidget {
     this.textPosition = TBottomBarTextPosition.rightActive,
     this.color,
     this.background,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
     this.margin,
     this.borderRadius,
     this.height,
     this.textStyle,
     this.iconSize = 24,
-    this.itemPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    this.itemPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
   });
 
   @override
@@ -109,7 +109,7 @@ class TBottomBar extends StatelessWidget {
         color: mBackground,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

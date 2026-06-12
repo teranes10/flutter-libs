@@ -73,6 +73,8 @@ class TCard extends StatelessWidget {
   final Color? shadowColor;
   final Color? borderColor;
 
+  final List<BoxShadow>? shadow;
+
   /// Creates a Material Design card widget.
   const TCard({
     super.key,
@@ -85,6 +87,7 @@ class TCard extends StatelessWidget {
     this.onTap,
     this.shadowColor,
     this.borderColor,
+    this.shadow,
   });
 
   @override
@@ -95,6 +98,10 @@ class TCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: margin ?? const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        borderRadius: defaultBorderRadius,
+        boxShadow: shadow ?? [BoxShadow(color: colors.shadow, offset: const Offset(0, 1), blurRadius: 0, spreadRadius: 0)],
+      ),
       child: Material(
         elevation: elevation ?? 0,
         color: backgroundColor ?? colors.surface,

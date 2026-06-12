@@ -8,7 +8,6 @@ class AccordionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -19,7 +18,7 @@ class AccordionPage extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'A vertical list of collapsible items that allow users to manage information density.',
-            style: TextStyle(fontSize: 16, color: context.colors.onSurface.withAlpha(179)),
+            style: TextStyle(fontSize: 16, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 

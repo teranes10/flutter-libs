@@ -21,18 +21,20 @@ abstract class TFormBase {
   List<TFormField> get fields;
 
   /// Collects validation errors from all fields.
-  List<String> get validationErrors {
+  List<String> get validationErrors => _getValidationErrors(fields);
+
+  List<String> _getValidationErrors(List<TFormField> fieldsToValidate) {
     List<String> errorsList = [];
 
-    for (var field in fields) {
+    for (var field in fieldsToValidate) {
       if (field._field is TInputValidationMixin) {
         final input = field._field as TInputValidationMixin;
-        final errors = input.validateValue(field.prop.value);
+        final errors = input.validateValue(field.prop?.value);
         if (errors.isNotEmpty) {
           errorsList.addAll(errors);
         }
       } else if (field._field is TItemsFormBuilder) {
-        final items = field.prop.value;
+        final items = field.prop?.value ?? [];
         if (items is List && items.isNotEmpty) {
           for (var i = 0; i < items.length; i++) {
             final item = items[i];
@@ -45,12 +47,11 @@ abstract class TFormBase {
           }
         }
       } else if (field._field is TFormBuilder) {
-        final item = field.prop.value;
-        if (item is TFormBase) {
-          final errors = item.validationErrors;
-          if (errors.isNotEmpty) {
-            errorsList.addAll(errors);
-          }
+        final fb = field._field as TFormBuilder;
+        if (fb.input != null) {
+          errorsList.addAll(fb.input!.validationErrors);
+        } else if (fb.fields != null) {
+          errorsList.addAll(_getValidationErrors(fb.fields!));
         }
       }
     }
@@ -62,9 +63,17 @@ abstract class TFormBase {
   bool get isValid => validationErrors.isEmpty;
 
   /// Resets all fields to their initial values.
-  void reset() {
-    for (var field in fields) {
-      field.prop.reset();
+  void reset() => _resetFields(fields);
+
+  void _resetFields(List<TFormField> fieldsToReset) {
+    for (var field in fieldsToReset) {
+      field.prop?.reset();
+      if (field._field is TFormBuilder) {
+        final fb = field._field as TFormBuilder;
+        if (fb.fields != null) {
+          _resetFields(fb.fields!);
+        }
+      }
     }
   }
 
@@ -72,9 +81,17 @@ abstract class TFormBase {
   void onValueChanged() {}
 
   /// Disposes all field properties.
-  void dispose() {
-    for (var field in fields) {
-      field.prop.dispose();
+  void dispose() => _disposeFields(fields);
+
+  void _disposeFields(List<TFormField> fieldsToDispose) {
+    for (var field in fieldsToDispose) {
+      field.prop?.dispose();
+      if (field._field is TFormBuilder) {
+        final fb = field._field as TFormBuilder;
+        if (fb.fields != null) {
+          _disposeFields(fb.fields!);
+        }
+      }
     }
   }
 }
@@ -97,8 +114,10 @@ enum TBreakpoint {
 class TFieldSize {
   /// Span at small screens.
   final int? sm,
+
       /// Span at medium screens.
       md,
+
       /// Span at large screens.
       lg;
 

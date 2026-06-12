@@ -85,46 +85,47 @@ class TTableMobileCard<T, K> extends StatelessWidget {
       borderRadius: wTheme.borderRadius,
       backgroundColor: backgroundColor ?? wTheme.backgroundColor.resolve(states),
       padding: EdgeInsets.zero,
-      child: Column(
+      child: Stack(
         children: [
-          Stack(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (selectable)
-                Positioned(
-                    top: 5,
-                    left: 5,
-                    child: TCheckbox(
-                      value: isSelected,
-                      onValueChanged: (value) => onSelectionChanged?.call(),
-                    )),
               _buildMainContent(context, wTheme),
-              if (expandable)
-                Positioned(
-                  bottom: 5,
-                  right: 5,
-                  child: TIcon(
-                    icon: Icons.keyboard_arrow_down,
-                    size: 20,
-                    color: colors.onSurfaceVariant,
-                    background: colors.surfaceContainerLow,
-                    padding: EdgeInsets.all(3),
-                    turns: (0, 0.5),
-                    active: isExpanded,
-                    onTap: onExpansionChanged,
+              if (isExpanded && expandedContent != null)
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: wTheme.padding.left + (selectable ? 3 : 0),
+                    right: wTheme.padding.right + (expandable ? 3 : 0),
+                    bottom: wTheme.padding.bottom + (expandable ? 21 : 0),
                   ),
+                  child: expandedContent!,
                 ),
             ],
           ),
-          if (isExpanded && expandedContent != null) ...[
-            Padding(
-              padding: EdgeInsets.only(
-                left: wTheme.padding.left + (selectable ? 3 : 0),
-                right: wTheme.padding.right + (expandable ? 3 : 0),
-                bottom: wTheme.padding.bottom,
+          if (selectable)
+            Positioned(
+              top: 5,
+              left: 5,
+              child: TCheckbox(
+                value: isSelected,
+                onValueChanged: (value) => onSelectionChanged?.call(),
               ),
-              child: expandedContent!,
             ),
-          ],
+          if (expandable)
+            Positioned(
+              bottom: 5,
+              right: 5,
+              child: TIcon(
+                icon: Icons.keyboard_arrow_down,
+                size: 20,
+                color: colors.onSurfaceVariant,
+                background: colors.surfaceContainerLow,
+                padding: EdgeInsets.all(3),
+                turns: (0, 0.5),
+                active: isExpanded,
+                onTap: onExpansionChanged,
+              ),
+            ),
         ],
       ),
     );
@@ -137,7 +138,12 @@ class TTableMobileCard<T, K> extends StatelessWidget {
         top: wTheme.padding.top + (selectable ? 14 : 0),
         left: (wTheme.padding.left) + (selectable ? 3 : 0),
         right: (wTheme.padding.right) + (expandable ? 3 : 0),
-        bottom: (wTheme.padding.bottom) + (expandable ? 10 : 0),
+        bottom: (wTheme.padding.bottom) +
+            (isExpanded
+                ? 0
+                : expandable
+                    ? 10
+                    : 0),
       ),
       child: TKeyValueSection(values: values),
     );

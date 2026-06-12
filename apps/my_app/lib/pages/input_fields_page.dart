@@ -32,7 +32,6 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -44,7 +43,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           const SizedBox(height: 8),
           Text(
             'Text inputs, number fields, and other input components with validation support.',
-            style: TextStyle(fontSize: 13, color: context.colors.onSurface.withAlpha(179)),
+            style: TextStyle(fontSize: 13, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 
@@ -231,16 +230,16 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             title: 'Above Label Position',
             description: 'Label positioned above the field with info icon next to it',
             icon: Icons.vertical_align_top,
-            preview: Builder(builder: (context) {
-              return TTextField(
-                label: 'Username',
-                info: 'Your unique identifier on the platform',
-                placeholder: 'Enter username',
-                theme: context.theme.textFieldTheme.copyWith(
-                  labelPosition: TLabelPosition.aboveField,
-                ),
-              );
-            }),
+            preview: Builder(
+              builder: (context) {
+                return TTextField(
+                  label: 'Username',
+                  info: 'Your unique identifier on the platform',
+                  placeholder: 'Enter username',
+                  theme: context.theme.textFieldTheme.copyWith(labelPosition: TLabelPosition.aboveField),
+                );
+              },
+            ),
             code: '''TTextField(
   label: 'Username',
   info: 'Your unique identifier on the platform',
@@ -373,6 +372,27 @@ TDateTimeTextField(
                 description: 'Format to apply: date (DD/MM/YY), time (HH:MM), or dateTime',
               ),
               PropertyDoc(name: 'placeholder', type: 'String?', description: 'Custom placeholder. Defaults to format (e.g., DD/MM/YY)'),
+            ],
+          ),
+
+          // Phone Field
+          WidgetDocCard(
+            title: 'Phone Number Field',
+            description: 'Phone input with country code selection and automatic formatting',
+            icon: Icons.phone,
+            preview: TPhoneField(label: 'Phone Number', isRequired: true, onValueChanged: (v) => debugPrint('Phone: $v')),
+            code: '''TPhoneField(
+  label: 'Phone Number',
+  isRequired: true,
+  onValueChanged: (value) {
+    print('Phone: \$value');
+  },
+)''',
+            properties: const [
+              PropertyDoc(name: 'label', type: 'String?', description: 'The label text displayed above the field'),
+              PropertyDoc(name: 'initialCountry', type: 'TCountry?', description: 'The initially selected country'),
+              PropertyDoc(name: 'isRequired', type: 'bool', defaultValue: 'false', description: 'Whether this field is required'),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<String>?', description: 'Callback with dial code + formatted number'),
             ],
           ),
 

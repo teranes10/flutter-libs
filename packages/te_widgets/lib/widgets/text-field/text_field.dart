@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// A text input field with validation, theming, and advanced features.
@@ -174,6 +175,12 @@ class TTextField<T extends String?> extends StatefulWidget
 
   final TLabelPosition? labelPosition;
 
+  /// The type of keyboard to display.
+  final TextInputType? keyboardType;
+
+  /// Optional input formatters to apply.
+  final List<TextInputFormatter>? inputFormatters;
+
   /// Creates a text input field.
   const TTextField({
     super.key,
@@ -203,6 +210,8 @@ class TTextField<T extends String?> extends StatefulWidget
     this.validationDebounce,
     this.rows = 1,
     this.labelPosition,
+    this.keyboardType,
+    this.inputFormatters,
   })  : assert(
           theme == null ||
               (preWidget == null &&
@@ -265,6 +274,8 @@ class _TTextFieldState<T extends String?> extends State<TTextField<T>>
       maxLines: widget.rows,
       onValueChanged: _onValueChanged,
       hasValue: textController.text.isNotEmpty,
+      keyboardType: widget.keyboardType,
+      inputFormatters: widget.inputFormatters,
       onClear: () {
         textController.clear();
         _onValueChanged('');

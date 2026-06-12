@@ -54,7 +54,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// See also:
 /// - [TTooltipPosition] for position options
 /// - [TTooltipTriggerMode] for trigger modes
-class TTooltip extends StatefulWidget {
+class TTooltip extends StatefulWidget implements TPopupMixin {
   /// The text message to display in the tooltip.
   final String message;
 
@@ -133,57 +133,78 @@ class TTooltip extends StatefulWidget {
   final double maxWidth;
 
   /// Callback fired when the tooltip is shown.
+  @override
   final VoidCallback? onShow;
 
   /// Callback fired when the tooltip is hidden.
+  @override
   final VoidCallback? onHide;
 
   /// The variant type for theming.
   final TVariant? type;
 
+  /// Whether the tooltip is disabled.
+  @override
+  final bool disabled;
+
+  @override
+  TPopupAlignment get alignment {
+    return switch (position) {
+      TTooltipPosition.auto => TPopupAlignment.bottomCenter,
+      TTooltipPosition.top => TPopupAlignment.topCenter,
+      TTooltipPosition.bottom => TPopupAlignment.bottomCenter,
+      TTooltipPosition.left => TPopupAlignment.leftCenter,
+      TTooltipPosition.right => TPopupAlignment.rightCenter,
+    };
+  }
+
+  @override
+  double get offset => verticalOffset;
+
+  @override
+  bool get showCloseButton => false;
+
   /// Creates a tooltip.
-  const TTooltip(
-      {super.key,
-      required this.message,
-      required this.child,
-      this.richMessage,
-      this.icon,
-      this.position = TTooltipPosition.auto,
-      this.color,
-      this.size = TTooltipSize.small,
-      this.showDelay = const Duration(milliseconds: 100),
-      this.hideDelay = const Duration(milliseconds: 50),
-      this.waitDuration = Duration.zero,
-      this.showDuration = const Duration(seconds: 3),
-      this.triggerMode = TTooltipTriggerMode.hover,
-      this.enableFeedback = true,
-      this.excludeFromSemantics = false,
-      this.decoration,
-      this.textStyle,
-      this.textAlign,
-      this.margin = const EdgeInsets.all(0),
-      this.padding,
-      this.verticalOffset = 5,
-      this.preferBelow = false,
-      this.enableHapticFeedback = false,
-      this.showArrow = true,
-      this.interactive = false,
-      this.maxWidth = 250.0,
-      this.onShow,
-      this.onHide,
-      this.type});
+  const TTooltip({
+    super.key,
+    required this.message,
+    required this.child,
+    this.richMessage,
+    this.icon,
+    this.position = TTooltipPosition.auto,
+    this.color,
+    this.size = TTooltipSize.small,
+    this.showDelay = const Duration(milliseconds: 100),
+    this.hideDelay = const Duration(milliseconds: 50),
+    this.waitDuration = Duration.zero,
+    this.showDuration = const Duration(seconds: 3),
+    this.triggerMode = TTooltipTriggerMode.hover,
+    this.enableFeedback = true,
+    this.excludeFromSemantics = false,
+    this.decoration,
+    this.textStyle,
+    this.textAlign,
+    this.margin = const EdgeInsets.all(0),
+    this.padding,
+    this.verticalOffset = 5,
+    this.preferBelow = false,
+    this.enableHapticFeedback = false,
+    this.showArrow = true,
+    this.interactive = false,
+    this.maxWidth = 250.0,
+    this.onShow,
+    this.onHide,
+    this.type,
+    this.disabled = false,
+  });
 
   @override
   State<TTooltip> createState() => _TTooltipState();
 }
 
-class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin {
+class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin, TPopupStateMixin<TTooltip> {
   late AnimationController _animationController;
-
-  final GlobalKey _childKey = GlobalKey();
-  OverlayEntry? _overlayEntry;
   bool _isHovering = false;
-  bool _isVisible = false;
 
   @override
   void initState() {
@@ -193,122 +214,109 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
 
   @override
   void dispose() {
-    _removeTooltip();
     _animationController.dispose();
     super.dispose();
   }
 
-  void _showTooltip() {
-    if (_isVisible) return;
-    setState(() => _isVisible = true);
-    widget.onShow?.call();
-
+  @override
+  void showPopup(BuildContext context) {
     if (widget.enableHapticFeedback) {
       HapticFeedback.lightImpact();
     }
-
-    // Only create overlay if it doesn't exist
-    if (_overlayEntry == null) {
-      _overlayEntry = _createOverlayEntry();
-      Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
-    }
+    super.showPopup(context);
     _animationController.forward();
   }
 
-  void _hideTooltip() {
-    if (!_isVisible) return;
-    setState(() => _isVisible = false);
-    widget.onHide?.call();
-    _animationController.reverse().then((_) => _removeTooltip());
+  @override
+  void hidePopup() {
+    if (!isPopupShowing) return;
+    _animationController.reverse().then((_) {
+      if (mounted) super.hidePopup();
+    });
   }
 
-  void _removeTooltip() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+  @override
+  Widget getContentWidget(BuildContext context) {
+    // This is called by TPopupStateMixin but we override buildAnchoredOverlayChild
+    // to pass more context (like targetRect and animation) to _TooltipContent.
+    return const SizedBox.shrink();
   }
 
-  TTooltipResolvedPosition _resolveAutoPosition() {
+  @override
+  Widget buildAnchoredOverlayChild(BuildContext context, TPopupConstraints constraints) {
+    final targetRect = Rect.fromLTWH(
+      constraints.targetOffset.dx,
+      constraints.targetOffset.dy,
+      constraints.targetSize.width,
+      constraints.targetSize.height,
+    );
+
+    return Stack(
+      children: [
+        if (widget.interactive)
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: hidePopup,
+              child: const SizedBox.expand(),
+            ),
+          ),
+        _TooltipContent(
+          message: widget.message,
+          richMessage: widget.richMessage,
+          targetRect: targetRect,
+          position: widget.position,
+          color: widget.color,
+          size: widget.size,
+          decoration: widget.decoration,
+          textStyle: widget.textStyle,
+          textAlign: widget.textAlign,
+          margin: widget.margin,
+          padding: widget.padding,
+          verticalOffset: widget.verticalOffset,
+          preferBelow: widget.preferBelow,
+          showArrow: widget.showArrow,
+          maxWidth: widget.maxWidth,
+          animation: CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+          icon: widget.icon,
+          onTap: widget.interactive ? null : hidePopup,
+          resolvedPosition: _resolveAutoPosition(targetRect),
+          onPointerEnter: _onTooltipPointerEnter,
+          onPointerExit: _onTooltipPointerExit,
+          type: widget.type,
+        ),
+      ],
+    );
+  }
+
+  TTooltipResolvedPosition _resolveAutoPosition(Rect targetRect) {
     final overlay = Overlay.of(context, rootOverlay: true);
-
     final overlayBox = overlay.context.findRenderObject() as RenderBox?;
-    final targetBox = _childKey.currentContext?.findRenderObject() as RenderBox?;
-    if (overlayBox == null || targetBox == null) return TTooltipResolvedPosition.bottom;
-
-    final targetTopLeft = targetBox.localToGlobal(Offset.zero, ancestor: overlayBox);
-    final targetSize = targetBox.size;
+    if (overlayBox == null) return TTooltipResolvedPosition.bottom;
 
     final screenHeight = overlayBox.size.height;
     final screenWidth = overlayBox.size.width;
 
-    // Increased required space for better positioning
     final requiredSpace = widget.maxWidth + 20.0;
 
-    final spaceTop = targetTopLeft.dy;
-    final spaceBottom = screenHeight - (targetTopLeft.dy + targetSize.height);
-    final spaceLeft = targetTopLeft.dx;
-    final spaceRight = screenWidth - (targetTopLeft.dx + targetSize.width);
+    final spaceTop = targetRect.top;
+    final spaceBottom = screenHeight - targetRect.bottom;
+    final spaceLeft = targetRect.left;
+    final spaceRight = screenWidth - targetRect.right;
 
-    // Prefer vertical positioning first to avoid horizontal overflow
     if (spaceBottom >= 60.0) return TTooltipResolvedPosition.bottom;
     if (spaceTop >= 60.0) return TTooltipResolvedPosition.top;
     if (spaceRight >= requiredSpace) return TTooltipResolvedPosition.right;
     if (spaceLeft >= requiredSpace) return TTooltipResolvedPosition.left;
 
-    // Fallback to vertical even if space is limited
     return spaceBottom > spaceTop ? TTooltipResolvedPosition.bottom : TTooltipResolvedPosition.top;
-  }
-
-  OverlayEntry _createOverlayEntry() {
-    final renderBox = _childKey.currentContext?.findRenderObject() as RenderBox?;
-    final offset = renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
-    final size = renderBox?.size ?? Size.zero;
-    final targetRect = Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
-
-    return OverlayEntry(
-      builder: (_) => Stack(
-        children: [
-          if (widget.interactive)
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: _hideTooltip,
-                child: const SizedBox.expand(),
-              ),
-            ),
-          _TooltipContent(
-            message: widget.message,
-            richMessage: widget.richMessage,
-            targetRect: targetRect,
-            position: widget.position,
-            color: widget.color,
-            size: widget.size,
-            decoration: widget.decoration,
-            textStyle: widget.textStyle,
-            textAlign: widget.textAlign,
-            margin: widget.margin,
-            padding: widget.padding,
-            verticalOffset: widget.verticalOffset,
-            preferBelow: widget.preferBelow,
-            showArrow: widget.showArrow,
-            maxWidth: widget.maxWidth,
-            animation: CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
-            icon: widget.icon,
-            onTap: widget.interactive ? null : _hideTooltip,
-            resolvedPosition: _resolveAutoPosition(),
-            onPointerEnter: _onTooltipPointerEnter,
-            onPointerExit: _onTooltipPointerExit,
-            type: widget.type,
-          ),
-        ],
-      ),
-    );
   }
 
   void _onPointerEnter(PointerEnterEvent event) {
     if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
       _isHovering = true;
       Future.delayed(widget.showDelay, () {
-        if (_isHovering && mounted) _showTooltip();
+        if (_isHovering && mounted) showPopup(context);
       });
     }
   }
@@ -317,7 +325,7 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
     if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
       _isHovering = false;
       Future.delayed(widget.hideDelay, () {
-        if (!_isHovering && mounted) _hideTooltip();
+        if (!_isHovering && mounted) hidePopup();
       });
     }
   }
@@ -332,7 +340,7 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
     if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
       _isHovering = false;
       Future.delayed(widget.hideDelay, () {
-        if (!_isHovering && mounted) _hideTooltip();
+        if (!_isHovering && mounted) hidePopup();
       });
     }
   }
@@ -340,23 +348,25 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   void _onTap() {
     if (widget.triggerMode != TTooltipTriggerMode.tap && widget.triggerMode != TTooltipTriggerMode.both) return;
 
-    _isVisible ? _hideTooltip() : _showTooltip();
+    isPopupShowing ? hidePopup() : showPopup(context);
 
-    if (!_isVisible) return;
+    if (!isPopupShowing) return;
 
     Future.delayed(widget.showDuration, () {
-      if (_isVisible && mounted) _hideTooltip();
+      if (isPopupShowing && mounted) hidePopup();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: _onPointerEnter,
-      onExit: _onPointerExit,
-      child: GestureDetector(
-        onTap: _onTap,
-        child: KeyedSubtree(key: _childKey, child: widget.child),
+    return buildWithDropdownTarget(
+      child: MouseRegion(
+        onEnter: _onPointerEnter,
+        onExit: _onPointerExit,
+        child: GestureDetector(
+          onTap: _onTap,
+          child: widget.child,
+        ),
       ),
     );
   }
@@ -598,11 +608,11 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
     // Determine position with better logic
     TTooltipPosition actualPosition = widget.position;
     TArrowDirection arrowDirection = TArrowDirection.up;
+    
+    final minRequiredHorizontalSpace = tooltipWidth + widget.verticalOffset + 10; // Extra margin
 
     if (actualPosition == TTooltipPosition.auto) {
       // Enhanced auto-positioning logic
-      final minRequiredHorizontalSpace = tooltipWidth + widget.verticalOffset + 10; // Extra margin
-
       if (widget.preferBelow && spaceBelow >= tooltipHeight + widget.verticalOffset) {
         actualPosition = TTooltipPosition.bottom;
       } else if (spaceAbove >= tooltipHeight + widget.verticalOffset) {
@@ -614,6 +624,32 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
       } else {
         // Force vertical positioning if horizontal won't fit
         actualPosition = spaceBelow > spaceAbove ? TTooltipPosition.bottom : TTooltipPosition.top;
+      }
+    } else {
+      // Flip logic for explicit positions if there's no space
+      switch (actualPosition) {
+        case TTooltipPosition.top:
+          if (spaceAbove < tooltipHeight + widget.verticalOffset && spaceBelow >= tooltipHeight + widget.verticalOffset) {
+            actualPosition = TTooltipPosition.bottom;
+          }
+          break;
+        case TTooltipPosition.bottom:
+          if (spaceBelow < tooltipHeight + widget.verticalOffset && spaceAbove >= tooltipHeight + widget.verticalOffset) {
+            actualPosition = TTooltipPosition.top;
+          }
+          break;
+        case TTooltipPosition.left:
+          if (spaceLeft < minRequiredHorizontalSpace && spaceRight >= minRequiredHorizontalSpace) {
+            actualPosition = TTooltipPosition.right;
+          }
+          break;
+        case TTooltipPosition.right:
+          if (spaceRight < minRequiredHorizontalSpace && spaceLeft >= minRequiredHorizontalSpace) {
+            actualPosition = TTooltipPosition.left;
+          }
+          break;
+        case TTooltipPosition.auto:
+          break;
       }
     }
 

@@ -9,31 +9,22 @@ class FeedbackPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Page Header
           Text(
             'Feedback & Status',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: context.colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'Components that provide feedback, status updates, or notifications.',
-            style: TextStyle(
-              fontSize: 16,
-              color: context.colors.onSurface.withAlpha(179),
-            ),
+            style: TextStyle(fontSize: 16, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 
           // ==================== BADGE ====================
-
           WidgetDocCard(
             title: 'Badge',
             description: 'Small status or numerical indicator',
@@ -42,14 +33,8 @@ class FeedbackPage extends StatelessWidget {
               spacing: 32,
               runSpacing: 16,
               children: [
-                TBadge(
-                  count: 5,
-                  child: Icon(Icons.mail, size: 30),
-                ),
-                TBadge(
-                  count: 120,
-                  child: Icon(Icons.notifications, size: 30),
-                ),
+                TBadge(count: 5, child: Icon(Icons.mail, size: 30)),
+                TBadge(count: 120, child: Icon(Icons.notifications, size: 30)),
                 TBadge(
                   dot: true,
                   child: TAvatar(name: 'John Doe', size: TInputSize.sm),
@@ -79,31 +64,17 @@ TBadge(
           ),
 
           // ==================== PROGRESS BAR ====================
-
           WidgetDocCard(
             title: 'Progress Bar',
             description: 'Displays task completion status',
             icon: Icons.trending_flat,
             preview: Column(
               children: [
-                TProgressBar(
-                  value: 0.7,
-                  label: 'Standard Progress',
-                ),
+                TProgressBar(value: 0.7, label: 'Standard Progress'),
                 const SizedBox(height: 24),
-                TProgressBar(
-                  value: 0.45,
-                  showPercentage: true,
-                  label: 'With Percentage',
-                  color: AppColors.success,
-                ),
+                TProgressBar(value: 0.45, showPercentage: true, label: 'With Percentage', color: AppColors.success),
                 const SizedBox(height: 24),
-                TProgressBar(
-                  value: 0.9,
-                  height: 4,
-                  label: 'Slim Variant',
-                  color: AppColors.info,
-                ),
+                TProgressBar(value: 0.9, height: 4, label: 'Slim Variant', color: AppColors.info),
               ],
             ),
             code: '''TProgressBar(
@@ -120,25 +91,15 @@ TBadge(
           ),
 
           // ==================== ANIMATED PROGRESS BAR ====================
-
           WidgetDocCard(
             title: 'Animated Progress',
             description: 'Progress bars with flowing and indeterminate animations',
             icon: Icons.auto_awesome,
             preview: const Column(
               children: [
-                TProgressBar(
-                  indeterminate: true,
-                  label: 'Indeterminate (Unknown Progress)',
-                  color: AppColors.primary,
-                ),
+                TProgressBar(indeterminate: true, label: 'Indeterminate (Unknown Progress)', color: AppColors.primary),
                 SizedBox(height: 24),
-                TProgressBar(
-                  value: 0.65,
-                  flowing: true,
-                  label: 'Flowing Animation (Deterministic)',
-                  color: AppColors.warning,
-                ),
+                TProgressBar(value: 0.65, flowing: true, label: 'Flowing Animation (Deterministic)', color: AppColors.warning),
               ],
             ),
             code: '''// Indeterminate state
@@ -160,12 +121,16 @@ TProgressBar(
                 defaultValue: 'false',
                 description: 'Whether the progress is in an unknown state',
               ),
-              PropertyDoc(name: 'flowing', type: 'bool', defaultValue: 'false', description: 'Whether to show a continuous shimmering effect'),
+              PropertyDoc(
+                name: 'flowing',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether to show a continuous shimmering effect',
+              ),
             ],
           ),
 
           // ==================== CIRCULAR PROGRESS ====================
-
           WidgetDocCard(
             title: 'Circular Progress',
             description: 'Circular indicators for progress and loading',
@@ -175,29 +140,10 @@ TProgressBar(
               runSpacing: 24,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                TCircularProgress(
-                  value: 0.75,
-                  showPercentage: true,
-                  label: 'Completed',
-                ),
-                TCircularProgress(
-                  indeterminate: true,
-                  size: 30,
-                  label: 'Loading...',
-                ),
-                TCircularProgress(
-                  value: 0.4,
-                  size: 60,
-                  strokeWidth: 8,
-                  showPercentage: true,
-                  color: AppColors.danger,
-                ),
-                TCircularProgress(
-                  value: 0.9,
-                  size: 24,
-                  strokeWidth: 2,
-                  color: AppColors.success,
-                ),
+                TCircularProgress(value: 0.75, showPercentage: true, label: 'Completed'),
+                TCircularProgress(indeterminate: true, size: 30, label: 'Loading...'),
+                TCircularProgress(value: 0.4, size: 60, strokeWidth: 8, showPercentage: true, color: AppColors.danger),
+                TCircularProgress(value: 0.9, size: 24, strokeWidth: 2, color: AppColors.success),
               ],
             ),
             code: '''// Fixed value with percentage
@@ -225,7 +171,7 @@ TCircularProgress(
               PropertyDoc(name: 'showPercentage', type: 'bool', defaultValue: 'false', description: 'Show percentage in the center'),
             ],
           ),
-          
+
           const SizedBox(height: 40),
         ],
       ),

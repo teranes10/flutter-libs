@@ -32,7 +32,6 @@ class _TabsPageState extends State<TabsPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -44,7 +43,7 @@ class _TabsPageState extends State<TabsPage> {
           const SizedBox(height: 8),
           Text(
             'Tab navigation components with multiple layout modes and customization options.',
-            style: TextStyle(fontSize: 16, color: context.colors.onSurface.withAlpha(179)),
+            style: TextStyle(fontSize: 16, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 
@@ -207,10 +206,7 @@ TTabs<int>(
                                   style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  'View your main dashboard',
-                                  style: TextStyle(color: context.colors.onSurface.withAlpha(179), fontSize: 13),
-                                ),
+                                Text('View your main dashboard', style: TextStyle(color: context.colors.onSurfaceVariant, fontSize: 13)),
                               ],
                             ),
                           ),
@@ -232,7 +228,7 @@ TTabs<int>(
                                   style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16),
                                 ),
                                 const SizedBox(height: 4),
-                                Text('Analyze your data', style: TextStyle(color: context.colors.onSurface.withAlpha(179), fontSize: 13)),
+                                Text('Analyze your data', style: TextStyle(color: context.colors.onSurfaceVariant, fontSize: 13)),
                               ],
                             ),
                           ),
@@ -254,7 +250,7 @@ TTabs<int>(
                                   style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16),
                                 ),
                                 const SizedBox(height: 4),
-                                Text('Generate reports', style: TextStyle(color: context.colors.onSurface.withAlpha(179), fontSize: 13)),
+                                Text('Generate reports', style: TextStyle(color: context.colors.onSurfaceVariant, fontSize: 13)),
                               ],
                             ),
                           ),
@@ -276,7 +272,7 @@ TTabs<int>(
                                   style: TextStyle(color: context.colors.onSurface, fontWeight: FontWeight.w600, fontSize: 16),
                                 ),
                                 const SizedBox(height: 4),
-                                Text('Configure settings', style: TextStyle(color: context.colors.onSurface.withAlpha(179), fontSize: 13)),
+                                Text('Configure settings', style: TextStyle(color: context.colors.onSurfaceVariant, fontSize: 13)),
                               ],
                             ),
                           ),
@@ -801,7 +797,7 @@ TTabs<int>(
                                 const SizedBox(height: 8),
                                 Text(
                                   'View your main dashboard with key metrics and insights',
-                                  style: TextStyle(color: context.colors.onSurface.withAlpha(179)),
+                                  style: TextStyle(color: context.colors.onSurfaceVariant),
                                 ),
                               ],
                             ),
@@ -825,7 +821,7 @@ TTabs<int>(
                                 const SizedBox(height: 8),
                                 Text(
                                   'Analyze your data with detailed charts and statistics',
-                                  style: TextStyle(color: context.colors.onSurface.withAlpha(179)),
+                                  style: TextStyle(color: context.colors.onSurfaceVariant),
                                 ),
                               ],
                             ),
@@ -847,10 +843,7 @@ TTabs<int>(
                                   style: TextStyle(color: context.colors.onSurface, fontSize: 18, fontWeight: FontWeight.w600),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  'Generate and view comprehensive reports',
-                                  style: TextStyle(color: context.colors.onSurface.withAlpha(179)),
-                                ),
+                                Text('Generate and view comprehensive reports', style: TextStyle(color: context.colors.onSurfaceVariant)),
                               ],
                             ),
                           ),

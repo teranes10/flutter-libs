@@ -99,6 +99,9 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Whether the footer should be sticky.
   final bool? footerSticky;
 
+  /// Whether to use dense layout (less padding).
+  final bool? dense;
+
   /// Custom builder for the row.
   ///
   /// If provided, this builder is called for each row and can be used to
@@ -136,6 +139,7 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.infiniteScroll,
     this.headerSticky,
     this.footerSticky,
+    this.dense,
     this.rowBuilder,
     this.rowColorBuilder,
     this.beforeItemsBuilder,
@@ -148,7 +152,8 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
                   footerBuilder == null &&
                   infiniteScroll == null &&
                   headerSticky == null &&
-                  footerSticky == null),
+                  footerSticky == null &&
+                  dense == null),
           'Cannot provide both theme and individual theme properties.',
         );
 
@@ -158,9 +163,9 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
 
 class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, TTable<T, K>> {
   TTableTheme get wTheme {
-    if (widget.theme != null) return widget.theme!;
+    TTableTheme theme = widget.theme ?? context.theme.tableTheme;
 
-    return context.theme.tableTheme.copyWith(
+    theme = theme.copyWith(
       grid: widget.grid,
       gridDelegate: widget.gridDelegate,
       shrinkWrap: widget.shrinkWrap,
@@ -169,7 +174,20 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       infiniteScroll: widget.infiniteScroll,
       headerSticky: widget.headerSticky,
       footerSticky: widget.footerSticky,
+      dense: widget.dense,
     );
+
+    if (theme.dense == true) {
+      theme = theme.copyWith(
+        headerTheme: theme.headerTheme.copyWith(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4)),
+        rowCardTheme: theme.rowCardTheme.copyWith(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            margin: const EdgeInsets.only(bottom: 2),
+            borderRadius: const BorderRadius.all(Radius.circular(4))),
+      );
+    }
+
+    return theme;
   }
 
   late final ValueNotifier<String?>? _activeCellNotifier;

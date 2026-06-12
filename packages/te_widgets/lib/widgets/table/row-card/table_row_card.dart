@@ -85,6 +85,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
       margin: wTheme.margin,
       elevation: wTheme.elevation,
       borderRadius: wTheme.borderRadius,
+      borderColor: Colors.transparent,
       backgroundColor: backgroundColor ?? wTheme.backgroundColor.resolve(states),
       padding: wTheme.padding,
       child: Column(

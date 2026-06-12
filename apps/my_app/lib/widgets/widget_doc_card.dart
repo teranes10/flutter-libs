@@ -163,7 +163,7 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                           Text(widget.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
                           if (widget.description != null) ...[
                             const SizedBox(height: 2),
-                            Text(widget.description!, style: TextStyle(fontSize: 11, color: colors.onSurface.withAlpha(179))),
+                            Text(widget.description!, style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
                           ],
                         ],
                       ),
@@ -351,7 +351,7 @@ class PropertyDocumentation extends StatelessWidget {
                         context,
                         Text(
                           prop.defaultValue ?? '-',
-                          style: TextStyle(fontFamily: 'Courier', fontSize: 12, color: colors.onSurface.withAlpha(179)),
+                          style: TextStyle(fontFamily: 'Courier', fontSize: 12, color: colors.onSurfaceVariant),
                         ),
                       ),
                       _buildCell(context, Text(prop.description, style: TextStyle(fontSize: 13, color: colors.onSurface.withAlpha(204)))),

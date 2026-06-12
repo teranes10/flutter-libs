@@ -416,29 +416,29 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
                               minifiedWidth: widget.minifiedWidth,
                               isMinimized: false,
                               onTap: (_) => _closeMobileSidebar(),
+                              footer: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                margin: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: colors.surfaceContainer,
+                                ),
+                                child: Wrap(
+                                  alignment: WrapAlignment.start,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 10,
+                                  runSpacing: 10,
+                                  children: [
+                                    if (widget.profile != null) widget.profile!,
+                                    if (widget.showThemeToggle) _buildThemeToggle(colors),
+                                    if (widget.actions != null) ...widget.actions!,
+                                    if (widget.showLogout) _buildLogoutButton(colors),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(10),
-                            margin: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: colors.surfaceContainer,
-                            ),
-                            child: Wrap(
-                              alignment: WrapAlignment.center,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              spacing: 15,
-                              runSpacing: 10,
-                              children: [
-                                if (widget.profile != null) widget.profile!,
-                                if (widget.showThemeToggle) _buildThemeToggle(colors),
-                                if (widget.actions != null) ...widget.actions!,
-                                if (widget.showLogout) _buildLogoutButton(colors),
-                              ],
-                            ),
-                          )
                         ],
                       ),
                     ),

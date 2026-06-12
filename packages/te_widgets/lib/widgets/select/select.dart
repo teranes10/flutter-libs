@@ -343,7 +343,9 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
               Padding(
                 padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 12.5),
                 child: TTextField<String?>(
-                    placeholder: 'Search...',
+                    labelPosition: TLabelPosition.aboveField,
+                    size: TInputSize.sm,
+                    placeholder: widget.label,
                     decorationType: TInputDecorationType.underline,
                     textController: textController,
                     onValueChanged: (text) => listController.handleSearchChange(text ?? '')),

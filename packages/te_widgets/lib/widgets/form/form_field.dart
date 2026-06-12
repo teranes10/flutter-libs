@@ -11,10 +11,12 @@ part of 'form_builder.dart';
 /// ## Factory Methods
 ///
 /// - `text()` - Text input
+/// - `tags()` - Tags input
 /// - `number()` - Number input
 /// - `date()` - Date picker
 /// - `time()` - Time picker
 /// - `dateTime()` - Date-time picker
+/// - `dateTimeField()` - Masked date-time input
 /// - `select()` - Single selection
 /// - `multiSelect()` - Multiple selection
 /// - `toggle()` - Switch
@@ -23,6 +25,7 @@ part of 'form_builder.dart';
 /// - `radioGroup()` - Radio group
 /// - `filePicker()` - File upload
 /// - `group()` - Nested form
+/// - `groupFields()` - Group of manual fields
 /// - `items()` - Dynamic list of forms
 ///
 /// ## Usage Example
@@ -44,7 +47,7 @@ part of 'form_builder.dart';
 /// - [TFormBuilder] for form layout
 class TFormField<T> {
   /// The reactive property for this field.
-  final TFieldProp<T> prop;
+  final TFieldProp<T>? prop;
 
   /// Builder function that creates the widget.
   final Widget Function(ValueChanged<T?>) builder;
@@ -54,12 +57,12 @@ class TFormField<T> {
   VoidCallback? _callback;
 
   /// Creates a form field.
-  TFormField({required this.builder, required this.prop}) {
+  TFormField({required this.builder, this.prop}) {
     _field = builder.call(_onValueChanged);
   }
 
   void _onValueChanged(T? value) {
-    prop._setUserValue(value);
+    prop?._setUserValue(value);
     _callback?.call();
   }
 
@@ -356,6 +359,49 @@ class TFormField<T> {
     );
   }
 
+  static TFormField<T> dateTimeField<T extends String?>(
+    TFieldProp<T> prop,
+    String? label, {
+    String? tag,
+    String? placeholder,
+    String? helperText,
+    bool isRequired = false,
+    bool disabled = false,
+    bool autoFocus = false,
+    bool readOnly = false,
+    bool clearable = false,
+    TTextFieldTheme? theme,
+    FocusNode? focusNode,
+    VoidCallback? onTap,
+    TextEditingController? textController,
+    List<String? Function(T?)>? rules,
+    TDateTimeFormatType formatType = TDateTimeFormatType.date,
+  }) {
+    return TFormField<T>(
+      prop: prop,
+      builder: (onValueChanged) => TDateTimeTextField(
+        label: label,
+        tag: tag,
+        placeholder: placeholder,
+        helperText: helperText,
+        isRequired: isRequired,
+        disabled: disabled,
+        autoFocus: autoFocus,
+        readOnly: readOnly,
+        clearable: clearable,
+        theme: theme,
+        focusNode: focusNode,
+        onTap: onTap,
+        textController: textController,
+        rules: rules,
+        formatType: formatType,
+        value: prop.value,
+        valueNotifier: prop.valueNotifier,
+        onValueChanged: onValueChanged,
+      ),
+    );
+  }
+
   static TFormField<V?> select<T, V, K>(
     TFieldProp<V?> prop,
     String? label, {
@@ -492,6 +538,25 @@ class TFormField<T> {
         input: prop.value,
         onValueChanged: () {
           onValueChanged(prop.value);
+        },
+        initiallyExpanded: initiallyExpanded,
+      ),
+    );
+  }
+
+  static TFormField<dynamic> groupFields(
+    List<TFormField> fields, {
+    String? label,
+    String? description,
+    bool initiallyExpanded = false,
+  }) {
+    return TFormField(
+      builder: (onValueChanged) => TFormBuilder(
+        label: label,
+        description: description,
+        fields: fields,
+        onValueChanged: () {
+          onValueChanged(null);
         },
         initiallyExpanded: initiallyExpanded,
       ),

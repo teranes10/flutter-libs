@@ -16,7 +16,6 @@ class _StepperPageState extends State<StepperPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -27,7 +26,7 @@ class _StepperPageState extends State<StepperPage> {
           const SizedBox(height: 8),
           Text(
             'A stepper displays progress through a sequence of logical and numbered steps.',
-            style: TextStyle(fontSize: 16, color: context.colors.onSurface.withAlpha(179)),
+            style: TextStyle(fontSize: 16, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 

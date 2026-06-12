@@ -109,7 +109,7 @@ class TBreadcrumbs extends StatelessWidget {
           style: style?.copyWith(color: color) ??
               TextStyle(
                 color: color,
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: isLast ? FontWeight.w400 : FontWeight.w300,
               ),
         ),

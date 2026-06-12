@@ -24,7 +24,6 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -36,7 +35,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           const SizedBox(height: 8),
           Text(
             'Dropdown selects with search, pagination, and hierarchical support.',
-            style: TextStyle(fontSize: 13, color: context.colors.onSurface.withAlpha(179)),
+            style: TextStyle(fontSize: 13, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 

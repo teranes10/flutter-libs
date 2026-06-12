@@ -28,7 +28,7 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
       } else if (parent.viewMode == 2) {
         effectiveTheme = tableTheme.copyWith(
           forceCardStyle: false,
-          grid: TGridMode.aligned,
+          grid: TGridMode.masonry,
           gridDelegate: (context) => context.isMobile ? TGridDelegate(crossAxisCount: 1) : TGridDelegate(maxCrossAxisExtent: 350),
         );
       } else {

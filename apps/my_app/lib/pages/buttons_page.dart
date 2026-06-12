@@ -14,7 +14,6 @@ class _ButtonsPageState extends State<ButtonsPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -26,7 +25,7 @@ class _ButtonsPageState extends State<ButtonsPage> {
           const SizedBox(height: 8),
           Text(
             'Customizable button widgets with multiple variants, sizes, and states.',
-            style: TextStyle(fontSize: 16, color: context.colors.onSurface.withAlpha(179)),
+            style: TextStyle(fontSize: 16, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 

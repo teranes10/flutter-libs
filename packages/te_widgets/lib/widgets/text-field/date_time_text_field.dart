@@ -28,8 +28,8 @@ import 'package:te_widgets/te_widgets.dart';
 ///   formatType: TDateTimeFormatType.time,
 /// )
 /// ```
-class TDateTimeTextField extends StatefulWidget
-    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<String>, TInputValidationMixin<String> {
+class TDateTimeTextField<T extends String?> extends StatefulWidget
+    with TInputFieldMixin, TFocusMixin, TTextFieldMixin, TInputValueMixin<T>, TInputValidationMixin<T> {
   @override
   final String? label, tag, helperText, placeholder, info;
   @override
@@ -43,13 +43,13 @@ class TDateTimeTextField extends StatefulWidget
   @override
   final TextEditingController? textController;
   @override
-  final String? value;
+  final T? value;
   @override
-  final ValueNotifier<String?>? valueNotifier;
+  final ValueNotifier<T?>? valueNotifier;
   @override
-  final ValueChanged<String?>? onValueChanged;
+  final ValueChanged<T?>? onValueChanged;
   @override
-  final List<String? Function(String?)>? rules;
+  final List<String? Function(T?)>? rules;
   @override
   final Duration? validationDebounce;
 
@@ -82,18 +82,18 @@ class TDateTimeTextField extends StatefulWidget
   });
 
   @override
-  State<TDateTimeTextField> createState() => _TDateTimeTextFieldState();
+  State<TDateTimeTextField<T>> createState() => _TDateTimeTextFieldState<T>();
 }
 
-class _TDateTimeTextFieldState extends State<TDateTimeTextField>
+class _TDateTimeTextFieldState<T extends String?> extends State<TDateTimeTextField<T>>
     with
-        TInputFieldStateMixin<TDateTimeTextField>,
-        TFocusStateMixin<TDateTimeTextField>,
-        TTextFieldStateMixin<TDateTimeTextField>,
-        TInputValueStateMixin<String, TDateTimeTextField>,
-        TInputValidationStateMixin<String, TDateTimeTextField> {
+        TInputFieldStateMixin<TDateTimeTextField<T>>,
+        TFocusStateMixin<TDateTimeTextField<T>>,
+        TTextFieldStateMixin<TDateTimeTextField<T>>,
+        TInputValueStateMixin<T, TDateTimeTextField<T>>,
+        TInputValidationStateMixin<T, TDateTimeTextField<T>> {
   @override
-  void onExternalValueChanged(String? value) {
+  void onExternalValueChanged(T? value) {
     super.onExternalValueChanged(value);
     final effectiveValue = (value == null || value.isEmpty) ? widget.formatType.placeholder : value;
     if (textController.text != effectiveValue) {
@@ -117,9 +117,9 @@ class _TDateTimeTextFieldState extends State<TDateTimeTextField>
       onValueChanged: (v) {
         // If the value is just the placeholder, treat it as empty
         if (v == widget.formatType.placeholder) {
-          notifyValueChanged('');
+          notifyValueChanged((null is T ? null : '') as T);
         } else {
-          notifyValueChanged(v);
+          notifyValueChanged(v as T);
         }
       },
       hasValue: textController.text.isNotEmpty && textController.text != widget.formatType.placeholder,
@@ -131,7 +131,7 @@ class _TDateTimeTextFieldState extends State<TDateTimeTextField>
       },
       onClear: () {
         textController.text = widget.formatType.placeholder;
-        notifyValueChanged('');
+        notifyValueChanged((null is T ? null : '') as T);
       },
       beforePreWidget: Icon(
         widget.formatType == TDateTimeFormatType.time ? Icons.access_time : Icons.calendar_today,

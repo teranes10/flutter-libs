@@ -7,6 +7,7 @@ class Sidebar extends StatelessWidget {
   final double minifiedWidth;
   final bool isMinimized;
   final Function(TSidebarItem)? onTap;
+  final Widget? footer;
 
   const Sidebar({
     super.key,
@@ -15,6 +16,7 @@ class Sidebar extends StatelessWidget {
     this.minifiedWidth = 80,
     this.isMinimized = true,
     this.onTap,
+    this.footer,
   });
 
   @override
@@ -41,6 +43,7 @@ class Sidebar extends StatelessWidget {
                             isMinimized: isMinimized,
                             onTap: onTap,
                           ),
+                        if (footer != null) footer!,
                       ],
                     ),
                   ),

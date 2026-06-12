@@ -186,8 +186,8 @@ class TGridDelegate {
   const TGridDelegate({
     this.crossAxisCount,
     this.maxCrossAxisExtent,
-    this.mainAxisSpacing = 4.0,
-    this.crossAxisSpacing = 4.0,
+    this.mainAxisSpacing = 8.0,
+    this.crossAxisSpacing = 8.0,
   }) : assert(
           (crossAxisCount != null) ^ (maxCrossAxisExtent != null),
           'Either crossAxisCount OR maxCrossAxisExtent must be provided, but not both.',

@@ -9,26 +9,18 @@ class ChipsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Page Header
           Text(
             'Chips',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: context.colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: context.colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'Compact elements that represent an attribute, text, entity, or action.',
-            style: TextStyle(
-              fontSize: 16,
-              color: context.colors.onSurface.withAlpha(179),
-            ),
+            style: TextStyle(fontSize: 16, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 
@@ -53,17 +45,8 @@ class ChipsPage extends StatelessWidget {
   color: AppColors.primary,
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'type',
-                type: 'TVariant?',
-                defaultValue: 'TVariant.tonal',
-                description: 'The visual variant of the chip',
-              ),
-              PropertyDoc(
-                name: 'label',
-                type: 'String?',
-                description: 'The text to display',
-              ),
+              PropertyDoc(name: 'type', type: 'TVariant?', defaultValue: 'TVariant.tonal', description: 'The visual variant of the chip'),
+              PropertyDoc(name: 'label', type: 'String?', description: 'The text to display'),
             ],
           ),
 
@@ -88,13 +71,7 @@ class ChipsPage extends StatelessWidget {
   text: 'Active',
   color: AppColors.success,
 )''',
-            properties: const [
-              PropertyDoc(
-                name: 'icon',
-                type: 'IconData?',
-                description: 'Optional icon to display before text',
-              ),
-            ],
+            properties: const [PropertyDoc(name: 'icon', type: 'IconData?', description: 'Optional icon to display before text')],
           ),
 
           // Outline Chips
@@ -134,12 +111,7 @@ class ChipsPage extends StatelessWidget {
                   icon: Icons.star,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                TChip(
-                  text: 'Click Me',
-                  color: AppColors.info,
-                  type: TVariant.tonal,
-                  onTap: () {},
-                ),
+                TChip(text: 'Click Me', color: AppColors.info, type: TVariant.tonal, onTap: () {}),
               ],
             ),
             code: '''TChip(
@@ -150,29 +122,13 @@ class ChipsPage extends StatelessWidget {
   borderRadius: BorderRadius.circular(20),
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'background',
-                type: 'Color?',
-                description: 'Custom background color',
-              ),
-              PropertyDoc(
-                name: 'textColor',
-                type: 'Color?',
-                description: 'Custom text and icon color',
-              ),
-              PropertyDoc(
-                name: 'borderRadius',
-                type: 'BorderRadius?',
-                description: 'Custom border radius',
-              ),
-              PropertyDoc(
-                name: 'onTap',
-                type: 'VoidCallback?',
-                description: 'Callback when chip is tapped',
-              ),
+              PropertyDoc(name: 'background', type: 'Color?', description: 'Custom background color'),
+              PropertyDoc(name: 'textColor', type: 'Color?', description: 'Custom text and icon color'),
+              PropertyDoc(name: 'borderRadius', type: 'BorderRadius?', description: 'Custom border radius'),
+              PropertyDoc(name: 'onTap', type: 'VoidCallback?', description: 'Callback when chip is tapped'),
             ],
           ),
-          
+
           const SizedBox(height: 40),
         ],
       ),

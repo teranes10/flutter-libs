@@ -41,6 +41,8 @@ class UserForm extends TFormBase {
   final options = TFieldProp<List<String>>([]);
   final subForm = TFieldProp(SubForm());
   final subForms = TFieldProp(List<SubForm>.empty());
+  final internal1 = TFieldProp('');
+  final internal2 = TFieldProp('');
 
   UserForm() {
     email.subscribe(firstName, (v) => v, cancelOnUserEdit: true);
@@ -78,6 +80,10 @@ class UserForm extends TFormBase {
       TFormField.checkbox(check, "Check").size(3),
       TFormField.toggle(toggle, "Toggle").size(3),
       TFormField.filePicker(files, "File Picker"),
+      TFormField.groupFields([
+        TFormField.text(internal1, 'Internal Field 1').size(6),
+        TFormField.text(internal2, 'Internal Field 2').size(6),
+      ], label: 'Manual Group', description: 'Grouped without TFormBase'),
       TFormField.group(subForm, label: 'Sub Form', description: 'Sub Title'),
       TFormField.items(subForms, () => SubForm(), label: 'Sub Forms', buttonLabel: 'Add New'),
     ];
@@ -92,7 +98,7 @@ class UserForm extends TFormBase {
 
   @override
   String toString() {
-    return 'UserForm firstName: $firstName, lastName: $lastName, username: $username, email: $email, items: ${subForms.value}';
+    return 'UserForm firstName: $firstName, lastName: $lastName, username: $username, email: $email, internal1: $internal1, internal2: $internal2, items: ${subForms.value}';
   }
 }
 

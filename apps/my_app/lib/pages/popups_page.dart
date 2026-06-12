@@ -27,7 +27,6 @@ class _PopupsPageState extends State<PopupsPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -125,6 +124,99 @@ class _PopupsPageState extends State<PopupsPage> {
                 onPressed: (_) => _showModal(title: 'Persistent Modal', persistent: true),
               ),
             ],
+          ),
+          const SizedBox(height: 32),
+
+          // ===== Sheets =====
+          const Text('📑 Sheets', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              TButton(
+                text: 'Bottom Sheet (Sliding)',
+                onPressed: (_) => TSheetService.showBottomSheet(
+                  context,
+                  title: 'Bottom Sheet',
+                  showCloseButton: true,
+                  (ctx) => Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('This is a bottom sheet with sliding animation.'),
+                        const SizedBox(height: 20),
+                        TButton(text: 'Close', onPressed: (_) => ctx.close()),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              TButton(
+                text: 'Bottom Sheet (Drawing)',
+                onPressed: (_) => TSheetService.showBottomSheet(
+                  context,
+                  title: 'Bottom Sheet',
+                  showCloseButton: true,
+                  animationType: TSheetAnimationType.drawing,
+                  (ctx) => Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: const Text('This is a bottom sheet with drawing animation.'),
+                  ),
+                ),
+              ),
+              TButton(
+                text: 'Side Sheet (Right)',
+                onPressed: (_) => TSheetService.showSideSheet(
+                  context,
+                  title: 'Side Sheet',
+                  showCloseButton: true,
+                  (ctx) => Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: const Text('This is a side sheet from the right.'),
+                  ),
+                ),
+              ),
+              TButton(
+                text: 'Side Sheet (Left, Drawing)',
+                onPressed: (_) => TSheetService.showSideSheet(
+                  context,
+                  title: 'Side Sheet',
+                  showCloseButton: true,
+                  fromLeft: true,
+                  animationType: TSheetAnimationType.drawing,
+                  (ctx) => Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: const Text('This is a side sheet from the left with drawing animation.'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+
+          // ===== Divider =====
+          const Text('➖ Dividers', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          const TDivider(),
+          const Text('Custom color and thickness:'),
+          TDivider(color: AppColors.primary, thickness: 2, space: 40),
+          const Text('Indented divider:'),
+          const TDivider(indent: 50, endIndent: 50),
+          const SizedBox(height: 12),
+          const Text('Vertical Divider (inside a Row):'),
+          const SizedBox(height: 8),
+          Container(
+            height: 50,
+            decoration: BoxDecoration(border: Border.all(color: context.colors.outlineVariant)),
+            child: Row(
+              children: [
+                Expanded(child: Center(child: Text('Left'))),
+                TDivider.vertical(),
+                Expanded(child: Center(child: Text('Right'))),
+              ],
+            ),
           ),
           const SizedBox(height: 32),
 
@@ -226,7 +318,7 @@ class _PopupsPageState extends State<PopupsPage> {
           TTooltip(
             message: 'Tooltip with 500ms delay & padding',
             showDelay: const Duration(milliseconds: 500),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(12),
             position: TTooltipPosition.top,
             child: const Icon(Icons.hourglass_empty, size: 32),
           ),

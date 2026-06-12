@@ -233,6 +233,7 @@ class TButton extends StatefulWidget {
 class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool _isActive = false;
+  DateTime? _lastTapTime;
 
   late final WidgetStatesController _statesController;
 
@@ -278,6 +279,12 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   }
 
   void _handlePress() {
+    final now = DateTime.now();
+    if (_lastTapTime != null && now.difference(_lastTapTime!) < const Duration(seconds: 1)) {
+      return;
+    }
+    _lastTapTime = now;
+
     if (_isLoading || (widget.onPressed == null && widget.onTap == null && widget.onChanged == null)) return;
 
     _pressController.forward().then((_) {

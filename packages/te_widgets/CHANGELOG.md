@@ -1,3 +1,16 @@
+# 2.5.0
+
+- **TBarcodeScanner Improvements**:
+  - Enhanced scanning UI with a visual scan window and an animated scanning line for better user guidance.
+  - Added interactive hardware controls: Torch toggle, Camera flip, and 2x Zoom.
+  - Optimized for Web: Automatically hides hardware-dependent controls on the web platform to prevent "Unsupported operation" errors.
+  - Improved Lifecycle: Strictly synchronized camera start/stop with popup visibility, resolving "Video already playing" errors and resource leaks.
+- **TButton Enhancement**:
+  - Implemented a 1-second debounce (throttle) for `onTap` and `onPressed` to prevent accidental double-taps and redundant invalid clicks.
+- **TTableMobileCard Refinement**:
+  - Refactored layout to ensure the expansion icon remains anchored to the bottom-right even when the card is stretched in grid layouts.
+  - Improved padding to prevent content overlap with expansion controls.
+
 # 2.4.0
 
 - Added `TBottomBar` for customizable bottom navigation.

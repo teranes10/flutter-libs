@@ -54,7 +54,6 @@ class _PickersPageState extends State<PickersPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -66,7 +65,7 @@ class _PickersPageState extends State<PickersPage> {
           const SizedBox(height: 8),
           Text(
             'Date, time, and datetime pickers with calendar and clock interfaces.',
-            style: TextStyle(fontSize: 13, color: context.colors.onSurface.withAlpha(179)),
+            style: TextStyle(fontSize: 13, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 
@@ -593,10 +592,7 @@ TDateTimePicker(
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: context.colors.onSurface),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Sliders for ranges and star ratings for feedback.',
-            style: TextStyle(fontSize: 13, color: context.colors.onSurface.withAlpha(179)),
-          ),
+          Text('Sliders for ranges and star ratings for feedback.', style: TextStyle(fontSize: 13, color: context.colors.onSurfaceVariant)),
           const SizedBox(height: 32),
 
           // Slider

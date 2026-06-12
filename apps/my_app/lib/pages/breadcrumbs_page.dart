@@ -10,7 +10,6 @@ class BreadcrumbsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -22,7 +21,7 @@ class BreadcrumbsPage extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Navigation aid that helps users keep track of their location within the application.',
-            style: TextStyle(fontSize: 16, color: context.colors.onSurface.withAlpha(179)),
+            style: TextStyle(fontSize: 16, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 

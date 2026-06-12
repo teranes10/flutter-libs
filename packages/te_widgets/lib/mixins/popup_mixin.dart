@@ -5,12 +5,16 @@ import 'package:te_widgets/te_widgets.dart';
 enum TPopupAlignment {
   bottomLeft,
   bottomRight,
+  bottomCenter,
   topLeft,
   topRight,
+  topCenter,
   leftTop,
   leftBottom,
+  leftCenter,
   rightTop,
   rightBottom,
+  rightCenter,
 }
 
 typedef TPopupConstraints = ({
@@ -31,6 +35,9 @@ mixin TPopupMixin {
 
   /// Offset from the target widget.
   double get offset => 8;
+
+  /// Whether to show a close button in the popup.
+  bool get showCloseButton => true;
 
   /// Callback when popup shows.
   VoidCallback? get onShow;
@@ -141,13 +148,13 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
           contentAlignment: alignment,
         );
 
-        return shouldCenteredOverlay ? _buildCenteredOverlayChild(context, constraints) : _buildAnchoredOverlayChild(context, constraints);
+        return shouldCenteredOverlay ? buildCenteredOverlayChild(context, constraints) : buildAnchoredOverlayChild(context, constraints);
       },
       child: KeyedSubtree(key: _dropdownTargetKey, child: child),
     );
   }
 
-  Widget _buildCenteredOverlayChild(BuildContext context, TPopupConstraints constraints) {
+  Widget buildCenteredOverlayChild(BuildContext context, TPopupConstraints constraints) {
     return Stack(
       children: [
         if (!persistent)
@@ -156,14 +163,14 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
           alignment: constraints.contentAlignment,
           child: ConstrainedBox(
             constraints: constraints.contentBox,
-            child: _buildContentWidget(context),
+            child: buildContentWidget(context),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildAnchoredOverlayChild(BuildContext context, TPopupConstraints constraints) {
+  Widget buildAnchoredOverlayChild(BuildContext context, TPopupConstraints constraints) {
     return Stack(
       children: [
         if (!persistent) Positioned.fill(child: GestureDetector(onTap: hidePopup, child: Container(color: Colors.transparent))),
@@ -175,14 +182,14 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
           ),
           child: ConstrainedBox(
             constraints: constraints.contentBox,
-            child: _buildContentWidget(context),
+            child: buildContentWidget(context),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildContentWidget(BuildContext context) {
+  Widget buildContentWidget(BuildContext context) {
     return TCard(
       elevation: 8,
       padding: EdgeInsets.zero,
@@ -192,7 +199,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         child: Stack(
           children: [
             getContentWidget(context),
-            Positioned(top: 0, right: 0, child: TIcon.close(size: 20, padding: EdgeInsets.all(5), onTap: hidePopup)),
+            if (_widget.showCloseButton) Positioned(top: 0, right: 0, child: TIcon.close(size: 20, padding: EdgeInsets.all(5), onTap: hidePopup)),
           ],
         ),
       ),
@@ -237,45 +244,77 @@ class PopupPositionDelegate extends SingleChildLayoutDelegate {
     final canShowRight = spaceRight >= extraWidthNeeded;
     final canShowLeft = spaceLeft >= extraWidthNeeded;
 
-    final (openUpward, openToRight, openOnSide) = switch (alignment) {
+    final (openUpward, openToRight, openOnSide, isCentered) = switch (alignment) {
       TPopupAlignment.bottomLeft => (
           canShowBelow ? false : (canShowAbove ? true : spaceAbove > spaceBelow),
           canShowRight ? true : (canShowLeft ? false : spaceRight > spaceLeft),
+          false,
           false,
         ),
       TPopupAlignment.bottomRight => (
           canShowBelow ? false : (canShowAbove ? true : spaceAbove > spaceBelow),
           canShowLeft ? false : (canShowRight ? true : spaceRight > spaceLeft),
           false,
+          false,
+        ),
+      TPopupAlignment.bottomCenter => (
+          canShowBelow ? false : (canShowAbove ? true : spaceAbove > spaceBelow),
+          true,
+          false,
+          true,
         ),
       TPopupAlignment.topLeft => (
           canShowAbove ? true : (canShowBelow ? false : spaceAbove > spaceBelow),
           canShowRight ? true : (canShowLeft ? false : spaceRight > spaceLeft),
+          false,
           false,
         ),
       TPopupAlignment.topRight => (
           canShowAbove ? true : (canShowBelow ? false : spaceAbove > spaceBelow),
           canShowLeft ? false : (canShowRight ? true : spaceRight > spaceLeft),
           false,
+          false,
+        ),
+      TPopupAlignment.topCenter => (
+          canShowAbove ? true : (canShowBelow ? false : spaceAbove > spaceBelow),
+          true,
+          false,
+          true,
         ),
       TPopupAlignment.rightTop => (
           canShowBelow ? false : (canShowAbove ? true : spaceAbove > spaceBelow),
           canShowRight ? true : (canShowLeft ? false : spaceRight > spaceLeft),
           true,
+          false,
         ),
       TPopupAlignment.rightBottom => (
           canShowAbove ? true : (canShowBelow ? false : spaceAbove > spaceBelow),
           canShowRight ? true : (canShowLeft ? false : spaceRight > spaceLeft),
+          true,
+          false,
+        ),
+      TPopupAlignment.rightCenter => (
+          canShowRight ? true : (canShowLeft ? false : spaceRight > spaceLeft),
+          true,
+          true,
           true,
         ),
       TPopupAlignment.leftTop => (
           canShowBelow ? false : (canShowAbove ? true : spaceAbove > spaceBelow),
           canShowLeft ? false : (canShowRight ? true : spaceRight > spaceLeft),
           true,
+          false,
         ),
       TPopupAlignment.leftBottom => (
           canShowAbove ? true : (canShowBelow ? false : spaceAbove > spaceBelow),
           canShowLeft ? false : (canShowRight ? true : spaceRight > spaceLeft),
+          true,
+          false,
+        ),
+      TPopupAlignment.leftCenter => (
+          canShowLeft ? false : (canShowRight ? true : spaceRight > spaceLeft),
+          false,
+          true,
           true,
         ),
     };
@@ -289,7 +328,10 @@ class PopupPositionDelegate extends SingleChildLayoutDelegate {
       } else {
         dx = targetOffset.dx - contentWidth - offset;
       }
-      if (openUpward) {
+
+      if (isCentered) {
+        dy = targetOffset.dy + (targetSize.height / 2) - (contentHeight / 2);
+      } else if (openUpward) {
         dy = targetOffset.dy + targetSize.height - contentHeight;
       } else {
         dy = targetOffset.dy;
@@ -300,12 +342,19 @@ class PopupPositionDelegate extends SingleChildLayoutDelegate {
       } else {
         dy = targetOffset.dy + targetSize.height + offset;
       }
-      if (openToRight) {
+
+      if (isCentered) {
+        dx = targetOffset.dx + (targetSize.width / 2) - (contentWidth / 2);
+      } else if (openToRight) {
         dx = targetOffset.dx;
       } else {
         dx = targetOffset.dx + targetSize.width - contentWidth;
       }
     }
+
+    // Boundary check
+    dx = dx.clamp(0.0, screenSize.width - contentWidth);
+    dy = dy.clamp(0.0, screenSize.height - contentHeight);
 
     return Offset(dx, dy);
   }

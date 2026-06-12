@@ -13,6 +13,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TTableTheme extends TListTheme {
   final double? cardWidth;
   final bool? forceCardStyle;
+  final bool? dense;
   final TTableRowHeaderTheme headerTheme;
   final TTableMobileCardTheme mobileCardTheme;
   final TTableRowCardTheme rowCardTheme;
@@ -40,6 +41,7 @@ class TTableTheme extends TListTheme {
     super.gridDelegate,
     this.cardWidth,
     this.forceCardStyle,
+    this.dense = false,
     required this.headerTheme,
     required this.mobileCardTheme,
     required this.rowCardTheme,
@@ -68,6 +70,7 @@ class TTableTheme extends TListTheme {
     TGridDelegateBuilder? gridDelegate,
     double? cardWidth,
     bool? forceCardStyle,
+    bool? dense,
     TTableRowHeaderTheme? headerTheme,
     TTableMobileCardTheme? mobileCardTheme,
     TTableRowCardTheme? rowCardTheme,
@@ -94,6 +97,7 @@ class TTableTheme extends TListTheme {
       gridDelegate: gridDelegate ?? this.gridDelegate,
       cardWidth: cardWidth ?? this.cardWidth,
       forceCardStyle: forceCardStyle ?? this.forceCardStyle,
+      dense: dense ?? this.dense,
       headerTheme: headerTheme ?? this.headerTheme,
       mobileCardTheme: mobileCardTheme ?? this.mobileCardTheme,
       rowCardTheme: rowCardTheme ?? this.rowCardTheme,
