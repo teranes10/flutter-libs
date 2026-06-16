@@ -1,3 +1,6 @@
+# 2.6.2
+- CrudTable topbar actions width calc from box constraints logic added to prevent the overflow
+
 # 2.6.1
 - InputValueMixin's text controller watcher logic removed
 

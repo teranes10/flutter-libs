@@ -51,7 +51,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
 
     // Action buttons
     for (var action in parent.widget.config.topBarActions) {
-      final width = action is TButton ? action.estimateWidth() : 132.0;
+      final width = WidthHelper.resolveWidth(action) ?? 132.0;
       addWidget(action, width);
     }
 

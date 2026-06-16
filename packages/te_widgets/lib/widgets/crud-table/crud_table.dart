@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
+import 'package:te_widgets/helpers/width_helper.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -255,8 +256,12 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     return _tableBuilder._buildContent(
       theme,
       tableTheme.copyWith(
-        headerBuilder: (_) => LayoutBuilder(
-          builder: (ctx, constraints) => _topBar.build(context, constraints),
+        headerBuilder: (ctx) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (tableTheme.headerBuilder != null) tableTheme.headerBuilder!(ctx),
+            LayoutBuilder(builder: _topBar.build),
+          ],
         ),
       ),
     );

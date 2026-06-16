@@ -64,11 +64,7 @@ class CrudPage extends StatelessWidget {
         );
       },
       onEdit: (item, form) async {
-        return item.copyWith(
-          title: form.title.value,
-          description: form.description.value,
-          price: form.price.value,
-        );
+        return item.copyWith(title: form.title.value, description: form.description.value, price: form.price.value);
       },
       onArchive: (item) async {
         return true;
