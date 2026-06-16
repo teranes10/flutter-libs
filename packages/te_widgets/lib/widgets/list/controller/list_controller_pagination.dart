@@ -141,7 +141,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   }
 
   void handleLoadMore() {
-    if (!hasMoreItems || isLoading) return;
+    if (!hasMoreItems || isFetching) return;
     _executePaginationAction('handleLoadMore', page: page + 1, append: true);
   }
 
@@ -209,6 +209,11 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   }
 
   void _applyLocalPagination({String? who, int? page, int? itemsPerPage, String? search, bool append = false}) {
+    if (itemsPerPage != null && localItems.isEmpty && listItems.isEmpty) {
+      updateState(who: who ?? '_applyLocalPagination', itemsPerPage: itemsPerPage);
+      return;
+    }
+
     final effectiveItems = localItems;
     final effectivePage = page ?? value.page;
     final effectiveItemsPerPage = itemsPerPage ?? value.itemsPerPage;
@@ -247,6 +252,9 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       displayItems: rawDisplayItems,
       totalItems: filteredCount,
       hasMoreItems: rawDisplayItems.length < filteredCount,
+      loading: false,
+      fetching: false,
+      error: null,
     );
   }
 
@@ -269,6 +277,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       currentCursor: cursor,
       advancedSearch: advancedSearch,
       loading: true,
+      fetching: true,
       error: null,
     );
 
@@ -324,6 +333,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
         nextCursor: result.nextCursor,
         cursorHistory: newCursorHistory,
         loading: false,
+        fetching: false,
         error: null,
       );
     } catch (error, stackTrace) {
@@ -332,6 +342,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       updateState(
         who: '$who _loadData',
         loading: false,
+        fetching: false,
         error: TListError(
           message: error.toString(),
           error: error,

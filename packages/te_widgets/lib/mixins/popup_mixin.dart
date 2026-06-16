@@ -123,27 +123,30 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
       controller: _overlayController,
       overlayChildBuilder: (ctx, layoutInfo) {
         final mediaQuery = MediaQuery.of(context);
-        final screenSize = mediaQuery.size;
-        final viewInsets = mediaQuery.viewInsets;
-        final keyboardHeight = viewInsets.bottom;
+        final keyboardHeight = mediaQuery.viewInsets.bottom;
         final targetSize = layoutInfo.childSize;
-        final translation = layoutInfo.childPaintTransform.getTranslation();
 
-        final availableWidth = mediaQuery.isMobile ? screenSize.width - 25 : screenSize.width * 0.85;
-        final availableHeight = mediaQuery.isMobile ? screenSize.height - keyboardHeight - 25 : screenSize.height * 0.85;
-        final safeAvailableWidth = availableWidth < _defaultSize ? _defaultSize : availableWidth;
-        final safeAvailableHeight = availableHeight < _defaultSize ? _defaultSize : availableHeight;
+        // Accurate position of the trigger relative to the Overlay using the provided layoutInfo
+        final targetOffset = MatrixUtils.transformPoint(layoutInfo.childPaintTransform, Offset.zero);
+
+        // Get the actual size of the Overlay to ensure correct space calculations
+        final overlay = Overlay.of(ctx).context.findRenderObject() as RenderBox?;
+        final overlaySize = overlay?.size ?? mediaQuery.size;
+
+        // Overlay usually spans the entire screen, so we DO need to account for the keyboard
+        // manually to prevent the popup from rendering under it.
+        final viewportSize = Size(overlaySize.width, overlaySize.height - keyboardHeight);
+
+        final minWidth = contentMinWidth.clamp(_defaultSize, viewportSize.width);
+        final minHeight = contentMinHeight.clamp(_defaultSize, viewportSize.height);
+        final maxWidth = (contentMaxWidth ?? targetSize.width).clamp(minWidth, viewportSize.width);
+        final maxHeight = (contentMaxHeight ?? viewportSize.height).clamp(minHeight, viewportSize.height);
         final alignment = mediaQuery.isMobile ? const FractionalOffset(0.5, 0.05) : const FractionalOffset(0.5, 0.1);
 
-        final minWidth = contentMinWidth.clamp(_defaultSize, safeAvailableWidth);
-        final minHeight = contentMinHeight.clamp(_defaultSize, safeAvailableHeight);
-        final maxWidth = (contentMaxWidth ?? targetSize.width).clamp(minWidth, safeAvailableWidth);
-        final maxHeight = (contentMaxHeight ?? screenSize.height).clamp(minHeight, safeAvailableHeight);
-
         TPopupConstraints constraints = (
-          screenSize: screenSize,
-          targetSize: layoutInfo.childSize,
-          targetOffset: Offset(translation.x, translation.y),
+          screenSize: viewportSize,
+          targetSize: targetSize,
+          targetOffset: targetOffset,
           contentBox: BoxConstraints(minWidth: minWidth, minHeight: minHeight, maxWidth: maxWidth, maxHeight: maxHeight),
           contentAlignment: alignment,
         );
@@ -199,7 +202,8 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         child: Stack(
           children: [
             getContentWidget(context),
-            if (_widget.showCloseButton) Positioned(top: 0, right: 0, child: TIcon.close(size: 20, padding: EdgeInsets.all(5), onTap: hidePopup)),
+            if (_widget.showCloseButton)
+              Positioned(top: 0, right: 0, child: TIcon.close(size: 20, padding: EdgeInsets.all(5), onTap: hidePopup)),
           ],
         ),
       ),

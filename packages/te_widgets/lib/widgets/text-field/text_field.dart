@@ -253,6 +253,11 @@ class _TTextFieldState<T extends String?> extends State<TTextField<T>>
   }
 
   @override
+  TextEditingController buildTextController() {
+    return TextEditingController(text: widget.value);
+  }
+
+  @override
   void onExternalValueChanged(T? value) {
     super.onExternalValueChanged(value);
     if (textController.text != value) {

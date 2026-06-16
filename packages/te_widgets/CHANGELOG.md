@@ -1,5 +1,17 @@
-# 2.5.0
+# 2.6.0
 
+- **Overlay & Popup Positioning Fixes**:
+  - Corrected `TPopupMixin` and `TDropdown` positioning by mapping `childPaintTransform` relative to the ancestor `Overlay` instead of global screen coordinates. This resolves alignment issues when popups are used inside navigators or padded layouts.
+  - Replaced faulty `.absolute()` transform logic with `MatrixUtils.transformPoint` to ensure correct rendering during scrolling.
+  - Factored keyboard height (`viewInsets.bottom`) and safety margins back into constraint calculations to prevent popups from rendering under the keyboard or getting clipped at screen edges.
+- **TCard Enhancement**:
+  - Added `clipBehavior` property (defaulting to `Clip.none`) to prevent nested overlays from being hidden inside layout borders (e.g., in `TDataTable` toolbars).
+- **TListController Refinement**:
+  - Added explicit `fetching` state to `TListState` alongside `loading` to better differentiate between initial loads and subsequent pagination/refresh fetches.
+- **TDateTimeInputFormatter Update**:
+  - Fixed mask validation logic to correctly truncate digits exceeding the mask's maximum length.
+
+# 2.5.0  
 - **TBarcodeScanner Improvements**:
   - Enhanced scanning UI with a visual scan window and an animated scanning line for better user guidance.
   - Added interactive hardware controls: Torch toggle, Camera flip, and 2x Zoom.

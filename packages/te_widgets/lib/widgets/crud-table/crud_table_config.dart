@@ -56,6 +56,9 @@ class TCrudConfig<T, K> {
   /// Custom actions to display in the top bar.
   final List<Widget> topBarActions;
 
+  /// Callback fired when a tab is selected.
+  final void Function(int tab)? onTabChange;
+
   /// Creates a CRUD configuration.
   const TCrudConfig({
     this.canView,
@@ -74,6 +77,7 @@ class TCrudConfig<T, K> {
     this.archiveActions = const [],
     this.topBarActions = const [],
     this.actionButtonWidth = 50.0,
+    this.onTabChange,
   });
 }
 

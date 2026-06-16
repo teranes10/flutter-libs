@@ -178,7 +178,14 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
       if (activeController is TTagsController) {
         activeController.value = activeController.value.copyWith(tags: (newValue ?? []) as List<String>);
       } else if (activeController != null) {
-        activeController.value = activeController.value.copyWith(text: newValue?.toString() ?? '');
+        final newText = newValue?.toString() ?? '';
+        if (activeController.text != newText) {
+          activeController.value = activeController.value.copyWith(
+            text: newText,
+            selection: TextSelection.collapsed(offset: newText.length),
+            composing: TextRange.empty,
+          );
+        }
       }
     }
   }

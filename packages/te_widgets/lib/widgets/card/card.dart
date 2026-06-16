@@ -75,6 +75,9 @@ class TCard extends StatelessWidget {
 
   final List<BoxShadow>? shadow;
 
+  /// The clip behavior of the card.
+  final Clip? clipBehavior;
+
   /// Creates a Material Design card widget.
   const TCard({
     super.key,
@@ -88,6 +91,7 @@ class TCard extends StatelessWidget {
     this.shadowColor,
     this.borderColor,
     this.shadow,
+    this.clipBehavior,
   });
 
   @override
@@ -106,6 +110,7 @@ class TCard extends StatelessWidget {
         elevation: elevation ?? 0,
         color: backgroundColor ?? colors.surface,
         shadowColor: shadowColor ?? colors.shadow,
+        clipBehavior: clipBehavior ?? Clip.none,
         shape: RoundedRectangleBorder(
           borderRadius: defaultBorderRadius,
           side: BorderSide(color: borderColor ?? colors.outlineVariant.withAlpha(75)),

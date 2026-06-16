@@ -49,9 +49,10 @@ class TDateTimeInputFormatter extends TextInputFormatter {
 
     // Only consider digits for the actual value
     String digitsOnly = newText.replaceAll(RegExp(r'[^0-9]'), '');
+    int maxDigits = mask.replaceAll(RegExp(r'[^#]'), '').length;
 
-    if (digitsOnly.length > mask.replaceAll(RegExp(r'[^#]'), '').length) {
-      return oldValue;
+    if (digitsOnly.length > maxDigits) {
+      digitsOnly = digitsOnly.substring(0, maxDigits);
     }
 
     // Validate segments
@@ -145,8 +146,12 @@ class TDateTimeInputFormatter extends TextInputFormatter {
       // Month (MM)
       if (result.length >= 4) {
         int mm = int.parse(result.substring(2, 4));
-        if (mm > 12) result = '${result.substring(0, 2)}12${result.substring(4)}';
-        if (mm == 0 && result.length >= 4) result = '${result.substring(0, 2)}01${result.substring(4)}';
+        if (mm > 12) {
+          result = '${result.substring(0, 2)}12${result.substring(4)}';
+        }
+        if (mm == 0 && result.length >= 4) {
+          result = '${result.substring(0, 2)}01${result.substring(4)}';
+        }
       } else if (result.length == 3) {
         int m = int.parse(result.substring(2, 3));
         if (m > 1) result = '${result.substring(0, 2)}0$m';
@@ -160,7 +165,9 @@ class TDateTimeInputFormatter extends TextInputFormatter {
         // Hour (HH)
         if (result.length >= timeStartIndex + 2) {
           int hh = int.parse(result.substring(timeStartIndex, timeStartIndex + 2));
-          if (hh > 23) result = '${result.substring(0, timeStartIndex)}23${result.substring(timeStartIndex + 2)}';
+          if (hh > 23) {
+            result = '${result.substring(0, timeStartIndex)}23${result.substring(timeStartIndex + 2)}';
+          }
         } else {
           int h = int.parse(result.substring(timeStartIndex, timeStartIndex + 1));
           if (h > 2) result = '${result.substring(0, timeStartIndex)}0$h';
@@ -169,7 +176,9 @@ class TDateTimeInputFormatter extends TextInputFormatter {
         // Minute (MM)
         if (result.length >= timeStartIndex + 4) {
           int min = int.parse(result.substring(timeStartIndex + 2, timeStartIndex + 4));
-          if (min > 59) result = '${result.substring(0, timeStartIndex + 2)}59${result.substring(timeStartIndex + 4)}';
+          if (min > 59) {
+            result = '${result.substring(0, timeStartIndex + 2)}59${result.substring(timeStartIndex + 4)}';
+          }
         } else if (result.length == timeStartIndex + 3) {
           int m = int.parse(result.substring(timeStartIndex + 2, timeStartIndex + 3));
           if (m > 5) result = '${result.substring(0, timeStartIndex + 2)}0$m';

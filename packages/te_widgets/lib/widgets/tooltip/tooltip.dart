@@ -54,7 +54,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// See also:
 /// - [TTooltipPosition] for position options
 /// - [TTooltipTriggerMode] for trigger modes
-class TTooltip extends StatefulWidget implements TPopupMixin {
+class TTooltip extends StatefulWidget with TPopupMixin {
   /// The text message to display in the tooltip.
   final String message;
 
@@ -608,7 +608,7 @@ class _PositionedTooltipState extends State<_PositionedTooltip> {
     // Determine position with better logic
     TTooltipPosition actualPosition = widget.position;
     TArrowDirection arrowDirection = TArrowDirection.up;
-    
+
     final minRequiredHorizontalSpace = tooltipWidth + widget.verticalOffset + 10; // Extra margin
 
     if (actualPosition == TTooltipPosition.auto) {

@@ -100,8 +100,10 @@ class _TablesPageState extends State<TablesPage> {
       TTableHeader<Product, int>.map("Warehouse Location", (x) => "Building A, Shelf 12, Bin 4"),
     ];
 
-    final table = await TPdfGridTableHelper.adaptive(ctx, productHeaders, products);
-    final grid = await TPdfGridTableHelper.adaptive(ctx, wideHeaders, products);
+    final tableAsync = TPdfGridTableHelper.adaptive(ctx, productHeaders, products);
+    final gridAsync = TPdfGridTableHelper.adaptive(ctx, wideHeaders, products);
+    final table = await tableAsync;
+    final grid = await gridAsync;
 
     pdf.addPage(
       pw.MultiPage(

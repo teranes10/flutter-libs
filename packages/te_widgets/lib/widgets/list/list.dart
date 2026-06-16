@@ -272,11 +272,29 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
   late AnimationController _animationController;
   late ScrollController _scrollController;
   bool _scrollControllerOwned = false;
+  TListTheme? _cachedTheme;
 
   TListTheme get wTheme {
     if (widget.theme != null) return widget.theme!;
 
-    return context.theme.listTheme.copyWith(
+    return _cachedTheme ??
+        context.theme.listTheme.copyWith(
+          grid: widget.grid,
+          gridDelegate: widget.gridDelegate,
+          shrinkWrap: widget.shrinkWrap,
+          headerBuilder: widget.headerBuilder,
+          footerBuilder: widget.footerBuilder,
+          infiniteScroll: widget.infiniteScroll,
+          headerSticky: widget.headerSticky,
+          footerSticky: widget.footerSticky,
+          padding: widget.padding,
+        );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _cachedTheme = context.theme.listTheme.copyWith(
       grid: widget.grid,
       gridDelegate: widget.gridDelegate,
       shrinkWrap: widget.shrinkWrap,
@@ -308,6 +326,20 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
   @override
   void didUpdateWidget(TList<T, K> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (widget.theme == null) {
+      _cachedTheme = context.theme.listTheme.copyWith(
+        grid: widget.grid,
+        gridDelegate: widget.gridDelegate,
+        shrinkWrap: widget.shrinkWrap,
+        headerBuilder: widget.headerBuilder,
+        footerBuilder: widget.footerBuilder,
+        infiniteScroll: widget.infiniteScroll,
+        headerSticky: widget.headerSticky,
+        footerSticky: widget.footerSticky,
+        padding: widget.padding,
+      );
+    }
 
     // Handle scroll controller changes
     if (oldWidget.scrollController != widget.scrollController) {
@@ -475,7 +507,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
 
   void _updateItemsPerPage(int value) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (listController.isEmpty && !listController.isLoading) {
+      if (listController.isEmpty && !listController.isFetching) {
         if (listController.itemsPerPage != value) {
           listController.handleItemsPerPageChange(value);
         } else {

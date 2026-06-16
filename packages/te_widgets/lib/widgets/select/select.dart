@@ -383,7 +383,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
   void initState() {
     super.initState();
 
-    if (listController.isEmpty && !listController.isLoading) {
+    if (listController.isEmpty && !listController.isFetching) {
       listController.handleRefresh();
     }
 

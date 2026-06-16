@@ -134,7 +134,10 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
     final tabs = TTabs(
       inline: !constraints.isMobile,
       selectedValue: parent.currentTab,
-      onTabChanged: (i) => parent.currentTab = i,
+      onTabChanged: (i) {
+        parent.currentTab = i;
+        parent.widget.config.onTabChange?.call(i);
+      },
       tabs: parent.tabs,
     );
     return !constraints.isMobile ? tabs : Flexible(child: tabs);

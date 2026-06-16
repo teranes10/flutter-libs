@@ -8,6 +8,7 @@ class TListState<T, K> {
   final int itemsPerPage;
   final int totalItems;
   final bool loading;
+  final bool fetching;
   final bool hasMoreItems;
   final String search;
   final TListError? error;
@@ -28,6 +29,7 @@ class TListState<T, K> {
     required this.itemsPerPage,
     required this.totalItems,
     required this.loading,
+    required this.fetching,
     required this.hasMoreItems,
     required this.search,
     this.error,
@@ -41,7 +43,7 @@ class TListState<T, K> {
   String toString() {
     return 'TListState(page: $page, itemsPerPage: $itemsPerPage, total: $totalItems,'
         'displayed: ${displayItems.length}, selected: ${selectedKeys.length}, expanded: ${expandedKeys.length}, '
-        '\n\tloading: $loading, hasMoreItems: $hasMoreItems, search: $search, '
+        'loading: $loading, fetching: $fetching, hasMoreItems: $hasMoreItems, search: $search, '
         'nextCursor: $nextCursor, cursorHistory: ${cursorHistory.length})';
   }
 }

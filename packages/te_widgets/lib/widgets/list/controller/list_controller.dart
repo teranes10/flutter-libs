@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 part 'list_controller_expansion.dart';
@@ -140,6 +141,8 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     this.itemChildren,
     this.reorderable = false,
     this.onReorder,
+    bool loading = false,
+    bool hasMoreItems = true,
   })  : isServerSide = onLoad != null,
         _debouncer = TDebouncer(milliseconds: searchDelay ?? (onLoad != null ? 2500 : 750)),
         itemToString = itemToString ?? _defaultItemToString,
@@ -154,8 +157,9 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
             page: 1,
             itemsPerPage: itemsPerPage,
             totalItems: items.length,
-            loading: false,
-            hasMoreItems: true,
+            loading: loading,
+            fetching: false,
+            hasMoreItems: hasMoreItems,
             search: search,
             error: null,
           ),
@@ -170,7 +174,9 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       'If `itemKey` is not provided, generic type K must be int.',
     );
 
-    updateItems(items);
+    if (items.isNotEmpty) {
+      updateItems(items);
+    }
   }
   static const allowedKeyTypes = [String, int, double, num, bool];
 
@@ -202,6 +208,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   bool get isHierarchical => itemChildren != null;
   bool get hasError => value.error != null;
   bool get isLoading => value.loading;
+  bool get isFetching => value.fetching;
 
   void clearError() {
     if (value.error != null) {
@@ -211,6 +218,22 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
 
   void handleError(TListError error) {
     updateState(who: 'handleError', error: error);
+  }
+
+  void updateError(Object e, StackTrace st) {
+    handleError(TListError(message: e.toString(), error: e, stackTrace: st));
+  }
+
+  void updateLoading() {
+    updateState(who: 'handleLoading', loading: true);
+  }
+
+  void handleAsyncValue(AsyncValue<List<T>> next) {
+    next.when(
+      data: updateItems,
+      error: updateError,
+      loading: updateLoading,
+    );
   }
 
   void cancelPendingOperations() {
@@ -235,6 +258,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     int? itemsPerPage,
     int? totalItems,
     bool? loading,
+    bool? fetching,
     bool? hasMoreItems,
     String? search,
     TSelectionMode? selectionMode,
@@ -270,6 +294,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       itemsPerPage: itemsPerPage ?? value.itemsPerPage,
       totalItems: totalItems ?? value.totalItems,
       loading: loading ?? value.loading,
+      fetching: fetching ?? value.fetching,
       hasMoreItems: hasMoreItems ?? value.hasMoreItems,
       search: search ?? value.search,
       error: error ?? value.error,

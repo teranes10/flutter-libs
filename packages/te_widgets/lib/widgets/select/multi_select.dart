@@ -286,7 +286,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   void initState() {
     super.initState();
 
-    if (listController.isEmpty && !listController.isLoading) {
+    if (listController.isEmpty && !listController.isFetching) {
       listController.handleRefresh();
     }
 
