@@ -1,3 +1,6 @@
+# 2.6.1
+- InputValueMixin's text controller watcher logic removed
+
 # 2.6.0
 
 - **Overlay & Popup Positioning Fixes**:

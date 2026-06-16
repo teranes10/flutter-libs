@@ -49,6 +49,9 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
               placeholder: 'Select a country',
               items: ['USA', 'Canada', 'Mexico', 'Brazil', 'Argentina'],
               valueNotifier: _countryNotifier,
+              onValueChanged: (v) {
+                print(v);
+              },
             ),
             code: '''TSelect<String, String, String>(
   label: 'Country',

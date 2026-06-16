@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:te_widgets/enum/value_type.dart';
-import 'package:te_widgets/widgets/tags-field/tags_controller.dart';
-import 'package:te_widgets/widgets/text-field/text_field_mixin.dart';
 
 /// Mixin for widgets that hold a typed value.
 mixin TInputValueMixin<T> {
@@ -26,8 +24,6 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
     return widget as TInputValueMixin<T>;
   }
 
-  TTextFieldMixin? get _textFieldMixin => widget is TTextFieldMixin ? widget as TTextFieldMixin : null;
-
   T? _currentValue;
 
   /// The current value of the input.
@@ -40,45 +36,16 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
         _ => true,
       };
 
-  T? get _notifierValue {
-    final activeController = _activeTextController;
-    if (activeController is TTagsController) {
-      final tags = activeController.value.tags;
-      if (tags is T) return tags as T;
-    }
-
-    if (activeController != null) {
-      final text = activeController.value.text;
-      if (text is T) return text as T;
-    }
-
-    return _widget.valueNotifier?.value;
-  }
-
-  TextEditingController? get _activeTextController {
-    if (this is TTextFieldStateMixin<W>) {
-      return (this as TTextFieldStateMixin<W>).textController;
-    }
-    return _textFieldMixin?.textController;
-  }
-
   @override
   void initState() {
     super.initState();
 
-    _currentValue = _notifierValue ?? _widget.value;
+    _currentValue = _widget.valueNotifier?.value ?? _widget.value;
 
     _widget.valueNotifier?.addListener(_onValueNotifierChanged);
 
-    final activeController = _activeTextController;
-    if (activeController is TTagsController && activeController.value.tags is T) {
-      activeController.addListener(_onTagsValueChanged);
-    } else if (activeController != null && activeController.value.text is T) {
-      activeController.addListener(_onTextValueChanged);
-    }
-
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      final initial = _notifierValue ?? _widget.value;
+      final initial = _widget.valueNotifier?.value ?? _widget.value;
       if (initial != null) {
         _updateValue(initial, fromExternal: true, initial: true, force: true);
       }
@@ -109,34 +76,12 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
   @override
   void dispose() {
     _widget.valueNotifier?.removeListener(_onValueNotifierChanged);
-    _activeTextController?.removeListener(_onTagsValueChanged);
-    _activeTextController?.removeListener(_onTextValueChanged);
     super.dispose();
   }
 
   void _onValueNotifierChanged() {
     final newValue = _widget.valueNotifier!.value;
     _updateValue(newValue, fromExternal: true);
-  }
-
-  void _onTagsValueChanged() {
-    final activeController = _activeTextController;
-    if (activeController is TTagsController) {
-      final newValue = activeController.value.tags as T?;
-      if (!_isEqual(newValue, currentValue)) {
-        _updateValue(newValue, notifyExternal: true);
-      }
-    }
-  }
-
-  void _onTextValueChanged() {
-    final activeController = _activeTextController;
-    if (activeController != null) {
-      final newValue = activeController.value.text as T?;
-      if (!_isEqual(newValue, currentValue)) {
-        _updateValue(newValue, notifyExternal: true);
-      }
-    }
   }
 
   bool _isEqual(T? a, T? b) {
@@ -173,20 +118,6 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
       onValueChanged(newValue, oldValue: oldValue);
       _widget.onValueChanged?.call(newValue);
       _widget.valueNotifier?.value = newValue;
-
-      final activeController = _activeTextController;
-      if (activeController is TTagsController) {
-        activeController.value = activeController.value.copyWith(tags: (newValue ?? []) as List<String>);
-      } else if (activeController != null) {
-        final newText = newValue?.toString() ?? '';
-        if (activeController.text != newText) {
-          activeController.value = activeController.value.copyWith(
-            text: newText,
-            selection: TextSelection.collapsed(offset: newText.length),
-            composing: TextRange.empty,
-          );
-        }
-      }
     }
   }
 
