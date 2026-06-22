@@ -58,8 +58,7 @@ class TButtonSize {
   final double minW, minH, hPad, vPad, font, icon, spacing;
 
   WidgetStateProperty<EdgeInsets> get paddingState => WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: hPad, vertical: vPad));
-  WidgetStateProperty<EdgeInsets> get pillPaddingState =>
-      WidgetStateProperty.all(EdgeInsets.only(top: vPad, bottom: vPad, left: hPad, right: hPad + spacing));
+
   WidgetStateProperty<EdgeInsets> get tilePaddingState =>
       WidgetStateProperty.all(EdgeInsets.only(top: vPad * 1.75, bottom: vPad * 1.25, left: hPad, right: hPad));
 
@@ -169,8 +168,10 @@ class TButtonTheme {
   }
 
   static ButtonStyle buildButtonStyle(TWidgetTheme baseTheme, TButtonShape shape, TButtonSize size) {
-    final padding =
-        switch (shape) { TButtonShape.pill => size.pillPaddingState, TButtonShape.tile => size.tilePaddingState, _ => size.paddingState };
+    final padding = switch (shape) {
+      TButtonShape.tile => size.tilePaddingState,
+      _ => size.paddingState,
+    };
 
     return ButtonStyle(
       backgroundColor: baseTheme.backgroundState,

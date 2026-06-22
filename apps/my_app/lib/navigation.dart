@@ -14,6 +14,7 @@ import 'package:my_app/pages/editor_page.dart';
 import 'package:my_app/pages/forms_page.dart';
 import 'package:my_app/pages/feedback_page.dart';
 import 'package:my_app/pages/grid_page.dart';
+import 'package:my_app/pages/layout_page.dart';
 import 'package:my_app/pages/input_fields_page.dart';
 import 'package:my_app/pages/pickers_page.dart';
 import 'package:my_app/pages/popups_page.dart';
@@ -47,6 +48,7 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.table_chart, text: 'Tables', route: '/tables', page: const TablesPage()),
   TSidebarItem(icon: Icons.navigate_next, text: 'Cursor Pagination', route: '/cursor-pagination', page: const CursorPaginationPage()),
   TSidebarItem(icon: Icons.grid_view, text: 'Grid', route: '/grid', page: const GridPage()),
+  TSidebarItem(icon: Icons.layers, text: 'Layout', route: '/layout', page: const LayoutPage()),
   TSidebarItem(icon: Icons.storage, text: 'Crud', route: '/crud', page: const CrudPage()),
   TSidebarItem(icon: Icons.storage, text: 'Crud (Riverpod)', route: '/crud-riverpod', page: const CrudRiverpodPage()),
   TSidebarItem(icon: Icons.edit_note, text: 'Editor', route: '/editor', page: const EditorPage()),

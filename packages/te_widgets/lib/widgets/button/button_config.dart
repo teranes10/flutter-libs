@@ -90,21 +90,4 @@ extension TButtonExtension on TButton {
       child: child ?? this.child,
     );
   }
-
-  /// Estimates the width of the button based on its content and size settings.
-  double estimateWidth() {
-    final sizeData = size ?? TButtonSize.md;
-
-    double width = sizeData.minW;
-
-    if (icon != null) {
-      width += sizeData.icon + sizeData.spacing;
-    }
-
-    if (text != null && text!.isNotEmpty) {
-      width += text!.length * (sizeData.font * 0.75);
-    }
-
-    return width;
-  }
 }

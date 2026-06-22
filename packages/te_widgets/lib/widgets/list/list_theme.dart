@@ -25,7 +25,6 @@ class TListTheme {
   final bool? headerSticky;
   final bool? footerSticky;
   final bool? infiniteScroll;
-  final double itemBaseHeight;
   final TListFooterBuilder infiniteScrollFooterBuilder;
   final TListSeparatorBuilder? listSeparatorBuilder;
   final TListDragProxyDecorator? dragProxyDecorator;
@@ -47,7 +46,6 @@ class TListTheme {
     this.headerSticky,
     this.footerSticky,
     this.infiniteScroll,
-    double? itemBaseHeight,
     required this.infiniteScrollFooterBuilder,
     this.listSeparatorBuilder,
     this.dragProxyDecorator,
@@ -56,8 +54,7 @@ class TListTheme {
   })  : assert(
             shrinkWrap != true || infiniteScroll != true, 'TListTheme: shrinkWrap disables scrolling, so infiniteScroll cannot be used.'),
         assert(shrinkWrap != true || headerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so headerSticky cannot be used.'),
-        assert(shrinkWrap != true || footerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so footerSticky cannot be used.'),
-        itemBaseHeight = grid != null ? 200 : 40;
+        assert(shrinkWrap != true || footerSticky != true, 'TListTheme: shrinkWrap disables scrolling, so footerSticky cannot be used.');
 
   /// Creates a copy of the theme with updated properties.
   TListTheme copyWith({
@@ -74,7 +71,6 @@ class TListTheme {
     bool? headerSticky,
     bool? footerSticky,
     bool? infiniteScroll,
-    double? itemBaseHeight,
     TListFooterBuilder? infiniteScrollFooterBuilder,
     TListSeparatorBuilder? listSeparatorBuilder,
     TListDragProxyDecorator? dragProxyDecorator,
@@ -95,7 +91,6 @@ class TListTheme {
       headerSticky: headerSticky ?? this.headerSticky,
       footerSticky: footerSticky ?? this.footerSticky,
       infiniteScroll: infiniteScroll ?? this.infiniteScroll,
-      itemBaseHeight: itemBaseHeight ?? this.itemBaseHeight,
       infiniteScrollFooterBuilder: infiniteScrollFooterBuilder ?? this.infiniteScrollFooterBuilder,
       listSeparatorBuilder: listSeparatorBuilder ?? this.listSeparatorBuilder,
       dragProxyDecorator: dragProxyDecorator ?? this.dragProxyDecorator,

@@ -53,7 +53,7 @@ class TFormField<T> {
   final Widget Function(ValueChanged<T?>) builder;
 
   late final Widget _field;
-  TFieldSize _size = const TFieldSize();
+  TGridSize _size = const TGridSize();
   VoidCallback? _callback;
 
   /// Creates a form field.
@@ -77,7 +77,7 @@ class TFormField<T> {
   /// - [sm]: Small screen size (optional, 1-12 columns)
   /// - [lg]: Large screen size (optional, 1-12 columns)
   TFormField<T> size(int md, {int? sm, int? lg}) {
-    _size = TFieldSize(sm: sm, md: md, lg: lg);
+    _size = TGridSize(sm: sm, md: md, lg: lg);
     return this;
   }
 

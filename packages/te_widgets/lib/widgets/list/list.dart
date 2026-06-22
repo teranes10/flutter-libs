@@ -311,16 +311,11 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
   void initState() {
     super.initState();
     final animationDuration = widget.theme?.animationDuration ?? Duration(milliseconds: 800);
-    final shrinkWrap = widget.theme?.shrinkWrap ?? widget.shrinkWrap ?? false;
-
     _animationController = AnimationController(vsync: this, duration: animationDuration);
 
     _scrollController = widget.scrollController ?? ScrollController();
     _scrollControllerOwned = widget.scrollController == null;
-
-    if (shrinkWrap != true) {
-      _scrollController.addListener(_onScroll);
-    }
+    _scrollController.addListener(_onScroll);
   }
 
   @override
@@ -343,9 +338,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
 
     // Handle scroll controller changes
     if (oldWidget.scrollController != widget.scrollController) {
-      if (wTheme.shrinkWrap != true) {
-        _scrollController.removeListener(_onScroll);
-      }
+      _scrollController.removeListener(_onScroll);
 
       if (_scrollControllerOwned) {
         _scrollController.dispose();
@@ -354,9 +347,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
       _scrollController = widget.scrollController ?? ScrollController();
       _scrollControllerOwned = widget.scrollController == null;
 
-      if (wTheme.shrinkWrap != true) {
-        _scrollController.addListener(_onScroll);
-      }
+      _scrollController.addListener(_onScroll);
     }
 
     // Handle theme animation duration changes
@@ -369,9 +360,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
   void dispose() {
     _animationController.dispose();
 
-    if (wTheme.shrinkWrap != true) {
-      _scrollController.removeListener(_onScroll);
-    }
+    _scrollController.removeListener(_onScroll);
 
     if (_scrollControllerOwned) {
       _scrollController.dispose();
@@ -410,10 +399,15 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
           listenable: listController,
           selector: (x) => x,
           builder: (context, state, oldState) {
-            if ((oldState == null || oldState.displayItems.isEmpty) && state.displayItems.isNotEmpty && !_animationController.isAnimating) {
+            if (state.displayItems.isEmpty && _animationController.status == AnimationStatus.completed) {
+              _animationController.reset();
+            }
+
+            if (state.displayItems.isNotEmpty &&
+                !_animationController.isAnimating &&
+                _animationController.status == AnimationStatus.dismissed) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
-                  _animationController.reset();
                   _animationController.forward();
                 }
               });
@@ -461,7 +455,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
 
   double? _calculateHeight(TListState<T, K> state) {
     if (providedItemsPerPage > 0 && state.hasMoreItems) {
-      return providedItemsPerPage * wTheme.itemBaseHeight;
+      return providedItemsPerPage * 40;
     }
     return null;
   }
@@ -479,17 +473,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
       final maxHeight = constraints.maxHeight;
       int perRow = 1;
 
-      if (wTheme.grid != null) {
-        final config = wTheme.gridDelegate?.call(context);
-        if (config == null) {
-          throw ArgumentError("gridDelegate can not be null.");
-        }
-
-        final maxWidth = constraints.maxWidth;
-        perRow = config.calculateItemsPerRow(maxWidth);
-      }
-
-      final itemHeight = wTheme.itemBaseHeight;
+      final itemHeight = 40;
       if (maxHeight <= 0 || itemHeight <= 0) return;
       if (_previousHeight != null && _previousHeight! > maxHeight) return;
 

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
@@ -17,59 +15,52 @@ class TKeyValue {
   /// Optional fixed width for the column.
   final double? width;
 
+  /// Optional alignment for the item.
+  final Alignment? alignment;
+
+  /// Optional minimum width for the item.
+  final double? minWidth;
+
+  /// Optional maximum width for the item.
+  final double? maxWidth;
+
   /// Creates a key-value item.
-  TKeyValue(this.key, {this.value, this.widget, this.width});
+  TKeyValue(
+    this.key, {
+    this.value,
+    this.widget,
+    this.width,
+    this.alignment,
+    this.minWidth,
+    this.maxWidth,
+  });
 
   /// Creates a key-value item with text value.
-  factory TKeyValue.text(String key, String? value) {
-    return TKeyValue(key, value: value);
-  }
+  factory TKeyValue.text(
+    String key,
+    String? value, {
+    Alignment? alignment,
+    double? minWidth,
+    double? maxWidth,
+  }) =>
+      TKeyValue(
+        key,
+        value: value,
+        alignment: alignment,
+        minWidth: minWidth,
+        maxWidth: maxWidth,
+      );
 
   /// Maps table headers to key-value items for list view representation.
   static List<TKeyValue> mapHeaders<T, K>(BuildContext ctx, List<TTableHeader<T, K>> headers, TListItem<T, K> item, int index) {
     return headers
-        .map((header) => TKeyValue(
-              header.text,
-              value: header.getValue(item.data),
-              widget: header.builder != null ? header.builder!(ctx, item, index) : null,
-              width: header.minWidth,
+        .map((h) => TKeyValue(
+              h.text,
+              value: h.getValue(item.data),
+              widget: h.builder != null ? h.builder!(ctx, item, index) : null,
+              width: h.minWidth,
+              minWidth: h.minWidth,
             ))
         .toList();
-  }
-
-  /// Estimates the width of the column based on content and theme.
-  double estimateColumnWidth(double availableWidth, TKeyValueTheme theme) {
-    if (width != null) {
-      return width!;
-    }
-
-    const double charWidth = 8.0;
-    const double basePadding = 16.0;
-
-    final headerLength = key.length;
-
-    if (widget != null) {
-      final finalWidth = (headerLength * charWidth) + basePadding;
-      return math.max(theme.minGridColWidth, math.min(finalWidth, availableWidth * 0.6));
-    }
-
-    final valueLength = value?.length.toDouble() ?? 0;
-    final maxLength = math.max(headerLength.toDouble(), valueLength);
-
-    double scaledWidth;
-    if (maxLength <= 32) {
-      scaledWidth = maxLength * charWidth;
-    } else if (maxLength <= 50) {
-      final ratio = (maxLength - 32) / 18;
-      scaledWidth = (32 * charWidth) + (ratio * (32 * charWidth * 0.2));
-    } else if (maxLength <= 60) {
-      final ratio = (maxLength - 50) / 10;
-      scaledWidth = (32 * charWidth * 1.2) + (ratio * (42 * charWidth - 32 * charWidth * 1.2));
-    } else {
-      scaledWidth = math.min(42 * charWidth, availableWidth * 0.4);
-    }
-
-    final finalWidth = scaledWidth + basePadding;
-    return math.max(theme.minGridColWidth, math.min(finalWidth, availableWidth * 0.6));
   }
 }

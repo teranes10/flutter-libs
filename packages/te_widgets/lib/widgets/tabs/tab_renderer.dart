@@ -34,7 +34,7 @@ class TabRenderer<T> {
         : null;
 
     // For vertical tabs on mobile, show only icons to prevent overflow
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = context.isMobile;
     final showTextInVertical = axis == Axis.horizontal || !isMobile;
 
     final content = axis == Axis.horizontal

@@ -223,7 +223,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
     final itemsPerPage =
         listController.isServerSide ? listController.itemsPerPage : min(listController.itemsPerPage, listController.flatItems.length);
 
-    return (itemsPerPage * listTheme.itemBaseHeight) + 12 + (listController.isServerSide ? 4 : 0) + (shouldCenteredOverlay ? 62 : 0);
+    return (itemsPerPage * 40) + 12 + (listController.isServerSide ? 4 : 0) + (shouldCenteredOverlay ? 62 : 0);
   }
 
   @override

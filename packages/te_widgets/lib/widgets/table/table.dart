@@ -182,7 +182,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         headerTheme: theme.headerTheme.copyWith(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4)),
         rowCardTheme: theme.rowCardTheme.copyWith(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-            margin: const EdgeInsets.only(bottom: 2),
+            margin: const EdgeInsets.symmetric(vertical: 1),
             borderRadius: const BorderRadius.all(Radius.circular(4))),
       );
     }

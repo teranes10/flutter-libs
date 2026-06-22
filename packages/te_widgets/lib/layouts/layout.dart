@@ -27,7 +27,7 @@ class TLayout extends ConsumerStatefulWidget {
     this.actions,
     required this.child,
     this.pageTitle,
-    this.mainCardRadius = 28,
+    this.mainCardRadius = 20,
     this.width = 275,
     this.minifiedWidth = 80,
     this.isMinimized,
@@ -152,7 +152,7 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
             return Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(isMobile ? 0.0 : widget.mainCardRadius / 2),
+                  padding: EdgeInsets.all(isMobile ? 0.0 : widget.mainCardRadius / 2.4),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: colors.surface,

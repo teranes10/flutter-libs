@@ -306,7 +306,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
   double get contentMaxHeight {
     final itemsPerPage =
         listController.isServerSide ? listController.itemsPerPage : min(listController.itemsPerPage, listController.flatItems.length);
-    return (itemsPerPage * listTheme.itemBaseHeight) + 20 + (shouldCenteredOverlay && widget.filterable ? 62 : 0);
+    return (itemsPerPage * 40) + 20 + (shouldCenteredOverlay && widget.filterable ? 62 : 0);
   }
 
   @override

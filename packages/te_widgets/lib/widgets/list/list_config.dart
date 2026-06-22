@@ -195,29 +195,30 @@ class TGridDelegate {
 
   /// Returns a [SliverSimpleGridDelegate] for internal use.
   SliverSimpleGridDelegate get simpleGridDelegate {
-    final count = crossAxisCount;
-    if (count != null) {
+    if (crossAxisCount != null) {
       return SliverSimpleGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: count,
+        crossAxisCount: crossAxisCount!,
       );
     }
-
-    final extent = maxCrossAxisExtent;
     return SliverSimpleGridDelegateWithMaxCrossAxisExtent(
-      maxCrossAxisExtent: extent ?? 350,
+      maxCrossAxisExtent: maxCrossAxisExtent ?? 350,
     );
   }
 
-  /// Calculates items per row based on total width.
-  int calculateItemsPerRow(double maxWidth) {
+  /// Returns the real [SliverGridDelegate] (with spacing) that Flutter's
+  /// sliver pipeline uses — needed for introspection in [resolveColumnsFromConstraints].
+  SliverGridDelegate toSliverGridDelegate() {
     if (crossAxisCount != null) {
-      return crossAxisCount!;
+      return SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount!,
+        mainAxisSpacing: mainAxisSpacing,
+        crossAxisSpacing: crossAxisSpacing,
+      );
     }
-
-    final extent = maxCrossAxisExtent!;
-    if (extent <= 0) return 1;
-
-    final total = maxWidth;
-    return (total / extent).ceil().clamp(1, 100);
+    return SliverGridDelegateWithMaxCrossAxisExtent(
+      maxCrossAxisExtent: maxCrossAxisExtent ?? 350,
+      mainAxisSpacing: mainAxisSpacing,
+      crossAxisSpacing: crossAxisSpacing,
+    );
   }
 }

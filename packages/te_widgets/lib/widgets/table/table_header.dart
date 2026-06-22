@@ -92,10 +92,12 @@ class TTableHeader<T, K> {
     this.flex,
     this.alignment,
     double width = 50,
+    bool forceCache = false,
   })  : map = null,
-        minWidth = width + 12,
-        maxWidth = width + 12,
-        builder = ((_, item, __) => map(item.data) != null ? TImage(url: map(item.data)!, size: width) : const SizedBox.shrink());
+        minWidth = width + 16,
+        maxWidth = width + 16,
+        builder = ((_, item, __) =>
+            map(item.data) != null ? TImage(url: map(item.data)!, size: width, forceCache: forceCache) : const SizedBox.shrink());
 
   /// Creates a header for displaying chips.
   TTableHeader.chip(
@@ -110,6 +112,23 @@ class TTableHeader<T, K> {
     void Function()? Function(T)? onTap,
   }) : builder = ((_, item, __) =>
             TChip(text: map?.call(item.data).toString(), color: color?.call(item.data), type: type, onTap: onTap?.call(item.data)));
+
+  /// Create an date formatter
+  TTableHeader.datetime(
+    this.text,
+    this.map, {
+    this.flex,
+    this.minWidth,
+    this.maxWidth,
+    this.alignment,
+    bool utc = true,
+  }) : builder = ((_, item, __) {
+          final value = map?.call(item.data)?.toString();
+          if (value.isNullOrBlank) return SizedBox.shrink();
+
+          final dateTime = utc ? TFormatter.parseUtcISO(value!)?.toLocal() : DateTime.tryParse(value!);
+          return dateTime != null ? TDateTimeText(dateTime: dateTime) : SizedBox.shrink();
+        });
 
   /// Creates a header for row actions.
   TTableHeader.actions(

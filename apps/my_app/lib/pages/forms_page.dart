@@ -19,6 +19,16 @@ class FormsPage extends StatelessWidget {
             }
           },
         ),
+        const SizedBox(height: 12),
+        TButton(
+          text: 'Show Product Form (Sidebar)',
+          onPressed: (_) async {
+            final value = await TFormService.show(context, ProductForm());
+            if (value != null) {
+              debugPrint('__save product $value');
+            }
+          },
+        ),
       ],
     );
   }
@@ -80,10 +90,11 @@ class UserForm extends TFormBase {
       TFormField.checkbox(check, "Check").size(3),
       TFormField.toggle(toggle, "Toggle").size(3),
       TFormField.filePicker(files, "File Picker"),
-      TFormField.groupFields([
-        TFormField.text(internal1, 'Internal Field 1').size(6),
-        TFormField.text(internal2, 'Internal Field 2').size(6),
-      ], label: 'Manual Group', description: 'Grouped without TFormBase'),
+      TFormField.groupFields(
+        [TFormField.text(internal1, 'Internal Field 1').size(6), TFormField.text(internal2, 'Internal Field 2').size(6)],
+        label: 'Manual Group',
+        description: 'Grouped without TFormBase',
+      ),
       TFormField.group(subForm, label: 'Sub Form', description: 'Sub Title'),
       TFormField.items(subForms, () => SubForm(), label: 'Sub Forms', buttonLabel: 'Add New'),
     ];
@@ -120,4 +131,66 @@ class SubForm extends TFormBase {
   String toString() {
     return 'Sub Form title: $title, value: $value, value2: $value2';
   }
+}
+
+/// Demo form that showcases [sidebarFields].
+///
+/// Layout:
+/// - lg (≥1024 px): main details (8 cols) | sidebar metadata (4 cols)
+/// - sm / md: main details full-width, then sidebar metadata below.
+class ProductForm extends TFormBase {
+  final name = TFieldProp('');
+  final category = TFieldProp<String?>(null);
+  final description = TFieldProp('');
+  final price = TFieldProp(0.0);
+  final stock = TFieldProp(0.0);
+  final sku = TFieldProp('');
+  final tags = TFieldProp<List<String>>([]);
+  final featured = TFieldProp(false);
+  final active = TFieldProp(true);
+
+  @override
+  double get formWidth => 1200;
+
+  @override
+  String get formTitle => 'Add New Product';
+
+  @override
+  String get formActionName => 'Save Product';
+
+  // Main form fields — occupy the left 8-column panel on desktop.
+  @override
+  List<TFormField> get fields => [
+    TFormField.text(name, 'Product Name', isRequired: true),
+    TFormField.select<String, String, String>(
+      category,
+      'Category',
+      onLoad: (_) async => TLoadResult(['Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports'], 5),
+      itemText: (x) => x,
+      itemKey: (x) => x,
+    ),
+    TFormField.text(description, 'Description').size(12),
+    TFormField.number<double>(price, 'Price (USD)').size(6),
+    TFormField.number<double>(stock, 'Stock Quantity').size(6),
+    TFormField.checkboxGroup(tags, 'Tags', [
+      TCheckboxGroupItem.map('New Arrival'),
+      TCheckboxGroupItem.map('Best Seller'),
+      TCheckboxGroupItem.map('On Sale'),
+      TCheckboxGroupItem.map('Limited Edition'),
+    ]),
+  ];
+
+  // Sidebar fields — occupy the right 4-column panel on desktop,
+  // stacked below main fields on mobile / tablet.
+  @override
+  List<TFormField>? get sidebarFields => [
+    TFormField.text(sku, 'SKU / Barcode'),
+    TFormField.toggle(featured, 'Featured Product'),
+    TFormField.toggle(active, 'Active / Visible'),
+  ];
+
+  @override
+  String toString() =>
+      'ProductForm name: $name, category: $category, price: $price, '
+      'stock: $stock, sku: $sku, featured: $featured, active: $active, tags: ${tags.value}';
 }

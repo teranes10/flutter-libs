@@ -27,7 +27,7 @@ class TPdfGridTableHelper {
     double totalEstimatedWidth = 0;
     for (final header in effectiveHeaders) {
       final kv = TKeyValue(header.text, width: header.minWidth);
-      totalEstimatedWidth += kv.estimateColumnWidth(availableWidth, wTheme);
+      totalEstimatedWidth += 150; //kv.estimateColumnWidth(availableWidth, wTheme);
     }
 
     // Heuristic: if it fits horizontally and has a reasonable number of columns, use table
@@ -158,7 +158,7 @@ class TPdfGridTableHelper {
     double currentRowTotalWidth = 0;
 
     for (final keyValue in values) {
-      final columnWidth = keyValue.estimateColumnWidth(availableWidth, wTheme);
+      final columnWidth = 150.0; //keyValue.estimateColumnWidth(availableWidth, wTheme);
       final spacingNeeded = currentRowValues.isEmpty ? 0 : gridSpacing;
 
       if (currentRowTotalWidth + spacingNeeded + columnWidth <= availableWidth) {

@@ -36,6 +36,12 @@ extension StringNonNullX on String {
     return this[0].toUpperCase() + substring(1).toLowerCase();
   }
 
+  /// Converts the string to Title Case
+  String toTitleCase() {
+    if (isEmpty) return this;
+    return split(' ').map((word) => word.capitalize()).join(' ');
+  }
+
   bool containsInMiddle(String pattern) {
     final index = indexOf(pattern);
     if (index == -1) return false;

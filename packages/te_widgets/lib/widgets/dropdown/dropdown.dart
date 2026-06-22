@@ -3,16 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+enum TDropdownTriggerMode { hover, tap }
+
 class TDropdown extends StatefulWidget {
   final TDropdownTheme? theme;
   final List<TDropdownItem> items;
   final Widget child;
+  final TDropdownTriggerMode triggerMode;
 
   const TDropdown({
     super.key,
     this.theme,
     required this.items,
     required this.child,
+    this.triggerMode = TDropdownTriggerMode.hover,
   });
 
   @override
@@ -26,6 +30,12 @@ class _DropdownState extends State<TDropdown> {
   Timer? _hoverTimer;
 
   TDropdownTheme get theme => widget.theme ?? TDropdownTheme.defaultTheme(context.colors);
+
+  bool get _useTapOnly {
+    final platform = Theme.of(context).platform;
+    final isMobile = platform == TargetPlatform.iOS || platform == TargetPlatform.android;
+    return widget.triggerMode == TDropdownTriggerMode.tap || isMobile || context.isMobile;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +55,15 @@ class _DropdownState extends State<TDropdown> {
 
         return Stack(
           children: [
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  if (!_useTapOnly) return;
+                  TDropdownOverlayController.hideAllOverlays();
+                },
+              ),
+            ),
             CustomSingleChildLayout(
               delegate: PopupPositionDelegate(
                 constraints: constraints,
@@ -64,17 +83,34 @@ class _DropdownState extends State<TDropdown> {
         key: _targetKey,
         onEnter: (_) => _onHoverEnter(),
         onExit: (_) => _onHoverExit(),
-        child: widget.child,
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: _toggleDropdown,
+          child: widget.child,
+        ),
       ),
     );
   }
 
+  void _toggleDropdown() {
+    if (!_useTapOnly) return;
+    if (_overlayController.isShowing) {
+      TDropdownOverlayController.hideAllOverlays();
+    } else {
+      TDropdownOverlayController.hideAllOverlays();
+      TDropdownOverlayController.registerOverlay(_overlayController);
+      _overlayController.show();
+    }
+  }
+
   void _onHoverEnter() {
+    if (_useTapOnly) return;
     setState(() => _isHovered = true);
     _scheduleOverlayShow();
   }
 
   void _onHoverExit() {
+    if (_useTapOnly) return;
     setState(() => _isHovered = false);
     _hoverTimer?.cancel();
     TDropdownOverlayController.scheduleHide(delay: theme.hideDelay);

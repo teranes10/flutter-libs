@@ -85,67 +85,42 @@ class TTableMobileCard<T, K> extends StatelessWidget {
       borderRadius: wTheme.borderRadius,
       backgroundColor: backgroundColor ?? wTheme.backgroundColor.resolve(states),
       padding: EdgeInsets.zero,
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildMainContent(context, wTheme),
-              if (isExpanded && expandedContent != null)
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: wTheme.padding.left + (selectable ? 3 : 0),
-                    right: wTheme.padding.right + (expandable ? 3 : 0),
-                    bottom: wTheme.padding.bottom + (expandable ? 21 : 0),
-                  ),
-                  child: expandedContent!,
+          Padding(
+            padding: wTheme.padding,
+            child: TKeyValueSection(values: [
+              TKeyValue(
+                "",
+                widget: TCheckbox(
+                  value: isSelected,
+                  onValueChanged: (value) => onSelectionChanged?.call(),
                 ),
-            ],
+                alignment: Alignment.topLeft,
+              ),
+              ...TKeyValue.mapHeaders(context, headers, item, index),
+              if (expandable)
+                TKeyValue(
+                  "",
+                  widget: TIcon(
+                    icon: Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: colors.onSurfaceVariant,
+                    background: colors.surfaceContainerLow,
+                    padding: EdgeInsets.all(3),
+                    borderRadius: BorderRadius.circular(20),
+                    turns: (0, 0.5),
+                    active: isExpanded,
+                    onTap: onExpansionChanged,
+                  ),
+                  alignment: Alignment.bottomRight,
+                )
+            ]),
           ),
-          if (selectable)
-            Positioned(
-              top: 5,
-              left: 5,
-              child: TCheckbox(
-                value: isSelected,
-                onValueChanged: (value) => onSelectionChanged?.call(),
-              ),
-            ),
-          if (expandable)
-            Positioned(
-              bottom: 5,
-              right: 5,
-              child: TIcon(
-                icon: Icons.keyboard_arrow_down,
-                size: 20,
-                color: colors.onSurfaceVariant,
-                background: colors.surfaceContainerLow,
-                padding: EdgeInsets.all(3),
-                turns: (0, 0.5),
-                active: isExpanded,
-                onTap: onExpansionChanged,
-              ),
-            ),
+          if (isExpanded && expandedContent != null) Padding(padding: wTheme.padding, child: expandedContent!),
         ],
       ),
-    );
-  }
-
-  Widget _buildMainContent(BuildContext ctx, TTableMobileCardTheme wTheme) {
-    final values = TKeyValue.mapHeaders(ctx, headers, item, index);
-    return Padding(
-      padding: EdgeInsets.only(
-        top: wTheme.padding.top + (selectable ? 14 : 0),
-        left: (wTheme.padding.left) + (selectable ? 3 : 0),
-        right: (wTheme.padding.right) + (expandable ? 3 : 0),
-        bottom: (wTheme.padding.bottom) +
-            (isExpanded
-                ? 0
-                : expandable
-                    ? 10
-                    : 0),
-      ),
-      child: TKeyValueSection(values: values),
     );
   }
 }

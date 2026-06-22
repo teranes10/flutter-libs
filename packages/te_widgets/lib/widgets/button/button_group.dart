@@ -117,9 +117,7 @@ class _TButtonGroupState extends State<TButtonGroup> {
   @override
   void didUpdateWidget(TButtonGroup oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialIndex != oldWidget.initialIndex ||
-        widget.cycle != oldWidget.cycle ||
-        widget.items != oldWidget.items) {
+    if (widget.initialIndex != oldWidget.initialIndex || widget.cycle != oldWidget.cycle || widget.items != oldWidget.items) {
       _initIndex();
     }
   }
@@ -189,7 +187,7 @@ class _TButtonGroupState extends State<TButtonGroup> {
         index: index,
         total: 1,
       );
-      return Wrap(alignment: widget.alignment, children: [button]);
+      return button;
     }
 
     final children = <Widget>[];

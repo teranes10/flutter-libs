@@ -20,8 +20,26 @@ abstract class TFormBase {
   /// Returns the list of fields in the form.
   List<TFormField> get fields;
 
+  /// Optional list of fields rendered in the sidebar panel.
+  ///
+  /// When non-null, the form layout splits into a main area and a sidebar
+  /// whose column span is controlled by [sidebarSize].
+  /// On sm/md breakpoints (where [sidebarSize] span is 0) the sidebar fields
+  /// are appended below the main fields in a single column.
+  List<TFormField>? get sidebarFields => null;
+
+  /// Controls the column span of the sidebar panel at each breakpoint.
+  ///
+  /// Defaults to `TGridSize(sm: 0, md: 0, lg: 4)` which means:
+  /// - sm/md: no sidebar — sidebar fields fall below the main fields.
+  /// - lg: sidebar occupies 4 columns, main fields occupy 8 columns.
+  TGridSize get sidebarSize => const TGridSize(sm: 0, md: 0, lg: 4);
+
+  // All field including sidebar sidebar fields
+  List<TFormField> get allFields => [...fields, if (sidebarFields != null) ...sidebarFields!];
+
   /// Collects validation errors from all fields.
-  List<String> get validationErrors => _getValidationErrors(fields);
+  List<String> get validationErrors => _getValidationErrors(allFields);
 
   List<String> _getValidationErrors(List<TFormField> fieldsToValidate) {
     List<String> errorsList = [];
@@ -63,7 +81,7 @@ abstract class TFormBase {
   bool get isValid => validationErrors.isEmpty;
 
   /// Resets all fields to their initial values.
-  void reset() => _resetFields(fields);
+  void reset() => _resetFields(allFields);
 
   void _resetFields(List<TFormField> fieldsToReset) {
     for (var field in fieldsToReset) {
@@ -81,7 +99,7 @@ abstract class TFormBase {
   void onValueChanged() {}
 
   /// Disposes all field properties.
-  void dispose() => _disposeFields(fields);
+  void dispose() => _disposeFields(allFields);
 
   void _disposeFields(List<TFormField> fieldsToDispose) {
     for (var field in fieldsToDispose) {
@@ -92,47 +110,6 @@ abstract class TFormBase {
           _disposeFields(fb.fields!);
         }
       }
-    }
-  }
-}
-
-/// Screen width breakpoints for responsive layouts.
-enum TBreakpoint {
-  sm,
-  md,
-  lg;
-
-  /// Determines the breakpoint based on width.
-  static TBreakpoint getBreakpoint(double width) {
-    if (width >= 900) return TBreakpoint.lg;
-    if (width >= 600) return TBreakpoint.md;
-    return TBreakpoint.sm;
-  }
-}
-
-/// Defines the column span of a field at different breakpoints.
-class TFieldSize {
-  /// Span at small screens.
-  final int? sm,
-
-      /// Span at medium screens.
-      md,
-
-      /// Span at large screens.
-      lg;
-
-  /// Creates a responsive field size.
-  const TFieldSize({this.sm, this.md, this.lg});
-
-  /// Gets the span for a specific breakpoint, falling back to smaller sizes or 12 (full width).
-  int getSpan(TBreakpoint bp) {
-    switch (bp) {
-      case TBreakpoint.lg:
-        return lg ?? md ?? sm ?? 12;
-      case TBreakpoint.md:
-        return md ?? sm ?? 12;
-      case TBreakpoint.sm:
-        return sm ?? 12;
     }
   }
 }

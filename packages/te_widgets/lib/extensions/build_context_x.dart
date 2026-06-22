@@ -23,6 +23,7 @@ extension BuildContextX on BuildContext {
   MediaQueryData get mediaQuery => MediaQuery.of(this);
   double get screenWidth => mediaQuery.screenWidth;
   double get screenHeight => mediaQuery.screenHeight;
+  double get devicePixelRatio => mediaQuery.devicePixelRatio;
 
   bool get isMobile => mediaQuery.isMobile;
   bool get isTablet => mediaQuery.isTablet;

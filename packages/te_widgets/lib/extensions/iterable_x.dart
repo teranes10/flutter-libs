@@ -42,6 +42,14 @@ extension IterableX<T> on Iterable<T> {
   /// Returns a copy without null values (for nullable types)
   Iterable<T> whereNotNull() => where((e) => e != null);
 
+  /// Maps elements and returns only non-null results
+  Iterable<R> mapNotNull<R>(R? Function(T element) transform) sync* {
+    for (final element in this) {
+      final result = transform(element);
+      if (result != null) yield result;
+    }
+  }
+
   /// Groups elements by a key function
   Map<K, List<T>> groupBy<K>(K Function(T element) keyOf) {
     final map = <K, List<T>>{};
@@ -82,12 +90,27 @@ extension IterableX<T> on Iterable<T> {
     }
   }
 
+  /// Performs the given action on each element and returns the iterable itself
+  Iterable<T> onEach(void Function(T element) action) {
+    for (final element in this) {
+      action(element);
+    }
+    return this;
+  }
+
   /// Maps with index
   Iterable<R> mapIndexed<R>(R Function(int index, T element) transform) sync* {
     int index = 0;
     for (final element in this) {
       yield transform(index++, element);
     }
+  }
+}
+
+extension IterableStringX on Iterable<String?> {
+  /// Returns only non-null and non-blank strings
+  Iterable<String> whereNotNullOrBlank() {
+    return where((e) => e != null && e.trim().isNotEmpty).cast<String>();
   }
 }
 

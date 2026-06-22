@@ -160,10 +160,7 @@ class _PopupsPageState extends State<PopupsPage> {
                   title: 'Bottom Sheet',
                   showCloseButton: true,
                   animationType: TSheetAnimationType.drawing,
-                  (ctx) => Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: const Text('This is a bottom sheet with drawing animation.'),
-                  ),
+                  (ctx) => Padding(padding: const EdgeInsets.all(20), child: const Text('This is a bottom sheet with drawing animation.')),
                 ),
               ),
               TButton(
@@ -172,10 +169,7 @@ class _PopupsPageState extends State<PopupsPage> {
                   context,
                   title: 'Side Sheet',
                   showCloseButton: true,
-                  (ctx) => Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: const Text('This is a side sheet from the right.'),
-                  ),
+                  (ctx) => Padding(padding: const EdgeInsets.all(20), child: const Text('This is a side sheet from the right.')),
                 ),
               ),
               TButton(
@@ -321,6 +315,20 @@ class _PopupsPageState extends State<PopupsPage> {
             padding: const EdgeInsets.all(12),
             position: TTooltipPosition.top,
             child: const Icon(Icons.hourglass_empty, size: 32),
+          ),
+
+          const SizedBox(height: 32),
+          const Text('— Date time text with tooltip'),
+          const SizedBox(height: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TDateTimeText(dateTime: DateTime.now().subtract(Duration(seconds: 5))),
+              TDateTimeText(dateTime: DateTime.now().subtract(Duration(minutes: 5))),
+              TDateTimeText(dateTime: DateTime.now().subtract(Duration(hours: 5))),
+              TDateTimeText(dateTime: DateTime.now().subtract(Duration(days: 5))),
+              TDateTimeText(dateTime: DateTime.now().subtract(Duration(days: 7))),
+            ],
           ),
           const SizedBox(height: 32),
 

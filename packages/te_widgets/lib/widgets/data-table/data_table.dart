@@ -229,22 +229,19 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final isMobile = context.isMobile;
 
     return LayoutBuilder(builder: (_, constraints) {
-      final canHeaderSticky = wTheme.shrinkWrap == true ? false : constraints.maxWidth > 600 && constraints.maxHeight > 625;
-      final canFooterSticky = wTheme.shrinkWrap == true ? false : constraints.maxWidth > 600 && constraints.maxHeight > 750;
-      final infiniteScroll = wTheme.infiniteScroll ?? isMobile;
+      final infiniteScroll = wTheme.infiniteScroll ?? constraints.isMobile;
 
       return TTable<T, K>(
         theme: wTheme.copyWith(
           infiniteScroll: infiniteScroll,
-          headerSticky: wTheme.headerSticky ?? canHeaderSticky,
-          footerSticky: wTheme.footerSticky ?? canFooterSticky,
+          headerSticky: wTheme.headerSticky ?? wTheme.shrinkWrap != true,
+          footerSticky: wTheme.footerSticky ?? wTheme.shrinkWrap != true,
           footerBuilder: (ctx) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!infiniteScroll) _buildToolbar(colors, constraints.maxWidth),
+              if (!infiniteScroll) _buildToolbar(colors, constraints),
               if (wTheme.footerBuilder != null) wTheme.footerBuilder!(ctx),
             ],
           ),
@@ -259,69 +256,28 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
     });
   }
 
-  Widget _buildToolbar(ColorScheme colors, double maxWidth) {
+  Widget _buildToolbar(ColorScheme colors, BoxConstraints constraints) {
     if (listController.isEmpty) return SizedBox.shrink();
+    final isMobile = constraints.isMobile;
 
-    final paginationBarWidth = listController.isCursorPagination
-        ? 100
-        : (40.0 * (listController.totalPages.clamp(0, widget.paginationTotalVisible) + 4)) +
-            ((listController.totalPages.toString().length - 1) * 6 * 7);
-    final paginationInfoWidth = listController.paginationInfo.length * 7.5;
-    final itemsPerPageWidth = 80.0;
-    final totalWidth = paginationBarWidth + paginationInfoWidth + itemsPerPageWidth + 100 + 40;
-    final needWrap = maxWidth < totalWidth;
-
-    return TCard(
-      elevation: 4,
-      borderRadius: BorderRadius.circular(12),
-      backgroundColor: colors.surfaceContainerLowest,
-      shadowColor: colors.shadow,
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-      child: SizedBox(
-        width: double.infinity,
-        child: needWrap
-            ? Column(
-                spacing: 12,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 15,
-                    children: [
-                      _buildPaginationInfo(colors, 'Items per page'),
-                      _buildItemsPerPage(itemsPerPageWidth),
-                      _buildPaginationInfo(colors, listController.paginationInfo),
-                    ],
-                  ),
-                  _buildPaginationBar(listController.page, listController.totalPages),
-                ],
-              )
-            : Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                runSpacing: 12,
-                spacing: 12,
-                children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 15,
-                    children: [
-                      _buildPaginationInfo(colors, 'Items per page'),
-                      _buildItemsPerPage(itemsPerPageWidth),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 15,
-                    children: [
-                      _buildPaginationInfo(colors, listController.paginationInfo),
-                      _buildPaginationBar(listController.page, listController.totalPages),
-                    ],
-                  ),
-                ],
-              ),
-      ),
-    );
+    return Container(
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        child: TAlignedRow(
+          mainAxisAlignment: MainAxisAlignment.center,
+          left: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildPaginationInfo(colors, 'Items per page'),
+                _buildItemsPerPage(80),
+              ],
+            )
+          ],
+          right: [
+            _buildPaginationInfo(colors, listController.paginationInfo).center(when: isMobile),
+            _buildPaginationBar(listController.page, listController.totalPages),
+          ],
+        ));
   }
 
   Widget _buildPaginationBar(int page, int totalPages) {
@@ -380,6 +336,11 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
   }
 
   Widget _buildPaginationInfo(ColorScheme colors, String info) {
-    return Text(info, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface));
+    return Text(
+      info,
+      softWrap: false,
+      overflow: TextOverflow.visible,
+      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface),
+    );
   }
 }

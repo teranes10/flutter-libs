@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
-import 'package:te_widgets/helpers/width_helper.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -78,6 +77,15 @@ part 'crud_table_builder.dart';
 /// - [F]: The form type (must extend TFormBase)
 ///
 /// See also:
+/// Position where the form is shown.
+enum TCrudFormPosition {
+  /// Show the form in-page (above table or replacing the row).
+  inline,
+
+  /// Show the form in a dialog modal.
+  dialog,
+}
+
 /// - [TDataTable] for simple data tables
 /// - [TFormBase] for form definitions
 class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
@@ -144,6 +152,9 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
+  /// The position where the form is shown (inPage or dialog).
+  final TCrudFormPosition formPosition;
+
   /// Creates a CRUD table.
   const TCrudTable({
     super.key,
@@ -167,6 +178,7 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.theme,
     this.rowBuilder,
     this.rowColorBuilder,
+    this.formPosition = TCrudFormPosition.inline,
   })  : assert(
           (controller == null && (items != null || onLoad != null)) || (controller != null && items == null && onLoad == null),
           'Provide either `controller` OR (`items` / `onLoad`), not both.',
@@ -271,13 +283,12 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     final theme = context.theme;
 
     return TCard(
-      elevation: 1,
+      elevation: widget.formPosition == TCrudFormPosition.dialog ? 0 : 1,
       borderRadius: BorderRadius.circular(12),
-      padding: const EdgeInsets.all(25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 25),
+          const SizedBox(height: 12),
           TFormBuilder(input: form),
           const SizedBox(height: 25),
           Row(
@@ -359,19 +370,55 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
   // Action handlers
   void handleCreate() {
-    setState(() {
-      _activeForm?.dispose();
-      _activeForm = widget.createForm?.call();
-      _editingItem = null;
-    });
+    if (widget.formPosition == TCrudFormPosition.inline) {
+      setState(() {
+        _activeForm?.dispose();
+        _activeForm = widget.createForm?.call();
+        _editingItem = null;
+      });
+    } else {
+      _performAction(() async {
+        final form = widget.createForm?.call();
+        if (form == null) return;
+
+        final formData = await TFormService.show(context, form);
+        if (formData == null) return;
+
+        final newItem = await widget.onCreate?.call(formData);
+        if (newItem != null) {
+          _listController.addItem(newItem);
+        }
+
+        form.reset();
+        form.dispose();
+      });
+    }
   }
 
   void handleEdit(T item) {
-    setState(() {
-      _activeForm?.dispose();
-      _activeForm = widget.editForm?.call(item);
-      _editingItem = item;
-    });
+    if (widget.formPosition == TCrudFormPosition.inline) {
+      setState(() {
+        _activeForm?.dispose();
+        _activeForm = widget.editForm?.call(item);
+        _editingItem = item;
+      });
+    } else {
+      _performAction(() async {
+        final form = widget.editForm?.call(item);
+        if (form == null) return;
+
+        final formData = await TFormService.show(context, form);
+        if (formData == null) return;
+
+        final updatedItem = await widget.onEdit?.call(item, formData);
+        if (updatedItem != null) {
+          _listController.updateItem(item, updatedItem);
+        }
+
+        form.reset();
+        form.dispose();
+      });
+    }
   }
 
   void handleCancelForm() {

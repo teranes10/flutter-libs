@@ -19,35 +19,19 @@ extension LetExtension<T> on T? {
     return null;
   }
 
-  /// Executes block if value is null
-  /// Usage: user.ifNull(() => print('No user'))
-  void ifNull(void Function() block) {
-    if (this == null) block();
+  /// Returns value if it satisfies the predicate, otherwise null
+  /// Usage: number.takeIf((it) => it > 0)
+  T? takeIf(bool Function(T it) predicate) {
+    final self = this;
+    if (self != null) {
+      return predicate(self) ? this : null;
+    }
+    return null;
   }
 }
 
 /// Scope functions for non-nullable values
 extension ScopeExtension<T> on T {
-  /// Executes block with value as 'this' context and returns result
-  /// Usage: user.run((self) => self.name.toUpperCase())
-  R run<R>(R Function(T self) block) {
-    return block(this);
-  }
-
-  /// Executes block with value as parameter and returns the original value
-  /// Usage: user.also((it) => print(it.name))
-  T also(void Function(T it) block) {
-    block(this);
-    return this;
-  }
-
-  /// Executes block with value as 'this' context and returns the original value
-  /// Usage: StringBuilder().apply((self) => self..write('Hello')..write('World'))
-  T apply(void Function(T self) block) {
-    block(this);
-    return this;
-  }
-
   /// Returns value if it satisfies the predicate, otherwise null
   /// Usage: number.takeIf((it) => it > 0)
   T? takeIf(bool Function(T it) predicate) {

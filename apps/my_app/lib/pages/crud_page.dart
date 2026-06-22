@@ -36,7 +36,7 @@ class CrudPage extends StatelessWidget {
     );
 
     List<TTableHeader<ProductDto, int>> headers = [
-      TTableHeader.image("Image", (x) => x.thumbnail),
+      TTableHeader.image("Image", (x) => x.thumbnail, forceCache: true),
       TTableHeader.map('SKU', (x) => x.sku),
       TTableHeader.map('Title', (x) => x.title),
       TTableHeader.map('Category', (x) => x.category),
@@ -99,10 +99,10 @@ class CrudPage extends StatelessWidget {
 
         return TRowExpandedBuilder.keyValue(ctx, [
           TKeyValue('QR Code', widget: data.meta?.qrCode != null ? Image.network(data.meta!.qrCode, width: 80) : SizedBox.shrink()),
-          TKeyValue.text('Description', data.description),
           TKeyValue.text('Barcode', data.meta?.barcode),
           TKeyValue.text('Created At', data.meta?.createdAt),
           TKeyValue.text('Updated At', data.meta?.updatedAt),
+          TKeyValue.text('Description', data.description),
         ]);
       },
       rowColorBuilder: (item, index) {

@@ -36,11 +36,30 @@ class _TDropdownOverlayItemState extends State<TDropdownOverlayItem> {
   }
 
   void _handleTap() {
-    widget.item.onTap?.call();
-    TDropdownOverlayController.hideAllOverlays();
+    if (widget.item.hasChildren) {
+      _toggleSubOverlay();
+    } else {
+      widget.item.onTap?.call();
+      TDropdownOverlayController.hideAllOverlays();
+    }
+  }
+
+  void _toggleSubOverlay() {
+    if (_overlayController.isShowing) {
+      _overlayController.hide();
+    } else {
+      TDropdownOverlayController.registerOverlay(_overlayController);
+      _overlayController.show();
+    }
+  }
+
+  bool get _useTapOnly {
+    final platform = Theme.of(context).platform;
+    return platform == TargetPlatform.iOS || platform == TargetPlatform.android;
   }
 
   void _onHoverEnter() {
+    if (_useTapOnly) return;
     setState(() => _isHovered = true);
     _exitTimer?.cancel();
     TDropdownOverlayController.setMouseInArea(true);
@@ -51,6 +70,7 @@ class _TDropdownOverlayItemState extends State<TDropdownOverlayItem> {
   }
 
   void _onHoverExit() {
+    if (_useTapOnly) return;
     setState(() => _isHovered = false);
     _hoverTimer?.cancel();
 
@@ -115,7 +135,7 @@ class _TDropdownOverlayItemState extends State<TDropdownOverlayItem> {
         onExit: (_) => _onHoverExit(),
         hitTestBehavior: HitTestBehavior.opaque,
         child: InkWell(
-          onTap: widget.item.isClickable ? _handleTap : null,
+          onTap: _handleTap,
           hoverColor: Colors.transparent,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,

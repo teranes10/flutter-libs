@@ -41,8 +41,11 @@ class TFormBuilder extends StatelessWidget {
   /// Manual list of fields (alternative to input).
   final List<TFormField>? fields;
 
-  /// Spacing between fields.
-  final double gutter;
+  /// Horizontal spacing between fields.
+  final double gapX;
+
+  /// Vertical spacing between fields.
+  final double gapY;
 
   /// Callback fired when any field value changes.
   final VoidCallback? onValueChanged;
@@ -62,7 +65,8 @@ class TFormBuilder extends StatelessWidget {
     super.key,
     this.input,
     this.fields,
-    this.gutter = 26.0,
+    this.gapX = 16.0,
+    this.gapY = 26.0,
     this.onValueChanged,
     this.icon,
     this.label,
@@ -70,37 +74,84 @@ class TFormBuilder extends StatelessWidget {
     this.initiallyExpanded = false,
   }) : assert((input == null) != (fields == null), 'Provide either "input" or "fields", not both.');
 
+  /// Builds the column widgets for [fieldList], attaching value-change listeners.
+  List<Widget> _buildFieldCols(List<TFormField> fieldList) {
+    return fieldList.map((field) {
+      final isForm = field._field is TFormBuilder || field._field is TItemsFormBuilder;
+
+      field._attach(() {
+        onValueChanged?.call();
+        input?.onValueChanged();
+      });
+
+      final widget = isForm ? Padding(padding: const EdgeInsets.only(top: 20), child: field._field) : field._field;
+
+      return TGridCol(
+        sm: field._size.sm,
+        md: field._size.md,
+        lg: field._size.lg,
+        child: widget,
+      );
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final formContent = LayoutBuilder(builder: (context, constraints) {
-      final breakpoint = TBreakpoint.getBreakpoint(constraints.maxWidth);
-      final totalWidth = constraints.maxWidth;
-      final unitWidth = (totalWidth - (gutter * 11)) / 12;
+    final resolvedFields = input?.fields ?? fields ?? [];
+    final resolvedSidebarFields = input?.sidebarFields;
+    final resolvedSidebarSize = input?.sidebarSize ?? const TGridSize(sm: 0, md: 0, lg: 4);
 
-      return Wrap(
-        spacing: gutter,
-        runSpacing: gutter,
-        children: [
-          ...(input?.fields ?? fields ?? []).map((field) {
-            final span = field._size.getSpan(breakpoint);
-            final width = (unitWidth * span) + ((span - 1) * gutter);
-            final isForm = field._field is TFormBuilder || field._field is TItemsFormBuilder;
+    Widget formContent;
 
-            field._attach(() {
-              onValueChanged?.call();
-              input?.onValueChanged();
-            });
+    if (resolvedSidebarFields != null) {
+      // Sidebar span at each breakpoint (0 means no sidebar at that size).
+      final sidebarSm = resolvedSidebarSize.sm ?? 0;
+      final sidebarMd = resolvedSidebarSize.md ?? 0;
+      final sidebarLg = resolvedSidebarSize.lg ?? 4;
 
-            final widget = SizedBox(
-              width: width,
-              child: field._field,
-            );
+      // Main area occupies the remainder of the 12-column grid.
+      final mainSm = sidebarSm == 0 ? 12 : 12 - sidebarSm;
+      final mainMd = sidebarMd == 0 ? 12 : 12 - sidebarMd;
+      final mainLg = sidebarLg == 0 ? 12 : 12 - sidebarLg;
 
-            return isForm ? Padding(padding: const EdgeInsets.only(top: 20), child: widget) : widget;
-          })
-        ],
+      final mainCol = TGridCol(
+        sm: mainSm,
+        md: mainMd,
+        lg: mainLg,
+        child: TGridRow(
+          gapX: gapX,
+          gapY: gapY,
+          children: _buildFieldCols(resolvedFields),
+        ),
       );
-    });
+
+      // On breakpoints where the sidebar span is 0, append sidebar fields
+      // below main fields in a full-width single column.
+      final sidebarCol = TGridCol(
+        sm: sidebarSm == 0 ? 12 : sidebarSm,
+        md: sidebarMd == 0 ? 12 : sidebarMd,
+        lg: sidebarLg == 0 ? 12 : sidebarLg,
+        child: TGridRow(
+          gapX: gapX,
+          gapY: gapY,
+          children: _buildFieldCols(resolvedSidebarFields),
+        ),
+      );
+
+      // On sm/md where sidebar span is 0 the sidebar col becomes 12-wide and
+      // wraps below; on lg it sits alongside the main col (8:4).
+      formContent = TGridRow(
+        gapX: gapX,
+        gapY: gapY,
+        children: [mainCol, sidebarCol],
+      );
+    } else {
+      formContent = TGridRow(
+        gapX: gapX,
+        gapY: gapY,
+        children: _buildFieldCols(resolvedFields),
+      );
+    }
 
     if (label == null) return formContent;
 

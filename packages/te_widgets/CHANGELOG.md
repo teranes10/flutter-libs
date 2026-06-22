@@ -1,8 +1,28 @@
+# 2.6.3
+
+- **Form Sidebar Layout**:
+  - Added support for dual-column form structures by introducing `sidebarFields` and `sidebarSize` in `TFormBase`.
+  - Splitted form layout dynamically in `TFormBuilder` using a responsive 12-column grid layout where main fields and sidebar fields flow side-by-side on desktop/large screens (e.g. 8:4 split) and stack into a single column on tablet/mobile screens.
+- **TImage Local/IndexedDB Storage Caching (`forceCache`)**:
+  - Implemented persistent caching for `TImage` using platform-specific adapters: `IndexedDB` on Web (via browser DB APIs) and local application document directory caching on native platforms (iOS/Android/Desktop).
+  - Designed local image caching to prevent reloading and support offline asset viewing.
+  - Added custom looping skeleton shimmer animation and smooth reveal transitions on successful fetch.
+- **TAlignedRow Widget**:
+  - Added `TAlignedRow` for responsive alignment of mixed child widgets.
+  - Supports custom alignment rules where children can be grouped dynamically and automatically aligned (e.g., aligning groups of items to the left or right, with auto-flow wrapping).
+- **TDateTimeText Widget**:
+  - Added `TDateTimeText` to render relative/time-ago text (e.g., "5 seconds ago") while automatically wrapping it in a structured tooltip displaying the precise timestamp formatted according to a customizable pattern.
+- **TFormatter & TFormats Utilities**:
+  - Added `TFormatter` class for standardized formatting of numbers, currencies, durations, file sizes, speeds, and contact numbers.
+  - Added `TFormats` class defining standard format patterns for date, time, and currency.
+
 # 2.6.2
 - CrudTable topbar actions width calc from box constraints logic added to prevent the overflow
 
 # 2.6.1
-- InputValueMixin's text controller watcher logic removed
+
+- **InputValueMixin Cleanup**:
+  - Removed the text controller watcher logic from `InputValueMixin` that was redundantly listening to text changes and could cause unintended state updates.
 
 # 2.6.0
 

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/widgets/grid/grid.dart';
 
 extension BoxConstraintsX on BoxConstraints {
-  bool get isMobile => maxWidth < 600;
-  bool get isTablet => maxWidth >= 600 && maxWidth < 1024;
-  bool get isDesktop => maxWidth >= 1024;
+  bool get isMobile => maxWidth < kMobileBreakpoint;
+  bool get isTablet => maxWidth >= kMobileBreakpoint && maxWidth < kDesktopBreakpoint;
+  bool get isDesktop => maxWidth >= kDesktopBreakpoint;
 
   double? get resolvedWidth {
     final maxW = maxWidth;

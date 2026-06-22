@@ -236,6 +236,14 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     );
   }
 
+  void handleAsyncValueMap<S>(AsyncValue<S> next, List<T> Function(S) map) {
+    next.when(
+      data: (s) => updateItems(map(s)),
+      error: updateError,
+      loading: updateLoading,
+    );
+  }
+
   void cancelPendingOperations() {
     _debouncer.cancel();
     _activeRequests.clear();

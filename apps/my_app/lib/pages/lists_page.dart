@@ -35,20 +35,7 @@ class _ListsPageState extends State<ListsPage> {
               description: 'A list that allows users to reorder items using drag and drop.',
               icon: Icons.reorder,
               preview: TList<String, String>(
-                shrinkWrap: true,
-                controller: TListController<String, String>(
-                  items: _items,
-                  reorderable: true,
-                  onReorder: (oldIndex, newIndex) {
-                    setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
-                      }
-                      final String item = _items.removeAt(oldIndex);
-                      _items.insert(newIndex, item);
-                    });
-                  },
-                ),
+                controller: TListController<String, String>(items: _items, reorderable: true),
                 itemBuilder: (context, item, index) {
                   return ListTile(key: ValueKey(item.key), title: Text(item.data), leading: const Icon(Icons.drag_handle));
                 },

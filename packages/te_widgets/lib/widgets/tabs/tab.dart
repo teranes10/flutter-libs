@@ -52,14 +52,4 @@ class TTab<T> {
     this.content,
     this.data,
   }) : assert(icon != null || text != null, 'Either icon or text must be provided');
-
-  /// Calculates the approximate width of this tab.
-  double calculateWidth() {
-    return (text?.length.let((x) => x * 16 * 0.75) ?? 0) + (icon != null ? 17 : 0);
-  }
-
-  /// Calculates the total width of a list of tabs.
-  static double calculateTabsWidth(List<TTab> tabs) {
-    return tabs.fold<double>(0.0, (a, b) => a + b.calculateWidth()) + ((tabs.length - 1) * 16);
-  }
 }
