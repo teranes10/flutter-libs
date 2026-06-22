@@ -2365,7 +2365,6 @@ limitations under the License.
 cross_file
 flutter_lints
 flutter_plugin_android_lifecycle
-path_provider
 path_provider_android
 path_provider_foundation
 path_provider_linux
@@ -11713,6 +11712,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --------------------------------------------------------------------------------
 go_router
+path_provider
 shared_preferences
 
 Copyright 2013 The Flutter Authors
