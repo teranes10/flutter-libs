@@ -5,7 +5,7 @@ enum TTooltipPosition { auto, top, bottom, left, right }
 enum TTooltipSize { small, medium, large }
 
 /// How the tooltip is triggered.
-enum TTooltipTriggerMode { hover, tap, both }
+enum TTooltipTriggerMode { hover, tap, adaptive }
 
 /// Direction of the tooltip arrow.
 enum TArrowDirection { up, down, left, right }

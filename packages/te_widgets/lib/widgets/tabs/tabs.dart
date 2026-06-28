@@ -161,7 +161,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
     widget.onTabChanged?.call(tab.value);
   }
 
-  Widget _buildTab(BuildContext context, TTab<T> tab, ColorScheme colors) {
+  Widget _buildTab(BuildContext context, TTab<T> tab, ColorScheme colors, bool inline) {
     final sel = widget.controller?.value ?? widget.selectedValue;
     final isSelected = sel == tab.value;
     final key = _tabKeys[tab.value]!;
@@ -192,77 +192,81 @@ class _TTabsState<T> extends State<TTabs<T>> {
     );
 
     // Only Expanded in true full-width horizontal mode.
-    final fullWidth = !widget.inline && !widget.scrollable && !widget.wrap;
+    final fullWidth = !inline && !widget.scrollable && !widget.wrap;
     return fullWidth && widget.axis == Axis.horizontal ? Expanded(child: tabWidget) : tabWidget;
-  }
-
-  bool get _isDesktop {
-    final p = Theme.of(context).platform;
-    return p == TargetPlatform.macOS || p == TargetPlatform.windows || p == TargetPlatform.linux;
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final borderColor = widget.borderColor ?? Colors.transparent;
-    final navColor = widget.navigationButtonColor ?? colors.onSurface;
-    final navBg = widget.navigationButtonBackgroundColor ?? colors.surface.o(0.9);
+    return LayoutBuilder(builder: (context, constraints) {
+      final isExpandedByParent = constraints.hasBoundedWidth && constraints.minWidth == constraints.maxWidth;
+      final effectiveInline = isExpandedByParent ? false : widget.inline;
+      final colors = context.colors;
+      final borderColor = widget.borderColor ?? Colors.transparent;
+      final navColor = widget.navigationButtonColor ?? colors.onSurface;
+      final navBg = widget.navigationButtonBackgroundColor ?? colors.surface.o(0.9);
 
-    final tabWidgets = [
-      for (final tab in widget.tabs) _buildTab(context, tab, colors),
-    ];
+      final tabWidgets = [
+        for (final tab in widget.tabs) _buildTab(context, tab, colors, effectiveInline),
+      ];
 
-    Widget body;
+      Widget body;
 
-    if (widget.scrollable) {
-      Widget scrollView = SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: widget.axis,
-        child: widget.axis == Axis.horizontal
-            ? Row(spacing: widget.tabSpacing, children: tabWidgets)
-            : Column(spacing: widget.tabSpacing, children: tabWidgets),
-      );
+      if (widget.scrollable) {
+        Widget scrollView = SingleChildScrollView(
+          controller: _scrollController,
+          scrollDirection: widget.axis,
+          child: widget.axis == Axis.horizontal
+              ? Row(spacing: widget.tabSpacing, children: tabWidgets)
+              : Column(spacing: widget.tabSpacing, children: tabWidgets),
+        );
 
-      if (widget.showNavigationButtons && _isDesktop) {
+        if (widget.showNavigationButtons && context.isDesktopPlatform) {
+          body = widget.axis == Axis.horizontal
+              ? Row(children: [
+                  if (_canScrollStart) _NavBtn(icon: Icons.chevron_left, onPressed: () => _scrollBy(-200), color: navColor, bg: navBg),
+                  Expanded(child: scrollView),
+                  if (_canScrollEnd) _NavBtn(icon: Icons.chevron_right, onPressed: () => _scrollBy(200), color: navColor, bg: navBg),
+                ])
+              : Column(children: [
+                  if (_canScrollStart) _NavBtn(icon: Icons.keyboard_arrow_up, onPressed: () => _scrollBy(-200), color: navColor, bg: navBg),
+                  Expanded(child: scrollView),
+                  if (_canScrollEnd) _NavBtn(icon: Icons.keyboard_arrow_down, onPressed: () => _scrollBy(200), color: navColor, bg: navBg),
+                ]);
+        } else {
+          body = scrollView;
+        }
+      } else if (widget.wrap && effectiveInline) {
+        body = Wrap(
+          direction: widget.axis,
+          spacing: widget.tabSpacing,
+          runSpacing: widget.tabRunSpacing,
+          children: tabWidgets,
+        );
+      } else if (effectiveInline) {
         body = widget.axis == Axis.horizontal
-            ? Row(children: [
-                if (_canScrollStart) _NavBtn(icon: Icons.chevron_left, onPressed: () => _scrollBy(-200), color: navColor, bg: navBg),
-                Expanded(child: scrollView),
-                if (_canScrollEnd) _NavBtn(icon: Icons.chevron_right, onPressed: () => _scrollBy(200), color: navColor, bg: navBg),
-              ])
-            : Column(children: [
-                if (_canScrollStart) _NavBtn(icon: Icons.keyboard_arrow_up, onPressed: () => _scrollBy(-200), color: navColor, bg: navBg),
-                Expanded(child: scrollView),
-                if (_canScrollEnd) _NavBtn(icon: Icons.keyboard_arrow_down, onPressed: () => _scrollBy(200), color: navColor, bg: navBg),
-              ]);
+            ? Row(mainAxisSize: MainAxisSize.min, spacing: widget.tabSpacing, children: tabWidgets)
+            : Column(mainAxisSize: MainAxisSize.min, spacing: widget.tabSpacing, children: tabWidgets);
       } else {
-        body = scrollView;
+        // Full-width
+        body = widget.axis == Axis.horizontal
+            ? TAlignedRow(
+                spacing: widget.tabSpacing,
+                left: tabWidgets,
+                wrapperModeThreshold: 0,
+                wrapperExpanded: true,
+              )
+            : IntrinsicHeight(child: Column(spacing: widget.tabSpacing, children: tabWidgets));
       }
-    } else if (widget.wrap && widget.inline) {
-      body = Wrap(
-        direction: widget.axis,
-        spacing: widget.tabSpacing,
-        runSpacing: widget.tabRunSpacing,
-        children: tabWidgets,
+
+      final border =
+          widget.axis == Axis.horizontal ? Border(bottom: BorderSide(color: borderColor)) : Border(right: BorderSide(color: borderColor));
+
+      return Container(
+        decoration: BoxDecoration(border: border),
+        child: body,
       );
-    } else if (widget.inline) {
-      body = widget.axis == Axis.horizontal
-          ? Row(mainAxisSize: MainAxisSize.min, spacing: widget.tabSpacing, children: tabWidgets)
-          : Column(mainAxisSize: MainAxisSize.min, spacing: widget.tabSpacing, children: tabWidgets);
-    } else {
-      // Full-width
-      body = widget.axis == Axis.horizontal
-          ? Row(spacing: widget.tabSpacing, children: tabWidgets)
-          : IntrinsicHeight(child: Column(spacing: widget.tabSpacing, children: tabWidgets));
-    }
-
-    final border =
-        widget.axis == Axis.horizontal ? Border(bottom: BorderSide(color: borderColor)) : Border(right: BorderSide(color: borderColor));
-
-    return Container(
-      decoration: BoxDecoration(border: border),
-      child: body,
-    );
+    });
   }
 }
 

@@ -152,6 +152,8 @@ export 'widgets/list/list.dart';
 
 export 'widgets/loading-icon/loading_icon.dart';
 
+export 'widgets/measure-size/measure_size.dart';
+
 export 'widgets/modal/modal_config.dart';
 export 'widgets/modal/modal_service.dart';
 export 'widgets/modal/modal.dart';
@@ -231,6 +233,7 @@ export 'widgets/time-picker/spinner_time_picker.dart';
 export 'widgets/time-picker/time_picker.dart';
 
 export 'widgets/toast/toast_service.dart';
+export 'widgets/snackbar/snackbar_service.dart';
 
 export 'widgets/tooltip/tooltip_config.dart';
 export 'widgets/tooltip/tooltip.dart';

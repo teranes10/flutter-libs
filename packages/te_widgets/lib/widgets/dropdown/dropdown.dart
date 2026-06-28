@@ -32,9 +32,7 @@ class _DropdownState extends State<TDropdown> {
   TDropdownTheme get theme => widget.theme ?? TDropdownTheme.defaultTheme(context.colors);
 
   bool get _useTapOnly {
-    final platform = Theme.of(context).platform;
-    final isMobile = platform == TargetPlatform.iOS || platform == TargetPlatform.android;
-    return widget.triggerMode == TDropdownTriggerMode.tap || isMobile || context.isMobile;
+    return widget.triggerMode == TDropdownTriggerMode.tap || context.isMobilePlatform || context.isMobile;
   }
 
   @override

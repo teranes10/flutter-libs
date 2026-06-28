@@ -30,9 +30,11 @@ enum TButtonType {
 /// Defines the shape of a button.
 class TButtonShape {
   final OutlinedBorder border;
+  final bool vertical;
 
   const TButtonShape({
     required this.border,
+    this.vertical = false,
   });
 
   /// Standard rounded rectangle (radius 6.0).
@@ -45,11 +47,22 @@ class TButtonShape {
   static const TButtonShape circle = TButtonShape(border: CircleBorder());
 
   /// Tile shape (icon above text, radius 12.0).
-  static const TButtonShape tile = TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))));
+  static const TButtonShape tile =
+      TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12.0))), vertical: true);
 
   /// Custom rounded rectangle with defined radius.
-  static TButtonShape custom(double radius) =>
-      TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(radius))));
+  static TButtonShape custom(double radius, {bool vertical = false}) =>
+      TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(radius))), vertical: vertical);
+
+  TButtonShape copyWith({
+    OutlinedBorder? border,
+    bool? vertical,
+  }) {
+    return TButtonShape(
+      border: border ?? this.border,
+      vertical: vertical ?? this.vertical,
+    );
+  }
 }
 
 /// Defines the size metrics of a button.
@@ -106,8 +119,8 @@ class TButtonSize {
   TButtonSize.fromInputSize(TInputSize size)
       : minW = size.height,
         minH = size.height,
-        hPad = size.padding.vertical,
-        vPad = size.padding.vertical,
+        hPad = 3,
+        vPad = 3,
         font = size.fontSize,
         icon = size.fontSize + 6,
         spacing = size.padding.right;

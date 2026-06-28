@@ -64,7 +64,7 @@ class TModal extends StatelessWidget {
   /// The width of the modal.
   ///
   /// Defaults to 500.
-  final double width;
+  final double? width;
 
   /// The content widget to display in the modal.
   final Widget child;
@@ -89,27 +89,34 @@ class TModal extends StatelessWidget {
   /// Gap/margin around the modal.
   ///
   /// Defaults to 15.
-  final double gap;
+  final double? gap;
+
+  final bool fullscreen;
 
   /// Creates a modal dialog.
   const TModal(
     this.child, {
     super.key,
     this.persistent = false,
-    this.width = 500,
+    this.width,
     this.header,
     this.footer,
     this.title,
     this.showCloseButton,
     this.onClose,
-    this.gap = 15,
+    this.gap,
+    this.fullscreen = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final screenSize = MediaQuery.of(context).size;
-    final modalWidth = width > screenSize.width ? screenSize.width - gap : width;
+    final mGap = gap ?? 15;
+    final mWidth = fullscreen ? screenSize.width : (width ?? 500.0).clamp(250.0, screenSize.width - mGap);
+    final mHeight = fullscreen ? screenSize.height : null;
+    final mBorderRadius = BorderRadius.circular(12);
+    final mAlignment = context.isDesktop ? const FractionalOffset(0.5, 0.275) : Alignment.center;
 
     return GestureDetector(
       onTap: () {
@@ -122,20 +129,21 @@ class TModal extends StatelessWidget {
         body: Stack(
           children: [
             Align(
-              alignment: const FractionalOffset(0.5, 0.275),
+              alignment: mAlignment,
               child: GestureDetector(
                 onTap: () {}, // Prevent tap propagation
                 child: Container(
-                  width: modalWidth,
+                  width: mWidth,
+                  height: mHeight,
                   constraints: BoxConstraints(
                     minWidth: 250,
                     minHeight: 250,
-                    maxWidth: screenSize.width - gap,
-                    maxHeight: screenSize.height - gap,
+                    maxWidth: screenSize.width - mGap,
+                    maxHeight: screenSize.height - mGap,
                   ),
                   decoration: BoxDecoration(
                     color: colors.surface,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: mBorderRadius,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -163,21 +171,33 @@ class TModal extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context, ColorScheme colors) {
-    final padding = context.isMobile
-        ? const EdgeInsets.only(left: 10, right: 2.5, top: 15, bottom: 7.5)
+    final isMobile = context.isMobile;
+    final padding = isMobile
+        ? const EdgeInsets.only(left: 10, right: 10, top: 15, bottom: 10)
         : const EdgeInsets.only(left: 25, right: 15, top: 15, bottom: 5);
 
     return Container(
       padding: padding,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: isMobile ? MainAxisAlignment.start : MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: 6,
         children: [
+          if (showCloseButton == true && isMobile)
+            TIcon(
+                icon: Icons.arrow_back_ios_new_rounded, size: 21, padding: EdgeInsets.fromLTRB(3, 3, 3, 1.2), onTap: () => onClose?.call()),
           Expanded(
             child: title != null
-                ? Text(title ?? '', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w300, color: colors.onSurface))
+                ? Text(title ?? '',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w300,
+                      color: colors.onSurface,
+                      overflow: TextOverflow.ellipsis,
+                    ))
                 : SizedBox.shrink(),
           ),
-          if (showCloseButton == true) TIcon.close(size: 20, onTap: () => onClose?.call()),
+          if (showCloseButton == true && !isMobile) TIcon.close(size: 20, onTap: () => onClose?.call()),
         ],
       ),
     );

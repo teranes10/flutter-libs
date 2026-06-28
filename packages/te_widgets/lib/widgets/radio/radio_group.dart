@@ -287,13 +287,10 @@ class _TRadioGroupState<T> extends State<TRadioGroup<T>>
     }
 
     return widget.vertical
-        ? Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: widget.runSpacing,
-              children: items,
-            ),
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: widget.runSpacing,
+            children: items,
           )
         : Wrap(
             spacing: widget.spacing,

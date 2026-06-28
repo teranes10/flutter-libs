@@ -276,7 +276,7 @@ class _TTextFieldState<T extends String?> extends State<TTextField<T>>
   @override
   Widget build(BuildContext context) {
     return buildTextField(
-      maxLines: widget.rows,
+      rows: widget.rows,
       onValueChanged: _onValueChanged,
       hasValue: textController.text.isNotEmpty,
       keyboardType: widget.keyboardType,

@@ -146,8 +146,8 @@ class TWidgetTheme {
       color: m,
       container: isDarkMode ? m.shade(800) : m.shade(50),
       containerVariant: isDarkMode ? m.shade(800).darken(0.2) : m.shade(100),
-      onContainer: isDarkMode ? m.shade(200) : m.shade(400),
-      onContainerVariant: isDarkMode ? m.shade(300) : m.shade(500),
+      onContainer: isDarkMode ? m.shade(200) : m.shade(500),
+      onContainerVariant: isDarkMode ? m.shade(300) : m.shade(600),
       shadow: m.shade(600).withAlpha(35),
     );
   }

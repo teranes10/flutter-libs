@@ -123,7 +123,7 @@ class TBottomBar extends StatelessWidget {
             final item = items[index];
             final isActive = index == currentIndex;
 
-            return _BottomBarItemWidget(
+            final child = _BottomBarItemWidget(
               item: item,
               isActive: isActive,
               variant: variant,
@@ -135,6 +135,10 @@ class TBottomBar extends StatelessWidget {
               iconSize: iconSize,
               padding: itemPadding,
             );
+
+            return item.items != null && item.items!.isNotEmpty
+                ? TDropdown(items: item.items ?? [], triggerMode: TDropdownTriggerMode.tap, child: child)
+                : child;
           }),
         ),
       ),

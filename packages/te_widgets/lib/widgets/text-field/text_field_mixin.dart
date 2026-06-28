@@ -61,7 +61,7 @@ mixin TTextFieldStateMixin<W extends StatefulWidget> on State<W>, TInputFieldSta
 
   /// Builds the text field widget.
   Widget buildTextField({
-    int maxLines = 1,
+    int rows = 1,
     TextInputType? keyboardType,
     TextInputAction? textInputAction,
     List<TextInputFormatter>? inputFormatters,
@@ -80,7 +80,7 @@ mixin TTextFieldStateMixin<W extends StatefulWidget> on State<W>, TInputFieldSta
         readOnly: _widget.readOnly,
         focusNode: focusNode,
         controller: _textController,
-        maxLines: maxLines,
+        rows: rows,
         keyboardType: keyboardType,
         textInputAction: textInputAction,
         inputFormatters: inputFormatters,
@@ -92,7 +92,6 @@ mixin TTextFieldStateMixin<W extends StatefulWidget> on State<W>, TInputFieldSta
           hasValue: hasValue,
           onClear: onClear,
           placeholder: placeholder,
-          expands: maxLines > 1,
         ),
       ),
     );

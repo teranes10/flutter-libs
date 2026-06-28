@@ -232,12 +232,14 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
 
     return LayoutBuilder(builder: (_, constraints) {
       final infiniteScroll = wTheme.infiniteScroll ?? constraints.isMobile;
+      final canHeaderSticky = wTheme.shrinkWrap == true ? false : !constraints.isMobile && constraints.maxHeight > 700;
+      final canFooterSticky = wTheme.shrinkWrap == true ? false : !constraints.isMobile && constraints.maxHeight > 750;
 
       return TTable<T, K>(
         theme: wTheme.copyWith(
           infiniteScroll: infiniteScroll,
-          headerSticky: wTheme.headerSticky ?? wTheme.shrinkWrap != true,
-          footerSticky: wTheme.footerSticky ?? wTheme.shrinkWrap != true,
+          headerSticky: wTheme.headerSticky ?? canHeaderSticky,
+          footerSticky: wTheme.footerSticky ?? canFooterSticky,
           footerBuilder: (ctx) => Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -258,12 +260,11 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
 
   Widget _buildToolbar(ColorScheme colors, BoxConstraints constraints) {
     if (listController.isEmpty) return SizedBox.shrink();
-    final isMobile = constraints.isMobile;
 
     return Container(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: TAlignedRow(
-          mainAxisAlignment: MainAxisAlignment.center,
+          wrapperModeThreshold: 1,
           left: [
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -274,7 +275,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
             )
           ],
           right: [
-            _buildPaginationInfo(colors, listController.paginationInfo).center(when: isMobile),
+            _buildPaginationInfo(colors, listController.paginationInfo),
             _buildPaginationBar(listController.page, listController.totalPages),
           ],
         ));

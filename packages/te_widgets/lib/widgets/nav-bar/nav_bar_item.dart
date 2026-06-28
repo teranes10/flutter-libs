@@ -29,8 +29,11 @@ class TNavItem extends StatelessWidget {
   /// The optional label text to display when active.
   final String? label;
 
+  // The optional popup items
+  final List<TDropdownItem>? items;
+
   /// Creates a navigation item.
-  const TNavItem({super.key, this.onTap, this.isActive = false, required this.icon, this.label});
+  const TNavItem({super.key, this.onTap, this.isActive = false, required this.icon, this.label, this.items});
 
   /// Creates a copy of this item with optional new values.
   TNavItem copyWith({VoidCallback? onTap, bool? isActive, IconData? icon, String? label}) {
@@ -41,7 +44,7 @@ class TNavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Material(
+    final child = Material(
       color: isActive ? colors.primaryContainer : colors.surface,
       borderRadius: BorderRadius.circular(25),
       child: InkWell(
@@ -61,5 +64,7 @@ class TNavItem extends StatelessWidget {
         ),
       ),
     );
+
+    return items != null && items!.isNotEmpty ? TDropdown(items: items!, triggerMode: TDropdownTriggerMode.tap, child: child) : child;
   }
 }

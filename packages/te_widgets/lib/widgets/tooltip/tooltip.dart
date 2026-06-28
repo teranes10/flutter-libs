@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -207,6 +208,9 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   bool _isHovering = false;
 
   @override
+  bool get shouldCenteredOverlay => false;
+
+  @override
   void initState() {
     super.initState();
     _animationController = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
@@ -313,40 +317,33 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   }
 
   void _onPointerEnter(PointerEnterEvent event) {
-    if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
-      _isHovering = true;
-      Future.delayed(widget.showDelay, () {
-        if (_isHovering && mounted) showPopup(context);
-      });
-    }
+    _isHovering = true;
+    Future.delayed(widget.showDelay, () {
+      if (_isHovering && mounted) showPopup(context);
+    });
   }
 
   void _onPointerExit(PointerExitEvent event) {
-    if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
-      _isHovering = false;
-      Future.delayed(widget.hideDelay, () {
-        if (!_isHovering && mounted) hidePopup();
-      });
-    }
+    _isHovering = false;
+    Future.delayed(widget.hideDelay, () {
+      if (!_isHovering && mounted) hidePopup();
+    });
   }
 
   void _onTooltipPointerEnter(PointerEnterEvent event) {
-    if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
-      _isHovering = true;
-    }
+    _isHovering = true;
   }
 
   void _onTooltipPointerExit(PointerExitEvent event) {
-    if (widget.triggerMode == TTooltipTriggerMode.hover || widget.triggerMode == TTooltipTriggerMode.both) {
-      _isHovering = false;
-      Future.delayed(widget.hideDelay, () {
-        if (!_isHovering && mounted) hidePopup();
-      });
-    }
+    _isHovering = false;
+    Future.delayed(widget.hideDelay, () {
+      if (!_isHovering && mounted) hidePopup();
+    });
   }
 
-  void _onTap() {
-    if (widget.triggerMode != TTooltipTriggerMode.tap && widget.triggerMode != TTooltipTriggerMode.both) return;
+  void _onTap(PointerDownEvent event) {
+    if (widget.triggerMode == TTooltipTriggerMode.hover) return;
+    if (widget.triggerMode == TTooltipTriggerMode.adaptive && event.kind != PointerDeviceKind.touch) return;
 
     isPopupShowing ? hidePopup() : showPopup(context);
 
@@ -363,8 +360,8 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
       child: MouseRegion(
         onEnter: _onPointerEnter,
         onExit: _onPointerExit,
-        child: GestureDetector(
-          onTap: _onTap,
+        child: Listener(
+          onPointerDown: _onTap,
           child: widget.child,
         ),
       ),
@@ -437,8 +434,8 @@ class _TooltipContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    final mColor = color ?? theme.primary;
-    final wTheme = context.getWidgetTheme(type ?? theme.tooltipType, mColor);
+    final mType = type ?? theme.tooltipType;
+    final wTheme = color != null ? context.getWidgetTheme(mType, color) : TWidgetTheme.surfaceTheme(context.colors, variant: mType);
 
     final (defaultPadding, fontSize) = _sizeStyle();
     final effectivePadding = padding ?? defaultPadding;
@@ -463,7 +460,9 @@ class _TooltipContent extends StatelessWidget {
             shadowColor: wTheme.shadow,
             maxWidth: maxWidth,
             child: Material(
-              type: MaterialType.transparency,
+              elevation: 8,
+              shadowColor: wTheme.shadow,
+              borderRadius: BorderRadius.circular(8),
               child: MouseRegion(
                 onEnter: onPointerEnter,
                 onExit: onPointerExit,
@@ -472,8 +471,7 @@ class _TooltipContent extends StatelessWidget {
                   child: Container(
                     constraints: BoxConstraints(maxWidth: maxWidth),
                     padding: effectivePadding,
-                    decoration: decoration ??
-                        BoxDecoration(color: wTheme.container, borderRadius: BorderRadius.circular(8), boxShadow: wTheme.boxShadow),
+                    decoration: decoration ?? BoxDecoration(color: wTheme.container, borderRadius: BorderRadius.circular(8)),
                     child: IntrinsicWidth(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

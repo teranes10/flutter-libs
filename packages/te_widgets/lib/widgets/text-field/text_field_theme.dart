@@ -215,7 +215,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     Set<WidgetState> states, {
     bool autoFocus = false,
     bool readOnly = false,
-    int maxLines = 1,
+    int rows = 1,
     FocusNode? focusNode,
     TextInputType? keyboardType,
     TextInputAction? textInputAction,
@@ -226,7 +226,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     required InputDecoration inputDecoration,
   }) {
     final isDisabled = states.contains(WidgetState.disabled);
-    final isMultiline = maxLines > 1;
+    final isMultiline = rows > 1;
     final style = textStyle.resolve(states).copyWith(fontSize: fieldFontSize);
     final decoration = isMultiline
         ? inputDecoration.copyWith(
@@ -251,11 +251,8 @@ class TTextFieldTheme extends TInputFieldTheme {
       cursorHeight: fieldFontSize + 2,
       style: style,
       decoration: decoration,
-      expands: obscureText ? false : maxLines == 1,
-      minLines: maxLines > 1 ? maxLines : null,
-      maxLines: obscureText ? 1 : null,
-      scrollPhysics: const BouncingScrollPhysics(),
-      scrollPadding: const EdgeInsets.all(8),
+      minLines: rows,
+      maxLines: rows > 1 ? null : 1,
       obscureText: obscureText,
       inputFormatters: inputFormatters ?? this.inputFormatters,
       keyboardType: _resolveKeyboardType(isDisabled, readOnly, isMultiline, keyboardType),

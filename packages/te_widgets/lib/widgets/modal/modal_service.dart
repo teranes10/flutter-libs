@@ -20,7 +20,9 @@ class TModalService {
     TModalWidgetBuilder? header,
     TModalWidgetBuilder? footer,
     bool persistent = false,
-    double width = 500,
+    double? width,
+    bool fullscreen = false,
+    double? gap,
     String? title,
     bool? showCloseButton,
   }) {
@@ -36,6 +38,8 @@ class TModalService {
           footer: footer?.call(mContext),
           persistent: persistent,
           width: width,
+          fullscreen: fullscreen,
+          gap: gap,
           title: title,
           showCloseButton: showCloseButton,
           onClose: () {

@@ -239,6 +239,9 @@ class TInputFieldTheme {
   }) {
     final inputBorder = buildInputBorder(states);
 
+    final hasPrefix = beforePreWidget != null || preWidget != null;
+    final hasSuffix = onClear != null || beforePostWidget != null || infoIcon != null || postWidget != null;
+
     return InputDecoration(
       border: inputBorder,
       enabledBorder: inputBorder,
@@ -256,10 +259,11 @@ class TInputFieldTheme {
       },
       isDense: true,
       visualDensity: VisualDensity.compact,
-      constraints: BoxConstraints(minHeight: fieldHeight, maxHeight: expands ? double.infinity : fieldHeight),
       hintText: placeholder,
       hintStyle: hintStyle.resolve(states),
+      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight, minWidth: hasPrefix ? 40 : 7.5),
       prefixIcon: _buildPreWidget(beforePreWidget),
+      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight, minWidth: hasSuffix ? 40 : 7.5),
       suffixIcon: _buildPostWidget(
           beforePostWidget: beforePostWidget, onClear: onClear, infoIcon: labelPosition == TLabelPosition.floating ? infoIcon : null),
       filled: decorationType == TInputDecorationType.filled,
@@ -277,7 +281,7 @@ class TInputFieldTheme {
     } else if (beforePreWidget != null) {
       return _buildPaddedWidget(beforePreWidget, isPrefix: true);
     } else {
-      return null;
+      return SizedBox.shrink();
     }
   }
 
@@ -285,21 +289,24 @@ class TInputFieldTheme {
     return TTooltip(
       message: info,
       color: colors.onSurfaceVariant,
-      triggerMode: TTooltipTriggerMode.both,
+      triggerMode: TTooltipTriggerMode.adaptive,
       child: Padding(
         padding: const EdgeInsets.only(left: 4),
-        child: Icon(
-          Icons.info_outline,
-          size: 16,
-          color: colors.onSurfaceVariant.withAlpha(200),
-        ),
+        child: Icon(Icons.info_outline, size: 16, color: colors.onSurfaceVariant.withAlpha(200)),
       ),
     );
   }
 
   Widget? _buildPostWidget({Widget? beforePostWidget, VoidCallback? onClear, Widget? infoIcon}) {
     final children = [
-      if (onClear != null) _buildPaddedWidget(TIcon.close(onTap: onClear, size: fieldFontSize + 3), isPrefix: false),
+      if (onClear != null)
+        _buildPaddedWidget(
+            TIcon.close(
+              onTap: onClear,
+              size: fieldFontSize + 3,
+              padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
+            ),
+            isPrefix: false),
       if (beforePostWidget != null) _buildPaddedWidget(beforePostWidget, isPrefix: false),
       if (infoIcon != null) _buildPaddedWidget(infoIcon, isPrefix: false),
       if (postWidget != null) _buildPaddedWidget(postWidget!, isPrefix: false)
@@ -314,8 +321,6 @@ class TInputFieldTheme {
   Widget _buildPaddedWidget(Widget widget, {required bool isPrefix}) {
     return Padding(
       padding: EdgeInsets.only(
-        top: fieldPadding.top,
-        bottom: fieldPadding.bottom,
         left: isPrefix ? fieldPadding.left : 0,
         right: isPrefix ? 0 : fieldPadding.right,
       ),

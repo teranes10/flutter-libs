@@ -175,14 +175,19 @@ class TFilePickerTheme extends TInputFieldTheme {
   }
 
   /// Builds the file tag implementation.
-  Widget buildFilesField(
-      {required Set<WidgetState> states, required List<TFile> files, String? placeholder, ValueChanged<TFile>? onRemove}) {
+  Widget buildFilesField({
+    required Set<WidgetState> states,
+    required List<TFile> files,
+    String? placeholder,
+    ValueChanged<TFile>? onRemove,
+  }) {
     return Wrap(
       spacing: 6.0,
       runSpacing: 6.0,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        if (files.isEmpty && placeholder != null && placeholder.isNotEmpty) Text(placeholder, style: hintStyle.resolve(states)),
+        if (files.isEmpty && placeholder != null && placeholder.isNotEmpty && labelPosition != TLabelPosition.floating)
+          Text(placeholder, style: hintStyle.resolve(states)),
         ...files.map((file) => fileTagBuilder(file, () => onRemove?.call(file))),
       ],
     );

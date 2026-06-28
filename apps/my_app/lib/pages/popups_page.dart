@@ -21,7 +21,7 @@ class _PopupsPageState extends State<PopupsPage> {
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), duration: const Duration(seconds: 1)));
+    TSnackbarService.show(context, message);
   }
 
   @override
@@ -101,6 +101,62 @@ class _PopupsPageState extends State<PopupsPage> {
                 text: 'Error Toast',
                 onPressed: (_) =>
                     TToastService.error(context, 'Something went wrong while saving your data. Please try again.', 'Failed to Save'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+
+          // ===== Snackbars =====
+          const Text('🍿 Snackbars', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              TButton(
+                color: AppColors.info,
+                text: 'Info SnackBar (Action)',
+                onPressed: (_) => TSnackbarService.info(
+                  context,
+                  'Your package is on the way.',
+                  title: 'Info',
+                  actionText: 'Track',
+                  onTap: () => _showSnackBar('Tracking package...'),
+                ),
+              ),
+              TButton(
+                color: AppColors.success,
+                text: 'Success SnackBar',
+                onPressed: (_) => TSnackbarService.success(context, 'Project updated successfully.', title: 'Success'),
+              ),
+              TButton(
+                color: AppColors.warning,
+                text: 'Warning SnackBar (Action)',
+                onPressed: (_) => TSnackbarService.warning(
+                  context,
+                  'Storage space is almost full.',
+                  title: 'Storage Warning',
+                  actionText: 'Manage',
+                  onTap: () => _showSnackBar('Opening storage manager...'),
+                ),
+              ),
+              TButton(
+                color: AppColors.danger,
+                text: 'Error SnackBar',
+                onPressed: (_) =>
+                    TSnackbarService.error(context, 'An error occurred while uploading. Please try again.', title: 'Upload Failed'),
+              ),
+              TButton(
+                color: AppColors.primary,
+                text: 'Custom Purple SnackBar',
+                onPressed: (_) => TSnackbarService.show(
+                  context,
+                  'This is a fully customized purple snackbar.',
+                  title: 'Custom Styles',
+                  icon: Icons.star_purple500_rounded,
+                  color: Colors.purple,
+                  actionText: 'Perfect',
+                  onTap: () => _showSnackBar('Custom snackbar action pressed!'),
+                ),
               ),
             ],
           ),

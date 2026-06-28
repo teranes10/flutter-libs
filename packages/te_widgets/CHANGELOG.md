@@ -1,3 +1,7 @@
+# 2.6.4
+
+- Input Field bug fix
+
 # 2.6.3
 
 - **Form Sidebar Layout**:

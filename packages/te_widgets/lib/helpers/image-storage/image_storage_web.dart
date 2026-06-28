@@ -1,5 +1,6 @@
 // ignore_for_file: uri_does_not_exist, undefined_class, deprecated_member_use, undefined_prefixed_name, unused_import
 import 'dart:async';
+// ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 import 'dart:indexed_db' as idb;
 import 'dart:typed_data';

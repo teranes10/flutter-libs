@@ -129,6 +129,8 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     bool floatingLabelAlways = false,
   }) {
     return InkWell(
+      borderRadius: BorderRadius.circular(wTheme.borderRadius.resolve(states)),
+      hoverColor: colors.primary,
       onTap: _widget.disabled
           ? null
           : () {

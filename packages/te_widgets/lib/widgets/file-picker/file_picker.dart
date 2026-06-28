@@ -175,7 +175,7 @@ class _TFilePickerState extends State<TFilePicker>
     return buildContainer(
       onTap: _pickFiles,
       expands: true,
-      hasValue: currentValue != null && currentValue!.isNotEmpty,
+      hasValue: hasValue,
       onClear: () {
         setState(() => notifyValueChanged([]));
       },

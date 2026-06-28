@@ -37,6 +37,7 @@ class TDateTimeText extends StatelessWidget {
     final tooltipText = customTooltipMessage ?? DateFormat(tooltipDateFormat).format(dateTime);
 
     return TTooltip(
+      triggerMode: TTooltipTriggerMode.adaptive,
       message: tooltipText,
       position: tooltipPosition,
       child: Text(relativeText, style: style),

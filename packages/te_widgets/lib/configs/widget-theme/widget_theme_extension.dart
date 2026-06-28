@@ -15,6 +15,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
   final TButtonTheme buttonTheme;
   final TVariant chipType;
   final TVariant toastType;
+  final TVariant snackbarType;
   final TVariant tooltipType;
 
   final TInputFieldTheme inputFieldTheme;
@@ -40,6 +41,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
     this.layoutFrame = AppColors.grey,
     this.chipType = TVariant.tonal,
     this.toastType = TVariant.tonal,
+    this.snackbarType = TVariant.solid,
     this.tooltipType = TVariant.tonal,
     required this.buttonTheme,
     required this.inputFieldTheme,

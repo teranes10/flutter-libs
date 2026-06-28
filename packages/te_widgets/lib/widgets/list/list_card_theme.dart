@@ -125,20 +125,10 @@ class TListCardTheme {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 14, color: titleColor, fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
+          Text(title, style: TextStyle(fontSize: 14, color: titleColor, fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400)),
           if (subTitle != null) const SizedBox(height: 2.5),
           if (subTitle != null)
-            Text(
-              subTitle,
-              style: TextStyle(fontSize: 12.0, color: isDisabled ? colors.onSurface.o(0.38) : colors.onSurfaceVariant),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
+            Text(subTitle, style: TextStyle(fontSize: 12.0, color: isDisabled ? colors.onSurface.o(0.38) : colors.onSurfaceVariant)),
         ],
       );
 

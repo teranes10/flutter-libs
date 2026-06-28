@@ -6,11 +6,12 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
   _TCrudTopBar({required this.parent});
 
   Widget build(BuildContext ctx, BoxConstraints constraints) {
-    final isMobile = constraints.isMobile;
-    final searchBar = _buildSearchBar(ctx);
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TAlignedRow(
+        moveAllToSecondRow: true,
+        wrapperExpanded: true,
+        wrapperModeThreshold: 2,
         left: [
           if (parent.canCreate)
             TButton(
@@ -22,9 +23,11 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
           ...parent.widget.config.topBarActions,
         ],
         right: [
+          _buildCycleButton(ctx),
+          _buildExportButton(ctx),
           if (parent.showTabs)
             TTabs(
-              inline: !isMobile,
+              inline: true,
               selectedValue: parent.currentTab,
               onTabChanged: (i) {
                 parent.currentTab = i;
@@ -32,9 +35,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
               },
               tabs: parent.tabs,
             ),
-          if (isMobile) searchBar else SizedBox(width: 275, child: searchBar),
-          _buildCycleButton(ctx),
-          _buildExportButton(ctx),
+          _buildSearchBar(ctx).size(w: 275),
         ],
       ),
     );
@@ -62,8 +63,9 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
 
   Widget _buildCycleButton(BuildContext ctx) {
     return TButtonGroup(
-      type: TButtonGroupType.tonal,
-      size: TButtonSize.md,
+      type: TButtonGroupType.text,
+      color: ctx.colors.onSurfaceVariant,
+      size: TButtonSize.sm,
       cycle: true,
       initialIndex: parent.viewMode,
       onIndexChanged: (index) {
@@ -101,10 +103,12 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
         ),
       ],
       child: TButton(
-        type: TButtonType.tonal,
-        size: TButtonSize.md,
+        type: TButtonType.text,
+        color: ctx.colors.onSurfaceVariant,
+        size: TButtonSize.sm,
         icon: Icons.download_rounded,
         tooltip: 'Export',
+        onTap: () {},
       ),
     );
   }

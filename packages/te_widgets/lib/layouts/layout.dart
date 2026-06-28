@@ -92,10 +92,10 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     final colors = context.colors;
     final theme = context.theme;
-    final isMinimized = ref.watch(sidebarNotifierProvider);
+    final isSidebarMinimized = ref.watch(sidebarNotifierProvider);
 
     // --- Validation and Logic ---
-    final isMobile = context.isMobile;
+    final isMini = !context.isDesktop;
 
     // Centralized Resolution and Validation
     final resolvedItems = TSidebarItemsResolver.resolve(widget.items);
@@ -132,7 +132,7 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
     }
 
     // 3. Prepare Sidebar Items (Exclude Bottom Bar items only for Mobile)
-    if (isMobile) {
+    if (isMini) {
       for (final item in resolvedItems) {
         if (!finalBottomBarItems.contains(item)) {
           sidebarItems.add(item);
@@ -145,36 +145,36 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
 
     return Scaffold(
       backgroundColor: theme.layoutFrame,
-      bottomNavigationBar: isMobile ? _buildBottomBar(context, colors, finalBottomBarItems) : null,
+      bottomNavigationBar: isMini ? _buildBottomBar(context, colors, finalBottomBarItems) : null,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             return Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(isMobile ? 0.0 : widget.mainCardRadius / 2.4),
+                  padding: EdgeInsets.all(isMini ? 0.0 : widget.mainCardRadius / 2.4),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: colors.surface,
-                      borderRadius: BorderRadius.circular(isMobile ? 12 : widget.mainCardRadius),
+                      borderRadius: BorderRadius.circular(isMini ? 12 : widget.mainCardRadius),
                     ),
                     child: Column(
                       children: [
-                        _buildTopBar(colors, isMobile, homeItem, isMinimized, resolvedItems),
+                        _buildTopBar(colors, isMini, homeItem, isSidebarMinimized, resolvedItems),
                         Expanded(
                           child: Row(
                             children: [
-                              if (!isMobile)
+                              if (!isMini)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 45, bottom: 28),
                                   child: Sidebar(
                                     items: sidebarItems,
                                     width: widget.width,
                                     minifiedWidth: widget.minifiedWidth,
-                                    isMinimized: isMinimized,
+                                    isMinimized: isSidebarMinimized,
                                   ),
                                 ),
-                              _buildMainContent(colors, isMobile, widget.child),
+                              _buildMainContent(colors, isMini, widget.child),
                             ],
                           ),
                         ),
@@ -183,7 +183,7 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
                   ),
                 ),
                 // Mobile sidebar overlay
-                if (isMobile) _buildSidebarOverlay(colors, sidebarItems),
+                if (isMini) _buildSidebarOverlay(colors, sidebarItems),
               ],
             );
           },

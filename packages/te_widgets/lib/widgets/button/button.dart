@@ -366,32 +366,26 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             disabled: true,
           ),
       if (!text.isNullOrBlank) Text(_isLoading ? widget.loadingText : text!),
-      if (!text.isNullOrBlank && theme.shape == TButtonShape.pill) SizedBox(width: theme.size.spacing),
+      if ((icon != null || widget.imageUrl != null) && !text.isNullOrBlank && theme.shape == TButtonShape.pill)
+        SizedBox(width: theme.size.spacing),
       if (widget.child != null) widget.child!,
     ];
 
     final buttonContent = AnimatedContainer(
       duration: widget.duration,
       curve: Curves.easeInOut,
-      child: theme.shape == TButtonShape.tile
+      child: theme.shape.vertical
           ? Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: size.spacing,
               children: contentChildren,
             )
-          : LayoutBuilder(
-              builder: (context, constraints) {
-                // If parent gave us a tight width (expand mode from TAlignedRow),
-                // fill it and center content. Otherwise behave as before.
-                final isTight = constraints.hasTightWidth;
-                return Row(
-                  mainAxisSize: isTight || size.minW.isInfinite ? MainAxisSize.max : MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: size.spacing,
-                  children: contentChildren,
-                );
-              },
+          : Row(
+              mainAxisSize: size.minW.isInfinite ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: size.spacing,
+              children: contentChildren,
             ),
     );
 
@@ -407,6 +401,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
 
     if (widget.tooltip != null) {
       return TTooltip(
+        triggerMode: TTooltipTriggerMode.hover,
         message: widget.tooltip!,
         color: theme.baseTheme.color,
         child: button,

@@ -9,10 +9,10 @@ late final SharedPreferences _prefs;
 late final ThemeMode _initialTheme;
 late final bool _initialSidebarMinified;
 
-Future<void> initializeApp() async {
+Future<void> initializeApp([SharedPreferences? prefs]) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  _prefs = await SharedPreferences.getInstance();
+  _prefs = prefs ?? await SharedPreferences.getInstance();
 
   _initialTheme = switch (_prefs.getString(themeModeKey)) {
     'light' => ThemeMode.light,

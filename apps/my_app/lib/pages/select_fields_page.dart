@@ -50,7 +50,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
               items: ['USA', 'Canada', 'Mexico', 'Brazil', 'Argentina'],
               valueNotifier: _countryNotifier,
               onValueChanged: (v) {
-                print(v);
+                debugPrint(v);
               },
             ),
             code: '''TSelect<String, String, String>(

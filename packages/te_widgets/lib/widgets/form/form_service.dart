@@ -50,6 +50,7 @@ class TFormService {
       showCloseButton: input.isFormCloseButton,
       width: input.formWidth,
       title: input.formTitle,
+      fullscreen: !context.isDesktop,
       (mContext) {
         final isMobile = context.isMobile;
         return Padding(
@@ -57,7 +58,7 @@ class TFormService {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              isMobile
+              context.isMobilePlatform
                   ? InteractiveViewer(
                       scaleEnabled: true,
                       panEnabled: true,

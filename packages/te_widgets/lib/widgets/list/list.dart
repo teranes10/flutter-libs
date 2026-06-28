@@ -443,7 +443,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               onReorder: listController.reorder,
               grid: wTheme.grid,
               gridDelegate: wTheme.gridDelegate,
-              height: _calculateHeight(state),
+              //    height: _calculateHeight(state),
               shrinkWrap: wTheme.shrinkWrap ?? false,
               scrollController: _scrollController,
             );

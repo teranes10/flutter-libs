@@ -98,7 +98,7 @@ class CrudPage extends StatelessWidget {
         final data = item.data;
 
         return TRowExpandedBuilder.keyValue(ctx, [
-          TKeyValue('QR Code', widget: data.meta?.qrCode != null ? Image.network(data.meta!.qrCode, width: 80) : SizedBox.shrink()),
+          TKeyValue('QR Code', widget: data.meta?.qrCode != null ? TImage(url: data.meta!.qrCode, size: 80) : SizedBox.shrink()),
           TKeyValue.text('Barcode', data.meta?.barcode),
           TKeyValue.text('Created At', data.meta?.createdAt),
           TKeyValue.text('Updated At', data.meta?.updatedAt),
