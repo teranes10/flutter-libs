@@ -164,6 +164,11 @@ class TButton extends StatefulWidget {
   /// Defaults to 400 milliseconds.
   final Duration duration;
 
+  /// The duration to throttle/debounce button taps to prevent duplicate submissions.
+  ///
+  /// Defaults to null (no throttle).
+  final Duration? throttleDuration;
+
   /// Creates a customizable button widget.
   ///
   /// At least one of [onTap], [onPressed], or [onChanged] should be provided
@@ -190,6 +195,7 @@ class TButton extends StatefulWidget {
     this.child,
     this.onChanged,
     this.duration = const Duration(milliseconds: 400),
+    this.throttleDuration,
   })  : assert(
           theme == null || (baseTheme == null && type == null && size == null && shape == null && color == null),
           'If theme is provided, baseTheme, type, shape, color and size must be null.',
@@ -279,11 +285,13 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   }
 
   void _handlePress() {
-    final now = DateTime.now();
-    if (_lastTapTime != null && now.difference(_lastTapTime!) < const Duration(seconds: 1)) {
-      return;
+    if (widget.throttleDuration != null) {
+      final now = DateTime.now();
+      if (_lastTapTime != null && now.difference(_lastTapTime!) < widget.throttleDuration!) {
+        return;
+      }
+      _lastTapTime = now;
     }
-    _lastTapTime = now;
 
     if (_isLoading || (widget.onPressed == null && widget.onTap == null && widget.onChanged == null)) return;
 

@@ -66,6 +66,9 @@ class TModal extends StatelessWidget {
   /// Defaults to 500.
   final double? width;
 
+  final double? minWidth;
+  final double? minHeight;
+
   /// The content widget to display in the modal.
   final Widget child;
 
@@ -99,6 +102,8 @@ class TModal extends StatelessWidget {
     super.key,
     this.persistent = false,
     this.width,
+    this.minWidth,
+    this.minHeight,
     this.header,
     this.footer,
     this.title,
@@ -136,8 +141,8 @@ class TModal extends StatelessWidget {
                   width: mWidth,
                   height: mHeight,
                   constraints: BoxConstraints(
-                    minWidth: 250,
-                    minHeight: 250,
+                    minWidth: minWidth ?? 250,
+                    minHeight: minHeight ?? 250,
                     maxWidth: screenSize.width - mGap,
                     maxHeight: screenSize.height - mGap,
                   ),

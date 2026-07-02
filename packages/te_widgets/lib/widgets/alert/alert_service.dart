@@ -7,9 +7,19 @@ import 'package:te_widgets/te_widgets.dart';
 /// - Info, Success, Warning, Error
 /// - Confirmations (Archive, Restore, Delete)
 /// - Custom alerts with [show]
+/// Controller for managing alert dialogs programmatically.
+class TAlertController {
+  VoidCallback? _close;
+
+  /// Closes the alert dialog if it is currently showing.
+  void close() {
+    _close?.call();
+  }
+}
+
 class TAlertService {
   /// Shows a custom alert dialog.
-  static Future<void> show(
+  static TAlertController show(
     BuildContext context, {
     final dynamic text,
     final String? title,
@@ -17,33 +27,49 @@ class TAlertService {
     final Color? color,
     final AlertButton? closeButton,
     final AlertButton? confirmButton,
-  }) async {
-    TModalService.show(context, (context) {
+    final bool progress = false,
+    final Stream<String>? progressStream,
+    final bool hideCloseButton = false,
+    final double? width,
+    final double? minWidth = 0,
+    final double? minHeight = 0,
+    final bool persistent = true,
+  }) {
+    final controller = TAlertController();
+
+    TModalService.show(context, width: width ?? 400, minWidth: minWidth, minHeight: minHeight, persistent: persistent, (modalContext) {
+      controller._close = modalContext.close;
       return TAlert(
         title: title,
         text: text,
         icon: icon,
         color: color,
+        progress: progress,
+        progressStream: progressStream,
         confirmButton: confirmButton != null
             ? AlertButton(
                 text: confirmButton.text,
                 icon: confirmButton.icon,
                 onClick: () {
-                  context.close();
+                  modalContext.close();
                   confirmButton.onClick?.call();
                 },
               )
             : null,
-        closeButton: AlertButton(
-          text: closeButton?.text ?? (confirmButton != null ? 'Cancel' : 'OK'),
-          icon: closeButton?.icon,
-          onClick: () {
-            context.close();
-            closeButton?.onClick?.call();
-          },
-        ),
+        closeButton: hideCloseButton
+            ? null
+            : AlertButton(
+                text: closeButton?.text ?? (confirmButton != null ? 'Cancel' : 'OK'),
+                icon: closeButton?.icon,
+                onClick: () {
+                  modalContext.close();
+                  closeButton?.onClick?.call();
+                },
+              ),
       );
     });
+
+    return controller;
   }
 
   /// Shows an informational alert.
@@ -64,6 +90,21 @@ class TAlertService {
   /// Shows an error alert.
   static void error(BuildContext context, String title, String message) {
     show(context, title: title, text: message, icon: Icons.error_outline_rounded, color: context.theme.danger);
+  }
+
+  /// Shows a progress alert.
+  static TAlertController progress(BuildContext context, String title, String message, {Stream<String>? progressStream}) {
+    return show(
+      context,
+      title: title,
+      text: message,
+      progress: true,
+      progressStream: progressStream,
+      hideCloseButton: true,
+      color: context.theme.info,
+      minHeight: 0,
+      minWidth: 0,
+    );
   }
 
   /// Shows a confirmation dialog for archiving an item.

@@ -61,6 +61,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
 
   bool _canScrollStart = false;
   bool _canScrollEnd = false;
+  bool _showArrows = false;
 
   @override
   void initState() {
@@ -125,6 +126,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
     if (!mounted || !_scrollController.hasClients) return;
     final pos = _scrollController.position;
     setState(() {
+      _showArrows = pos.maxScrollExtent > 0;
       _canScrollStart = pos.pixels > pos.minScrollExtent;
       _canScrollEnd = pos.pixels < pos.maxScrollExtent;
     });
@@ -204,7 +206,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
       final colors = context.colors;
       final borderColor = widget.borderColor ?? Colors.transparent;
       final navColor = widget.navigationButtonColor ?? colors.onSurface;
-      final navBg = widget.navigationButtonBackgroundColor ?? colors.surface.o(0.9);
+      final navBg = widget.navigationButtonBackgroundColor ?? colors.surfaceContainer;
 
       final tabWidgets = [
         for (final tab in widget.tabs) _buildTab(context, tab, colors, effectiveInline),
@@ -213,26 +215,104 @@ class _TTabsState<T> extends State<TTabs<T>> {
       Widget body;
 
       if (widget.scrollable) {
-        Widget scrollView = SingleChildScrollView(
-          controller: _scrollController,
-          scrollDirection: widget.axis,
-          child: widget.axis == Axis.horizontal
-              ? Row(spacing: widget.tabSpacing, children: tabWidgets)
-              : Column(spacing: widget.tabSpacing, children: tabWidgets),
+        final showButtons = widget.showNavigationButtons && context.isDesktopPlatform && _showArrows;
+
+        Widget scrollView = NotificationListener<ScrollMetricsNotification>(
+          onNotification: (notification) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => _updateScrollButtons());
+            return false;
+          },
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            scrollDirection: widget.axis,
+            child: widget.axis == Axis.horizontal
+                ? Padding(
+                    padding: showButtons ? const EdgeInsets.symmetric(horizontal: 39) : EdgeInsets.zero,
+                    child: Row(spacing: widget.tabSpacing, children: tabWidgets),
+                  )
+                : Padding(
+                    padding: showButtons ? const EdgeInsets.symmetric(vertical: 39) : EdgeInsets.zero,
+                    child: Column(spacing: widget.tabSpacing, children: tabWidgets),
+                  ),
+          ),
         );
 
-        if (widget.showNavigationButtons && context.isDesktopPlatform) {
-          body = widget.axis == Axis.horizontal
-              ? Row(children: [
-                  if (_canScrollStart) _NavBtn(icon: Icons.chevron_left, onPressed: () => _scrollBy(-200), color: navColor, bg: navBg),
-                  Expanded(child: scrollView),
-                  if (_canScrollEnd) _NavBtn(icon: Icons.chevron_right, onPressed: () => _scrollBy(200), color: navColor, bg: navBg),
-                ])
-              : Column(children: [
-                  if (_canScrollStart) _NavBtn(icon: Icons.keyboard_arrow_up, onPressed: () => _scrollBy(-200), color: navColor, bg: navBg),
-                  Expanded(child: scrollView),
-                  if (_canScrollEnd) _NavBtn(icon: Icons.keyboard_arrow_down, onPressed: () => _scrollBy(200), color: navColor, bg: navBg),
-                ]);
+        if (showButtons) {
+          body = Stack(
+            clipBehavior: Clip.none,
+            children: [
+              scrollView,
+              if (widget.axis == Axis.horizontal) ...[
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: TIcon(
+                      shadow:
+                          !_canScrollStart ? null : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: Offset(0, 0))],
+                      background: !_canScrollStart ? null : navBg,
+                      icon: Icons.chevron_left,
+                      size: 20,
+                      onTap: !_canScrollStart ? null : () => _scrollBy(-200),
+                      color: _canScrollStart ? navColor : navColor.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(100)),
+                ),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: TIcon(
+                      shadow:
+                          !_canScrollEnd ? null : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: Offset(0, 0))],
+                      background: !_canScrollEnd ? null : navBg,
+                      icon: Icons.chevron_right,
+                      size: 20,
+                      onTap: !_canScrollEnd ? null : () => _scrollBy(200),
+                      color: _canScrollEnd ? navColor : navColor.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(100)),
+                )
+              ] else ...[
+                Positioned(
+                  top: 4,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Material(
+                      type: MaterialType.circle,
+                      elevation: 4,
+                      shadowColor: colors.shadow.withOpacity(0.25),
+                      color: navBg,
+                      child: TIcon(
+                          icon: Icons.keyboard_arrow_up,
+                          size: 20,
+                          onTap: () => _scrollBy(-200),
+                          color: _canScrollStart ? navColor : navColor.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(100)),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 4,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Material(
+                      type: MaterialType.circle,
+                      elevation: 4,
+                      shadowColor: colors.shadow.withOpacity(0.25),
+                      color: navBg,
+                      child: TIcon(
+                          icon: Icons.keyboard_arrow_down,
+                          size: 20,
+                          onTap: () => _scrollBy(200),
+                          color: _canScrollEnd ? navColor : navColor.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(100)),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          );
         } else {
           body = scrollView;
         }
@@ -267,28 +347,5 @@ class _TTabsState<T> extends State<TTabs<T>> {
         child: body,
       );
     });
-  }
-}
-
-class _NavBtn extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onPressed;
-  final Color color;
-  final Color bg;
-
-  const _NavBtn({required this.icon, required this.onPressed, required this.color, required this.bg});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: bg,
-      child: InkWell(
-        onTap: onPressed,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Icon(icon, size: 20, color: color),
-        ),
-      ),
-    );
   }
 }

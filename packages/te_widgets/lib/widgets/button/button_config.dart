@@ -73,6 +73,7 @@ extension TButtonExtension on TButton {
     Function(TButtonPressOptions)? onPressed,
     bool? active,
     Widget? child,
+    Duration? throttleDuration,
   }) {
     return TButton(
       theme: theme ?? this.theme,
@@ -87,6 +88,7 @@ extension TButtonExtension on TButton {
       onTap: onTap ?? this.onTap,
       onPressed: onPressed ?? this.onPressed,
       active: active ?? this.active,
+      throttleDuration: throttleDuration ?? this.throttleDuration,
       child: child ?? this.child,
     );
   }

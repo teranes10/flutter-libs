@@ -83,25 +83,28 @@ class TIcon extends StatelessWidget {
   final Color? background;
   final BorderRadius? borderRadius;
   final TThemeType? themeType;
+  final List<BoxShadow>? shadow;
 
   /// Creates an icon.
-  const TIcon(
-      {super.key,
-      required this.icon,
-      this.onTap,
-      this.size = 16,
-      this.active = false,
-      this.padding = const EdgeInsets.all(6),
-      this.turns,
-      this.animationMilliseconds = 200,
-      this.color,
-      this.activeIcon,
-      this.activeColor,
-      this.hoverColor,
-      this.shape = BoxShape.rectangle,
-      this.background,
-      this.borderRadius = const BorderRadius.all(Radius.circular(10)),
-      this.themeType});
+  const TIcon({
+    super.key,
+    required this.icon,
+    this.onTap,
+    this.size = 16,
+    this.active = false,
+    this.padding = const EdgeInsets.all(6),
+    this.turns,
+    this.animationMilliseconds = 200,
+    this.color,
+    this.activeIcon,
+    this.activeColor,
+    this.hoverColor,
+    this.shape = BoxShape.rectangle,
+    this.background,
+    this.borderRadius = const BorderRadius.all(Radius.circular(10)),
+    this.themeType,
+    this.shadow,
+  });
 
   /// Creates a close icon with default styling.
   factory TIcon.close({
@@ -150,7 +153,7 @@ class TIcon extends StatelessWidget {
       onTap: onTap,
       borderRadius: borderRadius,
       child: Container(
-        decoration: BoxDecoration(shape: shape, color: background, borderRadius: borderRadius),
+        decoration: BoxDecoration(shape: shape, color: background, borderRadius: borderRadius, boxShadow: shadow),
         padding: padding,
         child: hoverOrActiveColor == null
             ? buildIcon(isHovering: false)

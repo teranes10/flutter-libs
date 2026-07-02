@@ -63,6 +63,18 @@ class _PopupsPageState extends State<PopupsPage> {
                 onPressed: (_) =>
                     TAlertService.error(context, 'Failed to Save', 'Something went wrong while saving your data. Please try again.'),
               ),
+              TButton(
+                color: AppColors.info,
+                text: 'Progress Alert',
+                onPressed: (_) async {
+                  final stream = Stream.periodic(const Duration(seconds: 1), (i) => 'Processing item ${i + 1} of 3...').take(3);
+                  final controller = TAlertService.progress(context, 'In Progress', 'Starting...', progressStream: stream);
+                  
+                  // Simulate work finishing and closing the dialog
+                  await Future.delayed(const Duration(seconds: 4));
+                  controller.close();
+                },
+              ),
             ],
           ),
           const SizedBox(height: 32),

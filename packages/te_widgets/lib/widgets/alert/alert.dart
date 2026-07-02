@@ -96,6 +96,12 @@ class TAlert extends StatelessWidget {
   /// Custom theme for the alert dialog.
   final TAlertTheme? theme;
 
+  /// Whether to show a progress indicator instead of an icon.
+  final bool progress;
+
+  /// Optional stream to update the progress text dynamically.
+  final Stream<String>? progressStream;
+
   /// Creates an alert dialog.
   const TAlert({
     super.key,
@@ -106,6 +112,8 @@ class TAlert extends StatelessWidget {
     this.confirmButton,
     this.color,
     this.theme,
+    this.progress = false,
+    this.progressStream,
   });
 
   @override
@@ -122,8 +130,34 @@ class TAlert extends StatelessWidget {
         actionsAlignment: wTheme.actionsAlignment,
         icon: icon != null ? Icon(icon, size: wTheme.iconSize, color: color) : null,
         title: title != null ? Text(title!, style: wTheme.titleStyle) : null,
-        content:
-            text is String ? Text(text, textAlign: wTheme.contentTextAlign, style: wTheme.contentStyle) : (text is Widget ? text : null),
+        content: text is String
+            ? (progress
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(color: color, strokeWidth: 2.5),
+                      ),
+                      SizedBox(width: 16),
+                      progressStream != null
+                          ? StreamBuilder<String>(
+                              stream: progressStream,
+                              initialData: text,
+                              builder: (context, snapshot) {
+                                return Text(
+                                  snapshot.data ?? text,
+                                  textAlign: wTheme.contentTextAlign,
+                                  style: wTheme.contentStyle,
+                                );
+                              },
+                            )
+                          : Text(text, textAlign: wTheme.contentTextAlign, style: wTheme.contentStyle),
+                    ],
+                  )
+                : Text(text, textAlign: wTheme.contentTextAlign, style: wTheme.contentStyle))
+            : (text is Widget ? text : null),
         actions: [
           if (closeButton != null)
             TButton(
