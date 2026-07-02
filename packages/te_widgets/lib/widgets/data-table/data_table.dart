@@ -161,6 +161,9 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
+  /// Opacity level to apply to headers and footer when table is dimmed.
+  final double? dimmedOpacity;
+
   /// Creates a data table component.
   const TDataTable({
     super.key,
@@ -191,6 +194,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.footerSticky,
     this.rowBuilder,
     this.rowColorBuilder,
+    this.dimmedOpacity,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -254,6 +258,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
         beforeItemsBuilder: widget.beforeItemsBuilder,
         rowBuilder: widget.rowBuilder,
         rowColorBuilder: widget.rowColorBuilder,
+        dimmedOpacity: widget.dimmedOpacity,
       );
     });
   }
@@ -261,7 +266,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
   Widget _buildToolbar(ColorScheme colors, BoxConstraints constraints) {
     if (listController.isEmpty) return SizedBox.shrink();
 
-    return Container(
+    Widget toolbar = Container(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: TAlignedRow(
           wrapperModeThreshold: 1,
@@ -279,6 +284,16 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
             _buildPaginationBar(listController.page, listController.totalPages),
           ],
         ));
+
+    if (widget.dimmedOpacity != null) {
+      toolbar = Opacity(
+        opacity: widget.dimmedOpacity!,
+        child: IgnorePointer(
+          child: toolbar,
+        ),
+      );
+    }
+    return toolbar;
   }
 
   Widget _buildPaginationBar(int page, int totalPages) {

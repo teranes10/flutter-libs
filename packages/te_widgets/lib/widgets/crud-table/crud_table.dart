@@ -265,16 +265,32 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     final theme = context.theme;
     final tableTheme = widget.theme ?? theme.tableTheme;
 
+    final isInlineActive = widget.formPosition == TCrudFormPosition.inline && _activeForm != null;
+
+    Widget headerContent(BuildContext ctx) {
+      Widget content = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (tableTheme.headerBuilder != null) tableTheme.headerBuilder!(ctx),
+          LayoutBuilder(builder: _topBar.build),
+        ],
+      );
+
+      if (isInlineActive) {
+        content = Opacity(
+          opacity: widget.config.inlineFormOverlayOpacity,
+          child: IgnorePointer(
+            child: content,
+          ),
+        );
+      }
+      return content;
+    }
+
     return _tableBuilder._buildContent(
       theme,
       tableTheme.copyWith(
-        headerBuilder: (ctx) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (tableTheme.headerBuilder != null) tableTheme.headerBuilder!(ctx),
-            LayoutBuilder(builder: _topBar.build),
-          ],
-        ),
+        headerBuilder: headerContent,
       ),
     );
   }
@@ -282,9 +298,12 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   Widget _buildFormCard(F form, {required bool isEditing}) {
     final theme = context.theme;
 
-    return TCard(
-      elevation: widget.formPosition == TCrudFormPosition.dialog ? 0 : 1,
+    final card = TCard(
+      elevation: widget.formPosition == TCrudFormPosition.dialog ? 0 : 3,
+      borderColor: widget.formPosition == TCrudFormPosition.dialog ? null : theme.primary.withAlpha(51),
       borderRadius: BorderRadius.circular(12),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -313,6 +332,11 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
         ],
       ),
     );
+
+    if (widget.formPosition == TCrudFormPosition.inline) {
+      return _TCrudFormCardWrapper(child: card);
+    }
+    return card;
   }
 
   // Getters for child classes
@@ -564,5 +588,35 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
       fileExtension: "csv",
       mimeType: MimeType.csv,
     );
+  }
+}
+
+class _TCrudFormCardWrapper extends StatefulWidget {
+  final Widget child;
+  const _TCrudFormCardWrapper({required this.child});
+
+  @override
+  State<_TCrudFormCardWrapper> createState() => _TCrudFormCardWrapperState();
+}
+
+class _TCrudFormCardWrapperState extends State<_TCrudFormCardWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        Scrollable.ensureVisible(
+          context,
+          alignment: 0.0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }

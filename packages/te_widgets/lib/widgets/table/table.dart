@@ -114,6 +114,9 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
+  /// Opacity level to apply to headers and footer when table is dimmed.
+  final double? dimmedOpacity;
+
   /// Creates a data table.
   const TTable({
     super.key,
@@ -143,6 +146,7 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.rowBuilder,
     this.rowColorBuilder,
     this.beforeItemsBuilder,
+    this.dimmedOpacity,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -224,17 +228,28 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   Widget _buildTableView(ColorScheme colors, BoxConstraints constraints) {
     final columnWidths = TTableTheme.calculateColumnWidths(widget.headers, listController.selectable, listController.expandable);
 
+    Widget header = TTableRowHeader<T, K>(
+      theme: wTheme.headerTheme,
+      headers: widget.headers,
+      controller: listController,
+      columnWidths: columnWidths,
+    );
+
+    if (widget.dimmedOpacity != null) {
+      header = Opacity(
+        opacity: widget.dimmedOpacity!,
+        child: IgnorePointer(
+          child: header,
+        ),
+      );
+    }
+
     return TList<T, K>(
       theme: wTheme.copyWith(
         headerBuilder: (ctx) => Column(
           children: [
             if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx),
-            TTableRowHeader<T, K>(
-              theme: wTheme.headerTheme,
-              headers: widget.headers,
-              controller: listController,
-              columnWidths: columnWidths,
-            ),
+            header,
           ],
         ),
       ),

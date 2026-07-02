@@ -35,24 +35,60 @@ class _TCrudTableBuilder<T, K, F extends TFormBase> {
         effectiveTheme = tableTheme.copyWith(forceCardStyle: false, grid: null);
       }
 
+      final isInlineActive = parent.widget.formPosition == TCrudFormPosition.inline && parent._activeForm != null;
+      if (isInlineActive) {
+        final originalFooterBuilder = effectiveTheme.footerBuilder;
+        effectiveTheme = effectiveTheme.copyWith(
+          footerBuilder: (ctx) {
+            Widget footer = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (originalFooterBuilder != null) originalFooterBuilder(ctx),
+              ],
+            );
+            return Opacity(
+              opacity: parent.widget.config.inlineFormOverlayOpacity,
+              child: IgnorePointer(
+                child: footer,
+              ),
+            );
+          },
+        );
+      }
+
       return TDataTable<T, K>(
         theme: effectiveTheme,
         headers: headers,
         expandedBuilder: parent.widget.expandedBuilder,
         controller: controller,
         itemsPerPageOptions: parent.widget.config.itemsPerPageOptions,
+        dimmedOpacity: isInlineActive ? parent.widget.config.inlineFormOverlayOpacity : null,
         beforeItemsBuilder:
             (parent.widget.formPosition == TCrudFormPosition.inline && parent._activeForm != null && parent._editingItem == null)
                 ? (_) => parent._buildFormCard(parent._activeForm!, isEditing: false)
                 : null,
         rowBuilder: (ctx, item, index, row) {
           final editingItem = parent._editingItem;
-          if (parent.widget.formPosition == TCrudFormPosition.inline &&
-              editingItem != null &&
-              controller.itemKey(editingItem) == item.key) {
+          final isCurrentEditing =
+              parent.widget.formPosition == TCrudFormPosition.inline && editingItem != null && controller.itemKey(editingItem) == item.key;
+
+          if (isCurrentEditing) {
             return parent._buildFormCard(parent._activeForm!, isEditing: true);
           }
-          return parent.widget.rowBuilder?.call(ctx, item, index, row) ?? row;
+
+          Widget finalRow = parent.widget.rowBuilder?.call(ctx, item, index, row) ?? row;
+
+          // Dim the other rows when any form is active
+          if (parent.widget.formPosition == TCrudFormPosition.inline && parent._activeForm != null) {
+            finalRow = Opacity(
+              opacity: parent.widget.config.inlineFormOverlayOpacity,
+              child: IgnorePointer(
+                child: finalRow,
+              ),
+            );
+          }
+
+          return finalRow;
         },
         rowColorBuilder: parent.widget.rowColorBuilder,
       );

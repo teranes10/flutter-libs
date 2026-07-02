@@ -59,6 +59,11 @@ class TCrudConfig<T, K> {
   /// Callback fired when a tab is selected.
   final void Function(int tab)? onTabChange;
 
+  /// The opacity level for the overlay/dimming effect when an inline form is active.
+  ///
+  /// Defaults to 0.4.
+  final double inlineFormOverlayOpacity;
+
   /// Creates a CRUD configuration.
   const TCrudConfig({
     this.canView,
@@ -78,6 +83,7 @@ class TCrudConfig<T, K> {
     this.topBarActions = const [],
     this.actionButtonWidth = 50.0,
     this.onTabChange,
+    this.inlineFormOverlayOpacity = 0.7,
   });
 }
 
