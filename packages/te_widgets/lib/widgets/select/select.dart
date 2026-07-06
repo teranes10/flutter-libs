@@ -202,6 +202,10 @@ class TSelect<T, V, K> extends StatefulWidget
   @override
   final VoidCallback? onHide;
 
+  /// Preferred display mode of the popup.
+  @override
+  final TPopupMode? popupMode;
+
   // Select-Specific Properties
 
   /// Whether the select field is filterable/searchable.
@@ -264,6 +268,7 @@ class TSelect<T, V, K> extends StatefulWidget
     // Popup
     this.onShow,
     this.onHide,
+    this.popupMode,
     // Select
     this.filterable = true,
     this.itemSubText,
@@ -337,7 +342,9 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
       onTap: _onItemSelected,
     );
 
-    final content = shouldCenteredOverlay
+    final showFilter = shouldCenteredOverlay || effectivePopupMode == TPopupMode.page;
+
+    final content = showFilter
         ? Column(children: [
             if (widget.filterable)
               Padding(
@@ -345,7 +352,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
                 child: TTextField<String?>(
                     labelPosition: TLabelPosition.aboveField,
                     size: TInputSize.sm,
-                    placeholder: widget.label,
+                    placeholder: effectivePopupMode == TPopupMode.page ? 'Search...' : widget.label,
                     decorationType: TInputDecorationType.underline,
                     textController: textController,
                     onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
@@ -377,6 +384,15 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
         },
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isPageMode = widget.popupMode == TPopupMode.page || (widget.popupMode == null && MediaQuery.of(context).isMobile);
+    if (isPageMode && widget.itemsPerPage == null && listController.itemsPerPage != 20) {
+      listController.updateState(who: 'didChangeDependencies_page_mode', itemsPerPage: 20);
+    }
   }
 
   @override

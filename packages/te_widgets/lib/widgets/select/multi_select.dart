@@ -97,6 +97,8 @@ class TMultiSelect<T, V, K> extends StatefulWidget
   final VoidCallback? onShow;
   @override
   final VoidCallback? onHide;
+  @override
+  final TPopupMode? popupMode;
 
   //Tags
   @override
@@ -149,6 +151,7 @@ class TMultiSelect<T, V, K> extends StatefulWidget
     // Popup
     this.onShow,
     this.onHide,
+    this.popupMode,
     // Select
     this.filterable = true,
     this.itemSubText,
@@ -238,7 +241,9 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
       onTap: _onItemSelected,
     );
 
-    final content = shouldCenteredOverlay
+    final showFilter = shouldCenteredOverlay || effectivePopupMode == TPopupMode.page;
+
+    final content = showFilter
         ? Column(spacing: 7.5, children: [
             if (widget.filterable)
               Padding(
@@ -280,6 +285,15 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
         onTap: onTap,
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final isPageMode = widget.popupMode == TPopupMode.page || (widget.popupMode == null && MediaQuery.of(context).isMobile);
+    if (isPageMode && widget.itemsPerPage == null && listController.itemsPerPage != 20) {
+      listController.updateState(who: 'didChangeDependencies_page_mode', itemsPerPage: 20);
+    }
   }
 
   @override

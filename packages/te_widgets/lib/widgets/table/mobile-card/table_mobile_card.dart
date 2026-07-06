@@ -37,6 +37,9 @@ class TTableMobileCard<T, K> extends StatelessWidget {
   /// Content to show when expanded.
   final Widget? expandedContent;
 
+  /// Whether expansion happens on the side.
+  final bool expandSide;
+
   //selectable
   /// Whether the card is selectable.
   final bool selectable;
@@ -64,6 +67,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     this.isExpanded = false,
     this.onExpansionChanged,
     this.expandedContent,
+    this.expandSide = false,
 
     //selectable
     this.selectable = false,
@@ -103,16 +107,21 @@ class TTableMobileCard<T, K> extends StatelessWidget {
               if (expandable)
                 TKeyValue(
                   "",
-                  widget: TIcon(
-                    icon: Icons.keyboard_arrow_down,
-                    size: 20,
-                    color: colors.onSurfaceVariant,
-                    background: colors.surfaceContainerLow,
-                    padding: EdgeInsets.all(3),
-                    borderRadius: BorderRadius.circular(20),
-                    turns: (0, 0.5),
-                    active: isExpanded,
-                    onTap: onExpansionChanged,
+                  widget: Builder(
+                    builder: (context) {
+                      final isDense = TTableScope.maybeOf(context)?.dense ?? false;
+                      return TIcon(
+                        icon: expandSide ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_down,
+                        size: isDense ? 18 : 20,
+                        color: colors.onSurfaceVariant,
+                        background: colors.surfaceContainerLow,
+                        padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
+                        borderRadius: BorderRadius.circular(20),
+                        turns: expandSide ? (0, -0.5) : (0, 0.5),
+                        active: isExpanded,
+                        onTap: onExpansionChanged,
+                      );
+                    }
                   ),
                   alignment: Alignment.bottomRight,
                 )

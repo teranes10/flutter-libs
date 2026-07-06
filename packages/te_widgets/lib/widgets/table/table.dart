@@ -73,6 +73,9 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Whether specific cells are editable.
   final bool editable;
 
+  /// Whether expansion happens on the side.
+  final bool expandSide;
+
   // Theme overrides
 
   /// Grid layout mode.
@@ -147,6 +150,7 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.rowColorBuilder,
     this.beforeItemsBuilder,
     this.dimmedOpacity,
+    this.expandSide = false,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -216,6 +220,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return TTableScope(
       controller: listController,
       activeCellNotifier: _activeCellNotifier,
+      dense: wTheme.dense ?? false,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final shouldShowCardView = wTheme.forceCardStyle == true || wTheme.grid != null || constraints.maxWidth < requiredWidth;
@@ -284,8 +289,12 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       columnWidths: columnWidths,
       expandable: listController.expandable,
       isExpanded: item.isExpanded,
+      expandSide: widget.expandSide,
       onExpansionChanged: () => listController.toggleExpansionByKey(item.key),
-      expandedContent: widget.expandedBuilder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index),
+      expandedContent: TExpansionShowModeScope(
+        showMode: TExpansionShowMode.inline,
+        child: widget.expandedBuilder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index),
+      ),
       selectable: listController.selectable,
       isSelected: item.isSelected,
       onSelectionChanged: () => listController.toggleSelectionByKey(item.key),
@@ -302,8 +311,12 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       width: wTheme.cardWidth,
       expandable: listController.expandable,
       isExpanded: item.isExpanded,
+      expandSide: widget.expandSide,
       onExpansionChanged: () => listController.toggleExpansionByKey(item.key),
-      expandedContent: widget.expandedBuilder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index),
+      expandedContent: TExpansionShowModeScope(
+        showMode: TExpansionShowMode.inline,
+        child: widget.expandedBuilder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index),
+      ),
       selectable: listController.selectable,
       isSelected: item.isSelected,
       onSelectionChanged: () => listController.toggleSelectionByKey(item.key),

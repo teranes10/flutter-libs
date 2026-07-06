@@ -136,6 +136,7 @@ export 'widgets/key-value-section/key_value_section.dart';
 export 'widgets/key-value-section/key_value_theme.dart';
 
 export 'widgets/aligned-row/aligned_row.dart';
+export 'widgets/page-wrapper/page_wrapper.dart';
 export 'widgets/lazy-indexed-stack/lazy_indexed_stack.dart';
 
 export 'widgets/list/controller/list_controller.dart';
@@ -212,6 +213,7 @@ export 'widgets/table/table_header.dart';
 export 'widgets/table/table_scope.dart';
 export 'widgets/table/table_theme.dart';
 export 'widgets/table/table.dart';
+export 'widgets/table/row_expand.dart';
 
 export 'widgets/tabs/tab.dart';
 export 'widgets/tabs/tabs.dart';

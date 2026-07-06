@@ -209,10 +209,17 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
   F? _activeForm;
   T? _editingItem;
+  K? _currentlyShowingDetailPageKey;
+
+  bool _dense = false;
+  bool get dense => _dense;
+  set dense(bool value) => setState(() => _dense = value);
 
   @override
   void initState() {
     super.initState();
+
+    _dense = widget.config.dense ?? false;
 
     _isControllerOwned = widget.controller == null;
     _isArchiveControllerOwned = widget.archiveController == null;
@@ -222,6 +229,9 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           itemsPerPage: widget.config.itemsPerPage,
           items: widget.items ?? [],
           onLoad: widget.onLoad,
+          expansionMode: (widget.config.expandSide || widget.expandedBuilder != null)
+              ? TExpansionMode.single
+              : TExpansionMode.none,
         );
 
     _archiveListController = widget.archiveController ??
@@ -229,7 +239,10 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
             itemsPerPage: widget.config.itemsPerPage,
             items: widget.archivedItems ?? [],
             onLoad: widget.onArchiveLoad,
-            itemKey: _listController.itemKey);
+            itemKey: _listController.itemKey,
+            expansionMode: (widget.config.expandSide || widget.expandedBuilder != null)
+                ? TExpansionMode.single
+                : TExpansionMode.none);
 
     _topBar = _TCrudTopBar<T, K, F>(parent: this);
     _tableBuilder = _TCrudTableBuilder<T, K, F>(parent: this);
@@ -555,12 +568,60 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
         build: (context) => [
           pw.Text('Exported Data', style: pw.TextStyle(fontSize: 16, color: colors.onSurfaceVariant.toPdfColor())),
           pw.SizedBox(height: 15),
-          table
+          table,
         ],
       ),
     );
 
     await pdf.download(fileName: "export_${DateTime.now().millisecondsSinceEpoch}");
+  }
+
+  void pushDetailPageIfNeeded(BuildContext context, TListController<T, K> controller) {
+    if (!mounted) return;
+    if (_currentlyShowingDetailPageKey != null) return;
+
+    if (controller.hasExpansion) {
+      final expandedItem = controller.expandedItems.first;
+      final itemKey = controller.itemKey(expandedItem);
+
+      _currentlyShowingDetailPageKey = itemKey;
+
+      final index = controller.value.displayItems.indexWhere((x) => x.key == itemKey);
+      if (index == -1) {
+        _currentlyShowingDetailPageKey = null;
+        return;
+      }
+
+      final itemListItem = controller.value.displayItems[index];
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        try {
+          final navigator = Navigator.maybeOf(context);
+          if (navigator == null) {
+            _currentlyShowingDetailPageKey = null;
+            return;
+          }
+          navigator.push(
+            MaterialPageRoute(
+              builder: (routeContext) {
+                return TPageWrapper(
+                  child: TExpansionShowModeScope(
+                    showMode: TExpansionShowMode.page,
+                    child: widget.expandedBuilder?.call(routeContext, itemListItem, index) ?? const SizedBox.shrink(),
+                  ),
+                );
+              },
+            ),
+          ).then((_) {
+            _currentlyShowingDetailPageKey = null;
+            controller.collapseAll();
+          });
+        } catch (e) {
+          _currentlyShowingDetailPageKey = null;
+        }
+      });
+    }
   }
 
   void handleExportCsv() async {

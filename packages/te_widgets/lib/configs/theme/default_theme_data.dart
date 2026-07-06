@@ -47,6 +47,7 @@ class TAppTheme {
         outlineVariant: grey.shade200,
         shadow: grey.shade200.withAlpha(100),
         scrim: grey[950]?.withAlpha(75),
+        surfaceTint: grey.shade50.o(0.1),
       ),
       darkScheme: ColorScheme.dark(
         primary: primary,
@@ -75,6 +76,7 @@ class TAppTheme {
         outlineVariant: grey.shade900,
         shadow: Colors.black54.withAlpha(50),
         scrim: Colors.black26,
+        surfaceTint: grey[950]!.lighten(0.12).o(0.1),
       ),
       widgetThemeBuilder: (scheme) => TWidgetThemeExtension.defaultTheme(scheme),
     );

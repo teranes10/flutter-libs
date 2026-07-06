@@ -423,20 +423,15 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
       child: ClipPath(clipper: ShapeBorderClipper(shape: widget.border), child: imageChild),
     );
 
-    return buildWithDropdownTarget(
-      child: InkWell(
-        onTap: widget.disabled || widget.url.isNullOrBlank ? null : () => showPopup(context),
-        customBorder: widget.border,
-        hoverColor: colors.primaryContainer,
-        splashColor: colors.primary,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 7.5,
-          children: [
-            imageFrame,
-            if (!widget.title.isNullOrBlank || !widget.subTitle.isNullOrBlank)
+    final hasText = !widget.title.isNullOrBlank || !widget.subTitle.isNullOrBlank;
+    final content = hasText
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 7.5,
+            children: [
+              imageFrame,
               Flexible(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -449,7 +444,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
                         widget.title!,
                         overflow: widget.textOverflow,
                         maxLines: widget.maxLines,
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: widget.titleColor ?? colors.onSurface),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: widget.titleColor ?? colors.onSurface),
                       ),
                     if (!widget.subTitle.isNullOrBlank)
                       Text(
@@ -461,8 +456,17 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
                   ],
                 ),
               )
-          ],
-        ),
+            ],
+          )
+        : imageFrame;
+
+    return buildWithDropdownTarget(
+      child: InkWell(
+        onTap: widget.disabled || widget.url.isNullOrBlank ? null : () => showPopup(context),
+        customBorder: widget.border,
+        hoverColor: colors.primaryContainer,
+        splashColor: colors.primary,
+        child: content,
       ),
     );
   }

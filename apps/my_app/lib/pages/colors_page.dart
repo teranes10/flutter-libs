@@ -25,6 +25,7 @@ class _ColorsPageState extends State<ColorsPage> {
               buildColor(context.colors.surfaceContainer, label: 'surfaceContainer'),
               buildColor(context.colors.surfaceContainerHigh, label: 'surfaceContainerHigh'),
               buildColor(context.colors.surfaceContainerHighest, label: 'surfaceContainerHighest'),
+              buildColor(context.colors.surfaceTint, label: 'surfaceTint'),
             ],
           ),
 

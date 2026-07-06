@@ -156,7 +156,7 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: colors.surface,
-                      borderRadius: BorderRadius.circular(isMini ? 12 : widget.mainCardRadius),
+                      borderRadius: BorderRadius.circular(isMini ? 0 : widget.mainCardRadius),
                     ),
                     child: Column(
                       children: [
@@ -209,7 +209,7 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
                         icon: Icons.arrow_back_ios_new,
                         onTap: () => Navigator.of(context).pop(),
                       ),
-                    _buildBreadCrumbs(colors, null, resolvedItems)
+                    _buildBreadCrumbs(colors, null, resolvedItems),
                   ],
                 ),
                 if (widget.showHamburgerMenu)
@@ -317,7 +317,9 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
             SizedBox(height: isMobile ? 4 : 8),
             Expanded(
                 child: Padding(
-              padding: isMobile ? const EdgeInsets.all(16) : const EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 16),
+              padding: isMobile
+                  ? const EdgeInsets.symmetric(vertical: 8, horizontal: 12)
+                  : const EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 16),
               child: child,
             )),
           ],

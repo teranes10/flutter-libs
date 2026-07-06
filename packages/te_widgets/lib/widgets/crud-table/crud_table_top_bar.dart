@@ -23,8 +23,6 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
           ...parent.widget.config.topBarActions,
         ],
         right: [
-          _buildCycleButton(ctx),
-          _buildExportButton(ctx),
           if (parent.showTabs)
             TTabs(
               inline: true,
@@ -36,6 +34,7 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
               tabs: parent.tabs,
             ),
           _buildSearchBar(ctx).size(w: 275),
+          _buildMoreOptionsButton(ctx),
         ],
       ),
     );
@@ -61,36 +60,43 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
     );
   }
 
-  Widget _buildCycleButton(BuildContext ctx) {
-    return TButtonGroup(
-      type: TButtonGroupType.text,
-      color: ctx.colors.onSurfaceVariant,
-      size: TButtonSize.sm,
-      cycle: true,
-      initialIndex: parent.viewMode,
-      onIndexChanged: (index) {
-        parent.viewMode = index;
-      },
-      items: [
-        TButtonGroupItem(
-          icon: Icons.view_list_rounded,
-          tooltip: 'Table View',
-        ),
-        TButtonGroupItem(
-          icon: Icons.view_agenda_rounded,
-          tooltip: 'Card View',
-        ),
-        TButtonGroupItem(
-          icon: Icons.grid_view_rounded,
-          tooltip: 'Grid View',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildExportButton(BuildContext ctx) {
+  Widget _buildMoreOptionsButton(BuildContext ctx) {
     return TDropdown(
       items: [
+        TDropdownItem(
+          icon: parent.dense ? Icons.density_small_rounded : Icons.density_medium_rounded,
+          text: parent.dense ? 'Comfortable Layout' : 'Dense Layout',
+          onTap: () {
+            parent.dense = !parent.dense;
+          },
+        ),
+        TDropdownItem(
+          icon: Icons.grid_view_rounded,
+          text: 'View Mode',
+          children: [
+            TDropdownItem(
+              icon: Icons.view_list_rounded,
+              text: 'Table View',
+              onTap: () {
+                parent.viewMode = 0;
+              },
+            ),
+            TDropdownItem(
+              icon: Icons.view_agenda_rounded,
+              text: 'Card View',
+              onTap: () {
+                parent.viewMode = 1;
+              },
+            ),
+            TDropdownItem(
+              icon: Icons.grid_view_rounded,
+              text: 'Grid View',
+              onTap: () {
+                parent.viewMode = 2;
+              },
+            ),
+          ],
+        ),
         TDropdownItem(
           icon: Icons.picture_as_pdf_rounded,
           text: 'Export as PDF',
@@ -106,9 +112,8 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
         type: TButtonType.text,
         color: ctx.colors.onSurfaceVariant,
         size: TButtonSize.sm,
-        icon: Icons.download_rounded,
-        tooltip: 'Export',
-        onTap: () {},
+        icon: Icons.more_vert,
+        tooltip: 'More Options',
       ),
     );
   }

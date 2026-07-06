@@ -215,7 +215,7 @@ class TInputFieldTheme {
     final rBorderRadius = BorderRadius.circular(borderRadius.resolve(states));
 
     return switch (decorationType) {
-      TInputDecorationType.underline => UnderlineInputBorder(borderSide: rBorderSide, borderRadius: rBorderRadius),
+      TInputDecorationType.underline => UnderlineInputBorder(borderSide: rBorderSide, borderRadius: BorderRadius.zero),
       TInputDecorationType.outline => OutlineInputBorder(borderSide: rBorderSide, borderRadius: rBorderRadius),
       TInputDecorationType.filled ||
       TInputDecorationType.none =>

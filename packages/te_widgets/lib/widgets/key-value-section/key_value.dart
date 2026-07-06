@@ -51,6 +51,32 @@ class TKeyValue {
         maxWidth: maxWidth,
       );
 
+  /// Creates a key-value item for displaying a formatted date/time.
+  factory TKeyValue.datetime(
+    String key,
+    String? value, {
+    bool utc = true,
+    Alignment? alignment,
+    double? minWidth,
+    double? maxWidth,
+  }) {
+    Widget? widget;
+    if (!value.isNullOrBlank) {
+      final dateTime = utc ? TFormatter.parseUtcISO(value!)?.toLocal() : DateTime.tryParse(value!);
+      if (dateTime != null) {
+        widget = TDateTimeText(dateTime: dateTime);
+      }
+    }
+    return TKeyValue(
+      key,
+      value: widget == null ? value : null,
+      widget: widget,
+      alignment: alignment,
+      minWidth: minWidth,
+      maxWidth: maxWidth,
+    );
+  }
+
   /// Maps table headers to key-value items for list view representation.
   static List<TKeyValue> mapHeaders<T, K>(BuildContext ctx, List<TTableHeader<T, K>> headers, TListItem<T, K> item, int index) {
     return headers

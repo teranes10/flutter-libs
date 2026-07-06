@@ -104,7 +104,7 @@ class TKeyValueTheme {
     this.minFractionStructured = 0.9,
     this.minFractionCompact = 0.80,
     this.minFractionProse = 0.70,
-    this.additionalNaturalWidth = 1.0,
+    this.additionalNaturalWidth = 12.5,
     this.maxItemsPerRow = 12,
   });
 

@@ -44,6 +44,64 @@ class TFormService {
   static Future<T?> show<T extends TFormBase>(BuildContext context, T input) {
     final theme = context.theme;
 
+    if (!context.isDesktop) {
+      return Navigator.of(context).push<T>(
+        MaterialPageRoute(
+          builder: (mContext) => TPageWrapper(
+            title: input.formTitle,
+            onBackPressed: () => Navigator.of(mContext).pop(),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    context.isMobilePlatform
+                        ? InteractiveViewer(
+                            scaleEnabled: true,
+                            panEnabled: true,
+                            minScale: 1.0,
+                            maxScale: 1.3,
+                            child: TFormBuilder(input: input),
+                          )
+                        : TFormBuilder(input: input),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        spacing: 10,
+                        children: [
+                          TButton(
+                              baseTheme: TWidgetTheme.surfaceTheme(context.colors),
+                              size: TButtonSize.md.copyWith(minW: 125),
+                              text: 'Cancel',
+                              onPressed: (_) => Navigator.of(mContext).pop()),
+                          TButton(
+                              size: TButtonSize.md.copyWith(minW: 100),
+                              color: theme.primary,
+                              text: 'Save',
+                              onPressed: (_) {
+                                final errors = input.validationErrors;
+                                if (errors.isNotEmpty) {
+                                  for (var message in errors) {
+                                    TToastService.error(context, message);
+                                  }
+                                  return;
+                                }
+                                Navigator.of(mContext).pop(input);
+                              }),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return TModalService.show<T>(
       context,
       persistent: input.isFormPersistent,

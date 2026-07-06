@@ -35,6 +35,7 @@ class TRating extends StatefulWidget with TInputValueMixin<double>, TFocusMixin,
   final IconData unratedIcon;
   final bool disabled;
   final bool allowHalfRating;
+  final double spacing;
 
   const TRating({
     super.key,
@@ -54,6 +55,7 @@ class TRating extends StatefulWidget with TInputValueMixin<double>, TFocusMixin,
     this.unratedIcon = Icons.star_border,
     this.disabled = false,
     this.allowHalfRating = false,
+    this.spacing = 0.0,
   });
 
   @override
@@ -83,30 +85,32 @@ class _TRatingState extends State<TRating>
           ),
           const SizedBox(height: 8),
         ],
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(widget.itemCount, (index) {
-            final ratingValue = index + 1.0;
-            final isRated = (currentValue ?? 0) >= ratingValue;
-            final isHalfRated = !isRated && (currentValue ?? 0) >= (ratingValue - 0.5) && widget.allowHalfRating;
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: widget.spacing,
+            children: List.generate(widget.itemCount, (index) {
+              final ratingValue = index + 1.0;
+              final isRated = (currentValue ?? 0) >= ratingValue;
+              final isHalfRated = !isRated && (currentValue ?? 0) >= (ratingValue - 0.5) && widget.allowHalfRating;
 
-            return GestureDetector(
-              onTap: widget.disabled
-                  ? null
-                  : () {
-                      notifyValueChanged(ratingValue);
-                      setState(() {});
-                    },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.0),
+              return GestureDetector(
+                onTap: widget.disabled
+                    ? null
+                    : () {
+                        notifyValueChanged(ratingValue);
+                        setState(() {});
+                      },
                 child: Icon(
                   isHalfRated ? Icons.star_half : (isRated ? widget.ratedIcon : widget.unratedIcon),
                   color: (isRated || isHalfRated) ? ratedColor : unratedColor,
                   size: widget.itemSize,
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
         if (errorsNotifier.value.isNotEmpty)
           Padding(

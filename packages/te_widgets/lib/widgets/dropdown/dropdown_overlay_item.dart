@@ -75,7 +75,7 @@ class _TDropdownOverlayItemState extends State<TDropdownOverlayItem> {
     _hoverTimer?.cancel();
 
     _exitTimer = Timer(widget.theme.hideDelay, () {
-      if (mounted && !_isHovered) {
+      if (!_isHovered) {
         TDropdownOverlayController.setMouseInArea(false);
       }
     });
@@ -93,24 +93,22 @@ class _TDropdownOverlayItemState extends State<TDropdownOverlayItem> {
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.theme.getItemColor(
-      isActive: widget.isActive,
-      containsActive: widget.containsActive,
-      isHovered: _isHovered,
-    );
+    final color = widget.item.color ??
+        widget.theme.getItemColor(
+          isActive: widget.isActive,
+          containsActive: widget.containsActive,
+          isHovered: _isHovered,
+        );
 
     return OverlayPortal.overlayChildLayoutBuilder(
       controller: _overlayController,
       overlayChildBuilder: (context, layoutInfo) {
-        final mediaQuery = MediaQuery.of(context);
-        final translation = layoutInfo.childPaintTransform.getTranslation();
-
-        TPopupConstraints constraints = (
-          screenSize: mediaQuery.size,
+        final constraints = TPopupConstraints.calculate(
+          context,
           targetSize: layoutInfo.childSize,
-          targetOffset: Offset(translation.x, translation.y),
-          contentBox: widget.theme.boxConstraints,
-          contentAlignment: FractionalOffset.topLeft,
+          transform: layoutInfo.childPaintTransform,
+          inputConstraints: widget.theme.boxConstraints,
+          alignment: FractionalOffset.topLeft,
         );
 
         return Stack(

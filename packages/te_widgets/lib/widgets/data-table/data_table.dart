@@ -113,6 +113,9 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// When provided, rows can be expanded to show additional details.
   final TListExpandedBuilder<T, K>? expandedBuilder;
 
+  /// Whether expansion happens on the side.
+  final bool expandSide;
+
   /// Number of pagination buttons to show.
   ///
   /// Defaults to 7.
@@ -148,6 +151,9 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
 
   /// Whether the footer should be sticky.
   final bool? footerSticky;
+
+  /// Whether the table is dense.
+  final bool? dense;
 
   /// Custom builder for the row.
   ///
@@ -195,6 +201,8 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.rowBuilder,
     this.rowColorBuilder,
     this.dimmedOpacity,
+    this.dense,
+    this.expandSide = false,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -204,7 +212,8 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
                   footerBuilder == null &&
                   infiniteScroll == null &&
                   headerSticky == null &&
-                  footerSticky == null),
+                  footerSticky == null &&
+                  dense == null),
           'Cannot provide both theme and individual theme properties.',
         );
 
@@ -227,6 +236,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
       infiniteScroll: widget.infiniteScroll,
       headerSticky: widget.headerSticky,
       footerSticky: widget.footerSticky,
+      dense: widget.dense,
     );
   }
 
@@ -259,6 +269,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
         rowBuilder: widget.rowBuilder,
         rowColorBuilder: widget.rowColorBuilder,
         dimmedOpacity: widget.dimmedOpacity,
+        expandSide: widget.expandSide,
       );
     });
   }

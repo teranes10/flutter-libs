@@ -13,11 +13,15 @@ class TTableScope extends InheritedWidget {
   /// Notifier for the currently active editable cell key.
   final ValueNotifier<String?>? activeCellNotifier;
 
+  /// Whether the table is dense.
+  final bool dense;
+
   /// Creates a table scope.
   const TTableScope({
     super.key,
     required this.controller,
     required this.activeCellNotifier,
+    this.dense = false,
     required super.child,
   });
 
@@ -35,5 +39,7 @@ class TTableScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(TTableScope oldWidget) =>
-      controller != oldWidget.controller || activeCellNotifier != oldWidget.activeCellNotifier;
+      controller != oldWidget.controller ||
+      activeCellNotifier != oldWidget.activeCellNotifier ||
+      dense != oldWidget.dense;
 }

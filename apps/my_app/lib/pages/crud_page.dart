@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:my_app/clients/products_client.dart';
 import 'package:my_app/models/product_dto.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/table/row_expand.dart';
 
 class CrudPage extends StatelessWidget {
   const CrudPage({super.key});
@@ -42,7 +41,7 @@ class CrudPage extends StatelessWidget {
       TTableHeader.map('Category', (x) => x.category),
       TTableHeader.map('Price', (x) => x.price),
       TTableHeader.map('Discount', (x) => x.discountPercentage),
-      TTableHeader.map('Rating', (x) => x.rating),
+      TTableHeader.rating('Rating', (x) => x.rating.toDouble()),
       TTableHeader.chip('Stock', (x) => x.stock, color: (_) => AppColors.info),
     ];
 
@@ -75,7 +74,11 @@ class CrudPage extends StatelessWidget {
       onDelete: (item) async {
         return true;
       },
-      config: TCrudConfig(
+      config: TCrudConfig<ProductDto, int>(
+        expandSide: true,
+        itemTitle: (x) => x.title,
+        itemSubTitle: (x) => x.sku,
+        itemImageUrl: (x) => x.thumbnail,
         tabs: [
           TTab(text: "Active", value: 0),
           TTab(text: "Others", value: 2),
@@ -97,13 +100,79 @@ class CrudPage extends StatelessWidget {
       expandedBuilder: (ctx, item, index) {
         final data = item.data;
 
-        return TRowExpandedBuilder.keyValue(ctx, [
-          TKeyValue('QR Code', widget: data.meta?.qrCode != null ? TImage(url: data.meta!.qrCode, size: 80) : SizedBox.shrink()),
-          TKeyValue.text('Barcode', data.meta?.barcode),
-          TKeyValue.text('Created At', data.meta?.createdAt),
-          TKeyValue.text('Updated At', data.meta?.updatedAt),
-          TKeyValue.text('Description', data.description),
-        ]);
+        final headerWidget = TRowExpandedBuilder.header(
+          ctx,
+          title: data.title,
+          subTitle: data.sku,
+          imageUrl: data.thumbnail,
+          description: data.description,
+          onClose: () {
+            controller.collapseAll();
+          },
+        );
+
+        return TRowExpandedBuilder.tabs<String>(
+          ctx,
+          header: headerWidget,
+          tabs: [
+            TTab(
+              value: 'info',
+              text: 'Info',
+              content: (ctx) => SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: TKeyValueSection(
+                  values: [
+                    TKeyValue(
+                      'QR Code',
+                      widget: data.meta?.qrCode != null ? TImage(url: data.meta!.qrCode, size: 60) : const SizedBox.shrink(),
+                    ),
+                    ...TKeyValue.mapHeaders(ctx, headers, item, index),
+                    TKeyValue.text('Barcode', data.meta?.barcode),
+                    TKeyValue.datetime('Created At', data.meta?.createdAt),
+                    TKeyValue.datetime('Updated At', data.meta?.updatedAt),
+                    TKeyValue.text('Description', data.description),
+                  ],
+                ),
+              ),
+            ),
+            TTab(
+              value: 'stock',
+              text: 'Stock',
+              content: (ctx) => SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: TKeyValueSection(
+                  values: [
+                    TKeyValue.text('Total Stock', '${data.stock} units'),
+                    TKeyValue.text('SKU', data.sku),
+                    TKeyValue.text('Warehouse A', '${(data.stock * 0.6).round()} units'),
+                    TKeyValue.text('Warehouse B', '${(data.stock * 0.4).round()} units'),
+                  ],
+                ),
+              ),
+            ),
+
+            TTab(
+              value: 'images',
+              text: 'Images',
+              content: (ctx) => data.images == null || data.images!.isEmpty
+                  ? const Center(child: Text('No images available'))
+                  : GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 150,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                      ),
+                      itemCount: data.images!.length,
+                      itemBuilder: (context, i) => TImage(
+                        url: data.images![i],
+                        size: 150,
+                        border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+            ),
+          ],
+        );
       },
       rowColorBuilder: (item, index) {
         if (item.data.stock < 5) return Colors.red.withAlpha(15);

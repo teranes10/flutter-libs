@@ -9,6 +9,7 @@ class TDropdownItem {
   final bool initiallyExpanded;
   final Object? extra;
   final bool hidden;
+  final Color? color;
 
   const TDropdownItem({
     this.icon,
@@ -18,6 +19,7 @@ class TDropdownItem {
     this.initiallyExpanded = false,
     this.extra,
     this.hidden = false,
+    this.color,
   });
 
   bool get hasChildren => children?.isNotEmpty ?? false;
@@ -60,9 +62,9 @@ class TDropdownTheme {
     required this.activeColor,
     required this.activeBackgroundColor,
     required this.borderColor,
-    this.animationDuration = const Duration(milliseconds: 250),
-    this.showDelay = const Duration(milliseconds: 100),
-    this.hideDelay = const Duration(milliseconds: 250),
+    this.animationDuration = const Duration(milliseconds: 200),
+    this.showDelay = const Duration(milliseconds: 25),
+    this.hideDelay = const Duration(milliseconds: 125),
     this.alignment = TPopupAlignment.bottomLeft,
     this.offset = 8.0,
     this.secondaryAlignment = TPopupAlignment.rightTop,

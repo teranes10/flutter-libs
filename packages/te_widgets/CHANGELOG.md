@@ -1,3 +1,24 @@
+# 2.6.5
+
+- **Mobile Page Mode Navigation (`TPageWrapper`)**:
+  - Introduced `TPageWrapper` widget to provide a uniform full-screen Scaffold/AppBar layout on mobile screens.
+  - Implemented `TPopupMode.page` in the popup mixin, allowing selects and multi-selects to open as full-screen modal pages on mobile devices.
+  - Form service (`TFormService`) now renders fullscreen form routes on mobile using `TPageWrapper`.
+  - Replaced the close button with a back button and reduced body padding in page mode routes.
+- **Select & MultiSelect Improvements**:
+  - Added filter search bars inside full-screen page mode dropdowns.
+  - Optimized the search placeholder inside page mode to show `"Search..."` instead of repeating the input label.
+  - Reverted `initState()` MediaQuery queries in `TSelect` and `TMultiSelect` into `didChangeDependencies()` to fix Flutter widget lifecycle exceptions.
+- **Underline Input Decoration Style**:
+  - Configured `TInputDecorationType.underline` to explicitly force the `BorderRadius` to `BorderRadius.zero`.
+- **Infinite Scroll Enhancements**:
+  - Resolved loading bugs in page-mode infinite lists: added post-frame layout triggers to load subsequent pages when the first page fits completely in the viewport without scrolling.
+  - Bumped the default page-mode `itemsPerPage` count on mobile to `20` to fill the screen in a single request.
+- **Detail Pane Deep-Linking**:
+  - Exposed `TTabController` on `TRowExpandedBuilder.tabs` helper to allow client-side deep linking of side-panel sub-tabs with URL query parameters.
+- **CRUD Side List Visual Alignment**:
+  - Updated `_buildSideList` card layout to use the exact card structure, themes, margins, and selection state resolver of `TTableRowCard`.
+
 # 2.6.4
 
 - Input Field bug fix

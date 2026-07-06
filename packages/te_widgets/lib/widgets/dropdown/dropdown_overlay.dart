@@ -46,6 +46,7 @@ class _TDropdownOverlayState extends State<TDropdownOverlay> with SingleTickerPr
 
   Widget _buildOverlayContent(Size screenSize) {
     final colors = context.colors;
+    final isDark = colors.isDarkMode;
 
     return MouseRegion(
       onEnter: (_) => TDropdownOverlayController.setMouseInArea(true),
@@ -60,11 +61,25 @@ class _TDropdownOverlayState extends State<TDropdownOverlay> with SingleTickerPr
           );
         },
         child: Material(
-          elevation: widget.theme.overlayElevation,
-          borderRadius: widget.theme.overlayBorderRadius,
-          color: colors.surface,
+          type: MaterialType.transparency,
           child: IntrinsicWidth(
             child: Container(
+              decoration: BoxDecoration(
+                color: ElevationOverlay.applySurfaceTint(colors.surface, colors.surfaceTint, widget.theme.overlayElevation),
+                borderRadius: widget.theme.overlayBorderRadius,
+                border: BoxBorder.all(color: colors.surfaceTint, width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark ? Colors.black.withAlpha(25) : Colors.black.withAlpha(15),
+                    blurRadius: 16.0,
+                  ),
+                  BoxShadow(
+                    color: isDark ? Colors.black.withAlpha(15) : Colors.black.withAlpha(15),
+                    blurRadius: 2.0,
+                    spreadRadius: -1.0,
+                  ),
+                ],
+              ),
               constraints: widget.theme.boxConstraints,
               child: SingleChildScrollView(
                 padding: widget.theme.overlayPadding,

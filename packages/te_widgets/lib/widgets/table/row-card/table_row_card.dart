@@ -39,6 +39,9 @@ class TTableRowCard<T, K> extends StatelessWidget {
   /// Content to show when expanded.
   final Widget? expandedContent;
 
+  /// Whether expansion happens on the side.
+  final bool expandSide;
+
   //selectable
   /// Whether the row is selectable.
   final bool selectable;
@@ -67,6 +70,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
     this.isExpanded = false,
     this.onExpansionChanged,
     this.expandedContent,
+    this.expandSide = false,
 
     //selectable
     this.selectable = false,
@@ -96,18 +100,22 @@ class TTableRowCard<T, K> extends StatelessWidget {
             children: [
               TableRow(children: [
                 if (expandable)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TIcon(
-                      icon: Icons.keyboard_arrow_down,
-                      size: 20,
-                      color: colors.onSurfaceVariant,
-                      background: colors.surfaceContainerLow,
-                      turns: (0, 0.5),
-                      active: isExpanded,
-                      onTap: onExpansionChanged,
-                    ),
-                  ),
+                  Builder(builder: (context) {
+                    final isDense = TTableScope.maybeOf(context)?.dense ?? false;
+                    return Align(
+                      alignment: Alignment.centerLeft,
+                      child: TIcon(
+                        icon: expandSide ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_down,
+                        size: isDense ? 18 : 20,
+                        padding: isDense ? const EdgeInsets.all(3) : const EdgeInsets.all(6),
+                        color: colors.onSurfaceVariant,
+                        background: colors.surfaceContainerLow,
+                        turns: expandSide ? (0, -0.5) : (0, 0.5),
+                        active: isExpanded,
+                        onTap: onExpansionChanged,
+                      ),
+                    );
+                  }),
                 if (selectable)
                   Align(
                     alignment: Alignment.centerLeft,

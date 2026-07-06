@@ -24,7 +24,7 @@ class TDropdownOverlayController {
     _resetState();
   }
 
-  static void scheduleHide({Duration delay = const Duration(milliseconds: 250)}) {
+  static void scheduleHide({Duration delay = const Duration(milliseconds: 125)}) {
     _closeTimer?.cancel();
 
     _closeTimer = Timer(delay, () {

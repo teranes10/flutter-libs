@@ -122,7 +122,7 @@ class _TTabViewState<T> extends State<TTabView<T>> {
       _controller = widget.controller!;
       _isInternalController = false;
     } else {
-      _controller = TTabController<T>(initialValue: widget.initialValue);
+      _controller = TTabController<T>(initialValue: widget.initialValue ?? (widget.tabs.isNotEmpty ? widget.tabs.first.value : null));
       _isInternalController = true;
     }
   }
@@ -138,7 +138,7 @@ class _TTabViewState<T> extends State<TTabView<T>> {
         _controller = widget.controller!;
         _isInternalController = false;
       } else {
-        _controller = TTabController<T>(initialValue: widget.initialValue);
+        _controller = TTabController<T>(initialValue: widget.initialValue ?? (widget.tabs.isNotEmpty ? widget.tabs.first.value : null));
         _isInternalController = true;
       }
     }
@@ -154,9 +154,11 @@ class _TTabViewState<T> extends State<TTabView<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TTabs<T>(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final hasBoundedHeight = constraints.hasBoundedHeight;
+
+        final tabsWidget = TTabs<T>(
           controller: _controller,
           tabs: widget.tabs,
           borderColor: widget.borderColor,
@@ -174,14 +176,25 @@ class _TTabViewState<T> extends State<TTabView<T>> {
           tabBuilder: widget.tabBuilder,
           navigationButtonColor: widget.navigationButtonColor,
           navigationButtonBackgroundColor: widget.navigationButtonBackgroundColor,
-        ),
-        Expanded(
-          child: TTabContent<T>(
-            controller: _controller,
-            tabs: widget.tabs,
-          ),
-        ),
-      ],
+        );
+
+        final contentWidget = TTabContent<T>(
+          controller: _controller,
+          tabs: widget.tabs,
+        );
+
+        return Column(
+          mainAxisSize: hasBoundedHeight ? MainAxisSize.max : MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            tabsWidget,
+            if (hasBoundedHeight)
+              Expanded(child: contentWidget)
+            else
+              contentWidget,
+          ],
+        );
+      },
     );
   }
 }

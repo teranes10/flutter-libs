@@ -413,6 +413,21 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               });
             }
 
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              if (wTheme.infiniteScroll != false &&
+                  listController.value.hasMoreItems &&
+                  !listController.value.fetching &&
+                  !listController.value.loading) {
+                if (_scrollController.hasClients) {
+                  final position = _scrollController.position;
+                  if (position.maxScrollExtent <= 0.0) {
+                    listController.handleLoadMore();
+                  }
+                }
+              }
+            });
+
             return TListView(
               items: state.displayItems,
               error: state.error,

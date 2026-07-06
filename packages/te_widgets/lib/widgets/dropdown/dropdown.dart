@@ -10,13 +10,17 @@ class TDropdown extends StatefulWidget {
   final List<TDropdownItem> items;
   final Widget child;
   final TDropdownTriggerMode triggerMode;
+  final bool enabled;
+  final Widget Function(BuildContext context, VoidCallback close)? builder;
 
   const TDropdown({
     super.key,
     this.theme,
-    required this.items,
+    this.items = const [],
     required this.child,
     this.triggerMode = TDropdownTriggerMode.hover,
+    this.enabled = true,
+    this.builder,
   });
 
   @override
@@ -35,21 +39,55 @@ class _DropdownState extends State<TDropdown> {
     return widget.triggerMode == TDropdownTriggerMode.tap || context.isMobilePlatform || context.isMobile;
   }
 
+  void _closeDropdown() {
+    TDropdownOverlayController.hideAllOverlays();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!widget.enabled) {
+      return Opacity(opacity: 0.7, child: widget.child);
+    }
+
+    Widget triggerChild = widget.child;
+    bool useClickWrapper = true;
+
+    if (triggerChild is TButton) {
+      if (triggerChild.onTap == null && triggerChild.onPressed == null) {
+        triggerChild = triggerChild.copyWith(onTap: _toggleDropdown);
+        useClickWrapper = false;
+      }
+    }
+
+    Widget triggerWidget = useClickWrapper
+        ? GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: _toggleDropdown,
+            child: triggerChild,
+          )
+        : triggerChild;
+
     return OverlayPortal.overlayChildLayoutBuilder(
       controller: _overlayController,
       overlayChildBuilder: (context, layoutInfo) {
-        final mediaQuery = MediaQuery.of(context);
-        final translation = layoutInfo.childPaintTransform.getTranslation();
-
-        TPopupConstraints constraints = (
-          screenSize: mediaQuery.size,
+        final constraints = TPopupConstraints.calculate(
+          context,
           targetSize: layoutInfo.childSize,
-          targetOffset: Offset(translation.x, translation.y),
-          contentBox: theme.boxConstraints,
-          contentAlignment: FractionalOffset.topLeft,
+          transform: layoutInfo.childPaintTransform,
+          inputConstraints: theme.boxConstraints,
+          alignment: FractionalOffset.topLeft,
         );
+
+        final overlayContent = widget.builder != null
+            ? Container(
+                constraints: constraints.contentBox,
+                child: widget.builder!(context, _closeDropdown),
+              )
+            : TDropdownOverlay(
+                items: widget.items,
+                level: 1,
+                theme: theme,
+              );
 
         return Stack(
           children: [
@@ -68,11 +106,7 @@ class _DropdownState extends State<TDropdown> {
                 alignment: theme.alignment,
                 offset: theme.offset,
               ),
-              child: TDropdownOverlay(
-                items: widget.items,
-                level: 1,
-                theme: theme,
-              ),
+              child: overlayContent,
             ),
           ],
         );
@@ -80,12 +114,8 @@ class _DropdownState extends State<TDropdown> {
       child: MouseRegion(
         key: _targetKey,
         onEnter: (_) => _onHoverEnter(),
-        onExit: (_) => _onHoverExit(),
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: _toggleDropdown,
-          child: widget.child,
-        ),
+        onExit: (_) => _onExitHover(),
+        child: triggerWidget,
       ),
     );
   }
@@ -107,7 +137,7 @@ class _DropdownState extends State<TDropdown> {
     _scheduleOverlayShow();
   }
 
-  void _onHoverExit() {
+  void _onExitHover() {
     if (_useTapOnly) return;
     setState(() => _isHovered = false);
     _hoverTimer?.cancel();

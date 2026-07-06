@@ -96,8 +96,16 @@ class TTableHeader<T, K> {
   })  : map = null,
         minWidth = width + 16,
         maxWidth = width + 16,
-        builder = ((_, item, __) =>
-            map(item.data) != null ? TImage(url: map(item.data)!, size: width, forceCache: forceCache) : const SizedBox.shrink());
+        builder = ((ctx, item, __) {
+          final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
+          final imgUrl = map(item.data);
+          if (imgUrl == null) return const SizedBox.shrink();
+          return TImage(
+            url: imgUrl,
+            size: isDense ? width * 0.8 : width,
+            forceCache: forceCache,
+          );
+        });
 
   /// Creates a header for displaying chips.
   TTableHeader.chip(
@@ -110,8 +118,46 @@ class TTableHeader<T, K> {
     Color Function(T)? color,
     TVariant? type,
     void Function()? Function(T)? onTap,
-  }) : builder = ((_, item, __) =>
-            TChip(text: map?.call(item.data).toString(), color: color?.call(item.data), type: type, onTap: onTap?.call(item.data)));
+  }) : builder = ((ctx, item, __) {
+          final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
+          return TChip(
+            text: map?.call(item.data).toString(),
+            color: color?.call(item.data),
+            type: type,
+            onTap: onTap?.call(item.data),
+            padding: isDense ? const EdgeInsets.symmetric(horizontal: 6, vertical: 2) : null,
+          );
+        });
+
+  /// Creates a header for displaying ratings.
+  TTableHeader.rating(
+    this.text,
+    double? Function(T) map, {
+    this.flex,
+    this.minWidth,
+    this.maxWidth,
+    this.alignment,
+    int itemCount = 5,
+    double itemSize = 10.0,
+    Color? color,
+    Color? unratedColor,
+    bool allowHalfRating = false,
+    double spacing = 0.0,
+  })  : map = null,
+        builder = ((ctx, item, __) {
+          final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
+          final ratingValue = map(item.data) ?? 0.0;
+          return TRating(
+            value: ratingValue,
+            itemCount: itemCount,
+            itemSize: isDense ? itemSize * 0.8 : itemSize,
+            color: color,
+            unratedColor: unratedColor,
+            disabled: true,
+            allowHalfRating: allowHalfRating,
+            spacing: spacing,
+          );
+        });
 
   /// Create an date formatter
   TTableHeader.datetime(
@@ -145,7 +191,15 @@ class TTableHeader<T, K> {
             : count != null
                 ? (50.0 * count).clamp(75.0, 150.0)
                 : null,
-        builder = ((ctx, item, __) => TButtonGroup(type: TButtonGroupType.icon, alignment: WrapAlignment.end, items: builder(item)));
+        builder = ((ctx, item, __) {
+          final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
+          return TButtonGroup(
+            type: TButtonGroupType.icon,
+            alignment: WrapAlignment.end,
+            size: isDense ? TButtonSize.sm.copyWith(hPad: 4, vPad: 2) : TButtonSize.sm,
+            items: builder(item),
+          );
+        });
 
   /// Creates an editable cell header.
   TTableHeader.editable(

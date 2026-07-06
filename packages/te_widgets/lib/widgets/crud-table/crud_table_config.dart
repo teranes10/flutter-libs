@@ -64,6 +64,29 @@ class TCrudConfig<T, K> {
   /// Defaults to 0.4.
   final double inlineFormOverlayOpacity;
 
+  /// Whether to expand details on the side instead of inline.
+  final bool expandSide;
+
+  /// The width of the left-side list view when [expandSide] is true.
+  ///
+  /// Defaults to 320.
+  final double expandSideListWidth;
+
+  /// Whether the table layout should be dense.
+  final bool? dense;
+
+  /// Whether to render action buttons flat (inline/independently) instead of the default hoverable dropdown menu.
+  final bool flatActions;
+
+  /// Extract title for list view item when [expandSide] is true.
+  final String Function(T item)? itemTitle;
+
+  /// Extract subtitle for list view item when [expandSide] is true.
+  final String? Function(T item)? itemSubTitle;
+
+  /// Extract image URL for list view item when [expandSide] is true.
+  final String? Function(T item)? itemImageUrl;
+
   /// Creates a CRUD configuration.
   const TCrudConfig({
     this.canView,
@@ -84,7 +107,14 @@ class TCrudConfig<T, K> {
     this.actionButtonWidth = 50.0,
     this.onTabChange,
     this.inlineFormOverlayOpacity = 0.7,
-  });
+    this.expandSide = false,
+    this.expandSideListWidth = 320.0,
+    this.dense,
+    this.flatActions = true,
+    this.itemTitle,
+    this.itemSubTitle,
+    this.itemImageUrl,
+  }) : assert(!expandSide || itemTitle != null, 'itemTitle is required when expandSide is true');
 }
 
 /// Defines a custom action button in the [TCrudTable].

@@ -164,7 +164,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
   }
 
   Widget _buildTab(BuildContext context, TTab<T> tab, ColorScheme colors, bool inline) {
-    final sel = widget.controller?.value ?? widget.selectedValue;
+    final sel = widget.controller?.value ?? widget.selectedValue ?? (widget.tabs.isNotEmpty ? widget.tabs.first.value : null);
     final isSelected = sel == tab.value;
     final key = _tabKeys[tab.value]!;
     final onTap = tab.isEnabled ? () => _onSelectTab(tab) : null;
@@ -193,9 +193,9 @@ class _TTabsState<T> extends State<TTabs<T>> {
       onTab: onTap,
     );
 
-    // Only Expanded in true full-width horizontal mode.
-    final fullWidth = !inline && !widget.scrollable && !widget.wrap;
-    return fullWidth && widget.axis == Axis.horizontal ? Expanded(child: tabWidget) : tabWidget;
+    // Horizontal full-width mode uses TAlignedRow, which handles child expansion internally.
+    // Wrapping with Expanded causes ParentDataWidget errors because TAlignedRow is not a Flex.
+    return tabWidget;
   }
 
   @override
@@ -254,7 +254,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
                       icon: Icons.chevron_left,
                       size: 20,
                       onTap: !_canScrollStart ? null : () => _scrollBy(-200),
-                      color: _canScrollStart ? navColor : navColor.withOpacity(0.3),
+                      color: _canScrollStart ? navColor : navColor.o(0.4),
                       borderRadius: BorderRadius.circular(100)),
                 ),
                 Positioned(
@@ -268,7 +268,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
                       icon: Icons.chevron_right,
                       size: 20,
                       onTap: !_canScrollEnd ? null : () => _scrollBy(200),
-                      color: _canScrollEnd ? navColor : navColor.withOpacity(0.3),
+                      color: _canScrollEnd ? navColor : navColor.o(0.4),
                       borderRadius: BorderRadius.circular(100)),
                 )
               ] else ...[
@@ -280,13 +280,13 @@ class _TTabsState<T> extends State<TTabs<T>> {
                     child: Material(
                       type: MaterialType.circle,
                       elevation: 4,
-                      shadowColor: colors.shadow.withOpacity(0.25),
+                      shadowColor: colors.shadow.o(0.35),
                       color: navBg,
                       child: TIcon(
                           icon: Icons.keyboard_arrow_up,
                           size: 20,
                           onTap: () => _scrollBy(-200),
-                          color: _canScrollStart ? navColor : navColor.withOpacity(0.3),
+                          color: _canScrollStart ? navColor : navColor.o(0.4),
                           borderRadius: BorderRadius.circular(100)),
                     ),
                   ),
@@ -299,13 +299,13 @@ class _TTabsState<T> extends State<TTabs<T>> {
                     child: Material(
                       type: MaterialType.circle,
                       elevation: 4,
-                      shadowColor: colors.shadow.withOpacity(0.25),
+                      shadowColor: colors.shadow.o(0.35),
                       color: navBg,
                       child: TIcon(
                           icon: Icons.keyboard_arrow_down,
                           size: 20,
                           onTap: () => _scrollBy(200),
-                          color: _canScrollEnd ? navColor : navColor.withOpacity(0.3),
+                          color: _canScrollEnd ? navColor : navColor.o(0.4),
                           borderRadius: BorderRadius.circular(100)),
                     ),
                   ),

@@ -17,13 +17,64 @@ enum TPopupAlignment {
   rightCenter,
 }
 
-typedef TPopupConstraints = ({
-  Size screenSize,
-  Size targetSize,
-  Offset targetOffset,
-  BoxConstraints contentBox,
-  FractionalOffset contentAlignment
-});
+/// Display mode options for a popup.
+enum TPopupMode {
+  anchored,
+  centered,
+  page,
+}
+
+class TPopupConstraints {
+  final Size screenSize;
+  final Size targetSize;
+  final Offset targetOffset;
+  final BoxConstraints contentBox;
+  final Alignment contentAlignment;
+
+  const TPopupConstraints({
+    required this.screenSize,
+    required this.targetSize,
+    required this.targetOffset,
+    required this.contentBox,
+    required this.contentAlignment,
+  });
+
+  factory TPopupConstraints.calculate(
+    BuildContext context, {
+    required Size targetSize,
+    required Matrix4 transform,
+    required BoxConstraints inputConstraints,
+    Alignment? alignment,
+    double defaultSize = 100.0,
+  }) {
+    final mediaQuery = MediaQuery.of(context);
+    final keyboardHeight = mediaQuery.viewInsets.bottom;
+
+    // Accurate position of the trigger relative to the Overlay using the provided layoutInfo
+    final targetOffset = MatrixUtils.transformPoint(transform, Offset.zero);
+
+    // Get the actual size of the Overlay to ensure correct space calculations
+    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
+    final overlaySize = overlay?.size ?? mediaQuery.size;
+    final viewportSize = Size(overlaySize.width, overlaySize.height - keyboardHeight);
+
+    // Clip constraints to screen size to prevent clipping/overflow
+    final minWidth = inputConstraints.minWidth.clamp(defaultSize, viewportSize.width);
+    final minHeight = inputConstraints.minHeight.clamp(defaultSize, viewportSize.height);
+    final maxWidth = (inputConstraints.maxWidth == double.infinity ? viewportSize.width : inputConstraints.maxWidth)
+        .clamp(minWidth, viewportSize.width);
+    final maxHeight = (inputConstraints.maxHeight == double.infinity ? viewportSize.height : inputConstraints.maxHeight)
+        .clamp(minHeight, viewportSize.height);
+
+    return TPopupConstraints(
+      screenSize: viewportSize,
+      targetSize: targetSize,
+      targetOffset: targetOffset,
+      contentBox: BoxConstraints(minWidth: minWidth, minHeight: minHeight, maxWidth: maxWidth, maxHeight: maxHeight),
+      contentAlignment: alignment ?? (mediaQuery.isMobile ? const FractionalOffset(0.5, 0.05) : const FractionalOffset(0.5, 0.1)),
+    );
+  }
+}
 
 /// Mixin for widgets that display a popup or dropdown.
 mixin TPopupMixin {
@@ -44,6 +95,9 @@ mixin TPopupMixin {
 
   /// Callback when popup hides.
   VoidCallback? get onHide;
+
+  /// Preferred display mode of the popup.
+  TPopupMode? get popupMode => null;
 }
 
 /// State mixin for managing popup overlay logic.
@@ -65,8 +119,19 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   /// Whether the popup is currently visible.
   bool get isPopupShowing => _isOverlayVisible;
 
-  /// Whether to use centered overlay mode (e.g. for mobile).
-  bool get shouldCenteredOverlay => MediaQuery.of(context).isMobile;
+  /// The effective display mode of the popup.
+  TPopupMode get effectivePopupMode {
+    final mode = _widget.popupMode;
+    if (mode != null) return mode;
+    final isMobile = MediaQuery.of(context).isMobile;
+    if (isMobile && (widget is TSelect || widget is TMultiSelect)) {
+      return TPopupMode.page;
+    }
+    return isMobile ? TPopupMode.centered : TPopupMode.anchored;
+  }
+
+  /// Whether to use centered overlay mode.
+  bool get shouldCenteredOverlay => effectivePopupMode == TPopupMode.centered;
 
   static const _defaultSize = 100.0;
 
@@ -85,20 +150,56 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   /// Returns the content widget to display in the popup.
   Widget getContentWidget(BuildContext context);
 
+  /// Dynamic page title for page mode.
+  String get popupTitle {
+    if (widget is TInputFieldMixin) {
+      return (widget as TInputFieldMixin).label ?? 'Select';
+    }
+    return 'Select';
+  }
+
   /// Shows the popup.
   void showPopup(BuildContext context) {
     if (_widget.disabled || isPopupShowing) return;
-    _overlayController.show();
-    _isOverlayVisible = true;
-    _widget.onShow?.call();
+    if (effectivePopupMode == TPopupMode.page) {
+      _isOverlayVisible = true;
+      _widget.onShow?.call();
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (ctx) => TPageWrapper(
+            title: popupTitle,
+            onBackPressed: () {
+              hidePopup();
+            },
+            child: getContentWidget(ctx),
+          ),
+        ),
+      ).then((_) {
+        if (mounted && _isOverlayVisible) {
+          setState(() {
+            _isOverlayVisible = false;
+          });
+          _widget.onHide?.call();
+        }
+      });
+    } else {
+      _overlayController.show();
+      _isOverlayVisible = true;
+      _widget.onShow?.call();
+    }
   }
 
   /// Hides the popup.
   void hidePopup() {
     if (!isPopupShowing) return;
-    _overlayController.hide();
-    _isOverlayVisible = false;
-    _widget.onHide?.call();
+    if (effectivePopupMode == TPopupMode.page) {
+      _isOverlayVisible = false;
+      Navigator.of(context).pop();
+    } else {
+      _overlayController.hide();
+      _isOverlayVisible = false;
+      _widget.onHide?.call();
+    }
   }
 
   /// Toggles popup visibility.
@@ -122,33 +223,17 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     return OverlayPortal.overlayChildLayoutBuilder(
       controller: _overlayController,
       overlayChildBuilder: (ctx, layoutInfo) {
-        final mediaQuery = MediaQuery.of(context);
-        final keyboardHeight = mediaQuery.viewInsets.bottom;
-        final targetSize = layoutInfo.childSize;
-
-        // Accurate position of the trigger relative to the Overlay using the provided layoutInfo
-        final targetOffset = MatrixUtils.transformPoint(layoutInfo.childPaintTransform, Offset.zero);
-
-        // Get the actual size of the Overlay to ensure correct space calculations
-        final overlay = Overlay.of(ctx).context.findRenderObject() as RenderBox?;
-        final overlaySize = overlay?.size ?? mediaQuery.size;
-
-        // Overlay usually spans the entire screen, so we DO need to account for the keyboard
-        // manually to prevent the popup from rendering under it.
-        final viewportSize = Size(overlaySize.width, overlaySize.height - keyboardHeight);
-
-        final minWidth = contentMinWidth.clamp(_defaultSize, viewportSize.width);
-        final minHeight = contentMinHeight.clamp(_defaultSize, viewportSize.height);
-        final maxWidth = (contentMaxWidth ?? targetSize.width).clamp(minWidth, viewportSize.width);
-        final maxHeight = (contentMaxHeight ?? viewportSize.height).clamp(minHeight, viewportSize.height);
-        final alignment = mediaQuery.isMobile ? const FractionalOffset(0.5, 0.05) : const FractionalOffset(0.5, 0.1);
-
-        TPopupConstraints constraints = (
-          screenSize: viewportSize,
-          targetSize: targetSize,
-          targetOffset: targetOffset,
-          contentBox: BoxConstraints(minWidth: minWidth, minHeight: minHeight, maxWidth: maxWidth, maxHeight: maxHeight),
-          contentAlignment: alignment,
+        final constraints = TPopupConstraints.calculate(
+          context,
+          targetSize: layoutInfo.childSize,
+          transform: layoutInfo.childPaintTransform,
+          inputConstraints: BoxConstraints(
+            minWidth: contentMinWidth,
+            minHeight: contentMinHeight,
+            maxWidth: contentMaxWidth ?? layoutInfo.childSize.width,
+            maxHeight: contentMaxHeight ?? double.infinity,
+          ),
+          defaultSize: _defaultSize,
         );
 
         return shouldCenteredOverlay ? buildCenteredOverlayChild(context, constraints) : buildAnchoredOverlayChild(context, constraints);
