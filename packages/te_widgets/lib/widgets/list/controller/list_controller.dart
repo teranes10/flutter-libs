@@ -117,11 +117,19 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   /// Callback fired when items are reordered.
   final void Function(int oldIndex, int newIndex)? onReorder;
 
+  /// Whether to automatically select the first item when items are loaded.
+  final bool autoSelectFirst;
+
+  /// Whether to automatically expand the first item when items are loaded.
+  final bool autoExpandFirst;
+
   bool _disposed = false;
   int _requestId = 0;
   final Set<int> _activeRequests = {};
   final Map<K, T> _itemsMap = {};
   final List<T> _localPaginationItems = [];
+  bool _hasAutoSelectedFirst = false;
+  bool _hasAutoExpandedFirst = false;
 
   /// Creates a list controller.
   ///
@@ -141,19 +149,23 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     this.itemChildren,
     this.reorderable = false,
     this.onReorder,
+    this.autoSelectFirst = false,
+    this.autoExpandFirst = false,
+    Iterable<K>? initialSelectedKeys,
+    Iterable<K>? initialExpandedKeys,
     bool loading = false,
     bool hasMoreItems = true,
   })  : isServerSide = onLoad != null,
         _debouncer = TDebouncer(milliseconds: searchDelay ?? (onLoad != null ? 2500 : 750)),
         itemToString = itemToString ?? _defaultItemToString,
-        itemKey = itemKey ?? _defaultItemKey,
-        itemFactory = itemFactory ?? _defaultItemFactory(itemKey ?? _defaultItemKey, itemChildren),
+        itemKey = itemKey ?? defaultItemKey,
+        itemFactory = itemFactory ?? _defaultItemFactory(itemKey ?? defaultItemKey, itemChildren),
         _filter = TSearchFilter(itemToString: itemToString ?? _defaultItemToString),
         super(
           TListState<T, K>(
             displayItems: const [],
-            selectedKeys: LinkedHashSet<K>(),
-            expandedKeys: LinkedHashSet<K>(),
+            selectedKeys: initialSelectedKeys != null ? LinkedHashSet<K>.from(initialSelectedKeys) : LinkedHashSet<K>(),
+            expandedKeys: initialExpandedKeys != null ? LinkedHashSet<K>.from(initialExpandedKeys) : LinkedHashSet<K>(),
             activeKey: null,
             activeItem: null,
             page: 1,
@@ -182,7 +194,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   }
   static const allowedKeyTypes = [String, int, double, num, bool];
 
-  static K _defaultItemKey<T, K>(T item) {
+  static K defaultItemKey<T, K>(T item) {
     if (allowedKeyTypes.contains(T)) {
       return item as K;
     }
@@ -350,6 +362,24 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     var effectiveExpandedKeys = expandedKeys ?? value.expandedKeys;
     var effectiveDisplayItems = displayItems ?? value.displayItems;
 
+    var effectiveActiveKey = clearActive ? null : (activeKey ?? value.activeKey);
+    var effectiveActiveItem = clearActive ? null : (activeItem ?? value.activeItem);
+    var effectiveActiveIndex = clearActive ? -1 : (activeIndex ?? value.activeIndex);
+
+    if (displayItems != null && value.displayItems.isEmpty && effectiveDisplayItems.isNotEmpty) {
+      if (autoSelectFirst && effectiveSelectedKeys.isEmpty && !_hasAutoSelectedFirst) {
+        effectiveSelectedKeys = copyKeySet(effectiveSelectedKeys)..add(effectiveDisplayItems.first.key);
+        _hasAutoSelectedFirst = true;
+      }
+      if (autoExpandFirst && effectiveExpandedKeys.isEmpty && !_hasAutoExpandedFirst) {
+        effectiveExpandedKeys = copyKeySet(effectiveExpandedKeys)..add(effectiveDisplayItems.first.key);
+        effectiveActiveKey = effectiveDisplayItems.first.key;
+        effectiveActiveItem = effectiveDisplayItems.first;
+        effectiveActiveIndex = 0;
+        _hasAutoExpandedFirst = true;
+      }
+    }
+
     if ((selectable || expandable) && (displayItems != null || selectedKeys != null || expandedKeys != null)) {
       effectiveDisplayItems = _preserveStateOptimized(
         items: effectiveDisplayItems,
@@ -357,10 +387,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
         expandedKeys: effectiveExpandedKeys,
       );
     }
-
-    final effectiveActiveKey = clearActive ? null : (activeKey ?? value.activeKey);
-    final effectiveActiveItem = clearActive ? null : (activeItem ?? value.activeItem);
-    final effectiveActiveIndex = clearActive ? -1 : (activeIndex ?? value.activeIndex);
 
     value = TListState<T, K>(
       displayItems: effectiveDisplayItems,

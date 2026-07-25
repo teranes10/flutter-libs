@@ -259,6 +259,22 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   late final ValueNotifier<String?>? _activeCellNotifier;
 
   @override
+  TListController<T, K> buildController() {
+    final hasBuilder = widget.details?.builder != null || widget.details?.createBuilder != null;
+    return TListController<T, K>(
+      items: widget.items ?? [],
+      itemsPerPage: widget.itemsPerPage ?? 0,
+      search: widget.search ?? '',
+      searchDelay: widget.searchDelay,
+      onLoad: widget.onLoad,
+      itemKey: widget.itemKey,
+      expansionMode: hasBuilder ? TExpansionMode.single : TExpansionMode.none,
+      autoExpandFirst: widget.details?.autoExpandFirst ?? false,
+      autoSelectFirst: widget.details?.autoSelectFirst ?? false,
+    );
+  }
+
+  @override
   void initState() {
     super.initState();
     _activeCellNotifier = widget.editable ? ValueNotifier<String?>(null) : null;
@@ -324,9 +340,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       controller: listController,
       dense: wTheme.dense ?? false,
       expansionMode: effectiveExpansionMode,
-      onWillCollapse: widget.details?.onWillCollapse != null
-          ? (dynamic key) => widget.details!.onWillCollapse!(key as K)
-          : null,
+      onWillCollapse: widget.details?.onWillCollapse != null ? (dynamic key) => widget.details!.onWillCollapse!(key as K) : null,
       child: content,
     );
 

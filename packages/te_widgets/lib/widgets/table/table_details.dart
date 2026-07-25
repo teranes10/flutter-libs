@@ -62,6 +62,12 @@ class TTableDetails<T, K> {
   /// The width of the dialog when creating or editing items in dialog mode. Defaults to [dialogWidth] or 800.
   final double? createDialogWidth;
 
+  /// Whether to automatically expand the first item in the list initially.
+  final bool autoExpandFirst;
+
+  /// Whether to automatically select the first item in the list initially.
+  final bool autoSelectFirst;
+
   const TTableDetails({
     this.mode = TTableExpansionMode.bottom,
     this.createMode,
@@ -81,6 +87,8 @@ class TTableDetails<T, K> {
     this.showLayoutForBottom = false,
     this.dialogWidth = 800.0,
     this.createDialogWidth,
+    this.autoExpandFirst = false,
+    this.autoSelectFirst = false,
   });
 }
 
@@ -122,8 +130,8 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
         mode: details.createMode ?? details.mode,
       );
     }
-    if (v.activeItem != null) {
-      return _ActiveDetailTarget<K>(kind: _DetailKind.view, key: v.activeKey, mode: details.mode);
+    if (v.expandedKeys.isNotEmpty) {
+      return _ActiveDetailTarget<K>(kind: _DetailKind.view, key: v.expandedKeys.first, mode: details.mode);
     }
     return null;
   }
@@ -136,12 +144,21 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     if (target == null) return null;
 
     final v = listController.value;
-    final activeItem = v.activeItem;
-    final activeIndex = v.activeIndex;
-    final itemData = activeItem?.data;
     final isCreating = target.kind == _DetailKind.create;
     final isEditing = target.kind == _DetailKind.edit;
-
+    
+    TListItem<T, K>? activeItem;
+    if (isCreating) {
+      activeItem = null;
+    } else if (isEditing) {
+      activeItem = v.activeItem;
+    } else {
+      final index = v.displayItems.indexWhere((x) => x.key == target.key);
+      activeItem = index != -1 ? v.displayItems[index] : null;
+    }
+    
+    final activeIndex = activeItem != null ? v.displayItems.indexWhere((x) => x.key == activeItem!.key) : -1;
+    final itemData = activeItem?.data;
     Widget content(BuildContext ctx) => (isCreating || isEditing)
         ? details.createBuilder!.call(ctx, activeItem, activeIndex)
         : details.builder?.call(ctx, activeItem!, activeIndex) ??
@@ -426,17 +443,51 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       headers: [
         TTableHeader<T, K>(
           '',
-          builder: (context, item, index) => IgnorePointer(
-            child: TImage(
-              url: imageUrl,
-              size: 45,
-              color: context.colors.surfaceContainerLow,
-              disabled: true,
-              border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-              title: title,
-              subTitle: subTitle,
-            ),
-          ),
+          builder: (context, item, index) {
+            final hasTitle = title != null && title.isNotEmpty;
+            final hasSubTitle = subTitle != null && subTitle.isNotEmpty;
+            
+            Widget content;
+            if (imageUrl != null && imageUrl.isNotEmpty) {
+              content = TImage(
+                url: imageUrl,
+                size: 45,
+                color: context.colors.surfaceContainerLow,
+                disabled: true,
+                border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                title: title,
+                subTitle: subTitle,
+              );
+            } else {
+              content = Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (hasTitle)
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: context.colors.onSurface),
+                      ),
+                    if (hasTitle && hasSubTitle) const SizedBox(height: 2),
+                    if (hasSubTitle)
+                      Text(
+                        subTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w300, color: context.colors.onSurfaceVariant),
+                      ),
+                  ],
+                ),
+              );
+            }
+            
+            return IgnorePointer(child: content);
+          },
         ),
       ],
     );
