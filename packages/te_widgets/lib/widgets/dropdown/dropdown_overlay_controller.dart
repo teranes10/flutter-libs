@@ -4,23 +4,31 @@ import 'package:flutter/material.dart';
 /// Manages a stack of overlays, providing centralized control for
 /// showing, hiding, and nesting overlays.
 class TDropdownOverlayController {
-  static final List<OverlayPortalController> _overlayControllers = [];
+  static final Map<int, OverlayPortalController> _activeOverlaysByLevel = {};
   static Timer? _closeTimer;
   static bool _isMouseInOverlayArea = false;
   static int _mouseInAreaCount = 0;
 
-  static void registerOverlay(OverlayPortalController controller) {
-    if (!_overlayControllers.contains(controller)) {
-      _overlayControllers.add(controller);
+  static void showOverlay(int level, OverlayPortalController controller) {
+    hideOverlaysDeeperThan(level - 1);
+    _activeOverlaysByLevel[level] = controller;
+    controller.show();
+  }
+
+  static void hideOverlaysDeeperThan(int level) {
+    final levelsToHide = _activeOverlaysByLevel.keys.where((l) => l > level).toList();
+    for (final l in levelsToHide) {
+      _activeOverlaysByLevel[l]?.hide();
+      _activeOverlaysByLevel.remove(l);
     }
   }
 
   static void hideAllOverlays() {
     _closeTimer?.cancel();
-    for (final controller in _overlayControllers) {
+    for (final controller in _activeOverlaysByLevel.values) {
       controller.hide();
     }
-    _overlayControllers.clear();
+    _activeOverlaysByLevel.clear();
     _resetState();
   }
 

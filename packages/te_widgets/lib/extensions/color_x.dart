@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 extension ColorX on Color {
   Color shade(int shade) {
@@ -66,5 +67,9 @@ extension ColorX on Color {
 
   Color darken([double amount = 0.1]) {
     return Color.lerp(this, Colors.black, amount)!;
+  }
+
+  Color adaptiveContrast(BuildContext context, [double amount = 0.1]) {
+    return Color.lerp(this, context.isDarkMode ? Colors.white : Colors.black, amount)!;
   }
 }

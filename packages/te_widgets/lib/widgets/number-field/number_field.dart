@@ -186,12 +186,18 @@ class _TNumberFieldState<T extends num?> extends State<TNumberField<T>>
   void onFocusChanged(bool hasFocus) {
     super.onFocusChanged(hasFocus);
 
-    if (!T.toString().contains('double')) return;
-
     if (hasFocus) {
-      textController.text = currentValue?.toString() ?? '';
-    } else if (wTheme.decimals != null) {
-      textController.text = currentValue?.toStringAsFixed(wTheme.decimals!) ?? '';
+      if (currentValue == 0 || currentValue == 0.0) {
+        textController.text = '';
+      } else if (T.toString().contains('double')) {
+        textController.text = currentValue?.toString() ?? '';
+      }
+    } else {
+      if (T.toString().contains('double') && wTheme.decimals != null) {
+        textController.text = currentValue?.toStringAsFixed(wTheme.decimals!) ?? '';
+      } else {
+        textController.text = wTheme.formatValue(currentValue);
+      }
     }
   }
 

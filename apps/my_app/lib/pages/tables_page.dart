@@ -73,12 +73,7 @@ class _TablesPageState extends State<TablesPage> {
           ...products.map(
             (product) => pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                TPdfGridTableHelper.fromHeaders(ctx, productHeaders, product, imageCache: imageCache),
-                pw.SizedBox(height: 15),
-                pw.Divider(thickness: 0.2),
-                pw.SizedBox(height: 15),
-              ],
+              children: [TPdfGridTableHelper.fromHeaders(ctx, productHeaders, product, imageCache: imageCache)],
             ),
           ),
         ],
@@ -151,14 +146,14 @@ class _TablesPageState extends State<TablesPage> {
               headers: [
                 TTableHeader.map("Name", (x) => x.name),
                 TTableHeader.map("Price", (x) => x.price),
-                TTableHeader.chip("Stock", (x) => x.stock, color: (_) => AppColors.info),
+                TTableHeader.chip("Stock", (x) => x.stock, color: (_) => context.theme.info),
                 TTableHeader.actions(
                   (x) => [
-                    TButtonGroupItem(tooltip: 'View', icon: Icons.remove_red_eye, color: AppColors.success, onPressed: (_) => {}),
-                    TButtonGroupItem(tooltip: 'Edit', icon: Icons.edit, color: AppColors.info, onPressed: (_) => {}),
-                    TButtonGroupItem(tooltip: 'Restore', icon: Icons.unarchive, color: AppColors.info, onPressed: (_) => {}),
-                    TButtonGroupItem(tooltip: 'Archive', icon: Icons.archive, color: AppColors.warning, onPressed: (_) => {}),
-                    TButtonGroupItem(tooltip: 'Delete', icon: Icons.delete_forever, color: AppColors.danger, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'View', icon: Icons.remove_red_eye, color: context.theme.success, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Edit', icon: Icons.edit, color: context.theme.info, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Restore', icon: Icons.unarchive, color: context.theme.info, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Archive', icon: Icons.archive, color: context.theme.warning, onPressed: (_) => {}),
+                    TButtonGroupItem(tooltip: 'Delete', icon: Icons.delete_forever, color: context.theme.danger, onPressed: (_) => {}),
                   ],
                   count: 5,
                 ),
@@ -171,7 +166,7 @@ class _TablesPageState extends State<TablesPage> {
               headers: [
                 TTableHeader.map("Name", (x) => x.name),
                 TTableHeader.map("Price", (x) => x.price),
-                TTableHeader.chip("Stock", (x) => x.stock, color: (x) => x.stock < 100 ? AppColors.warning : AppColors.success),
+                TTableHeader.chip("Stock", (x) => x.stock, color: (x) => x.stock < 100 ? context.theme.warning : context.theme.success),
               ],
               controller: reorderableController,
             ),

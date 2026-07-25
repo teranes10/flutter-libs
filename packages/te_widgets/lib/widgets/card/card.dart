@@ -72,6 +72,9 @@ class TCard extends StatelessWidget {
 
   final Color? shadowColor;
   final Color? borderColor;
+  final Color? hoverColor;
+  final Color? splashColor;
+  final Color? highlightColor;
 
   final List<BoxShadow>? shadow;
 
@@ -90,6 +93,9 @@ class TCard extends StatelessWidget {
     this.onTap,
     this.shadowColor,
     this.borderColor,
+    this.hoverColor,
+    this.splashColor,
+    this.highlightColor,
     this.shadow,
     this.clipBehavior,
   });
@@ -115,10 +121,16 @@ class TCard extends StatelessWidget {
           borderRadius: defaultBorderRadius,
           side: BorderSide(color: borderColor ?? colors.outlineVariant.withAlpha(75)),
         ),
-        child: InkWell(
-          borderRadius: defaultBorderRadius,
-          onTap: onTap,
-          child: Padding(padding: padding, child: child),
+        child: TBackgroundColorScope(
+          backgroundColor: backgroundColor ?? colors.surface,
+          child: InkWell(
+            borderRadius: defaultBorderRadius,
+            onTap: onTap,
+            hoverColor: hoverColor,
+            splashColor: splashColor,
+            highlightColor: highlightColor,
+            child: Padding(padding: padding, child: child),
+          ),
         ),
       ),
     );

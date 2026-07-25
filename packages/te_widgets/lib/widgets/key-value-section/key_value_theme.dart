@@ -98,13 +98,13 @@ class TKeyValueTheme {
     this.narrowValueFlex = 3,
     this.narrowGap = 12,
     this.gridCellPadding = const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-    this.gridCellGap = 4,
+    this.gridCellGap = 10,
     this.maxColWidthFraction = 0.7,
     this.minFractionFixed = 1.0,
     this.minFractionStructured = 0.9,
     this.minFractionCompact = 0.80,
     this.minFractionProse = 0.70,
-    this.additionalNaturalWidth = 12.5,
+    this.additionalNaturalWidth = 15,
     this.maxItemsPerRow = 12,
   });
 

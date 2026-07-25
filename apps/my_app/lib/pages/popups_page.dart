@@ -35,21 +35,25 @@ class _PopupsPageState extends State<PopupsPage> {
           Wrap(
             spacing: 16,
             children: [
-              TButton(color: AppColors.warning, text: 'Archive (Confirm)', onPressed: (_) => TAlertService.confirmArchive(context, () {})),
-              TButton(color: AppColors.info, text: 'Restore (Confirm)', onPressed: (_) => TAlertService.confirmRestore(context, () {})),
-              TButton(color: AppColors.danger, text: 'Delete (Confirm)', onPressed: (_) => TAlertService.confirmDelete(context, () {})),
               TButton(
-                color: AppColors.info,
+                color: context.theme.warning,
+                text: 'Archive (Confirm)',
+                onPressed: (_) => TAlertService.confirmArchive(context, () {}),
+              ),
+              TButton(color: context.theme.info, text: 'Restore (Confirm)', onPressed: (_) => TAlertService.confirmRestore(context, () {})),
+              TButton(color: context.theme.danger, text: 'Delete (Confirm)', onPressed: (_) => TAlertService.confirmDelete(context, () {})),
+              TButton(
+                color: context.theme.info,
                 text: 'Info Alert',
                 onPressed: (_) => TAlertService.info(context, 'Info', 'Just an informational alert'),
               ),
               TButton(
-                color: AppColors.success,
+                color: context.theme.success,
                 text: 'Success Alert',
                 onPressed: (_) => TAlertService.success(context, 'Success', 'Operation was successful'),
               ),
               TButton(
-                color: AppColors.warning,
+                color: context.theme.warning,
                 text: 'Warning Alert',
                 onPressed: (_) => TAlertService.warning(
                   context,
@@ -58,18 +62,18 @@ class _PopupsPageState extends State<PopupsPage> {
                 ),
               ),
               TButton(
-                color: AppColors.danger,
+                color: context.theme.danger,
                 text: 'Error Alert',
                 onPressed: (_) =>
                     TAlertService.error(context, 'Failed to Save', 'Something went wrong while saving your data. Please try again.'),
               ),
               TButton(
-                color: AppColors.info,
+                color: context.theme.info,
                 text: 'Progress Alert',
                 onPressed: (_) async {
                   final stream = Stream.periodic(const Duration(seconds: 1), (i) => 'Processing item ${i + 1} of 3...').take(3);
                   final controller = TAlertService.progress(context, 'In Progress', 'Starting...', progressStream: stream);
-                  
+
                   // Simulate work finishing and closing the dialog
                   await Future.delayed(const Duration(seconds: 4));
                   controller.close();
@@ -85,22 +89,22 @@ class _PopupsPageState extends State<PopupsPage> {
             spacing: 16,
             children: [
               TButton(
-                color: AppColors.info,
+                color: context.theme.info,
                 text: 'Info Toast',
                 onPressed: (_) => TToastService.info(context, 'Just an informational alert', 'Info'),
               ),
               TButton(
-                color: AppColors.info,
+                color: context.theme.info,
                 text: 'Info Toast without Title',
                 onPressed: (_) => TToastService.info(context, 'Just an informational alert'),
               ),
               TButton(
-                color: AppColors.success,
+                color: context.theme.success,
                 text: 'Success Toast',
                 onPressed: (_) => TToastService.success(context, 'Operation was successful', 'Success'),
               ),
               TButton(
-                color: AppColors.warning,
+                color: context.theme.warning,
                 text: 'Warning Toast',
                 onPressed: (_) => TToastService.warning(
                   context,
@@ -109,7 +113,7 @@ class _PopupsPageState extends State<PopupsPage> {
                 ),
               ),
               TButton(
-                color: AppColors.danger,
+                color: context.theme.danger,
                 text: 'Error Toast',
                 onPressed: (_) =>
                     TToastService.error(context, 'Something went wrong while saving your data. Please try again.', 'Failed to Save'),
@@ -125,7 +129,7 @@ class _PopupsPageState extends State<PopupsPage> {
             runSpacing: 16,
             children: [
               TButton(
-                color: AppColors.info,
+                color: context.theme.info,
                 text: 'Info SnackBar (Action)',
                 onPressed: (_) => TSnackbarService.info(
                   context,
@@ -136,12 +140,12 @@ class _PopupsPageState extends State<PopupsPage> {
                 ),
               ),
               TButton(
-                color: AppColors.success,
+                color: context.theme.success,
                 text: 'Success SnackBar',
                 onPressed: (_) => TSnackbarService.success(context, 'Project updated successfully.', title: 'Success'),
               ),
               TButton(
-                color: AppColors.warning,
+                color: context.theme.warning,
                 text: 'Warning SnackBar (Action)',
                 onPressed: (_) => TSnackbarService.warning(
                   context,
@@ -152,13 +156,13 @@ class _PopupsPageState extends State<PopupsPage> {
                 ),
               ),
               TButton(
-                color: AppColors.danger,
+                color: context.theme.danger,
                 text: 'Error SnackBar',
                 onPressed: (_) =>
                     TSnackbarService.error(context, 'An error occurred while uploading. Please try again.', title: 'Upload Failed'),
               ),
               TButton(
-                color: AppColors.primary,
+                color: context.theme.primary,
                 text: 'Custom Purple SnackBar',
                 onPressed: (_) => TSnackbarService.show(
                   context,
@@ -263,7 +267,7 @@ class _PopupsPageState extends State<PopupsPage> {
           const SizedBox(height: 12),
           const TDivider(),
           const Text('Custom color and thickness:'),
-          TDivider(color: AppColors.primary, thickness: 2, space: 40),
+          TDivider(color: context.theme.primary, thickness: 2, space: 40),
           const Text('Indented divider:'),
           const TDivider(indent: 50, endIndent: 50),
           const SizedBox(height: 12),
@@ -313,25 +317,25 @@ class _PopupsPageState extends State<PopupsPage> {
             children: [
               TTooltip(
                 message: 'Operation successful',
-                color: AppColors.success,
+                color: context.theme.success,
                 child: Icon(Icons.check_circle, color: Colors.green, size: 32),
               ),
               TTooltip(
                 message: 'Check this warning',
-                color: AppColors.warning,
+                color: context.theme.warning,
                 size: TTooltipSize.large,
                 position: TTooltipPosition.left,
                 child: Icon(Icons.warning, color: Colors.orange, size: 32),
               ),
               TTooltip(
                 message: 'Error occurred',
-                color: AppColors.danger,
+                color: context.theme.danger,
                 position: TTooltipPosition.right,
                 child: Icon(Icons.error, color: Colors.red, size: 32),
               ),
               TTooltip(
                 message: 'See more info',
-                color: AppColors.info,
+                color: context.theme.info,
                 icon: Icons.info_outline,
                 position: TTooltipPosition.right,
                 child: Icon(Icons.info, color: Colors.blue, size: 32),
@@ -364,7 +368,7 @@ class _PopupsPageState extends State<PopupsPage> {
                     ),
                   ],
                 ),
-                color: AppColors.secondary,
+                color: context.theme.secondary,
                 position: TTooltipPosition.right,
                 child: OutlinedButton.icon(
                   onPressed: () => _showSnackBar('Rich Content pressed'),

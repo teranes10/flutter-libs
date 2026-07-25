@@ -20,7 +20,12 @@ class TFieldProp<T> {
   ValueNotifier<T?>? _valueNotifier;
 
   /// The initial value of the property.
-  final T? initialValue;
+  T? _initialValue;
+  T? get initialValue => _initialValue;
+
+  void saveBaseline() {
+    _initialValue = _value;
+  }
 
   /// Callback fired when the value changes.
   final ValueChanged<T?>? onValueChanged;
@@ -30,7 +35,7 @@ class TFieldProp<T> {
 
   TFieldProp(T value, {bool useNotifier = false, this.onValueChanged})
       : _value = value,
-        initialValue = value,
+        _initialValue = value,
         _valueNotifier = useNotifier ? ValueNotifier(value) : null;
 
   T get value => _value as T;

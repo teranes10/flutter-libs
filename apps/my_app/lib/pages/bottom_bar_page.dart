@@ -79,7 +79,7 @@ class _BottomBarPage extends State<BottomBarPage> {
               items: _items,
               textPosition: TBottomBarTextPosition.rightActive,
               variant: TVariant.softOutline,
-              color: AppColors.danger,
+              color: context.theme.danger,
             ),
           ],
         ),

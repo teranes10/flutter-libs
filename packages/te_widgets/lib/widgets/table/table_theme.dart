@@ -17,6 +17,9 @@ class TTableTheme extends TListTheme {
   final TTableRowHeaderTheme headerTheme;
   final TTableMobileCardTheme mobileCardTheme;
   final TTableRowCardTheme rowCardTheme;
+  
+  /// Width of the left side list when using [TTableExpansionMode.side].
+  final double? expandSideListWidth;
 
   /// Creates a table theme.
   const TTableTheme({
@@ -41,6 +44,7 @@ class TTableTheme extends TListTheme {
     this.cardWidth,
     this.forceCardStyle,
     this.dense = false,
+    this.expandSideListWidth,
     required this.headerTheme,
     required this.mobileCardTheme,
     required this.rowCardTheme,
@@ -69,6 +73,7 @@ class TTableTheme extends TListTheme {
     double? cardWidth,
     bool? forceCardStyle,
     bool? dense,
+    double? expandSideListWidth,
     TTableRowHeaderTheme? headerTheme,
     TTableMobileCardTheme? mobileCardTheme,
     TTableRowCardTheme? rowCardTheme,
@@ -95,6 +100,7 @@ class TTableTheme extends TListTheme {
       cardWidth: cardWidth ?? this.cardWidth,
       forceCardStyle: forceCardStyle ?? this.forceCardStyle,
       dense: dense ?? this.dense,
+      expandSideListWidth: expandSideListWidth ?? this.expandSideListWidth,
       headerTheme: headerTheme ?? this.headerTheme,
       mobileCardTheme: mobileCardTheme ?? this.mobileCardTheme,
       rowCardTheme: rowCardTheme ?? this.rowCardTheme,

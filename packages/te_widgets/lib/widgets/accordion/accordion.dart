@@ -25,6 +25,7 @@ class TAccordion extends StatefulWidget {
 
 class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateMixin {
   late bool _isExpanded;
+  bool _isHovered = false;
   late final AnimationController _controller;
   late final Animation<double> _iconTurns;
   late final Animation<double> _heightFactor;
@@ -64,9 +65,14 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
     final colors = context.colors;
     final accordionTheme = widget.theme ?? TAccordionTheme.defaultTheme(colors);
 
+    final resolvedBgColor = accordionTheme.backgroundColor == colors.surface
+        ? (TBackgroundColorScope.maybeOf(context) ?? colors.surface)
+        : accordionTheme.backgroundColor;
+
     return TCard(
       padding: EdgeInsets.zero,
-      backgroundColor: accordionTheme.backgroundColor,
+      backgroundColor: resolvedBgColor,
+      borderColor: accordionTheme.borderColor,
       borderRadius: BorderRadius.circular(accordionTheme.borderRadius),
       elevation: accordionTheme.elevation,
       child: Column(
@@ -74,6 +80,14 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
         children: [
           InkWell(
             onTap: _handleTap,
+            onHover: (hovered) {
+              setState(() {
+                _isHovered = hovered;
+              });
+            },
+            hoverColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(accordionTheme.borderRadius),
               bottom: Radius.circular(_isExpanded ? 0 : accordionTheme.borderRadius),
@@ -83,7 +97,17 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
               child: Row(
                 children: [
                   if (widget.leading != null) ...[
-                    Icon(widget.leading, size: 20, color: colors.onSurfaceVariant),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          color: _isHovered ? colors.primaryContainer.withAlpha(128) : colors.onSurface.withAlpha(13),
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Icon(
+                        widget.leading,
+                        size: 20,
+                        color: _isHovered ? colors.primary : colors.onSurfaceVariant,
+                      ),
+                    ),
                     const SizedBox(width: 12),
                   ],
                   Expanded(
@@ -95,7 +119,7 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w400,
-                            color: colors.onSurface,
+                            color: _isHovered ? colors.onSurfaceVariant : colors.onSurface,
                           ),
                         ),
                         if (widget.subtitle != null)
@@ -112,7 +136,11 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
                   ),
                   RotationTransition(
                     turns: _iconTurns,
-                    child: const Icon(Icons.expand_more, size: 20),
+                    child: Icon(
+                      Icons.expand_more,
+                      size: 20,
+                      color: _isHovered ? colors.primary : colors.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),

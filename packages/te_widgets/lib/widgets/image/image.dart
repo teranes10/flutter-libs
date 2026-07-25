@@ -153,10 +153,20 @@ class TImage extends StatefulWidget with TPopupMixin {
   /// is used unchanged.
   final bool forceCache;
 
+  /// Direct raw bytes for the image (optional).
+  final Uint8List? bytes;
+
+  /// Whether to show the title and subtitle in a translucent hover overlay on top of the image.
+  final bool showTitleSubtitleOverlayOnHover;
+
+  /// Alias for [showTitleSubtitleOverlayOnHover].
+  final bool overlayTitleSubtitle;
+
   /// Creates an image widget.
   const TImage({
     super.key,
     this.url,
+    this.bytes,
     this.size = 80,
     this.previewSize = 350,
     this.aspectRatio = 1,
@@ -177,12 +187,15 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.textOverflow,
     this.maxLines,
     this.forceCache = false,
+    this.showTitleSubtitleOverlayOnHover = false,
+    this.overlayTitleSubtitle = false,
   });
 
   /// Creates a circular image widget.
   const TImage.circle({
     super.key,
     this.url,
+    this.bytes,
     this.size = 80,
     this.previewSize = 350,
     this.aspectRatio = 1,
@@ -203,6 +216,8 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.maxLines,
     this.textOverflow,
     this.forceCache = false,
+    this.showTitleSubtitleOverlayOnHover = false,
+    this.overlayTitleSubtitle = false,
   });
 
   /// Creates a profile image with default styling.
@@ -337,6 +352,9 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     );
   }
 
+  bool _isHovered = false;
+  bool _isTappedVisible = false;
+
   /// Builds the actual image widget.
   ///
   /// When [forceCache] is true and [bytes] are available, uses [Image.memory].
@@ -344,19 +362,21 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   /// shimmer placeholder — never [CachedNetworkImage] — so no network request
   /// is fired while waiting for the persistent store to respond.
   Widget _buildImage({Uint8List? bytes}) {
-    if (widget.url == null || widget.url!.isEmpty) {
-      return fallbackImage;
-    }
+    final effectiveBytes = bytes ?? widget.bytes;
 
-    if (bytes != null) {
+    if (effectiveBytes != null) {
       return Image.memory(
         key: const ValueKey('loaded'),
-        bytes,
+        effectiveBytes,
         width: widget.size - widget.padding,
         height: (widget.size - widget.padding) / widget.aspectRatio,
         fit: widget.fit,
         errorBuilder: (_, __, ___) => fallbackImage,
       );
+    }
+
+    if (widget.url == null || widget.url!.isEmpty) {
+      return fallbackImage;
     }
 
     // forceCache=true but bytes haven't resolved yet — shimmer while we wait.
@@ -424,7 +444,72 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     );
 
     final hasText = !widget.title.isNullOrBlank || !widget.subTitle.isNullOrBlank;
-    final content = hasText
+    final bool shouldOverlay = (widget.showTitleSubtitleOverlayOnHover || widget.overlayTitleSubtitle) && hasText;
+    final bool isOverlayVisible = widget.overlayTitleSubtitle || _isHovered || _isTappedVisible;
+
+    Widget frameWithOverlay = imageFrame;
+    if (shouldOverlay) {
+      frameWithOverlay = MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: Stack(
+          children: [
+            imageFrame,
+            Positioned.fill(
+              child: ClipPath(
+                clipper: ShapeBorderClipper(shape: widget.border),
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: isOverlayVisible ? 1.0 : 0.0,
+                  child: Container(
+                    alignment: Alignment.bottomLeft,
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black87],
+                        stops: [0.3, 1.0],
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (!widget.title.isNullOrBlank)
+                          Text(
+                            widget.title!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: widget.titleColor ?? Colors.white,
+                            ),
+                          ),
+                        if (!widget.subTitle.isNullOrBlank)
+                          Text(
+                            widget.subTitle!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w400,
+                              color: widget.subTitleColor ?? Colors.white70,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final content = (hasText && !shouldOverlay)
         ? Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -458,11 +543,20 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
               )
             ],
           )
-        : imageFrame;
+        : frameWithOverlay;
+
+    final bool canInteract = !widget.disabled && (!widget.url.isNullOrBlank || widget.bytes != null);
 
     return buildWithDropdownTarget(
       child: InkWell(
-        onTap: widget.disabled || widget.url.isNullOrBlank ? null : () => showPopup(context),
+        onTap: () {
+          if (widget.showTitleSubtitleOverlayOnHover && !widget.overlayTitleSubtitle) {
+            setState(() => _isTappedVisible = !_isTappedVisible);
+          }
+          if (canInteract) {
+            showPopup(context);
+          }
+        },
         customBorder: widget.border,
         hoverColor: colors.primaryContainer,
         splashColor: colors.primary,
@@ -473,18 +567,20 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
 
   @override
   Widget getContentWidget(BuildContext context) {
-    // For the zoom preview, use Image.memory bytes if already cached in memory.
-    final cachedBytes = widget.forceCache && widget.url != null ? _forceCacheMemory[widget.url!] : null;
-
     ImageProvider imageProvider;
-    if (cachedBytes != null) {
-      imageProvider = MemoryImage(cachedBytes);
+    if (widget.bytes != null) {
+      imageProvider = MemoryImage(widget.bytes!);
     } else {
-      imageProvider = CachedNetworkImageProvider(
-        widget.url!,
-        cacheKey: widget.cacheKey,
-        cacheManager: widget.cacheManager,
-      );
+      final cachedBytes = widget.forceCache && widget.url != null ? _forceCacheMemory[widget.url!] : null;
+      if (cachedBytes != null) {
+        imageProvider = MemoryImage(cachedBytes);
+      } else {
+        imageProvider = CachedNetworkImageProvider(
+          widget.url!,
+          cacheKey: widget.cacheKey,
+          cacheManager: widget.cacheManager,
+        );
+      }
     }
 
     final photoView = ClipPath(

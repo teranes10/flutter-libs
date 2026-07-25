@@ -48,8 +48,7 @@ class _TDropdownOverlayItemState extends State<TDropdownOverlayItem> {
     if (_overlayController.isShowing) {
       _overlayController.hide();
     } else {
-      TDropdownOverlayController.registerOverlay(_overlayController);
-      _overlayController.show();
+      TDropdownOverlayController.showOverlay(widget.level + 1, _overlayController);
     }
   }
 
@@ -66,6 +65,8 @@ class _TDropdownOverlayItemState extends State<TDropdownOverlayItem> {
 
     if (widget.item.hasChildren) {
       _scheduleSubOverlay();
+    } else {
+      _scheduleCloseSubOverlays();
     }
   }
 
@@ -85,8 +86,16 @@ class _TDropdownOverlayItemState extends State<TDropdownOverlayItem> {
     _hoverTimer?.cancel();
     _hoverTimer = Timer(widget.theme.showDelay, () {
       if (mounted && _isHovered) {
-        TDropdownOverlayController.registerOverlay(_overlayController);
-        _overlayController.show();
+        TDropdownOverlayController.showOverlay(widget.level + 1, _overlayController);
+      }
+    });
+  }
+
+  void _scheduleCloseSubOverlays() {
+    _hoverTimer?.cancel();
+    _hoverTimer = Timer(widget.theme.showDelay, () {
+      if (mounted && _isHovered) {
+        TDropdownOverlayController.hideOverlaysDeeperThan(widget.level);
       }
     });
   }

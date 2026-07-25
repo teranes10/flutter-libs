@@ -126,8 +126,7 @@ class _DropdownState extends State<TDropdown> {
       TDropdownOverlayController.hideAllOverlays();
     } else {
       TDropdownOverlayController.hideAllOverlays();
-      TDropdownOverlayController.registerOverlay(_overlayController);
-      _overlayController.show();
+      TDropdownOverlayController.showOverlay(0, _overlayController);
     }
   }
 
@@ -149,8 +148,7 @@ class _DropdownState extends State<TDropdown> {
     _hoverTimer = Timer(TSidebarConstants.hoverDelay, () {
       if (mounted && _isHovered) {
         TDropdownOverlayController.hideAllOverlays();
-        TDropdownOverlayController.registerOverlay(_overlayController);
-        _overlayController.show();
+        TDropdownOverlayController.showOverlay(0, _overlayController);
       }
     });
   }

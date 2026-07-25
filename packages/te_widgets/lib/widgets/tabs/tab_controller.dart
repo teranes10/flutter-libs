@@ -21,13 +21,21 @@ import 'package:flutter/foundation.dart';
 /// )
 /// ```
 class TTabController<T> extends ValueNotifier<T?> {
+  /// Callback to intercept and validate tab changes.
+  /// If it returns false, the tab transition is prevented.
+  Future<bool> Function(T? from, T to)? beforeChange;
+
   /// Creates a tab controller with an optional initial value.
   TTabController({T? initialValue}) : super(initialValue);
 
   /// Selects a tab by its value.
   ///
   /// This will notify all listeners and update any widgets using this controller.
-  void selectTab(T value) {
+  Future<void> selectTab(T value) async {
+    if (beforeChange != null && this.value != value) {
+      final allowed = await beforeChange!(this.value, value);
+      if (!allowed) return;
+    }
     this.value = value;
   }
 

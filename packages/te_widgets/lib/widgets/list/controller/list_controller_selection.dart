@@ -78,7 +78,7 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
   void selectItemKey(K key) {
     if (selectionMode == TSelectionMode.none) return;
 
-    final newSelectedKeys = selectionMode == TSelectionMode.single ? LinkedHashSet<K>.from([key]) : LinkedHashSet<K>.from(selectedKeys)
+    final newSelectedKeys = selectionMode == TSelectionMode.single ? copyKeySet([key]) : copyKeySet(selectedKeys)
       ..add(key);
 
     updateSelectionState(newSelectedKeys, who: 'selectItemKey');
@@ -87,14 +87,14 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
   void deselectItemKey(K key) {
     if (selectionMode == TSelectionMode.none) return;
 
-    final newSelectedKeys = LinkedHashSet<K>.from(selectedKeys)..remove(key);
+    final newSelectedKeys = copyKeySet(selectedKeys)..remove(key);
     updateSelectionState(newSelectedKeys, who: 'deselectItemKey');
   }
 
   void selectItemKeys(Iterable<K> keys) {
     if (selectionMode != TSelectionMode.multiple || keys.isEmpty) return;
 
-    final newSelectedKeys = LinkedHashSet<K>.from(selectedKeys)..addAll(keys);
+    final newSelectedKeys = copyKeySet(selectedKeys)..addAll(keys);
     updateSelectionState(newSelectedKeys, who: 'selectItemKeys');
   }
 
@@ -112,7 +112,7 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
 
   void clearSelection() {
     if (selectedKeys.isEmpty) return;
-    updateSelectionState(LinkedHashSet<K>(), who: 'clearSelection');
+    updateSelectionState(createEmptyKeySet(), who: 'clearSelection');
   }
 
   void toggleSelectAll() {

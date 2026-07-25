@@ -92,7 +92,7 @@ class TAlertTheme {
       backgroundColor: colors.surface,
       titleStyle: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
       contentStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w300, color: colors.onSurface),
-      closeButtonColor: AppColors.grey,
+      closeButtonColor: colors.onSurfaceVariant.toMaterial(),
     );
   }
 }

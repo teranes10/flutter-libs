@@ -47,7 +47,7 @@ class CrudRiverpodPage extends ConsumerWidget {
         TTableHeader.map('Title', (x) => x.title),
         TTableHeader.map('Category', (x) => x.category),
         TTableHeader.map('Price', (x) => x.price),
-        TTableHeader.chip('Stock', (x) => x.stock, color: (_) => AppColors.info),
+        TTableHeader.chip('Stock', (x) => x.stock, color: (_) => context.theme.info),
       ],
       createForm: () => ProductForm(),
       editForm: (ProductDto item) => ProductForm(item),

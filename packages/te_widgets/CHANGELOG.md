@@ -1,3 +1,14 @@
+# 2.6.6
+
+- **Table Details Side List Improvements**:
+  - `TTableRowCard` now natively supports `onTap`, `hoverColor`, `splashColor`, and `highlightColor`, passing them to its internal `TCard`.
+  - Configured hover state to display a semi-transparent version of the selected color.
+  - Removed excessive right margins to achieve a full-width tile hover effect.
+  - Wrapped `TImage` headers in `IgnorePointer` to prevent it from swallowing row tap events.
+- **Select & MultiSelect Improvements**:
+  - Enhanced empty states for dropdowns to display a minimal "No items found" message, avoiding oversized icons on small dropdown widths.
+  - Smoothed initial `lazy` popup height scaling by enforcing a base height equivalent to 3 list items (~175px average) instead of defaulting to a large container limit, preventing harsh popup shrinkage after loading.
+
 # 2.6.5
 
 - **Mobile Page Mode Navigation (`TPageWrapper`)**:

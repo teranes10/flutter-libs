@@ -17,16 +17,15 @@ class TModalService {
   static Future<T?> show<T>(
     BuildContext context,
     TModalWidgetBuilder<T> builder, {
-    TModalWidgetBuilder? header,
-    TModalWidgetBuilder? footer,
     bool persistent = false,
     double? width,
     double? minWidth,
     double? minHeight,
     bool fullscreen = false,
-    double? gap,
+    double gap = 50,
     String? title,
     bool? showCloseButton,
+    Widget Function(BuildContext context, Widget child)? layoutBuilder,
   }) {
     return showDialog<T>(
       context: context,
@@ -36,21 +35,87 @@ class TModalService {
 
         return TModal(
           builder.call(mContext),
-          header: header?.call(mContext),
-          footer: footer?.call(mContext),
           persistent: persistent,
           width: width,
-          minWidth: minWidth,
-          minHeight: minHeight,
           fullscreen: fullscreen,
           gap: gap,
           title: title,
           showCloseButton: showCloseButton,
+          layoutBuilder: layoutBuilder,
           onClose: () {
             Navigator.of(dialogContext).pop();
           },
         );
       },
+    );
+  }
+
+  /// Shows an adaptive modal dialog.
+  ///
+  /// On desktop, this displays a regular modal using [show].
+  /// On mobile, it pushes a new page using [TPageWrapper].
+  static Future<T?> showAdaptive<T>(
+    BuildContext context,
+    TModalWidgetBuilder<T> builder, {
+    String? title,
+    String? subTitle,
+    String? imageUrl,
+    String? description,
+    bool persistent = false,
+    double? width,
+    bool? showCloseButton,
+    Widget Function(BuildContext context, Widget child)? layoutBuilder,
+  }) {
+    final layout = layoutBuilder ??
+        (ctx, child) => defaultAdaptiveLayoutBuilder(
+              ctx,
+              child,
+              title: title,
+              subTitle: subTitle,
+              imageUrl: imageUrl,
+              description: description,
+              onBackPressed: () => Navigator.of(ctx).pop(),
+            );
+
+    // Mobile: always push a full page.
+    if (!context.isDesktop) {
+      return Navigator.of(context).push<T>(
+        MaterialPageRoute(
+          builder: (mContext) {
+            final modalCtx = TModalContext<T>(mContext);
+            return layout(mContext, builder(modalCtx));
+          },
+        ),
+      );
+    }
+
+    return show<T>(
+      context,
+      builder,
+      persistent: persistent,
+      width: width,
+      layoutBuilder: layout,
+    );
+  }
+
+  /// Default layout builder for [showAdaptive] mobile (page push) mode.
+  static Widget defaultAdaptiveLayoutBuilder(
+    BuildContext context,
+    Widget child, {
+    String? title,
+    String? subTitle,
+    String? imageUrl,
+    String? description,
+    VoidCallback? onBackPressed,
+  }) {
+    return TPageWrapper(
+      title: title,
+      subTitle: subTitle,
+      imageUrl: imageUrl,
+      description: description,
+      onBackPressed: onBackPressed,
+      shrinkWrap: true,
+      child: child,
     );
   }
 }

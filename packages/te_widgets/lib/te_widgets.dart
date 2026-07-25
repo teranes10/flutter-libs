@@ -43,10 +43,12 @@ export 'helpers/t_formatter.dart';
 export 'helpers/color_helper.dart';
 export 'helpers/countries.dart';
 export 'helpers/debouncer.dart';
+export 'helpers/popup_position.dart';
 export 'helpers/search_filter.dart';
 export 'helpers/validations.dart';
 export 'helpers/width_helper.dart';
 export 'helpers/widget_state_property_helper.dart';
+export 'helpers/fullscreen/fullscreen.dart';
 
 export 'layouts/widgets/sidebar/overlay/sidebar_overlay_controller.dart';
 export 'layouts/widgets/sidebar/overlay/sidebar_overlay_item.dart';
@@ -82,6 +84,7 @@ export 'widgets/button/button.dart';
 export 'widgets/breadcrumbs/breadcrumbs.dart';
 
 export 'widgets/card/card.dart';
+export 'widgets/card/background_color_scope.dart';
 
 export 'widgets/checkbox/checkbox.dart';
 export 'widgets/checkbox/checkbox_group.dart';
@@ -191,6 +194,8 @@ export 'widgets/radio/radio_config.dart';
 
 export 'widgets/reactive-selector/reactive_selector.dart';
 
+export 'widgets/scroll-top/scroll_top.dart';
+
 export 'widgets/stepper/stepper.dart';
 
 export 'widgets/scrollbar/scrollbar.dart';
@@ -211,6 +216,7 @@ export 'widgets/table/row-header/table_row_header.dart';
 
 export 'widgets/table/table_header.dart';
 export 'widgets/table/table_scope.dart';
+export 'widgets/table/table_cell_scope.dart';
 export 'widgets/table/table_theme.dart';
 export 'widgets/table/table.dart';
 export 'widgets/table/row_expand.dart';

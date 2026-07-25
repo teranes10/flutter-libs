@@ -114,7 +114,8 @@ class TListTheme {
       infiniteScrollFooterBuilder: (BuildContext context) {
         final controller = TListScope.maybeOf(context)?.controller;
         final showLoading = controller != null ? controller.listItems.isNotEmpty && controller.isLoading : false;
-        final showNoMoreItems = controller != null ? controller.page > 1 && !controller.hasMoreItems : false;
+        final isNotFirstPage = controller != null ? controller.page > 1 : false;
+        final hasMoreItems = controller != null ? controller.hasMoreItems : false;
 
         if (showLoading) {
           return Container(
@@ -130,15 +131,14 @@ class TListTheme {
           );
         }
 
-        if (showNoMoreItems) {
+        if (isNotFirstPage && !hasMoreItems) {
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text('No more items to display.',
                 style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant), textAlign: TextAlign.center),
           );
         }
-
-        return const SizedBox(height: 40);
+        return hasMoreItems ? const SizedBox(height: 40) : SizedBox.fromSize();
       },
       dragProxyDecorator: (Widget child, int index, Animation<double> animation) {
         return AnimatedBuilder(

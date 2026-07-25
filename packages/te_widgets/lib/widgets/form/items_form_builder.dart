@@ -105,6 +105,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
           padding: EdgeInsets.zero,
           controller: _listController,
           itemBuilder: (ctx, item, i) => TCard(
+              backgroundColor: context.getBackgroundColor(context.colors.surface),
               padding: EdgeInsets.all(4),
               margin: EdgeInsets.only(bottom: 10),
               child: Stack(

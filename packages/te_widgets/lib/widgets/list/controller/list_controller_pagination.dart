@@ -42,16 +42,16 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   int get totalDisplayItems => value.displayItems.length;
 
   /// The total number of pages.
-  int get totalPages => totalItems > 0 ? (totalItems / itemsPerPage).ceil() : 1;
+  int get totalPages => totalItems > 0 ? (itemsPerPage == -1 ? 1 : (totalItems / itemsPerPage).ceil()) : 1;
 
   /// The computed items per page (adjusted for last page).
-  int get computedItemsPerPage => itemsPerPage.clamp(0, totalDisplayItems);
+  int get computedItemsPerPage => itemsPerPage == -1 ? totalDisplayItems : itemsPerPage.clamp(0, totalDisplayItems);
 
   /// The starting index of the current page.
-  int get pageStartedAt => totalDisplayItems == 0 ? 0 : ((page - 1) * itemsPerPage) + 1;
+  int get pageStartedAt => totalDisplayItems == 0 ? 0 : (itemsPerPage == -1 ? 1 : ((page - 1) * itemsPerPage) + 1);
 
   /// The ending index of the current page.
-  int get pageEndedAt => totalDisplayItems == 0 ? 0 : pageStartedAt + totalDisplayItems - 1;
+  int get pageEndedAt => totalDisplayItems == 0 ? 0 : (itemsPerPage == -1 ? totalDisplayItems : pageStartedAt + totalDisplayItems - 1);
 
   /// Whether there is a next page.
   /// For cursor pagination, checks hasMoreItems (from server's hasNextPage).
@@ -223,7 +223,9 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     final filteredCount = filteredItems.length;
 
     List<TListItem<T, K>> rawDisplayItems;
-    if (append && value.displayItems.isNotEmpty) {
+    if (effectiveItemsPerPage == -1) {
+      rawDisplayItems = filteredItems.map((item) => itemFactory(item)).toList();
+    } else if (append && value.displayItems.isNotEmpty) {
       final startIndex = value.displayItems.length;
       final endIndex = (startIndex + effectiveItemsPerPage).clamp(0, filteredCount);
 
@@ -251,7 +253,11 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       search: effectiveSearch,
       displayItems: rawDisplayItems,
       totalItems: filteredCount,
-      hasMoreItems: rawDisplayItems.length < filteredCount,
+      hasMoreItems: effectiveItemsPerPage == -1
+          ? false
+          : append
+              ? rawDisplayItems.length < filteredCount
+              : ((effectivePage - 1) * effectiveItemsPerPage + rawDisplayItems.length) < filteredCount,
       loading: false,
       fetching: false,
       error: null,
@@ -328,7 +334,10 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
         who: '$who _loadData',
         totalItems: result.totalItems,
         displayItems: rawDisplayItems,
-        hasMoreItems: result.hasNextPage ?? (rawDisplayItems.length < result.totalItems),
+        hasMoreItems: result.hasNextPage ??
+            (append
+                ? rawDisplayItems.length < result.totalItems
+                : ((page ?? value.page) - 1) * (itemsPerPage ?? value.itemsPerPage) + rawDisplayItems.length < result.totalItems),
         currentCursor: cursor,
         nextCursor: result.nextCursor,
         cursorHistory: newCursorHistory,

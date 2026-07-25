@@ -124,29 +124,37 @@ class TListView<T, K> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget listView = CustomScrollView(
-      controller: shrinkWrap ? null : scrollController,
-      shrinkWrap: shrinkWrap,
-      physics: shrinkWrap ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics(),
-      slivers: buildSlivers(context),
-    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isUnbounded = !constraints.hasBoundedHeight;
+        final bool effectiveShrinkWrap = shrinkWrap || isUnbounded;
 
-    if (!shrinkWrap) {
-      if (height != null) {
-        listView = SizedBox(height: height, child: listView);
-      } else {
-        listView = Expanded(child: listView);
-      }
-    }
+        Widget listView = CustomScrollView(
+          controller: effectiveShrinkWrap ? null : scrollController,
+          shrinkWrap: effectiveShrinkWrap,
+          physics: effectiveShrinkWrap ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics(),
+          slivers: buildSlivers(context),
+        );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (headerBuilder != null && headerSticky == true) headerBuilder!(context),
-        if (loading && items.isEmpty && loadingBuilder != null) loadingBuilder!(context),
-        listView,
-        if (footerBuilder != null && footerSticky == true) footerBuilder!(context),
-      ],
+        if (!effectiveShrinkWrap) {
+          if (height != null) {
+            listView = SizedBox(height: height, child: listView);
+          } else {
+            listView = Expanded(child: listView);
+          }
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (headerBuilder != null && headerSticky == true) headerBuilder!(context),
+            if (loading && items.isEmpty && loadingBuilder != null && headerSticky == true) loadingBuilder!(context),
+            listView,
+            if (footerBuilder != null && footerSticky == true) footerBuilder!(context),
+          ],
+        );
+      },
     );
   }
 
@@ -158,6 +166,11 @@ class TListView<T, K> extends StatelessWidget {
       if (headerBuilder != null && headerSticky != true)
         SliverToBoxAdapter(
           child: Container(key: const ValueKey('list_header'), child: headerBuilder!(context)),
+        ),
+      // Non-sticky loading indicator
+      if (loading && items.isEmpty && loadingBuilder != null && headerSticky != true)
+        SliverToBoxAdapter(
+          child: loadingBuilder!(context),
         ),
       // Main content with padding
       SliverPadding(

@@ -80,8 +80,64 @@ abstract class TFormBase {
   /// Returns true if there are no validation errors.
   bool get isValid => validationErrors.isEmpty;
 
+  /// Returns true if any field value differs from its initial value.
+  bool get isChanged => _getIsChanged(allFields);
+
+  bool _getIsChanged(List<TFormField> fieldsToCheck) {
+    for (var field in fieldsToCheck) {
+      final prop = field.prop;
+      if (prop != null && prop.value != prop.initialValue) {
+        return true;
+      }
+      if (field._field is TFormBuilder) {
+        final fb = field._field as TFormBuilder;
+        if (fb.input != null && fb.input!.isChanged) {
+          return true;
+        } else if (fb.fields != null && _getIsChanged(fb.fields!)) {
+          return true;
+        }
+      } else if (field._field is TItemsFormBuilder) {
+        final items = prop?.value;
+        if (items is List) {
+          for (var item in items) {
+            if (item is TFormBase && item.isChanged) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   /// Resets all fields to their initial values.
   void reset() => _resetFields(allFields);
+
+  /// Saves current values of all properties as the baseline initial values.
+  void saveBaseline() => _saveBaselineFields(allFields);
+
+  void _saveBaselineFields(List<TFormField> fieldsToSave) {
+    for (var field in fieldsToSave) {
+      field.prop?.saveBaseline();
+      if (field._field is TFormBuilder) {
+        final fb = field._field as TFormBuilder;
+        if (fb.input != null) {
+          fb.input!.saveBaseline();
+        } else if (fb.fields != null) {
+          _saveBaselineFields(fb.fields!);
+        }
+      } else if (field._field is TItemsFormBuilder) {
+        final items = field.prop?.value;
+        if (items is List) {
+          for (var item in items) {
+            if (item is TFormBase) {
+              item.saveBaseline();
+            }
+          }
+        }
+      }
+    }
+  }
 
   void _resetFields(List<TFormField> fieldsToReset) {
     for (var field in fieldsToReset) {

@@ -20,9 +20,15 @@ import 'package:my_app/pages/pickers_page.dart';
 import 'package:my_app/pages/popups_page.dart';
 import 'package:my_app/pages/select_fields_page.dart';
 import 'package:my_app/pages/tables_page.dart';
+import 'package:my_app/pages/tables_bottom_page.dart';
+import 'package:my_app/pages/tables_side_page.dart';
+import 'package:my_app/pages/tables_dialog_page.dart';
+import 'package:my_app/pages/tables_page_mode_page.dart';
 import 'package:my_app/pages/cursor_pagination_page.dart';
 import 'package:my_app/pages/lists_page.dart';
 import 'package:my_app/pages/stepper_page.dart';
+import 'package:my_app/pages/tables_sub_item_page.dart';
+import 'package:my_app/pages/tables_create_builder_page.dart';
 import 'package:my_app/pages/tabs_page.dart';
 
 final sidebarItems = [
@@ -45,7 +51,55 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.list, text: 'Lists', route: '/lists', page: const ListsPage()),
   TSidebarItem(icon: Icons.linear_scale, text: 'Stepper', route: '/stepper', page: const StepperPage()),
   TSidebarItem(icon: Icons.message, text: 'Popups', route: '/popups', page: const PopupsPage()),
-  TSidebarItem(icon: Icons.table_chart, text: 'Tables', route: '/tables', page: const TablesPage()),
+  TSidebarItem(
+    icon: Icons.table_chart,
+    text: 'Tables',
+    route: '/tables',
+    children: [
+      TSidebarItem(
+        icon: Icons.table_chart_outlined,
+        text: 'Basic Tables',
+        route: 'basic',
+        page: const TablesPage(),
+      ),
+      TSidebarItem(
+        icon: Icons.table_rows,
+        text: 'Bottom Expansion',
+        route: 'bottom',
+        page: const TablesBottomPage(),
+      ),
+      TSidebarItem(
+        icon: Icons.view_sidebar,
+        text: 'Side Expansion',
+        route: 'side',
+        page: const TablesSidePage(),
+      ),
+      TSidebarItem(
+        icon: Icons.web_asset,
+        text: 'Dialog Expansion',
+        route: 'dialog',
+        page: const TablesDialogPage(),
+      ),
+      TSidebarItem(
+        icon: Icons.article,
+        text: 'Page Expansion',
+        route: 'page',
+        page: const TablesPageModePage(),
+      ),
+      TSidebarItem(
+        icon: Icons.filter_none_outlined,
+        text: 'Sub-Items Table',
+        route: 'sub-item',
+        page: const TablesSubItemPage(),
+      ),
+      TSidebarItem(
+        icon: Icons.add_box_outlined,
+        text: 'Create Builder Table',
+        route: 'create-builder',
+        page: const TablesCreateBuilderPage(),
+      ),
+    ],
+  ),
   TSidebarItem(icon: Icons.navigate_next, text: 'Cursor Pagination', route: '/cursor-pagination', page: const CursorPaginationPage()),
   TSidebarItem(icon: Icons.grid_view, text: 'Grid', route: '/grid', page: const GridPage()),
   TSidebarItem(icon: Icons.layers, text: 'Layout', route: '/layout', page: const LayoutPage()),

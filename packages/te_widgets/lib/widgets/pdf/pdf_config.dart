@@ -62,6 +62,8 @@ class TPdfWidgetHelper {
       return _convertTImage(colors, widget, imageCache: imageCache);
     } else if (widget is TChip) {
       return _convertTChip(colors, widget);
+    } else if (widget is TRating) {
+      return _convertTRating(colors, widget);
     }
 
     // Fallback for unknown widgets
@@ -188,6 +190,61 @@ class TPdfWidgetHelper {
           fontSize: 8,
         ),
       ),
+    );
+  }
+
+  static pw.Widget _convertTRating(fm.ColorScheme colors, TRating widget) {
+    final ratedColor = (widget.color ?? fm.Colors.amber).toPdfColor();
+    final unratedColor = (widget.unratedColor ?? colors.surfaceContainerHighest).toPdfColor();
+    final currentValue = widget.value ?? 0.0;
+
+    String toHex(dynamic color) {
+      final r = (color.red * 255).toInt().toRadixString(16).padLeft(2, '0');
+      final g = (color.green * 255).toInt().toRadixString(16).padLeft(2, '0');
+      final b = (color.blue * 255).toInt().toRadixString(16).padLeft(2, '0');
+      return '#$r$g$b';
+    }
+
+    final starWidgets = <pw.Widget>[];
+
+    for (int i = 0; i < widget.itemCount; i++) {
+      final ratingValue = i + 1.0;
+      final isRated = currentValue >= ratingValue;
+      final isHalfRated = !isRated && currentValue >= (ratingValue - 0.5) && widget.allowHalfRating;
+
+      final color = (isRated || isHalfRated) ? ratedColor : unratedColor;
+      final colorHex = toHex(color);
+
+      String svgPath;
+      if (isRated) {
+        svgPath = '<path fill="$colorHex" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>';
+      } else if (isHalfRated) {
+        svgPath =
+            '<path fill="$colorHex" d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4V6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/>';
+      } else {
+        svgPath =
+            '<path fill="$colorHex" d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/>';
+      }
+
+      final svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">$svgPath</svg>';
+
+      starWidgets.add(
+        pw.Container(
+          width: widget.itemSize * 0.65,
+          height: widget.itemSize * 0.65,
+          child: pw.SvgImage(svg: svg),
+        ),
+      );
+    }
+
+    return pw.Row(
+      mainAxisSize: pw.MainAxisSize.min,
+      children: [
+        for (int i = 0; i < starWidgets.length; i++) ...[
+          if (i > 0) pw.SizedBox(width: widget.spacing > 0 ? widget.spacing * 0.3 : 0.3),
+          starWidgets[i],
+        ]
+      ],
     );
   }
 }

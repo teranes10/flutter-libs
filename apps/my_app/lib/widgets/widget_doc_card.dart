@@ -134,7 +134,7 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.primary.withAlpha(13), Colors.transparent],
+                colors: [context.theme.primary.withAlpha(13), Colors.transparent],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -150,8 +150,8 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                     if (widget.icon != null)
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: AppColors.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
-                        child: Icon(widget.icon, color: AppColors.primary, size: 24),
+                        decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                        child: Icon(widget.icon, color: context.theme.primary, size: 24),
                       ),
                     if (widget.icon != null) const SizedBox(width: 10),
                     // Title and Subtitle
@@ -237,7 +237,7 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                             size: TButtonSize.xs,
                             type: TButtonType.tonal,
                             icon: _codeCopied ? Icons.check : Icons.copy,
-                            color: _codeCopied ? AppColors.success : AppColors.primary,
+                            color: _codeCopied ? context.theme.success : context.theme.primary,
                             onTap: _copyCode,
                           ),
                         ),
@@ -330,10 +330,13 @@ class PropertyDocumentation extends StatelessWidget {
                               const SizedBox(width: 4),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                                decoration: BoxDecoration(color: AppColors.danger.withAlpha(26), borderRadius: BorderRadius.circular(4)),
+                                decoration: BoxDecoration(
+                                  color: context.theme.danger.withAlpha(26),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
                                 child: Text(
                                   'required',
-                                  style: TextStyle(fontSize: 10, color: AppColors.danger, fontWeight: FontWeight.w600),
+                                  style: TextStyle(fontSize: 10, color: context.theme.danger, fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ],
@@ -344,7 +347,7 @@ class PropertyDocumentation extends StatelessWidget {
                         context,
                         Text(
                           prop.type,
-                          style: TextStyle(fontFamily: 'Courier', fontSize: 12, color: AppColors.info),
+                          style: TextStyle(fontFamily: 'Courier', fontSize: 12, color: context.theme.info),
                         ),
                       ),
                       _buildCell(

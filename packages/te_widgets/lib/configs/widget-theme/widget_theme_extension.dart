@@ -117,6 +117,9 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
 
   factory TWidgetThemeExtension.defaultTheme(ColorScheme colors) {
     return TWidgetThemeExtension(
+      primary: colors.primary.toMaterial(),
+      secondary: colors.secondary.toMaterial(),
+      danger: colors.error.toMaterial(),
       layoutFrame: colors.brightness == Brightness.light ? const Color(0xFF536980) : const Color(0xFF3b3b3f),
       buttonTheme: TButtonTheme.defaultTheme(colors),
       inputFieldTheme: TInputFieldTheme.defaultTheme(colors),

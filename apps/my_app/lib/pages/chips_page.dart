@@ -33,10 +33,10 @@ class ChipsPage extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                TChip(type: TVariant.solid, text: 'Primary', color: AppColors.primary),
-                TChip(type: TVariant.solid, text: 'Secondary', color: AppColors.secondary),
-                TChip(type: TVariant.solid, text: 'Success', color: AppColors.success),
-                TChip(type: TVariant.solid, text: 'Danger', color: AppColors.danger),
+                TChip(type: TVariant.solid, text: 'Primary', color: context.theme.primary),
+                TChip(type: TVariant.solid, text: 'Secondary', color: context.theme.secondary),
+                TChip(type: TVariant.solid, text: 'Success', color: context.theme.success),
+                TChip(type: TVariant.solid, text: 'Danger', color: context.theme.danger),
               ],
             ),
             code: '''TChip(
@@ -59,10 +59,10 @@ class ChipsPage extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                TChip(type: TVariant.tonal, icon: Icons.face, text: 'User', color: AppColors.primary),
-                TChip(type: TVariant.tonal, icon: Icons.settings, text: 'Settings', color: AppColors.secondary),
-                TChip(type: TVariant.tonal, icon: Icons.check_circle, text: 'Active', color: AppColors.success),
-                TChip(type: TVariant.tonal, icon: Icons.warning, text: 'Warning', color: AppColors.warning),
+                TChip(type: TVariant.tonal, icon: Icons.face, text: 'User', color: context.theme.primary),
+                TChip(type: TVariant.tonal, icon: Icons.settings, text: 'Settings', color: context.theme.secondary),
+                TChip(type: TVariant.tonal, icon: Icons.check_circle, text: 'Active', color: context.theme.success),
+                TChip(type: TVariant.tonal, icon: Icons.warning, text: 'Warning', color: context.theme.warning),
               ],
             ),
             code: '''TChip(
@@ -83,9 +83,9 @@ class ChipsPage extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                TChip(type: TVariant.outline, text: 'Outline Primary', color: AppColors.primary),
-                TChip(type: TVariant.outline, text: 'Outline Info', color: AppColors.info),
-                TChip(type: TVariant.outline, text: 'Outline Danger', color: AppColors.danger),
+                TChip(type: TVariant.outline, text: 'Outline Primary', color: context.theme.primary),
+                TChip(type: TVariant.outline, text: 'Outline Info', color: context.theme.info),
+                TChip(type: TVariant.outline, text: 'Outline Danger', color: context.theme.danger),
               ],
             ),
             code: '''TChip(
@@ -111,7 +111,7 @@ class ChipsPage extends StatelessWidget {
                   icon: Icons.star,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                TChip(text: 'Click Me', color: AppColors.info, type: TVariant.tonal, onTap: () {}),
+                TChip(text: 'Click Me', color: context.theme.info, type: TVariant.tonal, onTap: () {}),
               ],
             ),
             code: '''TChip(

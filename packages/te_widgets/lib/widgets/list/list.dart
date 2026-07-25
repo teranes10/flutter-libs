@@ -468,13 +468,6 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
     );
   }
 
-  double? _calculateHeight(TListState<T, K> state) {
-    if (providedItemsPerPage > 0 && state.hasMoreItems) {
-      return providedItemsPerPage * 40;
-    }
-    return null;
-  }
-
   double? _previousHeight;
   int? _resolvedItemsPerPage;
 

@@ -31,6 +31,8 @@ extension BuildContextX on BuildContext {
 
   TWidgetTheme getWidgetTheme(TVariant type, Color? color) => TWidgetTheme.from(isDarkMode, color ?? theme.primary, type);
 
+  Color getBackgroundColor(Color defaultColor) => TBackgroundColorScope.maybeOf(this) ?? defaultColor;
+
   MediaQueryData get mediaQuery => MediaQuery.of(this);
   double get screenWidth => mediaQuery.screenWidth;
   double get screenHeight => mediaQuery.screenHeight;

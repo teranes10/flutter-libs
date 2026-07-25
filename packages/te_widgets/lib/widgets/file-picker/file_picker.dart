@@ -85,6 +85,9 @@ class TFilePicker extends StatefulWidget
   /// The type of files to allow.
   final TFileType fileType;
 
+  /// Whether to display selected files in gallery mode (100x100 TImage thumbnails with hover overlay).
+  final bool isGalleryMode;
+
   /// Creates a file picker.
   const TFilePicker({
     super.key,
@@ -108,6 +111,7 @@ class TFilePicker extends StatefulWidget
     this.allowMultiple = false,
     this.allowedExtensions,
     this.fileType = TFileType.any,
+    this.isGalleryMode = false,
   });
 
   @override
@@ -188,6 +192,7 @@ class _TFilePickerState extends State<TFilePicker>
           files: currentValue ?? [],
           placeholder: widget.placeholder ?? widget.label,
           onRemove: (file) => _removeFile(file),
+          isGalleryMode: widget.isGalleryMode,
         ),
       ),
     );

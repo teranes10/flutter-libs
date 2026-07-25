@@ -492,6 +492,28 @@ ValueListenableBuilder<String?>(
             ],
           ),
 
+          // Checkbox with Info
+          WidgetDocCard(
+            title: 'Checkbox with Info Tooltip',
+            description: 'Checkbox with informational tooltip next to label',
+            icon: Icons.info_outline,
+            preview: TCheckbox(
+              label: 'Subscribe to newsletter',
+              info: 'We send weekly updates about new features and releases',
+              valueNotifier: ValueNotifier<bool?>(false),
+            ),
+            code: '''TCheckbox(
+  label: 'Subscribe to newsletter',
+  info: 'We send weekly updates about new features and releases',
+  onValueChanged: (value) {
+    print('Subscribed: \$value');
+  },
+)''',
+            properties: const [
+              PropertyDoc(name: 'info', type: 'String?', description: 'Informational text displayed in a tooltip next to the label'),
+            ],
+          ),
+
           // Checkbox with Validation
           WidgetDocCard(
             title: 'Required Checkbox with Validation',
@@ -935,6 +957,40 @@ TSwitch(
             ],
           ),
 
+          // Multiple File Picker
+          WidgetDocCard(
+            title: 'Multiple File Picker',
+            description: 'File picker allowing selection of multiple files at once',
+            icon: Icons.file_copy,
+            preview: TFilePicker(
+              label: 'Upload Multiple Documents',
+              placeholder: 'Choose files',
+              allowMultiple: true,
+              valueNotifier: ValueNotifier<List<TFile>>([]),
+            ),
+            code: '''TFilePicker(
+  label: 'Upload Multiple Documents',
+  placeholder: 'Choose files',
+  allowMultiple: true,
+  onValueChanged: (files) {
+    print('Selected \${files?.length} files');
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'allowMultiple',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether to allow selecting multiple files at once',
+              ),
+              PropertyDoc(
+                name: 'onValueChanged',
+                type: 'ValueChanged<List<TFile>?>?',
+                description: 'Callback fired when file selection changes',
+              ),
+            ],
+          ),
+
           // File Picker with Clear Button
           WidgetDocCard(
             title: 'File Picker with Clear Button',
@@ -981,6 +1037,45 @@ TSwitch(
                 name: 'allowedExtensions',
                 type: 'List<String>?',
                 description: 'List of allowed file extensions (e.g., [\'pdf\', \'doc\'])',
+              ),
+            ],
+          ),
+
+          // File Picker Gallery Mode
+          WidgetDocCard(
+            title: 'File Picker Gallery Mode',
+            description: 'Image file picker displaying selected images as 100x100 TImage thumbnails with hover title/subtitle overlays',
+            icon: Icons.collections,
+            preview: TFilePicker(
+              label: 'Image Gallery Picker',
+              placeholder: 'Choose gallery images',
+              allowMultiple: true,
+              isGalleryMode: true,
+              fileType: TFileType.image,
+              clearable: true,
+            ),
+            code: '''TFilePicker(
+  label: 'Image Gallery Picker',
+  placeholder: 'Choose gallery images',
+  allowMultiple: true,
+  isGalleryMode: true, // Display 100x100 TImage thumbnails
+  fileType: TFileType.image,
+  onValueChanged: (files) {
+    print('Selected \${files?.length} images in gallery mode');
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'isGalleryMode',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Displays selected files as 100x100 TImage thumbnails with hover title/subtitle overlay',
+              ),
+              PropertyDoc(
+                name: 'showTitleSubtitleOverlayOnHover',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'TImage property to render title and subtitle as a gradient overlay on mouse hover',
               ),
             ],
           ),

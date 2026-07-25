@@ -42,7 +42,7 @@ class CrudPage extends StatelessWidget {
       TTableHeader.map('Price', (x) => x.price),
       TTableHeader.map('Discount', (x) => x.discountPercentage),
       TTableHeader.rating('Rating', (x) => x.rating.toDouble()),
-      TTableHeader.chip('Stock', (x) => x.stock, color: (_) => AppColors.info),
+      TTableHeader.chip('Stock', (x) => x.stock, color: (_) => context.theme.info),
     ];
 
     return TCrudTable<ProductDto, int, ProductForm>(
@@ -75,10 +75,6 @@ class CrudPage extends StatelessWidget {
         return true;
       },
       config: TCrudConfig<ProductDto, int>(
-        expandSide: true,
-        itemTitle: (x) => x.title,
-        itemSubTitle: (x) => x.sku,
-        itemImageUrl: (x) => x.thumbnail,
         tabs: [
           TTab(text: "Active", value: 0),
           TTab(text: "Others", value: 2),
@@ -97,23 +93,16 @@ class CrudPage extends StatelessWidget {
           ),
         ],
       ),
+      itemTitle: (item) => item.title,
+      itemSubTitle: (item) => item.sku,
+      itemImageUrl: (item) => item.thumbnail,
+      itemDescription: (item) => item.description,
+      expansionMode: TTableExpansionMode.side,
       expandedBuilder: (ctx, item, index) {
         final data = item.data;
 
-        final headerWidget = TRowExpandedBuilder.header(
+        return TRowExpandedBuilder.tabs(
           ctx,
-          title: data.title,
-          subTitle: data.sku,
-          imageUrl: data.thumbnail,
-          description: data.description,
-          onClose: () {
-            controller.collapseAll();
-          },
-        );
-
-        return TRowExpandedBuilder.tabs<String>(
-          ctx,
-          header: headerWidget,
           tabs: [
             TTab(
               value: 'info',
@@ -157,6 +146,8 @@ class CrudPage extends StatelessWidget {
               content: (ctx) => data.images == null || data.images!.isEmpty
                   ? const Center(child: Text('No images available'))
                   : GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
                       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                         maxCrossAxisExtent: 150,
@@ -171,9 +162,34 @@ class CrudPage extends StatelessWidget {
                       ),
                     ),
             ),
+            TTab(
+              value: 'reviews',
+              text: 'Reviews',
+              content: (ctx) {
+                final mockReviews = [
+                  const _Review('John Doe', 5, 'Excellent product, highly recommended!'),
+                  const _Review('Jane Smith', 4, 'Very good quality, but shipping took a while.'),
+                  const _Review('Bob Johnson', 3, 'Decent, but a bit overpriced.'),
+                ];
+
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TDataTable<_Review, int>(
+                    shrinkWrap: true,
+                    headers: [
+                      TTableHeader('Reviewer', map: (r) => r.reviewer),
+                      TTableHeader.rating('Rating', (r) => r.rating.toDouble()),
+                      TTableHeader('Comment', map: (r) => r.comment),
+                    ],
+                    items: mockReviews,
+                  ),
+                );
+              },
+            ),
           ],
         );
       },
+
       rowColorBuilder: (item, index) {
         if (item.data.stock < 5) return Colors.red.withAlpha(15);
         if (item.data.stock < 10) return Colors.orange.withAlpha(15);
@@ -227,4 +243,11 @@ class ProductForm extends TFormBase {
       TFormField.text(description, 'Description', rows: 3),
     ];
   }
+}
+
+class _Review {
+  final String reviewer;
+  final int rating;
+  final String comment;
+  const _Review(this.reviewer, this.rating, this.comment);
 }

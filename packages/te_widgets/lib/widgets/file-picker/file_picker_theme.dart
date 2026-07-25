@@ -180,7 +180,21 @@ class TFilePickerTheme extends TInputFieldTheme {
     required List<TFile> files,
     String? placeholder,
     ValueChanged<TFile>? onRemove,
+    bool isGalleryMode = false,
   }) {
+    if (isGalleryMode) {
+      return Wrap(
+        spacing: 8.0,
+        runSpacing: 8.0,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          if (files.isEmpty && placeholder != null && placeholder.isNotEmpty && labelPosition != TLabelPosition.floating)
+            Text(placeholder, style: hintStyle.resolve(states)),
+          ...files.map((file) => _buildGalleryTile(file, () => onRemove?.call(file))),
+        ],
+      );
+    }
+
     return Wrap(
       spacing: 6.0,
       runSpacing: 6.0,
@@ -193,8 +207,91 @@ class TFilePickerTheme extends TInputFieldTheme {
     );
   }
 
-  static Widget _getFileIcon(String extension, ColorScheme colors) {
-    final iconData = switch (extension.toLowerCase()) {
+  Widget _buildGalleryTile(TFile file, VoidCallback onRemove) {
+    final isImage = isImageFile(file.extension);
+    final formattedSize = _formatFileSize(file.bytes.length);
+
+    return SizedBox(
+      width: 100,
+      height: 100,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: isImage && file.bytes.isNotEmpty
+                ? TImage(
+                    bytes: file.bytes,
+                    size: 100,
+                    title: file.name,
+                    subTitle: formattedSize,
+                    showTitleSubtitleOverlayOnHover: true,
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.all(6),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          _getFileIconData(file.extension),
+                          size: 32,
+                          color: Colors.white70,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          file.name,
+                          style: const TextStyle(fontSize: 10, color: Colors.white),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          formattedSize,
+                          style: const TextStyle(fontSize: 9, color: Colors.white70),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onRemove,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    size: 12,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
+  static IconData _getFileIconData(String extension) {
+    return switch (extension.toLowerCase()) {
       'pdf' => Icons.picture_as_pdf,
       'doc' || 'docx' => Icons.description,
       'xls' || 'xlsx' => Icons.table_chart,
@@ -207,9 +304,11 @@ class TFilePickerTheme extends TInputFieldTheme {
       'json' => Icons.code,
       _ => Icons.insert_drive_file,
     };
+  }
 
+  static Widget _getFileIcon(String extension, ColorScheme colors) {
     return Icon(
-      iconData,
+      _getFileIconData(extension),
       size: 16.0,
       color: colors.onSurfaceVariant.withAlpha(180),
     );

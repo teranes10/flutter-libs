@@ -52,6 +52,9 @@ class TTableRowCard<T, K> extends StatelessWidget {
   /// Callback when selection toggles.
   final VoidCallback? onSelectionChanged;
 
+  /// Callback when row card tapped.
+  final VoidCallback? onTap;
+
   /// Custom background color for the row.
   final Color? backgroundColor;
 
@@ -76,6 +79,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
     this.selectable = false,
     this.isSelected = false,
     this.onSelectionChanged,
+    this.onTap,
     this.backgroundColor,
   });
 
@@ -84,14 +88,20 @@ class TTableRowCard<T, K> extends StatelessWidget {
     final colors = context.colors;
     final wTheme = theme ?? context.theme.tableTheme.rowCardTheme;
     final states = <WidgetState>{if (isSelected) WidgetState.selected};
+    final themeBgColor = wTheme.backgroundColor.resolve(states);
+    final resolvedBgColor = backgroundColor ?? (themeBgColor == colors.surface ? context.getBackgroundColor(colors.surface) : themeBgColor);
 
     return TCard(
       margin: wTheme.margin,
       elevation: wTheme.elevation,
       borderRadius: wTheme.borderRadius,
       borderColor: Colors.transparent,
-      backgroundColor: backgroundColor ?? wTheme.backgroundColor.resolve(states),
+      backgroundColor: resolvedBgColor,
       padding: wTheme.padding,
+      onTap: onTap,
+      hoverColor: colors.primaryContainer.withAlpha(120),
+      splashColor: colors.primary.withAlpha(50),
+      highlightColor: colors.primaryContainer.withAlpha(150),
       child: Column(
         children: [
           Table(
@@ -142,7 +152,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
             AnimatedSize(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
-              child: isExpanded
+              child: isExpanded && !expandSide
                   ? Container(
                       width: double.infinity,
                       margin: EdgeInsets.only(top: wTheme.padding.top),

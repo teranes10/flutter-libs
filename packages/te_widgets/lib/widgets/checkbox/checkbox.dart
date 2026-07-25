@@ -48,7 +48,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// See also:
 /// - [TCheckboxGroup] for multiple checkboxes
 /// - [TRadio] for single selection
-class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin, TInputValidationMixin<bool?> {
+class TCheckbox extends StatefulWidget with TInputFieldMixin, TInputValueMixin<bool?>, TFocusMixin, TInputValidationMixin<bool?> {
   /// The current value of the checkbox.
   @override
   final bool? value;
@@ -69,6 +69,18 @@ class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin
   @override
   final String? label;
 
+  /// An optional tag displayed next to the label.
+  @override
+  final String? tag = null;
+
+  /// Helper text displayed below the field.
+  @override
+  final String? helperText;
+
+  /// The info text (optional).
+  @override
+  final String? info;
+
   /// Whether this checkbox is required.
   @override
   final bool isRequired;
@@ -85,6 +97,7 @@ class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin
   final bool autoFocus;
 
   /// Whether the checkbox is disabled.
+  @override
   final bool disabled;
 
   /// Custom color for the checkbox.
@@ -101,7 +114,14 @@ class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin
   /// Defaults to false.
   final bool tristate;
 
-  final String? helperText;
+  @override
+  final bool clearable = false;
+
+  @override
+  final TInputFieldTheme? theme = null;
+
+  @override
+  final VoidCallback? onTap = null;
 
   /// Creates a checkbox input.
   const TCheckbox({
@@ -120,6 +140,7 @@ class TCheckbox extends StatefulWidget with TInputValueMixin<bool?>, TFocusMixin
     this.size = TInputSize.md,
     this.tristate = false,
     this.helperText,
+    this.info,
   });
 
   @override
@@ -208,6 +229,11 @@ class _TCheckboxState<T> extends State<TCheckbox>
       children: [
         InkWell(
           onTap: widget.disabled ? null : () => _onCheckboxChanged(null),
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          hoverColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -239,6 +265,15 @@ class _TCheckboxState<T> extends State<TCheckbox>
                 Text(
                   widget.label!,
                   style: TextStyle(letterSpacing: 0.9, color: colors.onSurfaceVariant, fontSize: _getLabelFontSize()),
+                ),
+              ],
+              if (widget.info != null) ...[
+                const SizedBox(width: 4),
+                TTooltip(
+                  message: widget.info!,
+                  color: colors.onSurfaceVariant,
+                  triggerMode: TTooltipTriggerMode.adaptive,
+                  child: Icon(Icons.info_outline, size: 16, color: colors.onSurfaceVariant.withAlpha(200)),
                 ),
               ],
             ],

@@ -8,6 +8,9 @@ import 'package:pdf/widgets.dart' as pw;
 
 part 'crud_table_top_bar.dart';
 part 'crud_table_builder.dart';
+part 'crud_table_actions.dart';
+part 'crud_table_export.dart';
+part 'crud_table_form.dart';
 
 /// A complete CRUD (Create, Read, Update, Delete) table component.
 ///
@@ -76,17 +79,6 @@ part 'crud_table_builder.dart';
 /// - [K]: The type of the item key
 /// - [F]: The form type (must extend TFormBase)
 ///
-/// See also:
-/// Position where the form is shown.
-enum TCrudFormPosition {
-  /// Show the form in-page (above table or replacing the row).
-  inline,
-
-  /// Show the form in a dialog modal.
-  dialog,
-}
-
-/// - [TDataTable] for simple data tables
 /// - [TFormBase] for form definitions
 class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// The column headers for the table.
@@ -140,7 +132,30 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Builder for expanded row content.
   final TListExpandedBuilder<T, K>? expandedBuilder;
 
-  /// Custom theme for the table.
+  /// Detailed configuration for row expansion. If provided, overrides [expansionMode], [createMode], [expandedBuilder], etc.
+  final TTableDetails<T, K>? expandedDetails;
+
+  /// Defines how the expanded content is presented.
+  final TTableExpansionMode expansionMode;
+
+  /// Defines how the expanded content is presented during creation/editing.
+  final TTableExpansionMode? createMode;
+
+  /// Custom width for the dialog when creating or editing items in dialog mode.
+  final double? createDialogWidth;
+
+  /// Function to extract the title from an item.
+  final String? Function(T item)? itemTitle;
+
+  /// Function to extract the sub-title from an item.
+  final String? Function(T item)? itemSubTitle;
+
+  /// Function to extract the description from an item.
+  final String? Function(T item)? itemDescription;
+
+  /// Function to extract the image URL from an item.
+  final String? Function(T item)? itemImageUrl;
+
   final TTableTheme? theme;
 
   /// Custom builder for the row.
@@ -151,9 +166,6 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
 
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
-
-  /// The position where the form is shown (inPage or dialog).
-  final TCrudFormPosition formPosition;
 
   /// Creates a CRUD table.
   const TCrudTable({
@@ -175,10 +187,17 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.controller,
     this.archiveController,
     this.expandedBuilder,
+    this.expandedDetails,
+    this.expansionMode = TTableExpansionMode.dialog,
+    this.createMode,
+    this.createDialogWidth,
+    this.itemTitle,
+    this.itemSubTitle,
+    this.itemDescription,
+    this.itemImageUrl,
     this.theme,
     this.rowBuilder,
     this.rowColorBuilder,
-    this.formPosition = TCrudFormPosition.inline,
   })  : assert(
           (controller == null && (items != null || onLoad != null)) || (controller != null && items == null && onLoad == null),
           'Provide either `controller` OR (`items` / `onLoad`), not both.',
@@ -201,15 +220,8 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   late final bool _isControllerOwned;
   late final bool _isArchiveControllerOwned;
 
-  late final _TCrudTopBar<T, K, F> _topBar;
-  late final _TCrudTableBuilder<T, K, F> _tableBuilder;
-
   int _currentTab = 0;
   final Map<T, Map<String, bool>> _permissionCache = {};
-
-  F? _activeForm;
-  T? _editingItem;
-  K? _currentlyShowingDetailPageKey;
 
   bool _dense = false;
   bool get dense => _dense;
@@ -229,23 +241,15 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           itemsPerPage: widget.config.itemsPerPage,
           items: widget.items ?? [],
           onLoad: widget.onLoad,
-          expansionMode: (widget.config.expandSide || widget.expandedBuilder != null)
-              ? TExpansionMode.single
-              : TExpansionMode.none,
         );
 
     _archiveListController = widget.archiveController ??
         TListController<T, K>(
-            itemsPerPage: widget.config.itemsPerPage,
-            items: widget.archivedItems ?? [],
-            onLoad: widget.onArchiveLoad,
-            itemKey: _listController.itemKey,
-            expansionMode: (widget.config.expandSide || widget.expandedBuilder != null)
-                ? TExpansionMode.single
-                : TExpansionMode.none);
-
-    _topBar = _TCrudTopBar<T, K, F>(parent: this);
-    _tableBuilder = _TCrudTableBuilder<T, K, F>(parent: this);
+          itemsPerPage: widget.config.itemsPerPage,
+          items: widget.archivedItems ?? [],
+          onLoad: widget.onArchiveLoad,
+          itemKey: _listController.itemKey,
+        );
   }
 
   @override
@@ -278,78 +282,22 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     final theme = context.theme;
     final tableTheme = widget.theme ?? theme.tableTheme;
 
-    final isInlineActive = widget.formPosition == TCrudFormPosition.inline && _activeForm != null;
-
     Widget headerContent(BuildContext ctx) {
-      Widget content = Column(
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (tableTheme.headerBuilder != null) tableTheme.headerBuilder!(ctx),
-          LayoutBuilder(builder: _topBar.build),
+          LayoutBuilder(builder: _buildTopBar),
         ],
       );
-
-      if (isInlineActive) {
-        content = Opacity(
-          opacity: widget.config.inlineFormOverlayOpacity,
-          child: IgnorePointer(
-            child: content,
-          ),
-        );
-      }
-      return content;
     }
 
-    return _tableBuilder._buildContent(
+    return _buildContent(
       theme,
       tableTheme.copyWith(
         headerBuilder: headerContent,
       ),
     );
-  }
-
-  Widget _buildFormCard(F form, {required bool isEditing}) {
-    final theme = context.theme;
-
-    final card = TCard(
-      elevation: widget.formPosition == TCrudFormPosition.dialog ? 0 : 3,
-      borderColor: widget.formPosition == TCrudFormPosition.dialog ? null : theme.primary.withAlpha(51),
-      borderRadius: BorderRadius.circular(12),
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 12),
-          TFormBuilder(input: form),
-          const SizedBox(height: 25),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            spacing: 10,
-            children: [
-              TButton(
-                baseTheme: TWidgetTheme.surfaceTheme(context.colors),
-                size: TButtonSize.md.copyWith(minW: 100),
-                text: 'Cancel',
-                onTap: handleCancelForm,
-              ),
-              TButton(
-                loading: true,
-                size: TButtonSize.md.copyWith(minW: 100),
-                color: theme.primary,
-                text: isEditing ? 'Update' : 'Save',
-                onPressed: handleSaveForm,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-
-    if (widget.formPosition == TCrudFormPosition.inline) {
-      return _TCrudFormCardWrapper(child: card);
-    }
-    return card;
   }
 
   // Getters for child classes
@@ -372,312 +320,6 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   int get viewMode => _viewMode;
   set viewMode(int value) => setState(() => _viewMode = value);
 
-  // Permission methods
-  bool canPerformActionSync(T item, Future<bool> Function(T)? permission) {
-    if (permission == null) return true;
-
-    final cacheKey = permission.toString();
-    final itemCache = _permissionCache[item] ??= <String, bool>{};
-
-    if (itemCache.containsKey(cacheKey)) {
-      return itemCache[cacheKey]!;
-    }
-
-    itemCache[cacheKey] = true;
-    _updatePermissionAsync(item, cacheKey, permission);
-
-    return true;
-  }
-
-  void _updatePermissionAsync(T item, String cacheKey, Future<bool> Function(T) permission) {
-    permission(item).then((result) {
-      final itemCache = _permissionCache[item];
-      if (itemCache != null && itemCache[cacheKey] != result) {
-        itemCache[cacheKey] = result;
-        if (mounted) setState(() {});
-      }
-    }).catchError((e) {
-      final itemCache = _permissionCache[item];
-      if (itemCache != null) {
-        itemCache[cacheKey] = false;
-        if (mounted) setState(() {});
-      }
-    });
-  }
-
-  // Action handlers
-  void handleCreate() {
-    if (widget.formPosition == TCrudFormPosition.inline) {
-      setState(() {
-        _activeForm?.dispose();
-        _activeForm = widget.createForm?.call();
-        _editingItem = null;
-      });
-    } else {
-      _performAction(() async {
-        final form = widget.createForm?.call();
-        if (form == null) return;
-
-        final formData = await TFormService.show(context, form);
-        if (formData == null) return;
-
-        final newItem = await widget.onCreate?.call(formData);
-        if (newItem != null) {
-          _listController.addItem(newItem);
-        }
-
-        form.reset();
-        form.dispose();
-      });
-    }
-  }
-
-  void handleEdit(T item) {
-    if (widget.formPosition == TCrudFormPosition.inline) {
-      setState(() {
-        _activeForm?.dispose();
-        _activeForm = widget.editForm?.call(item);
-        _editingItem = item;
-      });
-    } else {
-      _performAction(() async {
-        final form = widget.editForm?.call(item);
-        if (form == null) return;
-
-        final formData = await TFormService.show(context, form);
-        if (formData == null) return;
-
-        final updatedItem = await widget.onEdit?.call(item, formData);
-        if (updatedItem != null) {
-          _listController.updateItem(item, updatedItem);
-        }
-
-        form.reset();
-        form.dispose();
-      });
-    }
-  }
-
-  void handleCancelForm() {
-    setState(() {
-      _activeForm?.dispose();
-      _activeForm = null;
-      _editingItem = null;
-    });
-  }
-
-  void handleSaveForm(TButtonPressOptions options) async {
-    final form = _activeForm;
-    if (form == null) {
-      options.stopLoading();
-      return;
-    }
-
-    final errors = form.validationErrors;
-    if (errors.isNotEmpty) {
-      for (var message in errors) {
-        TToastService.error(context, message);
-      }
-      options.stopLoading();
-      return;
-    }
-
-    try {
-      final editingItem = _editingItem;
-      if (editingItem != null) {
-        final updatedItem = await widget.onEdit?.call(editingItem, form);
-        if (updatedItem != null) {
-          _listController.updateItem(editingItem, updatedItem);
-        }
-      } else {
-        final newItem = await widget.onCreate?.call(form);
-        if (newItem != null) {
-          _listController.addItem(newItem);
-        }
-      }
-
-      handleCancelForm();
-    } catch (e) {
-      debugPrint('__ TCrudTable save error: $e');
-    } finally {
-      options.stopLoading();
-    }
-  }
-
-  void handleArchive(T item) {
-    TAlertService.confirmArchive(context, () async {
-      await _performAction(() async {
-        final success = await widget.onArchive!(item);
-        if (success) {
-          _listController.removeItem(item);
-          _permissionCache.remove(item);
-        }
-      });
-    });
-  }
-
-  void handleRestore(T item) {
-    TAlertService.confirmRestore(context, () async {
-      await _performAction(() async {
-        final success = await widget.onRestore!(item);
-        if (success) {
-          _archiveListController.removeItem(item);
-          _permissionCache.remove(item);
-        }
-      });
-    });
-  }
-
-  void handleDelete(T item) {
-    TAlertService.confirmDelete(context, () async {
-      await _performAction(() async {
-        final success = await widget.onDelete!(item);
-        if (success) {
-          _archiveListController.removeItem(item);
-          _permissionCache.remove(item);
-        }
-      });
-    });
-  }
-
-  Future<void> performAction(Future<void> Function() action) => _performAction(action);
-
-  Future<void> _performAction(Future<void> Function() action) async {
-    try {
-      await action();
-    } catch (e) {
-      debugPrint('__ TCrudTable action error: $e');
-    }
-  }
-
-  void handleExportPdf() async {
-    final controller = _currentTab == 0 ? _listController : _archiveListController;
-    final items = controller.value.displayItems.map((e) => e.data).toList();
-    if (items.isEmpty) return;
-
-    final pdf = pw.Document();
-    final colors = context.colors;
-    final table = await TTableHelper.from(context, widget.headers, items);
-
-    pdf.addPage(
-      pw.MultiPage(
-        pageTheme: pw.PageTheme(
-          margin: const pw.EdgeInsets.symmetric(vertical: 20, horizontal: 25),
-          buildBackground: (context) => pw.FullPage(ignoreMargins: true, child: pw.Container(color: colors.surface.toPdfColor())),
-        ),
-        build: (context) => [
-          pw.Text('Exported Data', style: pw.TextStyle(fontSize: 16, color: colors.onSurfaceVariant.toPdfColor())),
-          pw.SizedBox(height: 15),
-          table,
-        ],
-      ),
-    );
-
-    await pdf.download(fileName: "export_${DateTime.now().millisecondsSinceEpoch}");
-  }
-
-  void pushDetailPageIfNeeded(BuildContext context, TListController<T, K> controller) {
-    if (!mounted) return;
-    if (_currentlyShowingDetailPageKey != null) return;
-
-    if (controller.hasExpansion) {
-      final expandedItem = controller.expandedItems.first;
-      final itemKey = controller.itemKey(expandedItem);
-
-      _currentlyShowingDetailPageKey = itemKey;
-
-      final index = controller.value.displayItems.indexWhere((x) => x.key == itemKey);
-      if (index == -1) {
-        _currentlyShowingDetailPageKey = null;
-        return;
-      }
-
-      final itemListItem = controller.value.displayItems[index];
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        try {
-          final navigator = Navigator.maybeOf(context);
-          if (navigator == null) {
-            _currentlyShowingDetailPageKey = null;
-            return;
-          }
-          navigator.push(
-            MaterialPageRoute(
-              builder: (routeContext) {
-                return TPageWrapper(
-                  child: TExpansionShowModeScope(
-                    showMode: TExpansionShowMode.page,
-                    child: widget.expandedBuilder?.call(routeContext, itemListItem, index) ?? const SizedBox.shrink(),
-                  ),
-                );
-              },
-            ),
-          ).then((_) {
-            _currentlyShowingDetailPageKey = null;
-            controller.collapseAll();
-          });
-        } catch (e) {
-          _currentlyShowingDetailPageKey = null;
-        }
-      });
-    }
-  }
-
-  void handleExportCsv() async {
-    final controller = _currentTab == 0 ? _listController : _archiveListController;
-    final items = controller.value.displayItems.map((e) => e.data).toList();
-    if (items.isEmpty) return;
-
-    final effectiveHeaders = widget.headers.where((h) => h.map != null).toList();
-    final csvRows = <List<String>>[];
-
-    // Headers
-    csvRows.add(effectiveHeaders.map((h) => h.text).toList());
-
-    // Data
-    for (var item in items) {
-      csvRows.add(effectiveHeaders.map((h) => h.getValue(item)).toList());
-    }
-
-    final csvString = csvRows.map((row) => row.map((cell) => '"${cell.replaceAll('"', '""')}"').join(',')).join('\n');
-    final bytes = utf8.encode(csvString);
-
-    await FileSaver.instance.saveFile(
-      name: "export_${DateTime.now().millisecondsSinceEpoch}",
-      bytes: Uint8List.fromList(bytes),
-      fileExtension: "csv",
-      mimeType: MimeType.csv,
-    );
-  }
-}
-
-class _TCrudFormCardWrapper extends StatefulWidget {
-  final Widget child;
-  const _TCrudFormCardWrapper({required this.child});
-
-  @override
-  State<_TCrudFormCardWrapper> createState() => _TCrudFormCardWrapperState();
-}
-
-class _TCrudFormCardWrapperState extends State<_TCrudFormCardWrapper> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        Scrollable.ensureVisible(
-          context,
-          alignment: 0.0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
+  TTableExpansionMode get effectiveExpansionMode => widget.expandedDetails?.mode ?? widget.expansionMode;
+  TTableExpansionMode get effectiveCreateMode => widget.expandedDetails?.createMode ?? widget.createMode ?? widget.expansionMode;
 }

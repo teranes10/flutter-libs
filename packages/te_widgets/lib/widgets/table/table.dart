@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+part 'table_details.dart';
+
 /// A rich data table with responsive layout.
 ///
 /// `TTable` displays tabular data with:
@@ -66,15 +68,11 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   @override
   final TListController<T, K>? controller;
 
-  // Expandable configuration
-  /// Builder for expanded content of a row.
-  final TListExpandedBuilder<T, K>? expandedBuilder;
+  /// Detailed configuration for expansion and item info.
+  final TTableDetails<T, K>? details;
 
   /// Whether specific cells are editable.
   final bool editable;
-
-  /// Whether expansion happens on the side.
-  final bool expandSide;
 
   // Theme overrides
 
@@ -117,9 +115,6 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
-  /// Opacity level to apply to headers and footer when table is dimmed.
-  final double? dimmedOpacity;
-
   /// Creates a data table.
   const TTable({
     super.key,
@@ -133,8 +128,8 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.onLoad,
     this.itemKey,
     this.controller,
-    //Expandable
-    this.expandedBuilder,
+    //Details
+    this.details,
     this.editable = false,
     // Theme overrides
     this.grid,
@@ -149,8 +144,6 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.rowBuilder,
     this.rowColorBuilder,
     this.beforeItemsBuilder,
-    this.dimmedOpacity,
-    this.expandSide = false,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -170,7 +163,72 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
 }
 
 class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, TTable<T, K>> {
+  TTableTheme? _cachedTheme;
+  TTable<T, K>? _cachedThemeForWidget;
+
   TTableTheme get wTheme {
+    if (_cachedTheme != null && _cachedThemeForWidget == widget) {
+      return _cachedTheme!;
+    }
+    final resolved = _resolveTheme();
+    _cachedTheme = resolved;
+    _cachedThemeForWidget = widget;
+    return resolved;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Column-width memoisation
+  // ---------------------------------------------------------------------------
+
+  /// Cached total required width used to decide card vs table view.
+  /// Keyed on [_cachedRequiredWidthForHeaders] + [_cachedRequiredWidthForConstraint]
+  /// so it re-evaluates when headers or the available width changes.
+  double? _cachedRequiredWidth;
+  List<TTableHeader<T, K>>? _cachedRequiredWidthForHeaders;
+  bool? _cachedRequiredWidthSelectable;
+  bool? _cachedRequiredWidthExpandable;
+
+  double _getRequiredWidth() {
+    final selectable = listController.selectable;
+    final expandable = listController.expandable;
+    if (_cachedRequiredWidth != null &&
+        _cachedRequiredWidthForHeaders == widget.headers &&
+        _cachedRequiredWidthSelectable == selectable &&
+        _cachedRequiredWidthExpandable == expandable) {
+      return _cachedRequiredWidth!;
+    }
+    final width = TTableTheme.calculateTotalRequiredWidth(widget.headers, selectable, expandable);
+    _cachedRequiredWidth = width;
+    _cachedRequiredWidthForHeaders = widget.headers;
+    _cachedRequiredWidthSelectable = selectable;
+    _cachedRequiredWidthExpandable = expandable;
+    return width;
+  }
+
+  /// Cached per-column widths used when rendering the table view.
+  Map<int, TableColumnWidth>? _cachedColumnWidths;
+  List<TTableHeader<T, K>>? _cachedColumnWidthsForHeaders;
+  bool? _cachedColumnWidthsSelectable;
+  bool? _cachedColumnWidthsExpandable;
+
+  Map<int, TableColumnWidth> _getColumnWidths() {
+    final selectable = listController.selectable;
+    final expandable = listController.expandable;
+    if (_cachedColumnWidths != null &&
+        _cachedColumnWidthsForHeaders == widget.headers &&
+        _cachedColumnWidthsSelectable == selectable &&
+        _cachedColumnWidthsExpandable == expandable) {
+      return _cachedColumnWidths!;
+    }
+    final widths = TTableTheme.calculateColumnWidths(widget.headers, selectable, expandable);
+    _cachedColumnWidths = widths;
+    _cachedColumnWidthsForHeaders = widget.headers;
+    _cachedColumnWidthsSelectable = selectable;
+    _cachedColumnWidthsExpandable = expandable;
+    return widths;
+  }
+
+  TTableTheme _resolveTheme() {
     TTableTheme theme = widget.theme ?? context.theme.tableTheme;
 
     theme = theme.copyWith(
@@ -189,12 +247,12 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       theme = theme.copyWith(
         headerTheme: theme.headerTheme.copyWith(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4)),
         rowCardTheme: theme.rowCardTheme.copyWith(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-            margin: const EdgeInsets.symmetric(vertical: 1),
-            borderRadius: const BorderRadius.all(Radius.circular(4))),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          margin: const EdgeInsets.symmetric(vertical: 1),
+          borderRadius: const BorderRadius.all(Radius.circular(4)),
+        ),
       );
     }
-
     return theme;
   }
 
@@ -204,6 +262,25 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   void initState() {
     super.initState();
     _activeCellNotifier = widget.editable ? ValueNotifier<String?>(null) : null;
+    _validateExpansionMode();
+  }
+
+  @override
+  void didUpdateWidget(covariant TTable<T, K> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _cachedTheme = null;
+    // Invalidate column-width caches when headers or controller identity changes.
+    if (oldWidget.headers != widget.headers || oldWidget.controller != widget.controller) {
+      _cachedRequiredWidth = null;
+      _cachedColumnWidths = null;
+    }
+    _handleDidUpdateWidget(oldWidget);
+  }
+
+  void refresh() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -212,71 +289,208 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     super.dispose();
   }
 
+  _ActiveDetailTarget<K>? _currentTarget;
+
+  @override
+  void onListStateChanged() {
+    super.onListStateChanged();
+    _syncDetailFlow();
+  }
+
   @override
   Widget build(BuildContext context) {
+    _cachedTheme = null;
     final colors = context.colors;
-    final requiredWidth = TTableTheme.calculateTotalRequiredWidth(widget.headers, listController.selectable, listController.expandable);
 
-    return TTableScope(
+    Widget content = LayoutBuilder(
+      builder: (context, constraints) {
+        if (effectiveExpansionMode == TTableExpansionMode.side) {
+          final hasBuilder = widget.details?.builder != null || widget.details?.createBuilder != null;
+          if ((listController.value.activeKey != null || listController.value.isCreatingItem || listController.value.isEditingItem) &&
+              hasBuilder) {
+            return _buildSideLayout(colors, constraints);
+          }
+        }
+
+        // Only compute requiredWidth here (inside LayoutBuilder) so we have
+        // access to constraints.maxWidth for cache invalidation.
+        final requiredWidth = _getRequiredWidth();
+        final shouldShowCardView = wTheme.forceCardStyle == true || wTheme.grid != null || constraints.maxWidth < requiredWidth;
+        return shouldShowCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
+      },
+    );
+
+    Widget scopedContent = TTableScope(
       controller: listController,
-      activeCellNotifier: _activeCellNotifier,
       dense: wTheme.dense ?? false,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final shouldShowCardView = wTheme.forceCardStyle == true || wTheme.grid != null || constraints.maxWidth < requiredWidth;
-          return shouldShowCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
-        },
+      expansionMode: effectiveExpansionMode,
+      onWillCollapse: widget.details?.onWillCollapse != null
+          ? (dynamic key) => widget.details!.onWillCollapse!(key as K)
+          : null,
+      child: content,
+    );
+
+    // Wrap with TTableCellScope only when editable so that cell-activation
+    // rebuilds are bounded to subscribing editable cells only.
+    if (_activeCellNotifier != null) {
+      scopedContent = TTableCellScope(
+        notifier: _activeCellNotifier!,
+        child: scopedContent,
+      );
+    }
+
+    return scopedContent;
+  }
+
+  Widget _buildListScaffold({
+    required Widget Function(BuildContext ctx) headerContent,
+    required Widget Function(BuildContext ctx, TListItem<T, K> item, int index) itemBuilder,
+  }) {
+    return TList<T, K>(
+      theme: wTheme.copyWith(
+        headerBuilder: (ctx) => _wrapWithFocusDimmer(ctx, headerContent(ctx)),
+        footerBuilder: wTheme.footerBuilder == null ? null : (ctx) => _wrapWithFocusDimmer(ctx, wTheme.footerBuilder!(ctx)),
       ),
+      beforeItemsBuilder: _buildCreateFormBeforeItems,
+      controller: listController,
+      itemBuilder: (ctx, item, index) {
+        final row = itemBuilder(ctx, item, index);
+        Widget finalRow = widget.rowBuilder?.call(ctx, item, index, row) ?? row;
+        if (useExpansionFocus || shouldDimOthers) {
+          finalRow = _buildFocusRowWrapper(item.key, finalRow, item.isExpanded);
+        }
+        return finalRow;
+      },
     );
   }
 
   Widget _buildTableView(ColorScheme colors, BoxConstraints constraints) {
-    final columnWidths = TTableTheme.calculateColumnWidths(widget.headers, listController.selectable, listController.expandable);
+    final columnWidths = _getColumnWidths();
 
-    Widget header = TTableRowHeader<T, K>(
-      theme: wTheme.headerTheme,
-      headers: widget.headers,
-      controller: listController,
-      columnWidths: columnWidths,
-    );
-
-    if (widget.dimmedOpacity != null) {
-      header = Opacity(
-        opacity: widget.dimmedOpacity!,
-        child: IgnorePointer(
-          child: header,
-        ),
-      );
-    }
-
-    return TList<T, K>(
-      theme: wTheme.copyWith(
-        headerBuilder: (ctx) => Column(
-          children: [
-            if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx),
-            header,
-          ],
-        ),
+    return _buildListScaffold(
+      headerContent: (ctx) => Column(
+        children: [
+          if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx),
+          TTableRowHeader<T, K>(theme: wTheme.headerTheme, headers: widget.headers, controller: listController, columnWidths: columnWidths),
+        ],
       ),
-      beforeItemsBuilder: widget.beforeItemsBuilder,
-      controller: listController,
-      itemBuilder: (ctx, item, index) {
-        final row = _buildRowCard(columnWidths, ctx, item, index);
-        return widget.rowBuilder?.call(ctx, item, index, row) ?? row;
-      },
+      itemBuilder: (ctx, item, index) => _buildRowCard(columnWidths, ctx, item, index),
     );
   }
 
   Widget _buildCardView(ColorScheme colors, BoxConstraints constraints) {
-    return TList<T, K>(
-      theme: wTheme,
-      controller: listController,
-      beforeItemsBuilder: widget.beforeItemsBuilder,
-      itemBuilder: (ctx, item, index) {
-        final row = _buildMobileCard(ctx, item, index);
-        return widget.rowBuilder?.call(ctx, item, index, row) ?? row;
-      },
+    return _buildListScaffold(
+      headerContent: (ctx) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx)],
+      ),
+      itemBuilder: (ctx, item, index) => _buildMobileCard(ctx, item, index),
     );
+  }
+
+  Widget _buildCreateFormBeforeItems(BuildContext ctx) {
+    final isCreating = listController.value.isCreatingItem;
+    final hasCreateBuilder = widget.details?.createBuilder != null;
+    if (isCreating && effectiveExpansionMode == TTableExpansionMode.bottom && hasCreateBuilder) {
+      final content = widget.details!.createBuilder!(ctx, null, null);
+      final wrappedContent = getLayoutWrapper(ctx, widget.details!, true, false, null, content);
+
+      Widget finalContent = wrappedContent;
+      if (useExpansionFocus || shouldDimOthers) {
+        finalContent = TScrollTop(
+          key: const ValueKey('focus_create_form'),
+          child: wrappedContent,
+        );
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (widget.beforeItemsBuilder != null) widget.beforeItemsBuilder!(ctx),
+          finalContent,
+          const SizedBox(height: 12),
+        ],
+      );
+    }
+    return widget.beforeItemsBuilder?.call(ctx) ?? const SizedBox.shrink();
+  }
+
+  bool get shouldDimOthers =>
+      (useExpansionFocus && listController.expandedItems.isNotEmpty) ||
+      (effectiveExpansionMode == TTableExpansionMode.bottom && listController.value.isCreatingItem);
+
+  Widget _wrapWithFocusDimmer(BuildContext context, Widget child) {
+    if (!useExpansionFocus && !shouldDimOthers) return child;
+    return ListenableBuilder(
+      listenable: listController,
+      builder: (ctx, childWidget) {
+        return TScrollTop.activeOrOpacity(
+          child: childWidget!,
+          active: false,
+          anyActive: shouldDimOthers,
+          opacity: widget.details?.dimmedOpacity ?? 0.4,
+        );
+      },
+      child: child,
+    );
+  }
+
+  Widget _buildFocusRowWrapper(dynamic key, Widget child, bool active) {
+    return ListenableBuilder(
+      listenable: listController,
+      builder: (ctx, rowChild) {
+        return TScrollTop.activeOrOpacity(
+          child: rowChild!,
+          active: active,
+          anyActive: shouldDimOthers,
+          opacity: widget.details?.dimmedOpacity ?? 0.4,
+          key: ValueKey('focus_$key'),
+        );
+      },
+      child: child,
+    );
+  }
+
+  Future<void> _handleExpansionTap(K key, bool expanding) async {
+    if (expanding) {
+      if (widget.details?.onWillExpand != null) {
+        final allowed = await widget.details!.onWillExpand!(key);
+        if (!allowed) return;
+      }
+    } else {
+      if (widget.details?.onWillCollapse != null) {
+        final allowed = await widget.details!.onWillCollapse!(key);
+        if (!allowed) return;
+      }
+    }
+    listController.toggleExpansionByKey(key);
+  }
+
+  /// True if [item] should render its expanded/edit content inline (bottom mode),
+  /// covering both plain expansion and an active edit-in-place.
+  bool _isInlineExpanded(TListItem<T, K> item) {
+    final target = _computeDesiredTarget();
+    final isEditingThisInline = target?.kind == _DetailKind.edit && target?.mode == TTableExpansionMode.bottom && target?.key == item.key;
+    return item.isExpanded || isEditingThisInline;
+  }
+
+  Widget? _resolveExpandedContent(BuildContext ctx, TListItem<T, K> item, int index) {
+    final target = _computeDesiredTarget();
+    final mode = widget.details?.mode ?? TTableExpansionMode.bottom;
+    final details = widget.details;
+
+    final isEditingThisInline = target?.kind == _DetailKind.edit && target?.mode == TTableExpansionMode.bottom && target?.key == item.key;
+    if (isEditingThisInline) {
+      final content = details?.createBuilder?.call(ctx, item, index);
+      if (content == null || details == null) return null;
+      return getLayoutWrapper(ctx, details, false, true, item.data, content);
+    }
+    if (item.isExpanded && mode == TTableExpansionMode.bottom) {
+      final content = details?.builder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index);
+      if (details == null) return content;
+      return getLayoutWrapper(ctx, details, false, false, item.data, content);
+    }
+    return null;
   }
 
   TTableRowCard<T, K> _buildRowCard(Map<int, TableColumnWidth> columnWidths, BuildContext ctx, TListItem<T, K> item, int index) {
@@ -288,13 +502,10 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       width: wTheme.cardWidth,
       columnWidths: columnWidths,
       expandable: listController.expandable,
-      isExpanded: item.isExpanded,
-      expandSide: widget.expandSide,
-      onExpansionChanged: () => listController.toggleExpansionByKey(item.key),
-      expandedContent: TExpansionShowModeScope(
-        showMode: TExpansionShowMode.inline,
-        child: widget.expandedBuilder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index),
-      ),
+      isExpanded: _isInlineExpanded(item),
+      expandSide: effectiveExpansionMode == TTableExpansionMode.side,
+      onExpansionChanged: () => _handleExpansionTap(item.key, !item.isExpanded),
+      expandedContent: _resolveExpandedContent(ctx, item, index),
       selectable: listController.selectable,
       isSelected: item.isSelected,
       onSelectionChanged: () => listController.toggleSelectionByKey(item.key),
@@ -310,13 +521,10 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       theme: wTheme.mobileCardTheme,
       width: wTheme.cardWidth,
       expandable: listController.expandable,
-      isExpanded: item.isExpanded,
-      expandSide: widget.expandSide,
-      onExpansionChanged: () => listController.toggleExpansionByKey(item.key),
-      expandedContent: TExpansionShowModeScope(
-        showMode: TExpansionShowMode.inline,
-        child: widget.expandedBuilder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index),
-      ),
+      isExpanded: _isInlineExpanded(item),
+      expandSide: effectiveExpansionMode == TTableExpansionMode.side,
+      onExpansionChanged: () => _handleExpansionTap(item.key, !item.isExpanded),
+      expandedContent: _resolveExpandedContent(ctx, item, index),
       selectable: listController.selectable,
       isSelected: item.isSelected,
       onSelectionChanged: () => listController.toggleSelectionByKey(item.key),

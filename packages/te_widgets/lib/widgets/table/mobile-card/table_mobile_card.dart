@@ -82,12 +82,14 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     final wTheme = theme ?? context.theme.tableTheme.mobileCardTheme;
 
     final states = <WidgetState>{if (isSelected) WidgetState.selected};
+    final themeBgColor = wTheme.backgroundColor.resolve(states);
+    final resolvedBgColor = backgroundColor ?? (themeBgColor == colors.surface ? context.getBackgroundColor(colors.surface) : themeBgColor);
 
     return TCard(
       margin: wTheme.margin,
       elevation: wTheme.elevation,
       borderRadius: wTheme.borderRadius,
-      backgroundColor: backgroundColor ?? wTheme.backgroundColor.resolve(states),
+      backgroundColor: resolvedBgColor,
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -107,27 +109,25 @@ class TTableMobileCard<T, K> extends StatelessWidget {
               if (expandable)
                 TKeyValue(
                   "",
-                  widget: Builder(
-                    builder: (context) {
-                      final isDense = TTableScope.maybeOf(context)?.dense ?? false;
-                      return TIcon(
-                        icon: expandSide ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_down,
-                        size: isDense ? 18 : 20,
-                        color: colors.onSurfaceVariant,
-                        background: colors.surfaceContainerLow,
-                        padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
-                        borderRadius: BorderRadius.circular(20),
-                        turns: expandSide ? (0, -0.5) : (0, 0.5),
-                        active: isExpanded,
-                        onTap: onExpansionChanged,
-                      );
-                    }
-                  ),
+                  widget: Builder(builder: (context) {
+                    final isDense = TTableScope.maybeOf(context)?.dense ?? false;
+                    return TIcon(
+                      icon: expandSide ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_down,
+                      size: isDense ? 18 : 20,
+                      color: colors.onSurfaceVariant,
+                      background: colors.surfaceContainerLow,
+                      padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
+                      borderRadius: BorderRadius.circular(20),
+                      turns: expandSide ? (0, -0.5) : (0, 0.5),
+                      active: isExpanded,
+                      onTap: onExpansionChanged,
+                    );
+                  }),
                   alignment: Alignment.bottomRight,
                 )
             ]),
           ),
-          if (isExpanded && expandedContent != null) Padding(padding: wTheme.padding, child: expandedContent!),
+          if (isExpanded && !expandSide && expandedContent != null) Padding(padding: wTheme.padding, child: expandedContent!),
         ],
       ),
     );

@@ -87,7 +87,7 @@ class TBadge extends StatelessWidget {
       return child;
     }
 
-    final badgeColor = color ?? AppColors.danger;
+    final badgeColor = color ?? context.theme.danger;
     final badgeTextColor = textColor ?? Colors.white;
 
     return Stack(

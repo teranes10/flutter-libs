@@ -212,7 +212,7 @@ class TTableHeader<T, K> {
     this.alignment,
   })  : map = get,
         builder = ((ctx, item, index) {
-          final activeCursor = TTableScope.maybeOf(ctx)?.activeCellNotifier;
+          final activeCursor = TTableCellScope.maybeOf(ctx);
           final data = item.data;
           final cellKey = "${item.key}_$text";
           final textStyle = ctx.theme.tableTheme.rowCardTheme.contentTextStyle;

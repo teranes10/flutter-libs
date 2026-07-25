@@ -1,11 +1,7 @@
 part of 'crud_table.dart';
 
-class _TCrudTopBar<T, K, F extends TFormBase> {
-  final _TCrudTableState<T, K, F> parent;
-
-  _TCrudTopBar({required this.parent});
-
-  Widget build(BuildContext ctx, BoxConstraints constraints) {
+extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F> {
+  Widget _buildTopBar(BuildContext ctx, BoxConstraints constraints) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TAlignedRow(
@@ -13,25 +9,25 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
         wrapperExpanded: true,
         wrapperModeThreshold: 2,
         left: [
-          if (parent.canCreate)
+          if (canCreate)
             TButton(
               type: TButtonType.tonal,
               icon: Icons.add,
-              text: parent.widget.config.addButtonText,
-              onPressed: (_) => parent.handleCreate(),
+              text: widget.config.addButtonText,
+              onPressed: (_) => handleCreate(),
             ),
-          ...parent.widget.config.topBarActions,
+          ...widget.config.topBarActions,
         ],
         right: [
-          if (parent.showTabs)
+          if (showTabs)
             TTabs(
               inline: true,
-              selectedValue: parent.currentTab,
+              selectedValue: currentTab,
               onTabChanged: (i) {
-                parent.currentTab = i;
-                parent.widget.config.onTabChange?.call(i);
+                currentTab = i;
+                widget.config.onTabChange?.call(i);
               },
-              tabs: parent.tabs,
+              tabs: tabs,
             ),
           _buildSearchBar(ctx).size(w: 275),
           _buildMoreOptionsButton(ctx),
@@ -42,19 +38,19 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
 
   Widget _buildSearchBar(BuildContext ctx) {
     return TTextField(
-      value: parent.listController.value.search,
+      value: listController.value.search,
       theme: ctx.theme.textFieldTheme.copyWith(
         size: TInputSize.sm,
         labelPosition: TLabelPosition.aboveField,
         decorationType: TInputDecorationType.filled,
         postWidget: Icon(Icons.search_rounded, size: 18, color: ctx.colors.onSurface),
       ),
-      placeholder: parent.widget.config.searchPlaceholder,
+      placeholder: widget.config.searchPlaceholder,
       onValueChanged: (String? input) {
-        if (parent.currentTab == 0) {
-          parent.listController.handleSearchChange(input ?? '');
+        if (currentTab == 0) {
+          listController.handleSearchChange(input ?? '');
         } else {
-          parent.archiveListController.handleSearchChange(input ?? '');
+          archiveListController.handleSearchChange(input ?? '');
         }
       },
     );
@@ -64,10 +60,10 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
     return TDropdown(
       items: [
         TDropdownItem(
-          icon: parent.dense ? Icons.density_small_rounded : Icons.density_medium_rounded,
-          text: parent.dense ? 'Comfortable Layout' : 'Dense Layout',
+          icon: dense ? Icons.density_small_rounded : Icons.density_medium_rounded,
+          text: dense ? 'Comfortable Layout' : 'Dense Layout',
           onTap: () {
-            parent.dense = !parent.dense;
+            dense = !dense;
           },
         ),
         TDropdownItem(
@@ -78,21 +74,21 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
               icon: Icons.view_list_rounded,
               text: 'Table View',
               onTap: () {
-                parent.viewMode = 0;
+                viewMode = 0;
               },
             ),
             TDropdownItem(
               icon: Icons.view_agenda_rounded,
               text: 'Card View',
               onTap: () {
-                parent.viewMode = 1;
+                viewMode = 1;
               },
             ),
             TDropdownItem(
               icon: Icons.grid_view_rounded,
               text: 'Grid View',
               onTap: () {
-                parent.viewMode = 2;
+                viewMode = 2;
               },
             ),
           ],
@@ -100,12 +96,12 @@ class _TCrudTopBar<T, K, F extends TFormBase> {
         TDropdownItem(
           icon: Icons.picture_as_pdf_rounded,
           text: 'Export as PDF',
-          onTap: () => parent.handleExportPdf(),
+          onTap: () => handleExportPdf(),
         ),
         TDropdownItem(
           icon: Icons.table_chart_rounded,
           text: 'Export as CSV',
-          onTap: () => parent.handleExportCsv(),
+          onTap: () => handleExportCsv(),
         ),
       ],
       child: TButton(

@@ -295,62 +295,62 @@ class _CustomColorPickerDialogState extends State<_CustomColorPickerDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            _buildGradientSlider(
-              label: 'Hue',
-              value: _hsvColor.hue,
-              min: 0,
-              max: 360,
-              gradientColors: hueGradient,
-              onChanged: (val) => setState(() => _hsvColor = _hsvColor.withHue(val)),
-            ),
-            _buildGradientSlider(
-              label: 'Saturation',
-              value: _hsvColor.saturation,
-              min: 0,
-              max: 1.0,
-              gradientColors: saturationGradient,
-              onChanged: (val) => setState(() => _hsvColor = _hsvColor.withSaturation(val)),
-            ),
-            _buildGradientSlider(
-              label: 'Value (Brightness)',
-              value: _hsvColor.value,
-              min: 0,
-              max: 1.0,
-              gradientColors: valueGradient,
-              onChanged: (val) => setState(() => _hsvColor = _hsvColor.withValue(val)),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: _hsvColor.toColor(),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
+              _buildGradientSlider(
+                label: 'Hue',
+                value: _hsvColor.hue,
+                min: 0,
+                max: 360,
+                gradientColors: hueGradient,
+                onChanged: (val) => setState(() => _hsvColor = _hsvColor.withHue(val)),
+              ),
+              _buildGradientSlider(
+                label: 'Saturation',
+                value: _hsvColor.saturation,
+                min: 0,
+                max: 1.0,
+                gradientColors: saturationGradient,
+                onChanged: (val) => setState(() => _hsvColor = _hsvColor.withSaturation(val)),
+              ),
+              _buildGradientSlider(
+                label: 'Value (Brightness)',
+                value: _hsvColor.value,
+                min: 0,
+                max: 1.0,
+                gradientColors: valueGradient,
+                onChanged: (val) => setState(() => _hsvColor = _hsvColor.withValue(val)),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: _hsvColor.toColor(),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '#${_hsvColor.toColor().toARGB32().toRadixString(16).substring(2).toUpperCase()}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                    Text(
-                      'R: ${(_hsvColor.toColor().r * 255).round()} G: ${(_hsvColor.toColor().g * 255).round()} B: ${(_hsvColor.toColor().b * 255).round()}',
-                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '#${_hsvColor.toColor().toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      Text(
+                        'R: ${(_hsvColor.toColor().r * 255).round()} G: ${(_hsvColor.toColor().g * 255).round()} B: ${(_hsvColor.toColor().b * 255).round()}',
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),

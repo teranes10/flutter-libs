@@ -106,15 +106,8 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   @override
   final TListController<T, K>? controller;
 
-  // Expandable configuration
-
-  /// Builder for expanded row content.
-  ///
-  /// When provided, rows can be expanded to show additional details.
-  final TListExpandedBuilder<T, K>? expandedBuilder;
-
-  /// Whether expansion happens on the side.
-  final bool expandSide;
+  /// Detailed configuration for expansion and item info.
+  final TTableDetails<T, K>? details;
 
   /// Number of pagination buttons to show.
   ///
@@ -127,6 +120,9 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   final List<int> itemsPerPageOptions;
 
   // Theme overrides
+
+  /// Whether the pagination bar is optional (only shown if there's more than 1 page or items to load).
+  final bool optionalPaginationBar;
 
   /// Grid layout mode.
   final TGridMode? grid;
@@ -167,9 +163,6 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
-  /// Opacity level to apply to headers and footer when table is dimmed.
-  final double? dimmedOpacity;
-
   /// Creates a data table component.
   const TDataTable({
     super.key,
@@ -183,8 +176,8 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.onLoad,
     this.itemKey,
     this.controller,
-    //Expandable
-    this.expandedBuilder,
+    //Details
+    this.details,
     //DataTable
     this.paginationTotalVisible = 7,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
@@ -200,10 +193,9 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.footerSticky,
     this.rowBuilder,
     this.rowColorBuilder,
-    this.dimmedOpacity,
     this.dense,
-    this.expandSide = false,
-  }) : assert(
+    this.optionalPaginationBar = false,
+  })  : assert(
           theme == null ||
               (grid == null &&
                   gridDelegate == null &&
@@ -264,18 +256,24 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
         ),
         headers: widget.headers,
         controller: listController,
-        expandedBuilder: widget.expandedBuilder,
-        beforeItemsBuilder: widget.beforeItemsBuilder,
+        details: widget.details,
         rowBuilder: widget.rowBuilder,
         rowColorBuilder: widget.rowColorBuilder,
-        dimmedOpacity: widget.dimmedOpacity,
-        expandSide: widget.expandSide,
+        beforeItemsBuilder: widget.beforeItemsBuilder,
       );
     });
   }
 
   Widget _buildToolbar(ColorScheme colors, BoxConstraints constraints) {
     if (listController.isEmpty) return SizedBox.shrink();
+
+    if (widget.optionalPaginationBar) {
+      final isOnlyOnePage = listController.totalPages <= 1;
+      final hasNoMoreItems = !listController.hasMoreItems;
+      if (isOnlyOnePage && hasNoMoreItems) {
+        return SizedBox.shrink();
+      }
+    }
 
     Widget toolbar = Container(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
@@ -296,9 +294,10 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
           ],
         ));
 
-    if (widget.dimmedOpacity != null) {
+    final dimmedOpacity = widget.details?.dimmedOpacity;
+    if (dimmedOpacity != null) {
       toolbar = Opacity(
-        opacity: widget.dimmedOpacity!,
+        opacity: dimmedOpacity,
         child: IgnorePointer(
           child: toolbar,
         ),

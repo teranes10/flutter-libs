@@ -13,11 +13,14 @@ class SelectFieldsPage extends StatefulWidget {
 class _SelectFieldsPageState extends State<SelectFieldsPage> {
   final _countryNotifier = ValueNotifier<String?>('');
   final _userNotifier = ValueNotifier<int?>(null);
+  final _footerValueNotifier = ValueNotifier<String?>('');
+  final List<String> _footerOptions = ['Item A', 'Item B', 'Item C'];
 
   @override
   void dispose() {
     _countryNotifier.dispose();
     _userNotifier.dispose();
+    _footerValueNotifier.dispose();
     super.dispose();
   }
 
@@ -243,6 +246,112 @@ TMultiSelect<String, String, String>(
             ],
           ),
 
+          // Lazy Loading Select
+          WidgetDocCard(
+            title: 'Lazy Loading Select',
+            description: 'Dropdown that loads items from the API only on first open',
+            icon: Icons.hourglass_empty,
+            preview: TSelect<String, String, String>(
+              label: 'Lazy Options',
+              placeholder: 'Click to load items...',
+              lazy: true,
+              onLoad: (options) async {
+                await Future.delayed(const Duration(seconds: 1)); // Simulate API delay
+                final allItems = ['Lazy Item A', 'Lazy Item B', 'Lazy Item C', 'Lazy Item D'];
+                final filtered = allItems.where((item) => item.toLowerCase().contains((options.search ?? '').toLowerCase())).toList();
+                return TLoadResult(filtered, filtered.length, hasNextPage: false);
+              },
+            ),
+            code: '''TSelect<String, String, String>(
+  label: 'Lazy Options',
+  placeholder: 'Click to load items...',
+  lazy: true, // Only fetch on first open
+  onLoad: (options) async {
+    await Future.delayed(const Duration(seconds: 1));
+    return TLoadResult(['Lazy Item A', 'Lazy Item B', 'Lazy Item C'], 3, hasNextPage: false);
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'lazy',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether to delay loading items until the dropdown is opened for the first time',
+              ),
+            ],
+          ),
+
+          // Select with Custom Footer (Create Option)
+          WidgetDocCard(
+            title: 'Select with Custom Footer',
+            description: 'Dropdown displaying a sticky footer action to create a new option inline',
+            icon: Icons.add_circle_outline,
+            preview: StatefulBuilder(
+              builder: (context, setState) {
+                return TSelect<String, String, String>(
+                  label: 'Project Options',
+                  placeholder: 'Select a project option',
+                  items: _footerOptions,
+                  valueNotifier: _footerValueNotifier,
+                  listTheme: context.theme.listTheme.copyWith(
+                    footerSticky: true,
+                    footerBuilder: (context) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TButton(
+                          type: TButtonType.tonal,
+                          size: TButtonSize.block,
+                          icon: Icons.add,
+                          text: 'Create New Option',
+                          onTap: () async {
+                            final form = _CreateOptionForm();
+                            final result = await TFormService.show(context, form);
+                            if (result != null) {
+                              final text = result.optionName.value.trim();
+                              if (text.isNotEmpty) {
+                                setState(() {
+                                  _footerOptions.add(text);
+                                  _footerValueNotifier.value = text;
+                                });
+                              }
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+            code: '''TSelect<String, String, String>(
+  label: 'Project Options',
+  placeholder: 'Select an option',
+  items: options,
+  listTheme: TListTheme(
+    footerSticky: true,
+    footerBuilder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TButton(
+          type: TButtonType.tonal,
+          icon: Icons.add,
+          text: 'Create New Option',
+          expanded: true,
+          onTap: () => showCreateOptionForm(context),
+        ),
+      );
+    },
+  ),
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'listTheme',
+                type: 'TListTheme?',
+                description: 'Custom theme for the inner list, where footerBuilder and footerSticky can be configured',
+              ),
+            ],
+          ),
+
           const SizedBox(height: 40),
         ],
       ),
@@ -257,4 +366,22 @@ class _User {
   final String email;
 
   _User(this.id, this.name, this.email);
+}
+
+class _CreateOptionForm extends TFormBase {
+  final optionName = TFieldProp<String>('');
+
+  @override
+  List<TFormField> get fields => [
+    TFormField.text(
+      optionName,
+      'Option Name',
+      placeholder: 'Enter option name',
+      isRequired: true,
+      rules: [(value) => value == null || value.trim().isEmpty ? 'Name is required' : null],
+    ),
+  ];
+
+  @override
+  String get formTitle => 'Create New Option';
 }

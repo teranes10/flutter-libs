@@ -224,6 +224,7 @@ class TInputFieldTheme {
   }
 
   InputDecoration buildInputDecoration(
+    BuildContext context,
     Set<WidgetState> states, {
     bool expands = false,
     Widget? beforePostWidget,
@@ -241,6 +242,15 @@ class TInputFieldTheme {
 
     final hasPrefix = beforePreWidget != null || preWidget != null;
     final hasSuffix = onClear != null || beforePostWidget != null || infoIcon != null || postWidget != null;
+
+    Color resolvedBgColor = backgroundColor.resolve(states);
+
+    if (decorationType == TInputDecorationType.filled && !(states.contains(WidgetState.disabled) || states.contains(WidgetState.error))) {
+      if (resolvedBgColor == context.colors.surfaceContainerLowest) {
+        final parentColor = context.getBackgroundColor(context.colors.surfaceContainerLowest);
+        resolvedBgColor = parentColor.adaptiveContrast(context, 0.025);
+      }
+    }
 
     return InputDecoration(
       border: inputBorder,
@@ -267,22 +277,21 @@ class TInputFieldTheme {
       suffixIcon: _buildPostWidget(
           beforePostWidget: beforePostWidget, onClear: onClear, infoIcon: labelPosition == TLabelPosition.floating ? infoIcon : null),
       filled: decorationType == TInputDecorationType.filled,
-      fillColor: backgroundColor.resolve(states),
+      fillColor: resolvedBgColor,
     );
   }
 
   Widget? _buildPreWidget(Widget? beforePreWidget) {
-    if (preWidget != null && beforePreWidget != null) {
-      return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [_buildPaddedWidget(beforePreWidget, isPrefix: true), _buildPaddedWidget(preWidget!, isPrefix: true)]);
-    } else if (preWidget != null) {
-      return _buildPaddedWidget(preWidget!, isPrefix: true);
-    } else if (beforePreWidget != null) {
-      return _buildPaddedWidget(beforePreWidget, isPrefix: true);
-    } else {
-      return SizedBox.shrink();
-    }
+    final children = [
+      if (beforePreWidget != null) _buildPaddedWidget(beforePreWidget, isPrefix: true),
+      if (preWidget != null) _buildPaddedWidget(preWidget!, isPrefix: true),
+    ];
+
+    if (children.isEmpty) return SizedBox.shrink();
+
+    // Wrapping in a Row absorbs the minHeight constraint from prefixIconConstraints,
+    // preventing the children from stretching vertically to fill the container height.
+    return Row(mainAxisSize: MainAxisSize.min, children: children);
   }
 
   Widget buildInfoIcon(String info, ColorScheme colors) {
@@ -313,8 +322,9 @@ class TInputFieldTheme {
     ];
 
     if (children.isEmpty) return SizedBox.shrink();
-    if (children.length == 1) return children[0];
 
+    // Wrapping in a Row absorbs the minHeight constraint from suffixIconConstraints,
+    // preventing the children from stretching vertically to fill the container height.
     return Row(mainAxisSize: MainAxisSize.min, children: children);
   }
 

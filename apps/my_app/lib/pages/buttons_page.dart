@@ -38,10 +38,10 @@ class _ButtonsPageState extends State<ButtonsPage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                TButton(type: TButtonType.solid, text: 'Primary', color: AppColors.primary, onTap: () {}),
-                TButton(type: TButtonType.solid, text: 'Secondary', color: AppColors.secondary, onTap: () {}),
-                TButton(type: TButtonType.solid, text: 'Success', color: AppColors.success, onTap: () {}),
-                TButton(type: TButtonType.solid, text: 'Danger', color: AppColors.danger, onTap: () {}),
+                TButton(type: TButtonType.solid, text: 'Primary', color: context.theme.primary, onTap: () {}),
+                TButton(type: TButtonType.solid, text: 'Secondary', color: context.theme.secondary, onTap: () {}),
+                TButton(type: TButtonType.solid, text: 'Success', color: context.theme.success, onTap: () {}),
+                TButton(type: TButtonType.solid, text: 'Danger', color: context.theme.danger, onTap: () {}),
               ],
             ),
             code: '''TButton(
@@ -72,10 +72,10 @@ class _ButtonsPageState extends State<ButtonsPage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                TButton(type: TButtonType.tonal, icon: Icons.home, text: 'Primary', color: AppColors.primary, onTap: () {}),
-                TButton(type: TButtonType.tonal, icon: Icons.settings, text: 'Secondary', color: AppColors.secondary, onTap: () {}),
-                TButton(type: TButtonType.tonal, icon: Icons.check, text: 'Success', color: AppColors.success, onTap: () {}),
-                TButton(type: TButtonType.tonal, icon: Icons.warning, text: 'Warning', color: AppColors.warning, onTap: () {}),
+                TButton(type: TButtonType.tonal, icon: Icons.home, text: 'Primary', color: context.theme.primary, onTap: () {}),
+                TButton(type: TButtonType.tonal, icon: Icons.settings, text: 'Secondary', color: context.theme.secondary, onTap: () {}),
+                TButton(type: TButtonType.tonal, icon: Icons.check, text: 'Success', color: context.theme.success, onTap: () {}),
+                TButton(type: TButtonType.tonal, icon: Icons.warning, text: 'Warning', color: context.theme.warning, onTap: () {}),
               ],
             ),
             code: '''TButton(
@@ -97,9 +97,9 @@ class _ButtonsPageState extends State<ButtonsPage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                TButton(type: TButtonType.outline, icon: Icons.add, text: 'Add', color: AppColors.primary, onTap: () {}),
-                TButton(type: TButtonType.outline, icon: Icons.edit, text: 'Edit', color: AppColors.info, onTap: () {}),
-                TButton(type: TButtonType.outline, icon: Icons.delete, text: 'Delete', color: AppColors.danger, onTap: () {}),
+                TButton(type: TButtonType.outline, icon: Icons.add, text: 'Add', color: context.theme.primary, onTap: () {}),
+                TButton(type: TButtonType.outline, icon: Icons.edit, text: 'Edit', color: context.theme.info, onTap: () {}),
+                TButton(type: TButtonType.outline, icon: Icons.delete, text: 'Delete', color: context.theme.danger, onTap: () {}),
               ],
             ),
             code: '''TButton(
@@ -120,10 +120,10 @@ class _ButtonsPageState extends State<ButtonsPage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                TButton(type: TButtonType.icon, icon: Icons.visibility, color: AppColors.success, onTap: () {}),
-                TButton(type: TButtonType.icon, icon: Icons.edit, color: AppColors.info, onTap: () {}),
-                TButton(type: TButtonType.icon, icon: Icons.archive, color: AppColors.warning, onTap: () {}),
-                TButton(type: TButtonType.icon, icon: Icons.delete_forever, color: AppColors.danger, onTap: () {}),
+                TButton(type: TButtonType.icon, icon: Icons.visibility, color: context.theme.success, onTap: () {}),
+                TButton(type: TButtonType.icon, icon: Icons.edit, color: context.theme.info, onTap: () {}),
+                TButton(type: TButtonType.icon, icon: Icons.archive, color: context.theme.warning, onTap: () {}),
+                TButton(type: TButtonType.icon, icon: Icons.delete_forever, color: context.theme.danger, onTap: () {}),
               ],
             ),
             code: '''TButton(
@@ -233,7 +233,7 @@ TButton(
                   text: 'Submit Form',
                   icon: Icons.send,
                   loading: true,
-                  color: AppColors.primary,
+                  color: context.theme.primary,
                   onPressed: (options) {
                     Future.delayed(const Duration(seconds: 2), () {
                       options.stopLoading();
@@ -293,8 +293,8 @@ TButton(
                   icon: Icons.notifications_none,
                   activeIcon: Icons.notifications_active,
                   text: 'Notifications',
-                  color: AppColors.grey,
-                  activeColor: AppColors.primary,
+                  color: context.theme.grey,
+                  activeColor: context.theme.primary,
                   onChanged: (isActive) => _showSnackBar('Notifications: $isActive'),
                 ),
               ],
@@ -338,7 +338,7 @@ TButton(
                   type: TButtonType.tonal,
                   icon: Icons.dashboard_outlined,
                   text: 'Dashboard',
-                  color: AppColors.primary,
+                  color: context.theme.primary,
                   onTap: () {},
                 ),
                 TButton(
@@ -346,7 +346,7 @@ TButton(
                   type: TButtonType.solid,
                   icon: Icons.shopping_cart_outlined,
                   text: 'Orders',
-                  color: AppColors.secondary,
+                  color: context.theme.secondary,
                   onTap: () {},
                 ),
                 TButton(
@@ -354,7 +354,7 @@ TButton(
                   type: TButtonType.outline,
                   icon: Icons.people_outline,
                   text: 'Customers',
-                  color: AppColors.success,
+                  color: context.theme.success,
                   onTap: () {},
                 ),
                 TButton(
@@ -362,7 +362,7 @@ TButton(
                   type: TButtonType.filledOutline,
                   icon: Icons.analytics_outlined,
                   text: 'Reports',
-                  color: AppColors.danger,
+                  color: context.theme.danger,
                   onTap: () {},
                 ),
               ],
@@ -433,11 +433,16 @@ TButton(
                     TButtonGroupItem(
                       icon: Icons.play_arrow,
                       text: 'Play',
-                      color: AppColors.success,
+                      color: context.theme.success,
                       onTap: () => debugPrint('Play tapped'),
                     ),
-                    TButtonGroupItem(icon: Icons.pause, text: 'Pause', color: AppColors.warning, onTap: () => debugPrint('Pause tapped')),
-                    TButtonGroupItem(icon: Icons.stop, text: 'Stop', color: AppColors.danger, onTap: () => debugPrint('Stop tapped')),
+                    TButtonGroupItem(
+                      icon: Icons.pause,
+                      text: 'Pause',
+                      color: context.theme.warning,
+                      onTap: () => debugPrint('Pause tapped'),
+                    ),
+                    TButtonGroupItem(icon: Icons.stop, text: 'Stop', color: context.theme.danger, onTap: () => debugPrint('Stop tapped')),
                   ],
                 ),
               ],

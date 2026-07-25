@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:te_widgets/widgets/tags-field/tags_field_mixin.dart';
@@ -79,6 +78,11 @@ class TMultiSelect<T, V, K> extends StatefulWidget
   final TListTheme? listTheme;
   @override
   final List<T>? items;
+  /// Number of items to display per page.
+  ///
+  /// For server-side loading ([onLoad]), defaults to 6.
+  /// For local [items], this is ignored — all items are loaded at once;
+  /// use [visibleItemsCount] to control how many rows are visible before scrolling.
   @override
   final int? itemsPerPage;
   @override
@@ -119,6 +123,16 @@ class TMultiSelect<T, V, K> extends StatefulWidget
   final ItemValueAccessor<T, V>? itemValue;
   final ItemChildrenAccessor<T>? itemChildren;
   final TListCardTheme? cardTheme;
+  final bool lazy;
+  /// The number of items to show as visible in the dropdown before scrolling.
+  ///
+  /// For local [items] (no [onLoad]), this controls the dropdown height:
+  /// all items are always rendered but only [visibleItemsCount] rows are
+  /// visible before the user needs to scroll. Defaults to 6.
+  ///
+  /// For server-side loading ([onLoad]), this also controls the dropdown height,
+  /// while [itemsPerPage] controls how many items are fetched per request.
+  final int? visibleItemsCount;
 
   const TMultiSelect({
     super.key,
@@ -159,17 +173,14 @@ class TMultiSelect<T, V, K> extends StatefulWidget
     this.itemChildren,
     this.cardTheme,
     this.itemValue,
+    this.lazy = false,
+    this.visibleItemsCount,
     ItemTextAccessor<T>? itemText,
     ItemKeyAccessor<T, K>? itemKey,
     bool? readOnly,
     this.onInputChanged,
   })  : readOnly = readOnly ?? !filterable,
         itemText = itemText ?? _defaultItemText,
-        assert(
-          !(itemKey != null && itemValue != null),
-          'You cannot provide both `itemKey` and `itemValue`. '
-          '`itemValue` will be used as key if provided.',
-        ),
         itemKey = itemKey ?? (itemValue != null ? itemValue as ItemKeyAccessor<T, K> : null);
 
   static String _defaultItemText<T>(T item) {
@@ -191,6 +202,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
         TPopupStateMixin<TMultiSelect<T, V, K>>,
         TListStateMixin<T, K, TMultiSelect<T, V, K>> {
   TListTheme get listTheme => widget.listTheme ?? context.theme.listTheme;
+  final Map<int, double> _itemHeights = {};
 
   @override
   TTagsFieldTheme get wTheme => widget.theme ?? context.theme.tagsFieldTheme;
@@ -205,11 +217,18 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
     );
   }
 
+  /// Whether local items (no [onLoad]) are being used.
+  bool get _isLocalItems => widget.onLoad == null;
+
   @override
   TListController<T, K> buildController() {
+    // For local items, load everything at once — no chunked pagination (-1).
+    // For server-side, respect itemsPerPage (default 6).
+    final effectiveItemsPerPage = _isLocalItems ? -1 : (widget.itemsPerPage ?? 6);
+
     return TListController<T, K>(
       items: widget.items ?? [],
-      itemsPerPage: widget.itemsPerPage ?? 6,
+      itemsPerPage: effectiveItemsPerPage,
       search: widget.search ?? '',
       searchDelay: widget.searchDelay,
       onLoad: widget.onLoad,
@@ -223,22 +242,83 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
 
   @override
   double get contentMaxHeight {
-    final itemsPerPage =
-        listController.isServerSide ? listController.itemsPerPage : min(listController.itemsPerPage, listController.flatItems.length);
+    // visibleItemsCount caps the visible rows in the dropdown.
+    // For local items, we never show an infinite-scroll footer.
+    final limit = widget.visibleItemsCount ?? widget.itemsPerPage ?? 6;
+    final totalItems = listController.flatItems.length;
+    final count =
+        (listController.isEmpty && listController.isFetching) ? 3 : (totalItems == 0 ? 1 : (totalItems < limit ? totalItems : limit));
 
-    return (itemsPerPage * 40) + 12 + (listController.isServerSide ? 4 : 0) + (shouldCenteredOverlay ? 62 : 0);
+    double heightSum = 0;
+    int itemsMeasured = 0;
+
+    for (int i = 0; i < count; i++) {
+      if (_itemHeights.containsKey(i)) {
+        heightSum += _itemHeights[i]!;
+        itemsMeasured++;
+      }
+    }
+
+    if (itemsMeasured < count) {
+      final average = itemsMeasured > 0 ? (heightSum / itemsMeasured) : 45.0;
+      heightSum += average * (count - itemsMeasured);
+    }
+
+    // Only add infinite-scroll footer height for server-side lists.
+    final hasMore = !_isLocalItems && listController.value.hasMoreItems;
+    final hasFooter = widget.listTheme?.footerBuilder != null || listTheme.footerBuilder != null;
+    final extraPadding = 16.0 +
+        16.0 +
+        (hasMore ? 40.0 : 0.0) +
+        (hasFooter ? 48.0 : 0.0) +
+        (listController.isServerSide ? 4.0 : 0.0) +
+        (shouldCenteredOverlay ? 62.0 : 0.0);
+    return heightSum + extraPadding;
   }
 
   @override
   Widget getContentWidget(BuildContext context) {
+    // Infinite scroll only makes sense for server-side loading.
+    // For local items, all items are already loaded — no scroll-to-load needed.
     final list = TList<T, K>(
       controller: listController,
-      theme: listTheme.copyWith(infiniteScroll: true),
-      cardTheme: widget.cardTheme,
-      itemTitle: widget.itemText,
-      itemSubTitle: widget.itemSubText,
-      itemImageUrl: widget.itemImageUrl,
-      onTap: _onItemSelected,
+      theme: listTheme.copyWith(
+        infiniteScroll: !_isLocalItems,
+        emptyStateBuilder: listTheme.emptyStateBuilder ??
+            (context) => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    child: Text('No items found', style: TextStyle(fontSize: 14, color: context.colors.onSurfaceVariant)),
+                  ),
+                ),
+      ),
+      itemBuilder: (ctx, item, index) {
+        TListCard toListCard(TListItem<T, K> item) {
+          return TListCard(
+            title: widget.itemText(item.data),
+            subTitle: widget.itemSubText?.call(item.data),
+            imageUrl: widget.itemImageUrl?.call(item.data),
+            isSelected: item.isSelected,
+            isExpanded: item.isExpanded,
+            level: item.level,
+            theme: widget.cardTheme,
+            multiple: true,
+            onTap: () => _onItemSelected(item),
+            children: item.children?.map((child) => toListCard(child)).toList(),
+          );
+        }
+
+        return TMeasureSize(
+          onMeasure: (height) {
+            if (_itemHeights[index] != height) {
+              setState(() {
+                _itemHeights[index] = height;
+              });
+            }
+          },
+          child: toListCard(item),
+        );
+      },
     );
 
     final showFilter = shouldCenteredOverlay || effectivePopupMode == TPopupMode.page;
@@ -258,7 +338,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
           ])
         : list;
 
-    return Padding(padding: EdgeInsets.fromLTRB(6, 16, 6, 0), child: content);
+    return Padding(padding: EdgeInsets.fromLTRB(6, 16, 6, 16), child: content);
   }
 
   @override
@@ -291,7 +371,9 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   void didChangeDependencies() {
     super.didChangeDependencies();
     final isPageMode = widget.popupMode == TPopupMode.page || (widget.popupMode == null && MediaQuery.of(context).isMobile);
-    if (isPageMode && widget.itemsPerPage == null && listController.itemsPerPage != 20) {
+    // Only bump itemsPerPage for server-side lists in page mode.
+    // Local lists always display all items regardless of mode.
+    if (isPageMode && !_isLocalItems && widget.itemsPerPage == null && listController.itemsPerPage != 20) {
       listController.updateState(who: 'didChangeDependencies_page_mode', itemsPerPage: 20);
     }
   }
@@ -300,7 +382,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   void initState() {
     super.initState();
 
-    if (listController.isEmpty && !listController.isFetching) {
+    if (!widget.lazy && listController.isEmpty && !listController.isFetching) {
       listController.handleRefresh();
     }
 
@@ -309,6 +391,9 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
 
   @override
   void showPopup(BuildContext context) {
+    if (widget.lazy && listController.isEmpty && !listController.isFetching) {
+      listController.handleRefresh();
+    }
     super.showPopup(context);
     _updateState();
   }
@@ -322,6 +407,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
   @override
   void onListStateChanged() {
     super.onListStateChanged();
+    _itemHeights.clear();
     _updateState();
   }
 
@@ -336,7 +422,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
       return;
     }
 
-    if (widget.itemValue == null && value.isNotEmpty) {
+    if (!_isLocalItems && widget.itemValue == null && value.isNotEmpty) {
       for (T item in value.cast<T>()) {
         final key = listController.itemKey(item);
         listController.itemsMap.putIfAbsent(key, () => item);

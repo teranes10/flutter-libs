@@ -73,6 +73,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     final infoIcon = _widget.info != null ? wTheme.buildInfoIcon(_widget.info!, colors) : null;
 
     return wTheme.buildInputDecoration(
+      context,
       states,
       expands: expands,
       beforePreWidget: beforePreWidget,

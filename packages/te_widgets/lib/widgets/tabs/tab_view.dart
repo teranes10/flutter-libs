@@ -188,10 +188,7 @@ class _TTabViewState<T> extends State<TTabView<T>> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             tabsWidget,
-            if (hasBoundedHeight)
-              Expanded(child: contentWidget)
-            else
-              contentWidget,
+            if (hasBoundedHeight) Expanded(child: contentWidget) else contentWidget,
           ],
         );
       },

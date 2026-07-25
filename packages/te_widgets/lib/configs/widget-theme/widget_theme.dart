@@ -115,7 +115,7 @@ class TWidgetTheme {
     return TWidgetTheme(
       isDarkMode: colors.isDarkMode,
       type: variant,
-      color: active ? AppColors.primary : AppColors.grey,
+      color: active ? colors.primary.toMaterial() : colors.onSurfaceVariant.toMaterial(),
       container: active ? colors.primaryContainer : colors.surfaceContainer,
       containerVariant: active ? colors.primaryContainer : colors.surfaceContainerHigh,
       onContainer: active ? colors.onPrimaryContainer : colors.onSurface,

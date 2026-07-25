@@ -26,7 +26,7 @@ class TAccordionTheme {
       backgroundColor: colors.surface,
       headerColor: colors.onSurface,
       contentColor: colors.onSurfaceVariant,
-      borderColor: colors.outlineVariant,
+      borderColor: Colors.transparent,
     );
   }
 }

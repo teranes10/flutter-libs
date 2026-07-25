@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +17,8 @@ class TLayout extends ConsumerStatefulWidget {
   final bool? isMinimized;
   final bool showHamburgerMenu;
   final bool showThemeToggle;
+  final bool showFullscreenToggle;
+  final bool showColorToggle;
   final bool showLogout;
   final VoidCallback? onLogout;
 
@@ -33,6 +36,8 @@ class TLayout extends ConsumerStatefulWidget {
     this.isMinimized,
     this.showHamburgerMenu = false,
     this.showThemeToggle = true,
+    this.showFullscreenToggle = true,
+    this.showColorToggle = true,
     this.showLogout = true,
     this.onLogout,
   });
@@ -45,6 +50,13 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
   bool _isMobileSidebarOpen = false;
   late AnimationController _overlayController;
   late Animation<double> _overlayAnimation;
+  bool _isFullscreen = false;
+
+  void _onFullscreenChange(bool isFullscreen) {
+    setState(() {
+      _isFullscreen = isFullscreen;
+    });
+  }
 
   @override
   void initState() {
@@ -60,10 +72,14 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
         }
       });
     }
+
+    _isFullscreen = TFullscreen.isFullscreen;
+    TFullscreen.registerListener(_onFullscreenChange);
   }
 
   @override
   void dispose() {
+    TFullscreen.unregisterListener(_onFullscreenChange);
     _overlayController.dispose();
     super.dispose();
   }
@@ -147,8 +163,8 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
       backgroundColor: theme.layoutFrame,
       bottomNavigationBar: isMini ? _buildBottomBar(context, colors, finalBottomBarItems) : null,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
+        child: Builder(
+          builder: (context) {
             return Stack(
               children: [
                 Padding(
@@ -158,27 +174,30 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
                       color: colors.surface,
                       borderRadius: BorderRadius.circular(isMini ? 0 : widget.mainCardRadius),
                     ),
-                    child: Column(
-                      children: [
-                        _buildTopBar(colors, isMini, homeItem, isSidebarMinimized, resolvedItems),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              if (!isMini)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 45, bottom: 28),
-                                  child: Sidebar(
-                                    items: sidebarItems,
-                                    width: widget.width,
-                                    minifiedWidth: widget.minifiedWidth,
-                                    isMinimized: isSidebarMinimized,
+                    child: TBackgroundColorScope(
+                      backgroundColor: colors.surface,
+                      child: Column(
+                        children: [
+                          _buildTopBar(colors, isMini, homeItem, isSidebarMinimized, resolvedItems),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                if (!isMini)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 45, bottom: 28),
+                                    child: Sidebar(
+                                      items: sidebarItems,
+                                      width: widget.width,
+                                      minifiedWidth: widget.minifiedWidth,
+                                      isMinimized: isSidebarMinimized,
+                                    ),
                                   ),
-                                ),
-                              _buildMainContent(colors, isMini, widget.child),
-                            ],
+                                _buildMainContent(colors, isMini, widget.child),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -235,7 +254,9 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
                   children: [
                     if (widget.profile != null) widget.profile!,
                     if (widget.showThemeToggle) _buildThemeToggle(colors),
+                    if (widget.showColorToggle) _buildColorToggle(colors),
                     if (widget.actions != null) ...widget.actions!,
+                    if (kIsWeb && widget.showFullscreenToggle) _buildFullscreenToggle(colors),
                     if (widget.showLogout) _buildLogoutButton(colors),
                   ],
                 ),
@@ -255,6 +276,46 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
       activeColor: Colors.cyan.shade600,
       active: context.isDarkMode,
       onChanged: (_) => ref.read(themeNotifierProvider.notifier).toggleTheme(),
+    );
+  }
+
+  Widget _buildFullscreenToggle(ColorScheme colors) {
+    return TButton(
+      size: TButtonSize.xs.copyWith(icon: 16),
+      type: TButtonType.icon,
+      icon: Icons.fullscreen,
+      activeIcon: Icons.fullscreen_exit,
+      activeColor: colors.primary,
+      color: colors.onSurfaceVariant,
+      active: _isFullscreen,
+      onChanged: (_) => TFullscreen.toggleFullscreen(),
+    );
+  }
+
+  Widget _buildColorToggle(ColorScheme colors) {
+    final themeState = ref.watch(themeNotifierProvider);
+    final activeColorIndex = themeState.primaryColorIndex;
+    final selectedColorOption = primaryColorOptions[activeColorIndex];
+
+    return TDropdown(
+      triggerMode: TDropdownTriggerMode.tap,
+      items: [
+        for (int i = 0; i < primaryColorOptions.length; i++)
+          TDropdownItem(
+            text: primaryColorOptions[i].name,
+            icon: Icons.circle,
+            color: primaryColorOptions[i].color,
+            onTap: () {
+              ref.read(themeNotifierProvider.notifier).selectColor(i);
+            },
+          ),
+      ],
+      child: TButton(
+        size: TButtonSize.xs.copyWith(icon: 16),
+        type: TButtonType.icon,
+        icon: Icons.palette_outlined,
+        color: selectedColorOption.color,
+      ),
     );
   }
 
@@ -434,7 +495,9 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
                                   children: [
                                     if (widget.profile != null) widget.profile!,
                                     if (widget.showThemeToggle) _buildThemeToggle(colors),
+                                    if (widget.showColorToggle) _buildColorToggle(colors),
                                     if (widget.actions != null) ...widget.actions!,
+                                    if (kIsWeb && widget.showFullscreenToggle) _buildFullscreenToggle(colors),
                                     if (widget.showLogout) _buildLogoutButton(colors),
                                   ],
                                 ),

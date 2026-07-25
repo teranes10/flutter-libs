@@ -475,14 +475,14 @@ TDateTimePicker(
                           final nights = checkOut.difference(checkIn).inDays;
                           return Container(
                             padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(color: AppColors.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               children: [
-                                Icon(Icons.info_outline, size: 16, color: AppColors.primary),
+                                Icon(Icons.info_outline, size: 16, color: context.theme.primary),
                                 SizedBox(width: 8),
                                 Text(
                                   'Total: $nights night${nights != 1 ? 's' : ''}',
-                                  style: TextStyle(fontSize: 13, color: AppColors.primary, fontWeight: FontWeight.w500),
+                                  style: TextStyle(fontSize: 13, color: context.theme.primary, fontWeight: FontWeight.w500),
                                 ),
                               ],
                             ),

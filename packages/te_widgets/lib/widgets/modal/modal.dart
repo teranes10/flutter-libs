@@ -66,19 +66,8 @@ class TModal extends StatelessWidget {
   /// Defaults to 500.
   final double? width;
 
-  final double? minWidth;
-  final double? minHeight;
-
   /// The content widget to display in the modal.
   final Widget child;
-
-  /// Custom header widget.
-  ///
-  /// If null and [title] or [showCloseButton] is provided, a default header is shown.
-  final Widget? header;
-
-  /// Custom footer widget.
-  final Widget? footer;
 
   /// The title text for the default header.
   final String? title;
@@ -92,9 +81,13 @@ class TModal extends StatelessWidget {
   /// Gap/margin around the modal.
   ///
   /// Defaults to 15.
-  final double? gap;
+  final double gap;
 
+  final double minWidth;
+  final double minHeight;
   final bool fullscreen;
+
+  final Function(BuildContext context, Widget child)? layoutBuilder;
 
   /// Creates a modal dialog.
   const TModal(
@@ -102,26 +95,37 @@ class TModal extends StatelessWidget {
     super.key,
     this.persistent = false,
     this.width,
-    this.minWidth,
-    this.minHeight,
-    this.header,
-    this.footer,
     this.title,
     this.showCloseButton,
     this.onClose,
-    this.gap,
+    this.gap = 50.0,
+    this.minWidth = 150.0,
+    this.minHeight = 100.0,
     this.fullscreen = false,
+    this.layoutBuilder,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final screenSize = MediaQuery.of(context).size;
-    final mGap = gap ?? 15;
-    final mWidth = fullscreen ? screenSize.width : (width ?? 500.0).clamp(250.0, screenSize.width - mGap);
-    final mHeight = fullscreen ? screenSize.height : null;
+
+    final mMaxWidth = screenSize.width - gap;
+    final mMaxHeight = screenSize.height - gap;
+
+    final mWidth = (fullscreen ? screenSize.width : (width ?? 500.0)).clamp(minWidth, mMaxWidth);
+    final mHeight = fullscreen ? screenSize.height.clamp(minHeight, mMaxHeight) : null;
+
+    final mConstraints = BoxConstraints(
+      minWidth: minWidth,
+      minHeight: minHeight,
+      maxWidth: mMaxWidth,
+      maxHeight: mMaxHeight,
+    );
+
     final mBorderRadius = BorderRadius.circular(12);
-    final mAlignment = context.isDesktop ? const FractionalOffset(0.5, 0.275) : Alignment.center;
+
+    const preferredTopRatio = 0.165;
 
     return GestureDetector(
       onTap: () {
@@ -131,47 +135,39 @@ class TModal extends StatelessWidget {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            Align(
-              alignment: mAlignment,
-              child: GestureDetector(
-                onTap: () {}, // Prevent tap propagation
-                child: Container(
-                  width: mWidth,
-                  height: mHeight,
-                  constraints: BoxConstraints(
-                    minWidth: minWidth ?? 250,
-                    minHeight: minHeight ?? 250,
-                    maxWidth: screenSize.width - mGap,
-                    maxHeight: screenSize.height - mGap,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: mBorderRadius,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Fixed header (non-scrollable
-                      if (header != null) header!,
-                      if (header == null && (title != null || showCloseButton == true)) _buildHeader(context, colors),
-
-                      // Scrollable content area
-                      Flexible(
-                        child: SingleChildScrollView(child: child),
-                      ),
-
-                      // Fixed footer (non-scrollable)
-                      if (footer != null) footer!,
-                    ],
-                  ),
+        body: Positioned.fill(
+          child: CustomSingleChildLayout(
+            delegate: _ModalPositionDelegate(preferredTopRatio: preferredTopRatio),
+            child: GestureDetector(
+              onTap: () {}, // Prevent tap propagation
+              child: Container(
+                width: mWidth,
+                height: mHeight,
+                constraints: mConstraints,
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: mBorderRadius,
                 ),
+                child: layoutBuilder?.call(context, child) ?? _layout(context, colors, child),
               ),
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _layout(BuildContext context, ColorScheme colors, Widget child) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if ((title != null || showCloseButton == true)) _buildHeader(context, colors),
+
+        // Scrollable content area
+        Flexible(
+          child: SingleChildScrollView(child: child),
+        ),
+      ],
     );
   }
 
@@ -207,4 +203,36 @@ class TModal extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Positions a modal dialog at [preferredTopRatio] from the top of the screen
+/// (e.g. 0.22 = 22% from top) for a natural upper-area feel on small dialogs.
+///
+/// Automatically clamps the position so the dialog never goes off-screen:
+/// - Small dialogs → appear at [preferredTopRatio] from top.
+/// - Large dialogs → top position shrinks toward 0 so they always fit.
+/// - Dialog is always horizontally centered.
+class _ModalPositionDelegate extends SingleChildLayoutDelegate {
+  final double preferredTopRatio;
+
+  const _ModalPositionDelegate({this.preferredTopRatio = 0.22});
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    // Pass through constraints unchanged — the dialog sizes itself.
+    return constraints;
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    // Center horizontally.
+    final x = (size.width - childSize.width) / 2;
+    final maxTop = (size.height - childSize.height).clamp(0.0, double.infinity);
+    final y = (size.height * preferredTopRatio).clamp(0.0, maxTop / 2);
+
+    return Offset(x, y);
+  }
+
+  @override
+  bool shouldRelayout(_ModalPositionDelegate old) => old.preferredTopRatio != preferredTopRatio;
 }

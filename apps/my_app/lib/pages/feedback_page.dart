@@ -41,7 +41,7 @@ class FeedbackPage extends StatelessWidget {
                 ),
                 TBadge(
                   label: 'New',
-                  color: AppColors.success,
+                  color: context.theme.success,
                   child: TButton(text: 'Features', size: TButtonSize.sm),
                 ),
               ],
@@ -72,9 +72,9 @@ TBadge(
               children: [
                 TProgressBar(value: 0.7, label: 'Standard Progress'),
                 const SizedBox(height: 24),
-                TProgressBar(value: 0.45, showPercentage: true, label: 'With Percentage', color: AppColors.success),
+                TProgressBar(value: 0.45, showPercentage: true, label: 'With Percentage', color: context.theme.success),
                 const SizedBox(height: 24),
-                TProgressBar(value: 0.9, height: 4, label: 'Slim Variant', color: AppColors.info),
+                TProgressBar(value: 0.9, height: 4, label: 'Slim Variant', color: context.theme.info),
               ],
             ),
             code: '''TProgressBar(
@@ -95,11 +95,11 @@ TBadge(
             title: 'Animated Progress',
             description: 'Progress bars with flowing and indeterminate animations',
             icon: Icons.auto_awesome,
-            preview: const Column(
+            preview: Column(
               children: [
-                TProgressBar(indeterminate: true, label: 'Indeterminate (Unknown Progress)', color: AppColors.primary),
+                TProgressBar(indeterminate: true, label: 'Indeterminate (Unknown Progress)', color: context.theme.primary),
                 SizedBox(height: 24),
-                TProgressBar(value: 0.65, flowing: true, label: 'Flowing Animation (Deterministic)', color: AppColors.warning),
+                TProgressBar(value: 0.65, flowing: true, label: 'Flowing Animation (Deterministic)', color: context.theme.warning),
               ],
             ),
             code: '''// Indeterminate state
@@ -135,15 +135,15 @@ TProgressBar(
             title: 'Circular Progress',
             description: 'Circular indicators for progress and loading',
             icon: Icons.refresh,
-            preview: const Wrap(
+            preview: Wrap(
               spacing: 32,
               runSpacing: 24,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 TCircularProgress(value: 0.75, showPercentage: true, label: 'Completed'),
                 TCircularProgress(indeterminate: true, size: 30, label: 'Loading...'),
-                TCircularProgress(value: 0.4, size: 60, strokeWidth: 8, showPercentage: true, color: AppColors.danger),
-                TCircularProgress(value: 0.9, size: 24, strokeWidth: 2, color: AppColors.success),
+                TCircularProgress(value: 0.4, size: 60, strokeWidth: 8, showPercentage: true, color: context.theme.danger),
+                TCircularProgress(value: 0.9, size: 24, strokeWidth: 2, color: context.theme.success),
               ],
             ),
             code: '''// Fixed value with percentage

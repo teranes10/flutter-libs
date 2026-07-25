@@ -98,4 +98,74 @@ class AppColors {
     900: Color(0xFF7E201E),
     950: Color(0xFF450B0A)
   });
+
+  static const MaterialColor indigo = MaterialColor(0xFF6366F1, {
+    50: Color(0xFFEEF2FF),
+    100: Color(0xFFE0E7FF),
+    200: Color(0xFFC7D2FE),
+    300: Color(0xFFA5B4FC),
+    400: Color(0xFF818CF8),
+    500: Color(0xFF6366F1),
+    600: Color(0xFF4F46E5),
+    700: Color(0xFF4338CA),
+    800: Color(0xFF3730A3),
+    900: Color(0xFF312E81),
+    950: Color(0xFF1E1B4B),
+  });
+
+  static const MaterialColor emeraldGreen = MaterialColor(0xFF10B981, {
+    50: Color(0xFFECFDF5),
+    100: Color(0xFFD1FAE5),
+    200: Color(0xFFA7F3D0),
+    300: Color(0xFF6EE7B7),
+    400: Color(0xFF34D399),
+    500: Color(0xFF10B981),
+    600: Color(0xFF059669),
+    700: Color(0xFF047857),
+    800: Color(0xFF065F46),
+    900: Color(0xFF064E3B),
+    950: Color(0xFF022C22),
+  });
+
+  static const MaterialColor roseGold = MaterialColor(0xFFF43F5E, {
+    50: Color(0xFFFFF1F2),
+    100: Color(0xFFFFE4E6),
+    200: Color(0xFFFECDD3),
+    300: Color(0xFFFDA4AF),
+    400: Color(0xFFFB7185),
+    500: Color(0xFFF43F5E),
+    600: Color(0xFFE11D48),
+    700: Color(0xFFBE123C),
+    800: Color(0xFF9F1239),
+    900: Color(0xFF881337),
+    950: Color(0xFF4C0519),
+  });
+
+  static const MaterialColor amberGold = MaterialColor(0xFFF59E0B, {
+    50: Color(0xFFFEF3C7),
+    100: Color(0xFFFDE68A),
+    200: Color(0xFFFCD34D),
+    300: Color(0xFFFBBF24),
+    400: Color(0xFFF59E0B),
+    500: Color(0xFFD97706),
+    600: Color(0xFFB45309),
+    700: Color(0xFF78350F),
+    800: Color(0xFF451A03),
+    900: Color(0xFF78350F),
+    950: Color(0xFF451A03),
+  });
+
+  static const MaterialColor cyberViolet = MaterialColor(0xFF8B5CF6, {
+    50: Color(0xFFF5F3FF),
+    100: Color(0xFFEDE9FE),
+    200: Color(0xFFDDD6FE),
+    300: Color(0xFFC4B5FD),
+    400: Color(0xFFA78BFA),
+    500: Color(0xFF8B5CF6),
+    600: Color(0xFF7C3AED),
+    700: Color(0xFF6D28D9),
+    800: Color(0xFF5B21B6),
+    900: Color(0xFF4C1D95),
+    950: Color(0xFF2E1065),
+  });
 }

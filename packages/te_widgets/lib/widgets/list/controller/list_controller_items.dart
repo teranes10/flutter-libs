@@ -174,8 +174,8 @@ extension TListControllerItems<T, K> on TListController<T, K> {
         who: 'removeItem',
         displayItems: displayItems.copyWithRemovedAt(index),
         totalItems: value.totalItems - 1,
-        selectedKeys: LinkedHashSet<K>.from(value.selectedKeys)..remove(key),
-        expandedKeys: LinkedHashSet<K>.from(value.expandedKeys)..remove(key),
+        selectedKeys: copyKeySet(value.selectedKeys)..remove(key),
+        expandedKeys: copyKeySet(value.expandedKeys)..remove(key),
       );
     }
   }
@@ -199,8 +199,8 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     final displayItems = value.displayItems;
     final newDisplayItems = displayItems.where((x) => !existingKeys.contains(x.key)).toList();
 
-    final newSelectedKeys = LinkedHashSet<K>.from(value.selectedKeys)..removeAll(existingKeys);
-    final newExpandedKeys = LinkedHashSet<K>.from(value.expandedKeys)..removeAll(existingKeys);
+    final newSelectedKeys = copyKeySet(value.selectedKeys)..removeAll(existingKeys);
+    final newExpandedKeys = copyKeySet(value.expandedKeys)..removeAll(existingKeys);
 
     updateState(
       who: 'removeItems',
@@ -240,8 +240,8 @@ extension TListControllerItems<T, K> on TListController<T, K> {
       who: 'clear',
       displayItems: const [],
       totalItems: 0,
-      selectedKeys: LinkedHashSet<K>(),
-      expandedKeys: LinkedHashSet<K>(),
+      selectedKeys: createEmptyKeySet(),
+      expandedKeys: createEmptyKeySet(),
       page: 1,
     );
   }

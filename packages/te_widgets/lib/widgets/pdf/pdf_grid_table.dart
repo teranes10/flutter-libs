@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data' show Uint8List;
 import 'package:flutter/material.dart' show BuildContext, ColorScheme;
 import 'package:pdf/widgets.dart' as pw;
@@ -27,23 +28,38 @@ class TPdfGridTableHelper {
     double totalEstimatedWidth = 0;
     for (final header in effectiveHeaders) {
       final kv = TKeyValue(header.text, width: header.minWidth);
-      totalEstimatedWidth += 150; //kv.estimateColumnWidth(availableWidth, wTheme);
+      totalEstimatedWidth += _estimateNaturalWidth(kv, wTheme, availableWidth);
     }
 
     // Heuristic: if it fits horizontally and has a reasonable number of columns, use table
     if (totalEstimatedWidth <= availableWidth && effectiveHeaders.length <= 6) {
       return TTableHelper.from<T, K>(context, headers, items, decoration: decoration);
     } else {
+      final finalImageCache = imageCache ?? await TPdfWidgetHelper.preCacheImages(context, effectiveHeaders, items);
+
       return pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: items.map((item) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              fromHeaders<T, K>(context, effectiveHeaders, item,
-                  decoration: decoration, availableWidth: availableWidth, theme: wTheme, imageCache: imageCache),
-              pw.SizedBox(height: 15),
-            ],
+          return pw.Container(
+            margin: const pw.EdgeInsets.only(bottom: 6),
+            padding: const pw.EdgeInsets.all(4),
+            decoration: pw.BoxDecoration(
+              color: colors.surfaceContainerLowest.o(0.25).toPdfColor(),
+              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+              border: pw.Border.all(
+                color: colors.outlineVariant.o(0.25).toPdfColor(),
+                width: 0.5,
+              ),
+            ),
+            child: fromHeaders<T, K>(
+              context,
+              effectiveHeaders,
+              item,
+              decoration: decoration,
+              availableWidth: availableWidth - 8,
+              theme: wTheme,
+              imageCache: finalImageCache,
+            ),
           );
         }).toList(),
       );
@@ -135,7 +151,10 @@ class TPdfGridTableHelper {
         children: [
           pw.Text(
             keyValue.key,
-            style: decoration.getHeaderStyle(colors),
+            style: decoration.getHeaderStyle(colors).copyWith(
+                  fontSize: 8,
+                  fontWeight: pw.FontWeight.normal,
+                ),
           ),
           pw.SizedBox(height: 4),
           if (keyValue.widget != null) ...[
@@ -158,7 +177,7 @@ class TPdfGridTableHelper {
     double currentRowTotalWidth = 0;
 
     for (final keyValue in values) {
-      final columnWidth = 150.0; //keyValue.estimateColumnWidth(availableWidth, wTheme);
+      final columnWidth = _estimateNaturalWidth(keyValue, wTheme, availableWidth);
       final spacingNeeded = currentRowValues.isEmpty ? 0 : gridSpacing;
 
       if (currentRowTotalWidth + spacingNeeded + columnWidth <= availableWidth) {
@@ -202,6 +221,28 @@ class TPdfGridTableHelper {
     }
 
     return columnWidths;
+  }
+
+  static double _estimateNaturalWidth(TKeyValue kv, TKeyValueTheme theme, double maxWidth) {
+    if (kv.width != null) return kv.width!;
+
+    // Heuristic: string length * approx char width (e.g., 6.5)
+    final keyWidth = kv.key.length * 6.5;
+    final valWidth = (kv.value?.length ?? 0) * 6.5;
+    final maxTextWidth = math.max(keyWidth, valWidth);
+
+    double naturalW = maxTextWidth + theme.additionalNaturalWidth;
+
+    // Fallback: at least minGridColWidth
+    naturalW = math.max(naturalW, theme.minGridColWidth);
+
+    if (kv.minWidth != null) naturalW = math.max(naturalW, kv.minWidth!);
+    if (kv.maxWidth != null) naturalW = math.min(naturalW, kv.maxWidth!);
+
+    final baseMaxWidth = maxWidth * theme.maxColWidthFraction;
+    final constrainedMaxWidth = kv.maxWidth != null ? math.min(baseMaxWidth, kv.maxWidth!) : baseMaxWidth;
+
+    return math.min(naturalW, constrainedMaxWidth);
   }
 }
 

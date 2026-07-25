@@ -158,9 +158,15 @@ class _TTabsState<T> extends State<TTabs<T>> {
     );
   }
 
-  void _onSelectTab(TTab<T> tab) {
-    widget.controller?.selectTab(tab.value);
-    widget.onTabChanged?.call(tab.value);
+  void _onSelectTab(TTab<T> tab) async {
+    if (widget.controller != null) {
+      await widget.controller!.selectTab(tab.value);
+      if (widget.controller!.value == tab.value) {
+        widget.onTabChanged?.call(tab.value);
+      }
+    } else {
+      widget.onTabChanged?.call(tab.value);
+    }
   }
 
   Widget _buildTab(BuildContext context, TTab<T> tab, ColorScheme colors, bool inline) {

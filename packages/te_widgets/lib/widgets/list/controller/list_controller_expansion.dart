@@ -68,7 +68,7 @@ extension TListControllerExpansion<T, K> on TListController<T, K> {
   void expandItemKey(K key) {
     if (expansionMode == TExpansionMode.none) return;
 
-    final newExpandedKeys = expansionMode == TExpansionMode.single ? LinkedHashSet<K>.from([key]) : LinkedHashSet<K>.from(expandedKeys)
+    final newExpandedKeys = expansionMode == TExpansionMode.single ? copyKeySet([key]) : copyKeySet(expandedKeys)
       ..add(key);
 
     updateExpansionState(newExpandedKeys);
@@ -77,14 +77,14 @@ extension TListControllerExpansion<T, K> on TListController<T, K> {
   void collapseItemKey(K key) {
     if (expansionMode == TExpansionMode.none) return;
 
-    final newExpandedKeys = LinkedHashSet<K>.from(expandedKeys)..remove(key);
+    final newExpandedKeys = copyKeySet(expandedKeys)..remove(key);
     updateExpansionState(newExpandedKeys);
   }
 
   void expandItemKeys(Iterable<K> keys) {
     if (expansionMode != TExpansionMode.multiple || keys.isEmpty) return;
 
-    final newExpandedKeys = LinkedHashSet<K>.from(expandedKeys)..addAll(keys);
+    final newExpandedKeys = copyKeySet(expandedKeys)..addAll(keys);
     updateExpansionState(newExpandedKeys);
   }
 
@@ -102,7 +102,7 @@ extension TListControllerExpansion<T, K> on TListController<T, K> {
 
   void collapseAll() {
     if (expandedKeys.isEmpty) return;
-    updateExpansionState(LinkedHashSet<K>());
+    updateExpansionState(createEmptyKeySet());
   }
 
   void toggleExpandAll() {
@@ -111,9 +111,27 @@ extension TListControllerExpansion<T, K> on TListController<T, K> {
   }
 
   void updateExpansionState(LinkedHashSet<K> expandedKeys) {
-    updateState(
-      who: 'updateExpansionState',
-      expandedKeys: expandedKeys,
-    );
+    if (expandedKeys.isNotEmpty) {
+      final activeKey = expandedKeys.first;
+      final idx = value.displayItems.indexWhere((item) => item.key == activeKey);
+      final activeItem = idx != -1 ? value.displayItems[idx] : null;
+      updateState(
+        who: 'updateExpansionState',
+        expandedKeys: expandedKeys,
+        activeKey: activeKey,
+        activeItem: activeItem,
+        activeIndex: idx,
+        isCreatingItem: false,
+        isEditingItem: false,
+      );
+    } else {
+      updateState(
+        who: 'updateExpansionState',
+        expandedKeys: expandedKeys,
+        clearActive: true,
+        isCreatingItem: false,
+        isEditingItem: false,
+      );
+    }
   }
 }

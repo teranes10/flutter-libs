@@ -154,6 +154,8 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
             displayItems: const [],
             selectedKeys: LinkedHashSet<K>(),
             expandedKeys: LinkedHashSet<K>(),
+            activeKey: null,
+            activeItem: null,
             page: 1,
             itemsPerPage: itemsPerPage,
             totalItems: items.length,
@@ -249,6 +251,61 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     _activeRequests.clear();
   }
 
+  /// Puts the list into a state ready to create a new item.
+  /// Atomically collapses any expanded rows so that the transition from an
+  /// expanded-item view to the create form happens in a single state emission —
+  /// no intermediate "both expanded and creating" frame, no dim-opacity flash,
+  /// and no collapse-then-reopen flicker in side-panel mode.
+  void beginCreateItem() {
+    updateState(
+      who: 'beginCreateItem',
+      isCreatingItem: true,
+      clearActive: true,
+      expandedKeys: createEmptyKeySet(),
+    );
+  }
+
+  /// Cancels the create item state.
+  void cancelCreateItem() {
+    updateState(who: 'cancelCreateItem', isCreatingItem: false, clearActive: true);
+  }
+
+  /// Puts the list into a state ready to edit an item.
+  void beginEditItem(T item) {
+    final key = itemKey(item);
+    final index = value.displayItems.indexWhere((x) => x.key == key);
+    final activeItem = index != -1 ? value.displayItems[index] : itemFactory(item);
+    updateState(
+      who: 'beginEditItem',
+      isEditingItem: true,
+      activeKey: key,
+      activeItem: activeItem,
+      activeIndex: index,
+      expandedKeys: createEmptyKeySet(),
+    );
+  }
+
+  /// Cancels the edit item state.
+  void cancelEditItem() {
+    updateState(who: 'cancelEditItem', isEditingItem: false, clearActive: true);
+  }
+
+  /// Sets a value in the additional state and notifies listeners if it changed.
+  void setAdditionalState(String key, dynamic value) {
+    final map = Map<String, dynamic>.from(this.value.additional);
+    if (map[key] != value) {
+      map[key] = value;
+      updateState(who: 'setAdditionalState', additional: map);
+    }
+  }
+
+  /// Clears the additional state and notifies listeners.
+  void clearAdditionalState() {
+    if (value.additional.isNotEmpty) {
+      updateState(who: 'clearAdditionalState', additional: const {});
+    }
+  }
+
   @override
   void dispose() {
     _disposed = true;
@@ -262,12 +319,18 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     LinkedHashSet<K>? selectedKeys,
     LinkedHashSet<K>? expandedKeys,
     List<TListItem<T, K>>? displayItems,
+    K? activeKey,
+    TListItem<T, K>? activeItem,
+    int? activeIndex,
+    bool clearActive = false,
     int? page,
     int? itemsPerPage,
     int? totalItems,
     bool? loading,
     bool? fetching,
     bool? hasMoreItems,
+    bool? isCreatingItem,
+    bool? isEditingItem,
     String? search,
     TSelectionMode? selectionMode,
     TExpansionMode? expansionMode,
@@ -276,6 +339,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     String? nextCursor,
     List<String>? cursorHistory,
     Map<String, dynamic>? advancedSearch,
+    Map<String, dynamic>? additional,
   }) {
     if (_disposed) {
       debugPrint('Controller already disposed.');
@@ -294,10 +358,19 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       );
     }
 
+    final effectiveActiveKey = clearActive ? null : (activeKey ?? value.activeKey);
+    final effectiveActiveItem = clearActive ? null : (activeItem ?? value.activeItem);
+    final effectiveActiveIndex = clearActive ? -1 : (activeIndex ?? value.activeIndex);
+
     value = TListState<T, K>(
       displayItems: effectiveDisplayItems,
       selectedKeys: effectiveSelectedKeys,
       expandedKeys: effectiveExpandedKeys,
+      activeKey: effectiveActiveKey,
+      activeItem: effectiveActiveItem,
+      activeIndex: effectiveActiveIndex,
+      isCreatingItem: isCreatingItem ?? value.isCreatingItem,
+      isEditingItem: isEditingItem ?? value.isEditingItem,
       page: page ?? value.page,
       itemsPerPage: itemsPerPage ?? value.itemsPerPage,
       totalItems: totalItems ?? value.totalItems,
@@ -310,6 +383,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       nextCursor: nextCursor ?? value.nextCursor,
       cursorHistory: cursorHistory ?? value.cursorHistory,
       advancedSearch: advancedSearch ?? value.advancedSearch,
+      additional: additional ?? value.additional,
     );
 
     //debugPrint("$who: $value");
@@ -346,4 +420,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       );
     }).toList();
   }
+
+  LinkedHashSet<K> createEmptyKeySet() => LinkedHashSet<K>();
+  LinkedHashSet<K> copyKeySet(Iterable<K> keys) => LinkedHashSet<K>.from(keys);
 }

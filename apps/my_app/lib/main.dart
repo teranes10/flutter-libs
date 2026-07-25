@@ -16,14 +16,14 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode = ref.watch(themeNotifierProvider);
-    final theme = TAppTheme.defaultTheme();
+    final themeState = ref.watch(themeNotifierProvider);
+    final theme = TAppTheme.defaultTheme(primary: themeState.primaryColor);
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       theme: theme.lightTheme,
       darkTheme: theme.darkTheme,
-      themeMode: themeMode,
+      themeMode: themeState.themeMode,
       routerConfig: _router,
     );
   }

@@ -13,6 +13,13 @@ class TListState<T, K> {
   final String search;
   final TListError? error;
 
+  // Active item explicitly tracked (especially useful for single expansion modes)
+  final K? activeKey;
+  final TListItem<T, K>? activeItem;
+  final int activeIndex;
+  final bool isCreatingItem;
+  final bool isEditingItem;
+
   // Cursor pagination fields
   final String? currentCursor;
   final String? nextCursor;
@@ -20,6 +27,8 @@ class TListState<T, K> {
 
   // Advanced search filters
   final Map<String, dynamic>? advancedSearch;
+
+  final Map<String, dynamic> additional;
 
   const TListState({
     required this.selectedKeys,
@@ -33,17 +42,24 @@ class TListState<T, K> {
     required this.hasMoreItems,
     required this.search,
     this.error,
+    this.activeKey,
+    this.activeItem,
+    this.activeIndex = -1,
+    this.isCreatingItem = false,
+    this.isEditingItem = false,
     this.currentCursor,
     this.nextCursor,
     this.cursorHistory = const [],
     this.advancedSearch,
+    this.additional = const {},
   });
 
   @override
   String toString() {
     return 'TListState(page: $page, itemsPerPage: $itemsPerPage, total: $totalItems,'
-        'displayed: ${displayItems.length}, selected: ${selectedKeys.length}, expanded: ${expandedKeys.length}, '
+        'displayed: ${displayItems.length}, selected: ${selectedKeys.length}, expanded: ${expandedKeys.length}, activeKey: $activeKey,'
         'loading: $loading, fetching: $fetching, hasMoreItems: $hasMoreItems, search: $search, '
+        'isCreatingItem: $isCreatingItem, isEditingItem: $isEditingItem, '
         'nextCursor: $nextCursor, cursorHistory: ${cursorHistory.length})';
   }
 }
@@ -97,6 +113,7 @@ class TListItem<T, K> {
       isSelected: isSelected ?? this.isSelected,
       isExpanded: isExpanded ?? this.isExpanded,
       children: children ?? this.children,
+      level: level,
     );
   }
 

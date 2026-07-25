@@ -43,8 +43,8 @@ extension TButtonWidthX on TButton {
     final defaultTheme = ctx.theme.buttonTheme;
     final sizeData = size ?? theme?.size ?? defaultTheme.size;
     final shapeData = shape ?? theme?.shape ?? defaultTheme.shape;
-    final baseTheme = theme?.baseTheme ?? 
-        defaultTheme.baseTheme.rebuild(color: active ? (activeColor ?? color) : color, type: type?.colorType);
+    final baseTheme =
+        theme?.baseTheme ?? defaultTheme.baseTheme.rebuild(color: active ? (activeColor ?? color) : color, type: type?.colorType);
 
     // If it's a block button, it takes full width normally
     if (sizeData.minW.isInfinite && size == TButtonSize.block) return double.infinity;

@@ -65,9 +65,8 @@ class TSideSheet extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: title != null
-                ? Text(title!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600))
-                : const SizedBox.shrink(),
+            child:
+                title != null ? Text(title!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)) : const SizedBox.shrink(),
           ),
           if (showCloseButton == true) TIcon.close(size: 20, onTap: onClose),
         ],

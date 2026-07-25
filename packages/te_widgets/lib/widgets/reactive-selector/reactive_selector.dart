@@ -51,7 +51,7 @@ class TReactiveSelector<T, S> extends StatefulWidget {
   final ValueListenable<T> listenable;
 
   /// Function to select a value from the listenable.
-  final S Function(T) selector;
+  final S Function(T v) selector;
 
   /// Builder that receives the selected value and old value.
   final Widget Function(BuildContext context, S value, S? oldValue) builder;

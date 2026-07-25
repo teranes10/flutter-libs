@@ -62,10 +62,10 @@ class _TabsPageState extends State<TabsPage> {
                     icon: Icons.home,
                     content: (context) => Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: AppColors.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
-                          Icon(Icons.home, color: AppColors.primary, size: 32),
+                          Icon(Icons.home, color: context.theme.primary, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -117,12 +117,12 @@ TTabs<int>(
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [AppColors.primary.withAlpha(26), AppColors.secondary.withAlpha(26)]),
+                          gradient: LinearGradient(colors: [context.theme.primary.withAlpha(26), context.theme.secondary.withAlpha(26)]),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.star, color: AppColors.primary),
+                            Icon(Icons.star, color: context.theme.primary),
                             const SizedBox(width: 12),
                             Text(
                               'Content for Tab ${i + 1}',
@@ -195,11 +195,11 @@ TTabs<int>(
                           icon: Icons.dashboard,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: AppColors.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.dashboard, color: AppColors.primary, size: 32),
+                                Icon(Icons.dashboard, color: context.theme.primary, size: 32),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Dashboard Content',
@@ -217,11 +217,11 @@ TTabs<int>(
                           icon: Icons.analytics,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: AppColors.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.theme.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.analytics, color: AppColors.info, size: 32),
+                                Icon(Icons.analytics, color: context.theme.info, size: 32),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Analytics Content',
@@ -239,11 +239,11 @@ TTabs<int>(
                           icon: Icons.assessment,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: AppColors.warning.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.theme.warning.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.assessment, color: AppColors.warning, size: 32),
+                                Icon(Icons.assessment, color: context.theme.warning, size: 32),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Reports Content',
@@ -261,11 +261,11 @@ TTabs<int>(
                           icon: Icons.settings,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: AppColors.success.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.theme.success.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.settings, color: AppColors.success, size: 32),
+                                Icon(Icons.settings, color: context.theme.success, size: 32),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Settings Content',
@@ -606,9 +606,9 @@ TTabs<int>(
                     ),
                   ),
                 ],
-                selectedColor: AppColors.primary,
+                selectedColor: context.theme.primary,
                 unselectedColor: context.colors.onSurfaceVariant,
-                indicatorColor: AppColors.primary,
+                indicatorColor: context.theme.primary,
                 indicatorWidth: 3,
                 borderColor: context.colors.outlineVariant,
                 tabPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
@@ -661,10 +661,10 @@ TTabs<int>(
                     icon: Icons.home,
                     content: (context) => Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: AppColors.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
-                          Icon(Icons.home, color: AppColors.primary, size: 32),
+                          Icon(Icons.home, color: context.theme.primary, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -682,10 +682,10 @@ TTabs<int>(
                     icon: Icons.person,
                     content: (context) => Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: AppColors.success.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: context.theme.success.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
-                          Icon(Icons.person, color: AppColors.success, size: 32),
+                          Icon(Icons.person, color: context.theme.success, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -703,10 +703,10 @@ TTabs<int>(
                     icon: Icons.settings,
                     content: (context) => Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: AppColors.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: context.theme.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
-                          Icon(Icons.settings, color: AppColors.info, size: 32),
+                          Icon(Icons.settings, color: context.theme.info, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -784,11 +784,11 @@ TTabs<int>(
                           text: 'Dashboard',
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: AppColors.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.dashboard, color: AppColors.primary, size: 40),
+                                Icon(Icons.dashboard, color: context.theme.primary, size: 40),
                                 const SizedBox(height: 12),
                                 Text(
                                   'Dashboard',
@@ -808,11 +808,11 @@ TTabs<int>(
                           text: 'Analytics',
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: AppColors.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.theme.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.analytics, color: AppColors.info, size: 40),
+                                Icon(Icons.analytics, color: context.theme.info, size: 40),
                                 const SizedBox(height: 12),
                                 Text(
                                   'Analytics',
@@ -832,11 +832,11 @@ TTabs<int>(
                           text: 'Reports',
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: AppColors.warning.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: context.theme.warning.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.assessment, color: AppColors.warning, size: 40),
+                                Icon(Icons.assessment, color: context.theme.warning, size: 40),
                                 const SizedBox(height: 12),
                                 Text(
                                   'Reports',
