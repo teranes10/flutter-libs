@@ -135,10 +135,9 @@ class TModal extends StatelessWidget {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Positioned.fill(
-          child: CustomSingleChildLayout(
-            delegate: _ModalPositionDelegate(preferredTopRatio: preferredTopRatio),
-            child: GestureDetector(
+        body: CustomSingleChildLayout(
+          delegate: _ModalPositionDelegate(preferredTopRatio: preferredTopRatio),
+          child: GestureDetector(
               onTap: () {}, // Prevent tap propagation
               child: Container(
                 width: mWidth,
@@ -150,7 +149,6 @@ class TModal extends StatelessWidget {
                 ),
                 child: layoutBuilder?.call(context, child) ?? _layout(context, colors, child),
               ),
-            ),
           ),
         ),
       ),

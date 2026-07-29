@@ -1,12 +1,14 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 part 'list_controller_expansion.dart';
 part 'list_controller_items.dart';
 part 'list_controller_pagination.dart';
 part 'list_controller_selection.dart';
+part 'list_controller_riverpod.dart';
 
 /// A powerful controller for managing list state and operations.
 ///
@@ -240,22 +242,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
 
   void updateLoading() {
     updateState(who: 'handleLoading', loading: true);
-  }
-
-  void handleAsyncValue(AsyncValue<List<T>> next) {
-    next.when(
-      data: updateItems,
-      error: updateError,
-      loading: updateLoading,
-    );
-  }
-
-  void handleAsyncValueMap<S>(AsyncValue<S> next, List<T> Function(S) map) {
-    next.when(
-      data: (s) => updateItems(map(s)),
-      error: updateError,
-      loading: updateLoading,
-    );
   }
 
   void cancelPendingOperations() {

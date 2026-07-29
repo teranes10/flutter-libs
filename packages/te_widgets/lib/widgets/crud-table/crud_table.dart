@@ -118,13 +118,13 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   final Future<void> Function(T item)? onView;
 
   /// Callback for archiving an item.
-  final Future<bool> Function(T item)? onArchive;
+  final Future<bool?> Function(T item)? onArchive;
 
   /// Callback for restoring an archived item.
-  final Future<bool> Function(T item)? onRestore;
+  final Future<bool?> Function(T item)? onRestore;
 
   /// Callback for permanently deleting an item.
-  final Future<bool> Function(T item)? onDelete;
+  final Future<bool?> Function(T item)? onDelete;
 
   /// Configuration for the CRUD table.
   final TCrudConfig<T, K> config;

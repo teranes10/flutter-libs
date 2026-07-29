@@ -59,6 +59,9 @@ class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputV
   /// Where to add new items (first or last).
   final TItemAddPosition itemAddPosition;
 
+  /// Custom layout builder for the items list content.
+  final Widget Function(BuildContext context, Widget child, VoidCallback onAddNew)? layoutBuilder;
+
   /// Creates an items form builder.
   const TItemsFormBuilder({
     super.key,
@@ -69,6 +72,7 @@ class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputV
     this.label,
     this.buttonLabel = 'Add New',
     this.itemAddPosition = TItemAddPosition.first,
+    this.layoutBuilder,
   });
 
   @override
@@ -95,28 +99,68 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final backgroundColor = context.getBackgroundColor(context.colors.surface);
+    final borderColor = Colors.transparent;
 
-    return Column(
-      children: [
-        _buildToolbar(colors),
-        TList<T, int>(
-          shrinkWrap: true,
-          infiniteScroll: false,
-          padding: EdgeInsets.zero,
-          controller: _listController,
-          itemBuilder: (ctx, item, i) => TCard(
-              backgroundColor: context.getBackgroundColor(context.colors.surface),
-              padding: EdgeInsets.all(4),
-              margin: EdgeInsets.only(bottom: 10),
-              child: Stack(
+    final content = TList<T, int>(
+      controller: _listController,
+      itemBuilder: (ctx, item, i) => TCard(
+        backgroundColor: backgroundColor,
+        borderColor: borderColor,
+        padding: EdgeInsets.zero,
+        margin: EdgeInsets.only(bottom: 10),
+        child: Stack(
+          children: [
+            Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 16), child: TFormBuilder(input: item.data, onValueChanged: _update)),
+            Positioned(top: -9, right: -9, child: TIcon.close(size: 16, onTap: () => _removeItem(item.data)))
+          ],
+        ),
+      ),
+      theme: context.theme.listTheme.copyWith(
+        shrinkWrap: true,
+        infiniteScroll: false,
+        padding: EdgeInsets.zero,
+        animationBuilder: TListAnimationBuilders.slideInDown,
+        animationDuration: Duration(microseconds: 100),
+        emptyStateBuilder: (ctx) {
+          return TCard(
+            backgroundColor: backgroundColor,
+            borderColor: borderColor,
+            child: Center(
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 2,
                 children: [
-                  Padding(padding: EdgeInsets.all(10), child: TFormBuilder(input: item.data, onValueChanged: _update)),
-                  Positioned(top: -9, right: -9, child: TIcon.close(size: 16, onTap: () => _removeItem(item.data)))
+                  Text(
+                    'No items yet.',
+                    style: TextStyle(color: colors.onSurfaceVariant),
+                  ),
+                  TextButton(
+                    onPressed: _onNewItem,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    child: const Text('Add your first item'),
+                  ),
                 ],
-              )),
-        )
-      ],
+              ),
+            ),
+          );
+        },
+      ),
     );
+
+    return widget.layoutBuilder?.call(context, content, _onNewItem) ??
+        Column(
+          children: [
+            _buildToolbar(colors),
+            content,
+          ],
+        );
   }
 
   void _update() {
@@ -136,21 +180,25 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
 
   Widget _buildToolbar(ColorScheme colors) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+      padding: const EdgeInsets.fromLTRB(16, 2, 2, 2),
       margin: EdgeInsets.only(bottom: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           widget.label != null
-              ? Text(widget.label!, style: TextStyle(fontWeight: FontWeight.w300, fontSize: 16, color: colors.onSurface))
+              ? Text(
+                  widget.label!,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: colors.onSurface),
+                )
               : SizedBox.shrink(),
           TButton(
-              type: TButtonType.softText,
-              size: TButtonSize.sm,
-              text: widget.buttonLabel,
-              icon: Icons.add_rounded,
-              onPressed: (_) => _onNewItem())
+            type: TButtonType.text,
+            size: TButtonSize.sm.copyWith(hPad: 0),
+            text: widget.buttonLabel,
+            icon: Icons.add_rounded,
+            onTap: _onNewItem,
+          )
         ],
       ),
     );

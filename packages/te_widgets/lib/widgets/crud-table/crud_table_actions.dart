@@ -45,37 +45,40 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
     _listController.beginEditItem(item);
   }
 
-  void handleCreateInline(BuildContext ctx, F form) {
+  Future<bool> handleCreateInline(BuildContext ctx, F form) async {
     final scope = TTableScope.of(ctx);
-    _performAction(() async {
-      final newItem = await widget.onCreate?.call(form);
-      if (newItem != null) {
-        _listController.addItem(newItem);
-      }
-
+    final newItem = await widget.onCreate?.call(form);
+    if (newItem != null) {
+      _listController.addItem(newItem);
       if (mounted && ctx.mounted) {
         scope.close(ctx);
       }
-
       form.reset();
       form.dispose();
-    });
+      return true;
+    }
+    return false;
   }
 
-  void handleEditInline(BuildContext ctx, T item, F form) {
+  Future<bool> handleEditInline(BuildContext ctx, T item, F form) async {
     final scope = TTableScope.of(ctx);
-    _performAction(() async {
-      final updatedItem = await widget.onEdit?.call(item, form);
-      if (updatedItem != null) {
-        _listController.updateItem(item, updatedItem);
-      }
-
+    final updatedItem = await widget.onEdit?.call(item, form);
+    if (updatedItem != null) {
+      _listController.updateItem(item, updatedItem);
       if (mounted && ctx.mounted) {
         scope.close(ctx);
       }
-
       form.reset();
       form.dispose();
+      return true;
+    }
+    return false;
+  }
+
+  void handleView(T item) {
+    if (widget.onView == null) return;
+    _performAction(() async {
+      await widget.onView!(item);
     });
   }
 
@@ -83,7 +86,7 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
     TAlertService.confirmArchive(context, () async {
       await _performAction(() async {
         final success = await widget.onArchive!(item);
-        if (success) {
+        if (success == true) {
           _listController.removeItem(item);
           _permissionCache.remove(item);
         }
@@ -95,7 +98,7 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
     TAlertService.confirmRestore(context, () async {
       await _performAction(() async {
         final success = await widget.onRestore!(item);
-        if (success) {
+        if (success == true) {
           _archiveListController.removeItem(item);
           _permissionCache.remove(item);
         }
@@ -107,7 +110,7 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
     TAlertService.confirmDelete(context, () async {
       await _performAction(() async {
         final success = await widget.onDelete!(item);
-        if (success) {
+        if (success == true) {
           _archiveListController.removeItem(item);
           _permissionCache.remove(item);
         }
@@ -122,6 +125,9 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
       await action();
     } catch (e) {
       debugPrint('__ TCrudTable action error: $e');
+      if (mounted) {
+        TToastService.error(context, null, null, TError.from(e));
+      }
     }
   }
 }

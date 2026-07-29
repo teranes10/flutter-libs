@@ -20,6 +20,13 @@ abstract class TFormBase {
   /// Returns the list of fields in the form.
   List<TFormField> get fields;
 
+  /// Optional footer widget to display at the bottom of the form.
+  ///
+  /// Can be used to display additional information, warnings, summary statistics,
+  /// or dynamic/computed values based on form field inputs.
+  Widget? get footer => null;
+
+
   /// Optional list of fields rendered in the sidebar panel.
   ///
   /// When non-null, the form layout splits into a main area and a sidebar

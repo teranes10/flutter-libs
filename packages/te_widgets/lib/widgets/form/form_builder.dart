@@ -60,6 +60,9 @@ class TFormBuilder extends StatelessWidget {
 
   final bool initiallyExpanded;
 
+  /// Optional footer widget displayed below the form fields.
+  final Widget? footer;
+
   /// Creates a form builder.
   const TFormBuilder({
     super.key,
@@ -72,25 +75,22 @@ class TFormBuilder extends StatelessWidget {
     this.label,
     this.description,
     this.initiallyExpanded = false,
+    this.footer,
   }) : assert((input == null) != (fields == null), 'Provide either "input" or "fields", not both.');
 
   /// Builds the column widgets for [fieldList], attaching value-change listeners.
   List<Widget> _buildFieldCols(List<TFormField> fieldList) {
     return fieldList.map((field) {
-      final isForm = field._field is TFormBuilder || field._field is TItemsFormBuilder;
-
       field._attach(() {
         onValueChanged?.call();
         input?.onValueChanged();
       });
 
-      final widget = isForm ? Padding(padding: const EdgeInsets.only(top: 20), child: field._field) : field._field;
-
       return TGridCol(
         sm: field._size.sm,
         md: field._size.md,
         lg: field._size.lg,
-        child: widget,
+        child: field._field,
       );
     }).toList();
   }
@@ -100,6 +100,7 @@ class TFormBuilder extends StatelessWidget {
     final resolvedFields = input?.fields ?? fields ?? [];
     final resolvedSidebarFields = input?.sidebarFields;
     final resolvedSidebarSize = input?.sidebarSize ?? const TGridSize(sm: 0, md: 0, lg: 4);
+    final resolvedFooter = footer ?? input?.footer;
 
     Widget formContent;
 
@@ -153,6 +154,20 @@ class TFormBuilder extends StatelessWidget {
       );
     }
 
+    if (resolvedFooter != null) {
+      formContent = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          formContent,
+          Padding(
+            padding: EdgeInsets.only(top: gapY),
+            child: resolvedFooter,
+          ),
+        ],
+      );
+    }
+
     if (label == null) return formContent;
 
     return TAccordion(
@@ -161,6 +176,9 @@ class TFormBuilder extends StatelessWidget {
       leading: icon,
       initiallyExpanded: initiallyExpanded,
       content: formContent,
+      margin: EdgeInsets.all(0),
+      expandedMargin: EdgeInsets.only(top: 20),
+      contentPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
     );
   }
 }

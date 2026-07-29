@@ -29,6 +29,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
   final TKeyValueTheme keyValueTheme;
   final TAlertTheme alertTheme;
   final TDropdownTheme dropdownTheme;
+  final TAccordionTheme accordionTheme;
 
   const TWidgetThemeExtension({
     this.primary = AppColors.primary,
@@ -55,6 +56,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
     required this.keyValueTheme,
     required this.alertTheme,
     required this.dropdownTheme,
+    required this.accordionTheme,
   });
 
   @override
@@ -82,6 +84,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
     TKeyValueTheme? keyValueTheme,
     TAlertTheme? alertTheme,
     TDropdownTheme? dropdownTheme,
+    TAccordionTheme? accordionTheme,
   }) {
     return TWidgetThemeExtension(
       primary: primary ?? this.primary,
@@ -107,6 +110,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
       keyValueTheme: keyValueTheme ?? this.keyValueTheme,
       alertTheme: alertTheme ?? this.alertTheme,
       dropdownTheme: dropdownTheme ?? this.dropdownTheme,
+      accordionTheme: accordionTheme ?? this.accordionTheme,
     );
   }
 
@@ -133,6 +137,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
       keyValueTheme: TKeyValueTheme.defaultTheme(colors),
       alertTheme: TAlertTheme.defaultTheme(colors),
       dropdownTheme: TDropdownTheme.defaultTheme(colors),
+      accordionTheme: TAccordionTheme.defaultTheme(colors),
     );
   }
 }

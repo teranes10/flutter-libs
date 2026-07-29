@@ -198,7 +198,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         tooltip: 'View',
         icon: Icons.visibility,
         color: theme.success,
-        onPressed: (_) => widget.onView!(item),
+        onPressed: (_) => handleView(item),
       ));
     }
 
@@ -261,7 +261,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         tooltip: 'View',
         icon: Icons.visibility,
         color: theme.success,
-        onPressed: (_) => widget.onView!(item),
+        onPressed: (_) => handleView(item),
       ));
     }
 

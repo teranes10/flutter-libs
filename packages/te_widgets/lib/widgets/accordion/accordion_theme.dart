@@ -8,7 +8,9 @@ class TAccordionTheme {
   final double borderRadius;
   final double elevation;
   final EdgeInsets tilePadding;
-  final EdgeInsets padding;
+  final EdgeInsets contentPadding;
+  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry? expandedMargin;
 
   const TAccordionTheme({
     required this.backgroundColor,
@@ -18,7 +20,9 @@ class TAccordionTheme {
     this.borderRadius = 8.0,
     this.elevation = 0,
     this.tilePadding = const EdgeInsets.all(16.0),
-    this.padding = const EdgeInsets.fromLTRB(16, 8, 16, 16),
+    this.contentPadding = const EdgeInsets.fromLTRB(16, 8, 16, 16),
+    this.margin,
+    this.expandedMargin,
   });
 
   factory TAccordionTheme.defaultTheme(ColorScheme colors) {
@@ -27,6 +31,32 @@ class TAccordionTheme {
       headerColor: colors.onSurface,
       contentColor: colors.onSurfaceVariant,
       borderColor: Colors.transparent,
+    );
+  }
+
+  TAccordionTheme copyWith({
+    Color? backgroundColor,
+    Color? headerColor,
+    Color? contentColor,
+    Color? borderColor,
+    double? borderRadius,
+    double? elevation,
+    EdgeInsets? tilePadding,
+    EdgeInsets? contentPadding,
+    EdgeInsetsGeometry? margin,
+    EdgeInsetsGeometry? expandedMargin,
+  }) {
+    return TAccordionTheme(
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      headerColor: headerColor ?? this.headerColor,
+      contentColor: contentColor ?? this.contentColor,
+      borderColor: borderColor ?? this.borderColor,
+      borderRadius: borderRadius ?? this.borderRadius,
+      elevation: elevation ?? this.elevation,
+      tilePadding: tilePadding ?? this.tilePadding,
+      contentPadding: contentPadding ?? this.contentPadding,
+      margin: margin ?? this.margin,
+      expandedMargin: expandedMargin ?? this.expandedMargin,
     );
   }
 }

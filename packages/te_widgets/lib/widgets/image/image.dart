@@ -162,6 +162,8 @@ class TImage extends StatefulWidget with TPopupMixin {
   /// Alias for [showTitleSubtitleOverlayOnHover].
   final bool overlayTitleSubtitle;
 
+  final VoidCallback? onTap;
+
   /// Creates an image widget.
   const TImage({
     super.key,
@@ -189,6 +191,7 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.forceCache = false,
     this.showTitleSubtitleOverlayOnHover = false,
     this.overlayTitleSubtitle = false,
+    this.onTap,
   });
 
   /// Creates a circular image widget.
@@ -218,6 +221,7 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.forceCache = false,
     this.showTitleSubtitleOverlayOnHover = false,
     this.overlayTitleSubtitle = false,
+    this.onTap,
   });
 
   /// Creates a profile image with default styling.
@@ -556,6 +560,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
           if (canInteract) {
             showPopup(context);
           }
+          widget.onTap?.call();
         },
         customBorder: widget.border,
         hoverColor: colors.primaryContainer,

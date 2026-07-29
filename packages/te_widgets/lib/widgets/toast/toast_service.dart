@@ -43,13 +43,14 @@ class TToastService {
   /// Shows a custom toast notification.
   static void show(
     BuildContext context,
-    String message, {
+    String? message, {
     String? title,
     IconData? icon,
     Duration? duration,
     Alignment? alignment,
     Color? color,
     TVariant? type,
+    TError? error,
   }) {
     final theme = context.theme;
     final mColor = color ?? theme.primary;
@@ -83,10 +84,13 @@ class TToastService {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       if (title != null)
                         Text(title, style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w400, fontSize: 14)),
-                      Text(message, style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w300, fontSize: 13)),
+                      if (message != null)
+                        Text(message, style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w300, fontSize: 13)),
+                      if (error != null) TErrorBuilder(error: error, color: wTheme.onContainer, showIcon: false)
                     ],
                   ),
                 ),
@@ -123,7 +127,7 @@ class TToastService {
   }
 
   /// Shows an error toast.
-  static void error(BuildContext context, String message, [String? title]) {
-    show(context, message, title: title, icon: Icons.error_outline_rounded, color: context.theme.danger);
+  static void error(BuildContext context, String? message, [String? title, TError? error]) {
+    show(context, message, title: title, icon: Icons.error_outline_rounded, color: context.theme.danger, error: error);
   }
 }

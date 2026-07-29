@@ -124,7 +124,7 @@ class TIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final baseColor = color ?? colors.onSurfaceVariant;
+    final baseColor = color ?? colors.onSurfaceVariant.withAlpha(175);
     final hoverOrActiveColor = hoverColor ?? activeColor ?? themeType?.getColor(context);
 
     Widget buildIcon({required bool isHovering}) {
@@ -152,6 +152,7 @@ class TIcon extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: borderRadius,
+      hoverColor: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(shape: shape, color: background, borderRadius: borderRadius, boxShadow: shadow),
         padding: padding,

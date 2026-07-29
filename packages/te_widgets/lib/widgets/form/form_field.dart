@@ -547,6 +547,7 @@ class TFormField<T> {
     String? label,
     String? description,
     bool initiallyExpanded = false,
+    Widget? footer,
   }) {
     return TFormField<T>(
       prop: prop,
@@ -554,6 +555,7 @@ class TFormField<T> {
         label: label,
         description: description,
         input: prop.value,
+        footer: footer,
         onValueChanged: () {
           onValueChanged(prop.value);
         },
@@ -567,12 +569,14 @@ class TFormField<T> {
     String? label,
     String? description,
     bool initiallyExpanded = false,
+    Widget? footer,
   }) {
     return TFormField(
       builder: (onValueChanged) => TFormBuilder(
         label: label,
         description: description,
         fields: fields,
+        footer: footer,
         onValueChanged: () {
           onValueChanged(null);
         },
@@ -587,6 +591,7 @@ class TFormField<T> {
     String? label,
     String buttonLabel = 'Add New',
     TItemAddPosition itemAddPosition = TItemAddPosition.first,
+    bool initiallyExpanded = false,
   }) {
     return TFormField<List<T>>(
       prop: prop,
@@ -800,6 +805,20 @@ class TFormField<T> {
         valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
       ),
+    );
+  }
+
+  /// Creates a spacer form field with a specified [height], excluded from form valuation and validation.
+  static TFormField<dynamic> spacer([double height = 16]) {
+    return TFormField<dynamic>(
+      builder: (_) => SizedBox(height: height),
+    );
+  }
+
+  /// Creates a custom form field wrapping any arbitrary [child] widget, excluded from form valuation and validation.
+  static TFormField<dynamic> custom(Widget child) {
+    return TFormField<dynamic>(
+      builder: (_) => child,
     );
   }
 }

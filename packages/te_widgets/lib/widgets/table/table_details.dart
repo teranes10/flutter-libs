@@ -228,7 +228,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       imageUrl: imageUrl,
       actions: actions,
       onBackPressed: () => TTableScope.of(context).close(context),
-      shrinkWrap: details.mode == TTableExpansionMode.dialog,
+      shrinkWrap: details.mode != TTableExpansionMode.page,
       child: child,
     );
 
@@ -368,15 +368,23 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       key: const ValueKey('table_side_expand_layout'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: wTheme.expandSideListWidth ?? 275.0, child: _buildSideList(colors)),
+        SizedBox(width: wTheme.expandSideListWidth ?? 275.0, child: _buildSideList(colors, constraints)),
         Expanded(child: _buildScopedContent(config.$1, config.$2)),
       ],
     );
   }
 
-  Widget _buildSideList(ColorScheme colors) {
+  Widget _buildSideList(ColorScheme colors, BoxConstraints constraints) {
+    final hasBoundedHeight = constraints.hasBoundedHeight;
+    final listWidget = TList<T, K>(
+      controller: listController,
+      shrinkWrap: !hasBoundedHeight,
+      itemBuilder: (ctx, item, index) => _buildSideListItem(ctx, item, index),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: hasBoundedHeight ? MainAxisSize.max : MainAxisSize.min,
       children: [
         if (widget.search != null || widget.beforeItemsBuilder != null)
           Padding(
@@ -414,12 +422,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
             ],
           ),
         ),
-        Expanded(
-          child: TList<T, K>(
-            controller: listController,
-            itemBuilder: (ctx, item, index) => _buildSideListItem(ctx, item, index),
-          ),
-        ),
+        if (hasBoundedHeight) Expanded(child: listWidget) else listWidget,
       ],
     );
   }
