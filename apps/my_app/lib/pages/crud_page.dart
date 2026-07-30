@@ -97,6 +97,13 @@ class CrudPage extends StatelessWidget {
       itemSubTitle: (item) => item.sku,
       itemImageUrl: (item) => item.thumbnail,
       itemDescription: (item) => item.description,
+      itemInfo: (item) => [
+        TKeyValue.text('SKU', item.sku),
+        TKeyValue.text('Category', item.category),
+        TKeyValue.text('Stock', '${item.stock} units'),
+        TKeyValue.text('Price', '\$${item.price.toStringAsFixed(2)}'),
+        TKeyValue.text('Rating', '${item.rating} / 5.0'),
+      ],
       expansionMode: TTableExpansionMode.side,
       expandedBuilder: (ctx, item, index) {
         final data = item.data;

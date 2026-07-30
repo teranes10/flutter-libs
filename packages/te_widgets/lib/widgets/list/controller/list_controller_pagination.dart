@@ -312,7 +312,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
         rawDisplayItems = result.items.map((item) => itemFactory(item)).toList();
       }
 
-      updateItems(result.items);
+      updateItems(result.items, append: append);
 
       // Manage cursor history for backward navigation
       List<String> newCursorHistory = List.from(cursorHistory);

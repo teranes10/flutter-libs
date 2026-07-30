@@ -49,7 +49,9 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
   /// Access to current widget theme.
   TInputFieldTheme get wTheme => _widget.theme ?? context.theme.inputFieldTheme;
 
-  /// Current interactive states of the widget (focused, error, disabled).
+  bool _isHovering = false;
+
+  /// Current interactive states of the widget (focused, error, disabled, hovered).
   Set<WidgetState> get states {
     final isFocused = focusMixin?.isFocused ?? false;
     final hasErrors = validationMixin?.hasErrors ?? false;
@@ -59,6 +61,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
       if (hasErrors) WidgetState.error,
       if (_widget.disabled) WidgetState.disabled,
       if (valueMixin?.hasValue ?? false) WidgetState.selected,
+      if (_isHovering) WidgetState.hovered,
     };
   }
 
@@ -129,21 +132,31 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     String? placeholder,
     bool floatingLabelAlways = false,
   }) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(wTheme.borderRadius.resolve(states)),
-      hoverColor: colors.primary,
-      onTap: _widget.disabled
-          ? null
-          : () {
-              onTap?.call();
-              _widget.onTap?.call();
+    return buildWrapper(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(wTheme.borderRadius.resolve(states)),
+        hoverColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        onHover: (value) {
+          if (_isHovering != value) {
+            setState(() {
+              _isHovering = value;
+            });
+          }
+        },
+        onTap: _widget.disabled
+            ? null
+            : () {
+                onTap?.call();
+                _widget.onTap?.call();
 
-              if (focusOnTap) {
-                focusMixin?.focusNode.requestFocus();
-              }
-            },
-      child: buildWrapper(
+                if (focusOnTap) {
+                  focusMixin?.focusNode.requestFocus();
+                }
+              },
         child: InputDecorator(
+          isHovering: _isHovering,
           isFocused: states.contains(WidgetState.focused),
           isEmpty: floatingLabelAlways ? false : !states.contains(WidgetState.selected),
           decoration: buildInputDecoration(

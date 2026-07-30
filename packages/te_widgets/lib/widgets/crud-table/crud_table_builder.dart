@@ -55,6 +55,8 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
                       itemSubTitle: widget.itemSubTitle,
                       itemDescription: widget.itemDescription,
                       itemImageUrl: widget.itemImageUrl,
+                      itemInfo: widget.itemInfo,
+                      itemInfoGridInline: widget.itemInfoGridInline,
                       actions: (item) {
                         final buttonItems = controller == listController
                             ? _buildActiveActionButtons(theme, item)

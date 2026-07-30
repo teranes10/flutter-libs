@@ -81,12 +81,15 @@ class TKeyValueTheme {
   /// The maximum number of items allowed per row in grid layout.
   final int maxItemsPerRow;
 
+  /// Whether to display key and value inline in grid layout (Key: Value).
+  final bool gridInline;
+
   /// Creates a key-value theme.
   const TKeyValueTheme({
     required this.keyStyle,
     required this.labelStyle,
     required this.valueStyle,
-    this.gridSpacing = 0,
+    this.gridSpacing = 2,
     this.minGridColWidth = 110,
     this.forceKeyValue = false,
     this.keyValueBreakPoint = 300,
@@ -98,7 +101,7 @@ class TKeyValueTheme {
     this.narrowValueFlex = 3,
     this.narrowGap = 12,
     this.gridCellPadding = const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-    this.gridCellGap = 10,
+    this.gridCellGap = 2,
     this.maxColWidthFraction = 0.7,
     this.minFractionFixed = 1.0,
     this.minFractionStructured = 0.9,
@@ -106,6 +109,7 @@ class TKeyValueTheme {
     this.minFractionProse = 0.70,
     this.additionalNaturalWidth = 15,
     this.maxItemsPerRow = 12,
+    this.gridInline = false,
   });
 
   factory TKeyValueTheme.defaultTheme(ColorScheme colors) {
@@ -113,6 +117,60 @@ class TKeyValueTheme {
       keyStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
       labelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant),
       valueStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: colors.onSurface),
+    );
+  }
+
+  TKeyValueTheme copyWith({
+    TextStyle? keyStyle,
+    TextStyle? labelStyle,
+    TextStyle? valueStyle,
+    double? gridSpacing,
+    double? minGridColWidth,
+    bool? forceKeyValue,
+    double? keyValueBreakPoint,
+    bool? showLeftBorder,
+    Alignment? alignment,
+    EdgeInsets? narrowPadding,
+    double? narrowItemBottomSpacing,
+    int? narrowKeyFlex,
+    int? narrowValueFlex,
+    double? narrowGap,
+    EdgeInsets? gridCellPadding,
+    double? gridCellGap,
+    double? maxColWidthFraction,
+    double? minFractionFixed,
+    double? minFractionStructured,
+    double? minFractionCompact,
+    double? minFractionProse,
+    double? additionalNaturalWidth,
+    int? maxItemsPerRow,
+    bool? gridInline,
+  }) {
+    return TKeyValueTheme(
+      keyStyle: keyStyle ?? this.keyStyle,
+      labelStyle: labelStyle ?? this.labelStyle,
+      valueStyle: valueStyle ?? this.valueStyle,
+      gridSpacing: gridSpacing ?? this.gridSpacing,
+      minGridColWidth: minGridColWidth ?? this.minGridColWidth,
+      forceKeyValue: forceKeyValue ?? this.forceKeyValue,
+      keyValueBreakPoint: keyValueBreakPoint ?? this.keyValueBreakPoint,
+      showLeftBorder: showLeftBorder ?? this.showLeftBorder,
+      alignment: alignment ?? this.alignment,
+      narrowPadding: narrowPadding ?? this.narrowPadding,
+      narrowItemBottomSpacing: narrowItemBottomSpacing ?? this.narrowItemBottomSpacing,
+      narrowKeyFlex: narrowKeyFlex ?? this.narrowKeyFlex,
+      narrowValueFlex: narrowValueFlex ?? this.narrowValueFlex,
+      narrowGap: narrowGap ?? this.narrowGap,
+      gridCellPadding: gridCellPadding ?? this.gridCellPadding,
+      gridCellGap: gridCellGap ?? this.gridCellGap,
+      maxColWidthFraction: maxColWidthFraction ?? this.maxColWidthFraction,
+      minFractionFixed: minFractionFixed ?? this.minFractionFixed,
+      minFractionStructured: minFractionStructured ?? this.minFractionStructured,
+      minFractionCompact: minFractionCompact ?? this.minFractionCompact,
+      minFractionProse: minFractionProse ?? this.minFractionProse,
+      additionalNaturalWidth: additionalNaturalWidth ?? this.additionalNaturalWidth,
+      maxItemsPerRow: maxItemsPerRow ?? this.maxItemsPerRow,
+      gridInline: gridInline ?? this.gridInline,
     );
   }
 }

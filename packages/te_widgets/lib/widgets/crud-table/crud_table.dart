@@ -156,6 +156,12 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Function to extract the image URL from an item.
   final String? Function(T item)? itemImageUrl;
 
+  /// Function to extract key-value information from an item.
+  final List<TKeyValue>? Function(T item)? itemInfo;
+
+  /// Whether to display key and value inline in grid layout (Key: Value) for itemInfo. Defaults to true.
+  final bool itemInfoGridInline;
+
   final TTableTheme? theme;
 
   /// Custom builder for the row.
@@ -195,6 +201,8 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.itemSubTitle,
     this.itemDescription,
     this.itemImageUrl,
+    this.itemInfo,
+    this.itemInfoGridInline = true,
     this.theme,
     this.rowBuilder,
     this.rowColorBuilder,

@@ -24,6 +24,12 @@ class TPageWrapper extends StatefulWidget {
   /// Optional actions to display in the AppBar.
   final List<Widget>? actions;
 
+  /// Optional key-value information to display below the description.
+  final List<TKeyValue>? itemInfo;
+
+  /// Whether to display key and value inline in grid layout (Key: Value) for itemInfo. Defaults to true.
+  final bool itemInfoGridInline;
+
   /// Whether the page wrapper should shrink wrap its content vertically.
   final bool shrinkWrap;
 
@@ -44,6 +50,8 @@ class TPageWrapper extends StatefulWidget {
     this.description,
     this.onBackPressed,
     this.actions,
+    this.itemInfo,
+    this.itemInfoGridInline = true,
     this.shrinkWrap = false,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -83,6 +91,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
   @override
   Widget build(BuildContext context) {
     final isDesktop = context.isDesktop;
+    final isDark = context.isDarkMode;
     final colors = context.colors;
     final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor(colors.surface);
 
@@ -129,7 +138,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
                     widget.subTitle!,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade600,
+                      color: isDark ? Colors.grey.shade600 : Colors.grey.shade700,
                     ),
                   ),
                 ],
@@ -214,12 +223,32 @@ class _TPageWrapperState extends State<TPageWrapper> {
     final descriptionWidget = widget.description != null && widget.description!.isNotEmpty
         ? Container(
             padding: EdgeInsets.only(
+              top: 2,
               left: widget.padding.left,
               right: widget.padding.right,
             ),
             child: Text(
               widget.description!,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+              style: TextStyle(fontSize: 13, color: isDark ? Colors.grey.shade700 : Colors.grey.shade600),
+            ),
+          )
+        : null;
+
+    final itemInfoWidget = widget.itemInfo != null && widget.itemInfo!.isNotEmpty
+        ? Padding(
+            padding: EdgeInsets.only(
+              left: widget.padding.left - 5,
+              right: widget.padding.right,
+              top: widget.description != null && widget.description!.isNotEmpty ? 4.0 : 0.0,
+            ),
+            child: TKeyValueSection(
+              values: widget.itemInfo!,
+              theme: context.theme.keyValueTheme.copyWith(
+                gridInline: widget.itemInfoGridInline,
+                valueStyle: context.theme.keyValueTheme.valueStyle.copyWith(color: isDark ? Colors.grey.shade500 : Colors.grey.shade600),
+                keyStyle: context.theme.keyValueTheme.keyStyle.copyWith(color: isDark ? Colors.grey.shade600 : Colors.grey.shade500),
+                labelStyle: context.theme.keyValueTheme.labelStyle.copyWith(color: isDark ? Colors.grey.shade600 : Colors.grey.shade500),
+              ),
             ),
           )
         : null;
@@ -251,6 +280,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
                         children: [
                           SizedBox(height: appBarHeight),
                           if (descriptionWidget != null) descriptionWidget,
+                          if (itemInfoWidget != null) itemInfoWidget,
                           Padding(
                             padding: widget.contentPadding,
                             child: widget.child,
@@ -286,6 +316,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
                       children: [
                         if (appBarWidget != null) SizedBox(height: appBarHeight),
                         if (descriptionWidget != null) descriptionWidget,
+                        if (itemInfoWidget != null) itemInfoWidget,
                         Padding(
                           padding: widget.contentPadding,
                           child: widget.child,

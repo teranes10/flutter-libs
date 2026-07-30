@@ -28,10 +28,27 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     required super.keyStyle,
     required super.labelStyle,
     required super.valueStyle,
-    super.gridSpacing = 0,
-    super.minGridColWidth = 110,
-    super.forceKeyValue = false,
-    super.keyValueBreakPoint = 350,
+    super.gridSpacing,
+    super.minGridColWidth,
+    super.forceKeyValue,
+    super.keyValueBreakPoint,
+    super.showLeftBorder,
+    super.alignment,
+    super.narrowPadding,
+    super.narrowItemBottomSpacing,
+    super.narrowKeyFlex,
+    super.narrowValueFlex,
+    super.narrowGap,
+    super.gridCellPadding,
+    super.gridCellGap,
+    super.maxColWidthFraction,
+    super.minFractionFixed,
+    super.minFractionStructured,
+    super.minFractionCompact,
+    super.minFractionProse,
+    super.additionalNaturalWidth,
+    super.maxItemsPerRow,
+    super.gridInline,
   });
 
   factory TTableMobileCardTheme.defaultTheme(ColorScheme colors) {
@@ -51,6 +68,7 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     );
   }
 
+  @override
   TTableMobileCardTheme copyWith({
     EdgeInsets? margin,
     EdgeInsets? padding,
@@ -65,6 +83,23 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     double? minGridColWidth,
     bool? forceKeyValue,
     double? keyValueBreakPoint,
+    bool? showLeftBorder,
+    Alignment? alignment,
+    EdgeInsets? narrowPadding,
+    double? narrowItemBottomSpacing,
+    int? narrowKeyFlex,
+    int? narrowValueFlex,
+    double? narrowGap,
+    EdgeInsets? gridCellPadding,
+    double? gridCellGap,
+    double? maxColWidthFraction,
+    double? minFractionFixed,
+    double? minFractionStructured,
+    double? minFractionCompact,
+    double? minFractionProse,
+    double? additionalNaturalWidth,
+    int? maxItemsPerRow,
+    bool? gridInline,
   }) {
     return TTableMobileCardTheme(
       margin: margin ?? this.margin,
@@ -80,6 +115,23 @@ class TTableMobileCardTheme extends TKeyValueTheme {
       minGridColWidth: minGridColWidth ?? this.minGridColWidth,
       forceKeyValue: forceKeyValue ?? this.forceKeyValue,
       keyValueBreakPoint: keyValueBreakPoint ?? this.keyValueBreakPoint,
+      showLeftBorder: showLeftBorder ?? this.showLeftBorder,
+      alignment: alignment ?? this.alignment,
+      narrowPadding: narrowPadding ?? this.narrowPadding,
+      narrowItemBottomSpacing: narrowItemBottomSpacing ?? this.narrowItemBottomSpacing,
+      narrowKeyFlex: narrowKeyFlex ?? this.narrowKeyFlex,
+      narrowValueFlex: narrowValueFlex ?? this.narrowValueFlex,
+      narrowGap: narrowGap ?? this.narrowGap,
+      gridCellPadding: gridCellPadding ?? this.gridCellPadding,
+      gridCellGap: gridCellGap ?? this.gridCellGap,
+      maxColWidthFraction: maxColWidthFraction ?? this.maxColWidthFraction,
+      minFractionFixed: minFractionFixed ?? this.minFractionFixed,
+      minFractionStructured: minFractionStructured ?? this.minFractionStructured,
+      minFractionCompact: minFractionCompact ?? this.minFractionCompact,
+      minFractionProse: minFractionProse ?? this.minFractionProse,
+      additionalNaturalWidth: additionalNaturalWidth ?? this.additionalNaturalWidth,
+      maxItemsPerRow: maxItemsPerRow ?? this.maxItemsPerRow,
+      gridInline: gridInline ?? this.gridInline,
     );
   }
 }

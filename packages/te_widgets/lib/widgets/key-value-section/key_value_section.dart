@@ -162,6 +162,21 @@ class _GridCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (theme.gridInline) {
+      return Container(
+        padding: theme.gridCellPadding,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('${kv.key}:', style: theme.keyStyle).when(!kv.key.isNullOrBlank),
+            SizedBox(width: 8).when(!kv.key.isNullOrBlank),
+            Flexible(child: _CellContent(kv: kv, theme: theme)),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: theme.gridCellPadding,
       child: Column(

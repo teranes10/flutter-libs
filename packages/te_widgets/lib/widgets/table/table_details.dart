@@ -24,6 +24,12 @@ class TTableDetails<T, K> {
   /// Function to extract the image URL from an item (used in dialogs/pages).
   final String? Function(T item)? itemImageUrl;
 
+  /// Function to extract key-value information from an item (used in dialogs/pages).
+  final List<TKeyValue>? Function(T item)? itemInfo;
+
+  /// Whether to display key and value inline in grid layout (Key: Value) for itemInfo. Defaults to true.
+  final bool itemInfoGridInline;
+
   /// Actions to display in the page wrapper for a specific item. Only shown in view mode.
   final List<Widget> Function(T item)? actions;
 
@@ -75,6 +81,7 @@ class TTableDetails<T, K> {
     this.itemSubTitle,
     this.itemDescription,
     this.itemImageUrl,
+    this.itemInfo,
     this.actions,
     this.onWillExpand,
     this.onWillCollapse,
@@ -89,6 +96,7 @@ class TTableDetails<T, K> {
     this.createDialogWidth,
     this.autoExpandFirst = false,
     this.autoSelectFirst = false,
+    this.itemInfoGridInline = true,
   });
 }
 
@@ -219,6 +227,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final subTitle = (isCreating || itemData == null) ? null : details.itemSubTitle?.call(itemData);
     final description = (isCreating || itemData == null) ? null : details.itemDescription?.call(itemData);
     final imageUrl = (isCreating || itemData == null) ? null : details.itemImageUrl?.call(itemData);
+    final itemInfo = (isCreating || itemData == null) ? null : details.itemInfo?.call(itemData);
     final actions = (!isCreating && !isEditing && itemData != null) ? details.actions?.call(itemData) : null;
 
     final pageWrapper = TPageWrapper(
@@ -226,6 +235,8 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       subTitle: subTitle,
       description: description,
       imageUrl: imageUrl,
+      itemInfo: itemInfo,
+      itemInfoGridInline: details.itemInfoGridInline,
       actions: actions,
       onBackPressed: () => TTableScope.of(context).close(context),
       shrinkWrap: details.mode != TTableExpansionMode.page,

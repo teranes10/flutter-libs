@@ -33,23 +33,27 @@ extension TListControllerItems<T, K> on TListController<T, K> {
   /// Updates the entire list of items.
   ///
   /// Preserves selection and expansion state where possible.
-  void updateItems(List<T> items) {
+  void updateItems(List<T> items, {bool append = false}) {
     if (_useLocalPaginationItems) {
-      _localPaginationItems.clear();
+      if (!append) {
+        _localPaginationItems.clear();
+      }
       _localPaginationItems.addAll(items);
     }
 
-    Set<K> preservedKeys = <K>{...selectedKeys, ...expandedKeys};
+    if (!append) {
+      Set<K> preservedKeys = <K>{...selectedKeys, ...expandedKeys};
 
-    final preservedItems = <K, T>{};
-    for (final k in preservedKeys) {
-      final v = _itemsMap[k];
-      if (v != null) preservedItems[k] = v;
+      final preservedItems = <K, T>{};
+      for (final k in preservedKeys) {
+        final v = _itemsMap[k];
+        if (v != null) preservedItems[k] = v;
+      }
+
+      _itemsMap
+        ..clear()
+        ..addAll(preservedItems);
     }
-
-    _itemsMap
-      ..clear()
-      ..addAll(preservedItems);
 
     void addItemRecursive(T item) {
       final key = itemKey(item);
