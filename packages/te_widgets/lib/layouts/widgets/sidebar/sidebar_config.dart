@@ -66,10 +66,19 @@ class TSidebarItem {
 
   bool containsRoute(String currentRoute) {
     if (route == currentRoute) return true;
-    return children?.any((child) => child.containsRoute(currentRoute)) ?? false;
+    return visibleChildren.any((child) => child.containsRoute(currentRoute));
   }
 
   bool get hasChildren => children?.isNotEmpty ?? false;
+  bool get hasVisibleChildren => children?.any((child) => !child.isHidden) ?? false;
+  List<TSidebarItem> get visibleChildren => children?.where((child) => !child.isHidden).toList() ?? [];
+
+  bool get isHidden {
+    if (hidden) return true;
+    if (route == null && !hasVisibleChildren) return true;
+    return false;
+  }
+
   bool get isClickable => route != null || onTap != null;
 
   void tap(BuildContext context) {
@@ -79,10 +88,14 @@ class TSidebarItem {
 
   void _navigate(BuildContext context) {
     if (route == null) return;
-    if (route!.containsInMiddle('/')) {
-      context.push(route!, extra: extra);
-    } else {
-      context.go(route!, extra: extra);
+    try {
+      if (route!.containsInMiddle('/')) {
+        context.push(route!, extra: extra);
+      } else {
+        context.go(route!, extra: extra);
+      }
+    } catch (e) {
+      debugPrint('TSidebarItem._navigate error: $e');
     }
   }
 }

@@ -80,7 +80,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     final currentRoute = _getCurrentRoute();
     final shouldExpand = widget.item.initiallyExpanded || widget.item.containsRoute(currentRoute);
 
-    if (shouldExpand != _isExpanded && !widget.isMinimized) {
+    if (shouldExpand != _isExpanded && !widget.isMinimized && widget.item.hasVisibleChildren) {
       _setExpanded(shouldExpand);
     }
   }
@@ -105,8 +105,15 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   }
 
   void _handleTap() {
-    if (widget.item.hasChildren && !widget.isMinimized) {
-      _toggleExpanded();
+    if (widget.item.hasVisibleChildren && !widget.isMinimized) {
+      if (widget.item.route != null) {
+        _navigateAndExecute();
+        if (!_isExpanded) {
+          _setExpanded(true);
+        }
+      } else {
+        _toggleExpanded();
+      }
     } else if (widget.item.isClickable) {
       _navigateAndExecute();
     }
@@ -146,7 +153,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     _hoverTimer?.cancel();
     _hoverTimer = Timer(TSidebarConstants.hoverDelay, () {
       if (mounted && _isHovered) {
-        if (widget.item.hasChildren) {
+        if (widget.item.hasVisibleChildren) {
           _showOverlay();
         } else if (widget.item.text != null) {
           _showTooltip();
@@ -159,7 +166,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     final overlayEntry = OverlayEntry(
       builder: (context) => TSidebarOverlay(
         layerLink: _layerLink,
-        items: widget.item.children!,
+        items: widget.item.visibleChildren,
         level: widget.level + 1,
         theme: widget.theme,
         offset: Offset(14, -8),
@@ -187,6 +194,8 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
 
   @override
   Widget build(BuildContext context) {
+    if (widget.item.isHidden) return const SizedBox.shrink();
+
     final currentRoute = _getCurrentRoute();
     final isCurrentRoute = widget.item.route == currentRoute;
     final containsCurrentRoute = widget.item.containsRoute(currentRoute);
@@ -197,7 +206,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildMainItem(isCurrentRoute, containsCurrentRoute),
-          if (widget.item.hasChildren && !widget.isMinimized) _buildChildren(),
+          if (widget.item.hasVisibleChildren && !widget.isMinimized) _buildChildren(),
         ],
       ),
     );
@@ -251,7 +260,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: color),
           ),
         ],
-        if (widget.item.hasChildren && !widget.isMinimized) ...[
+        if (widget.item.hasVisibleChildren && !widget.isMinimized) ...[
           const Spacer(),
           _buildExpandIcon(color),
         ],
@@ -276,7 +285,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   }
 
   Widget _buildChildren() {
-    final visibleChildren = widget.item.children!.where((child) => !child.hidden).toList();
+    final visibleChildren = widget.item.visibleChildren;
     if (visibleChildren.isEmpty) return const SizedBox.shrink();
 
     return SizeTransition(

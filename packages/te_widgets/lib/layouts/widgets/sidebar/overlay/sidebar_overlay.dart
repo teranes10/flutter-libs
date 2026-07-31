@@ -158,7 +158,7 @@ class _TSidebarOverlayState extends State<TSidebarOverlay> with SingleTickerProv
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: widget.items.map((item) {
+                children: widget.items.where((item) => !item.isHidden).map((item) {
                   return TSidebarOverlayItem(
                     item: item,
                     level: widget.level,

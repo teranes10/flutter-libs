@@ -34,7 +34,7 @@ class SidebarItems extends StatelessWidget {
   }
 
   List<Widget> _buildAnimatedItems(TSidebarTheme sidebarTheme) {
-    final visibleItems = items.where((item) => !item.hidden).toList();
+    final visibleItems = items.where((item) => !item.isHidden).toList();
     return List.generate(visibleItems.length, (index) {
       return TweenAnimationBuilder<Offset>(
         tween: Tween<Offset>(

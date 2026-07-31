@@ -43,7 +43,7 @@ class _TSidebarOverlayItemState extends State<TSidebarOverlayItem> {
     _exitTimer?.cancel();
     TSidebarOverlayController.setMouseInArea(true);
 
-    if (widget.item.hasChildren) {
+    if (widget.item.hasVisibleChildren) {
       _scheduleSubOverlay();
     } else {
       TSidebarOverlayController.removeOverlaysDeeper(widget.level + 1);
@@ -71,7 +71,7 @@ class _TSidebarOverlayItemState extends State<TSidebarOverlayItem> {
   }
 
   void _showSubOverlay() {
-    if (!widget.item.hasChildren) return;
+    if (!widget.item.hasVisibleChildren) return;
 
     Offset? currentPosition;
     try {
@@ -91,7 +91,7 @@ class _TSidebarOverlayItemState extends State<TSidebarOverlayItem> {
     final overlayEntry = OverlayEntry(
       builder: (context) => TSidebarOverlay(
         layerLink: _layerLink,
-        items: widget.item.children!,
+        items: widget.item.visibleChildren,
         level: widget.level + 1,
         theme: widget.theme,
         parentPosition: currentPosition,
@@ -105,6 +105,8 @@ class _TSidebarOverlayItemState extends State<TSidebarOverlayItem> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.item.isHidden) return const SizedBox.shrink();
+
     final currentRoute = _getCurrentRoute();
     final isCurrentRoute = widget.item.route == currentRoute;
     final containsCurrentRoute = widget.item.containsRoute(currentRoute);
@@ -167,7 +169,7 @@ class _TSidebarOverlayItemState extends State<TSidebarOverlayItem> {
               softWrap: true,
             ),
           ),
-        if (widget.item.hasChildren)
+        if (widget.item.hasVisibleChildren)
           Padding(
             padding: const EdgeInsets.only(left: 8),
             child: Icon(
