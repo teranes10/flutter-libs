@@ -78,6 +78,7 @@ class TMultiSelect<T, V, K> extends StatefulWidget
   final TListTheme? listTheme;
   @override
   final List<T>? items;
+
   /// Number of items to display per page.
   ///
   /// For server-side loading ([onLoad]), defaults to 6.
@@ -124,6 +125,7 @@ class TMultiSelect<T, V, K> extends StatefulWidget
   final ItemChildrenAccessor<T>? itemChildren;
   final TListCardTheme? cardTheme;
   final bool lazy;
+
   /// The number of items to show as visible in the dropdown before scrolling.
   ///
   /// For local [items] (no [onLoad]), this controls the dropdown height:
@@ -283,6 +285,8 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
     final list = TList<T, K>(
       controller: listController,
       theme: listTheme.copyWith(
+        animationBuilder: TListAnimationBuilders.slideInDown,
+        animationDuration: Duration(milliseconds: 150),
         infiniteScroll: !_isLocalItems,
         emptyStateBuilder: listTheme.emptyStateBuilder ??
             (context) => Center(
@@ -324,21 +328,30 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
     final showFilter = shouldCenteredOverlay || effectivePopupMode == TPopupMode.page;
 
     final content = showFilter
-        ? Column(spacing: 7.5, children: [
-            if (widget.filterable)
-              Padding(
-                padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 5),
-                child: TTextField(
-                    placeholder: 'Search...',
-                    decorationType: TInputDecorationType.underline,
-                    value: listController.value.search,
-                    onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
-              ),
-            Expanded(child: list),
-          ])
+        ? LayoutBuilder(
+            builder: (context, constraints) {
+              final hasBoundedHeight = constraints.hasBoundedHeight;
+              return Column(
+                spacing: 7.5,
+                mainAxisSize: hasBoundedHeight ? MainAxisSize.max : MainAxisSize.min,
+                children: [
+                  if (widget.filterable)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 5),
+                      child: TTextField(
+                          placeholder: 'Search...',
+                          decorationType: TInputDecorationType.underline,
+                          value: listController.value.search,
+                          onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
+                    ),
+                  if (hasBoundedHeight) Expanded(child: list) else list,
+                ],
+              );
+            },
+          )
         : list;
 
-    return Padding(padding: EdgeInsets.fromLTRB(6, 16, 6, 16), child: content);
+    return Padding(padding: const EdgeInsets.fromLTRB(6, 16, 6, 16), child: content);
   }
 
   @override

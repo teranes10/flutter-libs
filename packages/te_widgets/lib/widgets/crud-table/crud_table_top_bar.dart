@@ -94,6 +94,75 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
           ],
         ),
         TDropdownItem(
+          icon: Icons.unfold_more_rounded,
+          text: 'Expand Mode',
+          children: [
+            TDropdownItem(
+              icon: Icons.dock_rounded,
+              text: 'Side Panel',
+              onTap: () {
+                expansionMode = TTableExpansionMode.side;
+              },
+            ),
+            TDropdownItem(
+              icon: Icons.aspect_ratio_rounded,
+              text: 'Modal Dialog',
+              onTap: () {
+                expansionMode = TTableExpansionMode.dialog;
+              },
+            ),
+            TDropdownItem(
+              icon: Icons.article_rounded,
+              text: 'Full Page',
+              onTap: () {
+                expansionMode = TTableExpansionMode.page;
+              },
+            ),
+            TDropdownItem(
+              icon: Icons.expand_more_rounded,
+              text: 'Inline Bottom',
+              onTap: () {
+                expansionMode = TTableExpansionMode.bottom;
+              },
+            ),
+          ],
+        ),
+        if (canCreate)
+          TDropdownItem(
+            icon: Icons.add_box_rounded,
+            text: 'Create Mode',
+            children: [
+              TDropdownItem(
+                icon: Icons.aspect_ratio_rounded,
+                text: 'Modal Dialog',
+                onTap: () {
+                  createMode = TTableExpansionMode.dialog;
+                },
+              ),
+              TDropdownItem(
+                icon: Icons.dock_rounded,
+                text: 'Side Panel',
+                onTap: () {
+                  createMode = TTableExpansionMode.side;
+                },
+              ),
+              TDropdownItem(
+                icon: Icons.article_rounded,
+                text: 'Full Page',
+                onTap: () {
+                  createMode = TTableExpansionMode.page;
+                },
+              ),
+              TDropdownItem(
+                icon: Icons.expand_more_rounded,
+                text: 'Inline Bottom',
+                onTap: () {
+                  createMode = TTableExpansionMode.bottom;
+                },
+              ),
+            ],
+          ),
+        TDropdownItem(
           icon: Icons.picture_as_pdf_rounded,
           text: 'Export as PDF',
           onTap: () => handleExportPdf(),

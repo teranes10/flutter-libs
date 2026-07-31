@@ -497,12 +497,24 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     if (isEditingThisInline) {
       final content = details?.createBuilder?.call(ctx, item, index);
       if (content == null || details == null) return null;
-      return getLayoutWrapper(ctx, details, false, true, item.data, content);
+      return TTableDetailsScope(
+        mode: TTableExpansionMode.bottom,
+        isEditing: true,
+        child: getLayoutWrapper(ctx, details, false, true, item.data, content),
+      );
     }
     if (item.isExpanded && mode == TTableExpansionMode.bottom) {
       final content = details?.builder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index);
-      if (details == null) return content;
-      return getLayoutWrapper(ctx, details, false, false, item.data, content);
+      if (details == null) {
+        return TTableDetailsScope(
+          mode: TTableExpansionMode.bottom,
+          child: content,
+        );
+      }
+      return TTableDetailsScope(
+        mode: TTableExpansionMode.bottom,
+        child: getLayoutWrapper(ctx, details, false, false, item.data, content),
+      );
     }
     return null;
   }

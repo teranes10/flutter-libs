@@ -15,6 +15,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
   final _userNotifier = ValueNotifier<int?>(null);
   final _footerValueNotifier = ValueNotifier<String?>('');
   final List<String> _footerOptions = ['Item A', 'Item B', 'Item C'];
+  List<String> _colors = [];
 
   @override
   void dispose() {
@@ -220,6 +221,8 @@ TSelect<User, int, int>(
               placeholder: 'Select a color',
               clearable: true,
               items: ['Red', 'Blue', 'Green', 'Yellow', 'Purple'],
+              value: _colors,
+              onValueChanged: (value) => _colors = value ?? [],
             ),
             code: '''TSelect<String, String, String>(
   label: 'Favorite Color',

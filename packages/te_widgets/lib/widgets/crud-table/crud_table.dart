@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -11,6 +13,7 @@ part 'crud_table_builder.dart';
 part 'crud_table_actions.dart';
 part 'crud_table_export.dart';
 part 'crud_table_form.dart';
+part 'crud_table_settings.dart';
 
 /// A complete CRUD (Create, Read, Update, Delete) table component.
 ///
@@ -231,9 +234,45 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   int _currentTab = 0;
   final Map<T, Map<String, bool>> _permissionCache = {};
 
+  bool _hasInitializedRouteSettings = false;
+
   bool _dense = false;
   bool get dense => _dense;
-  set dense(bool value) => setState(() => _dense = value);
+  set dense(bool value) {
+    setState(() => _dense = value);
+    _persistRouteSettings();
+  }
+
+  int _viewMode = 0; // 0: Table, 1: Card, 2: Grid
+  int get viewMode => _viewMode;
+  set viewMode(int value) {
+    setState(() => _viewMode = value);
+    _persistRouteSettings();
+  }
+
+  TTableExpansionMode? _selectedExpansionMode;
+  TTableExpansionMode get effectiveExpansionMode => _selectedExpansionMode ?? widget.expandedDetails?.mode ?? widget.expansionMode;
+  set expansionMode(TTableExpansionMode mode) {
+    setState(() => _selectedExpansionMode = mode);
+    _persistRouteSettings();
+  }
+
+  TTableExpansionMode? _selectedCreateMode;
+  TTableExpansionMode get effectiveCreateMode =>
+      _selectedCreateMode ?? widget.expandedDetails?.createMode ?? widget.createMode ?? widget.expansionMode;
+  set createMode(TTableExpansionMode mode) {
+    setState(() => _selectedCreateMode = mode);
+    _persistRouteSettings();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasInitializedRouteSettings && (widget.config.persistSettings ?? true)) {
+      _hasInitializedRouteSettings = true;
+      _restoreRouteSettings();
+    }
+  }
 
   @override
   void initState() {
@@ -323,11 +362,4 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   TListController<T, K> get archiveListController => _archiveListController;
   int get currentTab => _currentTab;
   set currentTab(int value) => setState(() => _currentTab = value);
-
-  int _viewMode = 0; // 0: Table, 1: Card, 2: Grid
-  int get viewMode => _viewMode;
-  set viewMode(int value) => setState(() => _viewMode = value);
-
-  TTableExpansionMode get effectiveExpansionMode => widget.expandedDetails?.mode ?? widget.expansionMode;
-  TTableExpansionMode get effectiveCreateMode => widget.expandedDetails?.createMode ?? widget.createMode ?? widget.expansionMode;
 }

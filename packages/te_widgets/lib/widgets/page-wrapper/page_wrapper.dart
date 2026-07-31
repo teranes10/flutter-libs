@@ -193,7 +193,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
               ),
               leading: !isDesktop && widget.onBackPressed != null
                   ? Padding(
-                      padding: EdgeInsets.only(left: widget.padding.left),
+                      padding: EdgeInsets.only(left: widget.padding.left, right: 3),
                       child: IconButton(
                         icon: const Icon(Icons.arrow_back),
                         onPressed: widget.onBackPressed,

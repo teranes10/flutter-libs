@@ -77,6 +77,7 @@ class _KeyValueLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveBottomSpacing = theme.gridInline ? (theme.narrowItemBottomSpacing / 2) : theme.narrowItemBottomSpacing;
     return Padding(
       padding: theme.narrowPadding,
       child: Column(
@@ -84,7 +85,7 @@ class _KeyValueLayout extends StatelessWidget {
           for (int i = 0; i < values.length; i++)
             Padding(
               padding: EdgeInsets.only(
-                bottom: i < (values.length - 1) ? theme.narrowItemBottomSpacing : 0,
+                bottom: i < (values.length - 1) ? effectiveBottomSpacing : 0,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,8 +164,14 @@ class _GridCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (theme.gridInline) {
+      final inlinePadding = EdgeInsets.only(
+        left: theme.gridCellPadding.left,
+        right: theme.gridCellPadding.right,
+        top: theme.gridCellPadding.top / 2,
+        bottom: theme.gridCellPadding.bottom / 2,
+      );
       return Container(
-        padding: theme.gridCellPadding,
+        padding: inlinePadding,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -275,7 +282,8 @@ class _RenderKeyValueGrid extends RenderBox
     }
   }
 
-  double get _spacing => _theme.gridSpacing;
+  double get _horizontalSpacing => _theme.gridHorizontalSpacing;
+  double get _verticalSpacing => _theme.gridVerticalSpacing;
   double get _maxColWidthFraction => _theme.maxColWidthFraction;
   double get _additionalNaturalWidth => _theme.additionalNaturalWidth;
 
@@ -346,7 +354,7 @@ class _RenderKeyValueGrid extends RenderBox
 
     for (int i = 0; i < children.length; i++) {
       final w = children[i].natural.width;
-      final needed = currentCount == 0 ? w : rowW + _spacing + w;
+      final needed = currentCount == 0 ? w : rowW + _horizontalSpacing + w;
       if (needed > maxWidth && currentCount > 0) {
         rowStarts.add(i);
         rowW = w;
@@ -377,7 +385,7 @@ class _RenderKeyValueGrid extends RenderBox
       final start = rowStarts[r];
       final end = r < rowStarts.length - 1 ? rowStarts[r + 1] : children.length;
       final count = end - start;
-      final totalSpacing = _spacing * (count - 1);
+      final totalSpacing = _horizontalSpacing * (count - 1);
       final available = maxWidth - totalSpacing;
 
       // Calculate total natural width of the row for flex factor sizing
@@ -430,11 +438,11 @@ class _RenderKeyValueGrid extends RenderBox
             parentUsesSize: true,
           );
           (child.parentData as _GridParentData).offset = Offset(x, y);
-          x += slotW + _spacing;
+          x += slotW + _horizontalSpacing;
         }
       }
 
-      y += rowH + (r < rowStarts.length - 1 ? _spacing : 0);
+      y += rowH + (r < rowStarts.length - 1 ? _verticalSpacing : 0);
     }
 
     return y;
@@ -532,7 +540,7 @@ class _RenderKeyValueGrid extends RenderBox
     // Ideal items-per-row: aim for equal distribution across estimated row count.
     // This seeds the DP toward balanced splits rather than greedy packing.
     final totalNaturalWidth = items.fold(0.0, (s, i) => s + i.natural.width);
-    final totalSpacing = _spacing * (items.length - 1);
+    final totalSpacing = _horizontalSpacing * (items.length - 1);
 
     if (items.length <= maxPerRow && (maxWidth - (totalNaturalWidth + totalSpacing)) > 0) return [0];
 
@@ -546,7 +554,7 @@ class _RenderKeyValueGrid extends RenderBox
     for (int end = 1; end <= n; end++) {
       for (int start = math.max(0, end - maxPerRow); start < end; start++) {
         final count = end - start;
-        final totalSpacing = _spacing * (count - 1);
+        final totalSpacing = _horizontalSpacing * (count - 1);
         final available = maxWidth - totalSpacing;
 
         double totalNatural = 0;

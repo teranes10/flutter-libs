@@ -75,6 +75,7 @@ class CrudPage extends StatelessWidget {
         return true;
       },
       config: TCrudConfig<ProductDto, int>(
+        flatActions: false,
         tabs: [
           TTab(text: "Active", value: 0),
           TTab(text: "Others", value: 2),

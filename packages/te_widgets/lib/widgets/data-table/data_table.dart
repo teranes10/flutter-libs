@@ -122,7 +122,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   // Theme overrides
 
   /// Whether the pagination bar is optional (only shown if there's more than 1 page or items to load).
-  final bool optionalPaginationBar;
+  final bool? optionalPaginationBar;
 
   /// Grid layout mode.
   final TGridMode? grid;
@@ -194,8 +194,8 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.rowBuilder,
     this.rowColorBuilder,
     this.dense,
-    this.optionalPaginationBar = false,
-  })  : assert(
+    this.optionalPaginationBar,
+  }) : assert(
           theme == null ||
               (grid == null &&
                   gridDelegate == null &&
@@ -205,7 +205,8 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
                   infiniteScroll == null &&
                   headerSticky == null &&
                   footerSticky == null &&
-                  dense == null),
+                  dense == null &&
+                  optionalPaginationBar == null),
           'Cannot provide both theme and individual theme properties.',
         );
 
@@ -232,12 +233,21 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
     );
   }
 
+  bool get effectiveOptionalPaginationBar {
+    if (widget.optionalPaginationBar != null) return widget.optionalPaginationBar!;
+    final isInsideExpandedScope = TTableDetailsScope.maybeOf(context) != null || TTableScope.maybeOf(context) != null;
+    if (isInsideExpandedScope) {
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
     return LayoutBuilder(builder: (_, constraints) {
-      final infiniteScroll = wTheme.infiniteScroll ?? constraints.isMobile;
+      final infiniteScroll = wTheme.shrinkWrap == true ? false : (wTheme.infiniteScroll ?? constraints.isMobile);
       final canHeaderSticky = wTheme.shrinkWrap == true ? false : !constraints.isMobile && constraints.maxHeight > 700;
       final canFooterSticky = wTheme.shrinkWrap == true ? false : !constraints.isMobile && constraints.maxHeight > 750;
 
@@ -267,7 +277,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
   Widget _buildToolbar(ColorScheme colors, BoxConstraints constraints) {
     if (listController.isEmpty) return SizedBox.shrink();
 
-    if (widget.optionalPaginationBar) {
+    if (effectiveOptionalPaginationBar) {
       final isOnlyOnePage = listController.totalPages <= 1;
       final hasNoMoreItems = !listController.hasMoreItems;
       if (isOnlyOnePage && hasNoMoreItems) {

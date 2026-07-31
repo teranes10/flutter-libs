@@ -39,6 +39,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
               return TDataTable<T, K>(
                 key: const ValueKey('table_layout'),
                 theme: effectiveTheme.copyWith(dense: dense),
+                optionalPaginationBar: widget.config.optionalPaginationBar,
                 headers: headers,
                 controller: controller,
                 itemsPerPageOptions: widget.config.itemsPerPageOptions,

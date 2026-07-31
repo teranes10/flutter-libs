@@ -65,6 +65,16 @@ class TCrudConfig<T, K> {
   /// Whether to render action buttons flat (inline/independently) instead of the default hoverable dropdown menu.
   final bool flatActions;
 
+  /// Whether the footer pagination bar is skipped when there's only 1 page and no more items.
+  final bool? optionalPaginationBar;
+
+  /// Optional unique key to identify and persist table layout settings (dense layout, view mode).
+  /// If null, settings are automatically persisted by the current route name.
+  final String? storageKey;
+
+  /// Whether to persist table layout settings (dense layout, view mode) per route or [storageKey]. Defaults to true.
+  final bool? persistSettings;
+
   /// Creates a CRUD configuration.
   const TCrudConfig({
     this.canView,
@@ -86,6 +96,9 @@ class TCrudConfig<T, K> {
     this.onTabChange,
     this.dense,
     this.flatActions = true,
+    this.optionalPaginationBar,
+    this.storageKey,
+    this.persistSettings = true,
   });
 }
 

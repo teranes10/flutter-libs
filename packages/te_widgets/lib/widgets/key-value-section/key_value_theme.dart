@@ -15,8 +15,11 @@ class TKeyValueTheme {
   /// The style for text values.
   final TextStyle valueStyle;
 
-  /// Spacing between cells in grid layout.
-  final double gridSpacing;
+  /// Horizontal spacing between cells/columns in grid layout.
+  final double gridHorizontalSpacing;
+
+  /// Vertical spacing between rows in grid layout.
+  final double gridVerticalSpacing;
 
   /// The minimum allowed width for columns in grid layout.
   final double minGridColWidth;
@@ -89,7 +92,8 @@ class TKeyValueTheme {
     required this.keyStyle,
     required this.labelStyle,
     required this.valueStyle,
-    this.gridSpacing = 8,
+    this.gridHorizontalSpacing = 0,
+    this.gridVerticalSpacing = 8,
     this.minGridColWidth = 110,
     this.forceKeyValue = false,
     this.keyValueBreakPoint = 300,
@@ -124,7 +128,8 @@ class TKeyValueTheme {
     TextStyle? keyStyle,
     TextStyle? labelStyle,
     TextStyle? valueStyle,
-    double? gridSpacing,
+    double? gridHorizontalSpacing,
+    double? gridVerticalSpacing,
     double? minGridColWidth,
     bool? forceKeyValue,
     double? keyValueBreakPoint,
@@ -150,7 +155,8 @@ class TKeyValueTheme {
       keyStyle: keyStyle ?? this.keyStyle,
       labelStyle: labelStyle ?? this.labelStyle,
       valueStyle: valueStyle ?? this.valueStyle,
-      gridSpacing: gridSpacing ?? this.gridSpacing,
+      gridHorizontalSpacing: gridHorizontalSpacing ?? this.gridHorizontalSpacing,
+      gridVerticalSpacing: gridVerticalSpacing ?? this.gridVerticalSpacing,
       minGridColWidth: minGridColWidth ?? this.minGridColWidth,
       forceKeyValue: forceKeyValue ?? this.forceKeyValue,
       keyValueBreakPoint: keyValueBreakPoint ?? this.keyValueBreakPoint,

@@ -77,10 +77,11 @@ class TListTheme {
     TGridMode? grid,
     TGridDelegateBuilder? gridDelegate,
   }) {
+    final resolvedShrinkWrap = shrinkWrap ?? this.shrinkWrap;
     return TListTheme(
       animationBuilder: animationBuilder ?? this.animationBuilder,
       animationDuration: animationDuration ?? this.animationDuration,
-      shrinkWrap: shrinkWrap ?? this.shrinkWrap,
+      shrinkWrap: resolvedShrinkWrap,
       physics: physics ?? this.physics,
       padding: padding ?? this.padding,
       emptyStateBuilder: emptyStateBuilder ?? this.emptyStateBuilder,
@@ -88,9 +89,9 @@ class TListTheme {
       loadingBuilder: loadingBuilder ?? this.loadingBuilder,
       headerBuilder: headerBuilder ?? this.headerBuilder,
       footerBuilder: footerBuilder ?? this.footerBuilder,
-      headerSticky: headerSticky ?? this.headerSticky,
-      footerSticky: footerSticky ?? this.footerSticky,
-      infiniteScroll: infiniteScroll ?? this.infiniteScroll,
+      headerSticky: resolvedShrinkWrap == true ? false : (headerSticky ?? this.headerSticky),
+      footerSticky: resolvedShrinkWrap == true ? false : (footerSticky ?? this.footerSticky),
+      infiniteScroll: resolvedShrinkWrap == true ? false : (infiniteScroll ?? this.infiniteScroll),
       infiniteScrollFooterBuilder: infiniteScrollFooterBuilder ?? this.infiniteScrollFooterBuilder,
       listSeparatorBuilder: listSeparatorBuilder ?? this.listSeparatorBuilder,
       dragProxyDecorator: dragProxyDecorator ?? this.dragProxyDecorator,

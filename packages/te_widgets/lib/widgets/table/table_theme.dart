@@ -21,6 +21,11 @@ class TTableTheme extends TListTheme {
   /// Width of the left side list when using [TTableExpansionMode.side].
   final double? expandSideListWidth;
 
+  /// Minimum width required to show the side list alongside the detail panel in [TTableExpansionMode.side].
+  ///
+  /// If available width is less than this threshold (defaults to 700.0), the side list is hidden.
+  final double? minSideExpandWidth;
+
   /// Creates a table theme.
   const TTableTheme({
     super.animationBuilder = TListAnimationBuilders.staggered,
@@ -45,6 +50,7 @@ class TTableTheme extends TListTheme {
     this.forceCardStyle,
     this.dense = false,
     this.expandSideListWidth,
+    this.minSideExpandWidth,
     required this.headerTheme,
     required this.mobileCardTheme,
     required this.rowCardTheme,
@@ -74,14 +80,16 @@ class TTableTheme extends TListTheme {
     bool? forceCardStyle,
     bool? dense,
     double? expandSideListWidth,
+    double? minSideExpandWidth,
     TTableRowHeaderTheme? headerTheme,
     TTableMobileCardTheme? mobileCardTheme,
     TTableRowCardTheme? rowCardTheme,
   }) {
+    final resolvedShrinkWrap = shrinkWrap ?? this.shrinkWrap;
     return TTableTheme(
       animationBuilder: animationBuilder ?? this.animationBuilder,
       animationDuration: animationDuration ?? this.animationDuration,
-      shrinkWrap: shrinkWrap ?? this.shrinkWrap,
+      shrinkWrap: resolvedShrinkWrap,
       physics: physics ?? this.physics,
       padding: padding ?? this.padding,
       emptyStateBuilder: emptyStateBuilder ?? this.emptyStateBuilder,
@@ -89,9 +97,9 @@ class TTableTheme extends TListTheme {
       loadingBuilder: loadingBuilder ?? this.loadingBuilder,
       headerBuilder: headerBuilder ?? this.headerBuilder,
       footerBuilder: footerBuilder ?? this.footerBuilder,
-      headerSticky: headerSticky ?? this.headerSticky,
-      footerSticky: footerSticky ?? this.footerSticky,
-      infiniteScroll: infiniteScroll ?? this.infiniteScroll,
+      headerSticky: resolvedShrinkWrap == true ? false : (headerSticky ?? this.headerSticky),
+      footerSticky: resolvedShrinkWrap == true ? false : (footerSticky ?? this.footerSticky),
+      infiniteScroll: resolvedShrinkWrap == true ? false : (infiniteScroll ?? this.infiniteScroll),
       infiniteScrollFooterBuilder: infiniteScrollFooterBuilder ?? this.infiniteScrollFooterBuilder,
       listSeparatorBuilder: listSeparatorBuilder ?? this.listSeparatorBuilder,
       dragProxyDecorator: dragProxyDecorator ?? this.dragProxyDecorator,
@@ -101,6 +109,7 @@ class TTableTheme extends TListTheme {
       forceCardStyle: forceCardStyle ?? this.forceCardStyle,
       dense: dense ?? this.dense,
       expandSideListWidth: expandSideListWidth ?? this.expandSideListWidth,
+      minSideExpandWidth: minSideExpandWidth ?? this.minSideExpandWidth,
       headerTheme: headerTheme ?? this.headerTheme,
       mobileCardTheme: mobileCardTheme ?? this.mobileCardTheme,
       rowCardTheme: rowCardTheme ?? this.rowCardTheme,

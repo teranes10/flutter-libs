@@ -4,6 +4,42 @@ typedef TTableCreateBuilder<T, K> = Widget Function(BuildContext ctx, TListItem<
 
 enum TTableExpansionMode { bottom, side, dialog, page }
 
+/// An [InheritedWidget] providing details expansion mode and state to descendants.
+class TTableDetailsScope extends InheritedWidget {
+  /// The active expansion mode (bottom, side, dialog, page).
+  final TTableExpansionMode mode;
+
+  /// Whether the expanded detail content is in creation mode.
+  final bool isCreating;
+
+  /// Whether the expanded detail content is in edit mode.
+  final bool isEditing;
+
+  const TTableDetailsScope({
+    super.key,
+    required this.mode,
+    this.isCreating = false,
+    this.isEditing = false,
+    required super.child,
+  });
+
+  /// Retrieves the nearest [TTableDetailsScope] from context (nullable).
+  static TTableDetailsScope? maybeOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<TTableDetailsScope>();
+  }
+
+  /// Retrieves the nearest [TTableDetailsScope] from context (throws if not found).
+  static TTableDetailsScope of(BuildContext context) {
+    final scope = maybeOf(context);
+    assert(scope != null, 'No TTableDetailsScope found in context');
+    return scope!;
+  }
+
+  @override
+  bool updateShouldNotify(TTableDetailsScope oldWidget) =>
+      mode != oldWidget.mode || isCreating != oldWidget.isCreating || isEditing != oldWidget.isEditing;
+}
+
 /// Details and expansion configuration for the table.
 class TTableDetails<T, K> {
   /// Defines how the expanded content is presented.
@@ -154,7 +190,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final v = listController.value;
     final isCreating = target.kind == _DetailKind.create;
     final isEditing = target.kind == _DetailKind.edit;
-    
+
     TListItem<T, K>? activeItem;
     if (isCreating) {
       activeItem = null;
@@ -164,7 +200,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       final index = v.displayItems.indexWhere((x) => x.key == target.key);
       activeItem = index != -1 ? v.displayItems[index] : null;
     }
-    
+
     final activeIndex = activeItem != null ? v.displayItems.indexWhere((x) => x.key == activeItem!.key) : -1;
     final itemData = activeItem?.data;
     Widget content(BuildContext ctx) => (isCreating || isEditing)
@@ -183,7 +219,12 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       dense: wTheme.dense ?? false,
       expansionMode: mode,
       onWillCollapse: widget.details?.onWillCollapse != null ? (dynamic key) => widget.details!.onWillCollapse!(key as K) : null,
-      child: Builder(builder: builder),
+      child: TTableDetailsScope(
+        mode: mode,
+        isCreating: listController.value.isCreatingItem,
+        isEditing: listController.value.isEditingItem,
+        child: Builder(builder: builder),
+      ),
     );
   }
 
@@ -375,11 +416,20 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final config = getEffectiveConfig();
     if (config == null) return const SizedBox.shrink();
 
+    final sideListWidth = wTheme.expandSideListWidth ?? 275.0;
+    final minRequiredWidth = wTheme.minSideExpandWidth ?? 700.0;
+    final showSideList = constraints.maxWidth >= minRequiredWidth;
+
+    if (!showSideList) {
+      return _buildScopedContent(config.$1, config.$2);
+    }
+
     return Row(
       key: const ValueKey('table_side_expand_layout'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: wTheme.expandSideListWidth ?? 275.0, child: _buildSideList(colors, constraints)),
+        SizedBox(width: sideListWidth, child: _buildSideList(colors, constraints)),
+        const SizedBox(width: 1),
         Expanded(child: _buildScopedContent(config.$1, config.$2)),
       ],
     );
@@ -449,7 +499,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       item: item,
       onTap: () => _handleExpansionTap(item.key, !isSelected),
       theme: wTheme.rowCardTheme.copyWith(
-        margin: const EdgeInsets.only(bottom: 3),
+        margin: const EdgeInsets.only(bottom: 3, right: 12),
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 3),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -460,7 +510,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
           builder: (context, item, index) {
             final hasTitle = title != null && title.isNotEmpty;
             final hasSubTitle = subTitle != null && subTitle.isNotEmpty;
-            
+
             Widget content;
             if (imageUrl != null && imageUrl.isNotEmpty) {
               content = TImage(
@@ -499,7 +549,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
                 ),
               );
             }
-            
+
             return IgnorePointer(child: content);
           },
         ),

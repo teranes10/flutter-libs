@@ -381,6 +381,8 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
     final list = TList<T, K>(
       controller: listController,
       theme: listTheme.copyWith(
+        animationBuilder: TListAnimationBuilders.slideInDown,
+        animationDuration: Duration(milliseconds: 150),
         infiniteScroll: !_isLocalItems,
         emptyStateBuilder: listTheme.emptyStateBuilder ??
             (context) => Center(
@@ -422,23 +424,31 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
     final showFilter = shouldCenteredOverlay || effectivePopupMode == TPopupMode.page;
 
     final content = showFilter
-        ? Column(children: [
-            if (widget.filterable)
-              Padding(
-                padding: EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 12.5),
-                child: TTextField<String?>(
-                    labelPosition: TLabelPosition.aboveField,
-                    size: TInputSize.sm,
-                    placeholder: effectivePopupMode == TPopupMode.page ? 'Search...' : widget.label,
-                    decorationType: TInputDecorationType.underline,
-                    textController: textController,
-                    onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
-              ),
-            Expanded(child: list),
-          ])
+        ? LayoutBuilder(
+            builder: (context, constraints) {
+              final hasBoundedHeight = constraints.hasBoundedHeight;
+              return Column(
+                mainAxisSize: hasBoundedHeight ? MainAxisSize.max : MainAxisSize.min,
+                children: [
+                  if (widget.filterable)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 7.5, right: 7.5, top: 7.5, bottom: 12.5),
+                      child: TTextField<String?>(
+                          labelPosition: TLabelPosition.aboveField,
+                          size: TInputSize.sm,
+                          placeholder: effectivePopupMode == TPopupMode.page ? 'Search...' : widget.label,
+                          decorationType: TInputDecorationType.underline,
+                          textController: textController,
+                          onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
+                    ),
+                  if (hasBoundedHeight) Expanded(child: list) else list,
+                ],
+              );
+            },
+          )
         : list;
 
-    return Padding(padding: EdgeInsets.fromLTRB(6, 16, 6, 16), child: content);
+    return Padding(padding: const EdgeInsets.fromLTRB(6, 16, 6, 16), child: content);
   }
 
   @override
