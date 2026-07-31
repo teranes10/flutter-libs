@@ -185,7 +185,7 @@ class _GridCell extends StatelessWidget {
         mainAxisSize: MainAxisSize.max,
         children: [
           Text(kv.key, style: theme.labelStyle).when(!kv.key.isNullOrBlank),
-          SizedBox(height: theme.gridCellGap).when(!kv.key.isNullOrBlank),
+          SizedBox(height: theme.gridCellGap + (kv.widget != null ? 2 : 0)).when(!kv.key.isNullOrBlank),
           _CellContent(kv: kv, theme: theme),
         ],
       ),
