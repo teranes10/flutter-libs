@@ -15,8 +15,7 @@ class TListState<T, K> {
 
   // Active item explicitly tracked (especially useful for single expansion modes)
   final K? activeKey;
-  final TListItem<T, K>? activeItem;
-  final int activeIndex;
+
   final bool isCreatingItem;
   final bool isEditingItem;
 
@@ -43,8 +42,6 @@ class TListState<T, K> {
     required this.search,
     this.error,
     this.activeKey,
-    this.activeItem,
-    this.activeIndex = -1,
     this.isCreatingItem = false,
     this.isEditingItem = false,
     this.currentCursor,

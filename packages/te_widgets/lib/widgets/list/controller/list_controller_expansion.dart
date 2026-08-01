@@ -6,12 +6,16 @@ part of 'list_controller.dart';
 /// - Expand/collapse individual items
 /// - Expand/collapse all items
 /// - Toggle expansion states
+/// - Expand while setting additional state atomically
 /// - Query expansion status
 ///
 /// Example:
 /// ```dart
 /// // Expand an item
 /// controller.expandItem(category);
+///
+/// // Expand an item and set additional state atomically
+/// controller.expandItemAndSetAdditionalState(category, 'active_tab', 'details');
 ///
 /// // Expand multiple items
 /// controller.expandItems([category1, category2]);
@@ -44,7 +48,8 @@ extension TListControllerExpansion<T, K> on TListController<T, K> {
   int get expandedCount => expandedKeys.length;
 
   /// Whether all items are expanded.
-  bool get isAllExpanded => value.displayItems.isNotEmpty && value.displayItems.length == expandedCount;
+  bool get isAllExpanded =>
+      value.displayItems.isNotEmpty && value.displayItems.length <= expandedCount && value.displayItems.every((i) => i.isExpanded);
 
   /// Whether some (but not all) items are expanded.
   bool get isSomeExpanded => hasExpansion && !isAllExpanded;
@@ -58,80 +63,91 @@ extension TListControllerExpansion<T, K> on TListController<T, K> {
 
   bool isItemKeyExpanded(K key) => expandedKeys.contains(key);
 
-  void toggleExpansionByKey(K key) {
+  void toggleExpansionByKey(K key, {Map<String, dynamic>? additional}) {
     if (expansionMode == TExpansionMode.none) return;
 
     final isExpanded = isItemKeyExpanded(key);
-    isExpanded ? collapseItemKey(key) : expandItemKey(key);
+    isExpanded ? collapseItemKey(key, additional: additional) : expandItemKey(key, additional: additional);
   }
 
-  void expandItemKey(K key) {
+  void expandItemKey(K key, {Map<String, dynamic>? additional}) {
     if (expansionMode == TExpansionMode.none) return;
 
     final newExpandedKeys = expansionMode == TExpansionMode.single ? copyKeySet([key]) : copyKeySet(expandedKeys)
       ..add(key);
 
-    updateExpansionState(newExpandedKeys);
+    updateExpansionState(newExpandedKeys, additional: additional);
   }
 
-  void collapseItemKey(K key) {
+  void collapseItemKey(K key, {Map<String, dynamic>? additional}) {
     if (expansionMode == TExpansionMode.none) return;
 
     final newExpandedKeys = copyKeySet(expandedKeys)..remove(key);
-    updateExpansionState(newExpandedKeys);
+    updateExpansionState(newExpandedKeys, additional: additional);
   }
 
-  void expandItemKeys(Iterable<K> keys) {
+  void expandItemKeys(Iterable<K> keys, {Map<String, dynamic>? additional}) {
     if (expansionMode != TExpansionMode.multiple || keys.isEmpty) return;
 
     final newExpandedKeys = copyKeySet(expandedKeys)..addAll(keys);
-    updateExpansionState(newExpandedKeys);
+    updateExpansionState(newExpandedKeys, additional: additional);
   }
 
-  void isItemExpanded(T item) => isItemKeyExpanded(itemKey(item));
+  bool isItemExpanded(T item) => isItemKeyExpanded(itemKey(item));
 
-  void toggleExpansion(T item) => toggleExpansionByKey(itemKey(item));
+  void toggleExpansion(T item, {Map<String, dynamic>? additional}) => toggleExpansionByKey(itemKey(item), additional: additional);
 
-  void expandItem(T item) => expandItemKey(itemKey(item));
+  void expandItem(T item, {Map<String, dynamic>? additional}) => expandItemKey(itemKey(item), additional: additional);
 
-  void collapseItem(T item) => collapseItemKey(itemKey(item));
+  void collapseItem(T item, {Map<String, dynamic>? additional}) => collapseItemKey(itemKey(item), additional: additional);
 
-  void expandItems(Iterable<T> items) => expandItemKeys(items.map((item) => itemKey(item)));
+  void expandItems(Iterable<T> items, {Map<String, dynamic>? additional}) => expandItemKeys(items.map((item) => itemKey(item)), additional: additional);
 
-  void expandAll() => expandItemKeys(listItemKeys);
+  void expandAll({Map<String, dynamic>? additional}) => expandItemKeys(listItemKeys, additional: additional);
 
-  void collapseAll() {
-    if (expandedKeys.isEmpty) return;
-    updateExpansionState(createEmptyKeySet());
+  void collapseAll({Map<String, dynamic>? additional}) {
+    if (expandedKeys.isEmpty && additional == null) return;
+    updateExpansionState(createEmptyKeySet(), additional: additional);
   }
 
-  void toggleExpandAll() {
+  void toggleExpandAll({Map<String, dynamic>? additional}) {
     if (expansionMode != TExpansionMode.multiple) return;
-    isAllExpanded ? collapseAll() : expandAll();
+    isAllExpanded ? collapseAll(additional: additional) : expandAll(additional: additional);
   }
 
-  void updateExpansionState(LinkedHashSet<K> expandedKeys) {
-    if (expandedKeys.isNotEmpty) {
-      final activeKey = expandedKeys.first;
-      final idx = value.displayItems.indexWhere((item) => item.key == activeKey);
-      final activeItem = idx != -1 ? value.displayItems[idx] : null;
-      updateState(
-        who: 'updateExpansionState',
-        expandedKeys: expandedKeys,
-        activeKey: activeKey,
-        activeItem: activeItem,
-        activeIndex: idx,
-        isCreatingItem: false,
-        isEditingItem: false,
-      );
-    } else {
-      updateState(
-        who: 'updateExpansionState',
-        expandedKeys: expandedKeys,
-        clearActive: true,
-        isCreatingItem: false,
-        isEditingItem: false,
-      );
-    }
+  /// Expands an item by key and sets a key-value pair in [additional] state atomically.
+  void expandItemKeyAndSetAdditionalState(K key, String additionalKey, dynamic additionalValue) {
+    expandItemKey(key, additional: {additionalKey: additionalValue});
+  }
+
+  /// Expands an item and sets a key-value pair in [additional] state atomically.
+  void expandItemAndSetAdditionalState(T item, String additionalKey, dynamic additionalValue) {
+    expandItem(item, additional: {additionalKey: additionalValue});
+  }
+
+  /// Alias for [expandItemAndSetAdditionalState].
+  void expandAndSetAdditionalState(T item, String additionalKey, dynamic additionalValue) {
+    expandItemAndSetAdditionalState(item, additionalKey, additionalValue);
+  }
+
+  void updateExpansionState(
+    LinkedHashSet<K> expandedKeys, {
+    Map<String, dynamic>? additional,
+  }) {
+    final activeKey = expandedKeys.firstOrNull;
+    final Map<String, dynamic>? mergedAdditional = additional != null
+        ? (Map<String, dynamic>.from(value.additional)..addAll(additional))
+        : null;
+
+    updateState(
+      who: 'updateExpansionState',
+      expandedKeys: expandedKeys,
+      activeKey: activeKey,
+      clearActive: activeKey == null,
+      isCreatingItem: false,
+      isEditingItem: false,
+      additional: mergedAdditional,
+    );
   }
 }
+

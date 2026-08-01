@@ -47,7 +47,8 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
   int get selectedCount => selectedKeys.length;
 
   /// Whether all items are selected.
-  bool get isAllSelected => value.displayItems.isNotEmpty && value.displayItems.length == selectedCount;
+  bool get isAllSelected =>
+      value.displayItems.isNotEmpty && value.displayItems.length <= selectedCount && value.displayItems.every((i) => i.isSelected);
 
   /// Whether some (but not all) items are selected.
   bool get isSomeSelected => hasSelection && !isAllSelected;

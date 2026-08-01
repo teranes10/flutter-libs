@@ -191,24 +191,16 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final isCreating = target.kind == _DetailKind.create;
     final isEditing = target.kind == _DetailKind.edit;
 
-    TListItem<T, K>? activeItem;
-    if (isCreating) {
-      activeItem = null;
-    } else if (isEditing) {
-      activeItem = v.activeItem;
-    } else {
-      final index = v.displayItems.indexWhere((x) => x.key == target.key);
-      activeItem = index != -1 ? v.displayItems[index] : null;
-    }
+    K? activeKey = v.activeKey;
+    TListItem<T, K>? activeItem = isCreating || activeKey == null ? null : listController.buildListItem(activeKey);
+    int activeIndex = activeItem == null ? -1 : v.displayItems.indexWhere((x) => x.key == activeItem.key);
 
-    final activeIndex = activeItem != null ? v.displayItems.indexWhere((x) => x.key == activeItem!.key) : -1;
-    final itemData = activeItem?.data;
     Widget content(BuildContext ctx) => (isCreating || isEditing)
         ? details.createBuilder!.call(ctx, activeItem, activeIndex)
         : details.builder?.call(ctx, activeItem!, activeIndex) ??
             wTheme.buildDefaultExpandedContent(ctx.colors, activeItem!.data, activeIndex);
 
-    return (target.mode, (ctx) => getLayoutWrapper(ctx, details, isCreating, isEditing, itemData, content(ctx)));
+    return (target.mode, (ctx) => getLayoutWrapper(ctx, details, isCreating, isEditing, activeItem?.data, content(ctx)));
   }
 
   /// Wraps builder output with the scope needed by every presentation mode

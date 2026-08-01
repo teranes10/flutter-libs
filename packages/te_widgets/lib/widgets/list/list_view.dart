@@ -149,7 +149,7 @@ class TListView<T, K> extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (headerBuilder != null && headerSticky == true) headerBuilder!(context),
-            if (loading && items.isEmpty && loadingBuilder != null && headerSticky == true) loadingBuilder!(context),
+            if (loading && loadingBuilder != null && headerSticky == true) loadingBuilder!(context),
             listView,
             if (footerBuilder != null && footerSticky == true) footerBuilder!(context),
           ],
@@ -168,7 +168,7 @@ class TListView<T, K> extends StatelessWidget {
           child: Container(key: const ValueKey('list_header'), child: headerBuilder!(context)),
         ),
       // Non-sticky loading indicator
-      if (loading && items.isEmpty && loadingBuilder != null && headerSticky != true)
+      if (loading && loadingBuilder != null && headerSticky != true)
         SliverToBoxAdapter(
           child: loadingBuilder!(context),
         ),

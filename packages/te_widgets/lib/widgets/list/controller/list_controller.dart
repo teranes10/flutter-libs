@@ -169,7 +169,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
             selectedKeys: initialSelectedKeys != null ? LinkedHashSet<K>.from(initialSelectedKeys) : LinkedHashSet<K>(),
             expandedKeys: initialExpandedKeys != null ? LinkedHashSet<K>.from(initialExpandedKeys) : LinkedHashSet<K>(),
             activeKey: null,
-            activeItem: null,
             page: 1,
             itemsPerPage: itemsPerPage,
             totalItems: items.length,
@@ -270,15 +269,10 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
 
   /// Puts the list into a state ready to edit an item.
   void beginEditItem(T item) {
-    final key = itemKey(item);
-    final index = value.displayItems.indexWhere((x) => x.key == key);
-    final activeItem = index != -1 ? value.displayItems[index] : itemFactory(item);
     updateState(
       who: 'beginEditItem',
       isEditingItem: true,
-      activeKey: key,
-      activeItem: activeItem,
-      activeIndex: index,
+      activeKey: itemKey(item),
       expandedKeys: createEmptyKeySet(),
     );
   }
@@ -318,8 +312,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     LinkedHashSet<K>? expandedKeys,
     List<TListItem<T, K>>? displayItems,
     K? activeKey,
-    TListItem<T, K>? activeItem,
-    int? activeIndex,
     bool clearActive = false,
     int? page,
     int? itemsPerPage,
@@ -349,8 +341,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     var effectiveDisplayItems = displayItems ?? value.displayItems;
 
     var effectiveActiveKey = clearActive ? null : (activeKey ?? value.activeKey);
-    var effectiveActiveItem = clearActive ? null : (activeItem ?? value.activeItem);
-    var effectiveActiveIndex = clearActive ? -1 : (activeIndex ?? value.activeIndex);
 
     if (displayItems != null && value.displayItems.isEmpty && effectiveDisplayItems.isNotEmpty) {
       if (autoSelectFirst && effectiveSelectedKeys.isEmpty && !_hasAutoSelectedFirst) {
@@ -360,8 +350,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       if (autoExpandFirst && effectiveExpandedKeys.isEmpty && !_hasAutoExpandedFirst) {
         effectiveExpandedKeys = copyKeySet(effectiveExpandedKeys)..add(effectiveDisplayItems.first.key);
         effectiveActiveKey = effectiveDisplayItems.first.key;
-        effectiveActiveItem = effectiveDisplayItems.first;
-        effectiveActiveIndex = 0;
         _hasAutoExpandedFirst = true;
       }
     }
@@ -379,8 +367,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       selectedKeys: effectiveSelectedKeys,
       expandedKeys: effectiveExpandedKeys,
       activeKey: effectiveActiveKey,
-      activeItem: effectiveActiveItem,
-      activeIndex: effectiveActiveIndex,
       isCreatingItem: isCreatingItem ?? value.isCreatingItem,
       isEditingItem: isEditingItem ?? value.isEditingItem,
       page: page ?? value.page,
@@ -435,4 +421,14 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
 
   LinkedHashSet<K> createEmptyKeySet() => LinkedHashSet<K>();
   LinkedHashSet<K> copyKeySet(Iterable<K> keys) => LinkedHashSet<K>.from(keys);
+
+  TListItem<T, K>? buildListItem(K key) {
+    final item = itemsMap[key];
+    if (item == null) return null;
+
+    return itemFactory(item).copyWith(
+      isSelected: selectedKeys.contains(key),
+      isExpanded: expandedKeys.contains(key),
+    );
+  }
 }
