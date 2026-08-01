@@ -442,40 +442,64 @@ class TFormField<T> {
     ItemChildrenAccessor<T>? itemChildren,
     int? itemsPerPage = 6,
     TLoadListener<T>? onLoad,
+    TRefLoadListener<T>? onRefLoad,
     int? searchDelay,
+    TControllerReadyListener<T, K>? onControllerReady,
+    TRefControllerReadyListener<T, K>? onRefControllerReady,
   }) {
     return TFormField<V?>(
       prop: prop,
-      builder: (onValueChanged) => TSelect<T, V, K>(
-        label: label,
-        tag: tag,
-        placeholder: placeholder,
-        helperText: helperText,
-        info: info,
-        isRequired: isRequired,
-        disabled: disabled,
-        autoFocus: autoFocus,
-        readOnly: readOnly,
-        clearable: clearable,
-        theme: theme,
-        focusNode: focusNode,
-        onTap: onTap,
-        textController: textController,
-        rules: rules,
-        items: items,
-        itemText: itemText,
-        itemSubText: itemSubText,
-        itemImageUrl: itemImageUrl,
-        itemChildren: itemChildren,
-        itemValue: itemValue,
-        itemKey: itemKey,
-        itemsPerPage: itemsPerPage,
-        onLoad: onLoad,
-        searchDelay: searchDelay,
-        value: prop.value,
-        valueNotifier: prop.valueNotifier,
-        onValueChanged: onValueChanged,
-      ),
+      builder: (onValueChanged) {
+        Widget buildSelect([WidgetRef? ref]) {
+          final effectiveOnLoad = (onRefLoad != null && ref != null)
+              ? (TLoadOptions<T> options) => onRefLoad(ref, options)
+              : onLoad;
+
+          final effectiveOnControllerReady = (onRefControllerReady != null && ref != null)
+              ? (TListController<T, K> controller) => onRefControllerReady(ref, controller)
+              : onControllerReady;
+
+          return TSelect<T, V, K>(
+            label: label,
+            tag: tag,
+            placeholder: placeholder,
+            helperText: helperText,
+            info: info,
+            isRequired: isRequired,
+            disabled: disabled,
+            autoFocus: autoFocus,
+            readOnly: readOnly,
+            clearable: clearable,
+            theme: theme,
+            focusNode: focusNode,
+            onTap: onTap,
+            textController: textController,
+            rules: rules,
+            items: items,
+            itemText: itemText,
+            itemSubText: itemSubText,
+            itemImageUrl: itemImageUrl,
+            itemChildren: itemChildren,
+            itemValue: itemValue,
+            itemKey: itemKey,
+            itemsPerPage: itemsPerPage,
+            onLoad: effectiveOnLoad,
+            searchDelay: searchDelay,
+            value: prop.value,
+            valueNotifier: prop.valueNotifier,
+            onValueChanged: onValueChanged,
+            onControllerReady: effectiveOnControllerReady,
+          );
+        }
+
+        if (onRefControllerReady != null || onRefLoad != null) {
+          return Consumer(
+            builder: (context, ref, child) => buildSelect(ref),
+          );
+        }
+
+        return buildSelect();
+      },
     );
   }
 
@@ -505,40 +529,64 @@ class TFormField<T> {
     ItemChildrenAccessor<T>? itemChildren,
     int itemsPerPage = 10,
     TLoadListener<T>? onLoad,
+    TRefLoadListener<T>? onRefLoad,
     int? searchDelay,
+    TControllerReadyListener<T, K>? onControllerReady,
+    TRefControllerReadyListener<T, K>? onRefControllerReady,
   }) {
     return TFormField<List<V>>(
       prop: prop,
-      builder: (onValueChanged) => TMultiSelect(
-        label: label,
-        tag: tag,
-        placeholder: placeholder,
-        helperText: helperText,
-        info: info,
-        isRequired: isRequired,
-        disabled: disabled,
-        autoFocus: autoFocus,
-        readOnly: readOnly,
-        clearable: clearable,
-        theme: theme,
-        focusNode: focusNode,
-        onTap: onTap,
-        textController: textController,
-        rules: rules,
-        items: items,
-        itemText: itemText,
-        itemSubText: itemSubText,
-        itemImageUrl: itemImageUrl,
-        itemChildren: itemChildren,
-        itemValue: itemValue,
-        itemKey: itemKey,
-        itemsPerPage: itemsPerPage,
-        onLoad: onLoad,
-        searchDelay: searchDelay,
-        value: prop.value,
-        valueNotifier: prop.valueNotifier,
-        onValueChanged: onValueChanged,
-      ),
+      builder: (onValueChanged) {
+        Widget buildMultiSelect([WidgetRef? ref]) {
+          final effectiveOnLoad = (onRefLoad != null && ref != null)
+              ? (TLoadOptions<T> options) => onRefLoad(ref, options)
+              : onLoad;
+
+          final effectiveOnControllerReady = (onRefControllerReady != null && ref != null)
+              ? (TListController<T, K> controller) => onRefControllerReady(ref, controller)
+              : onControllerReady;
+
+          return TMultiSelect<T, V, K>(
+            label: label,
+            tag: tag,
+            placeholder: placeholder,
+            helperText: helperText,
+            info: info,
+            isRequired: isRequired,
+            disabled: disabled,
+            autoFocus: autoFocus,
+            readOnly: readOnly,
+            clearable: clearable,
+            theme: theme,
+            focusNode: focusNode,
+            onTap: onTap,
+            textController: textController,
+            rules: rules,
+            items: items,
+            itemText: itemText,
+            itemSubText: itemSubText,
+            itemImageUrl: itemImageUrl,
+            itemChildren: itemChildren,
+            itemValue: itemValue,
+            itemKey: itemKey,
+            itemsPerPage: itemsPerPage,
+            onLoad: effectiveOnLoad,
+            searchDelay: searchDelay,
+            value: prop.value,
+            valueNotifier: prop.valueNotifier,
+            onValueChanged: onValueChanged,
+            onControllerReady: effectiveOnControllerReady,
+          );
+        }
+
+        if (onRefControllerReady != null || onRefLoad != null) {
+          return Consumer(
+            builder: (context, ref, child) => buildMultiSelect(ref),
+          );
+        }
+
+        return buildMultiSelect();
+      },
     );
   }
 

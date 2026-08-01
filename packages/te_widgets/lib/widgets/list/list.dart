@@ -104,6 +104,10 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   @override
   final TListController<T, K>? controller;
 
+  /// Callback fired when the list controller is initialized and ready.
+  @override
+  final TControllerReadyListener<T, K>? onControllerReady;
+
   // Scroll configuration
 
   /// Custom scroll controller.
@@ -189,6 +193,7 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.onLoad,
     this.itemKey,
     this.controller,
+    this.onControllerReady,
     // Scroll
     this.scrollController,
     this.onScrollEnd,

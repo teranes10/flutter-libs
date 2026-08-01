@@ -67,6 +67,8 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   final ItemKeyAccessor<T, K>? itemKey;
   @override
   final TListController<T, K>? controller;
+  @override
+  final TControllerReadyListener<T, K>? onControllerReady;
 
   /// Detailed configuration for expansion and item info.
   final TTableDetails<T, K>? details;
@@ -128,6 +130,7 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.onLoad,
     this.itemKey,
     this.controller,
+    this.onControllerReady,
     //Details
     this.details,
     this.editable = false,

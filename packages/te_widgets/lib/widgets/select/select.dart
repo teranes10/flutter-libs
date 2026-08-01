@@ -193,6 +193,10 @@ class TSelect<T, V, K> extends StatefulWidget
   @override
   final TListController<T, K>? controller;
 
+  /// Callback fired when the list controller is initialized and ready.
+  @override
+  final TControllerReadyListener<T, K>? onControllerReady;
+
   // Popup Properties
 
   /// Callback fired when the dropdown is shown.
@@ -279,6 +283,7 @@ class TSelect<T, V, K> extends StatefulWidget
     this.searchDelay,
     this.onLoad,
     this.controller,
+    this.onControllerReady,
     // Popup
     this.onShow,
     this.onHide,

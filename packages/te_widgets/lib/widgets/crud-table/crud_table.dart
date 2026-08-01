@@ -96,6 +96,9 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Controller for managing active items.
   final TListController<T, K>? controller;
 
+  /// Callback fired when the active list controller is initialized and ready.
+  final TControllerReadyListener<T, K>? onControllerReady;
+
   /// The list of archived items (for client-side).
   final List<T>? archivedItems;
 
@@ -104,6 +107,9 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
 
   /// Controller for managing archived items.
   final TListController<T, K>? archiveController;
+
+  /// Callback fired when the archived list controller is initialized and ready.
+  final void Function(TListController<T, K> controller)? onArchiveControllerReady;
 
   /// Factory function to create a new form.
   final F Function()? createForm;
@@ -194,7 +200,9 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.onDelete,
     this.config = const TCrudConfig(),
     this.controller,
+    this.onControllerReady,
     this.archiveController,
+    this.onArchiveControllerReady,
     this.expandedBuilder,
     this.expandedDetails,
     this.expansionMode = TTableExpansionMode.dialog,
@@ -210,14 +218,12 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.rowBuilder,
     this.rowColorBuilder,
   })  : assert(
-          (controller == null && (items != null || onLoad != null)) || (controller != null && items == null && onLoad == null),
-          'Provide either `controller` OR (`items` / `onLoad`), not both.',
+          controller == null || (items == null && onLoad == null && onControllerReady == null),
+          'Provide either `controller` OR (`items` / `onLoad` / `onControllerReady`), not both.',
         ),
         assert(
-          (archiveController == null && archivedItems == null && onArchiveLoad == null) ||
-              (archiveController == null && (archivedItems != null || onArchiveLoad != null)) ||
-              (archiveController != null && (archivedItems == null && onArchiveLoad == null)),
-          'Provide either `archiveController` OR (`archivedItems` / `onArchiveLoad`), not both.',
+          archiveController == null || (archivedItems == null && onArchiveLoad == null && onArchiveControllerReady == null),
+          'Provide either `archiveController` OR (`archivedItems` / `onArchiveLoad` / `onArchiveControllerReady`), not both.',
         );
 
   @override
@@ -290,6 +296,8 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           onLoad: widget.onLoad,
         );
 
+    widget.onControllerReady?.call(_listController);
+
     _archiveListController = widget.archiveController ??
         TListController<T, K>(
           itemsPerPage: widget.config.itemsPerPage,
@@ -297,6 +305,8 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           onLoad: widget.onArchiveLoad,
           itemKey: _listController.itemKey,
         );
+
+    widget.onArchiveControllerReady?.call(_archiveListController);
   }
 
   @override

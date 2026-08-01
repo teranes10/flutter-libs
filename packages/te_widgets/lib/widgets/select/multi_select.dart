@@ -96,6 +96,8 @@ class TMultiSelect<T, V, K> extends StatefulWidget
   final ItemKeyAccessor<T, K>? itemKey;
   @override
   final TListController<T, K>? controller;
+  @override
+  final TControllerReadyListener<T, K>? onControllerReady;
 
   // Popup
   @override
@@ -164,6 +166,7 @@ class TMultiSelect<T, V, K> extends StatefulWidget
     this.searchDelay,
     this.onLoad,
     this.controller,
+    this.onControllerReady,
     // Popup
     this.onShow,
     this.onHide,

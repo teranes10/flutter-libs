@@ -26,6 +26,9 @@ mixin TListMixin<T, K> {
 
   /// The controller managing the list state.
   TListController<T, K>? get controller;
+
+  /// Callback fired when the list controller is initialized and ready for setup or binding.
+  TControllerReadyListener<T, K>? get onControllerReady => null;
 }
 
 /// State mixin for widgets using [TListController].
@@ -69,6 +72,7 @@ mixin TListStateMixin<T, K, W extends StatefulWidget> on State<W> {
     }
 
     _listController.addListener(onListStateChanged);
+    _widget.onControllerReady?.call(_listController);
   }
 
   @override
