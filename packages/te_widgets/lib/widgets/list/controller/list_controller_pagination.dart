@@ -209,7 +209,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   }
 
   void _applyLocalPagination({String? who, int? page, int? itemsPerPage, String? search, bool append = false}) {
-    if (itemsPerPage != null && localItems.isEmpty && listItems.isEmpty) {
+    if (itemsPerPage != null && localItems.isEmpty && displayItems.isEmpty) {
       updateState(who: who ?? '_applyLocalPagination', itemsPerPage: itemsPerPage);
       return;
     }
@@ -224,14 +224,14 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
 
     List<TListItem<T, K>> rawDisplayItems;
     if (effectiveItemsPerPage <= 0) {
-      rawDisplayItems = filteredItems.map((item) => itemFactory(item)).toList();
+      rawDisplayItems = filteredItems.map((item) => getOrRegisterItem(item)).toList();
     } else if (append && value.displayItems.isNotEmpty) {
       final startIndex = value.displayItems.length;
       final endIndex = (startIndex + effectiveItemsPerPage).clamp(0, filteredCount);
 
       if (startIndex < filteredCount) {
-        final newItems = filteredItems.sublist(startIndex, endIndex).map((item) => itemFactory(item));
-        rawDisplayItems = [...value.displayItems, ...newItems];
+        final newItems = filteredItems.sublist(startIndex, endIndex).map((item) => getOrRegisterItem(item));
+        rawDisplayItems = List<TListItem<T, K>>.of(value.displayItems)..addAll(newItems);
       } else {
         rawDisplayItems = value.displayItems;
       }
@@ -240,7 +240,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       final endIndex = (startIndex + effectiveItemsPerPage).clamp(0, filteredCount);
 
       if (startIndex < filteredCount) {
-        rawDisplayItems = filteredItems.sublist(startIndex, endIndex).map((item) => itemFactory(item)).toList();
+        rawDisplayItems = filteredItems.sublist(startIndex, endIndex).map((item) => getOrRegisterItem(item)).toList();
       } else {
         rawDisplayItems = [];
       }
@@ -304,15 +304,17 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       // Check if this request is still valid
       if (currentRequestId != _requestId) return;
 
+      // Register items first so _itemsMap is fully populated before we
+      // build rawDisplayItems — avoids double-registration via getOrRegisterItem.
+      updateItems(result.items, append: append);
+
       List<TListItem<T, K>> rawDisplayItems;
       if (append && value.displayItems.isNotEmpty) {
-        final newItems = result.items.map((item) => itemFactory(item));
-        rawDisplayItems = [...value.displayItems, ...newItems];
+        final newItems = result.items.map((item) => getItem(itemKey(item))!).toList();
+        rawDisplayItems = List<TListItem<T, K>>.of(value.displayItems)..addAll(newItems);
       } else {
-        rawDisplayItems = result.items.map((item) => itemFactory(item)).toList();
+        rawDisplayItems = result.items.map((item) => getItem(itemKey(item))!).toList();
       }
-
-      updateItems(result.items, append: append);
 
       // Manage cursor history for backward navigation
       List<String> newCursorHistory = List.from(cursorHistory);

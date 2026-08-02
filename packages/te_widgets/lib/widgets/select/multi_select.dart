@@ -300,21 +300,6 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
                 ),
       ),
       itemBuilder: (ctx, item, index) {
-        TListCard toListCard(TListItem<T, K> item) {
-          return TListCard(
-            title: widget.itemText(item.data),
-            subTitle: widget.itemSubText?.call(item.data),
-            imageUrl: widget.itemImageUrl?.call(item.data),
-            isSelected: item.isSelected,
-            isExpanded: item.isExpanded,
-            level: item.level,
-            theme: widget.cardTheme,
-            multiple: true,
-            onTap: () => _onItemSelected(item),
-            children: item.children?.map((child) => toListCard(child)).toList(),
-          );
-        }
-
         return TMeasureSize(
           onMeasure: (height) {
             if (_itemHeights[index] != height) {
@@ -323,7 +308,18 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
               });
             }
           },
-          child: toListCard(item),
+          child: TListCard(
+            title: widget.itemText(item.data),
+            subTitle: widget.itemSubText?.call(item.data),
+            imageUrl: widget.itemImageUrl?.call(item.data),
+            isSelected: listController.isSelected(item.key),
+            isExpanded: listController.isExpanded(item.key),
+            level: item.level,
+            theme: widget.cardTheme,
+            multiple: true,
+            onTap: () => _onItemSelected(item),
+            hasChildren: item.hasChildren,
+          ),
         );
       },
     );
@@ -440,8 +436,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
 
     if (!_isLocalItems && widget.itemValue == null && value.isNotEmpty) {
       for (T item in value.cast<T>()) {
-        final key = listController.itemKey(item);
-        listController.itemsMap.putIfAbsent(key, () => item);
+        listController.registerItem(item);
       }
     }
 
@@ -454,11 +449,11 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
 
   void _onItemSelected(TListItem<T, K> item) {
     if (item.hasChildren) {
-      listController.toggleExpansionByKey(item.key);
+      listController.toggleExpansion(item.key);
     } else {
-      listController.toggleSelectionByKey(item.key);
+      listController.toggleSelection(item.key);
 
-      final selectedValues = listController.selectedItems.map((x) => widget.itemValue?.call(x) ?? item.data as V).toList();
+      final selectedValues = listController.selectedItems.map((x) => widget.itemValue?.call(x) ?? x as V).toList();
       final selectedTexts = listController.selectedItems.map((x) => widget.itemText(x)).toList();
 
       tagsController.updateState(tags: selectedTexts);

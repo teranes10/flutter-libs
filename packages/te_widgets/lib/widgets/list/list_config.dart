@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:te_widgets/te_widgets.dart';
+import 'controller/list_controller.dart';
+import 'list_state.dart';
 
 /// Position to add new items in the list.
 enum TItemAddPosition { first, last }
@@ -18,7 +19,6 @@ typedef ItemChildrenAccessor<T> = List<T>? Function(T item);
 typedef ItemTextAccessor<T> = String Function(T item);
 typedef ItemKeyAccessor<T, K> = K Function(T item);
 typedef ListItemTap<T, K> = void Function(TListItem<T, K> item);
-typedef ListItemFactory<T, K> = TListItem<T, K> Function(T item);
 typedef ListItemBuilder<T, K> = Widget Function(BuildContext context, TListItem<T, K> item, int index);
 typedef TLoadListener<T> = Future<TLoadResult<T>> Function(TLoadOptions<T> options);
 typedef TRefLoadListener<T> = Future<TLoadResult<T>> Function(WidgetRef ref, TLoadOptions<T> options);

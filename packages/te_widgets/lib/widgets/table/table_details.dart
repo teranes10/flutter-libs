@@ -174,8 +174,8 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
         mode: details.createMode ?? details.mode,
       );
     }
-    if (v.expandedKeys.isNotEmpty) {
-      return _ActiveDetailTarget<K>(kind: _DetailKind.view, key: v.expandedKeys.first, mode: details.mode);
+    if (v.expandedDetailKey != null) {
+      return _ActiveDetailTarget<K>(kind: _DetailKind.view, key: v.expandedDetailKey, mode: details.mode);
     }
     return null;
   }
@@ -192,7 +192,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final isEditing = target.kind == _DetailKind.edit;
 
     K? activeKey = v.activeKey;
-    TListItem<T, K>? activeItem = isCreating || activeKey == null ? null : listController.buildListItem(activeKey);
+    TListItem<T, K>? activeItem = isCreating || activeKey == null ? null : listController.getItem(activeKey);
     int activeIndex = activeItem == null ? -1 : v.displayItems.indexWhere((x) => x.key == activeItem.key);
 
     Widget content(BuildContext ctx) => (isCreating || isEditing)
@@ -387,7 +387,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     );
   }
 
-  void _handleDidUpdateWidget(TTable<T, K> oldWidget) {
+  void _handleDetailsDidUpdateWidget(TTable<T, K> oldWidget) {
     final oldMode = oldWidget.details?.mode ?? TTableExpansionMode.bottom;
     final newMode = widget.details?.mode ?? TTableExpansionMode.bottom;
     if (oldMode == newMode && oldWidget.controller == widget.controller) return;
@@ -484,7 +484,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final title = widget.details?.itemTitle?.call(item.data);
     final subTitle = widget.details?.itemSubTitle?.call(item.data);
     final imageUrl = widget.details?.itemImageUrl?.call(item.data);
-    final isSelected = listController.isItemKeyExpanded(item.key);
+    final isSelected = listController.isExpanded(item.key);
 
     return TTableRowCard<T, K>(
       index: index,

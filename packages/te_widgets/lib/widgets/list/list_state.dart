@@ -13,11 +13,14 @@ class TListState<T, K> {
   final String search;
   final TListError? error;
 
-  // Active item explicitly tracked (especially useful for single expansion modes)
-  final K? activeKey;
+  // Explicitly track row detail expansion and inline item editing separate from tree expansion (expandedKeys)
+  final K? expandedDetailKey;
+  final K? editingItemKey;
+
+  K? get activeKey => editingItemKey ?? expandedDetailKey;
 
   final bool isCreatingItem;
-  final bool isEditingItem;
+  bool get isEditingItem => editingItemKey != null;
 
   // Cursor pagination fields
   final String? currentCursor;
@@ -41,9 +44,9 @@ class TListState<T, K> {
     required this.hasMoreItems,
     required this.search,
     this.error,
-    this.activeKey,
+    this.expandedDetailKey,
+    this.editingItemKey,
     this.isCreatingItem = false,
-    this.isEditingItem = false,
     this.currentCursor,
     this.nextCursor,
     this.cursorHistory = const [],
@@ -51,10 +54,56 @@ class TListState<T, K> {
     this.additional = const {},
   });
 
+  /// Creates a copy of this state with the given fields updated.
+  TListState<T, K> copyWith({
+    LinkedHashSet<K>? selectedKeys,
+    LinkedHashSet<K>? expandedKeys,
+    List<TListItem<T, K>>? displayItems,
+    int? page,
+    int? itemsPerPage,
+    int? totalItems,
+    bool? loading,
+    bool? fetching,
+    bool? hasMoreItems,
+    String? search,
+    TListError? error,
+    K? expandedDetailKey,
+    K? editingItemKey,
+    bool? isCreatingItem,
+    String? currentCursor,
+    String? nextCursor,
+    List<String>? cursorHistory,
+    Map<String, dynamic>? advancedSearch,
+    Map<String, dynamic>? additional,
+  }) {
+    return TListState<T, K>(
+      selectedKeys: selectedKeys ?? this.selectedKeys,
+      expandedKeys: expandedKeys ?? this.expandedKeys,
+      displayItems: displayItems ?? this.displayItems,
+      page: page ?? this.page,
+      itemsPerPage: itemsPerPage ?? this.itemsPerPage,
+      totalItems: totalItems ?? this.totalItems,
+      loading: loading ?? this.loading,
+      fetching: fetching ?? this.fetching,
+      hasMoreItems: hasMoreItems ?? this.hasMoreItems,
+      search: search ?? this.search,
+      error: error ?? this.error,
+      expandedDetailKey: expandedDetailKey ?? this.expandedDetailKey,
+      editingItemKey: editingItemKey ?? this.editingItemKey,
+      isCreatingItem: isCreatingItem ?? this.isCreatingItem,
+      currentCursor: currentCursor ?? this.currentCursor,
+      nextCursor: nextCursor ?? this.nextCursor,
+      cursorHistory: cursorHistory ?? this.cursorHistory,
+      advancedSearch: advancedSearch ?? this.advancedSearch,
+      additional: additional ?? this.additional,
+    );
+  }
+
   @override
   String toString() {
     return 'TListState(page: $page, itemsPerPage: $itemsPerPage, total: $totalItems,'
-        'displayed: ${displayItems.length}, selected: ${selectedKeys.length}, expanded: ${expandedKeys.length}, activeKey: $activeKey,'
+        'displayed: ${displayItems.length}, selected: ${selectedKeys.length}, expanded: ${expandedKeys.length}, '
+        'expandedContentKey: $expandedDetailKey, editingItemKey: $editingItemKey,'
         'loading: $loading, fetching: $fetching, hasMoreItems: $hasMoreItems, search: $search, '
         'isCreatingItem: $isCreatingItem, isEditingItem: $isEditingItem, '
         'nextCursor: $nextCursor, cursorHistory: ${cursorHistory.length})';
@@ -81,50 +130,47 @@ class TListError {
 class TListItem<T, K> {
   final K key;
   final T data;
-  final bool isSelected;
-  final bool isExpanded;
-  final List<TListItem<T, K>>? children;
+  final K? parentKey;
+  final List<K>? childrenKeys;
   final int level;
 
   const TListItem({
     required this.key,
     required this.data,
-    this.isSelected = false,
-    this.isExpanded = false,
-    this.children,
+    this.parentKey,
+    this.childrenKeys,
     this.level = 0,
   });
 
-  bool get hasChildren => children != null && children!.isNotEmpty;
-  int get childCount => children?.length ?? 0;
+  bool get hasChildren => childrenKeys != null && childrenKeys!.isNotEmpty;
+  int get childCount => childrenKeys?.length ?? 0;
 
   TListItem<T, K> copyWith({
     T? data,
-    bool? isSelected,
-    bool? isExpanded,
-    List<TListItem<T, K>>? children,
+    K? parentKey,
+    List<K>? childrenKeys,
+    int? level,
   }) {
     return TListItem<T, K>(
       key: key,
       data: data ?? this.data,
-      isSelected: isSelected ?? this.isSelected,
-      isExpanded: isExpanded ?? this.isExpanded,
-      children: children ?? this.children,
-      level: level,
+      parentKey: parentKey ?? this.parentKey,
+      childrenKeys: childrenKeys ?? this.childrenKeys,
+      level: level ?? this.level,
     );
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is TListItem<T, K> && other.data == data;
+    return other is TListItem<T, K> && other.key == key && other.data == data;
   }
 
   @override
-  int get hashCode => data.hashCode;
+  int get hashCode => Object.hash(key, data);
 
   @override
   String toString() {
-    return 'TListItem(data: $data, selected: $isSelected, expanded: $isExpanded, children: ${children?.length ?? 0})';
+    return 'TListItem(key: $key, level: $level, parent: $parentKey, children: ${childrenKeys?.length ?? 0})';
   }
 }

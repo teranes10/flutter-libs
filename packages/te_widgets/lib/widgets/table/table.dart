@@ -190,21 +190,33 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   List<TTableHeader<T, K>>? _cachedRequiredWidthForHeaders;
   bool? _cachedRequiredWidthSelectable;
   bool? _cachedRequiredWidthExpandable;
+  int? _cachedRequiredWidthMaxLevel;
+
+  int _getMaxTreeLevel() {
+    int maxLevel = 0;
+    for (final item in listController.value.displayItems) {
+      if (item.level > maxLevel) maxLevel = item.level;
+    }
+    return maxLevel;
+  }
 
   double _getRequiredWidth() {
     final selectable = listController.selectable;
     final expandable = listController.expandable;
+    final maxLevel = _getMaxTreeLevel();
     if (_cachedRequiredWidth != null &&
         _cachedRequiredWidthForHeaders == widget.headers &&
         _cachedRequiredWidthSelectable == selectable &&
-        _cachedRequiredWidthExpandable == expandable) {
+        _cachedRequiredWidthExpandable == expandable &&
+        _cachedRequiredWidthMaxLevel == maxLevel) {
       return _cachedRequiredWidth!;
     }
-    final width = TTableTheme.calculateTotalRequiredWidth(widget.headers, selectable, expandable);
+    final width = TTableTheme.calculateTotalRequiredWidth(widget.headers, selectable, expandable, maxTreeLevel: maxLevel);
     _cachedRequiredWidth = width;
     _cachedRequiredWidthForHeaders = widget.headers;
     _cachedRequiredWidthSelectable = selectable;
     _cachedRequiredWidthExpandable = expandable;
+    _cachedRequiredWidthMaxLevel = maxLevel;
     return width;
   }
 
@@ -213,21 +225,25 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   List<TTableHeader<T, K>>? _cachedColumnWidthsForHeaders;
   bool? _cachedColumnWidthsSelectable;
   bool? _cachedColumnWidthsExpandable;
+  int? _cachedColumnWidthsMaxLevel;
 
   Map<int, TableColumnWidth> _getColumnWidths() {
     final selectable = listController.selectable;
     final expandable = listController.expandable;
+    final maxLevel = _getMaxTreeLevel();
     if (_cachedColumnWidths != null &&
         _cachedColumnWidthsForHeaders == widget.headers &&
         _cachedColumnWidthsSelectable == selectable &&
-        _cachedColumnWidthsExpandable == expandable) {
+        _cachedColumnWidthsExpandable == expandable &&
+        _cachedColumnWidthsMaxLevel == maxLevel) {
       return _cachedColumnWidths!;
     }
-    final widths = TTableTheme.calculateColumnWidths(widget.headers, selectable, expandable);
+    final widths = TTableTheme.calculateColumnWidths(widget.headers, selectable, expandable, maxTreeLevel: maxLevel);
     _cachedColumnWidths = widths;
     _cachedColumnWidthsForHeaders = widget.headers;
     _cachedColumnWidthsSelectable = selectable;
     _cachedColumnWidthsExpandable = expandable;
+    _cachedColumnWidthsMaxLevel = maxLevel;
     return widths;
   }
 
@@ -293,7 +309,9 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       _cachedRequiredWidth = null;
       _cachedColumnWidths = null;
     }
-    _handleDidUpdateWidget(oldWidget);
+    // items/search/itemsPerPage sync is handled automatically by TListStateMixin.didUpdateWidget.
+    // Handle table-details-specific updates (expansion mode changes, overlay dismissal).
+    _handleDetailsDidUpdateWidget(oldWidget);
   }
 
   void refresh() {
@@ -374,7 +392,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         final row = itemBuilder(ctx, item, index);
         Widget finalRow = widget.rowBuilder?.call(ctx, item, index, row) ?? row;
         if (useExpansionFocus || shouldDimOthers) {
-          finalRow = _buildFocusRowWrapper(item.key, finalRow, item.isExpanded);
+          finalRow = _buildFocusRowWrapper(item.key, finalRow, _isInlineExpanded(item));
         }
         return finalRow;
       },
@@ -433,7 +451,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   }
 
   bool get shouldDimOthers =>
-      (useExpansionFocus && listController.expandedItems.isNotEmpty) ||
+      (useExpansionFocus && listController.value.expandedDetailKey != null) ||
       (effectiveExpansionMode == TTableExpansionMode.bottom && listController.value.isCreatingItem);
 
   Widget _wrapWithFocusDimmer(BuildContext context, Widget child) {
@@ -480,7 +498,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         if (!allowed) return;
       }
     }
-    listController.toggleExpansionByKey(key);
+    listController.toggleContentKey(key);
   }
 
   /// True if [item] should render its expanded/edit content inline (bottom mode),
@@ -488,7 +506,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   bool _isInlineExpanded(TListItem<T, K> item) {
     final target = _computeDesiredTarget();
     final isEditingThisInline = target?.kind == _DetailKind.edit && target?.mode == TTableExpansionMode.bottom && target?.key == item.key;
-    return item.isExpanded || isEditingThisInline;
+    final isExpandedContent = listController.value.expandedDetailKey == item.key;
+    return isExpandedContent || isEditingThisInline;
   }
 
   Widget? _resolveExpandedContent(BuildContext ctx, TListItem<T, K> item, int index) {
@@ -506,7 +525,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         child: getLayoutWrapper(ctx, details, false, true, item.data, content),
       );
     }
-    if (item.isExpanded && mode == TTableExpansionMode.bottom) {
+    if (listController.value.expandedDetailKey == item.key && mode == TTableExpansionMode.bottom) {
       final content = details?.builder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index);
       if (details == null) {
         return TTableDetailsScope(
@@ -532,12 +551,13 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       columnWidths: columnWidths,
       expandable: listController.expandable,
       isExpanded: _isInlineExpanded(item),
+      expansionMode: effectiveExpansionMode,
       expandSide: effectiveExpansionMode == TTableExpansionMode.side,
-      onExpansionChanged: () => _handleExpansionTap(item.key, !item.isExpanded),
+      onExpansionChanged: () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key),
       expandedContent: _resolveExpandedContent(ctx, item, index),
       selectable: listController.selectable,
-      isSelected: item.isSelected,
-      onSelectionChanged: () => listController.toggleSelectionByKey(item.key),
+      isSelected: listController.isSelected(item.key),
+      onSelectionChanged: () => listController.toggleSelection(item.key),
       backgroundColor: widget.rowColorBuilder?.call(item, index),
     );
   }
@@ -552,11 +572,11 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       expandable: listController.expandable,
       isExpanded: _isInlineExpanded(item),
       expandSide: effectiveExpansionMode == TTableExpansionMode.side,
-      onExpansionChanged: () => _handleExpansionTap(item.key, !item.isExpanded),
+      onExpansionChanged: () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key),
       expandedContent: _resolveExpandedContent(ctx, item, index),
       selectable: listController.selectable,
-      isSelected: item.isSelected,
-      onSelectionChanged: () => listController.toggleSelectionByKey(item.key),
+      isSelected: listController.isSelected(item.key),
+      onSelectionChanged: () => listController.toggleSelection(item.key),
       backgroundColor: widget.rowColorBuilder?.call(item, index),
     );
   }

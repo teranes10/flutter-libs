@@ -89,6 +89,18 @@ mixin TListStateMixin<T, K, W extends StatefulWidget> on State<W> {
       _providedItemsPerPage = _listController.itemsPerPage;
     }
 
+    _handleDidUpdateWidget(oldWidget);
+  }
+
+  /// Syncs [items], [search], and [itemsPerPage] changes from the widget into the controller.
+  ///
+  /// Call this from your own [didUpdateWidget] after calling `super.didUpdateWidget(oldWidget)`.
+  /// The mixin's [didUpdateWidget] already calls this automatically, but subclasses can call it
+  /// again if they need explicit ordering relative to their own logic.
+  @protected
+  void _handleDidUpdateWidget(covariant W oldWidget) {
+    final oldMixin = oldWidget as TListMixin<T, K>;
+
     if (oldMixin.search != _widget.search) {
       final newSearch = _widget.search ?? '';
       if (_listController.value.search != newSearch) {

@@ -104,20 +104,26 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     });
   }
 
+  bool get _isNavigable => (widget.item.page != null || widget.item.builder != null) && widget.item.route != null;
+
   void _handleTap() {
     if (widget.item.hasVisibleChildren && !widget.isMinimized) {
-      if (widget.item.route != null) {
+      if (_isNavigable) {
         _navigateAndExecute();
-        if (!_isExpanded) {
-          _setExpanded(true);
-        }
+      } else if (widget.item.onTap != null) {
+        _navigateAndExecute();
       } else {
         _toggleExpanded();
       }
-    } else if (widget.item.isClickable) {
-      _navigateAndExecute();
+    } else {
+      if (_isNavigable || widget.item.onTap != null) {
+        _navigateAndExecute();
+      }
     }
   }
+
+
+
 
   void _toggleExpanded() {
     if (widget.isMinimized) return;

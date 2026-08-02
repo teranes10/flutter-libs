@@ -355,6 +355,59 @@ TMultiSelect<String, String, String>(
             ],
           ),
 
+          // Hierarchical / Nested Select
+          WidgetDocCard(
+            title: 'Hierarchical / Nested Select',
+            description: 'Dropdown displaying nested tree items with inline expansion',
+            icon: Icons.account_tree,
+            preview: TSelect<_Category, String, String>(
+              label: 'Category',
+              placeholder: 'Select category / sub-category',
+              itemText: (category) => category.name,
+              itemValue: (category) => category.id,
+              itemChildren: (category) => category.subcategories,
+              items: [
+                _Category('electronics', 'Electronics', [
+                  _Category('phones', 'Smartphones', [
+                    _Category('iphone', 'iPhone'),
+                    _Category('android', 'Android Phones'),
+                  ]),
+                  _Category('laptops', 'Laptops'),
+                ]),
+                _Category('clothing', 'Clothing', [
+                  _Category('mens', 'Mens Wear'),
+                  _Category('womens', 'Womens Wear'),
+                ]),
+              ],
+              onValueChanged: (val) => debugPrint('Selected category ID: $val'),
+            ),
+            code: '''class Category {
+  final String id;
+  final String name;
+  final List<Category>? subcategories;
+  Category(this.id, this.name, [this.subcategories]);
+}
+
+TSelect<Category, String, String>(
+  label: 'Category',
+  placeholder: 'Select category',
+  itemText: (category) => category.name,
+  itemValue: (category) => category.id,
+  itemChildren: (category) => category.subcategories, // Function returning child items
+  items: categories,
+  onValueChanged: (categoryId) {
+    print('Selected category ID: \$categoryId');
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'itemChildren',
+                type: 'ItemChildrenAccessor<T>?',
+                description: 'Function returning sub-items for rendering hierarchical dropdown structures',
+              ),
+            ],
+          ),
+
           const SizedBox(height: 40),
         ],
       ),
@@ -362,13 +415,21 @@ TMultiSelect<String, String, String>(
   }
 }
 
-// Example model class
+// Example model classes
 class _User {
   final int id;
   final String name;
   final String email;
 
   _User(this.id, this.name, this.email);
+}
+
+class _Category {
+  final String id;
+  final String name;
+  final List<_Category>? subcategories;
+
+  _Category(this.id, this.name, [this.subcategories]);
 }
 
 class _CreateOptionForm extends TFormBase {
@@ -388,3 +449,4 @@ class _CreateOptionForm extends TFormBase {
   @override
   String get formTitle => 'Create New Option';
 }
+

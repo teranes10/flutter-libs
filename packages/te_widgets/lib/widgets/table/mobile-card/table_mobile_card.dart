@@ -85,8 +85,51 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     final themeBgColor = wTheme.backgroundColor.resolve(states);
     final resolvedBgColor = backgroundColor ?? (themeBgColor == colors.surface ? context.getBackgroundColor(colors.surface) : themeBgColor);
 
+    final controller = TTableScope.maybeOf(context)?.controller;
+    final isDense = TTableScope.maybeOf(context)?.dense ?? false;
+    final indentWidth = item.level * 16.0;
+
+    final cardMargin = wTheme.margin.copyWith(
+      left: wTheme.margin.left + indentWidth,
+    );
+
+    final isTreeMode = (controller?.isHierarchical ?? false) || item.level > 0 || item.hasChildren;
+
+    final mappedKeyValues = TKeyValue.mapHeaders(context, headers, item, index);
+    if (isTreeMode && mappedKeyValues.isNotEmpty) {
+      final firstKv = mappedKeyValues.first;
+      final originalWidget = firstKv.widget ?? SelectableText(firstKv.value ?? '', style: wTheme.valueStyle);
+      mappedKeyValues[0] = TKeyValue(
+        firstKv.key,
+        widget: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (item.hasChildren) ...[
+              Builder(builder: (ctx) {
+                final isTreeExpanded = controller?.isExpanded(item.key) ?? false;
+                return TIcon(
+                  icon: isTreeExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
+                  size: isDense ? 18 : 20,
+                  padding: const EdgeInsets.all(1),
+                  color: colors.onSurfaceVariant,
+                  background: colors.surfaceContainerLow,
+                  active: isTreeExpanded,
+                  onTap: () {
+                    controller?.toggleExpansion(item.key);
+                  },
+                );
+              }),
+              const SizedBox(width: 4),
+            ],
+            Flexible(child: originalWidget),
+          ],
+        ),
+      );
+    }
+
     return TCard(
-      margin: wTheme.margin,
+      margin: cardMargin,
       elevation: wTheme.elevation,
       borderRadius: wTheme.borderRadius,
       backgroundColor: resolvedBgColor,
@@ -97,20 +140,20 @@ class TTableMobileCard<T, K> extends StatelessWidget {
           Padding(
             padding: wTheme.padding,
             child: TKeyValueSection(values: [
-              TKeyValue(
-                "",
-                widget: TCheckbox(
-                  value: isSelected,
-                  onValueChanged: (value) => onSelectionChanged?.call(),
+              if (selectable)
+                TKeyValue(
+                  "",
+                  widget: TCheckbox(
+                    value: isSelected,
+                    onValueChanged: (value) => onSelectionChanged?.call(),
+                  ),
+                  alignment: Alignment.topLeft,
                 ),
-                alignment: Alignment.topLeft,
-              ),
-              ...TKeyValue.mapHeaders(context, headers, item, index),
+              ...mappedKeyValues,
               if (expandable)
                 TKeyValue(
                   "",
                   widget: Builder(builder: (context) {
-                    final isDense = TTableScope.maybeOf(context)?.dense ?? false;
                     return TIcon(
                       icon: expandSide ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_down,
                       size: isDense ? 18 : 20,

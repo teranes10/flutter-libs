@@ -2,12 +2,18 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
-import 'package:te_widgets/te_widgets.dart';
+import '../../../extensions/list_x.dart';
+import '../../../helpers/debouncer.dart';
+import '../../../helpers/search_filter.dart';
+import '../list_config.dart';
+import '../list_state.dart';
 
 part 'list_controller_expansion.dart';
+part 'list_controller_details_expansion.dart';
 part 'list_controller_items.dart';
 part 'list_controller_pagination.dart';
 part 'list_controller_selection.dart';
+part 'list_controller_actions.dart';
 part 'list_controller_riverpod.dart';
 
 /// A powerful controller for managing list state and operations.
@@ -101,9 +107,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   /// Function to extract child items for hierarchical lists.
   final ItemChildrenAccessor<T>? itemChildren;
 
-  /// Factory function to create list items.
-  final ListItemFactory<T, K> itemFactory;
-
   /// Callback for loading data from a server.
   final TLoadListener<T>? onLoad;
 
@@ -128,10 +131,74 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   bool _disposed = false;
   int _requestId = 0;
   final Set<int> _activeRequests = {};
-  final Map<K, T> _itemsMap = {};
-  final List<T> _localPaginationItems = [];
+  final Map<K, TListItem<T, K>> _itemsMap = {};
+
+  // Client-side only: tracks root-level (level == 0) items for local pagination.
+  // Never used for server-side lists.
+  final List<TListItem<T, K>> _localPaginationItems = [];
+
   bool _hasAutoSelectedFirst = false;
   bool _hasAutoExpandedFirst = false;
+
+  /// Safely retrieves child items for an item using [itemChildren].
+  List<T>? getChildren(T item) {
+    final fn = itemChildren;
+    if (fn == null) return null;
+    return fn(item);
+  }
+
+  /// Retrieves all ancestor item keys for a given item key in tree hierarchy.
+  List<K> getAncestorsOfKey(K key) {
+    final ancestors = <K>[];
+    K? current = _itemsMap[key]?.parentKey;
+    while (current != null) {
+      ancestors.add(current);
+      current = _itemsMap[current]?.parentKey;
+    }
+    return ancestors.reversed.toList();
+  }
+
+  /// Retrieves all descendant item keys for a given item key in tree hierarchy.
+  Set<K> getDescendantsOfKey(K key) {
+    final descendants = <K>{};
+    void collect(K parentKey) {
+      final item = _itemsMap[parentKey];
+      if (item != null && item.hasChildren) {
+        for (final childKey in item.childrenKeys!) {
+          descendants.add(childKey);
+          collect(childKey);
+        }
+      }
+    }
+
+    collect(key);
+    return descendants;
+  }
+
+
+  /// The single canonical factory for creating a [TListItem] from raw data.
+  ///
+  /// Accepts optional [childrenKeys] to override auto-resolution from [itemChildren].
+  /// When [childrenKeys] is not provided and [itemChildren] is set, children are resolved automatically.
+  TListItem<T, K> itemFactory(
+    T data, {
+    K? parentKey,
+    List<K>? childrenKeys,
+    int level = 0,
+  }) {
+    final resolvedChildrenKeys = childrenKeys ?? (() {
+      final children = itemChildren?.call(data);
+      return children != null && children.isNotEmpty ? children.map(itemKey).toList() : null;
+    })();
+
+    return TListItem<T, K>(
+      key: itemKey(data),
+      data: data,
+      parentKey: parentKey,
+      childrenKeys: resolvedChildrenKeys,
+      level: level,
+    );
+  }
 
   /// Creates a list controller.
   ///
@@ -147,7 +214,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     this.onLoad,
     ItemKeyAccessor<T, K>? itemKey,
     ItemToString<T>? itemToString,
-    ListItemFactory<T, K>? itemFactory,
     this.itemChildren,
     this.reorderable = false,
     this.onReorder,
@@ -161,14 +227,12 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
         _debouncer = TDebouncer(milliseconds: searchDelay ?? (onLoad != null ? 2500 : 750)),
         itemToString = itemToString ?? _defaultItemToString,
         itemKey = itemKey ?? defaultItemKey,
-        itemFactory = itemFactory ?? _defaultItemFactory(itemKey ?? defaultItemKey, itemChildren),
         _filter = TSearchFilter(itemToString: itemToString ?? _defaultItemToString),
         super(
           TListState<T, K>(
             displayItems: const [],
             selectedKeys: initialSelectedKeys != null ? LinkedHashSet<K>.from(initialSelectedKeys) : LinkedHashSet<K>(),
             expandedKeys: initialExpandedKeys != null ? LinkedHashSet<K>.from(initialExpandedKeys) : LinkedHashSet<K>(),
-            activeKey: null,
             page: 1,
             itemsPerPage: itemsPerPage,
             totalItems: items.length,
@@ -205,19 +269,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
 
   static String _defaultItemToString<T>(T item) => item.toString();
 
-  static ListItemFactory<T, K> _defaultItemFactory<T, K>(
-    ItemKeyAccessor<T, K> itemKey,
-    ItemChildrenAccessor<T>? itemChildren, [
-    int level = 0,
-  ]) {
-    return (item) => TListItem<T, K>(
-          key: itemKey(item),
-          data: item,
-          level: level,
-          children: itemChildren?.call(item)?.map((child) => _defaultItemFactory(itemKey, itemChildren, level + 1)(child)).toList(),
-        );
-  }
-
   // Getters
   bool get mounted => hasListeners;
   bool get isHierarchical => itemChildren != null;
@@ -225,78 +276,18 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   bool get isLoading => value.loading;
   bool get isFetching => value.fetching;
 
-  void clearError() {
-    if (value.error != null) {
-      updateState(who: 'clearError', error: null);
-    }
-  }
+  /// The set of selected item keys.
+  UnmodifiableSetView<K> get selectedKeys => UnmodifiableSetView(value.selectedKeys);
 
-  void handleError(TListError error) {
-    updateState(who: 'handleError', error: error);
-  }
+  /// The set of expanded tree parent item keys.
+  UnmodifiableSetView<K> get expandedKeys => UnmodifiableSetView(value.expandedKeys);
 
-  void updateError(Object e, StackTrace st) {
-    handleError(TListError(message: e.toString(), error: e, stackTrace: st));
-  }
+  /// List of currently displayed items (paginated/filtered).
+  List<TListItem<T, K>> get displayItems => value.displayItems;
 
-  void updateLoading() {
-    updateState(who: 'handleLoading', loading: true);
-  }
+  /// Keys of currently displayed items.
+  List<K> get displayItemKeys => displayItems.map((x) => x.key).toList();
 
-  void cancelPendingOperations() {
-    _debouncer.cancel();
-    _activeRequests.clear();
-  }
-
-  /// Puts the list into a state ready to create a new item.
-  /// Atomically collapses any expanded rows so that the transition from an
-  /// expanded-item view to the create form happens in a single state emission —
-  /// no intermediate "both expanded and creating" frame, no dim-opacity flash,
-  /// and no collapse-then-reopen flicker in side-panel mode.
-  void beginCreateItem() {
-    updateState(
-      who: 'beginCreateItem',
-      isCreatingItem: true,
-      clearActive: true,
-      expandedKeys: createEmptyKeySet(),
-    );
-  }
-
-  /// Cancels the create item state.
-  void cancelCreateItem() {
-    updateState(who: 'cancelCreateItem', isCreatingItem: false, clearActive: true);
-  }
-
-  /// Puts the list into a state ready to edit an item.
-  void beginEditItem(T item) {
-    updateState(
-      who: 'beginEditItem',
-      isEditingItem: true,
-      activeKey: itemKey(item),
-      expandedKeys: createEmptyKeySet(),
-    );
-  }
-
-  /// Cancels the edit item state.
-  void cancelEditItem() {
-    updateState(who: 'cancelEditItem', isEditingItem: false, clearActive: true);
-  }
-
-  /// Sets a value in the additional state and notifies listeners if it changed.
-  void setAdditionalState(String key, dynamic value) {
-    final map = Map<String, dynamic>.from(this.value.additional);
-    if (map[key] != value) {
-      map[key] = value;
-      updateState(who: 'setAdditionalState', additional: map);
-    }
-  }
-
-  /// Clears the additional state and notifies listeners.
-  void clearAdditionalState() {
-    if (value.additional.isNotEmpty) {
-      updateState(who: 'clearAdditionalState', additional: const {});
-    }
-  }
 
   @override
   void dispose() {
@@ -311,8 +302,10 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     LinkedHashSet<K>? selectedKeys,
     LinkedHashSet<K>? expandedKeys,
     List<TListItem<T, K>>? displayItems,
-    K? activeKey,
-    bool clearActive = false,
+    K? expandedDetailKey,
+    bool clearExpandedDetail = false,
+    K? editingItemKey,
+    bool clearEditingItem = false,
     int? page,
     int? itemsPerPage,
     int? totalItems,
@@ -320,7 +313,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     bool? fetching,
     bool? hasMoreItems,
     bool? isCreatingItem,
-    bool? isEditingItem,
     String? search,
     TSelectionMode? selectionMode,
     TExpansionMode? expansionMode,
@@ -340,7 +332,8 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     var effectiveExpandedKeys = expandedKeys ?? value.expandedKeys;
     var effectiveDisplayItems = displayItems ?? value.displayItems;
 
-    var effectiveActiveKey = clearActive ? null : (activeKey ?? value.activeKey);
+    var effectiveExpandedDetailKey = clearExpandedDetail ? null : (expandedDetailKey ?? value.expandedDetailKey);
+    var effectiveEditingItemKey = clearEditingItem ? null : (editingItemKey ?? value.editingItemKey);
 
     if (displayItems != null && value.displayItems.isEmpty && effectiveDisplayItems.isNotEmpty) {
       if (autoSelectFirst && effectiveSelectedKeys.isEmpty && !_hasAutoSelectedFirst) {
@@ -349,15 +342,14 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       }
       if (autoExpandFirst && effectiveExpandedKeys.isEmpty && !_hasAutoExpandedFirst) {
         effectiveExpandedKeys = copyKeySet(effectiveExpandedKeys)..add(effectiveDisplayItems.first.key);
-        effectiveActiveKey = effectiveDisplayItems.first.key;
+        effectiveExpandedDetailKey = effectiveDisplayItems.first.key;
         _hasAutoExpandedFirst = true;
       }
     }
 
-    if ((selectable || expandable) && (displayItems != null || selectedKeys != null || expandedKeys != null)) {
-      effectiveDisplayItems = _preserveStateOptimized(
+    if (isHierarchical && (displayItems != null || expandedKeys != null)) {
+      effectiveDisplayItems = _flattenDisplayItems(
         items: effectiveDisplayItems,
-        selectedKeys: effectiveSelectedKeys,
         expandedKeys: effectiveExpandedKeys,
       );
     }
@@ -366,9 +358,9 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       displayItems: effectiveDisplayItems,
       selectedKeys: effectiveSelectedKeys,
       expandedKeys: effectiveExpandedKeys,
-      activeKey: effectiveActiveKey,
+      expandedDetailKey: effectiveExpandedDetailKey,
+      editingItemKey: effectiveEditingItemKey,
       isCreatingItem: isCreatingItem ?? value.isCreatingItem,
-      isEditingItem: isEditingItem ?? value.isEditingItem,
       page: page ?? value.page,
       itemsPerPage: itemsPerPage ?? value.itemsPerPage,
       totalItems: totalItems ?? value.totalItems,
@@ -387,48 +379,9 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     //debugPrint("$who: $value");
   }
 
-  List<TListItem<T, K>> _preserveStateOptimized({
-    required List<TListItem<T, K>> items,
-    required LinkedHashSet<K> selectedKeys,
-    required LinkedHashSet<K> expandedKeys,
-  }) {
-    if (items.isEmpty) return items;
-
-    return items.map((item) {
-      final isSelected = selectedKeys.contains(item.key);
-      final isExpanded = expandedKeys.contains(item.key);
-
-      if (item.isSelected == isSelected && item.isExpanded == isExpanded && (item.children == null || item.children!.isEmpty)) {
-        return item;
-      }
-
-      List<TListItem<T, K>>? updatedChildren;
-      if (item.children != null && item.children!.isNotEmpty) {
-        updatedChildren = _preserveStateOptimized(
-          items: item.children!,
-          selectedKeys: selectedKeys,
-          expandedKeys: expandedKeys,
-        );
-      }
-
-      return item.copyWith(
-        isSelected: isSelected,
-        isExpanded: isExpanded,
-        children: updatedChildren,
-      );
-    }).toList();
-  }
+  /// Retrieves a [TListItem] by key, or null if not found.
+  TListItem<T, K>? getItem(K key) => _itemsMap[key];
 
   LinkedHashSet<K> createEmptyKeySet() => LinkedHashSet<K>();
   LinkedHashSet<K> copyKeySet(Iterable<K> keys) => LinkedHashSet<K>.from(keys);
-
-  TListItem<T, K>? buildListItem(K key) {
-    final item = itemsMap[key];
-    if (item == null) return null;
-
-    return itemFactory(item).copyWith(
-      isSelected: selectedKeys.contains(key),
-      isExpanded: expandedKeys.contains(key),
-    );
-  }
 }

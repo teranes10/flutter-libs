@@ -31,14 +31,9 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
   /// Whether multiple selection is enabled.
   bool get isMultiSelect => selectionMode == TSelectionMode.multiple;
 
-  /// The set of selected item keys.
-  LinkedHashSet<K> get selectedKeys => value.selectedKeys;
-
-  /// The list of selected items.
-  List<T> get selectedItems => getItemsFromKeys(selectedKeys);
-
   /// Whether any items are selected.
   bool get hasSelection => selectedKeys.isNotEmpty;
+
 
   /// Whether multiple items are selected.
   bool get hasMultipleSelection => selectedKeys.length > 1;
@@ -48,15 +43,12 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
 
   /// Whether all items are selected.
   bool get isAllSelected =>
-      value.displayItems.isNotEmpty && value.displayItems.length <= selectedCount && value.displayItems.every((i) => i.isSelected);
-
-  /// Whether some (but not all) items are selected.
-  bool get isSomeSelected => hasSelection && !isAllSelected;
+      value.displayItems.isNotEmpty && value.displayItems.length <= selectedCount && value.displayItems.every((i) => isSelected(i.key));
 
   /// Tristate selection value (true/null/false).
   bool? get selectionTristate => isAllSelected
       ? true
-      : isSomeSelected
+      : hasSelection
           ? null
           : false;
 
@@ -67,53 +59,42 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
     return '$selectedCount items selected';
   }
 
-  bool isItemKeySelected(K key) => selectedKeys.contains(key);
+  bool isSelected(K key) => selectedKeys.contains(key);
 
-  void toggleSelectionByKey(K key) {
+  void toggleSelection(K key) {
     if (selectionMode == TSelectionMode.none) return;
 
-    final isSelected = isItemKeySelected(key);
-    isSelected ? deselectItemKey(key) : selectItemKey(key);
+    isSelected(key) ? deselect(key) : select(key);
   }
 
-  void selectItemKey(K key) {
+  void select(K key) {
     if (selectionMode == TSelectionMode.none) return;
 
-    final newSelectedKeys = selectionMode == TSelectionMode.single ? copyKeySet([key]) : copyKeySet(selectedKeys)
+    final newSelectedKeys = selectionMode == TSelectionMode.single ? copyKeySet(<K>[key]) : copyKeySet(selectedKeys)
       ..add(key);
 
-    updateSelectionState(newSelectedKeys, who: 'selectItemKey');
+    updateState(selectedKeys: newSelectedKeys, who: 'selectKey');
   }
 
-  void deselectItemKey(K key) {
+  void deselect(K key) {
     if (selectionMode == TSelectionMode.none) return;
 
     final newSelectedKeys = copyKeySet(selectedKeys)..remove(key);
-    updateSelectionState(newSelectedKeys, who: 'deselectItemKey');
+    updateState(selectedKeys: newSelectedKeys, who: 'deselectKey');
   }
 
-  void selectItemKeys(Iterable<K> keys) {
+  void selectKeys(Iterable<K> keys) {
     if (selectionMode != TSelectionMode.multiple || keys.isEmpty) return;
 
     final newSelectedKeys = copyKeySet(selectedKeys)..addAll(keys);
-    updateSelectionState(newSelectedKeys, who: 'selectItemKeys');
+    updateState(selectedKeys: newSelectedKeys, who: 'selectKeys');
   }
 
-  void isItemSelected(T item) => isItemKeySelected(itemKey(item));
-
-  void toggleSelection(T item) => toggleSelectionByKey(itemKey(item));
-
-  void selectItem(T item) => selectItemKey(itemKey(item));
-
-  void deselectItem(T item) => deselectItemKey(itemKey(item));
-
-  void selectItems(Iterable<T> items) => selectItemKeys(items.map((item) => itemKey(item)));
-
-  void selectAll() => selectItemKeys(listItemKeys);
+  void selectAll() => selectKeys(displayItemKeys);
 
   void clearSelection() {
     if (selectedKeys.isEmpty) return;
-    updateSelectionState(createEmptyKeySet(), who: 'clearSelection');
+    updateState(selectedKeys: createEmptyKeySet(), who: 'clearSelection');
   }
 
   void toggleSelectAll() {
@@ -121,10 +102,11 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
     hasSelection ? clearSelection() : selectAll();
   }
 
-  void updateSelectionState(LinkedHashSet<K> selectedKeys, {String who = ''}) {
-    updateState(
-      who: 'updateSelectionState $who',
-      selectedKeys: selectedKeys,
-    );
+  /// Replaces the entire selected key set with [newSelectedKeys].
+  ///
+  /// Use this when you need to set selection state from an external source
+  /// (e.g., syncing with a value notifier or external value).
+  void updateSelectionState(LinkedHashSet<K> newSelectedKeys) {
+    updateState(who: 'updateSelectionState', selectedKeys: newSelectedKeys);
   }
 }

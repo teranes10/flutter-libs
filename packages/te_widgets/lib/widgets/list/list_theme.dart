@@ -114,7 +114,7 @@ class TListTheme {
       },
       infiniteScrollFooterBuilder: (BuildContext context) {
         final controller = TListScope.maybeOf(context)?.controller;
-        final showLoading = controller != null ? controller.listItems.isNotEmpty && controller.isLoading : false;
+        final showLoading = controller != null ? controller.displayItems.isNotEmpty && controller.isLoading : false;
         final isNotFirstPage = controller != null ? controller.page > 1 : false;
         final hasMoreItems = controller != null ? controller.hasMoreItems : false;
 

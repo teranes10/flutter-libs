@@ -30,6 +30,7 @@ import 'package:my_app/pages/lists_page.dart';
 import 'package:my_app/pages/stepper_page.dart';
 import 'package:my_app/pages/tables_sub_item_page.dart';
 import 'package:my_app/pages/tables_create_builder_page.dart';
+import 'package:my_app/pages/tables_tree_children_page.dart';
 import 'package:my_app/pages/tabs_page.dart';
 
 final sidebarItems = [
@@ -98,6 +99,12 @@ final sidebarItems = [
         text: 'Create Builder Table',
         route: 'create-builder',
         page: const TablesCreateBuilderPage(),
+      ),
+      TSidebarItem(
+        icon: Icons.account_tree,
+        text: 'Tree Children Table',
+        route: 'tree-children',
+        page: const TablesTreeChildrenPage(),
       ),
     ],
   ),

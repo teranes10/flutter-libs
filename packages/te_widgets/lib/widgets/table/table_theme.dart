@@ -151,7 +151,12 @@ class TTableTheme extends TListTheme {
   }
 
   /// Calculates column widths based on headers and available options.
-  static Map<int, TableColumnWidth> calculateColumnWidths<T, K>(List<TTableHeader<T, K>> headers, bool selectable, bool expandable) {
+  static Map<int, TableColumnWidth> calculateColumnWidths<T, K>(
+    List<TTableHeader<T, K>> headers,
+    bool selectable,
+    bool expandable, {
+    int maxTreeLevel = 0,
+  }) {
     Map<int, TableColumnWidth> columnWidths = {};
     int columnIndex = 0;
 
@@ -165,13 +170,16 @@ class TTableTheme extends TListTheme {
       columnIndex++;
     }
 
+    final treeIndentBonus = maxTreeLevel > 0 ? (maxTreeLevel * 16.0 + 48.0) : 0.0;
+
     for (int i = 0; i < headers.length; i++) {
       final header = headers[i];
+      final extraWidth = (i == 0) ? treeIndentBonus : 0.0;
 
       if (header.maxWidth != null && header.maxWidth != double.infinity) {
-        columnWidths[columnIndex] = FixedColumnWidth(header.maxWidth!);
+        columnWidths[columnIndex] = FixedColumnWidth(header.maxWidth! + extraWidth);
       } else if (header.minWidth != null && header.minWidth! > 0) {
-        columnWidths[columnIndex] = FixedColumnWidth(header.minWidth!);
+        columnWidths[columnIndex] = FixedColumnWidth(header.minWidth! + extraWidth);
       } else {
         columnWidths[columnIndex] = FlexColumnWidth(header.flex?.toDouble() ?? 1.0);
       }
@@ -182,21 +190,31 @@ class TTableTheme extends TListTheme {
   }
 
   /// Calculates the minimum total width required for the table view.
-  static double calculateTotalRequiredWidth<T, K>(List<TTableHeader<T, K>> headers, bool selectable, bool expandable) {
+  static double calculateTotalRequiredWidth<T, K>(
+    List<TTableHeader<T, K>> headers,
+    bool selectable,
+    bool expandable, {
+    int maxTreeLevel = 0,
+  }) {
     double totalWidth = 0;
 
     // Add width for expand/select columns
     if (expandable) totalWidth += 50;
     if (selectable) totalWidth += 50;
 
-    for (final header in headers) {
+    final treeIndentBonus = maxTreeLevel > 0 ? (maxTreeLevel * 16.0 + 48.0) : 0.0;
+
+    for (int i = 0; i < headers.length; i++) {
+      final header = headers[i];
+      final extraWidth = (i == 0) ? treeIndentBonus : 0.0;
+
       if (header.maxWidth != null && header.maxWidth != double.infinity) {
-        totalWidth += header.maxWidth!;
+        totalWidth += header.maxWidth! + extraWidth;
       } else if (header.minWidth != null && header.minWidth! > 0) {
-        totalWidth += header.minWidth!;
+        totalWidth += header.minWidth! + extraWidth;
       } else {
         // For flex columns, assume a minimum reasonable width
-        totalWidth += 100; // Default minimum width for flex columns
+        totalWidth += 100 + extraWidth; // Default minimum width for flex columns
       }
     }
 

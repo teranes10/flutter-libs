@@ -169,7 +169,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
   }
 
   void _onNewItem() {
-    _listController.addItem(widget.onNewItem(), widget.itemAddPosition == TItemAddPosition.first);
+    _listController.addItem(widget.onNewItem(), prepend: widget.itemAddPosition == TItemAddPosition.first);
     _update();
   }
 

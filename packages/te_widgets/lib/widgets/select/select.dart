@@ -398,21 +398,6 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
                 ),
       ),
       itemBuilder: (ctx, item, index) {
-        TListCard toListCard(TListItem<T, K> item) {
-          return TListCard(
-            title: widget.itemText(item.data),
-            subTitle: widget.itemSubText?.call(item.data),
-            imageUrl: widget.itemImageUrl?.call(item.data),
-            isSelected: item.isSelected,
-            isExpanded: item.isExpanded,
-            level: item.level,
-            theme: widget.cardTheme,
-            multiple: false,
-            onTap: () => _onItemSelected(item),
-            children: item.children?.map((child) => toListCard(child)).toList(),
-          );
-        }
-
         return TMeasureSize(
           onMeasure: (height) {
             if (_itemHeights[index] != height) {
@@ -421,7 +406,18 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
               });
             }
           },
-          child: toListCard(item),
+          child: TListCard(
+            title: widget.itemText(item.data),
+            subTitle: widget.itemSubText?.call(item.data),
+            imageUrl: widget.itemImageUrl?.call(item.data),
+            isSelected: listController.isSelected(item.key),
+            isExpanded: listController.isExpanded(item.key),
+            level: item.level,
+            theme: widget.cardTheme,
+            multiple: false,
+            onTap: () => _onItemSelected(item),
+            hasChildren: item.hasChildren,
+          ),
         );
       },
     );
@@ -535,7 +531,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
 
     final selectedKey = widget.itemValue == null ? listController.itemKey(value as T) : value as K;
     if (!_isLocalItems && widget.itemValue == null && selectedKey != null) {
-      listController.itemsMap.putIfAbsent(selectedKey, () => value as T);
+      listController.registerItem(value as T);
     }
 
     final selectedKeySet = LinkedHashSet<K>.from(selectedKey != null ? [selectedKey] : []);
@@ -546,9 +542,9 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
 
   void _onItemSelected(TListItem<T, K> item) {
     if (item.hasChildren) {
-      listController.toggleExpansionByKey(item.key);
+      listController.toggleExpansion(item.key);
     } else {
-      listController.selectItemKey(item.key);
+      listController.select(item.key);
       notifyValueChanged(widget.itemValue?.call(item.data) ?? item.data as V);
       hidePopup();
     }

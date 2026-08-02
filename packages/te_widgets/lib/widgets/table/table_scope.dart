@@ -46,7 +46,7 @@ class TTableScope extends InheritedWidget {
     } else if (controller.value.isEditingItem) {
       controller.cancelEditItem();
     } else {
-      controller.collapseAll();
+      controller.collapseDetail();
     }
 
     if (expansionMode == TTableExpansionMode.dialog || expansionMode == TTableExpansionMode.page) {

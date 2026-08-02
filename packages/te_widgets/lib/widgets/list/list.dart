@@ -248,24 +248,25 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
     ListItemTap<T, K>? onTap,
   ) {
     return (ctx, item, index) {
-      final controller = TListScope.of(ctx).controller;
+      final controller = TListScope.of(ctx).controller as TListController<T, K>;
 
-      TListCard toListCard(TListItem<T, K> item) {
-        return TListCard(
-          title: itemTitle?.call(item.data) ?? '',
-          subTitle: itemSubTitle?.call(item.data),
-          imageUrl: itemImageUrl?.call(item.data),
-          isSelected: item.isSelected,
-          isExpanded: item.isExpanded,
-          level: item.level,
-          theme: theme,
-          multiple: controller.isMultiSelect,
-          onTap: () => onTap?.call(item),
-          children: item.children?.map((child) => toListCard(child)).toList(),
-        );
-      }
-
-      return toListCard(item);
+      return TListCard(
+        title: itemTitle?.call(item.data) ?? '',
+        subTitle: itemSubTitle?.call(item.data),
+        imageUrl: itemImageUrl?.call(item.data),
+        isSelected: controller.isSelected(item.key),
+        isExpanded: controller.isExpanded(item.key),
+        level: item.level,
+        theme: theme,
+        multiple: controller.isMultiSelect,
+        hasChildren: item.hasChildren,
+        onTap: () {
+          if (item.hasChildren) {
+            controller.toggleExpansion(item.key);
+          }
+          onTap?.call(item);
+        },
+      );
     };
   }
 

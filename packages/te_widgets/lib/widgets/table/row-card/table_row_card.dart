@@ -39,6 +39,9 @@ class TTableRowCard<T, K> extends StatelessWidget {
   /// Content to show when expanded.
   final Widget? expandedContent;
 
+  /// The expansion mode for details (bottom, side, dialog, page).
+  final TTableExpansionMode expansionMode;
+
   /// Whether expansion happens on the side.
   final bool expandSide;
 
@@ -73,6 +76,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
     this.isExpanded = false,
     this.onExpansionChanged,
     this.expandedContent,
+    this.expansionMode = TTableExpansionMode.bottom,
     this.expandSide = false,
 
     //selectable
@@ -83,6 +87,19 @@ class TTableRowCard<T, K> extends StatelessWidget {
     this.backgroundColor,
   });
 
+  IconData _getDetailExpandIcon(TTableExpansionMode mode, bool isExpanded) {
+    switch (mode) {
+      case TTableExpansionMode.side:
+        return isExpanded ? Icons.chevron_left : Icons.chevron_right;
+      case TTableExpansionMode.dialog:
+        return isExpanded ? Icons.close : Icons.open_in_new_outlined;
+      case TTableExpansionMode.page:
+        return isExpanded ? Icons.close : Icons.open_in_new_outlined;
+      case TTableExpansionMode.bottom:
+        return isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -90,6 +107,10 @@ class TTableRowCard<T, K> extends StatelessWidget {
     final states = <WidgetState>{if (isSelected) WidgetState.selected};
     final themeBgColor = wTheme.backgroundColor.resolve(states);
     final resolvedBgColor = backgroundColor ?? (themeBgColor == colors.surface ? context.getBackgroundColor(colors.surface) : themeBgColor);
+
+    final controller = TTableScope.maybeOf(context)?.controller;
+    final isDense = TTableScope.maybeOf(context)?.dense ?? false;
+    final indentWidth = item.level * 16.0;
 
     return TCard(
       margin: wTheme.margin,
@@ -111,16 +132,14 @@ class TTableRowCard<T, K> extends StatelessWidget {
               TableRow(children: [
                 if (expandable)
                   Builder(builder: (context) {
-                    final isDense = TTableScope.maybeOf(context)?.dense ?? false;
                     return Align(
                       alignment: Alignment.centerLeft,
                       child: TIcon(
-                        icon: expandSide ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_down,
+                        icon: _getDetailExpandIcon(expansionMode, isExpanded),
                         size: isDense ? 18 : 20,
                         padding: isDense ? const EdgeInsets.all(3) : const EdgeInsets.all(6),
                         color: colors.onSurfaceVariant,
                         background: colors.surfaceContainerLow,
-                        turns: expandSide ? (0, -0.5) : (0, 0.5),
                         active: isExpanded,
                         onTap: onExpansionChanged,
                       ),
@@ -131,20 +150,61 @@ class TTableRowCard<T, K> extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: TCheckbox(value: isSelected, onValueChanged: (v) => onSelectionChanged?.call()),
                   ),
-                ...headers.map((header) {
+                ...headers.asMap().entries.map((entry) {
+                  final headerIndex = entry.key;
+                  final header = entry.value;
+
+                  Widget cellWidget = header.builder != null
+                      ? Builder(builder: (context) => header.builder!(context, item, index))
+                      : SelectableText(header.getValue(item.data), style: wTheme.contentTextStyle);
+
+                  if (headerIndex == 0) {
+                    final iconSlotWidth = isDense ? 20.0 : 24.0;
+                    final isTreeMode = (controller?.isHierarchical ?? false) || item.level > 0 || item.hasChildren;
+
+                    cellWidget = Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (indentWidth > 0) SizedBox(width: indentWidth),
+                        if (item.hasChildren) ...[
+                          Builder(builder: (ctx) {
+                            final isTreeExpanded = controller?.isExpanded(item.key) ?? false;
+                            return Padding(
+                              padding: EdgeInsetsGeometry.only(top: 1.5),
+                              child: TIcon(
+                                icon: isTreeExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
+                                size: isDense ? 18 : 20,
+                                padding: const EdgeInsets.all(0),
+                                color: colors.onSurfaceVariant,
+                                background: colors.surfaceContainerLow,
+                                active: isTreeExpanded,
+                                onTap: () {
+                                  controller?.toggleExpansion(item.key);
+                                },
+                              ),
+                            );
+                          }),
+                          const SizedBox(width: 6),
+                        ] else if (isTreeMode) ...[
+                          SizedBox(width: iconSlotWidth),
+                        ],
+                        Flexible(child: cellWidget),
+                      ],
+                    );
+                  }
+
                   return Container(
                     constraints: BoxConstraints(minWidth: header.minWidth ?? 50, maxWidth: header.maxWidth ?? double.infinity),
                     child: Align(
                       alignment: header.alignment ?? Alignment.centerLeft,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: header.builder != null
-                            ? Builder(builder: (context) => header.builder!(context, item, index))
-                            : SelectableText(header.getValue(item.data), style: wTheme.contentTextStyle),
+                        child: cellWidget,
                       ),
                     ),
                   );
-                })
+                }),
               ])
             ],
           ),

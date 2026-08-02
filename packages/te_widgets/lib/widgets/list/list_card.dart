@@ -67,6 +67,9 @@ class TListCard extends StatelessWidget {
   /// Child cards to display when expanded.
   final List<TListCard>? children;
 
+  /// Whether the card has children (for showing expansion indicator).
+  final bool hasChildren;
+
   /// Creates a list card.
   const TListCard({
     super.key,
@@ -81,6 +84,7 @@ class TListCard extends StatelessWidget {
     this.onTap,
     this.theme,
     this.children,
+    this.hasChildren = false,
   });
 
   @override
@@ -93,6 +97,8 @@ class TListCard extends StatelessWidget {
         : isSelected
             ? wTheme.selectedBackgroundColor
             : wTheme.backgroundColor;
+
+    final bool effectiveHasChildren = hasChildren || (children?.isNotEmpty ?? false);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -113,15 +119,16 @@ class TListCard extends StatelessWidget {
                 children: [
                   if (wTheme.showSelectionIndicator) wTheme.selectionIndicatorBuilder(multiple, isSelected, isDisabled),
                   Expanded(child: wTheme.contentBuilder(title, subTitle, imageUrl, isSelected, isDisabled)),
-                  if (children?.isNotEmpty ?? false) wTheme.expansionIndicatorBuilder(isExpanded, isDisabled),
+                  if (effectiveHasChildren) wTheme.expansionIndicatorBuilder(isExpanded, isDisabled),
                 ],
               ),
             ),
           ),
         ),
 
-        // Recursive children (if expanded)
-        if ((children?.isNotEmpty ?? false) && isExpanded) ...children!.map((child) => child.copyWith(level: level + 1, theme: wTheme)),
+        // Recursive children (if expanded and children are physically passed)
+        if (children != null && children!.isNotEmpty && isExpanded)
+          ...children!.map((child) => child.copyWith(level: level + 1, theme: wTheme)),
       ],
     );
   }
@@ -138,6 +145,7 @@ class TListCard extends StatelessWidget {
       level: level ?? this.level,
       onTap: onTap,
       theme: theme ?? this.theme,
+      hasChildren: hasChildren,
       children: children,
     );
   }

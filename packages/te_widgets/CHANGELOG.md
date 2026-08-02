@@ -1,4 +1,20 @@
+# 3.0.0
+
+- **List Controller & Flat Virtualization Hierarchy Improvements**:
+  - Unified item generation by merging `_createListItem` into a single canonical `itemFactory` method on `TListController`.
+  - Consolidated tree traversal helpers (`getAncestorsOfKey` / `getDescendantsOfKey`) into instance methods to ensure correct generic type reification (`K`) on web platforms (DDC/dart2js).
+  - Added `hasChildren` and `childrenCount` parameters to `TListCard`.
+  - Refactored `TList`, `TSelect`, and `TMultiSelect` default list item builders to utilize the flat layout mode: items are rendered as separate list rows with indented levels rather than nesting children inside parent cards. This fixes duplicate item rendering and allows correct list recycling/virtualization.
+  - Fixed state-tracking bug where collapsing all tree nodes (making `expandedKeys` empty) bypassed list re-flattening, keeping sub-items visible.
+  - Fixed `totalItems` decrement calculation in `removeItemsByKeys` to subtract the counts of all removed descendants instead of just top-level parents.
+  - Extracted `_syncParentInLocalAndDisplay` helper to sync updated parent `childrenKeys` state back into local pagination lists.
+  - Centralized widget state sync in `TListStateMixin` (`_handleDidUpdateWidget`) for cleaner didUpdateWidget updates.
+- **Sidebar Layout Routing Updates**:
+  - Updated `TSidebarItemWidget` tap gesture behavior: tapping a parent item with visible children will trigger navigation/routing only if it is explicitly navigable (has both a route path and a custom `page`/`builder` widget defined).
+  - If a route path is not defined or is just a structural parent placeholder (no page widget), tapping will toggle sub-menu expansion or execute its `onTap` handler instead of attempting navigation.
+
 # 2.6.6
+
 
 - **Table Details Side List Improvements**:
   - `TTableRowCard` now natively supports `onTap`, `hoverColor`, `splashColor`, and `highlightColor`, passing them to its internal `TCard`.
