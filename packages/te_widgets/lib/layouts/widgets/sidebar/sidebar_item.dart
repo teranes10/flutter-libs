@@ -255,13 +255,17 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
         if (widget.item.icon != null) Icon(widget.item.icon, size: TSidebarConstants.iconSize, color: color.withValues(alpha: 50)),
         if (widget.item.text != null && !widget.isMinimized) ...[
           const SizedBox(width: 10),
-          Text(
-            widget.item.text!,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: color),
+          Expanded(
+            child: Text(
+              widget.item.text!,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w300, color: color),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
           ),
         ],
         if (widget.item.hasVisibleChildren && !widget.isMinimized) ...[
-          const Spacer(),
+          const SizedBox(width: 8),
           _buildExpandIcon(color),
         ],
       ],

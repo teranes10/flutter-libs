@@ -7,10 +7,17 @@ extension TListControllerRiverpod<T, K> on TListController<T, K> {
   ) {
     handleAsyncValue(ref.read(provider));
 
-    ref.listen(
-      provider,
-      (_, next) => handleAsyncValue(next),
-    );
+    try {
+      ref.listen(
+        provider,
+        (_, next) => handleAsyncValue(next),
+      );
+    } catch (_) {
+      ref.container.listen(
+        provider,
+        (previous, next) => handleAsyncValue(next),
+      );
+    }
   }
 
   void bindAsyncMap<S>(
@@ -20,10 +27,17 @@ extension TListControllerRiverpod<T, K> on TListController<T, K> {
   }) {
     handleAsyncValueMap(ref.read(provider), map);
 
-    ref.listen(
-      provider,
-      (_, next) => handleAsyncValueMap(next, map),
-    );
+    try {
+      ref.listen(
+        provider,
+        (_, next) => handleAsyncValueMap(next, map),
+      );
+    } catch (_) {
+      ref.container.listen(
+        provider,
+        (previous, next) => handleAsyncValueMap(next, map),
+      );
+    }
   }
 
   void handleAsyncValue(AsyncValue<List<T>> next) {

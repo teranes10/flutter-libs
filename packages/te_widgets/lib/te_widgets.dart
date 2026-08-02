@@ -91,6 +91,7 @@ export 'widgets/checkbox/checkbox_group.dart';
 export 'widgets/checkbox/checkbox_config.dart';
 
 export 'widgets/chip/chip.dart';
+export 'widgets/color/color.dart';
 
 export 'widgets/crud-table/crud_table_config.dart';
 export 'widgets/crud-table/crud_table.dart';

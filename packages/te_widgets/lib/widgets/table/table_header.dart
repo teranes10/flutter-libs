@@ -129,6 +129,22 @@ class TTableHeader<T, K> {
           );
         });
 
+  /// Creates a header for displaying hex colors using [TColor].
+  TTableHeader.color(
+    this.text,
+    String? Function(T) map, {
+    this.flex,
+    this.minWidth,
+    this.maxWidth,
+    this.alignment,
+    String? Function(T)? label,
+  })  : map = null,
+        builder = ((ctx, item, __) {
+          final hex = map(item.data);
+          final colorLabel = label?.call(item.data);
+          return TColor(hex: hex, label: colorLabel);
+        });
+
   /// Creates a header for displaying ratings.
   TTableHeader.rating(
     this.text,

@@ -17,6 +17,7 @@ part of 'form_builder.dart';
 /// - `time()` - Time picker
 /// - `dateTime()` - Date-time picker
 /// - `dateTimeField()` - Masked date-time input
+/// - `colorPicker()` / `color()` - Color picker
 /// - `select()` - Single selection
 /// - `multiSelect()` - Multiple selection
 /// - `toggle()` - Switch
@@ -853,6 +854,116 @@ class TFormField<T> {
         valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
       ),
+    );
+  }
+
+  /// Creates a color picker form field.
+  static TFormField<Color?> colorPicker(
+    TFieldProp<Color?> prop,
+    String? label, {
+    String? helperText,
+    String? info,
+    bool isRequired = false,
+    bool disabled = false,
+    bool autoFocus = false,
+    bool onlyPlusIcon = false,
+    bool enableCustomColor = true,
+    List<Color> colors = const [
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.yellow,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+      Colors.grey,
+      Colors.blueGrey,
+      Colors.black,
+    ],
+    double itemSize = 36.0,
+    FocusNode? focusNode,
+    List<String? Function(Color?)>? rules,
+  }) {
+    return TFormField<Color?>(
+      prop: prop,
+      builder: (onValueChanged) => TColorPicker(
+        label: label,
+        isRequired: isRequired,
+        disabled: disabled,
+        onlyPlusIcon: onlyPlusIcon,
+        enableCustomColor: enableCustomColor,
+        colors: colors,
+        itemSize: itemSize,
+        focusNode: focusNode,
+        rules: rules,
+        value: prop.value,
+        valueNotifier: prop.valueNotifier,
+        onValueChanged: onValueChanged,
+      ),
+    );
+  }
+
+  /// Creates a color picker form field (alias for [colorPicker]).
+  static TFormField<Color?> color(
+    TFieldProp<Color?> prop,
+    String? label, {
+    String? helperText,
+    String? info,
+    bool isRequired = false,
+    bool disabled = false,
+    bool autoFocus = false,
+    bool onlyPlusIcon = false,
+    bool enableCustomColor = true,
+    List<Color> colors = const [
+      Colors.red,
+      Colors.pink,
+      Colors.purple,
+      Colors.deepPurple,
+      Colors.indigo,
+      Colors.blue,
+      Colors.lightBlue,
+      Colors.cyan,
+      Colors.teal,
+      Colors.green,
+      Colors.lightGreen,
+      Colors.lime,
+      Colors.yellow,
+      Colors.amber,
+      Colors.orange,
+      Colors.deepOrange,
+      Colors.brown,
+      Colors.grey,
+      Colors.blueGrey,
+      Colors.black,
+    ],
+    double itemSize = 36.0,
+    FocusNode? focusNode,
+    List<String? Function(Color?)>? rules,
+  }) {
+    return colorPicker(
+      prop,
+      label,
+      helperText: helperText,
+      info: info,
+      isRequired: isRequired,
+      disabled: disabled,
+      autoFocus: autoFocus,
+      onlyPlusIcon: onlyPlusIcon,
+      enableCustomColor: enableCustomColor,
+      colors: colors,
+      itemSize: itemSize,
+      focusNode: focusNode,
+      rules: rules,
     );
   }
 

@@ -52,6 +52,8 @@ class TToastService {
     TVariant? type,
     TError? error,
   }) {
+    if (!context.mounted) return;
+
     final theme = context.theme;
     final mColor = color ?? theme.primary;
     final wTheme = context.getWidgetTheme(type ?? theme.toastType, mColor);

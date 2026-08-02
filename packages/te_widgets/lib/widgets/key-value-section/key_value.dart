@@ -77,6 +77,23 @@ class TKeyValue {
     );
   }
 
+  /// Creates a key-value item for displaying a color hex code using [TColor].
+  factory TKeyValue.color(
+    String key,
+    String? hex, {
+    Alignment? alignment,
+    double? minWidth,
+    double? maxWidth,
+  }) {
+    return TKeyValue(
+      key,
+      widget: TColor(hex: hex),
+      alignment: alignment,
+      minWidth: minWidth,
+      maxWidth: maxWidth,
+    );
+  }
+
   /// Maps table headers to key-value items for list view representation.
   static List<TKeyValue> mapHeaders<T, K>(BuildContext ctx, List<TTableHeader<T, K>> headers, TListItem<T, K> item, int index) {
     return headers

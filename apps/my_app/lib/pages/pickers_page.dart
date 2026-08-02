@@ -726,6 +726,45 @@ TSlider(
                     defaultValue: 'true',
                     description: 'Enable gradient/spectrum picker',
                   ),
+                  PropertyDoc(
+                    name: 'onlyPlusIcon',
+                    type: 'bool',
+                    defaultValue: 'false',
+                    description: 'Show only the custom color "+" picker button',
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          ValueListenableBuilder<Color?>(
+            valueListenable: _colorPickerNotifier,
+            builder: (context, color, _) {
+              final hex = color != null ? '#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}' : 'None';
+              return WidgetDocCard(
+                title: 'Color Picker - Plus Icon Only (Selected: $hex)',
+                description: 'Compact color picker showing only the plus button.',
+                icon: Icons.add_circle_outline,
+                preview: TColorPicker(
+                  label: 'Accent Color',
+                  valueNotifier: _colorPickerNotifier,
+                  onlyPlusIcon: true,
+                ),
+                code: '''// Via TFormField:
+TFormField.colorPicker(accentColorProp, 'Accent Color', onlyPlusIcon: true)
+
+// Or direct widget:
+TColorPicker(
+  label: 'Accent Color',
+  onlyPlusIcon: true,
+)''',
+                properties: const [
+                  PropertyDoc(
+                    name: 'onlyPlusIcon',
+                    type: 'bool',
+                    defaultValue: 'true',
+                    description: 'Renders only the plus button circle',
+                  ),
                 ],
               );
             },

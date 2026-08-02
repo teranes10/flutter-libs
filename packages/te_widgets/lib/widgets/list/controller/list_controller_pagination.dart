@@ -223,7 +223,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     final filteredCount = filteredItems.length;
 
     List<TListItem<T, K>> rawDisplayItems;
-    if (effectiveItemsPerPage == -1) {
+    if (effectiveItemsPerPage <= 0) {
       rawDisplayItems = filteredItems.map((item) => itemFactory(item)).toList();
     } else if (append && value.displayItems.isNotEmpty) {
       final startIndex = value.displayItems.length;
@@ -253,7 +253,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       search: effectiveSearch,
       displayItems: rawDisplayItems,
       totalItems: filteredCount,
-      hasMoreItems: effectiveItemsPerPage == -1
+      hasMoreItems: effectiveItemsPerPage <= 0
           ? false
           : append
               ? rawDisplayItems.length < filteredCount

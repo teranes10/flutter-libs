@@ -47,6 +47,7 @@ class UserForm extends TFormBase {
   final email = TFieldProp('');
   final check = TFieldProp(false);
   final toggle = TFieldProp(false);
+  final brandColor = TFieldProp<Color?>(null);
   final files = TFieldProp<List<TFile>>([]);
   final options = TFieldProp<List<String>>([]);
   final subForm = TFieldProp(SubForm());
@@ -89,6 +90,7 @@ class UserForm extends TFormBase {
       ]).size(6),
       TFormField.checkbox(check, "Check").size(3),
       TFormField.toggle(toggle, "Toggle").size(3),
+      TFormField.colorPicker(brandColor, "Brand Color", onlyPlusIcon: true).size(6),
       TFormField.filePicker(files, "File Picker"),
       TFormField.groupFields(
         [TFormField.text(internal1, 'Internal Field 1').size(6), TFormField.text(internal2, 'Internal Field 2').size(6)],

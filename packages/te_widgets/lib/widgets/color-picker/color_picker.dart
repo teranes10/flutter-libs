@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// A color picker component for selecting a color from a predefined list or a custom spectrum.
@@ -31,6 +32,7 @@ class TColorPicker extends StatefulWidget with TInputValueMixin<Color>, TFocusMi
   final double itemSize;
   final bool disabled;
   final bool enableCustomColor;
+  final bool onlyPlusIcon;
 
   const TColorPicker({
     super.key,
@@ -67,6 +69,7 @@ class TColorPicker extends StatefulWidget with TInputValueMixin<Color>, TFocusMi
     this.itemSize = 36.0,
     this.disabled = false,
     this.enableCustomColor = true,
+    this.onlyPlusIcon = false,
   });
 
   @override
@@ -80,13 +83,64 @@ class _TColorPickerState extends State<TColorPicker>
       context: context,
       builder: (context) {
         return _CustomColorPickerDialog(
+          label: widget.label ?? 'Colour Picker',
           initialColor: currentValue ?? Colors.blue,
           onColorSelected: (color) {
+            _saveRecentColorToPrefs(color);
             notifyValueChanged(color);
             setState(() {});
           },
         );
       },
+    );
+  }
+
+  Widget _buildPlusButton(ColorScheme colors) {
+    final hasValue = currentValue != null;
+    final selectedColor = currentValue;
+
+    return GestureDetector(
+      onTap: widget.disabled ? null : _showCustomColorPicker,
+      child: Container(
+        width: widget.itemSize,
+        height: widget.itemSize,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: hasValue ? selectedColor : null,
+          border: Border.all(
+            color: hasValue ? colors.primary : colors.outlineVariant,
+            width: hasValue ? 3 : 1,
+          ),
+          gradient: !hasValue
+              ? const SweepGradient(
+                  colors: [
+                    Colors.red,
+                    Colors.yellow,
+                    Colors.green,
+                    Colors.cyan,
+                    Colors.blue,
+                    Colors.purple,
+                    Colors.red,
+                  ],
+                )
+              : null,
+          boxShadow: hasValue
+              ? [
+                  BoxShadow(
+                    color: colors.primary.withAlpha(100),
+                    blurRadius: 8,
+                    spreadRadius: 2,
+                  )
+                ]
+              : null,
+        ),
+        child: Icon(
+          Icons.add,
+          color: !hasValue ? Colors.white : (selectedColor!.computeLuminance() > 0.5 ? Colors.black : Colors.white),
+          size: widget.itemSize * 0.6,
+          shadows: !hasValue ? const [Shadow(blurRadius: 2, color: Colors.black)] : null,
+        ),
+      ),
     );
   }
 
@@ -113,74 +167,51 @@ class _TColorPickerState extends State<TColorPicker>
           spacing: 8,
           runSpacing: 8,
           children: [
-            ...widget.colors.map((color) {
-              final isSelected = currentValue == color;
-              return GestureDetector(
-                onTap: widget.disabled
-                    ? null
-                    : () {
-                        notifyValueChanged(color);
-                        setState(() {});
-                      },
-                child: Container(
-                  width: widget.itemSize,
-                  height: widget.itemSize,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? colors.primary : Colors.transparent,
-                      width: 3,
+            if (widget.onlyPlusIcon) ...[
+              _buildPlusButton(colors),
+            ] else ...[
+              ...widget.colors.map((color) {
+                final isSelected = currentValue == color;
+                return GestureDetector(
+                  onTap: widget.disabled
+                      ? null
+                      : () {
+                          _saveRecentColorToPrefs(color);
+                          notifyValueChanged(color);
+                          setState(() {});
+                        },
+                  child: Container(
+                    width: widget.itemSize,
+                    height: widget.itemSize,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected ? colors.primary : Colors.transparent,
+                        width: 3,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: colors.primary.withAlpha(100),
+                                blurRadius: 8,
+                                spreadRadius: 2,
+                              )
+                            ]
+                          : null,
                     ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: colors.primary.withAlpha(100),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                            )
-                          ]
+                    child: isSelected
+                        ? Icon(
+                            Icons.check,
+                            color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+                            size: widget.itemSize * 0.6,
+                          )
                         : null,
                   ),
-                  child: isSelected
-                      ? Icon(
-                          Icons.check,
-                          color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
-                          size: widget.itemSize * 0.6,
-                        )
-                      : null,
-                ),
-              );
-            }),
-            if (widget.enableCustomColor)
-              GestureDetector(
-                onTap: widget.disabled ? null : _showCustomColorPicker,
-                child: Container(
-                  width: widget.itemSize,
-                  height: widget.itemSize,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: colors.outlineVariant),
-                    gradient: SweepGradient(
-                      colors: [
-                        Colors.red,
-                        Colors.yellow,
-                        Colors.green,
-                        Colors.cyan,
-                        Colors.blue,
-                        Colors.purple,
-                        Colors.red,
-                      ],
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.white,
-                    size: widget.itemSize * 0.6,
-                    shadows: const [Shadow(blurRadius: 2, color: Colors.black)],
-                  ),
-                ),
-              ),
+                );
+              }),
+              if (widget.enableCustomColor) _buildPlusButton(colors),
+            ],
           ],
         ),
         if (errorsNotifier.value.isNotEmpty)
@@ -197,10 +228,12 @@ class _TColorPickerState extends State<TColorPicker>
 }
 
 class _CustomColorPickerDialog extends StatefulWidget {
+  final String label;
   final Color initialColor;
   final ValueChanged<Color> onColorSelected;
 
   const _CustomColorPickerDialog({
+    required this.label,
     required this.initialColor,
     required this.onColorSelected,
   });
@@ -211,11 +244,22 @@ class _CustomColorPickerDialog extends StatefulWidget {
 
 class _CustomColorPickerDialogState extends State<_CustomColorPickerDialog> {
   late HSVColor _hsvColor;
+  List<Color> _recentColors = [];
 
   @override
   void initState() {
     super.initState();
     _hsvColor = HSVColor.fromColor(widget.initialColor);
+    _loadRecentColors();
+  }
+
+  Future<void> _loadRecentColors() async {
+    final colors = await _getRecentColorsFromPrefs();
+    if (mounted) {
+      setState(() {
+        _recentColors = colors;
+      });
+    }
   }
 
   Widget _buildGradientSlider({
@@ -287,7 +331,7 @@ class _CustomColorPickerDialogState extends State<_CustomColorPickerDialog> {
     ];
 
     return AlertDialog(
-      title: const Text('Custom Color'),
+      title: Text(widget.label),
       content: SizedBox(
         width: 450,
         child: SingleChildScrollView(
@@ -347,6 +391,101 @@ class _CustomColorPickerDialogState extends State<_CustomColorPickerDialog> {
                   ),
                 ],
               ),
+              if (_recentColors.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Text(
+                  'Previously Selected',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _recentColors.map((recentColor) {
+                    final isSelected = _hsvColor.toColor().toARGB32() == recentColor.toARGB32();
+                    return SizedBox(
+                      width: 38,
+                      height: 38,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Positioned(
+                            left: 0,
+                            bottom: 0,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _hsvColor = HSVColor.fromColor(recentColor);
+                                });
+                              },
+                              child: Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: recentColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
+                                    width: isSelected ? 3 : 1,
+                                  ),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: Theme.of(context).colorScheme.primary.withAlpha(100),
+                                            blurRadius: 6,
+                                            spreadRadius: 1,
+                                          )
+                                        ]
+                                      : null,
+                                ),
+                                child: isSelected
+                                    ? Icon(
+                                        Icons.check,
+                                        color: recentColor.computeLuminance() > 0.5 ? Colors.black : Colors.white,
+                                        size: 16,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () async {
+                                await _removeRecentColorFromPrefs(recentColor);
+                                if (mounted) {
+                                  setState(() {
+                                    _recentColors.removeWhere((c) => c.toARGB32() == recentColor.toARGB32());
+                                  });
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade600,
+                                  shape: BoxShape.circle,
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 10,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ],
           ),
         ),
@@ -357,13 +496,60 @@ class _CustomColorPickerDialogState extends State<_CustomColorPickerDialog> {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: () {
-            widget.onColorSelected(_hsvColor.toColor());
-            Navigator.of(context).pop();
+          onPressed: () async {
+            final selectedColor = _hsvColor.toColor();
+            await _saveRecentColorToPrefs(selectedColor);
+            widget.onColorSelected(selectedColor);
+            if (context.mounted) {
+              Navigator.of(context).pop();
+            }
           },
           child: const Text('Select Color'),
         ),
       ],
     );
   }
+}
+
+const String _kRecentColorsKey = 'te_color_picker_recent_colors';
+
+Future<List<Color>> _getRecentColorsFromPrefs() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_kRecentColorsKey) ?? [];
+    final result = <Color>[];
+    for (final str in list) {
+      final val = int.tryParse(str, radix: 16);
+      if (val != null) {
+        result.add(Color(val));
+      }
+    }
+    return result;
+  } catch (_) {
+    return [];
+  }
+}
+
+Future<void> _saveRecentColorToPrefs(Color color) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_kRecentColorsKey) ?? [];
+    final hexStr = color.toARGB32().toRadixString(16).padLeft(8, '0');
+    list.remove(hexStr);
+    list.insert(0, hexStr);
+    if (list.length > 12) {
+      list.removeRange(12, list.length);
+    }
+    await prefs.setStringList(_kRecentColorsKey, list);
+  } catch (_) {}
+}
+
+Future<void> _removeRecentColorFromPrefs(Color color) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_kRecentColorsKey) ?? [];
+    final hexStr = color.toARGB32().toRadixString(16).padLeft(8, '0');
+    list.remove(hexStr);
+    await prefs.setStringList(_kRecentColorsKey, list);
+  } catch (_) {}
 }
