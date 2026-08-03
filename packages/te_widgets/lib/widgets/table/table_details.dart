@@ -193,6 +193,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
 
     K? activeKey = v.activeKey;
     TListItem<T, K>? activeItem = isCreating || activeKey == null ? null : listController.getItem(activeKey);
+    if (!isCreating && activeItem == null) return null;
     int activeIndex = activeItem == null ? -1 : v.displayItems.indexWhere((x) => x.key == activeItem.key);
 
     Widget content(BuildContext ctx) => (isCreating || isEditing)

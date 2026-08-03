@@ -46,9 +46,14 @@ extension TListControllerItems<T, K> on TListController<T, K> {
       if (_useLocalPaginationItems) {
         _localPaginationItems.clear();
       }
-      // Preserve items that are currently selected or expanded so that
-      // state (selection/expansion) doesn't get orphaned after a refresh.
-      final Set<K> preservedKeys = <K>{...selectedKeys, ...expandedKeys};
+      // Preserve items that are currently selected, expanded, viewed (expandedDetailKey) or edited (editingItemKey)
+      // so that state (selection/expansion/details) doesn't get orphaned after a refresh.
+      final Set<K> preservedKeys = <K>{
+        ...selectedKeys,
+        ...expandedKeys,
+        if (value.expandedDetailKey != null) value.expandedDetailKey as K,
+        if (value.editingItemKey != null) value.editingItemKey as K,
+      };
       final preservedItems = <K, TListItem<T, K>>{};
       for (final k in preservedKeys) {
         final v = _itemsMap[k];
@@ -270,6 +275,9 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     final newSelectedKeys = copyKeySet(value.selectedKeys)..removeAll(allToRemove);
     final newExpandedKeys = copyKeySet(value.expandedKeys)..removeAll(allToRemove);
 
+    final clearExpandedDetail = value.expandedDetailKey != null && allToRemove.contains(value.expandedDetailKey);
+    final clearEditingItem = value.editingItemKey != null && allToRemove.contains(value.editingItemKey);
+
     updateState(
       who: 'removeItems',
       displayItems: newDisplayItems,
@@ -277,6 +285,8 @@ extension TListControllerItems<T, K> on TListController<T, K> {
       totalItems: value.totalItems - allToRemove.length,
       selectedKeys: newSelectedKeys,
       expandedKeys: newExpandedKeys,
+      clearExpandedDetail: clearExpandedDetail,
+      clearEditingItem: clearEditingItem,
     );
   }
 
