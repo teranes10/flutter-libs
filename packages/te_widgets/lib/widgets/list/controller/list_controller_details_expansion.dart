@@ -14,6 +14,8 @@ extension TListControllerDetailExpansion<T, K> on TListController<T, K> {
   /// Whether any row detail content is currently expanded.
   bool get hasExpandedContent => expandedDetailKey != null;
 
+  bool isDetailExpanded(K key) => expandedDetailKey == key;
+
   /// Expands detail content for a specific item key.
   /// Automatically clears any active edit item key, ensuring only one view/edit mode is active.
   void expandDetail(K key, {Map<String, dynamic>? additional, bool clearEditingItem = true}) {

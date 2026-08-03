@@ -492,13 +492,9 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         final allowed = await widget.details!.onWillExpand!(key);
         if (!allowed) return;
       }
-    } else {
-      if (widget.details?.onWillCollapse != null) {
-        final allowed = await widget.details!.onWillCollapse!(key);
-        if (!allowed) return;
-      }
+
+      listController.expandDetail(key);
     }
-    listController.toggleContentKey(key);
   }
 
   /// True if [item] should render its expanded/edit content inline (bottom mode),
@@ -550,7 +546,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       width: wTheme.cardWidth,
       columnWidths: columnWidths,
       expandable: listController.expandable,
-      isExpanded: _isInlineExpanded(item),
+      isExpanded: listController.isExpanded(item.key),
+      isDetailExpanded: _isInlineExpanded(item),
       expansionMode: effectiveExpansionMode,
       expandSide: effectiveExpansionMode == TTableExpansionMode.side,
       onExpansionChanged: () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key),
@@ -570,7 +567,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       theme: wTheme.mobileCardTheme,
       width: wTheme.cardWidth,
       expandable: listController.expandable,
-      isExpanded: _isInlineExpanded(item),
+      isExpanded: listController.isExpanded(item.key),
+      isDetailExpanded: _isInlineExpanded(item),
       expandSide: effectiveExpansionMode == TTableExpansionMode.side,
       onExpansionChanged: () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key),
       expandedContent: _resolveExpandedContent(ctx, item, index),

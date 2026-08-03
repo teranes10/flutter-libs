@@ -485,7 +485,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final title = widget.details?.itemTitle?.call(item.data);
     final subTitle = widget.details?.itemSubTitle?.call(item.data);
     final imageUrl = widget.details?.itemImageUrl?.call(item.data);
-    final isSelected = listController.isExpanded(item.key);
+    final isSelected = listController.isDetailExpanded(item.key);
 
     return TTableRowCard<T, K>(
       index: index,

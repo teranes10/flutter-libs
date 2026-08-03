@@ -30,6 +30,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
 
   /// Whether the card is currently expanded.
   final bool isExpanded;
+  final bool isDetailExpanded;
 
   /// Callback when expansion toggles.
   final VoidCallback? onExpansionChanged;
@@ -65,6 +66,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     //expandable
     this.expandable = false,
     this.isExpanded = false,
+    this.isDetailExpanded = false,
     this.onExpansionChanged,
     this.expandedContent,
     this.expandSide = false,
@@ -162,7 +164,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
                       padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
                       borderRadius: BorderRadius.circular(20),
                       turns: expandSide ? (0, -0.5) : (0, 0.5),
-                      active: isExpanded,
+                      active: isDetailExpanded,
                       onTap: onExpansionChanged,
                     );
                   }),
@@ -170,7 +172,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
                 )
             ]),
           ),
-          if (isExpanded && !expandSide && expandedContent != null) Padding(padding: wTheme.padding, child: expandedContent!),
+          if (isDetailExpanded && !expandSide && expandedContent != null) Padding(padding: wTheme.padding, child: expandedContent!),
         ],
       ),
     );

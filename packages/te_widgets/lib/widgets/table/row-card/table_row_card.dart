@@ -32,6 +32,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
 
   /// Whether the row is currently expanded.
   final bool isExpanded;
+  final bool isDetailExpanded;
 
   /// Callback when expansion toggles.
   final VoidCallback? onExpansionChanged;
@@ -74,6 +75,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
     //expandable
     this.expandable = false,
     this.isExpanded = false,
+    this.isDetailExpanded = false,
     this.onExpansionChanged,
     this.expandedContent,
     this.expansionMode = TTableExpansionMode.bottom,
@@ -135,12 +137,12 @@ class TTableRowCard<T, K> extends StatelessWidget {
                     return Align(
                       alignment: Alignment.centerLeft,
                       child: TIcon(
-                        icon: _getDetailExpandIcon(expansionMode, isExpanded),
+                        icon: _getDetailExpandIcon(expansionMode, isDetailExpanded),
                         size: isDense ? 18 : 20,
                         padding: isDense ? const EdgeInsets.all(3) : const EdgeInsets.all(6),
                         color: colors.onSurfaceVariant,
                         background: colors.surfaceContainerLow,
-                        active: isExpanded,
+                        active: isDetailExpanded,
                         onTap: onExpansionChanged,
                       ),
                     );
@@ -212,7 +214,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
             AnimatedSize(
               duration: const Duration(milliseconds: 250),
               curve: Curves.easeInOut,
-              child: isExpanded && !expandSide
+              child: isDetailExpanded && !expandSide
                   ? Container(
                       width: double.infinity,
                       margin: EdgeInsets.only(top: wTheme.padding.top),

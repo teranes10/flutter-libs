@@ -42,16 +42,16 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   int get totalDisplayItems => value.displayItems.length;
 
   /// The total number of pages.
-  int get totalPages => totalItems > 0 ? (itemsPerPage == -1 ? 1 : (totalItems / itemsPerPage).ceil()) : 1;
+  int get totalPages => totalItems > 0 ? (itemsPerPage <= 0 ? 1 : (totalItems / itemsPerPage).ceil()) : 1;
 
   /// The computed items per page (adjusted for last page).
-  int get computedItemsPerPage => itemsPerPage == -1 ? totalDisplayItems : itemsPerPage.clamp(0, totalDisplayItems);
+  int get computedItemsPerPage => itemsPerPage <= 0 ? totalDisplayItems : itemsPerPage.clamp(0, totalDisplayItems);
 
   /// The starting index of the current page.
-  int get pageStartedAt => totalDisplayItems == 0 ? 0 : (itemsPerPage == -1 ? 1 : ((page - 1) * itemsPerPage) + 1);
+  int get pageStartedAt => totalDisplayItems == 0 ? 0 : (itemsPerPage <= 0 ? 1 : ((page - 1) * itemsPerPage) + 1);
 
   /// The ending index of the current page.
-  int get pageEndedAt => totalDisplayItems == 0 ? 0 : (itemsPerPage == -1 ? totalDisplayItems : pageStartedAt + totalDisplayItems - 1);
+  int get pageEndedAt => totalDisplayItems == 0 ? 0 : (itemsPerPage <= 0 ? totalDisplayItems : pageStartedAt + totalDisplayItems - 1);
 
   /// Whether there is a next page.
   /// For cursor pagination, checks hasMoreItems (from server's hasNextPage).
