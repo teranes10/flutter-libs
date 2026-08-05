@@ -82,12 +82,15 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   /// Returns the content widget to display in the popup.
   Widget getContentWidget(BuildContext context);
 
+  /// Optional sticky bottom footer widget displayed in page mode.
+  Widget? getPopupFooter(BuildContext context) => null;
+
   /// Dynamic page title for page mode.
   String get popupTitle {
     if (widget is TInputFieldMixin) {
-      return (widget as TInputFieldMixin).label ?? 'Select';
+      return (widget as TInputFieldMixin).label ?? '';
     }
-    return 'Select';
+    return '';
   }
 
   /// Shows the popup.
@@ -104,6 +107,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
             onBackPressed: () {
               hidePopup();
             },
+            footer: getPopupFooter(ctx),
             child: getContentWidget(ctx),
           ),
         ),

@@ -33,7 +33,7 @@ import 'package:te_widgets/te_widgets.dart';
 ///
 /// See also:
 /// - [TCheckbox] for checkbox input
-class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, TInputValidationMixin<bool> {
+class TSwitch extends StatefulWidget with TInputFieldMixin, TInputValueMixin<bool>, TFocusMixin, TInputValidationMixin<bool> {
   /// The current value of the switch.
   @override
   final bool? value;
@@ -54,6 +54,18 @@ class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, T
   @override
   final String? label;
 
+  /// An optional tag displayed next to the label.
+  @override
+  final String? tag;
+
+  /// Helper text displayed below the field.
+  @override
+  final String? helperText;
+
+  /// The info text (optional).
+  @override
+  final String? info;
+
   /// Whether this switch is required.
   @override
   final bool isRequired;
@@ -70,6 +82,7 @@ class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, T
   final bool autoFocus;
 
   /// Whether the switch is disabled.
+  @override
   final bool disabled;
 
   /// Custom color for the switch.
@@ -78,6 +91,15 @@ class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, T
   /// The size of the switch.
   final TInputSize? size;
 
+  @override
+  final bool clearable = false;
+
+  @override
+  final TInputFieldTheme? theme;
+
+  @override
+  final VoidCallback? onTap = null;
+
   const TSwitch({
     super.key,
     this.value = false,
@@ -85,6 +107,9 @@ class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, T
     this.onValueChanged,
     this.focusNode,
     this.label,
+    this.tag,
+    this.helperText,
+    this.info,
     this.isRequired = false,
     this.rules,
     this.validationDebounce,
@@ -92,6 +117,7 @@ class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, T
     this.disabled = false,
     this.color,
     this.size = TInputSize.md,
+    this.theme,
   });
 
   @override
@@ -99,7 +125,7 @@ class TSwitch extends StatefulWidget with TInputValueMixin<bool>, TFocusMixin, T
 }
 
 class _TSwitchState<T> extends State<TSwitch>
-    with TInputValueStateMixin<bool, TSwitch>, TFocusStateMixin<TSwitch>, TInputValidationStateMixin<bool, TSwitch> {
+    with TInputValueStateMixin<bool, TSwitch>, TFocusStateMixin<TSwitch>, TInputValidationStateMixin<bool, TSwitch>, TInputFieldStateMixin<TSwitch> {
   (double, double, double) _getSwitchSize() {
     switch (widget.size) {
       case TInputSize.xs:
@@ -134,77 +160,71 @@ class _TSwitchState<T> extends State<TSwitch>
     setState(() {});
   }
 
-  Widget buildValidationErrors(ColorScheme colors, ValueNotifier<List<String>> errorsNotifier) {
-    return ValueListenableBuilder<List<String>>(
-      valueListenable: errorsNotifier,
-      builder: (context, validationErrors, child) {
-        if (validationErrors.isEmpty) return const SizedBox.shrink();
-
-        return Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: colors.error))).toList(),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final theme = context.theme;
     final mColor = widget.color ?? theme.primary;
-    final wTheme = context.getWidgetTheme(TVariant.solid, mColor);
+    final widgetTheme = context.getWidgetTheme(TVariant.solid, mColor);
     final (width, height, scale) = _getSwitchSize();
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: widget.disabled ? null : () => _onSwitchChanged(null),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Opacity(
-                opacity: widget.disabled ? 0.6 : 1.0,
-                child: Transform.scale(
-                  scale: scale,
-                  child: SizedBox(
-                    width: width,
-                    height: height,
-                    child: Switch(
-                      focusNode: focusNode,
-                      autofocus: widget.autoFocus,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      splashRadius: 0,
-                      value: currentValue ?? false,
-                      onChanged: widget.disabled ? null : _onSwitchChanged,
-                      activeThumbColor: Colors.white,
-                      inactiveThumbColor: Colors.white,
-                      activeTrackColor: wTheme.container,
-                      inactiveTrackColor: colors.surfaceContainerHighest,
-                      trackOutlineWidth: WidgetStateProperty.all(0.1),
-                      trackOutlineColor: WidgetStateProperty.all(colors.outlineVariant),
-                    ),
-                  ),
-                ),
-              ),
-              if (widget.label != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  widget.label!,
-                  style: TextStyle(letterSpacing: 0.9, color: colors.onSurfaceVariant, fontSize: _getLabelFontSize()),
-                ),
-              ],
-            ],
+    final isLabelAbove = wTheme.labelPosition == TLabelPosition.aboveField;
+    final showLabelOnRight = widget.label != null && !isLabelAbove;
+
+    final switchWidget = Opacity(
+      opacity: widget.disabled ? 0.6 : 1.0,
+      child: Transform.scale(
+        scale: scale,
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: Switch(
+            focusNode: focusNode,
+            autofocus: widget.autoFocus,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            splashRadius: 0,
+            value: currentValue ?? false,
+            onChanged: widget.disabled ? null : _onSwitchChanged,
+            activeThumbColor: Colors.white,
+            inactiveThumbColor: Colors.white,
+            activeTrackColor: widgetTheme.container,
+            inactiveTrackColor: colors.surfaceContainerHighest,
+            trackOutlineWidth: WidgetStateProperty.all(0.1),
+            trackOutlineColor: WidgetStateProperty.all(colors.outlineVariant),
           ),
         ),
-        buildValidationErrors(colors, errorsNotifier)
+      ),
+    );
+
+    final rowChild = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        switchWidget,
+        if (showLabelOnRight) ...[
+          const SizedBox(width: 8),
+          Text(
+            widget.label!,
+            style: TextStyle(letterSpacing: 0.9, color: colors.onSurfaceVariant, fontSize: _getLabelFontSize()),
+          ),
+        ],
+        if (widget.info != null && !isLabelAbove) ...[
+          const SizedBox(width: 4),
+          TTooltip(
+            message: widget.info!,
+            color: colors.onSurfaceVariant,
+            triggerMode: TTooltipTriggerMode.adaptive,
+            child: Icon(Icons.info_outline, size: 16, color: colors.onSurfaceVariant.withAlpha(200)),
+          ),
+        ],
       ],
     );
+
+    final clickableContent = InkWell(
+      onTap: widget.disabled ? null : () => _onSwitchChanged(null),
+      child: rowChild,
+    );
+
+    return buildWrapper(child: clickableContent);
   }
 }

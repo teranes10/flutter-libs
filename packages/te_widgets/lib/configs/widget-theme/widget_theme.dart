@@ -162,7 +162,7 @@ class TWidgetTheme {
       containerVariant: Colors.transparent,
       onContainer: m.shade(400),
       onContainerVariant: isDarkMode ? m.shade(300) : m.shade(500),
-      outline: m.shade(300),
+      outline: isDarkMode ? m.shade(400).withAlpha(150) : m.shade(200),
       outlineVariant: m.shade(400),
       shadow: m.shade(400).withAlpha(35),
     );
@@ -178,8 +178,7 @@ class TWidgetTheme {
       containerVariant: isDarkMode ? m.shade(800) : m.shade(50),
       onContainer: m.shade(400),
       onContainerVariant: isDarkMode ? m.shade(100) : m.shade(400),
-      outline: m.shade(300),
-      outlineVariant: isDarkMode ? m.shade(400) : m.shade(200),
+      outline: isDarkMode ? m.shade(400).withAlpha(150) : m.shade(200),
       shadow: m.shade(400).withAlpha(35),
     );
   }
@@ -194,7 +193,7 @@ class TWidgetTheme {
       containerVariant: m.shade(400),
       onContainer: m.shade(400),
       onContainerVariant: m.shade(50),
-      outline: m.shade(300),
+      outline: isDarkMode ? m.shade(400).withAlpha(150) : m.shade(200),
       shadow: m.shade(400).withAlpha(35),
     );
   }

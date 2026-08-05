@@ -41,23 +41,42 @@ import 'package:te_widgets/te_widgets.dart';
 class TKeyValueSection extends StatelessWidget {
   final List<TKeyValue> values;
   final TKeyValueTheme? theme;
+  final bool? forceKeyValue;
+  final bool? valueAfterKey;
 
-  const TKeyValueSection({super.key, required this.values, this.theme});
+  const TKeyValueSection({
+    super.key,
+    required this.values,
+    this.theme,
+    this.forceKeyValue,
+    this.valueAfterKey,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final wTheme = theme ?? context.theme.keyValueTheme;
+    final isForceKeyValue = forceKeyValue ?? wTheme.forceKeyValue;
 
-    if (wTheme.forceKeyValue) {
-      return _KeyValueLayout(values: values, theme: wTheme, colors: colors);
+    if (isForceKeyValue) {
+      return _KeyValueLayout(
+        values: values,
+        theme: wTheme,
+        colors: colors,
+        valueAfterKey: valueAfterKey ?? false,
+      );
     }
 
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth > wTheme.keyValueBreakPoint) {
         return _GridLayout(values: values, theme: wTheme, colors: colors);
       }
-      return _KeyValueLayout(values: values, theme: wTheme, colors: colors);
+      return _KeyValueLayout(
+        values: values,
+        theme: wTheme,
+        colors: colors,
+        valueAfterKey: valueAfterKey ?? false,
+      );
     });
   }
 }
@@ -68,11 +87,13 @@ class _KeyValueLayout extends StatelessWidget {
   final List<TKeyValue> values;
   final TKeyValueTheme theme;
   final ColorScheme colors;
+  final bool valueAfterKey;
 
   const _KeyValueLayout({
     required this.values,
     required this.theme,
     required this.colors,
+    required this.valueAfterKey,
   });
 
   @override
@@ -90,18 +111,30 @@ class _KeyValueLayout extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    flex: theme.narrowKeyFlex,
-                    child: Text(values[i].key, style: theme.keyStyle),
-                  ).when(!values[i].key.isNullOrBlank),
-                  SizedBox(width: theme.narrowGap).when(!values[i].key.isNullOrBlank),
-                  Expanded(
-                    flex: theme.narrowValueFlex,
-                    child: Align(
-                      alignment: values[i].alignment ?? Alignment.centerRight,
+                  if (values[i].icon != null) ...[
+                    values[i].icon!,
+                    const SizedBox(width: 8),
+                  ],
+                  if (valueAfterKey) ...[
+                    Text(values[i].key, style: theme.keyStyle).when(!values[i].key.isNullOrBlank),
+                    const SizedBox(width: 8).when(!values[i].key.isNullOrBlank),
+                    Flexible(
                       child: _CellContent(kv: values[i], theme: theme),
                     ),
-                  ),
+                  ] else ...[
+                    Expanded(
+                      flex: theme.narrowKeyFlex,
+                      child: Text(values[i].key, style: theme.keyStyle),
+                    ).when(!values[i].key.isNullOrBlank),
+                    SizedBox(width: theme.narrowGap).when(!values[i].key.isNullOrBlank),
+                    Expanded(
+                      flex: theme.narrowValueFlex,
+                      child: Align(
+                        alignment: values[i].alignment ?? Alignment.centerRight,
+                        child: _CellContent(kv: values[i], theme: theme),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

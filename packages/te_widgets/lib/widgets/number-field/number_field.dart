@@ -95,6 +95,9 @@ class TNumberField<T extends num?> extends StatefulWidget
   @override
   final TNumberFieldTheme? theme;
 
+  /// Whether to split the stepper buttons (minus in pre, plus in post).
+  final bool? splitStepper;
+
   /// Callback fired when the field is tapped.
   @override
   final VoidCallback? onTap;
@@ -141,6 +144,7 @@ class TNumberField<T extends num?> extends StatefulWidget
     this.readOnly = false,
     this.clearable = false,
     this.theme,
+    this.splitStepper,
     this.onTap,
     this.focusNode,
     this.textController,
@@ -216,12 +220,14 @@ class _TNumberFieldState<T extends num?> extends State<TNumberField<T>>
 
     textController.text = wTheme.formatValue(newValue);
     notifyValueChanged(newValue);
+    focusNode.unfocus();
   }
 
   @override
   Widget build(BuildContext context) {
     final type = getValueType().type;
     final disabled = widget.disabled;
+    final isSplit = widget.splitStepper ?? wTheme.splitStepper ?? false;
 
     return buildTextField(
       keyboardType: type.keyboardType,
@@ -232,7 +238,21 @@ class _TNumberFieldState<T extends num?> extends State<TNumberField<T>>
         textController.clear();
         notifyValueChanged(null);
       },
-      beforePostWidget: wTheme.stepperBuilder?.call(context, _changeValueBy, !disabled, !disabled),
+      textAlign: isSplit ? TextAlign.center : TextAlign.start,
+      beforePreWidget: isSplit && wTheme.decreaseButtonBuilder != null
+          ? Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: wTheme.decreaseButtonBuilder!(() => _changeValueBy(-wTheme.decrement), !disabled),
+            )
+          : null,
+      beforePostWidget: isSplit
+          ? (wTheme.increaseButtonBuilder != null
+              ? Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: wTheme.increaseButtonBuilder!(() => _changeValueBy(wTheme.increment), !disabled),
+                )
+              : null)
+          : wTheme.stepperBuilder?.call(context, _changeValueBy, !disabled, !disabled),
     );
   }
 }

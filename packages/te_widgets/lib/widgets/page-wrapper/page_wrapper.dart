@@ -40,6 +40,9 @@ class TPageWrapper extends StatefulWidget {
   /// Defaults to [ColorScheme.surface] when null.
   final Color? backgroundColor;
 
+  /// Optional bottom sticky footer widget.
+  final Widget? footer;
+
   /// Creates a page wrapper.
   const TPageWrapper({
     super.key,
@@ -56,6 +59,7 @@ class TPageWrapper extends StatefulWidget {
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
     this.backgroundColor,
+    this.footer,
   });
 
   @override
@@ -260,18 +264,13 @@ class _TPageWrapperState extends State<TPageWrapper> {
         if (shouldShrinkWrap) {
           final appBarHeight = appBarWidget != null ? (toolbarHeight ?? kToolbarHeight) : 0.0;
 
-          // Column shrink-wraps naturally. Inside, we use a nested Stack only for
-          // the scroll area so the AppBar (positioned absolutely at the top of
-          // that Stack) always paints above the scrollable content.
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Stack wraps the AppBar + scroll content so appbar z-order is correct
               Flexible(
                 child: Stack(
                   children: [
-                    // Scroll content — top-padded to avoid being hidden behind AppBar
                     SingleChildScrollView(
                       controller: _scrollController,
                       child: Column(
@@ -288,45 +287,48 @@ class _TPageWrapperState extends State<TPageWrapper> {
                         ],
                       ),
                     ),
-                    // AppBar painted last — always on top of scroll content
                     if (appBarWidget != null) Positioned(top: 0, left: 0, right: 0, child: appBarWidget),
                   ],
                 ),
               ),
+              if (widget.footer != null) widget.footer!,
             ],
           );
         }
 
-        // For the Scaffold path: put the AppBar in a Stack inside the body
-        // so it paints on top of the scrollable content and the shadow is visible.
         final appBarHeight = toolbarHeight ?? kToolbarHeight;
 
         return Scaffold(
           backgroundColor: effectiveBg,
           body: SafeArea(
-            child: Stack(
+            child: Column(
               children: [
-                // Scrollable body padded so content starts below the AppBar
-                Positioned.fill(
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (appBarWidget != null) SizedBox(height: appBarHeight),
-                        if (descriptionWidget != null) descriptionWidget,
-                        if (itemInfoWidget != null) itemInfoWidget,
-                        Padding(
-                          padding: widget.contentPadding,
-                          child: widget.child,
+                Expanded(
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: SingleChildScrollView(
+                          controller: _scrollController,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (appBarWidget != null) SizedBox(height: appBarHeight),
+                              if (descriptionWidget != null) descriptionWidget,
+                              if (itemInfoWidget != null) itemInfoWidget,
+                              Padding(
+                                padding: widget.contentPadding,
+                                child: widget.child,
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                      if (appBarWidget != null) Positioned(top: 0, left: 0, right: 0, child: appBarWidget),
+                    ],
                   ),
                 ),
-                // AppBar on top so its shadow always renders above scroll content
-                if (appBarWidget != null) Positioned(top: 0, left: 0, right: 0, child: appBarWidget),
+                if (widget.footer != null) widget.footer!,
               ],
             ),
           ),

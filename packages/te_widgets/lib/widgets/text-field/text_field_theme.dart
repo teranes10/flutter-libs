@@ -210,7 +210,6 @@ class TTextFieldTheme extends TInputFieldTheme {
     );
   }
 
-  /// Builds a raw [TextField] with the theme applied.
   Widget buildTextField(
     Set<WidgetState> states, {
     bool autoFocus = false,
@@ -224,6 +223,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     ValueChanged<String>? onValueChanged,
     VoidCallback? onTap,
     required InputDecoration inputDecoration,
+    TextAlign textAlign = TextAlign.start,
   }) {
     final isDisabled = states.contains(WidgetState.disabled);
     final isMultiline = rows > 1;
@@ -259,6 +259,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       textInputAction: _resolveTextInputAction(isMultiline, textInputAction),
       onChanged: onValueChanged,
       onTap: onTap,
+      textAlign: textAlign,
     );
   }
 

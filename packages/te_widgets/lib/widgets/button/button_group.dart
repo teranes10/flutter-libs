@@ -84,6 +84,39 @@ class TButtonGroup extends StatefulWidget {
   /// Callback fired when the active index changes (triggered in both [cycle] mode and stateful selection mode).
   final ValueChanged<int>? onIndexChanged;
 
+  /// Whether the buttons in the group are separated by a gap (not joined).
+  final bool separated;
+
+  /// Spacing between buttons when [separated] is true.
+  final double? spacing;
+
+  /// Whether to show a checkmark tick when a button is active.
+  final bool? showTick;
+
+  /// The alignment of the tick indicator.
+  final Alignment? tickAlignment;
+
+  /// Custom widget to display for the tick indicator.
+  final Widget? tickWidget;
+
+  /// Whether the buttons should expand to fill the available width evenly inside a Row.
+  final bool expanded;
+
+  /// Label text displayed above the button group.
+  final String? label;
+
+  /// Optional tag text next to the label.
+  final String? tag;
+
+  /// Whether this group selection is required.
+  final bool isRequired;
+
+  /// Helper text displayed below the group.
+  final String? helperText;
+
+  /// Informational tooltip text.
+  final String? info;
+
   /// Creates a button group.
   const TButtonGroup({
     super.key,
@@ -96,6 +129,17 @@ class TButtonGroup extends StatefulWidget {
     this.cycle = false,
     this.initialIndex,
     this.onIndexChanged,
+    this.separated = false,
+    this.spacing,
+    this.showTick,
+    this.tickAlignment,
+    this.tickWidget,
+    this.expanded = false,
+    this.label,
+    this.tag,
+    this.isRequired = false,
+    this.helperText,
+    this.info,
   }) : assert(
           theme == null || (type == null && size == null && color == null),
           'If theme is provided, type, color and size must be null.',
@@ -171,7 +215,40 @@ class _TButtonGroupState extends State<TButtonGroup> {
       );
     }
 
-    return buttonGroup;
+    final inputTheme = context.theme.inputFieldTheme;
+    final states = <WidgetState>{
+      if (widget.isRequired) WidgetState.selected,
+    };
+
+    final labelWidget = TInputFieldTheme.buildDefaultLabelBuilder(
+      inputTheme.labelStyle,
+      inputTheme.tagStyle,
+      inputTheme.errorTextStyle,
+    ).resolve(states)(
+      widget.label,
+      widget.tag,
+      widget.isRequired,
+      widget.info != null ? inputTheme.buildInfoIcon(widget.info!, context.colors) : null,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.label != null || widget.tag != null || widget.info != null) ...[
+          labelWidget,
+          const SizedBox(height: 8),
+        ],
+        buttonGroup,
+        if (widget.helperText != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            widget.helperText!,
+            style: inputTheme.helperTextStyle.resolve(states),
+          ),
+        ],
+      ],
+    );
   }
 
   Widget _buildButtonRow(BuildContext context, TButtonGroupTheme groupTheme) {
@@ -199,9 +276,33 @@ class _TButtonGroupState extends State<TButtonGroup> {
 
       children.add(button);
 
-      if (i < total - 1 && groupTheme.needsSeparator()) {
+      if (!widget.separated && i < total - 1 && groupTheme.needsSeparator()) {
         children.add(groupTheme.buildSeparator());
       }
+    }
+
+    if (widget.expanded) {
+      final total = widget.items.length;
+      final rowChildren = <Widget>[];
+      for (int i = 0; i < children.length; i++) {
+        rowChildren.add(Expanded(flex: widget.items[i].text?.length ?? 1, child: children[i]));
+        if (widget.separated && i < total - 1) {
+          rowChildren.add(SizedBox(width: widget.spacing ?? 8));
+        }
+      }
+      return Row(
+        mainAxisSize: MainAxisSize.max,
+        children: rowChildren,
+      );
+    }
+
+    if (widget.separated) {
+      return Wrap(
+        alignment: widget.alignment,
+        spacing: widget.spacing ?? 8,
+        runSpacing: widget.spacing ?? 8,
+        children: children,
+      );
     }
 
     return Wrap(alignment: widget.alignment, children: children);
@@ -261,6 +362,9 @@ class _TButtonGroupState extends State<TButtonGroup> {
       loadingText: item.loadingText,
       tooltip: item.tooltip,
       active: isActive,
+      showTick: item.showTick ?? widget.showTick ?? false,
+      tickAlignment: item.tickAlignment ?? widget.tickAlignment ?? Alignment.topRight,
+      tickWidget: item.tickWidget ?? widget.tickWidget,
       onTap: onTap,
       onPressed: onPressed,
       child: item.child,
@@ -273,9 +377,10 @@ class _TButtonGroupState extends State<TButtonGroup> {
         type: groupTheme.type.buttonType.colorType,
       ),
       size: widget.size,
+      shape: groupTheme.shape,
     );
 
-    final isSingle = total == 1;
+    final isSingle = total == 1 || widget.separated;
     if (isSingle) {
       return button.copyWith(theme: buttonTheme);
     }

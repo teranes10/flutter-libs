@@ -12,6 +12,9 @@ class TKeyValue {
   /// Custom widget to display instead of text value.
   final Widget? widget;
 
+  /// Optional icon to display before the key.
+  final Widget? icon;
+
   /// Optional fixed width for the column.
   final double? width;
 
@@ -29,6 +32,7 @@ class TKeyValue {
     this.key, {
     this.value,
     this.widget,
+    this.icon,
     this.width,
     this.alignment,
     this.minWidth,
@@ -39,6 +43,7 @@ class TKeyValue {
   factory TKeyValue.text(
     String key,
     String? value, {
+    Widget? icon,
     Alignment? alignment,
     double? minWidth,
     double? maxWidth,
@@ -46,6 +51,7 @@ class TKeyValue {
       TKeyValue(
         key,
         value: value,
+        icon: icon,
         alignment: alignment,
         minWidth: minWidth,
         maxWidth: maxWidth,

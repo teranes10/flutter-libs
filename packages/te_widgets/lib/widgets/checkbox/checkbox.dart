@@ -71,7 +71,7 @@ class TCheckbox extends StatefulWidget with TInputFieldMixin, TInputValueMixin<b
 
   /// An optional tag displayed next to the label.
   @override
-  final String? tag = null;
+  final String? tag;
 
   /// Helper text displayed below the field.
   @override
@@ -118,7 +118,7 @@ class TCheckbox extends StatefulWidget with TInputFieldMixin, TInputValueMixin<b
   final bool clearable = false;
 
   @override
-  final TInputFieldTheme? theme = null;
+  final TInputFieldTheme? theme;
 
   @override
   final VoidCallback? onTap = null;
@@ -131,6 +131,7 @@ class TCheckbox extends StatefulWidget with TInputFieldMixin, TInputValueMixin<b
     this.onValueChanged,
     this.focusNode,
     this.label,
+    this.tag,
     this.isRequired = false,
     this.rules,
     this.validationDebounce,
@@ -141,6 +142,7 @@ class TCheckbox extends StatefulWidget with TInputFieldMixin, TInputValueMixin<b
     this.tristate = false,
     this.helperText,
     this.info,
+    this.theme,
   });
 
   @override
@@ -148,7 +150,7 @@ class TCheckbox extends StatefulWidget with TInputFieldMixin, TInputValueMixin<b
 }
 
 class _TCheckboxState<T> extends State<TCheckbox>
-    with TInputValueStateMixin<bool?, TCheckbox>, TFocusStateMixin<TCheckbox>, TInputValidationStateMixin<bool?, TCheckbox> {
+    with TInputValueStateMixin<bool?, TCheckbox>, TFocusStateMixin<TCheckbox>, TInputValidationStateMixin<bool?, TCheckbox>, TInputFieldStateMixin<TCheckbox> {
   double _getCheckboxSize() {
     switch (widget.size) {
       case TInputSize.xs:
@@ -189,23 +191,6 @@ class _TCheckboxState<T> extends State<TCheckbox>
     setState(() {});
   }
 
-  Widget buildValidationErrors(ColorScheme colors, ValueNotifier<List<String>> errorsNotifier) {
-    return ValueListenableBuilder<List<String>>(
-      valueListenable: errorsNotifier,
-      builder: (context, validationErrors, child) {
-        if (validationErrors.isEmpty) return const SizedBox.shrink();
-
-        return Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: validationErrors.map((error) => Text('• $error', style: TextStyle(fontSize: 12.0, color: colors.error))).toList(),
-          ),
-        );
-      },
-    );
-  }
-
   Color getBorderColor(ColorScheme colors, bool isFocused, bool hasErrors, bool disabled) {
     if (disabled) return colors.outlineVariant;
     if (hasErrors) return colors.error;
@@ -221,71 +206,68 @@ class _TCheckboxState<T> extends State<TCheckbox>
     final colors = context.colors;
     final theme = context.theme;
     final color = widget.color ?? theme.primary;
-    final wTheme = context.getWidgetTheme(TVariant.solid, color);
+    final widgetTheme = context.getWidgetTheme(TVariant.solid, color);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        InkWell(
-          onTap: widget.disabled ? null : () => _onCheckboxChanged(null),
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          hoverColor: Colors.transparent,
-          focusColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Opacity(
-                opacity: widget.disabled ? 0.6 : 1.0,
-                child: Transform.scale(
-                  scale: _getCheckboxSize(),
-                  child: Container(
-                    decoration: BoxDecoration(boxShadow: getShadow(colors, isFocused), borderRadius: BorderRadius.circular(7)),
-                    child: Checkbox(
-                      focusNode: focusNode,
-                      autofocus: widget.autoFocus,
-                      splashRadius: 0,
-                      value: currentValue ?? (widget.tristate ? null : false),
-                      onChanged: widget.disabled ? null : _onCheckboxChanged,
-                      activeColor: wTheme.container,
-                      checkColor: wTheme.onContainer,
-                      tristate: widget.tristate,
-                      visualDensity: VisualDensity(horizontal: -4.0, vertical: -4.0),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
-                      side: BorderSide(color: getBorderColor(colors, isFocused, hasErrors, widget.disabled), width: 1),
-                    ),
-                  ),
-                ),
-              ),
-              if (widget.label != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  widget.label!,
-                  style: TextStyle(letterSpacing: 0.9, color: colors.onSurfaceVariant, fontSize: _getLabelFontSize()),
-                ),
-              ],
-              if (widget.info != null) ...[
-                const SizedBox(width: 4),
-                TTooltip(
-                  message: widget.info!,
-                  color: colors.onSurfaceVariant,
-                  triggerMode: TTooltipTriggerMode.adaptive,
-                  child: Icon(Icons.info_outline, size: 16, color: colors.onSurfaceVariant.withAlpha(200)),
-                ),
-              ],
-            ],
+    final isLabelAbove = wTheme.labelPosition == TLabelPosition.aboveField;
+    final showLabelOnRight = widget.label != null && !isLabelAbove;
+
+    final checkboxWidget = Opacity(
+      opacity: widget.disabled ? 0.6 : 1.0,
+      child: Transform.scale(
+        scale: _getCheckboxSize(),
+        child: Container(
+          decoration: BoxDecoration(boxShadow: getShadow(colors, isFocused), borderRadius: BorderRadius.circular(7)),
+          child: Checkbox(
+            focusNode: focusNode,
+            autofocus: widget.autoFocus,
+            splashRadius: 0,
+            value: currentValue ?? (widget.tristate ? null : false),
+            onChanged: widget.disabled ? null : _onCheckboxChanged,
+            activeColor: widgetTheme.container,
+            checkColor: widgetTheme.onContainer,
+            tristate: widget.tristate,
+            visualDensity: const VisualDensity(horizontal: -4.0, vertical: -4.0),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7)),
+            side: BorderSide(color: getBorderColor(colors, isFocused, hasErrors, widget.disabled), width: 1),
           ),
         ),
-        if (widget.helperText != null)
+      ),
+    );
+
+    final rowChild = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        checkboxWidget,
+        if (showLabelOnRight) ...[
+          const SizedBox(width: 8),
           Text(
-            widget.helperText!,
-            style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: colors.onSurfaceVariant.withAlpha(200)),
+            widget.label!,
+            style: TextStyle(letterSpacing: 0.9, color: colors.onSurfaceVariant, fontSize: _getLabelFontSize()),
           ),
-        buildValidationErrors(colors, errorsNotifier)
+        ],
+        if (widget.info != null && !isLabelAbove) ...[
+          const SizedBox(width: 4),
+          TTooltip(
+            message: widget.info!,
+            color: colors.onSurfaceVariant,
+            triggerMode: TTooltipTriggerMode.adaptive,
+            child: Icon(Icons.info_outline, size: 16, color: colors.onSurfaceVariant.withAlpha(200)),
+          ),
+        ],
       ],
     );
+
+    final clickableContent = InkWell(
+      onTap: widget.disabled ? null : () => _onCheckboxChanged(null),
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      child: rowChild,
+    );
+
+    return buildWrapper(child: clickableContent);
   }
 }

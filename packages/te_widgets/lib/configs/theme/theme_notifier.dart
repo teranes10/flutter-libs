@@ -107,10 +107,10 @@ class PrimaryColorOption {
 }
 
 const List<PrimaryColorOption> primaryColorOptions = [
+  PrimaryColorOption('Emerald Green', AppColors.emeraldGreen),
   PrimaryColorOption('Classic Teal', AppColors.primary),
   PrimaryColorOption('Indigo Tech', AppColors.indigo),
   PrimaryColorOption('Cyber Violet', AppColors.cyberViolet),
-  PrimaryColorOption('Emerald Green', AppColors.emeraldGreen),
   PrimaryColorOption('Rose Gold', AppColors.roseGold),
   PrimaryColorOption('Amber Gold', AppColors.amberGold),
 ];

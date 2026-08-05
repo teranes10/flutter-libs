@@ -33,6 +33,9 @@ class TNumberFieldTheme extends TTextFieldTheme {
   /// Builder for the entire stepper widget (grouping buttons).
   final StepperBuilder? stepperBuilder;
 
+  /// Whether to split the stepper buttons (minus on left/pre, plus on right/post).
+  final bool? splitStepper;
+
   /// Creates a number field theme.
   const TNumberFieldTheme({
     required super.color,
@@ -72,6 +75,7 @@ class TNumberFieldTheme extends TTextFieldTheme {
     this.increaseButtonBuilder,
     this.decreaseButtonBuilder,
     this.stepperBuilder,
+    this.splitStepper = false,
   })  : assert(increment > 0, 'Increment must be positive'),
         assert(decrement > 0, 'Decrement must be positive'),
         assert(decimals == null || decimals >= 0, 'Decimals must be non-negative');
@@ -116,6 +120,7 @@ class TNumberFieldTheme extends TTextFieldTheme {
     StepperButtonBuilder? decreaseButtonBuilder,
     StepperButtonBuilder? increaseButtonBuilder,
     StepperBuilder? stepperBuilder,
+    bool? splitStepper,
   }) {
     final baseTheme = super.copyWith(
       size: size,
@@ -192,6 +197,7 @@ class TNumberFieldTheme extends TTextFieldTheme {
       increaseButtonBuilder: increaseButtonBuilder ?? this.increaseButtonBuilder,
       decreaseButtonBuilder: decreaseButtonBuilder ?? this.decreaseButtonBuilder,
       stepperBuilder: stepperBuilder ?? this.stepperBuilder,
+      splitStepper: splitStepper ?? this.splitStepper,
     );
   }
 
@@ -204,7 +210,11 @@ class TNumberFieldTheme extends TTextFieldTheme {
     Widget decreaseButtonBuilder(onTap, enabled) {
       return TButton(
         type: TButtonType.icon,
-        size: TButtonSize.xxs.copyWith(minW: baseTheme.fieldFontSize, minH: baseTheme.fieldFontSize, icon: baseTheme.fieldFontSize + 2),
+        size: TButtonSize.xxs.copyWith(
+          minW: baseTheme.fieldFontSize + 4,
+          minH: baseTheme.fieldHeight - (baseTheme.fieldPadding.top + baseTheme.fieldPadding.bottom),
+          icon: baseTheme.fieldFontSize + 2,
+        ),
         icon: Icons.remove,
         color: colors.onSurfaceVariant,
         onTap: enabled ? onTap : null,
@@ -214,7 +224,11 @@ class TNumberFieldTheme extends TTextFieldTheme {
     Widget increaseButtonBuilder(onTap, enabled) {
       return TButton(
         type: TButtonType.icon,
-        size: TButtonSize.xxs.copyWith(minW: baseTheme.fieldFontSize, minH: baseTheme.fieldFontSize, icon: baseTheme.fieldFontSize + 2),
+        size: TButtonSize.xxs.copyWith(
+          minW: baseTheme.fieldFontSize + 4,
+          minH: baseTheme.fieldHeight - (baseTheme.fieldPadding.top + baseTheme.fieldPadding.bottom),
+          icon: baseTheme.fieldFontSize + 2,
+        ),
         icon: Icons.add,
         color: colors.onSurfaceVariant,
         onTap: enabled ? onTap : null,

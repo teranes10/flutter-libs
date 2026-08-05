@@ -41,6 +41,15 @@ class TButtonGroupItem {
   /// Custom child widget (overrides icon/text).
   final Widget? child;
 
+  /// Whether to show a checkmark tick when the button is active.
+  final bool? showTick;
+
+  /// The alignment of the tick indicator.
+  final Alignment? tickAlignment;
+
+  /// Custom widget to display for the tick indicator.
+  final Widget? tickWidget;
+
   /// Creates a button group item.
   TButtonGroupItem({
     this.icon,
@@ -51,6 +60,9 @@ class TButtonGroupItem {
     this.tooltip,
     this.active = false,
     this.child,
+    this.showTick,
+    this.tickAlignment,
+    this.tickWidget,
     this.onTap,
     this.onPressed,
   });
@@ -75,6 +87,9 @@ extension TButtonExtension on TButton {
     bool? active,
     IconData? activeIcon,
     Color? activeColor,
+    bool? showTick,
+    Alignment? tickAlignment,
+    Widget? tickWidget,
     Widget? child,
     VoidCallback? onTap,
     Function(TButtonPressOptions)? onPressed,
@@ -98,6 +113,9 @@ extension TButtonExtension on TButton {
       active: active ?? this.active,
       activeIcon: activeIcon ?? this.activeIcon,
       activeColor: activeColor ?? this.activeColor,
+      showTick: showTick ?? this.showTick,
+      tickAlignment: tickAlignment ?? this.tickAlignment,
+      tickWidget: tickWidget ?? this.tickWidget,
       onTap: onTap ?? this.onTap,
       onPressed: onPressed ?? this.onPressed,
       onChanged: onChanged ?? this.onChanged,

@@ -180,6 +180,25 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             ],
           ),
 
+          // Flanked Number Field (Split Stepper)
+          WidgetDocCard(
+            title: 'Flanked Number Field (Split Stepper)',
+            description: 'TNumberField with splitStepper: true placing the minus button in pre-widget and plus button in post-widget',
+            icon: Icons.unfold_more,
+            preview: TNumberField(
+              label: 'Adjust Value',
+              placeholder: '0',
+              splitStepper: true,
+              valueNotifier: ValueNotifier<double?>(10.0),
+            ),
+            code: '''TNumberField(
+  label: 'Adjust Value',
+  placeholder: '0',
+  splitStepper: true, // Flanks layout: minus on left, plus on right
+  onValueChanged: (value) => print(value),
+)''',
+          ),
+
           // Number Field with Clear Button
           WidgetDocCard(
             title: 'Number Field with Clear Button',
@@ -545,6 +564,35 @@ ValueListenableBuilder<String?>(
               PropertyDoc(name: 'isRequired', type: 'bool', defaultValue: 'false', description: 'Whether the checkbox is required'),
               PropertyDoc(name: 'rules', type: 'List<String? Function(bool?)>?', description: 'Validation rules for the checkbox'),
             ],
+          ),
+
+          // Checkbox with Label Position Above
+          WidgetDocCard(
+            title: 'Checkbox with Label Above',
+            description: 'TCheckbox configured with TLabelPosition.aboveField inside a custom input field theme',
+            icon: Icons.vertical_align_top,
+            preview: TCheckbox(
+              label: 'Receive promotional emails',
+              tag: 'New',
+              info: 'Weekly marketing updates',
+              helperText: 'You can opt out at any time.',
+              isRequired: true,
+              valueNotifier: ValueNotifier<bool?>(false),
+              theme: context.theme.inputFieldTheme.copyWith(
+                labelPosition: TLabelPosition.aboveField,
+              ),
+            ),
+            code: '''TCheckbox(
+  label: 'Receive promotional emails',
+  tag: 'New',
+  info: 'Weekly marketing updates',
+  helperText: 'You can opt out at any time.',
+  isRequired: true,
+  theme: context.theme.inputFieldTheme.copyWith(
+    labelPosition: TLabelPosition.aboveField,
+  ),
+  onValueChanged: (value) => print(value),
+)''',
           ),
 
           // ==================== CHECKBOX GROUP ====================
@@ -929,6 +977,35 @@ TSwitch(
               PropertyDoc(name: 'isRequired', type: 'bool', defaultValue: 'false', description: 'Whether the switch is required'),
               PropertyDoc(name: 'rules', type: 'List<String? Function(bool?)>?', description: 'Validation rules for the switch'),
             ],
+          ),
+
+          // Switch with Label Position Above
+          WidgetDocCard(
+            title: 'Switch with Label Above',
+            description: 'TSwitch configured with TLabelPosition.aboveField inside a custom input field theme',
+            icon: Icons.vertical_align_top,
+            preview: TSwitch(
+              label: 'Automatic Backups',
+              tag: 'Recommended',
+              info: 'Backs up data to the cloud every night',
+              helperText: 'Requires an active internet connection.',
+              isRequired: true,
+              valueNotifier: ValueNotifier<bool>(true),
+              theme: context.theme.inputFieldTheme.copyWith(
+                labelPosition: TLabelPosition.aboveField,
+              ),
+            ),
+            code: '''TSwitch(
+  label: 'Automatic Backups',
+  tag: 'Recommended',
+  info: 'Backs up data to the cloud every night',
+  helperText: 'Requires an active internet connection.',
+  isRequired: true,
+  theme: context.theme.inputFieldTheme.copyWith(
+    labelPosition: TLabelPosition.aboveField,
+  ),
+  onValueChanged: (value) => print(value),
+)''',
           ),
 
           // ==================== FILE PICKER ====================

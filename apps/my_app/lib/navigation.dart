@@ -32,6 +32,7 @@ import 'package:my_app/pages/tables_sub_item_page.dart';
 import 'package:my_app/pages/tables_create_builder_page.dart';
 import 'package:my_app/pages/tables_tree_children_page.dart';
 import 'package:my_app/pages/tabs_page.dart';
+import 'package:my_app/pages/delivery_page.dart';
 
 final sidebarItems = [
   TSidebarItem(icon: Icons.text_fields, text: 'Input Fields', route: '/input-fields', page: const InputFieldsPage()),
@@ -58,54 +59,19 @@ final sidebarItems = [
     text: 'Tables',
     route: '/tables',
     children: [
-      TSidebarItem(
-        icon: Icons.table_chart_outlined,
-        text: 'Basic Tables',
-        route: 'basic',
-        page: const TablesPage(),
-      ),
-      TSidebarItem(
-        icon: Icons.table_rows,
-        text: 'Bottom Expansion',
-        route: 'bottom',
-        page: const TablesBottomPage(),
-      ),
-      TSidebarItem(
-        icon: Icons.view_sidebar,
-        text: 'Side Expansion',
-        route: 'side',
-        page: const TablesSidePage(),
-      ),
-      TSidebarItem(
-        icon: Icons.web_asset,
-        text: 'Dialog Expansion',
-        route: 'dialog',
-        page: const TablesDialogPage(),
-      ),
-      TSidebarItem(
-        icon: Icons.article,
-        text: 'Page Expansion',
-        route: 'page',
-        page: const TablesPageModePage(),
-      ),
-      TSidebarItem(
-        icon: Icons.filter_none_outlined,
-        text: 'Sub-Items Table',
-        route: 'sub-item',
-        page: const TablesSubItemPage(),
-      ),
+      TSidebarItem(icon: Icons.table_chart_outlined, text: 'Basic Tables', route: 'basic', page: const TablesPage()),
+      TSidebarItem(icon: Icons.table_rows, text: 'Bottom Expansion', route: 'bottom', page: const TablesBottomPage()),
+      TSidebarItem(icon: Icons.view_sidebar, text: 'Side Expansion', route: 'side', page: const TablesSidePage()),
+      TSidebarItem(icon: Icons.web_asset, text: 'Dialog Expansion', route: 'dialog', page: const TablesDialogPage()),
+      TSidebarItem(icon: Icons.article, text: 'Page Expansion', route: 'page', page: const TablesPageModePage()),
+      TSidebarItem(icon: Icons.filter_none_outlined, text: 'Sub-Items Table', route: 'sub-item', page: const TablesSubItemPage()),
       TSidebarItem(
         icon: Icons.add_box_outlined,
         text: 'Create Builder Table',
         route: 'create-builder',
         page: const TablesCreateBuilderPage(),
       ),
-      TSidebarItem(
-        icon: Icons.account_tree,
-        text: 'Tree Children Table',
-        route: 'tree-children',
-        page: const TablesTreeChildrenPage(),
-      ),
+      TSidebarItem(icon: Icons.account_tree, text: 'Tree Children Table', route: 'tree-children', page: const TablesTreeChildrenPage()),
     ],
   ),
   TSidebarItem(icon: Icons.navigate_next, text: 'Cursor Pagination', route: '/cursor-pagination', page: const CursorPaginationPage()),
@@ -145,5 +111,11 @@ final sidebarItems = [
         ],
       ),
     ],
+  ),
+  TSidebarItem(
+    icon: Icons.dashboard_customize_outlined,
+    text: 'Samples',
+    route: '/samples',
+    children: [TSidebarItem(icon: Icons.local_shipping_outlined, text: 'Delivery App', route: 'delivery-app', page: const DeliveryPage())],
   ),
 ];

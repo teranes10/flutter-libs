@@ -117,7 +117,7 @@ class _StepperPageState extends State<StepperPage> {
               onStepTapped: (step) => setState(() => _horizontalStep = step),
               steps: [
                 TStep(
-                  title: const Text('Step 1'),
+                  title: const Text('Pickup & Drop'),
                   content: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -128,7 +128,7 @@ class _StepperPageState extends State<StepperPage> {
                   ),
                 ),
                 TStep(
-                  title: const Text('Step 2'),
+                  title: const Text('Package Details'),
                   content: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -145,7 +145,7 @@ class _StepperPageState extends State<StepperPage> {
                   ),
                 ),
                 TStep(
-                  title: const Text('Step 3'),
+                  title: const Text('Review & Confirm'),
                   content: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

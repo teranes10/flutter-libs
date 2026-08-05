@@ -509,6 +509,40 @@ TButton(
 )''',
           ),
 
+          // Separated Selectable Cards (Button Group)
+          WidgetDocCard(
+            title: 'Separated Selectable Cards',
+            description: 'Button group configured with separated buttons, tile shape layout, and active tick indicators',
+            icon: Icons.grid_view_rounded,
+            preview: TButtonGroup(
+              separated: true,
+              showTick: true,
+              theme: const TButtonGroupTheme(type: TButtonGroupType.softOutline, shape: TButtonShape.tile, borderRadius: 12),
+              initialIndex: 0,
+              items: [
+                TButtonGroupItem(icon: Icons.inventory_2_outlined, text: 'Parcel'),
+                TButtonGroupItem(icon: Icons.all_inbox_outlined, text: 'Box'),
+                TButtonGroupItem(icon: Icons.local_mall_outlined, text: 'Bag'),
+              ],
+            ),
+            code: '''TButtonGroup(
+  separated: true,
+  expanded: true,
+  showTick: true,
+  theme: const TButtonGroupTheme(
+    type: TButtonGroupType.softOutline,
+    shape: TButtonShape.tile,
+    borderRadius: 12,
+  ),
+  initialIndex: 0,
+  items: [
+    TButtonGroupItem(icon: Icons.inventory_2_outlined, text: 'Parcel'),
+    TButtonGroupItem(icon: Icons.all_inbox_outlined, text: 'Box'),
+    TButtonGroupItem(icon: Icons.local_mall_outlined, text: 'Bag'),
+  ],
+)''',
+          ),
+
           const SizedBox(height: 40),
         ],
       ),

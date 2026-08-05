@@ -138,6 +138,15 @@ class TButton extends StatefulWidget {
   /// Falls back to [color] if not provided.
   final Color? activeColor;
 
+  /// Whether to show a checkmark tick when the button is active.
+  final bool showTick;
+
+  /// The alignment of the tick indicator (e.g. top right). Defaults to [Alignment.topRight].
+  final Alignment tickAlignment;
+
+  /// Custom widget to display for the tick indicator.
+  final Widget? tickWidget;
+
   /// A custom child widget to display in the button.
   ///
   /// If provided, this takes precedence over [icon], [imageUrl], and [text].
@@ -192,6 +201,9 @@ class TButton extends StatefulWidget {
     this.active = false,
     this.activeIcon,
     this.activeColor,
+    this.showTick = false,
+    this.tickAlignment = Alignment.topRight,
+    this.tickWidget,
     this.child,
     this.onChanged,
     this.duration = const Duration(milliseconds: 400),
@@ -382,6 +394,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     final buttonContent = AnimatedContainer(
       duration: widget.duration,
       curve: Curves.easeInOut,
+      padding: widget.showTick ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2) : EdgeInsets.zero,
       child: theme.shape.vertical
           ? Column(
               mainAxisSize: MainAxisSize.min,
@@ -397,7 +410,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             ),
     );
 
-    final button = ScaleTransition(
+    Widget resultButton = ScaleTransition(
       scale: _scaleAnimation,
       child: ElevatedButton(
         statesController: _statesController,
@@ -408,14 +421,49 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     );
 
     if (widget.tooltip != null) {
-      return TTooltip(
+      resultButton = TTooltip(
         triggerMode: TTooltipTriggerMode.hover,
         message: widget.tooltip!,
         color: theme.baseTheme.color,
-        child: button,
+        child: resultButton,
       );
     }
 
-    return button;
+    if (widget.showTick && _isActive) {
+      final isTop = widget.tickAlignment.y < 0;
+      final isBottom = widget.tickAlignment.y > 0;
+      final isLeft = widget.tickAlignment.x < 0;
+      final isRight = widget.tickAlignment.x > 0;
+
+      final tickColor = widget.activeColor ?? widget.color ?? context.colors.primary;
+      final offset = theme.shape.vertical ? 5.0 : 4.0;
+
+      final tick = Positioned(
+        top: isTop ? offset : null,
+        bottom: isBottom ? offset : null,
+        left: isLeft ? offset : null,
+        right: isRight ? offset : null,
+        child: widget.tickWidget ??
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: tickColor,
+              ),
+              child: const Icon(Icons.check, size: 9, color: Colors.white),
+            ),
+      );
+
+      return Stack(
+        fit: StackFit.passthrough,
+        clipBehavior: Clip.none,
+        children: [
+          resultButton,
+          tick,
+        ],
+      );
+    }
+
+    return resultButton;
   }
 }

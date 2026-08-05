@@ -124,7 +124,7 @@ class TInputFieldTheme {
       borderRadius: borderRadius ?? this.borderRadius,
       borderWidth: borderWidth ?? this.borderWidth,
       labelBuilder: labelBuilder ??
-          (shouldRebuildLabel ? _buildLabelBuilder(newLabelStyle, newTagStyle, newErrorTextStyle, newBackgroundColor) : this.labelBuilder),
+          (shouldRebuildLabel ? buildDefaultLabelBuilder(newLabelStyle, newTagStyle, newErrorTextStyle) : this.labelBuilder),
       helperTextBuilder:
           helperTextBuilder ?? (helperTextStyle != null ? _buildHelperTextBuilder(newHelperTextStyle, newPadding) : this.helperTextBuilder),
       errorsBuilder: errorsBuilder ?? (errorTextStyle != null ? _buildErrorsBuilder(newErrorTextStyle, newPadding) : this.errorsBuilder),
@@ -204,7 +204,7 @@ class TInputFieldTheme {
       errorTextStyle: errorTextStyle,
       tagStyle: labelStyle,
       hintStyle: WidgetStateProperty.all(TextStyle(color: colors.onSurfaceVariant.withAlpha(150))),
-      labelBuilder: _buildLabelBuilder(labelStyle, labelStyle, errorTextStyle, backgroundColor),
+      labelBuilder: buildDefaultLabelBuilder(labelStyle, labelStyle, errorTextStyle),
       helperTextBuilder: _buildHelperTextBuilder(helperTextStyle, size.padding),
       errorsBuilder: _buildErrorsBuilder(errorTextStyle, size.padding),
     );
@@ -338,11 +338,10 @@ class TInputFieldTheme {
     );
   }
 
-  static WidgetStateProperty<LabelBuilder> _buildLabelBuilder(
+  static WidgetStateProperty<LabelBuilder> buildDefaultLabelBuilder(
     WidgetStateProperty<TextStyle> labelStyle,
     WidgetStateProperty<TextStyle> tagStyle,
     WidgetStateProperty<TextStyle> errorTextStyle,
-    WidgetStateProperty<Color> backgroundColor,
   ) {
     return WidgetStateProperty.resolveWith((states) {
       return (label, tag, isRequired, infoIcon) {
@@ -364,7 +363,9 @@ class TInputFieldTheme {
 
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
+          spacing: 3,
           children: children,
         );
       };
@@ -378,7 +379,7 @@ class TInputFieldTheme {
         if (helperText.isNullOrBlank || states.contains(WidgetState.error)) return const SizedBox.shrink();
 
         return Padding(
-          padding: EdgeInsets.only(top: 4.0, left: padding.left),
+          padding: EdgeInsets.only(top: 4.0),
           child: Text(
             helperText!,
             style: helperTextStyle.resolve(states),
