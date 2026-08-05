@@ -267,7 +267,7 @@ class TNumberFieldTheme extends TTextFieldTheme {
 
   /// Formats a number to a string based on the theme properties.
   String formatValue<T extends num?>(T? value) {
-    if (value == null || value == 0) return '';
+    if (value == null) return '';
 
     final typeStr = T.toString();
     if (typeStr.startsWith('int')) {

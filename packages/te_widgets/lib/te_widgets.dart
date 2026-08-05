@@ -178,6 +178,14 @@ export 'widgets/nav-bar/nav_bar.dart';
 export 'widgets/number-field/number_field.dart';
 export 'widgets/number-field/number_field_theme.dart';
 
+export 'widgets/selection-tile/selection_item.dart';
+export 'widgets/selection-tile/selection_tile.dart';
+export 'widgets/selection-tile/selection_group.dart';
+
+export 'widgets/summary-list/summary_list.dart';
+
+export 'widgets/breakdown-card/breakdown_card.dart';
+
 export 'widgets/pagination/pagination.dart';
 
 export 'widgets/phone-field/phone_field.dart';

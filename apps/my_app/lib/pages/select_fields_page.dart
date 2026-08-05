@@ -14,6 +14,8 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
   final _countryNotifier = ValueNotifier<String?>('');
   final _userNotifier = ValueNotifier<int?>(null);
   final _footerValueNotifier = ValueNotifier<String?>('');
+  final _packageTypeNotifier = ValueNotifier<String?>('parcel');
+  final _deliveryTypeNotifier = ValueNotifier<String?>('express');
   final List<String> _footerOptions = ['Item A', 'Item B', 'Item C'];
   List<String> _colors = [];
 
@@ -22,6 +24,8 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
     _countryNotifier.dispose();
     _userNotifier.dispose();
     _footerValueNotifier.dispose();
+    _packageTypeNotifier.dispose();
+    _deliveryTypeNotifier.dispose();
     super.dispose();
   }
 
@@ -405,6 +409,44 @@ TSelect<Category, String, String>(
                 type: 'ItemChildrenAccessor<T>?',
                 description: 'Function returning sub-items for rendering hierarchical dropdown structures',
               ),
+            ],
+          ),
+
+          // Selection Group (tile picker)
+          WidgetDocCard(
+            title: 'Selection Group',
+            description: 'Horizontal selectable tiles for package/delivery type style pickers',
+            icon: Icons.grid_view,
+            preview: Column(
+              children: [
+                TSelectionGroup<String>(
+                  label: 'Package type',
+                  valueNotifier: _packageTypeNotifier,
+                  items: const [
+                    TSelectionItem(value: 'parcel', label: 'Parcel', icon: Icons.inventory_2_outlined),
+                    TSelectionItem(value: 'box', label: 'Box', icon: Icons.archive_outlined),
+                    TSelectionItem(value: 'bag', label: 'Bag', icon: Icons.shopping_bag_outlined),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+            code: '''TSelectionGroup<String>(
+  label: 'Package type',
+  value: 'parcel',
+  items: [
+    TSelectionItem(value: 'parcel', label: 'Parcel', icon: Icons.inventory_2_outlined),
+    TSelectionItem(value: 'box', label: 'Box', icon: Icons.archive_outlined),
+    TSelectionItem(value: 'bag', label: 'Bag', icon: Icons.shopping_bag_outlined),
+  ],
+  onValueChanged: (value) {
+    print('Selected: \$value');
+  },
+)''',
+            properties: const [
+              PropertyDoc(name: 'items', type: 'List<TSelectionItem<T>>', isRequired: true, description: 'Selectable tile options'),
+              PropertyDoc(name: 'expanded', type: 'bool', defaultValue: 'true', description: 'Whether tiles expand equally in a row'),
+              PropertyDoc(name: 'showCheckmark', type: 'bool', defaultValue: 'true', description: 'Show checkmark badge on selected tile'),
             ],
           ),
 

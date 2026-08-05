@@ -13,7 +13,7 @@ class InputFieldsPage extends StatefulWidget {
 class _InputFieldsPageState extends State<InputFieldsPage> {
   final _emailNotifier = ValueNotifier<String?>('');
   final _passwordNotifier = ValueNotifier<String?>('');
-  final _quantityNotifier = ValueNotifier<double?>(null);
+  final _quantityNotifier = ValueNotifier<double?>(5);
   final _termsNotifier = ValueNotifier<bool?>(false);
   final _notificationsNotifier = ValueNotifier<bool>(false);
   final _interestsNotifier = ValueNotifier<List<String>>([]);
@@ -155,12 +155,19 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
               placeholder: 'Enter quantity',
               isRequired: true,
               valueNotifier: _quantityNotifier,
+              stepperStyle: TNumberStepperStyle.trailing,
+              min: 0,
+              max: 999,
               rules: [Validations.minValue(1, 'Quantity must be at least 1'), Validations.maxValue(999, 'Quantity cannot exceed 999')],
             ),
             code: '''TNumberField(
   label: 'Quantity',
   placeholder: 'Enter quantity',
   isRequired: true,
+  value: 5,
+  stepperStyle: TNumberStepperStyle.flanking,
+  min: 0,
+  max: 999,
   rules: [
     Validations.minValue(1, 'Quantity must be at least 1'),
     Validations.maxValue(999, 'Quantity cannot exceed 999'),
@@ -177,6 +184,14 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
                 description: 'Type of number: decimal or integer',
               ),
               PropertyDoc(name: 'decimalPlaces', type: 'int?', description: 'Number of decimal places for decimal type'),
+              PropertyDoc(
+                name: 'stepperStyle',
+                type: 'TNumberStepperStyle',
+                defaultValue: 'TNumberStepperStyle.trailing',
+                description: 'trailing = 5 −+ ; flanking = − 5 +',
+              ),
+              PropertyDoc(name: 'min', type: 'num?', description: 'Minimum value; stepper stops here (e.g. 0 blocks negatives)'),
+              PropertyDoc(name: 'max', type: 'num?', description: 'Maximum value; stepper stops here'),
             ],
           ),
 
