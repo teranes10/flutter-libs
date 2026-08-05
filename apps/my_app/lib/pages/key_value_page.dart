@@ -27,7 +27,7 @@ class KeyValuePage extends StatelessWidget {
 
     return TPageWrapper(
       title: 'Key Value Section',
-      description: 'Demonstrates the different layout modes of TKeyValueSection.',
+      description: 'Demonstrates TKeyValueSection, TSummaryList, and TBreakdownCard.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -79,6 +79,46 @@ class KeyValuePage extends StatelessWidget {
               values: sampleValues,
               theme: getTheme(forceKeyValue: false, gridInline: true),
             ),
+          ),
+          const SizedBox(height: 32),
+
+          // 4. Summary List
+          const Text(
+            '4. Summary List (TSummaryList)',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          TSummaryList(
+            title: 'Package Summary',
+            titleIcon: Icons.inventory_2,
+            items: const [
+              TSummaryItem(icon: Icons.category_outlined, text: 'Type: Parcel (5 kg)'),
+              TSummaryItem(icon: Icons.notes_outlined, text: 'Description: Electronics and documents'),
+              TSummaryItem(icon: Icons.download_outlined, text: 'Quantity: 1'),
+              TSummaryItem(icon: Icons.straighten_outlined, text: 'Dimensions: 15 x 10 x 5 cm'),
+              TSummaryItem(icon: Icons.wine_bar_outlined, text: 'Fragile: Yes'),
+            ],
+          ),
+          const SizedBox(height: 32),
+
+          // 5. Breakdown Card
+          const Text(
+            '5. Breakdown Card (TBreakdownCard)',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const TBreakdownCard(
+            title: 'Order Summary',
+            headerIcon: Icons.lock_outline,
+            trailingIcon: Icons.lock_outline,
+            trailingLabel: 'Secure',
+            items: [
+              TBreakdownItem(label: 'Base Charge', value: 'LKR 250.00'),
+              TBreakdownItem(label: 'Distance Fee (30.5 km)', value: 'LKR 2850.00'),
+              TBreakdownItem(label: 'Service Tax', value: 'LKR 310.00'),
+            ],
+            totalLabel: 'Total Delivery Charge:',
+            totalValue: 'LKR 3410.00',
           ),
         ],
       ),
