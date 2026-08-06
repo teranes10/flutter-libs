@@ -4,6 +4,7 @@ import 'package:my_app/pages/dropdown_sample_page.dart';
 import 'package:my_app/pages/colors_page.dart';
 import 'package:my_app/pages/bottom_bar_page.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:my_app/pages/map_sample_page.dart';
 import 'package:my_app/pages/avatars_page.dart';
 import 'package:my_app/pages/breadcrumbs_page.dart';
 import 'package:my_app/pages/buttons_page.dart';
@@ -42,6 +43,7 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.label, text: 'Chips', route: '/chips', page: const ChipsPage()),
   TSidebarItem(icon: Icons.account_circle, text: 'Avatars', route: '/avatars', page: const AvatarsPage()),
   TSidebarItem(icon: Icons.linear_scale, text: 'Breadcrumbs', route: '/breadcrumbs', page: const BreadcrumbsPage()),
+  TSidebarItem(icon: Icons.map, text: 'Maps', route: '/maps', page: const MapSamplePage()),
   TSidebarItem(icon: Icons.feedback, text: 'Feedback', route: '/feedback', page: const FeedbackPage()),
   TSidebarItem(
     icon: Icons.explore,

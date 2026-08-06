@@ -5,7 +5,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TAppTheme {
   final ColorScheme lightScheme;
   final ColorScheme darkScheme;
-  final TWidgetThemeExtension Function(ColorScheme scheme) widgetThemeBuilder;
+  final TWidgetThemeExtension Function(ColorScheme colors) widgetThemeBuilder;
 
   const TAppTheme({
     required this.lightScheme,
@@ -85,7 +85,7 @@ class TAppTheme {
   TAppTheme copyWith({
     ColorScheme? lightScheme,
     ColorScheme? darkScheme,
-    TWidgetThemeExtension Function(ColorScheme)? widgetThemeBuilder,
+    TWidgetThemeExtension Function(ColorScheme colors)? widgetThemeBuilder,
   }) {
     return TAppTheme(
       lightScheme: lightScheme ?? this.lightScheme,

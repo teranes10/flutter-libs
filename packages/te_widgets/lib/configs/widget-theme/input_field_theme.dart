@@ -271,9 +271,9 @@ class TInputFieldTheme {
       visualDensity: VisualDensity.compact,
       hintText: placeholder,
       hintStyle: hintStyle.resolve(states),
-      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight, minWidth: hasPrefix ? 40 : 7.5),
+      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight, minWidth: hasPrefix ? 40 : fieldPadding.left),
       prefixIcon: _buildPreWidget(beforePreWidget),
-      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight, minWidth: hasSuffix ? 40 : 7.5),
+      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight, minWidth: hasSuffix ? 40 : fieldPadding.right),
       suffixIcon: _buildPostWidget(
           beforePostWidget: beforePostWidget, onClear: onClear, infoIcon: labelPosition == TLabelPosition.floating ? infoIcon : null),
       filled: decorationType == TInputDecorationType.filled,
@@ -287,7 +287,7 @@ class TInputFieldTheme {
       if (preWidget != null) _buildPaddedWidget(preWidget!, isPrefix: true),
     ];
 
-    if (children.isEmpty) return SizedBox.shrink();
+    if (children.isEmpty) return null;
 
     // Wrapping in a Row absorbs the minHeight constraint from prefixIconConstraints,
     // preventing the children from stretching vertically to fill the container height.
@@ -321,7 +321,7 @@ class TInputFieldTheme {
       if (postWidget != null) _buildPaddedWidget(postWidget!, isPrefix: false)
     ];
 
-    if (children.isEmpty) return SizedBox.shrink();
+    if (children.isEmpty) return null;
 
     // Wrapping in a Row absorbs the minHeight constraint from suffixIconConstraints,
     // preventing the children from stretching vertically to fill the container height.

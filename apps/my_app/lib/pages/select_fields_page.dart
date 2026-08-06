@@ -281,6 +281,12 @@ TMultiSelect<String, String, String>(
                 defaultValue: 'false',
                 description: 'Whether to delay loading items until the dropdown is opened for the first time',
               ),
+              PropertyDoc(
+                name: 'loadOnSearchOnly',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether to only trigger onLoad when there is an active search query (useful for autocompletes)',
+              ),
             ],
           ),
 
@@ -368,16 +374,10 @@ TMultiSelect<String, String, String>(
               itemChildren: (category) => category.subcategories,
               items: [
                 _Category('electronics', 'Electronics', [
-                  _Category('phones', 'Smartphones', [
-                    _Category('iphone', 'iPhone'),
-                    _Category('android', 'Android Phones'),
-                  ]),
+                  _Category('phones', 'Smartphones', [_Category('iphone', 'iPhone'), _Category('android', 'Android Phones')]),
                   _Category('laptops', 'Laptops'),
                 ]),
-                _Category('clothing', 'Clothing', [
-                  _Category('mens', 'Mens Wear'),
-                  _Category('womens', 'Womens Wear'),
-                ]),
+                _Category('clothing', 'Clothing', [_Category('mens', 'Mens Wear'), _Category('womens', 'Womens Wear')]),
               ],
               onValueChanged: (val) => debugPrint('Selected category ID: $val'),
             ),
@@ -449,4 +449,3 @@ class _CreateOptionForm extends TFormBase {
   @override
   String get formTitle => 'Create New Option';
 }
-

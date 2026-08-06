@@ -25,6 +25,7 @@ dependencies:
   dart_mappable: ^4.5.0
   flutter_highlight: ^0.7.0
   pdf: ^3.11.3
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:
@@ -37,5 +38,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # assets:
-  #   - assets/icons/
+  assets:
+    - assets/taxi-24.png

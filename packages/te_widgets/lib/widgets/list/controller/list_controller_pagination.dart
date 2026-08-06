@@ -151,6 +151,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   }
 
   void handleSearchChange(String search) {
+    print('handleSearchChange: $search');
     _debouncer.run(() {
       if (value.search != search) {
         _executePaginationAction('handleSearchChange', search: search, page: 1);
@@ -274,6 +275,23 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     bool append = false,
   }) async {
     assert(onLoad != null, "ListControllerError: onLoad is required for server-side rendering.");
+
+    final effectiveSearch = search ?? value.search;
+    if (loadOnSearchOnly && effectiveSearch.trim().isEmpty) {
+      updateState(
+        who: '$who _loadData (loadOnSearchOnly empty search)',
+        page: page,
+        itemsPerPage: itemsPerPage,
+        search: search,
+        displayItems: const [],
+        totalItems: 0,
+        hasMoreItems: false,
+        loading: false,
+        fetching: false,
+        error: null,
+      );
+      return;
+    }
 
     updateState(
       who: '$who _loadData',

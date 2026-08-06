@@ -25,10 +25,12 @@ export 'extensions/file_picker_result_x.dart';
 export 'extensions/future_x.dart';
 export 'extensions/iterable_x.dart';
 export 'extensions/kotlin_x.dart';
+export 'extensions/latlng_x.dart';
 export 'extensions/list_x.dart';
 export 'extensions/map_x.dart';
 export 'extensions/media_query_data_x.dart';
 export 'extensions/pdf_document_x.dart';
+export 'extensions/position_x.dart';
 export 'extensions/sidebar_item_list_x.dart';
 export 'extensions/string_x.dart';
 export 'extensions/time_of_day_x.dart';
@@ -49,6 +51,7 @@ export 'helpers/validations.dart';
 export 'helpers/width_helper.dart';
 export 'helpers/widget_state_property_helper.dart';
 export 'helpers/fullscreen/fullscreen.dart';
+export 'helpers/location/location_helper.dart';
 
 export 'layouts/widgets/sidebar/overlay/sidebar_overlay_controller.dart';
 export 'layouts/widgets/sidebar/overlay/sidebar_overlay_item.dart';
@@ -160,6 +163,12 @@ export 'widgets/list/list.dart';
 
 export 'widgets/loading-icon/loading_icon.dart';
 
+export 'widgets/map/map_config.dart';
+export 'widgets/map/map_pinning.dart';
+export 'widgets/map/map.dart';
+export 'widgets/map/place_autocomplete.dart';
+export 'widgets/map/google_places_client.dart';
+
 export 'widgets/measure-size/measure_size.dart';
 
 export 'widgets/modal/modal_config.dart';
@@ -249,3 +258,5 @@ export 'widgets/snackbar/snackbar_service.dart';
 
 export 'widgets/tooltip/tooltip_config.dart';
 export 'widgets/tooltip/tooltip.dart';
+
+export 'package:latlong2/latlong.dart' show LatLng;

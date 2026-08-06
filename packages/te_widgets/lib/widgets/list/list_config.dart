@@ -129,6 +129,9 @@ class TLoadResult<T> {
     this.hasNextPage,
   });
 
+  /// Creates an empty load result.
+  const TLoadResult.empty() : this(const [], 0, hasNextPage: false);
+
   /// Creates a copy with updated properties.
   TLoadResult<T> copyWith({
     List<T>? items,

@@ -65,8 +65,9 @@ class TAlertTheme {
     TextStyle? contentStyle,
     TextAlign? contentTextAlign,
     double? closeButtonWidth,
-    double? confirmButtonWidth,
     TButtonType? closeButtonType,
+    MaterialColor? closeButtonColor,
+    double? confirmButtonWidth,
     TButtonType? confirmButtonType,
   }) {
     return TAlertTheme(
@@ -80,8 +81,9 @@ class TAlertTheme {
       contentStyle: contentStyle ?? this.contentStyle,
       contentTextAlign: contentTextAlign ?? this.contentTextAlign,
       closeButtonWidth: closeButtonWidth ?? this.closeButtonWidth,
-      confirmButtonWidth: confirmButtonWidth ?? this.confirmButtonWidth,
       closeButtonType: closeButtonType ?? this.closeButtonType,
+      closeButtonColor: closeButtonColor ?? this.closeButtonColor,
+      confirmButtonWidth: confirmButtonWidth ?? this.confirmButtonWidth,
       confirmButtonType: confirmButtonType ?? this.confirmButtonType,
     );
   }

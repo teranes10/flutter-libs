@@ -34,6 +34,7 @@ class TAlertService {
     final double? minWidth = 0,
     final double? minHeight = 0,
     final bool persistent = true,
+    final TAlertTheme? theme,
   }) {
     final controller = TAlertController();
 
@@ -46,6 +47,7 @@ class TAlertService {
         color: color,
         progress: progress,
         progressStream: progressStream,
+        theme: theme,
         confirmButton: confirmButton != null
             ? AlertButton(
                 text: confirmButton.text,
@@ -159,5 +161,59 @@ class TAlertService {
         icon: Icons.delete_forever_rounded,
         color: context.theme.danger,
         confirmButton: AlertButton(text: 'Delete', onClick: onConfirm));
+  }
+
+  /// Shows a prompt dialog with a text field.
+  static TAlertController prompt(
+    BuildContext context, {
+    required String title,
+    String? placeholder,
+    String? initialValue,
+    required ValueChanged<String> onConfirm,
+    VoidCallback? onCancel,
+    String confirmButtonText = 'Submit',
+    String cancelButtonText = 'Cancel',
+    Color? color,
+    double? width = 500,
+  }) {
+    final controller = TextEditingController(text: initialValue);
+
+    return show(
+      context,
+      color: color ?? context.theme.info,
+      width: width,
+      theme: context.theme.alertTheme.copyWith(contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 12)),
+      text: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10,
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400, color: context.colors.onSurfaceVariant),
+          ),
+          TTextField(
+            labelPosition: TLabelPosition.aboveField,
+            clearable: true,
+            textController: controller,
+            placeholder: placeholder ?? 'Enter value...',
+            autoFocus: true,
+          )
+        ],
+      ),
+      confirmButton: AlertButton(
+        text: confirmButtonText,
+        onClick: () {
+          onConfirm(controller.text);
+          controller.dispose();
+        },
+      ),
+      closeButton: AlertButton(
+        text: cancelButtonText,
+        onClick: () {
+          onCancel?.call();
+          controller.dispose();
+        },
+      ),
+    );
   }
 }

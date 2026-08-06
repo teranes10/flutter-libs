@@ -128,6 +128,9 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   /// Whether to automatically expand the first item when items are loaded.
   final bool autoExpandFirst;
 
+  /// Whether to only load data when a search query is present.
+  final bool loadOnSearchOnly;
+
   bool _disposed = false;
   int _requestId = 0;
   final Set<int> _activeRequests = {};
@@ -175,7 +178,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     return descendants;
   }
 
-
   /// The single canonical factory for creating a [TListItem] from raw data.
   ///
   /// Accepts optional [childrenKeys] to override auto-resolution from [itemChildren].
@@ -186,10 +188,11 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     List<K>? childrenKeys,
     int level = 0,
   }) {
-    final resolvedChildrenKeys = childrenKeys ?? (() {
-      final children = itemChildren?.call(data);
-      return children != null && children.isNotEmpty ? children.map(itemKey).toList() : null;
-    })();
+    final resolvedChildrenKeys = childrenKeys ??
+        (() {
+          final children = itemChildren?.call(data);
+          return children != null && children.isNotEmpty ? children.map(itemKey).toList() : null;
+        })();
 
     return TListItem<T, K>(
       key: itemKey(data),
@@ -223,6 +226,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     Iterable<K>? initialExpandedKeys,
     bool loading = false,
     bool hasMoreItems = true,
+    this.loadOnSearchOnly = false,
   })  : isServerSide = onLoad != null,
         _debouncer = TDebouncer(milliseconds: searchDelay ?? (onLoad != null ? 2500 : 750)),
         itemToString = itemToString ?? _defaultItemToString,
@@ -249,7 +253,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       'Allowed key types are: String, int, double, num, bool.',
     );
     assert(
-      itemKey != null || (allowedKeyTypes.contains(T) && K == T) || K == int,
+      itemKey != null || (allowedKeyTypes.contains(T) && K == T) || K == String,
       'If `itemKey` is not provided, generic type K must be int.',
     );
 
@@ -264,7 +268,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       return item as K;
     }
 
-    return identityHashCode(item) as K;
+    return identityHashCode(item).toString() as K;
   }
 
   static String _defaultItemToString<T>(T item) => item.toString();
@@ -287,7 +291,6 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
 
   /// Keys of currently displayed items.
   List<K> get displayItemKeys => displayItems.map((x) => x.key).toList();
-
 
   @override
   void dispose() {

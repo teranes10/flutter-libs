@@ -79,6 +79,16 @@ class _PopupsPageState extends State<PopupsPage> {
                   controller.close();
                 },
               ),
+              TButton(
+                color: context.theme.info,
+                text: 'Prompt Alert',
+                onPressed: (_) => TAlertService.prompt(
+                  context,
+                  title: 'Enter Name',
+                  placeholder: 'What is your name?',
+                  onConfirm: (name) => TToastService.success(context, 'Hello, $name!'),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 32),

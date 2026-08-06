@@ -244,6 +244,9 @@ class TSelect<T, V, K> extends StatefulWidget
   /// Whether to load items lazily when the dropdown is first opened.
   final bool lazy;
 
+  /// Whether to only load data when a search query is present.
+  final bool loadOnSearchOnly;
+
   /// The number of items to show as visible in the dropdown before scrolling.
   ///
   /// For local [items] (no [onLoad]), this controls the dropdown height:
@@ -296,6 +299,7 @@ class TSelect<T, V, K> extends StatefulWidget
     this.cardTheme,
     this.itemValue,
     this.lazy = false,
+    this.loadOnSearchOnly = false,
     this.visibleItemsCount,
     ItemTextAccessor<T>? itemText,
     ItemKeyAccessor<T, K>? itemKey,
@@ -376,6 +380,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
       itemChildren: widget.itemChildren,
       selectionMode: TSelectionMode.single,
       expansionMode: widget.itemChildren != null ? TExpansionMode.single : TExpansionMode.none,
+      loadOnSearchOnly: widget.loadOnSearchOnly,
     );
   }
 
@@ -458,7 +463,10 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
 
     return buildWithDropdownTarget(
       child: buildTextField(
-        onValueChanged: widget.filterable && isPopupShowing ? listController.handleSearchChange : null,
+        onValueChanged: (value) {
+          if (!widget.filterable || !isPopupShowing) return;
+          listController.handleSearchChange(value);
+        },
         hasValue: currentValue != null,
         beforePostWidget:
             Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),

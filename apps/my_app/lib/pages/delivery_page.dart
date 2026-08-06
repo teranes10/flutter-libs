@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:my_app/widgets/mobile_device_frame.dart';
-import 'package:my_app/widgets/map_pinning_widget.dart';
 
 class DeliveryPage extends StatefulWidget {
   final int initialStep;
@@ -23,14 +22,14 @@ class _DeliveryPageState extends State<DeliveryPage> {
   // Sender Details (Pickup)
   final TextEditingController _senderNameController = TextEditingController(text: 'John Doe');
   final TextEditingController _senderPhoneController = TextEditingController(text: '077 123 4567');
-  final TextEditingController _pickupAddressController = TextEditingController(text: '123 Main St, Colombo');
-  String _pickupCoordinates = "6.9271, 79.8612";
+  final TextEditingController _pickupAddressController = TextEditingController();
+  LatLng? _pickupCoordinates;
 
   // Receiver Details (Drop-off)
   final TextEditingController _receiverNameController = TextEditingController(text: 'Jane Smith');
   final TextEditingController _receiverPhoneController = TextEditingController(text: '071 987 6543');
-  final TextEditingController _dropoffAddressController = TextEditingController(text: '456 High St, Kandy');
-  String _dropoffCoordinates = "7.2906, 80.6337";
+  final TextEditingController _dropoffAddressController = TextEditingController();
+  LatLng? _dropoffCoordinates;
 
   @override
   void initState() {
@@ -131,27 +130,14 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     ),
                   ),
                   TGridCol(
-                    child: TTextField(
-                      textController: _pickupAddressController,
-                      label: 'Pickup Address',
-                      isRequired: true,
-                      decorationType: TInputDecorationType.outline,
-                      labelPosition: TLabelPosition.aboveField,
-                    ),
-                  ),
-                  TGridCol(
-                    child: TMapPinningWidget(
-                      label: 'Pickup Location Map',
-                      addressController: _pickupAddressController,
+                    child: TMapPinning(
+                      label: 'Pickup Location',
+                      theme: context.theme.inputFieldTheme.copyWith(labelPosition: TLabelPosition.aboveField),
                       initialCoordinates: _pickupCoordinates,
+                      addressController: _pickupAddressController,
                       onCoordinatesChanged: (val) {
                         setState(() {
                           _pickupCoordinates = val;
-                        });
-                      },
-                      onAddressChanged: (val) {
-                        setState(() {
-                          _pickupAddressController.text = val;
                         });
                       },
                     ),
@@ -198,28 +184,16 @@ class _DeliveryPageState extends State<DeliveryPage> {
                       labelPosition: TLabelPosition.aboveField,
                     ),
                   ),
+
                   TGridCol(
-                    child: TTextField(
-                      textController: _dropoffAddressController,
-                      label: 'Drop-off Address',
-                      isRequired: true,
-                      decorationType: TInputDecorationType.outline,
-                      labelPosition: TLabelPosition.aboveField,
-                    ),
-                  ),
-                  TGridCol(
-                    child: TMapPinningWidget(
-                      label: 'Drop-off Location Map',
+                    child: TMapPinning(
+                      label: 'Drop-off Location',
+                      theme: context.theme.inputFieldTheme.copyWith(labelPosition: TLabelPosition.aboveField),
                       addressController: _dropoffAddressController,
                       initialCoordinates: _dropoffCoordinates,
                       onCoordinatesChanged: (val) {
                         setState(() {
                           _dropoffCoordinates = val;
-                        });
-                      },
-                      onAddressChanged: (val) {
-                        setState(() {
-                          _dropoffAddressController.text = val;
                         });
                       },
                     ),
