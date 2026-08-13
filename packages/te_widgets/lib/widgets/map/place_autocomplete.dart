@@ -28,6 +28,8 @@ class TPlaceAutoComplete extends StatefulWidget {
   final TLoadListener<TPlaceResult>? onLoad;
   final String? label;
   final String? placeholder;
+  /// When set (e.g. after reverse-geocode), shows this address in the field.
+  final String? selectedAddress;
   final TLabelPosition? labelPosition;
   final int limit;
   final TGooglePlacesConfig? config;
@@ -40,6 +42,7 @@ class TPlaceAutoComplete extends StatefulWidget {
     this.limit = 5,
     this.label,
     this.placeholder,
+    this.selectedAddress,
     this.labelPosition = TLabelPosition.aboveField,
     this.config,
   });
@@ -56,6 +59,42 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
   final Dio _dio = Dio();
   TPlaceResult? _selectedPlace;
   String? _autoSessionToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _applySelectedAddress(widget.selectedAddress, notify: false);
+  }
+
+  @override
+  void didUpdateWidget(TPlaceAutoComplete oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedAddress != oldWidget.selectedAddress) {
+      _applySelectedAddress(widget.selectedAddress, notify: true);
+    }
+  }
+
+  void _applySelectedAddress(String? address, {required bool notify}) {
+    final trimmed = address?.trim() ?? '';
+    TPlaceResult? next;
+    if (trimmed.isNotEmpty) {
+      if (_selectedPlace?.address == trimmed) return;
+      next = TPlaceResult(
+        address: trimmed,
+        coordinates: '',
+        latitude: 0,
+        longitude: 0,
+      );
+    } else if (_selectedPlace == null) {
+      return;
+    }
+
+    if (notify && mounted) {
+      setState(() => _selectedPlace = next);
+    } else {
+      _selectedPlace = next;
+    }
+  }
 
   String? _resolveApiKey() {
     if (widget.googleMapApiKey != null && widget.googleMapApiKey!.isNotEmpty) {

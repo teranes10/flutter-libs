@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -84,6 +87,99 @@ class _TMapPinningState extends State<TMapPinning>
   List<String> _previousSelections = [];
 
   bool _hasInteracted = false;
+  bool _isResolvingAddress = false;
+  final Dio _dio = Dio();
+  Timer? _reverseGeocodeDebounce;
+  int _reverseGeocodeRequestId = 0;
+
+  bool get _needsReverseGeocode {
+    final address = _currentAddress.trim();
+    if (address.isEmpty) return true;
+    if (address == 'Selected Location' || address == 'Your location' || address == 'Selected Address') {
+      return true;
+    }
+    if (address.startsWith('Looking up')) return true;
+    // Legacy placeholder from older builds.
+    if (address.contains('(Adjusted)')) return true;
+    return false;
+  }
+
+  /// Address suitable for showing in the search field (skips placeholders).
+  String? get _searchFieldAddress {
+    final address = _currentAddress.trim();
+    if (address.isEmpty || _needsReverseGeocode) return null;
+    return address;
+  }
+
+  Future<String?> _reverseGeocode(LatLng coordinates) async {
+    final apiKey = _resolveApiKey();
+    if (apiKey != null && apiKey.isNotEmpty) {
+      try {
+        final client = TGoogleClient(dio: _dio, googleMapApiKey: apiKey);
+        final address = await client.reverseGeocode(coordinates.latitude, coordinates.longitude);
+        if (address != null && address.isNotEmpty) return address;
+      } catch (_) {}
+    }
+
+    try {
+      final response = await _dio.get(
+        'https://nominatim.openstreetmap.org/reverse',
+        queryParameters: {
+          'lat': coordinates.latitude.toString(),
+          'lon': coordinates.longitude.toString(),
+          'format': 'json',
+          'addressdetails': '1',
+        },
+        options: Options(
+          headers: {'User-Agent': 'te_widgets_map_pinning'},
+        ),
+      );
+      final data = response.data;
+      if (data is Map) {
+        final address = data['display_name']?.toString().trim();
+        if (address != null && address.isNotEmpty) return address;
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  Future<void> _resolveAddressIfNeeded({bool force = false}) async {
+    if (!force && !_needsReverseGeocode) return;
+    if (_isResolvingAddress && !force) return;
+
+    final requestId = ++_reverseGeocodeRequestId;
+    final coordinates = _currentCoordinates;
+    setState(() => _isResolvingAddress = true);
+    try {
+      final address = await _reverseGeocode(coordinates);
+      if (!mounted || requestId != _reverseGeocodeRequestId) return;
+      if (address == null || address.isEmpty) return;
+      setState(() {
+        _currentAddress = address;
+        _searchController.text = address;
+      });
+    } finally {
+      if (mounted && requestId == _reverseGeocodeRequestId) {
+        setState(() => _isResolvingAddress = false);
+      }
+    }
+  }
+
+  void _onPinMoved(LatLng coordinates) {
+    setState(() {
+      _hasInteracted = true;
+      _pin = coordinates;
+      _currentCoordinates = coordinates;
+      _currentAddress = 'Looking up address...';
+      _searchController.text = _currentAddress;
+    });
+
+    _reverseGeocodeDebounce?.cancel();
+    _reverseGeocodeDebounce = Timer(const Duration(milliseconds: 450), () {
+      _resolveAddressIfNeeded(force: true);
+    });
+  }
 
   @override
   double get contentMinWidth => 600;
@@ -133,6 +229,7 @@ class _TMapPinningState extends State<TMapPinning>
 
   @override
   void dispose() {
+    _reverseGeocodeDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -157,6 +254,14 @@ class _TMapPinningState extends State<TMapPinning>
         _currentCoordinates = loc;
       });
       widget.onCoordinatesChanged?.call(loc);
+      // Fill address for GPS pin when none was provided yet.
+      if (_needsReverseGeocode) {
+        await _resolveAddressIfNeeded();
+        if (_currentAddress.isNotEmpty) {
+          widget.onAddressChanged?.call(_currentAddress);
+          widget.addressController?.text = _currentAddress;
+        }
+      }
     }
   }
 
@@ -277,10 +382,7 @@ class _TMapPinningState extends State<TMapPinning>
     final colors = context.colors;
     final isMobile = MediaQuery.of(context).isMobile;
 
-    final apiKey = _resolveApiKey();
-    final showSearch = (apiKey != null && apiKey.isNotEmpty) || widget.onLoad != null;
-
-    // 1. Top Header & Place AutoComplete Search Bar (Sticky)
+    // Always show search — Google Places when keyed, Nominatim otherwise.
     final headerWidgets = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -294,26 +396,27 @@ class _TMapPinningState extends State<TMapPinning>
             ),
           ],
         ),
-        if (showSearch) ...[
-          const SizedBox(height: 12),
-          TPlaceAutoComplete(
-            googleMapApiKey: widget.googleMapApiKey,
-            onLoad: widget.onLoad,
-            //  label: widget.label,
-            placeholder: widget.placeholder,
-            onPlaceSelected: (details) {
-              final coordinates = parseCoordinates(details.coordinates);
-              setState(() {
-                _hasInteracted = true;
-                _center = coordinates;
-                _pin = coordinates;
-                _currentCoordinates = coordinates;
-                _currentAddress = details.address;
-                _searchController.text = details.address;
-              });
-            },
-          ),
-        ],
+        const SizedBox(height: 12),
+        TPlaceAutoComplete(
+          googleMapApiKey: widget.googleMapApiKey,
+          onLoad: widget.onLoad,
+          placeholder: widget.placeholder ?? 'Search location...',
+          selectedAddress: _searchFieldAddress,
+          onPlaceSelected: (details) {
+            final coordinates = parseCoordinates(details.coordinates);
+            setState(() {
+              _hasInteracted = true;
+              _center = coordinates;
+              _pin = coordinates;
+              _currentCoordinates = coordinates;
+              _currentAddress = details.address;
+              _searchController.text = details.address;
+            });
+            widget.onAddressChanged?.call(details.address);
+            widget.onCoordinatesChanged?.call(coordinates);
+            widget.addressController?.text = details.address;
+          },
+        ),
       ],
     );
 
@@ -333,19 +436,7 @@ class _TMapPinningState extends State<TMapPinning>
               interactive: true,
               googleMapApiKey: widget.googleMapApiKey,
               height: 320,
-              onCoordinatesChanged: (coordinates) {
-                setState(() {
-                  _hasInteracted = true;
-                  _pin = coordinates;
-                  _currentCoordinates = coordinates;
-                  final mainAddress = _searchController.text.isNotEmpty ? _searchController.text : "Selected Location";
-                  if (mainAddress.contains("(Adjusted)")) {
-                    _currentAddress = mainAddress;
-                  } else {
-                    _currentAddress = "$mainAddress (Adjusted)";
-                  }
-                });
-              },
+              onCoordinatesChanged: _onPinMoved,
               pins: [TMapPin(coordinates: _pin, label: _currentAddress.isNotEmpty ? _currentAddress : 'Selected Pin')],
             ),
           ),
@@ -460,10 +551,24 @@ class _TMapPinningState extends State<TMapPinning>
             Expanded(
               child: TButton(
                 text: 'Confirm Location',
-                onTap: () async {
+                loading: true,
+                loadingText: 'Resolving...',
+                onPressed: (options) async {
                   setState(() {
                     _center = _currentCoordinates;
                   });
+
+                  await _resolveAddressIfNeeded(force: true);
+
+                  if (_currentAddress.isEmpty ||
+                      _currentAddress.startsWith('Looking up') ||
+                      _currentAddress.contains('(Adjusted)')) {
+                    setState(() {
+                      _currentAddress =
+                          'Selected Location (${_currentCoordinates.latitude.toStringAsFixed(5)}, ${_currentCoordinates.longitude.toStringAsFixed(5)})';
+                      _searchController.text = _currentAddress;
+                    });
+                  }
 
                   if (_currentAddress.isNotEmpty) {
                     final timestamp = DateFormat('MMM dd, yyyy - hh:mm a').format(DateTime.now());
@@ -482,6 +587,7 @@ class _TMapPinningState extends State<TMapPinning>
                   widget.onAddressChanged?.call(_currentAddress);
                   widget.onCoordinatesChanged?.call(_currentCoordinates);
                   widget.addressController?.text = _currentAddress;
+                  options.stopLoading();
                   hidePopup();
                 },
               ),
