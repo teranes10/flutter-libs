@@ -528,4 +528,33 @@ class TGoogleClient {
     }
     throw Exception('Invalid response format from Place Details API.');
   }
+
+  /// Reverse-geocode lat/lng to a formatted address (Geocoding API).
+  Future<String?> reverseGeocode(double latitude, double longitude) async {
+    final apiKey = _resolveApiKey();
+    if (apiKey == null || apiKey.isEmpty) {
+      return null;
+    }
+
+    final response = await _dio.get(
+      'https://maps.googleapis.com/maps/api/geocode/json',
+      queryParameters: {
+        'latlng': '$latitude,$longitude',
+        'key': apiKey,
+      },
+    );
+
+    final data = response.data;
+    if (data is! Map<String, dynamic>) return null;
+    if (data['status']?.toString() != 'OK') return null;
+
+    final results = data['results'];
+    if (results is! List || results.isEmpty) return null;
+
+    final first = results.first;
+    if (first is! Map) return null;
+    final address = first['formatted_address']?.toString().trim();
+    if (address == null || address.isEmpty) return null;
+    return address;
+  }
 }
