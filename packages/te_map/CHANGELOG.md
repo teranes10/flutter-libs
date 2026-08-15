@@ -1,3 +1,7 @@
+## 3.1.4
+
+ - **FIX**: automated deployment and release.
+
 ## 3.1.3
 
  - **FIX**: automated deployment and release.
