@@ -1480,28 +1480,28 @@ packages:
       path: "../../packages/te_editor"
       relative: true
     source: path
-    version: "3.0.3"
+    version: "3.1.0"
   te_map:
     dependency: "direct main"
     description:
       path: "../../packages/te_map"
       relative: true
     source: path
-    version: "3.0.3"
+    version: "3.1.0"
   te_scanner:
     dependency: "direct main"
     description:
       path: "../../packages/te_scanner"
       relative: true
     source: path
-    version: "3.0.3"
+    version: "3.1.0"
   te_widgets:
     dependency: "direct main"
     description:
       path: "../../packages/te_widgets"
       relative: true
     source: path
-    version: "3.0.3"
+    version: "3.1.0"
   term_glyph:
     dependency: transitive
     description:
