@@ -1,3 +1,7 @@
+## 3.1.0
+
+ - **FEAT**: modularize packages and configure melos scripts.
+
 # 3.0.0
 
 - **List Controller & Flat Virtualization Hierarchy Improvements**:
