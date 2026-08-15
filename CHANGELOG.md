@@ -15,6 +15,37 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`te_editor` - `v3.1.1`](#te_editor---v311)
+ - [`te_map` - `v3.1.1`](#te_map---v311)
+ - [`te_scanner` - `v3.1.1`](#te_scanner---v311)
+
+---
+
+#### `te_editor` - `v3.1.1`
+
+ - **FIX**: automated deployment and release.
+
+#### `te_map` - `v3.1.1`
+
+ - **FIX**: automated deployment and release.
+
+#### `te_scanner` - `v3.1.1`
+
+ - **FIX**: automated deployment and release.
+
+
+## 2026-08-15
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`te_editor` - `v3.1.0`](#te_editor---v310)
  - [`te_map` - `v3.1.0`](#te_map---v310)
  - [`te_scanner` - `v3.1.0`](#te_scanner---v310)
