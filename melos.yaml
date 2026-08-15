@@ -32,3 +32,12 @@ scripts:
   publish:
     run: melos publish --no-dry-run --yes
     description: Publish te_widgets, te_map, te_editor, te_scanner to pub.dev (ignores my_app since it has publish_to none).
+
+  deploy:
+    run: |
+      git add .
+      git commit -m "fix: automated deployment and release" || true
+      melos run release
+      melos run publish
+      git push --follow-tags
+    description: All-in-one command to commit, release, publish, and push tags.
