@@ -6,7 +6,7 @@ export 'package:geolocator/geolocator.dart';
 
 export 'src/map.dart';
 export 'src/map_config.dart';
-export 'src/map_pinning.dart';
+export 'src/map_pinning/map_pinning.dart';
 export 'src/place_autocomplete.dart';
 export 'src/google_places_client.dart';
 

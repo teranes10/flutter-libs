@@ -84,7 +84,17 @@ class _TMapState extends State<TMap> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialCoordinates != widget.initialCoordinates || oldWidget.pins != widget.pins) {
       _center = _resolveCenter();
-      _mapController.move(_center, _zoomLevel);
+      // Only fly the camera when the caller intentionally changes the center.
+      // Pin/label updates (e.g. after a tap or reverse-geocode) must not recenter.
+      final newCenter = widget.initialCoordinates;
+      final oldCenter = oldWidget.initialCoordinates;
+      if (newCenter != null &&
+          (oldCenter == null ||
+              oldCenter.latitude != newCenter.latitude ||
+              oldCenter.longitude != newCenter.longitude)) {
+        _center = newCenter;
+        _mapController.move(_center, _zoomLevel);
+      }
     }
   }
 

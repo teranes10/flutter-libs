@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
 
 class TLocationHelper {
   static LocationSettings getLocationSettings({
@@ -81,5 +82,26 @@ class TLocationHelper {
     } catch (_) {
       return null;
     }
+  }
+
+  static LatLng parseCoordinates(String coords) {
+    String clean = coords
+        .replaceAll('LatLng(', '')
+        .replaceAll(')', '')
+        .replaceAll('latitude:', '')
+        .replaceAll('longitude:', '')
+        .replaceAll('lat:', '')
+        .replaceAll('lng:', '')
+        .trim();
+
+    final parts = clean.split(',');
+    if (parts.length != 2) throw ArgumentError('Invalid coordinates: "$coords"');
+
+    final latitude = double.tryParse(parts[0].trim());
+    final longitude = double.tryParse(parts[1].trim());
+
+    if (latitude == null || longitude == null) throw ArgumentError('Invalid coordinate values: "$coords"');
+
+    return LatLng(latitude, longitude);
   }
 }

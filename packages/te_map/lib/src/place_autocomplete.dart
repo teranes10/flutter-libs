@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'map_config.dart';
 import 'google_places_client.dart';
+import 'openstreet_client.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -24,6 +25,9 @@ class TPlaceAutoComplete extends StatefulWidget {
   final TLoadListener<TPlaceResult>? onLoad;
   final String? label;
   final String? placeholder;
+
+  /// When set (e.g. after reverse-geocode), shows this address in the field.
+  final String? selectedAddress;
   final TLabelPosition? labelPosition;
   final int limit;
   final TGooglePlacesConfig? config;
@@ -36,6 +40,7 @@ class TPlaceAutoComplete extends StatefulWidget {
     this.limit = 5,
     this.label,
     this.placeholder,
+    this.selectedAddress,
     this.labelPosition = TLabelPosition.aboveField,
     this.config,
   });
@@ -52,6 +57,37 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
   final Dio _dio = Dio();
   TPlaceResult? _selectedPlace;
   String? _autoSessionToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _applySelectedAddress(widget.selectedAddress, notify: false);
+  }
+
+  @override
+  void didUpdateWidget(TPlaceAutoComplete oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedAddress != oldWidget.selectedAddress) {
+      _applySelectedAddress(widget.selectedAddress, notify: true);
+    }
+  }
+
+  void _applySelectedAddress(String? address, {required bool notify}) {
+    final trimmed = address?.trim() ?? '';
+    TPlaceResult? next;
+    if (trimmed.isNotEmpty) {
+      if (_selectedPlace?.address == trimmed) return;
+      next = TPlaceResult(address: trimmed, coordinates: '', latitude: 0, longitude: 0);
+    } else if (_selectedPlace == null) {
+      return;
+    }
+
+    if (notify && mounted) {
+      setState(() => _selectedPlace = next);
+    } else {
+      _selectedPlace = next;
+    }
+  }
 
   String? _resolveApiKey() {
     if (widget.googleMapApiKey != null && widget.googleMapApiKey!.isNotEmpty) {
@@ -108,32 +144,9 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
   }
 
   Future<TLoadResult<TPlaceResult>> _loadNominatimPlaces(String query) async {
-    if (query.isEmpty) return const TLoadResult([], 0);
-
-    try {
-      final response = await _dio.get(
-        'https://nominatim.openstreetmap.org/search',
-        queryParameters: {'q': query, 'format': 'json', 'addressdetails': '1', 'limit': widget.limit.toString()},
-        options: Options(headers: {'User-Agent': 'te_widgets_map_autocomplete'}),
-      );
-
-      if (response.data is List) {
-        final List data = response.data;
-        final items = data.map((item) {
-          final latVal = double.tryParse(item['lat']?.toString() ?? '') ?? 0.0;
-          final lonVal = double.tryParse(item['lon']?.toString() ?? '') ?? 0.0;
-          return TPlaceResult(
-            address: item['display_name']?.toString() ?? '',
-            coordinates: '$latVal, $lonVal',
-            latitude: latVal,
-            longitude: lonVal,
-            placeId: item['place_id']?.toString() ?? '',
-          );
-        }).toList();
-        return TLoadResult(items, items.length);
-      }
-    } catch (_) {}
-    return const TLoadResult([], 0);
+    final osClient = TOpenStreetMapClient(dio: _dio);
+    final results = await osClient.search(query, limit: widget.limit);
+    return TLoadResult(results, results.length);
   }
 
   Future<void> _fetchPlaceDetails(String placeId) async {
@@ -176,7 +189,7 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
     final apiKey = _resolveApiKey();
     final hasGoogle = apiKey != null && apiKey.isNotEmpty;
 
-    return TSelect<TPlaceResult, TPlaceResult, String>(
+    return TSelect<TPlaceResult, TPlaceResult, int>(
       theme: context.theme.textFieldTheme.copyWith(labelPosition: widget.labelPosition),
       value: _selectedPlace,
       label: widget.label,
