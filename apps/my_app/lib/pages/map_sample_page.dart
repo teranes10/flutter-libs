@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_map/te_map.dart';
 
 class MapSamplePage extends StatefulWidget {
   const MapSamplePage({super.key});

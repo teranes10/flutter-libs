@@ -84,7 +84,7 @@ class TExpandedTabsState extends State<TExpandedTabs> {
         }
       });
     }
-    
+
     if (_controller.value == widget.editTabValue) {
       widget.onEditTabActivated?.call();
     }
@@ -121,7 +121,7 @@ class TExpandedTabsState extends State<TExpandedTabs> {
         content: widget.editTabBuilder,
       ));
     }
-    
+
     dynamic effectiveInitialValue = widget.initialValue;
 
     final content = TTabView<String>(

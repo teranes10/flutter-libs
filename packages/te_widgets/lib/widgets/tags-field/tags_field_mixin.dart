@@ -41,8 +41,12 @@ mixin TTagsFieldStateMixin<W extends StatefulWidget> on State<W>, TTextFieldStat
 
   @override
   TTagsController buildTextController() {
+    final initialTags = _widget is TInputValueMixin<List<String>>
+        ? ((_widget as TInputValueMixin<List<String>>).valueNotifier?.value ?? (_widget as TInputValueMixin<List<String>>).value) ?? []
+        : <String>[];
+
     return TTagsController(
-      tags: [],
+      tags: initialTags,
       text: '',
       allowDuplicates: _widget.allowDuplicates,
       delimiters: _widget.delimiters,

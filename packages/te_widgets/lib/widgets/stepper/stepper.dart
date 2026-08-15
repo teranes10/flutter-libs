@@ -38,7 +38,7 @@ class TStep {
   });
 }
 
-/// A Material Design stepper widget with Lexend font and TCard integration.
+/// A Material Design stepper widget and TCard integration.
 class TStepper extends StatelessWidget {
   /// The steps of the stepper.
   final List<TStep> steps;
@@ -230,9 +230,7 @@ class TStepper extends StatelessWidget {
     final shouldScale = totalWidth > availableWidth;
 
     for (int i = 0; i < steps.length; i++) {
-      final stepWidth = shouldScale
-          ? (stepWidths[i] / totalWidth) * availableWidth
-          : stepWidths[i];
+      final stepWidth = shouldScale ? (stepWidths[i] / totalWidth) * availableWidth : stepWidths[i];
 
       finalWidths.add(stepWidth);
       centers.add(currentX + stepWidth / 2);
@@ -403,7 +401,6 @@ class TStepper extends StatelessWidget {
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
-          fontFamily: 'Lexend',
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -423,7 +420,6 @@ class TStepper extends StatelessWidget {
           text: subtitleText,
           style: const TextStyle(
             fontSize: 11,
-            fontFamily: 'Lexend',
           ),
         ),
         textDirection: TextDirection.ltr,

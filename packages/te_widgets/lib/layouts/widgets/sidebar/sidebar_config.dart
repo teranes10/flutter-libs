@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-class TSidebarItem {
-  final IconData? icon;
-  final String? text;
-  final String? route;
+class TSidebarItem extends TMenuItemData<TSidebarItem> {
   final Widget? page;
   final Widget Function(BuildContext context, GoRouterState state)? builder;
+  @override
+  final IconData? icon;
+  @override
+  final String? text;
+  final String? route;
+  @override
   final List<TSidebarItem>? children;
   final VoidCallback? onTap;
   final bool initiallyExpanded;
   final Object? extra;
+  @override
   final bool hidden;
   final bool home;
   final int? bottomBarPosition;
@@ -69,18 +73,17 @@ class TSidebarItem {
     return visibleChildren.any((child) => child.containsRoute(currentRoute));
   }
 
-  bool get hasChildren => children?.isNotEmpty ?? false;
-  bool get hasVisibleChildren => children?.any((child) => !child.isHidden) ?? false;
-  List<TSidebarItem> get visibleChildren => children?.where((child) => !child.isHidden).toList() ?? [];
-
+  @override
   bool get isHidden {
     if (hidden) return true;
     if (route == null && !hasVisibleChildren) return true;
     return false;
   }
 
+  @override
   bool get isClickable => route != null || onTap != null;
 
+  @override
   void tap(BuildContext context) {
     _navigate(context);
     onTap?.call();
@@ -100,36 +103,47 @@ class TSidebarItem {
   }
 }
 
-class TSidebarConstants {
-  static const Duration animationDuration = Duration(milliseconds: 300);
-  static const Duration overlayAnimationDuration = Duration(milliseconds: 150);
-  static const Duration hoverDelay = Duration(milliseconds: 200);
-  static const Duration overlayHideDelay = Duration(milliseconds: 400);
-  static const Duration smoothHideDelay = Duration(milliseconds: 400);
-
-  static const double iconSize = 20.0;
-  static const double overlayIconSize = 18.0;
-  static const double expandIconSize = 16.0;
-  static const double arrowIconSize = 12.0;
-
-  static const EdgeInsets itemPadding = EdgeInsets.symmetric(horizontal: 18, vertical: 14);
-  static const EdgeInsets minimizedItemPadding = EdgeInsets.all(12);
-  static const EdgeInsets overlayItemPadding = EdgeInsets.symmetric(horizontal: 12, vertical: 10);
-}
-
-class TSidebarTheme {
-  final Color defaultColor;
-  final Color hoverColor;
-  final Color activeColor;
-  final Color activeBackgroundColor;
-  final Color borderColor;
+/// Sidebar-flavored [TMenuTheme]. The overlay-specific constants that used
+/// to live as bare statics on `TSidebarConstants` (overlay animation
+/// duration, overlay item padding, overlay/arrow icon sizes, hover/hide
+/// delays) now live here instead, since the shared overlay engine reads
+/// timing/sizing from an instance of `TMenuTheme`, not from a static
+/// constants class. That's what made it possible to hand the sidebar's
+/// popups to the same engine the dropdown uses.
+class TSidebarTheme extends TMenuTheme {
+  final EdgeInsets childPadding;
+  final EdgeInsets minimizedItemPadding;
+  final double expandIconSize;
 
   const TSidebarTheme({
-    required this.defaultColor,
-    required this.hoverColor,
-    required this.activeColor,
-    required this.activeBackgroundColor,
-    required this.borderColor,
+    required super.defaultColor,
+    required super.hoverColor,
+    required super.activeColor,
+    required super.activeBackgroundColor,
+    required super.borderColor,
+    this.childPadding = const EdgeInsets.fromLTRB(12, 9, 6, 9),
+    this.minimizedItemPadding = const EdgeInsets.all(12),
+    this.expandIconSize = 16.0,
+    super.animationDuration = const Duration(milliseconds: 150),
+    super.showDelay = const Duration(milliseconds: 200),
+    super.hideDelay = const Duration(milliseconds: 400),
+    // Root trigger (minimized icon) pops out to the right, same spot the
+    // old `CompositedTransformFollower(offset: Offset(14, -8))` used.
+    super.alignment = TPopupAlignment.rightTop,
+    super.offset = 14.0,
+    super.secondaryAlignment = TPopupAlignment.rightTop,
+    super.secondaryOffset = 4.0,
+    super.boxConstraints = const BoxConstraints(minWidth: 180, maxWidth: 275),
+    super.iconSize = 18.0,
+    super.arrowIconSize = 12.0,
+    super.gap = 10.0,
+    super.overlayElevation = 8.0,
+    super.overlayBorderRadius = const BorderRadius.all(Radius.circular(8.0)),
+    super.overlayPadding = const EdgeInsets.symmetric(vertical: 8),
+    super.itemPadding = const EdgeInsets.fromLTRB(16, 12, 8, 12),
+    super.itemBorderRadius = const BorderRadius.all(Radius.circular(6.0)),
+    super.fontSize = 14.0,
+    super.fontWeight = FontWeight.w300,
   });
 
   factory TSidebarTheme.defaultTheme(BuildContext context) {
@@ -140,18 +154,66 @@ class TSidebarTheme {
       hoverColor: colors.onSurface,
       activeColor: colors.onPrimaryContainer,
       activeBackgroundColor: colors.primaryContainer,
-      borderColor: colors.outline,
+      borderColor: colors.outlineVariant,
     );
   }
 
-  Color getItemColor({
-    required bool isActive,
-    required bool containsActive,
-    required bool isHovered,
+  TSidebarTheme copyWith({
+    Color? defaultColor,
+    Color? hoverColor,
+    Color? activeColor,
+    Color? activeBackgroundColor,
+    Color? borderColor,
+    EdgeInsets? childPadding,
+    EdgeInsets? minimizedItemPadding,
+    double? expandIconSize,
+    Duration? animationDuration,
+    Duration? showDelay,
+    Duration? hideDelay,
+    TPopupAlignment? alignment,
+    double? offset,
+    TPopupAlignment? secondaryAlignment,
+    double? secondaryOffset,
+    BoxConstraints? boxConstraints,
+    double? iconSize,
+    double? arrowIconSize,
+    double? gap,
+    double? overlayElevation,
+    BorderRadius? overlayBorderRadius,
+    EdgeInsets? overlayPadding,
+    EdgeInsets? itemPadding,
+    BorderRadius? itemBorderRadius,
+    double? fontSize,
+    FontWeight? fontWeight,
   }) {
-    if (isActive || containsActive) return activeColor;
-    if (isHovered) return hoverColor;
-    return defaultColor;
+    return TSidebarTheme(
+      defaultColor: defaultColor ?? this.defaultColor,
+      hoverColor: hoverColor ?? this.hoverColor,
+      activeColor: activeColor ?? this.activeColor,
+      activeBackgroundColor: activeBackgroundColor ?? this.activeBackgroundColor,
+      borderColor: borderColor ?? this.borderColor,
+      childPadding: childPadding ?? this.childPadding,
+      minimizedItemPadding: minimizedItemPadding ?? this.minimizedItemPadding,
+      expandIconSize: expandIconSize ?? this.expandIconSize,
+      animationDuration: animationDuration ?? this.animationDuration,
+      showDelay: showDelay ?? this.showDelay,
+      hideDelay: hideDelay ?? this.hideDelay,
+      alignment: alignment ?? this.alignment,
+      offset: offset ?? this.offset,
+      secondaryAlignment: secondaryAlignment ?? this.secondaryAlignment,
+      secondaryOffset: secondaryOffset ?? this.secondaryOffset,
+      boxConstraints: boxConstraints ?? this.boxConstraints,
+      iconSize: iconSize ?? this.iconSize,
+      arrowIconSize: arrowIconSize ?? this.arrowIconSize,
+      gap: gap ?? this.gap,
+      overlayElevation: overlayElevation ?? this.overlayElevation,
+      overlayBorderRadius: overlayBorderRadius ?? this.overlayBorderRadius,
+      overlayPadding: overlayPadding ?? this.overlayPadding,
+      itemPadding: itemPadding ?? this.itemPadding,
+      itemBorderRadius: itemBorderRadius ?? this.itemBorderRadius,
+      fontSize: fontSize ?? this.fontSize,
+      fontWeight: fontWeight ?? this.fontWeight,
+    );
   }
 }
 

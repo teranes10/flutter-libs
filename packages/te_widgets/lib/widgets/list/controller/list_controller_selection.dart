@@ -34,7 +34,6 @@ extension TListControllerSelection<T, K> on TListController<T, K> {
   /// Whether any items are selected.
   bool get hasSelection => selectedKeys.isNotEmpty;
 
-
   /// Whether multiple items are selected.
   bool get hasMultipleSelection => selectedKeys.length > 1;
 

@@ -107,7 +107,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
             wTheme.errorsBuilder.resolve(states)(validationMixin?.errorsNotifier.value),
           ],
         ),
-      TLabelPosition.floating => Column(
+      TLabelPosition.floating || TLabelPosition.inlineFloating => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             child,
@@ -158,7 +158,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
         child: InputDecorator(
           isHovering: _isHovering,
           isFocused: states.contains(WidgetState.focused),
-          isEmpty: floatingLabelAlways ? false : !states.contains(WidgetState.selected),
+          isEmpty: floatingLabelAlways ? false : !(states.contains(WidgetState.selected) || hasValue),
           decoration: buildInputDecoration(
             beforePreWidget: beforePreWidget,
             beforePostWidget: beforePostWidget,

@@ -1,11 +1,22 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-enum TDropdownTriggerMode { hover, tap }
+typedef TDropdownTriggerMode = TMenuTriggerMode;
 
-class TDropdown extends StatefulWidget {
+/// `TDropdown` is now a thin adapter over the shared [TMenuRootTrigger] —
+/// all the hover/tap scheduling, positioning, and panel rendering live in
+/// the generic engine under `lib/helpers/menu/`.
+///
+/// NOTE / known behavior change: the old implementation special-cased a
+/// bare `TButton` child by rewiring the button's own `onTap` instead of
+/// wrapping it in a `GestureDetector`, so the button kept its native
+/// ripple/press feedback. `TMenuRootTrigger` always wraps `child` in a
+/// translucent `GestureDetector` in tap mode, so a `TButton` passed here
+/// will get an extra tap layer on top of its own. Functionally it still
+/// opens/closes correctly; if you rely on the button's own press visuals
+/// specifically, `TMenuRootTrigger` would need an injection point for a
+/// custom tap handler — flagging rather than silently dropping it.
+class TDropdown extends StatelessWidget {
   final TDropdownTheme? theme;
   final List<TDropdownItem> items;
   final Widget child;
@@ -24,132 +35,19 @@ class TDropdown extends StatefulWidget {
   });
 
   @override
-  State<TDropdown> createState() => _DropdownState();
-}
-
-class _DropdownState extends State<TDropdown> {
-  final OverlayPortalController _overlayController = OverlayPortalController();
-  final GlobalKey _targetKey = GlobalKey();
-  bool _isHovered = false;
-  Timer? _hoverTimer;
-
-  TDropdownTheme get theme => widget.theme ?? TDropdownTheme.defaultTheme(context.colors);
-
-  bool get _useTapOnly {
-    return widget.triggerMode == TDropdownTriggerMode.tap || context.isMobilePlatform || context.isMobile;
-  }
-
-  void _closeDropdown() {
-    TDropdownOverlayController.hideAllOverlays();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (!widget.enabled) {
-      return Opacity(opacity: 0.7, child: widget.child);
-    }
+    if (!enabled) return Opacity(opacity: 0.7, child: child);
 
-    Widget triggerChild = widget.child;
-    bool useClickWrapper = true;
+    final effectiveTheme = theme ?? TDropdownTheme.defaultTheme(context.colors);
+    final isMobile = context.isMobilePlatform || context.isMobile;
+    final effectiveMode = (triggerMode == TDropdownTriggerMode.tap || isMobile) ? TMenuTriggerMode.tap : TMenuTriggerMode.hover;
 
-    if (triggerChild is TButton) {
-      if (triggerChild.onTap == null && triggerChild.onPressed == null) {
-        triggerChild = triggerChild.copyWith(onTap: _toggleDropdown);
-        useClickWrapper = false;
-      }
-    }
-
-    Widget triggerWidget = useClickWrapper
-        ? GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: _toggleDropdown,
-            child: triggerChild,
-          )
-        : triggerChild;
-
-    return OverlayPortal.overlayChildLayoutBuilder(
-      controller: _overlayController,
-      overlayChildBuilder: (context, layoutInfo) {
-        final constraints = TPopupConstraints.calculate(
-          context,
-          targetSize: layoutInfo.childSize,
-          transform: layoutInfo.childPaintTransform,
-          inputConstraints: theme.boxConstraints,
-          alignment: FractionalOffset.topLeft,
-        );
-
-        final overlayContent = widget.builder != null
-            ? Container(
-                constraints: constraints.contentBox,
-                child: widget.builder!(context, _closeDropdown),
-              )
-            : TDropdownOverlay(
-                items: widget.items,
-                level: 1,
-                theme: theme,
-              );
-
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  if (!_useTapOnly) return;
-                  TDropdownOverlayController.hideAllOverlays();
-                },
-              ),
-            ),
-            CustomSingleChildLayout(
-              delegate: PopupPositionDelegate(
-                constraints: constraints,
-                alignment: theme.alignment,
-                offset: theme.offset,
-              ),
-              child: overlayContent,
-            ),
-          ],
-        );
-      },
-      child: MouseRegion(
-        key: _targetKey,
-        onEnter: (_) => _onHoverEnter(),
-        onExit: (_) => _onExitHover(),
-        child: triggerWidget,
-      ),
+    return TMenuRootTrigger<TDropdownItem>(
+      items: items,
+      theme: effectiveTheme,
+      triggerMode: effectiveMode,
+      builder: builder,
+      child: child,
     );
-  }
-
-  void _toggleDropdown() {
-    if (!_useTapOnly) return;
-    if (_overlayController.isShowing) {
-      TDropdownOverlayController.hideAllOverlays();
-    } else {
-      TDropdownOverlayController.hideAllOverlays();
-      TDropdownOverlayController.showOverlay(0, _overlayController);
-    }
-  }
-
-  void _onHoverEnter() {
-    if (_useTapOnly) return;
-    setState(() => _isHovered = true);
-    _scheduleOverlayShow();
-  }
-
-  void _onExitHover() {
-    if (_useTapOnly) return;
-    setState(() => _isHovered = false);
-    _hoverTimer?.cancel();
-    TDropdownOverlayController.scheduleHide(delay: theme.hideDelay);
-  }
-
-  void _scheduleOverlayShow() {
-    _hoverTimer?.cancel();
-    _hoverTimer = Timer(TSidebarConstants.hoverDelay, () {
-      if (mounted && _isHovered) {
-        TDropdownOverlayController.hideAllOverlays();
-        TDropdownOverlayController.showOverlay(0, _overlayController);
-      }
-    });
   }
 }

@@ -250,7 +250,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
     // visibleItemsCount caps the visible rows in the dropdown.
     // For local items, we never show an infinite-scroll footer.
     final limit = widget.visibleItemsCount ?? widget.itemsPerPage ?? 6;
-    final totalItems = listController.flatItems.length;
+    final totalItems = listController.displayItems.length;
     final count =
         (listController.isEmpty && listController.isFetching) ? 3 : (totalItems == 0 ? 1 : (totalItems < limit ? totalItems : limit));
 

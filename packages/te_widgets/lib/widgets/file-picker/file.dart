@@ -16,7 +16,10 @@ class TFile {
   final String extension;
 
   /// The raw bytes of the file.
-  final Uint8List bytes;
+  final Uint8List? bytes;
+
+  /// The remote URL of the file (e.g. for existing images).
+  final String? url;
 
   /// The platform-specific file object (optional).
   ///
@@ -26,7 +29,8 @@ class TFile {
   /// Creates a file instance.
   TFile({
     required this.name,
-    required this.bytes,
+    this.bytes,
+    this.url,
     this.file,
   }) : extension = name.split('.').last.toLowerCase();
 
@@ -36,13 +40,14 @@ class TFile {
     if (other is! TFile) return false;
 
     final sameName = name == other.name;
-    final sameBytes = bytes.listEquals(other.bytes);
+    final sameUrl = url == other.url;
+    final sameBytes = (bytes == null && other.bytes == null) || (bytes != null && other.bytes != null && bytes!.listEquals(other.bytes!));
     final sameFile = (file != null && other.file != null) ? file!.path == other.file!.path : true;
-    return sameName && sameBytes && sameFile;
+    return sameName && sameBytes && sameFile && sameUrl;
   }
 
   @override
   int get hashCode {
-    return Object.hash(name, bytes.bytesHash(), file?.path);
+    return Object.hash(name, url, bytes?.bytesHash(), file?.path);
   }
 }

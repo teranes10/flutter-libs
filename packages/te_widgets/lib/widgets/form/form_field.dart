@@ -452,9 +452,7 @@ class TFormField<T> {
       prop: prop,
       builder: (onValueChanged) {
         Widget buildSelect([WidgetRef? ref]) {
-          final effectiveOnLoad = (onRefLoad != null && ref != null)
-              ? (TLoadOptions<T> options) => onRefLoad(ref, options)
-              : onLoad;
+          final effectiveOnLoad = (onRefLoad != null && ref != null) ? (TLoadOptions<T> options) => onRefLoad(ref, options) : onLoad;
 
           final effectiveOnControllerReady = (onRefControllerReady != null && ref != null)
               ? (TListController<T, K> controller) => onRefControllerReady(ref, controller)
@@ -539,9 +537,7 @@ class TFormField<T> {
       prop: prop,
       builder: (onValueChanged) {
         Widget buildMultiSelect([WidgetRef? ref]) {
-          final effectiveOnLoad = (onRefLoad != null && ref != null)
-              ? (TLoadOptions<T> options) => onRefLoad(ref, options)
-              : onLoad;
+          final effectiveOnLoad = (onRefLoad != null && ref != null) ? (TLoadOptions<T> options) => onRefLoad(ref, options) : onLoad;
 
           final effectiveOnControllerReady = (onRefControllerReady != null && ref != null)
               ? (TListController<T, K> controller) => onRefControllerReady(ref, controller)
@@ -641,6 +637,7 @@ class TFormField<T> {
     String buttonLabel = 'Add New',
     TItemAddPosition itemAddPosition = TItemAddPosition.first,
     bool initiallyExpanded = false,
+    Widget? footer,
   }) {
     return TFormField<List<T>>(
       prop: prop,
@@ -651,6 +648,7 @@ class TFormField<T> {
         itemAddPosition: itemAddPosition,
         value: prop.value,
         valueNotifier: prop.valueNotifier,
+        footer: footer,
         onValueChanged: (value) {
           onValueChanged(value);
         },

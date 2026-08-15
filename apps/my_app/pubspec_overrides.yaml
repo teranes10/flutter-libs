@@ -1,4 +1,10 @@
-# melos_managed_dependency_overrides: te_widgets
+# melos_managed_dependency_overrides: te_widgets,te_editor,te_map,te_scanner
 dependency_overrides:
   te_widgets:
     path: ../../packages/te_widgets
+  te_editor:
+    path: ../../packages/te_editor
+  te_map:
+    path: ../../packages/te_map
+  te_scanner:
+    path: ../../packages/te_scanner

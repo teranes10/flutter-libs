@@ -2,6 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/apps/my_app/melos_my_app.iml" filepath="$PROJECT_DIR$/apps/my_app/melos_my_app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/te_editor/melos_te_editor.iml" filepath="$PROJECT_DIR$/packages/te_editor/melos_te_editor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/te_map/melos_te_map.iml" filepath="$PROJECT_DIR$/packages/te_map/melos_te_map.iml" />
+      <module fileurl="file://$PROJECT_DIR$/packages/te_scanner/melos_te_scanner.iml" filepath="$PROJECT_DIR$/packages/te_scanner/melos_te_scanner.iml" />
       <module fileurl="file://$PROJECT_DIR$/packages/te_widgets/melos_te_widgets.iml" filepath="$PROJECT_DIR$/packages/te_widgets/melos_te_widgets.iml" />
       <module fileurl="file://$PROJECT_DIR$/melos_flutter_libs.iml" filepath="$PROJECT_DIR$/melos_flutter_libs.iml" />
     </modules>

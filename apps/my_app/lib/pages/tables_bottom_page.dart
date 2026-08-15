@@ -14,11 +14,7 @@ class _TablesBottomPageState extends State<TablesBottomPage> {
   @override
   void initState() {
     super.initState();
-    _controller = TListController<DemoProduct, String>(
-      items: demoProducts,
-      itemKey: (p) => p.id,
-      expansionMode: TExpansionMode.single,
-    );
+    _controller = TListController<DemoProduct, String>(items: demoProducts, itemKey: (p) => p.id, expansionMode: TExpansionMode.single);
   }
 
   @override
@@ -54,17 +50,12 @@ class _TablesBottomPageState extends State<TablesBottomPage> {
             children: [
               Text(
                 'Row Expansion: Bottom Mode',
-                style: context.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
-                ),
+                style: context.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.onSurface),
               ),
               const SizedBox(height: 8),
               Text(
                 'Expands inline directly beneath the clicked row. Best suited for quick inline details, key-value reviews, and summary sub-tables.',
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+                style: context.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
               ),
               const SizedBox(height: 24),
               Card(
@@ -98,10 +89,7 @@ class _TablesBottomPageState extends State<TablesBottomPage> {
                               children: [
                                 Text(
                                   'Product Technical Specs & Summary',
-                                  style: context.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: colors.primary,
-                                  ),
+                                  style: context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.primary),
                                 ),
                                 const SizedBox(height: 16),
                                 TKeyValueSection(

@@ -22,7 +22,6 @@ extension TListControllerItems<T, K> on TListController<T, K> {
   /// Whether the display list is empty.
   bool get isEmpty => displayItems.isEmpty;
 
-
   /// Whether the display list is not empty.
   bool get isNotEmpty => displayItems.isNotEmpty;
 
@@ -34,8 +33,7 @@ extension TListControllerItems<T, K> on TListController<T, K> {
   ///
   /// For client-side lists, this is the ordered root-level item list.
   /// For server-side lists, falls back to all items in [_itemsMap].
-  List<T> get localItems =>
-      _useLocalPaginationItems ? _localPaginationItems.map((x) => x.data).toList() : flatItems;
+  List<T> get localItems => _useLocalPaginationItems ? _localPaginationItems.map((x) => x.data).toList() : flatItems;
 
   /// Updates the entire list of items.
   ///

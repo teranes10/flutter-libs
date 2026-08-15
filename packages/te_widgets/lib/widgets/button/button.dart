@@ -119,6 +119,12 @@ class TButton extends StatefulWidget {
   /// Defaults to 'Loading...'.
   final String loadingText;
 
+  /// An optional notifier to dynamically update the loading message.
+  ///
+  /// If provided, the button will listen to this notifier and update its text
+  /// while in the loading state, ignoring [loadingText].
+  final ValueNotifier<String>? loadingNotifier;
+
   /// The tooltip message to show on hover.
   final String? tooltip;
 
@@ -192,6 +198,7 @@ class TButton extends StatefulWidget {
     this.color,
     this.loading = false,
     this.loadingText = 'Loading...',
+    this.loadingNotifier,
     this.icon,
     this.imageUrl,
     this.text,
@@ -385,7 +392,13 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             color: theme.baseTheme.onContainerVariant.withAlpha(50),
             disabled: true,
           ),
-      if (!text.isNullOrBlank) Text(_isLoading ? widget.loadingText : text!),
+      if (!text.isNullOrBlank)
+        widget.loadingNotifier != null && _isLoading
+            ? ValueListenableBuilder<String>(
+                valueListenable: widget.loadingNotifier!,
+                builder: (context, value, _) => Text(value),
+              )
+            : Text(_isLoading ? widget.loadingText : text!),
       if ((icon != null || widget.imageUrl != null) && !text.isNullOrBlank && theme.shape == TButtonShape.pill)
         SizedBox(width: theme.size.spacing),
       if (widget.child != null) widget.child!,

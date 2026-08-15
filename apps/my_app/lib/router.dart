@@ -16,6 +16,7 @@ final GoRouter router = GoRouter(
       builder: (context, state, child) {
         return TLayout(
           logo: const TLogo(text: 'Te Widgets'),
+          minifiedLogo: const TLogo(text: 'Te'),
           profile: TImage.profile(name: 'Teranes', role: 'Super Admin'),
           onLogout: () {
             // Handle logout

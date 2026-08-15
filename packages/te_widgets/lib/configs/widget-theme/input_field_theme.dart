@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/configs/widget-theme/no_gap_outline_border.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 enum TInputDecorationType { underline, filled, outline, none }
 
-enum TLabelPosition { aboveField, floating }
+enum TLabelPosition { aboveField, floating, inlineFloating }
 
 typedef LabelBuilder = Widget Function(String? label, String? tag, bool isRequired, Widget? infoIcon);
 typedef HelperTextBuilder = Widget Function(String? helperText);
 typedef ErrorsBuilder = Widget Function(List<String>? errors);
 
 const TInputSize defaultInputSize = TInputSize.md;
-const TInputDecorationType defaultInputDecorationType = TInputDecorationType.filled;
-const TLabelPosition defaultLabelPosition = TLabelPosition.floating;
+const TInputDecorationType defaultInputDecorationType = TInputDecorationType.outline;
+const TLabelPosition defaultLabelPosition = TLabelPosition.inlineFloating;
 
 @immutable
 class TInputFieldTheme {
@@ -22,7 +23,7 @@ class TInputFieldTheme {
 
   // State-based Properties
   final WidgetStateProperty<Color> color;
-  final WidgetStateProperty<Color> backgroundColor;
+  final WidgetStateProperty<Color>? backgroundColor;
   final WidgetStateProperty<Color> borderColor;
   final WidgetStateProperty<TextStyle> labelStyle;
   final WidgetStateProperty<TextStyle> helperTextStyle;
@@ -46,12 +47,27 @@ class TInputFieldTheme {
 
   // Computed Properties
   double get fieldHeight => height ?? size.height;
-  EdgeInsets get fieldPadding => padding ?? size.padding;
+
+  EdgeInsets get fieldPadding {
+    final v = padding ?? size.padding;
+    return decorationType == TInputDecorationType.underline
+        ? v.copyWith(
+            top: 0,
+            bottom: v.bottom,
+          )
+        : labelPosition == TLabelPosition.inlineFloating
+            ? v.copyWith(
+                top: v.top / 1.2,
+                bottom: v.bottom / 1.2,
+              )
+            : v;
+  }
+
   double get fieldFontSize => fontSize ?? size.fontSize;
 
   const TInputFieldTheme({
     required this.color,
-    required this.backgroundColor,
+    this.backgroundColor,
     required this.borderColor,
     required this.labelStyle,
     required this.helperTextStyle,
@@ -96,7 +112,6 @@ class TInputFieldTheme {
     WidgetStateProperty<HelperTextBuilder>? helperTextBuilder,
     WidgetStateProperty<ErrorsBuilder>? errorsBuilder,
   }) {
-    final newBackgroundColor = backgroundColor ?? this.backgroundColor;
     final newLabelStyle = labelStyle ?? this.labelStyle;
     final newHelperTextStyle = helperTextStyle ?? this.helperTextStyle;
     final newErrorTextStyle = errorTextStyle ?? this.errorTextStyle;
@@ -107,7 +122,7 @@ class TInputFieldTheme {
     return TInputFieldTheme(
       decorationType: decorationType ?? this.decorationType,
       labelPosition: labelPosition ?? this.labelPosition,
-      backgroundColor: newBackgroundColor,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
       borderColor: borderColor ?? this.borderColor,
       labelStyle: newLabelStyle,
       helperTextStyle: newHelperTextStyle,
@@ -144,17 +159,6 @@ class TInputFieldTheme {
       return colors.outline;
     });
 
-    final backgroundColor = WidgetStateProperty.resolveWith((states) {
-      if (decorationType == TInputDecorationType.filled) {
-        return states.contains(WidgetState.disabled)
-            ? colors.surface
-            : states.contains(WidgetState.error)
-                ? colors.errorContainer
-                : colors.surfaceContainerLowest;
-      }
-      return states.contains(WidgetState.disabled) ? colors.surfaceContainerLowest : colors.surface;
-    });
-
     final borderColor = WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.error)) return colors.error;
       if (states.contains(WidgetState.focused)) return colors.primary;
@@ -164,7 +168,7 @@ class TInputFieldTheme {
 
     final labelStyle = WidgetStateProperty.resolveWith((states) {
       return TextStyle(
-        fontSize: labelPosition == TLabelPosition.aboveField ? 12.0 : 14.0,
+        fontSize: labelPosition == TLabelPosition.aboveField ? 12.0 : size.fontSize,
         fontWeight: FontWeight.w500,
         color: states.contains(WidgetState.disabled)
             ? colors.onSurfaceVariant
@@ -197,7 +201,6 @@ class TInputFieldTheme {
       borderRadius: borderRadius,
       borderWidth: borderWidth,
       color: color,
-      backgroundColor: backgroundColor,
       borderColor: borderColor,
       labelStyle: labelStyle,
       helperTextStyle: helperTextStyle,
@@ -210,9 +213,32 @@ class TInputFieldTheme {
     );
   }
 
+  static Color _defaultBackgroundColor(TInputDecorationType decorationType, Set<WidgetState> states, BuildContext context) {
+    final colors = context.colors;
+    final parentColor = context.getBackgroundColor(colors.surface);
+
+    if (decorationType == TInputDecorationType.filled) {
+      return states.contains(WidgetState.disabled)
+          ? parentColor
+          : states.contains(WidgetState.error)
+              ? colors.errorContainer
+              : parentColor.adaptiveContrast(context, 0.025);
+    }
+
+    return states.contains(WidgetState.disabled) ? parentColor.adaptiveContrast(context, 0.025) : parentColor;
+  }
+
   InputBorder buildInputBorder(Set<WidgetState> states) {
     final rBorderSide = BorderSide(color: borderColor.resolve(states), width: borderWidth.resolve(states));
     final rBorderRadius = BorderRadius.circular(borderRadius.resolve(states));
+
+    if (labelPosition == TLabelPosition.inlineFloating && decorationType == TInputDecorationType.outline) {
+      return TNoGapOutlineBorder(borderSide: rBorderSide, borderRadius: rBorderRadius);
+    }
+
+    if (labelPosition == TLabelPosition.inlineFloating && decorationType == TInputDecorationType.filled) {
+      return TNoGapOutlineBorder(borderSide: BorderSide.none, borderRadius: rBorderRadius);
+    }
 
     return switch (decorationType) {
       TInputDecorationType.underline => UnderlineInputBorder(borderSide: rBorderSide, borderRadius: BorderRadius.zero),
@@ -243,14 +269,9 @@ class TInputFieldTheme {
     final hasPrefix = beforePreWidget != null || preWidget != null;
     final hasSuffix = onClear != null || beforePostWidget != null || infoIcon != null || postWidget != null;
 
-    Color resolvedBgColor = backgroundColor.resolve(states);
+    final isFilled = decorationType == TInputDecorationType.filled;
 
-    if (decorationType == TInputDecorationType.filled && !(states.contains(WidgetState.disabled) || states.contains(WidgetState.error))) {
-      if (resolvedBgColor == context.colors.surfaceContainerLowest) {
-        final parentColor = context.getBackgroundColor(context.colors.surfaceContainerLowest);
-        resolvedBgColor = parentColor.adaptiveContrast(context, 0.025);
-      }
-    }
+    final fillColor = backgroundColor != null ? backgroundColor!.resolve(states) : _defaultBackgroundColor(decorationType, states, context);
 
     return InputDecoration(
       border: inputBorder,
@@ -265,19 +286,24 @@ class TInputFieldTheme {
       floatingLabelStyle: labelStyle.resolve(states),
       floatingLabelBehavior: switch (labelPosition) {
         TLabelPosition.aboveField => FloatingLabelBehavior.never,
-        TLabelPosition.floating => FloatingLabelBehavior.auto,
+        TLabelPosition.floating || TLabelPosition.inlineFloating => FloatingLabelBehavior.auto,
       },
       isDense: true,
       visualDensity: VisualDensity.compact,
       hintText: placeholder,
       hintStyle: hintStyle.resolve(states),
-      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight, minWidth: hasPrefix ? 40 : fieldPadding.left),
+      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight - fieldPadding.vertical, minWidth: hasPrefix ? 40 : fieldPadding.left),
       prefixIcon: _buildPreWidget(beforePreWidget),
-      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight, minWidth: hasSuffix ? 40 : fieldPadding.right),
+      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight - fieldPadding.vertical, minWidth: hasSuffix ? 40 : fieldPadding.right),
       suffixIcon: _buildPostWidget(
-          beforePostWidget: beforePostWidget, onClear: onClear, infoIcon: labelPosition == TLabelPosition.floating ? infoIcon : null),
-      filled: decorationType == TInputDecorationType.filled,
-      fillColor: resolvedBgColor,
+        beforePostWidget: beforePostWidget,
+        onClear: onClear,
+        infoIcon: labelPosition == TLabelPosition.floating || labelPosition == TLabelPosition.inlineFloating ? infoIcon : null,
+      ),
+      filled: isFilled,
+      fillColor: fillColor,
+      focusColor: fillColor,
+      hoverColor: fillColor,
     );
   }
 
@@ -289,8 +315,6 @@ class TInputFieldTheme {
 
     if (children.isEmpty) return null;
 
-    // Wrapping in a Row absorbs the minHeight constraint from prefixIconConstraints,
-    // preventing the children from stretching vertically to fill the container height.
     return Row(mainAxisSize: MainAxisSize.min, children: children);
   }
 
@@ -323,8 +347,6 @@ class TInputFieldTheme {
 
     if (children.isEmpty) return null;
 
-    // Wrapping in a Row absorbs the minHeight constraint from suffixIconConstraints,
-    // preventing the children from stretching vertically to fill the container height.
     return Row(mainAxisSize: MainAxisSize.min, children: children);
   }
 

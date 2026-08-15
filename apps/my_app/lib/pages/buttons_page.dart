@@ -11,6 +11,8 @@ class ButtonsPage extends StatefulWidget {
 }
 
 class _ButtonsPageState extends State<ButtonsPage> {
+  final _dynamicLoadingNotifier = ValueNotifier<String>('Starting...');
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -241,9 +243,26 @@ TButton(
                     });
                   },
                 ),
+                const SizedBox(height: 16),
+                TButton(
+                  text: 'Dynamic Loading',
+                  icon: Icons.sync,
+                  loading: true,
+                  loadingNotifier: _dynamicLoadingNotifier,
+                  color: context.theme.secondary,
+                  onPressed: (options) async {
+                    _dynamicLoadingNotifier.value = 'Connecting...';
+                    await Future.delayed(const Duration(seconds: 1));
+                    _dynamicLoadingNotifier.value = 'Syncing...';
+                    await Future.delayed(const Duration(seconds: 1));
+                    options.stopLoading();
+                    _showSnackBar('Sync completed!');
+                  },
+                ),
               ],
             ),
-            code: '''TButton(
+            code: '''// Standard Loading
+TButton(
   text: 'Submit Form',
   icon: Icons.send,
   loading: true, // Enable loading state
@@ -255,6 +274,19 @@ TButton(
     // Stop loading when done
     options.stopLoading();
   },
+)
+
+// Dynamic Loading Message
+final notifier = ValueNotifier<String>('Starting...');
+TButton(
+  text: 'Dynamic Sync',
+  loading: true,
+  loadingNotifier: notifier,
+  onPressed: (options) async {
+    notifier.value = 'Syncing...';
+    await syncData();
+    options.stopLoading();
+  },
 )''',
             properties: const [
               PropertyDoc(
@@ -264,6 +296,11 @@ TButton(
                 description: 'Whether to show loading indicator when onPressed is called',
               ),
               PropertyDoc(name: 'loadingText', type: 'String', defaultValue: "'Loading...'", description: 'Text to display while loading'),
+              PropertyDoc(
+                name: 'loadingNotifier',
+                type: 'ValueNotifier<String>?',
+                description: 'Dynamically update loading text while loading',
+              ),
               PropertyDoc(
                 name: 'onPressed',
                 type: 'Function(TButtonPressOptions)?',

@@ -30,11 +30,11 @@ class AppColors {
   });
 
   static const MaterialColor grey = MaterialColor(0xFF90A1B9, {
-    50: Color(0xFFF5F7F9),
-    100: Color(0xFFE7EEF2),
-    200: Color(0xFFD5E1E8),
-    300: Color(0xFFB9CDD7),
-    400: Color(0xFF97B3C3),
+    50: Color(0xFFFEFEFE),
+    100: Color(0xFFF6F7F9),
+    200: Color(0xFFECEEF2),
+    300: Color(0xFFD5DAE2),
+    400: Color(0xFFB0BAC9),
     500: Color(0xFF7D9CB4),
     600: Color(0xFF6B88A5),
     700: Color(0xFF657E9D),
@@ -44,17 +44,17 @@ class AppColors {
   });
 
   static const MaterialColor success = MaterialColor(0xFF44BDB7, {
-    50: Color(0xFFF2FBFA),
-    100: Color(0xFFD3F4F0),
-    200: Color(0xFFA6E9E2),
-    300: Color(0xFF72D6CF),
-    400: Color(0xFF44BDB7),
-    500: Color(0xFF2BA19E),
-    600: Color(0xFF208180),
-    700: Color(0xFF1D6868),
-    800: Color(0xFF1C5153),
-    900: Color(0xFF1B4546),
-    950: Color(0xFF0A2729),
+    50: Color(0xFFEEFBF6),
+    100: Color(0xFFD5F6E8),
+    200: Color(0xFFAEECD4),
+    300: Color(0xFF7ADBBC),
+    400: Color(0xFF45C4A0),
+    500: Color(0xFF20A987),
+    600: Color(0xFF13886D),
+    700: Color(0xFF0F6D5A),
+    800: Color(0xFF0F5648),
+    900: Color(0xFF0D473C),
+    950: Color(0xFF062823),
   });
 
   static const MaterialColor info = MaterialColor(0xFF3AB7F6, {
@@ -72,26 +72,26 @@ class AppColors {
   });
 
   static const MaterialColor warning = MaterialColor(0xFFF09947, {
-    50: Color(0xFFFEF8EE),
-    100: Color(0xFFFDEED7),
-    200: Color(0xFFF9D9AF),
-    300: Color(0xFFF5BE7C),
-    400: Color(0xFFF09947),
-    500: Color(0xFFEC7C23),
-    600: Color(0xFFDD6219),
-    700: Color(0xFFB84A16),
-    800: Color(0xFF923C1A),
-    900: Color(0xFF763318),
-    950: Color(0xFF40180A)
+    50: Color(0xFFFFF9ED),
+    100: Color(0xFFFFF3D5),
+    200: Color(0xFFFDE2AB),
+    300: Color(0xFFFCCC75),
+    400: Color(0xFFFAB758),
+    500: Color(0xFFF79218),
+    600: Color(0xFFE8760E),
+    700: Color(0xFFC05A0E),
+    800: Color(0xFF994713),
+    900: Color(0xFF7B3C13),
+    950: Color(0xFF421C08),
   });
 
   static const MaterialColor danger = MaterialColor(0xFFF77572, {
-    50: Color(0xFFFEF2F2),
-    100: Color(0xFFFEE3E2),
-    200: Color(0xFFFECBCA),
-    300: Color(0xFFFAA8A6),
-    400: Color(0xFFF77572),
-    500: Color(0xFFEE4945),
+    50: Color(0xFFFDF3F3),
+    100: Color(0xFFFCE8E7),
+    200: Color(0xFFF8D3D4),
+    300: Color(0xFFF3AEB0),
+    400: Color(0xFFEB8186),
+    500: Color(0xFFE2626B),
     600: Color(0xFFDB2B27),
     700: Color(0xFFB8211D),
     800: Color(0xFF981F1C),

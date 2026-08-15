@@ -13,6 +13,7 @@ class TAccordion extends StatefulWidget {
   final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? expandedMargin;
   final bool showExpandIcon;
+  final Widget? footer;
   final Widget Function(BuildContext context, bool isExpanded, VoidCallback toggleExpand)? builder;
 
   const TAccordion({
@@ -28,6 +29,7 @@ class TAccordion extends StatefulWidget {
     this.margin,
     this.expandedMargin,
     this.showExpandIcon = true,
+    this.footer,
     this.builder,
   });
 
@@ -188,9 +190,14 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
                     child: child,
                   );
                 },
-                child: Container(
-                  padding: resolvedContentPadding,
-                  child: widget.content,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: resolvedContentPadding,
+                      child: widget.content,
+                    ),
+                    if (widget.footer != null) widget.footer!,
+                  ],
                 ),
               ),
             ),

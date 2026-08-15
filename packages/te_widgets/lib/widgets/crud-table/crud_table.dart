@@ -96,6 +96,9 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Function to extract the unique key for an item.
   final ItemKeyAccessor<T, K>? itemKey;
 
+  /// Function to extract the children list for a hierarchical item.
+  final List<T>? Function(T item)? itemChildren;
+
   /// Controller for managing active items.
   final TListController<T, K>? controller;
 
@@ -192,6 +195,7 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.items,
     this.onLoad,
     this.itemKey,
+    this.itemChildren,
     this.archivedItems,
     this.onArchiveLoad,
     this.createForm,
@@ -222,7 +226,7 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.rowBuilder,
     this.rowColorBuilder,
   })  : assert(
-          controller == null || (items == null && onLoad == null && onControllerReady == null && itemKey == null),
+          controller == null || (items == null && onLoad == null && onControllerReady == null && itemKey == null && itemChildren == null),
           'Provide either `controller` OR (`items` / `onLoad` / `onControllerReady` / `itemKey`), not both.',
         ),
         assert(
@@ -293,9 +297,8 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     _isControllerOwned = widget.controller == null;
     _isArchiveControllerOwned = widget.archiveController == null;
 
-    final hasBuilder = widget.expandedBuilder != null ||
-        widget.expandedDetails?.builder != null ||
-        widget.expandedDetails?.createBuilder != null;
+    final hasBuilder =
+        widget.expandedBuilder != null || widget.expandedDetails?.builder != null || widget.expandedDetails?.createBuilder != null;
     final autoExpandFirst = widget.expandedDetails?.autoExpandFirst ?? false;
     final autoSelectFirst = widget.expandedDetails?.autoSelectFirst ?? false;
 
@@ -305,6 +308,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           items: widget.items ?? [],
           onLoad: widget.onLoad,
           itemKey: widget.itemKey,
+          itemChildren: widget.itemChildren,
           expansionMode: hasBuilder ? TExpansionMode.single : TExpansionMode.none,
           autoExpandFirst: autoExpandFirst,
           autoSelectFirst: autoSelectFirst,
@@ -318,6 +322,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           items: widget.archivedItems ?? [],
           onLoad: widget.onArchiveLoad,
           itemKey: _listController.itemKey,
+          itemChildren: widget.itemChildren,
           expansionMode: hasBuilder ? TExpansionMode.single : TExpansionMode.none,
           autoExpandFirst: autoExpandFirst,
           autoSelectFirst: autoSelectFirst,

@@ -26,6 +26,14 @@ dependencies:
   flutter_highlight: ^0.7.0
   pdf: ^3.11.3
   geolocator: ^14.0.2
+  te_editor:
+    path: ../../packages/te_editor
+  te_map:
+    path: ../../packages/te_map
+  te_scanner:
+    path: ../../packages/te_scanner
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

@@ -17,7 +17,7 @@ class TTableTheme extends TListTheme {
   final TTableRowHeaderTheme headerTheme;
   final TTableMobileCardTheme mobileCardTheme;
   final TTableRowCardTheme rowCardTheme;
-  
+
   /// Width of the left side list when using [TTableExpansionMode.side].
   final double? expandSideListWidth;
 

@@ -18,17 +18,18 @@ class ProductDto with ProductDtoMappable {
   final List<String>? images;
   final MetaDto? meta;
 
-  const ProductDto(
-      {required this.id,
-      required this.title,
-      required this.description,
-      required this.price,
-      required this.discountPercentage,
-      required this.rating,
-      required this.stock,
-      required this.category,
-      required this.sku,
-      this.thumbnail,
-      this.images,
-      this.meta});
+  const ProductDto({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.price,
+    required this.discountPercentage,
+    required this.rating,
+    required this.stock,
+    required this.category,
+    required this.sku,
+    this.thumbnail,
+    this.images,
+    this.meta,
+  });
 }

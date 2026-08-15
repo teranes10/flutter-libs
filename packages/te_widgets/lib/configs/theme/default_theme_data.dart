@@ -102,6 +102,7 @@ class TAppTheme {
       colorScheme: lightScheme,
       primarySwatch: widgetTheme.primary,
       textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
+      scrollbarTheme: scrollbarTheme(lightScheme),
       extensions: [widgetTheme],
     );
   }
@@ -114,7 +115,23 @@ class TAppTheme {
       colorScheme: darkScheme,
       primarySwatch: widgetTheme.primary,
       textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
+      scrollbarTheme: scrollbarTheme(darkScheme),
       extensions: [widgetTheme],
+    );
+  }
+
+  ScrollbarThemeData scrollbarTheme(ColorScheme colors) {
+    return ScrollbarThemeData(
+      interactive: true,
+      thumbVisibility: WidgetStateProperty.resolveWith<bool>((states) => states.contains(WidgetState.hovered)),
+      trackVisibility: const WidgetStatePropertyAll(false),
+      radius: const Radius.circular(8.0),
+      crossAxisMargin: -3,
+      mainAxisMargin: 3,
+      thickness: WidgetStateProperty.resolveWith<double?>((states) => states.contains(WidgetState.hovered) ? 8.0 : 6.0),
+      thumbColor: WidgetStateProperty.resolveWith<Color?>(
+        (states) => states.contains(WidgetState.hovered) ? lightScheme.outlineVariant : lightScheme.outline,
+      ),
     );
   }
 }

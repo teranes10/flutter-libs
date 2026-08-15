@@ -12,6 +12,7 @@ import 'package:my_app/pages/chips_page.dart';
 import 'package:my_app/pages/crud_page.dart';
 import 'package:my_app/pages/crud_riverpod_page.dart';
 import 'package:my_app/pages/editor_page.dart';
+import 'package:my_app/pages/rich_text_field_page.dart';
 import 'package:my_app/pages/forms_page.dart';
 import 'package:my_app/pages/feedback_page.dart';
 import 'package:my_app/pages/grid_page.dart';
@@ -83,6 +84,7 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.storage, text: 'Crud', route: '/crud', page: const CrudPage()),
   TSidebarItem(icon: Icons.storage, text: 'Crud (Riverpod)', route: '/crud-riverpod', page: const CrudRiverpodPage()),
   TSidebarItem(icon: Icons.edit_note, text: 'Editor', route: '/editor', page: const EditorPage()),
+  TSidebarItem(icon: Icons.text_snippet, text: 'Rich Text Field', route: '/rich-text-field', page: const RichTextFieldPage()),
   TSidebarItem(icon: Icons.assignment, text: 'Forms', route: '/forms', page: const FormsPage()),
   TSidebarItem(icon: Icons.arrow_drop_down_circle, text: 'Dropdown', route: '/dropdown', page: const DropdownSamplePage()),
   TSidebarItem(icon: Icons.view_headline, text: 'Accordion', route: '/accordion', page: const AccordionPage()),
@@ -108,7 +110,14 @@ final sidebarItems = [
             icon: Icons.schema,
             text: 'Child 3',
             route: 'child3',
-            page: const PlaceholderPage(title: 'Child'),
+            children: [
+              TSidebarItem(
+                icon: Icons.schema,
+                text: 'Child 4',
+                route: 'child4',
+                page: const PlaceholderPage(title: 'Child'),
+              ),
+            ],
           ),
         ],
       ),

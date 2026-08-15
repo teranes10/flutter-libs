@@ -6,3 +6,4 @@ environment:
 
 dev_dependencies:
   melos: ^3.0.0
+  flutter_lints: ^6.0.0

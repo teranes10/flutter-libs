@@ -1,85 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/helpers/popup_position.dart';
+import 'package:te_widgets/widgets/menu/menu_theme.dart';
 
-class TDropdownItem {
-  final IconData? icon;
-  final String? text;
-  final List<TDropdownItem>? children;
-  final VoidCallback? onTap;
-  final bool initiallyExpanded;
-  final Object? extra;
-  final bool hidden;
-  final Color? color;
-
-  const TDropdownItem({
-    this.icon,
-    this.text,
-    this.children,
-    this.onTap,
-    this.initiallyExpanded = false,
-    this.extra,
-    this.hidden = false,
-    this.color,
-  });
-
-  bool get hasChildren => children?.isNotEmpty ?? false;
-  bool get isClickable => onTap != null;
-}
-
-class TDropdownTheme {
-  final Color defaultColor;
-  final Color hoverColor;
-  final Color activeColor;
-  final Color activeBackgroundColor;
-  final Color borderColor;
-
-  final Duration animationDuration;
-  final Duration showDelay;
-  final Duration hideDelay;
-
-  final TPopupAlignment alignment;
-  final double offset;
-  final TPopupAlignment secondaryAlignment;
-  final double secondaryOffset;
-  final BoxConstraints boxConstraints;
-
-  final double iconSize;
-  final double arrowIconSize;
-  final double gap;
-
-  final double overlayElevation;
-  final BorderRadius overlayBorderRadius;
-  final EdgeInsets overlayPadding;
-
-  final EdgeInsets itemPadding;
-  final BorderRadius itemBorderRadius;
-  final double fontSize;
-  final FontWeight fontWeight;
-
+class TDropdownTheme extends TMenuTheme {
   const TDropdownTheme({
-    required this.defaultColor,
-    required this.hoverColor,
-    required this.activeColor,
-    required this.activeBackgroundColor,
-    required this.borderColor,
-    this.animationDuration = const Duration(milliseconds: 200),
-    this.showDelay = const Duration(milliseconds: 25),
-    this.hideDelay = const Duration(milliseconds: 125),
-    this.alignment = TPopupAlignment.bottomLeft,
-    this.offset = 8.0,
-    this.secondaryAlignment = TPopupAlignment.rightTop,
-    this.secondaryOffset = 8.0,
-    this.boxConstraints = const BoxConstraints(minWidth: 175),
-    this.iconSize = 20.0,
-    this.arrowIconSize = 11.0,
-    this.gap = 10.0,
-    this.overlayElevation = 8.0,
-    this.overlayBorderRadius = const BorderRadius.all(Radius.circular(8.0)),
-    this.overlayPadding = const EdgeInsets.symmetric(vertical: 8),
-    this.itemPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    this.itemBorderRadius = const BorderRadius.all(Radius.circular(6.0)),
-    this.fontSize = 14.0,
-    this.fontWeight = FontWeight.w300,
+    required super.defaultColor,
+    required super.hoverColor,
+    required super.activeColor,
+    required super.activeBackgroundColor,
+    required super.borderColor,
+    super.animationDuration,
+    super.showDelay,
+    super.hideDelay,
+    super.alignment,
+    super.offset,
+    super.secondaryAlignment,
+    super.secondaryOffset,
+    super.boxConstraints,
+    super.iconSize,
+    super.arrowIconSize,
+    super.gap,
+    super.overlayElevation,
+    super.overlayBorderRadius,
+    super.overlayPadding,
+    super.itemPadding,
+    super.itemBorderRadius,
+    super.fontSize,
+    super.fontWeight,
   });
 
   factory TDropdownTheme.defaultTheme(ColorScheme? colors) {
@@ -92,14 +38,5 @@ class TDropdownTheme {
       activeBackgroundColor: colorScheme.primaryContainer,
       borderColor: colorScheme.outline,
     );
-  }
-  Color getItemColor({
-    required bool isActive,
-    required bool containsActive,
-    required bool isHovered,
-  }) {
-    if (isActive || containsActive) return activeColor;
-    if (isHovered) return hoverColor;
-    return defaultColor;
   }
 }

@@ -24,10 +24,10 @@ extension TInputSizeX on TInputSize? {
 
   EdgeInsets get padding {
     return switch (this) {
-      TInputSize.xs => const EdgeInsets.only(top: 10, bottom: 3, left: 8, right: 8),
-      TInputSize.sm => const EdgeInsets.only(top: 15, bottom: 6, left: 10, right: 10),
-      TInputSize.lg => const EdgeInsets.only(top: 24, bottom: 10, left: 14, right: 14),
-      _ => const EdgeInsets.only(top: 22, bottom: 8, left: 12, right: 12),
+      TInputSize.xs => const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      TInputSize.sm => const EdgeInsets.symmetric(vertical: 13, horizontal: 10),
+      TInputSize.lg => const EdgeInsets.symmetric(vertical: 19, horizontal: 14),
+      _ => const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
     };
   }
 }

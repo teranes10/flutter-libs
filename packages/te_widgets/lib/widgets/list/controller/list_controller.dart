@@ -253,7 +253,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       'Allowed key types are: String, int, double, num, bool.',
     );
     assert(
-      itemKey != null || (allowedKeyTypes.contains(T) && K == T) || K == String,
+      itemKey != null || (allowedKeyTypes.contains(T) && K == T) || K == int,
       'If `itemKey` is not provided, generic type K must be int.',
     );
 
@@ -268,7 +268,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       return item as K;
     }
 
-    return identityHashCode(item).toString() as K;
+    return identityHashCode(item) as K;
   }
 
   static String _defaultItemToString<T>(T item) => item.toString();

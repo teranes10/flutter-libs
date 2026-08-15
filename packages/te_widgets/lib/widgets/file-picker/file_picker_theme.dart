@@ -188,7 +188,10 @@ class TFilePickerTheme extends TInputFieldTheme {
         runSpacing: 8.0,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          if (files.isEmpty && placeholder != null && placeholder.isNotEmpty && labelPosition != TLabelPosition.floating)
+          if (files.isEmpty &&
+              placeholder != null &&
+              placeholder.isNotEmpty &&
+              !(labelPosition == TLabelPosition.floating || labelPosition == TLabelPosition.inlineFloating))
             Text(placeholder, style: hintStyle.resolve(states)),
           ...files.map((file) => _buildGalleryTile(file, () => onRemove?.call(file))),
         ],
@@ -200,7 +203,10 @@ class TFilePickerTheme extends TInputFieldTheme {
       runSpacing: 6.0,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        if (files.isEmpty && placeholder != null && placeholder.isNotEmpty && labelPosition != TLabelPosition.floating)
+        if (files.isEmpty &&
+            placeholder != null &&
+            placeholder.isNotEmpty &&
+            !(labelPosition == TLabelPosition.floating || labelPosition == TLabelPosition.inlineFloating))
           Text(placeholder, style: hintStyle.resolve(states)),
         ...files.map((file) => fileTagBuilder(file, () => onRemove?.call(file))),
       ],
@@ -209,7 +215,8 @@ class TFilePickerTheme extends TInputFieldTheme {
 
   Widget _buildGalleryTile(TFile file, VoidCallback onRemove) {
     final isImage = isImageFile(file.extension);
-    final formattedSize = _formatFileSize(file.bytes.length);
+    final hasBytes = file.bytes != null && file.bytes!.isNotEmpty;
+    final formattedSize = hasBytes ? _formatFileSize(file.bytes!.length) : (file.url != null ? 'Remote' : '');
 
     return SizedBox(
       width: 100,
@@ -217,9 +224,10 @@ class TFilePickerTheme extends TInputFieldTheme {
       child: Stack(
         children: [
           Positioned.fill(
-            child: isImage && file.bytes.isNotEmpty
+            child: isImage && (hasBytes || file.url != null)
                 ? TImage(
                     bytes: file.bytes,
+                    url: file.url,
                     size: 100,
                     title: file.name,
                     subTitle: formattedSize,

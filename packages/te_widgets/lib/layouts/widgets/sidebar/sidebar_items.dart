@@ -3,11 +3,12 @@ import 'package:te_widgets/te_widgets.dart';
 
 class SidebarItems extends StatelessWidget {
   final List<TSidebarItem> items;
+  final double? maxWidth;
   final bool isMinimized;
   final TSidebarTheme? theme;
   final Function(TSidebarItem)? onTap;
 
-  const SidebarItems({super.key, required this.items, this.isMinimized = false, this.theme, this.onTap});
+  const SidebarItems({super.key, required this.items, this.maxWidth, this.isMinimized = false, this.theme, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +24,8 @@ class SidebarItems extends StatelessWidget {
       child: SingleChildScrollView(
         child: Container(
           color: Colors.transparent,
-          width: double.infinity,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: _buildAnimatedItems(sidebarTheme),
           ),
         ),
@@ -59,6 +59,7 @@ class SidebarItems extends StatelessWidget {
         },
         child: TSidebarItemWidget(
           item: visibleItems[index],
+          maxWidth: maxWidth,
           isMinimized: isMinimized,
           level: 0,
           theme: sidebarTheme,

@@ -151,7 +151,6 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
   }
 
   void handleSearchChange(String search) {
-    print('handleSearchChange: $search');
     _debouncer.run(() {
       if (value.search != search) {
         _executePaginationAction('handleSearchChange', search: search, page: 1);

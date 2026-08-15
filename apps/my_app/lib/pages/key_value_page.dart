@@ -32,53 +32,35 @@ class KeyValuePage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // 1. Narrow Layout Mode
-          const Text(
-            '1. Narrow Layout Mode (forceKeyValue: true)',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          const Text('1. Narrow Layout Mode (forceKeyValue: true)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Card(
             elevation: 0,
             margin: EdgeInsets.zero,
             color: context.colors.surfaceContainerLowest,
-            child: TKeyValueSection(
-              values: sampleValues,
-              theme: getTheme(forceKeyValue: true),
-            ),
+            child: TKeyValueSection(values: sampleValues, theme: getTheme(forceKeyValue: true)),
           ),
           const SizedBox(height: 32),
 
           // 2. Grid Layout Stacked Mode
-          const Text(
-            '2. Grid Layout Stacked Mode (Default Grid)',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          const Text('2. Grid Layout Stacked Mode (Default Grid)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Card(
             elevation: 0,
             margin: EdgeInsets.zero,
             color: context.colors.surfaceContainerLowest,
-            child: TKeyValueSection(
-              values: sampleValues,
-              theme: getTheme(forceKeyValue: false, gridInline: false),
-            ),
+            child: TKeyValueSection(values: sampleValues, theme: getTheme(forceKeyValue: false, gridInline: false)),
           ),
           const SizedBox(height: 32),
 
           // 3. Grid Layout Inline Mode
-          const Text(
-            '3. Grid Layout Inline Mode (gridInline: true)',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
+          const Text('3. Grid Layout Inline Mode (gridInline: true)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Card(
             elevation: 0,
             margin: EdgeInsets.zero,
             color: context.colors.surfaceContainerLowest,
-            child: TKeyValueSection(
-              values: sampleValues,
-              theme: getTheme(forceKeyValue: false, gridInline: true),
-            ),
+            child: TKeyValueSection(values: sampleValues, theme: getTheme(forceKeyValue: false, gridInline: true)),
           ),
         ],
       ),

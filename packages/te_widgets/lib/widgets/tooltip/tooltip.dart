@@ -294,6 +294,16 @@ class _TTooltipState extends State<TTooltip> with SingleTickerProviderStateMixin
   }
 
   TTooltipResolvedPosition _resolveAutoPosition(Rect targetRect) {
+    if (widget.position != TTooltipPosition.auto) {
+      return switch (widget.position) {
+        TTooltipPosition.top => TTooltipResolvedPosition.top,
+        TTooltipPosition.bottom => TTooltipResolvedPosition.bottom,
+        TTooltipPosition.left => TTooltipResolvedPosition.left,
+        TTooltipPosition.right => TTooltipResolvedPosition.right,
+        TTooltipPosition.auto => TTooltipResolvedPosition.bottom,
+      };
+    }
+
     final overlay = Overlay.of(context, rootOverlay: true);
     final overlayBox = overlay.context.findRenderObject() as RenderBox?;
     if (overlayBox == null) return TTooltipResolvedPosition.bottom;
@@ -451,8 +461,7 @@ class _TooltipContent extends StatelessWidget {
           offset: Offset(offset.dx * (1 - animation.value), offset.dy * (1 - animation.value)),
           child: _PositionedTooltip(
             targetRect: targetRect,
-            position: position,
-            preferBelow: preferBelow,
+            resolvedPosition: resolvedPosition,
             verticalOffset: verticalOffset,
             margin: margin,
             showArrow: showArrow,
@@ -521,48 +530,10 @@ class _TooltipContent extends StatelessWidget {
   }
 }
 
-typedef OnWidgetSizeChange = void Function(Size size);
-
-class MeasureSize extends StatefulWidget {
-  final Widget child;
-  final OnWidgetSizeChange onChange;
-
-  const MeasureSize({
-    super.key,
-    required this.child,
-    required this.onChange,
-  });
-
-  @override
-  State<MeasureSize> createState() => _MeasureSizeState();
-}
-
-class _MeasureSizeState extends State<MeasureSize> {
-  final _key = GlobalKey();
-  Size _oldSize = Size.zero;
-
-  @override
-  Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final context = _key.currentContext;
-      if (context == null) return;
-      final newSize = context.size;
-      if (newSize == null) return;
-      if (_oldSize != newSize) {
-        _oldSize = newSize;
-        widget.onChange(newSize);
-      }
-    });
-
-    return Container(key: _key, child: widget.child);
-  }
-}
-
-class _PositionedTooltip extends StatefulWidget {
+class _PositionedTooltip extends StatelessWidget {
   final Widget child;
   final Rect targetRect;
-  final TTooltipPosition position;
-  final bool preferBelow;
+  final TTooltipResolvedPosition resolvedPosition;
   final double verticalOffset;
   final EdgeInsetsGeometry margin;
   final bool showArrow;
@@ -573,8 +544,7 @@ class _PositionedTooltip extends StatefulWidget {
   const _PositionedTooltip({
     required this.child,
     required this.targetRect,
-    required this.position,
-    required this.preferBelow,
+    required this.resolvedPosition,
     required this.verticalOffset,
     required this.margin,
     required this.showArrow,
@@ -583,182 +553,151 @@ class _PositionedTooltip extends StatefulWidget {
     required this.maxWidth,
   });
 
-  @override
-  State<_PositionedTooltip> createState() => _PositionedTooltipState();
-}
-
-class _PositionedTooltipState extends State<_PositionedTooltip> {
-  Size tooltipSize = Size.zero;
+  TArrowDirection get _arrowDirection => switch (resolvedPosition) {
+        TTooltipResolvedPosition.top => TArrowDirection.down,
+        TTooltipResolvedPosition.bottom => TArrowDirection.up,
+        TTooltipResolvedPosition.left => TArrowDirection.right,
+        TTooltipResolvedPosition.right => TArrowDirection.left,
+      };
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final marginInsets = widget.margin is EdgeInsets ? widget.margin as EdgeInsets : EdgeInsets.zero;
+    final arrowDirection = _arrowDirection;
+    final marginInsets = margin is EdgeInsets ? margin as EdgeInsets : EdgeInsets.zero;
 
-    final spaceAbove = widget.targetRect.top - marginInsets.top;
-    final spaceBelow = screenSize.height - widget.targetRect.bottom - marginInsets.bottom;
-    final spaceLeft = widget.targetRect.left - marginInsets.left;
-    final spaceRight = screenSize.width - widget.targetRect.right - marginInsets.right;
-
-    double tooltipHeight = tooltipSize.height;
-    double tooltipWidth = tooltipSize.width.clamp(0.0, widget.maxWidth);
-
-    // Determine position with better logic
-    TTooltipPosition actualPosition = widget.position;
-    TArrowDirection arrowDirection = TArrowDirection.up;
-
-    final minRequiredHorizontalSpace = tooltipWidth + widget.verticalOffset + 10; // Extra margin
-
-    if (actualPosition == TTooltipPosition.auto) {
-      // Enhanced auto-positioning logic
-      if (widget.preferBelow && spaceBelow >= tooltipHeight + widget.verticalOffset) {
-        actualPosition = TTooltipPosition.bottom;
-      } else if (spaceAbove >= tooltipHeight + widget.verticalOffset) {
-        actualPosition = TTooltipPosition.top;
-      } else if (spaceRight >= minRequiredHorizontalSpace) {
-        actualPosition = TTooltipPosition.right;
-      } else if (spaceLeft >= minRequiredHorizontalSpace) {
-        actualPosition = TTooltipPosition.left;
-      } else {
-        // Force vertical positioning if horizontal won't fit
-        actualPosition = spaceBelow > spaceAbove ? TTooltipPosition.bottom : TTooltipPosition.top;
-      }
-    } else {
-      // Flip logic for explicit positions if there's no space
-      switch (actualPosition) {
-        case TTooltipPosition.top:
-          if (spaceAbove < tooltipHeight + widget.verticalOffset && spaceBelow >= tooltipHeight + widget.verticalOffset) {
-            actualPosition = TTooltipPosition.bottom;
-          }
-          break;
-        case TTooltipPosition.bottom:
-          if (spaceBelow < tooltipHeight + widget.verticalOffset && spaceAbove >= tooltipHeight + widget.verticalOffset) {
-            actualPosition = TTooltipPosition.top;
-          }
-          break;
-        case TTooltipPosition.left:
-          if (spaceLeft < minRequiredHorizontalSpace && spaceRight >= minRequiredHorizontalSpace) {
-            actualPosition = TTooltipPosition.right;
-          }
-          break;
-        case TTooltipPosition.right:
-          if (spaceRight < minRequiredHorizontalSpace && spaceLeft >= minRequiredHorizontalSpace) {
-            actualPosition = TTooltipPosition.left;
-          }
-          break;
-        case TTooltipPosition.auto:
-          break;
-      }
-    }
-
-    double tooltipX = 0;
-    double tooltipY = 0;
-
-    // Calculate effective max width for horizontal positioning
-    double effectiveMaxWidth = widget.maxWidth;
-
-    switch (actualPosition) {
-      case TTooltipPosition.top:
-        tooltipX = widget.targetRect.center.dx - tooltipWidth / 2;
-        tooltipY = widget.targetRect.top - widget.verticalOffset - tooltipHeight;
-        arrowDirection = TArrowDirection.down;
-        break;
-      case TTooltipPosition.bottom:
-        tooltipX = widget.targetRect.center.dx - tooltipWidth / 2;
-        tooltipY = widget.targetRect.bottom + widget.verticalOffset;
-        arrowDirection = TArrowDirection.up;
-        break;
-      case TTooltipPosition.left:
-        // Adjust max width based on available space
-        final availableLeftSpace = widget.targetRect.left - widget.verticalOffset - marginInsets.left;
-        effectiveMaxWidth = (availableLeftSpace - 10).clamp(100.0, widget.maxWidth); // Minimum 100px
-        tooltipWidth = tooltipSize.width.clamp(0.0, effectiveMaxWidth);
-
-        tooltipX = widget.targetRect.left - widget.verticalOffset - tooltipWidth;
-        tooltipY = widget.targetRect.center.dy - tooltipHeight / 2;
-        arrowDirection = TArrowDirection.right;
-        break;
-      case TTooltipPosition.right:
-        // Adjust max width based on available space
-        final availableRightSpace = screenSize.width - widget.targetRect.right - widget.verticalOffset - marginInsets.right;
-        effectiveMaxWidth = (availableRightSpace - 10).clamp(100.0, widget.maxWidth); // Minimum 100px
-        tooltipWidth = tooltipSize.width.clamp(0.0, effectiveMaxWidth);
-
-        tooltipX = widget.targetRect.right + widget.verticalOffset;
-        tooltipY = widget.targetRect.center.dy - tooltipHeight / 2;
-        arrowDirection = TArrowDirection.left;
-        break;
-      case TTooltipPosition.auto:
-        tooltipX = widget.targetRect.center.dx - tooltipWidth / 2;
-        tooltipY = widget.targetRect.bottom + widget.verticalOffset;
-        arrowDirection = TArrowDirection.up;
-        break;
-    }
-
-    // Enhanced boundary checking
-    final minX = marginInsets.left;
-    final maxX = screenSize.width - tooltipWidth - marginInsets.right;
-    final minY = marginInsets.top;
-    final maxY = screenSize.height - tooltipHeight - marginInsets.bottom;
-
-    // For horizontal positioning, be more strict about boundaries
-    if (actualPosition == TTooltipPosition.left || actualPosition == TTooltipPosition.right) {
-      tooltipX = tooltipX.clamp(minX, maxX);
-      tooltipY = tooltipY.clamp(minY, maxY);
-    } else {
-      // For vertical positioning, allow more flexibility
-      tooltipX = tooltipX.clamp(minX, maxX);
-      tooltipY = tooltipY.clamp(minY, maxY);
-    }
-
-    return ClipRect(
-      child: Stack(
-        children: [
-          Positioned(
-            left: tooltipX,
-            top: tooltipY,
-            child: Container(
-              margin: marginInsets,
-              constraints: BoxConstraints(
-                maxWidth: effectiveMaxWidth,
-                minWidth: 50.0, // Minimum width to prevent too narrow tooltips
-              ),
-              child: MeasureSize(
-                onChange: (size) {
-                  if (tooltipSize != size) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      setState(() {
-                        tooltipSize = size;
-                      });
-                    });
-                  }
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (widget.showArrow && arrowDirection == TArrowDirection.up)
-                      _TooltipArrow(color: widget.backgroundColor, shadowColor: widget.shadowColor, direction: TArrowDirection.up),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.showArrow && arrowDirection == TArrowDirection.left)
-                          _TooltipArrow(color: widget.backgroundColor, shadowColor: widget.shadowColor, direction: TArrowDirection.left),
-                        Flexible(child: widget.child), // Wrap in Flexible to prevent overflow
-                        if (widget.showArrow && arrowDirection == TArrowDirection.right)
-                          _TooltipArrow(color: widget.backgroundColor, shadowColor: widget.shadowColor, direction: TArrowDirection.right),
-                      ],
-                    ),
-                    if (widget.showArrow && arrowDirection == TArrowDirection.down)
-                      _TooltipArrow(color: widget.backgroundColor, shadowColor: widget.shadowColor, direction: TArrowDirection.down),
-                  ],
-                ),
-              ),
+    return CustomSingleChildLayout(
+      delegate: _TooltipPositionDelegate(
+        targetRect: targetRect,
+        resolvedPosition: resolvedPosition,
+        verticalOffset: verticalOffset,
+        marginInsets: marginInsets,
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth, minWidth: 50.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showArrow && arrowDirection == TArrowDirection.up)
+              _TooltipArrow(color: backgroundColor, shadowColor: shadowColor, direction: TArrowDirection.up),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showArrow && arrowDirection == TArrowDirection.left)
+                  _TooltipArrow(color: backgroundColor, shadowColor: shadowColor, direction: TArrowDirection.left),
+                Flexible(child: child),
+                if (showArrow && arrowDirection == TArrowDirection.right)
+                  _TooltipArrow(color: backgroundColor, shadowColor: shadowColor, direction: TArrowDirection.right),
+              ],
             ),
-          ),
-        ],
+            if (showArrow && arrowDirection == TArrowDirection.down)
+              _TooltipArrow(color: backgroundColor, shadowColor: shadowColor, direction: TArrowDirection.down),
+          ],
+        ),
       ),
     );
   }
+}
+
+class _TooltipPositionDelegate extends SingleChildLayoutDelegate {
+  final Rect targetRect;
+  final TTooltipResolvedPosition resolvedPosition;
+  final double verticalOffset;
+  final EdgeInsets marginInsets;
+
+  const _TooltipPositionDelegate({
+    required this.targetRect,
+    required this.resolvedPosition,
+    required this.verticalOffset,
+    required this.marginInsets,
+  });
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    // Let child measure its own natural size (loose constraints).
+    return BoxConstraints(
+      maxWidth: constraints.maxWidth,
+      maxHeight: constraints.maxHeight,
+    );
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final tw = childSize.width;
+    final th = childSize.height;
+
+    final spaceAbove = targetRect.top;
+    final spaceBelow = size.height - targetRect.bottom;
+    final spaceLeft = targetRect.left;
+    final spaceRight = size.width - targetRect.right;
+
+    TTooltipResolvedPosition effectivePosition = resolvedPosition;
+    switch (resolvedPosition) {
+      case TTooltipResolvedPosition.bottom:
+        if (spaceBelow < th + verticalOffset && spaceAbove >= th + verticalOffset) {
+          effectivePosition = TTooltipResolvedPosition.top;
+        }
+        break;
+      case TTooltipResolvedPosition.top:
+        if (spaceAbove < th + verticalOffset && spaceBelow >= th + verticalOffset) {
+          effectivePosition = TTooltipResolvedPosition.bottom;
+        }
+        break;
+      case TTooltipResolvedPosition.left:
+        if (spaceLeft < tw + verticalOffset && spaceRight >= tw + verticalOffset) {
+          effectivePosition = TTooltipResolvedPosition.right;
+        }
+        break;
+      case TTooltipResolvedPosition.right:
+        if (spaceRight < tw + verticalOffset && spaceLeft >= tw + verticalOffset) {
+          effectivePosition = TTooltipResolvedPosition.left;
+        }
+        break;
+    }
+
+    double tooltipX;
+    double tooltipY;
+
+    switch (effectivePosition) {
+      case TTooltipResolvedPosition.top:
+        tooltipX = targetRect.center.dx - tw / 2;
+        tooltipY = targetRect.top - verticalOffset - th;
+        break;
+      case TTooltipResolvedPosition.bottom:
+        tooltipX = targetRect.center.dx - tw / 2;
+        tooltipY = targetRect.bottom + verticalOffset;
+        break;
+      case TTooltipResolvedPosition.left:
+        tooltipX = targetRect.left - verticalOffset - tw;
+        tooltipY = targetRect.center.dy - th / 2;
+        break;
+      case TTooltipResolvedPosition.right:
+        tooltipX = targetRect.right + verticalOffset;
+        tooltipY = targetRect.center.dy - th / 2;
+        break;
+    }
+
+    // Clamp within screen bounds respecting margin.
+    final minX = marginInsets.left;
+    final maxX = (size.width - tw - marginInsets.right).clamp(0.0, double.infinity);
+    final minY = marginInsets.top;
+    final maxY = (size.height - th - marginInsets.bottom).clamp(0.0, double.infinity);
+
+    return Offset(
+      tooltipX.clamp(minX, maxX),
+      tooltipY.clamp(minY, maxY),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_TooltipPositionDelegate old) {
+    return targetRect != old.targetRect ||
+        resolvedPosition != old.resolvedPosition ||
+        verticalOffset != old.verticalOffset ||
+        marginInsets != old.marginInsets;
+  }
+
+  @override
+  Size getSize(BoxConstraints constraints) => constraints.biggest;
 }
 
 class _TooltipArrow extends StatelessWidget {

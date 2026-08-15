@@ -52,8 +52,8 @@ class TPopupConstraints {
     final viewportSize = Size(overlaySize.width, overlaySize.height - keyboardHeight);
 
     // Clip constraints to screen size to prevent clipping/overflow
-    final minWidth = inputConstraints.minWidth.clamp(defaultSize, viewportSize.width);
-    final minHeight = inputConstraints.minHeight.clamp(defaultSize, viewportSize.height);
+    final minWidth = inputConstraints.minWidth.clamp(0.0, viewportSize.width);
+    final minHeight = inputConstraints.minHeight.clamp(0.0, viewportSize.height);
     final maxWidth =
         (inputConstraints.maxWidth == double.infinity ? viewportSize.width : inputConstraints.maxWidth).clamp(minWidth, viewportSize.width);
     final maxHeight = (inputConstraints.maxHeight == double.infinity ? viewportSize.height : inputConstraints.maxHeight)

@@ -333,7 +333,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
     // visibleItemsCount caps the visible rows in the dropdown.
     // For local items, we never show an infinite-scroll footer, so hasMore is irrelevant for height.
     final limit = widget.visibleItemsCount ?? widget.itemsPerPage ?? 7;
-    final totalItems = listController.flatItems.length;
+    final totalItems = listController.displayItems.length;
     final count =
         (listController.isEmpty && listController.isFetching) ? 3 : (totalItems == 0 ? 1 : (totalItems < limit ? totalItems : limit));
 

@@ -10,7 +10,6 @@ extension TListControllerExpansion<T, K> on TListController<T, K> {
   /// Whether any tree items are expanded.
   bool get hasExpansion => expandedKeys.isNotEmpty;
 
-
   /// The number of expanded tree items.
   int get expandedCount => expandedKeys.length;
 

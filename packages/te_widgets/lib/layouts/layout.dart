@@ -1,18 +1,21 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:te_widgets/layouts/widgets/mobile_sidebar.dart';
+import 'package:te_widgets/layouts/widgets/top_bar.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TLayout extends ConsumerStatefulWidget {
   final List<TSidebarItem> items;
   final Widget? logo;
+  final Widget? minifiedLogo;
   final Widget? profile;
   final List<Widget>? actions;
   final Widget child;
   final String? pageTitle;
   final double mainCardRadius;
-  final double width;
+  final double? minWidth;
+  final double maxWidth;
   final double minifiedWidth;
   final bool? isMinimized;
   final bool showHamburgerMenu;
@@ -26,12 +29,14 @@ class TLayout extends ConsumerStatefulWidget {
     super.key,
     this.items = const [],
     this.logo,
+    this.minifiedLogo,
     this.profile,
     this.actions,
     required this.child,
     this.pageTitle,
-    this.mainCardRadius = 20,
-    this.width = 275,
+    this.mainCardRadius = 12,
+    this.minWidth = 235,
+    this.maxWidth = 300,
     this.minifiedWidth = 80,
     this.isMinimized,
     this.showHamburgerMenu = false,
@@ -46,40 +51,36 @@ class TLayout extends ConsumerStatefulWidget {
   ConsumerState<TLayout> createState() => _TLayoutState();
 }
 
-class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin {
+class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStateMixin {
   bool _isMobileSidebarOpen = false;
-  late AnimationController _overlayController;
-  late Animation<double> _overlayAnimation;
-  bool _isFullscreen = false;
 
-  void _onFullscreenChange(bool isFullscreen) {
-    setState(() {
-      _isFullscreen = isFullscreen;
-    });
-  }
+  late final AnimationController _overlayController = AnimationController(
+    duration: const Duration(milliseconds: 280),
+    vsync: this,
+  );
+  late final Animation<double> _overlayCurve = CurvedAnimation(
+    parent: _overlayController,
+    curve: Curves.easeOutCubic,
+    reverseCurve: Curves.easeInCubic,
+  );
 
   @override
   void initState() {
     super.initState();
-    _overlayController = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
-    _overlayAnimation = CurvedAnimation(parent: _overlayController, curve: Curves.easeInOut);
 
     if (widget.isMinimized != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         final isCurrentlyMinimized = ref.read(sidebarNotifierProvider);
         if (isCurrentlyMinimized != widget.isMinimized) {
           ref.read(sidebarNotifierProvider.notifier).toggleSidebar();
         }
       });
     }
-
-    _isFullscreen = TFullscreen.isFullscreen;
-    TFullscreen.registerListener(_onFullscreenChange);
   }
 
   @override
   void dispose() {
-    TFullscreen.unregisterListener(_onFullscreenChange);
     _overlayController.dispose();
     super.dispose();
   }
@@ -96,304 +97,255 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
   }
 
   void _closeMobileSidebar() {
-    if (_isMobileSidebarOpen) {
-      setState(() {
-        _isMobileSidebarOpen = false;
-        _overlayController.reverse();
-      });
-    }
+    if (!_isMobileSidebarOpen) return;
+    setState(() {
+      _isMobileSidebarOpen = false;
+      _overlayController.reverse();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final theme = context.theme;
-    final isSidebarMinimized = ref.watch(sidebarNotifierProvider);
+    final isMobile = !context.isDesktop;
 
-    // --- Validation and Logic ---
-    final isMini = !context.isDesktop;
-
-    // Centralized Resolution and Validation
-    final resolvedItems = TSidebarItemsResolver.resolve(widget.items);
-
-    TSidebarItem? homeItem;
-    final List<TSidebarItem> bottomBarItemsCandidates = [];
-    final List<TSidebarItem> sidebarItems = [];
-
-    // 1. Identify Home and Bottom Bar items using resolved items
-    for (final item in resolvedItems) {
-      if (item.home) {
-        homeItem = item;
-      }
-
-      if (item.bottomBarPosition != null) {
-        bottomBarItemsCandidates.add(item);
-      }
-    }
-
-    // 2. Prepare Bottom Bar Items
-    final List<TSidebarItem> finalBottomBarItems = [];
-    if (homeItem != null) {
-      finalBottomBarItems.add(homeItem);
-    }
-
-    if (bottomBarItemsCandidates.isEmpty && resolvedItems.isNotEmpty) {
-      // Auto-get first 4 items including home
-      final itemsCount = widget.showHamburgerMenu ? 5 : 4;
-      final candidates = resolvedItems.where((item) => item != homeItem).take(itemsCount - finalBottomBarItems.length);
-      finalBottomBarItems.addAll(candidates);
-    } else {
-      bottomBarItemsCandidates.sort((a, b) => a.bottomBarPosition!.compareTo(b.bottomBarPosition!));
-      finalBottomBarItems.addAll(bottomBarItemsCandidates.take(4 - finalBottomBarItems.length));
-    }
-
-    // 3. Prepare Sidebar Items (Exclude Bottom Bar items only for Mobile)
-    if (isMini) {
-      for (final item in resolvedItems) {
-        if (!finalBottomBarItems.contains(item)) {
-          sidebarItems.add(item);
-        }
-      }
-    } else {
-      sidebarItems.addAll(resolvedItems);
-    }
-    // --- End Validation and Logic ---
+    final resolved = _resolveLayoutItems(
+      TSidebarItemsResolver.resolve(widget.items),
+      isMobile: isMobile,
+      showHamburgerMenu: widget.showHamburgerMenu,
+    );
 
     return Scaffold(
       backgroundColor: theme.layoutFrame,
-      bottomNavigationBar: isMini ? _buildBottomBar(context, colors, finalBottomBarItems) : null,
+      bottomNavigationBar: isMobile ? _LayoutBottomBar(items: resolved.bottomBarItems, onOpenMore: _toggleMobileSidebar) : null,
       body: SafeArea(
-        child: Builder(
-          builder: (context) {
-            return Stack(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(isMini ? 0.0 : widget.mainCardRadius / 2.4),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: colors.surface,
-                      borderRadius: BorderRadius.circular(isMini ? 0 : widget.mainCardRadius),
-                    ),
-                    child: TBackgroundColorScope(
-                      backgroundColor: colors.surface,
-                      child: Column(
-                        children: [
-                          _buildTopBar(colors, isMini, homeItem, isSidebarMinimized, resolvedItems),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                if (!isMini)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 45, bottom: 28),
-                                    child: Sidebar(
-                                      items: sidebarItems,
-                                      width: widget.width,
-                                      minifiedWidth: widget.minifiedWidth,
-                                      isMinimized: isSidebarMinimized,
-                                    ),
-                                  ),
-                                _buildMainContent(colors, isMini, widget.child),
-                              ],
+        child: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(isMobile ? 0.0 : widget.mainCardRadius / 2.4),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colors.surface,
+                  borderRadius: BorderRadius.circular(isMobile ? 0 : widget.mainCardRadius),
+                ),
+                child: TBackgroundColorScope(
+                  backgroundColor: colors.surface,
+                  child: isMobile
+                      ? Column(
+                          children: [
+                            LayoutMobileTopBar(
+                              resolvedItems: resolved.allItems,
+                              showHamburgerMenu: widget.showHamburgerMenu,
+                              isSidebarOpen: _isMobileSidebarOpen,
+                              onToggleSidebar: _toggleMobileSidebar,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                // Mobile sidebar overlay
-                if (isMini) _buildSidebarOverlay(colors, sidebarItems),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopBar(ColorScheme colors, bool isMobile, TSidebarItem? homeItem, bool isMinimized, List<TSidebarItem> resolvedItems) {
-    return Container(
-      width: double.infinity,
-      padding: isMobile ? const EdgeInsets.symmetric(vertical: 8, horizontal: 16) : const EdgeInsets.fromLTRB(10, 24, 10, 14),
-      child: isMobile
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Row(
-                  children: [
-                    if (Navigator.canPop(context))
-                      TButton(
-                        type: TButtonType.icon,
-                        icon: Icons.arrow_back_ios_new,
-                        onTap: () => Navigator.of(context).pop(),
-                      ),
-                    _buildBreadCrumbs(colors, null, resolvedItems),
-                  ],
-                ),
-                if (widget.showHamburgerMenu)
-                  TButton(
-                    type: TButtonType.icon,
-                    icon: _isMobileSidebarOpen ? Icons.close_rounded : Icons.menu_rounded,
-                    size: TButtonSize.md.copyWith(icon: 20),
-                    color: colors.onSurface,
-                    onTap: _toggleMobileSidebar,
-                  )
-              ],
-            )
-          : Row(
-              children: [
-                if (widget.logo != null) SizedBox(width: widget.width - 20, child: widget.logo!),
-                _buildSidebarToggle(colors, isMinimized),
-                const SizedBox(width: 10),
-                Expanded(child: _buildBreadCrumbs(colors, homeItem, resolvedItems)),
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 10,
-                  runSpacing: 5,
-                  children: [
-                    if (widget.profile != null) widget.profile!,
-                    if (widget.showThemeToggle) _buildThemeToggle(colors),
-                    if (widget.showColorToggle) _buildColorToggle(colors),
-                    if (widget.actions != null) ...widget.actions!,
-                    if (kIsWeb && widget.showFullscreenToggle) _buildFullscreenToggle(colors),
-                    if (widget.showLogout) _buildLogoutButton(colors),
-                  ],
-                ),
-                const SizedBox(width: 15),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildThemeToggle(ColorScheme colors) {
-    return TButton(
-      size: TButtonSize.xs.copyWith(icon: 16),
-      type: TButtonType.icon,
-      icon: Icons.wb_sunny,
-      color: Colors.yellow.shade700,
-      activeIcon: Icons.nights_stay,
-      activeColor: Colors.cyan.shade600,
-      active: context.isDarkMode,
-      onChanged: (_) => ref.read(themeNotifierProvider.notifier).toggleTheme(),
-    );
-  }
-
-  Widget _buildFullscreenToggle(ColorScheme colors) {
-    return TButton(
-      size: TButtonSize.xs.copyWith(icon: 16),
-      type: TButtonType.icon,
-      icon: Icons.fullscreen,
-      activeIcon: Icons.fullscreen_exit,
-      activeColor: colors.primary,
-      color: colors.onSurfaceVariant,
-      active: _isFullscreen,
-      onChanged: (_) => TFullscreen.toggleFullscreen(),
-    );
-  }
-
-  Widget _buildColorToggle(ColorScheme colors) {
-    final themeState = ref.watch(themeNotifierProvider);
-    final activeColorIndex = themeState.primaryColorIndex;
-    final selectedColorOption = primaryColorOptions[activeColorIndex];
-
-    return TDropdown(
-      triggerMode: TDropdownTriggerMode.tap,
-      items: [
-        for (int i = 0; i < primaryColorOptions.length; i++)
-          TDropdownItem(
-            text: primaryColorOptions[i].name,
-            icon: Icons.circle,
-            color: primaryColorOptions[i].color,
-            onTap: () {
-              ref.read(themeNotifierProvider.notifier).selectColor(i);
-            },
-          ),
-      ],
-      child: TButton(
-        size: TButtonSize.xs.copyWith(icon: 16),
-        type: TButtonType.icon,
-        icon: Icons.palette_outlined,
-        color: selectedColorOption.color,
-      ),
-    );
-  }
-
-  Widget _buildLogoutButton(ColorScheme colors) {
-    return TButton(
-      type: TButtonType.icon,
-      icon: Icons.logout_rounded,
-      size: TButtonSize.xs.copyWith(icon: 16),
-      color: colors.onSurfaceVariant,
-      onPressed: (_) => widget.onLogout?.call(),
-    );
-  }
-
-  Widget _buildSidebarToggle(ColorScheme colors, bool isMinimized) {
-    final sidebarNotifier = ref.read(sidebarNotifierProvider.notifier);
-
-    return InkWell(
-      onTap: sidebarNotifier.toggleSidebar,
-      borderRadius: BorderRadius.circular(24),
-      child: CircleAvatar(
-          radius: 16,
-          backgroundColor: colors.surfaceContainerLowest,
-          child: Icon(isMinimized ? Icons.chevron_right_rounded : Icons.chevron_left_rounded, size: 20, color: colors.onSurfaceVariant)),
-    );
-  }
-
-  Widget _buildBreadCrumbs(ColorScheme colors, TSidebarItem? homeItem, List<TSidebarItem> resolvedItems) {
-    return TBreadcrumbs(
-      items: resolvedItems,
-      includeHome: homeItem != null,
-      homeLabel: homeItem?.text ?? 'Home',
-      homeRoute: homeItem?.route ?? '/',
-    );
-  }
-
-  Widget _buildMainContent(ColorScheme colors, bool isMobile, Widget child) {
-    return Expanded(
-      child: DecoratedBox(
-        decoration: isMobile
-            ? BoxDecoration(
-                color: colors.surface,
-                border: Border(
-                  top: BorderSide(color: colors.shadow, width: 0.5),
-                  bottom: BorderSide(color: colors.shadow, width: 0.5),
-                ),
-              )
-            : BoxDecoration(
-                color: colors.surface,
-                border: Border(
-                  top: BorderSide(color: colors.outlineVariant, width: 1),
-                  left: BorderSide(color: colors.outlineVariant, width: 1),
-                ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(28),
-                  bottomRight: Radius.circular(28),
+                            Expanded(child: _MainContent(isMobile: true, child: widget.child)),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            // ── Sidebar (full height) ──────────────────────
+                            Consumer(
+                              builder: (context, ref, _) => Sidebar(
+                                items: resolved.sidebarItems,
+                                minWidth: widget.minWidth,
+                                maxWidth: widget.maxWidth,
+                                minifiedWidth: widget.minifiedWidth,
+                                isMinimized: ref.watch(sidebarNotifierProvider),
+                                header: widget.logo != null
+                                    ? Padding(
+                                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                                        child: widget.logo!,
+                                      )
+                                    : null,
+                                minifiedHeader: widget.minifiedLogo != null
+                                    ? Padding(
+                                        padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
+                                        child: widget.minifiedLogo!,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                            // ── Top bar + content ──────────────────────────
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  LayoutDesktopTopBar(
+                                    homeItem: resolved.homeItem,
+                                    resolvedItems: resolved.allItems,
+                                    profile: widget.profile,
+                                    showThemeToggle: widget.showThemeToggle,
+                                    showColorToggle: widget.showColorToggle,
+                                    actions: widget.actions,
+                                    showFullscreenToggle: widget.showFullscreenToggle,
+                                    showLogout: widget.showLogout,
+                                    onLogout: widget.onLogout,
+                                  ),
+                                  Expanded(child: _MainContent(isMobile: false, child: widget.child)),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
-        child: Column(
-          children: [
-            SizedBox(height: isMobile ? 4 : 8),
-            Expanded(
-                child: Padding(
-              padding: isMobile
-                  ? const EdgeInsets.symmetric(vertical: 8, horizontal: 12)
-                  : const EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 16),
-              child: child,
-            )),
+            ),
+            if (isMobile)
+              MobileSidebarOverlay(
+                controller: _overlayController,
+                curve: _overlayCurve,
+                onClose: _closeMobileSidebar,
+                panel: MobileSidebarOverlayPanel(
+                  logo: widget.logo,
+                  sidebarItems: resolved.sidebarItems,
+                  minWidth: widget.minWidth,
+                  maxWidth: widget.maxWidth,
+                  minifiedWidth: widget.minifiedWidth,
+                  profile: widget.profile,
+                  showThemeToggle: widget.showThemeToggle,
+                  showColorToggle: widget.showColorToggle,
+                  actions: widget.actions,
+                  showFullscreenToggle: widget.showFullscreenToggle,
+                  showLogout: widget.showLogout,
+                  onLogout: widget.onLogout,
+                  onItemTap: _closeMobileSidebar,
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildBottomBar(BuildContext context, ColorScheme colors, List<TSidebarItem> bottomItems) {
-    final state = GoRouterState.of(context);
-    int currentIndex = -1;
-    for (int i = 0; i < bottomItems.length; i++) {
-      if (bottomItems[i].containsRoute(state.uri.toString())) {
+// ─────────────────────────────────────────────────────────────────────────
+// Item resolution (pure, unit-testable)
+// ─────────────────────────────────────────────────────────────────────────
+
+@immutable
+class _ResolvedLayoutItems {
+  const _ResolvedLayoutItems({
+    required this.allItems,
+    required this.sidebarItems,
+    required this.bottomBarItems,
+    required this.homeItem,
+  });
+
+  final List<TSidebarItem> allItems;
+  final List<TSidebarItem> sidebarItems;
+  final List<TSidebarItem> bottomBarItems;
+  final TSidebarItem? homeItem;
+}
+
+_ResolvedLayoutItems _resolveLayoutItems(
+  List<TSidebarItem> resolvedItems, {
+  required bool isMobile,
+  required bool showHamburgerMenu,
+}) {
+  TSidebarItem? homeItem;
+  final bottomBarCandidates = <TSidebarItem>[];
+
+  for (final item in resolvedItems) {
+    if (item.home) homeItem = item;
+    if (item.bottomBarPosition != null) bottomBarCandidates.add(item);
+  }
+
+  final bottomBarItems = <TSidebarItem>[];
+  if (homeItem != null) bottomBarItems.add(homeItem);
+
+  if (bottomBarCandidates.isEmpty && resolvedItems.isNotEmpty) {
+    final slotCount = showHamburgerMenu ? 5 : 4;
+    bottomBarItems.addAll(
+      resolvedItems.where((item) => item != homeItem).take(slotCount - bottomBarItems.length),
+    );
+  } else {
+    bottomBarCandidates.sort((a, b) => a.bottomBarPosition!.compareTo(b.bottomBarPosition!));
+    bottomBarItems.addAll(bottomBarCandidates.take(4 - bottomBarItems.length));
+  }
+
+  final sidebarItems = isMobile ? resolvedItems.where((item) => !bottomBarItems.contains(item)).toList() : resolvedItems;
+
+  return _ResolvedLayoutItems(
+    allItems: resolvedItems,
+    sidebarItems: sidebarItems,
+    bottomBarItems: bottomBarItems,
+    homeItem: homeItem,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Main content + bottom bar
+// ─────────────────────────────────────────────────────────────────────────
+
+class _MainContent extends StatelessWidget {
+  const _MainContent({required this.isMobile, required this.child});
+
+  final bool isMobile;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return DecoratedBox(
+      decoration: isMobile
+          ? BoxDecoration(
+              color: colors.surface,
+              border: Border(
+                top: BorderSide(color: colors.shadow, width: 0.5),
+                bottom: BorderSide(color: colors.shadow, width: 0.5),
+              ),
+            )
+          : BoxDecoration(
+              color: colors.surface,
+              border: Border(
+                top: BorderSide(color: colors.outlineVariant, width: 1),
+                left: BorderSide(color: colors.outlineVariant, width: 1),
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                bottomRight: Radius.circular(12),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(-2, -4),
+                  blurRadius: 12,
+                  spreadRadius: -6,
+                  color: colors.outline.withAlpha(50),
+                )
+              ],
+            ),
+      child: Column(
+        children: [
+          SizedBox(height: isMobile ? 4 : 8),
+          Expanded(
+            child: Padding(
+              padding: isMobile
+                  ? const EdgeInsets.symmetric(vertical: 8, horizontal: 12)
+                  : const EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 16),
+              child: child,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LayoutBottomBar extends StatelessWidget {
+  const _LayoutBottomBar({required this.items, required this.onOpenMore});
+
+  final List<TSidebarItem> items;
+  final VoidCallback onOpenMore;
+
+  @override
+  Widget build(BuildContext context) {
+    final currentRoute = GoRouterState.of(context).uri.toString();
+
+    var currentIndex = -1;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].containsRoute(currentRoute)) {
         currentIndex = i;
         break;
       }
@@ -402,118 +354,16 @@ class _TLayoutState extends ConsumerState<TLayout> with TickerProviderStateMixin
     return TBottomBar(
       currentIndex: currentIndex,
       onTap: (index) {
-        if (index < bottomItems.length) {
-          final item = bottomItems[index];
-          item.tap(context);
+        if (index < items.length) {
+          items[index].tap(context);
         } else {
-          _toggleMobileSidebar();
+          onOpenMore();
         }
       },
       items: [
-        ...bottomItems.map((item) => TBottomBarItem(
-              icon: item.icon ?? Icons.circle_outlined,
-              label: item.text ?? '',
-            )),
-        const TBottomBarItem(
-          icon: Icons.more_horiz_rounded,
-          label: 'More',
-        ),
+        for (final item in items) TBottomBarItem(icon: item.icon ?? Icons.circle_outlined, label: item.text ?? ''),
+        const TBottomBarItem(icon: Icons.more_horiz_rounded, label: 'More'),
       ],
-    );
-  }
-
-  Widget _buildSidebarOverlay(ColorScheme colors, List<TSidebarItem> sidebarItems) {
-    return AnimatedBuilder(
-      animation: _overlayAnimation,
-      builder: (context, child) {
-        return Visibility(
-          visible: _overlayAnimation.value > 0,
-          child: Stack(
-            children: [
-              // Backdrop
-              InkWell(
-                onTap: _closeMobileSidebar,
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Color.fromRGBO(0, 0, 0, 0.5 * _overlayAnimation.value),
-                ),
-              ),
-              // Sidebar
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: Transform.translate(
-                  offset: Offset(-widget.width * (1 - _overlayAnimation.value), 0),
-                  child: Container(
-                    width: widget.width,
-                    decoration: BoxDecoration(
-                      color: colors.surface,
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(16),
-                        bottomRight: Radius.circular(16),
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color.fromRGBO(0, 0, 0, 0.15),
-                          blurRadius: 20,
-                          offset: Offset(4, 0),
-                        ),
-                      ],
-                    ),
-                    child: SafeArea(
-                      child: Column(
-                        children: [
-                          // Logo section
-                          if (widget.logo != null)
-                            Container(
-                              padding: const EdgeInsets.all(20),
-                              child: widget.logo!,
-                            ),
-                          // Sidebar items
-                          Expanded(
-                            child: Sidebar(
-                              items: sidebarItems,
-                              width: widget.width,
-                              minifiedWidth: widget.minifiedWidth,
-                              isMinimized: false,
-                              onTap: (_) => _closeMobileSidebar(),
-                              footer: Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                                margin: const EdgeInsets.fromLTRB(8, 12, 8, 8),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: colors.surfaceContainer,
-                                ),
-                                child: Wrap(
-                                  alignment: WrapAlignment.start,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  spacing: 10,
-                                  runSpacing: 10,
-                                  children: [
-                                    if (widget.profile != null) widget.profile!,
-                                    if (widget.showThemeToggle) _buildThemeToggle(colors),
-                                    if (widget.showColorToggle) _buildColorToggle(colors),
-                                    if (widget.actions != null) ...widget.actions!,
-                                    if (kIsWeb && widget.showFullscreenToggle) _buildFullscreenToggle(colors),
-                                    if (widget.showLogout) _buildLogoutButton(colors),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

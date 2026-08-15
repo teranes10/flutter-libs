@@ -125,7 +125,11 @@ class TSwitch extends StatefulWidget with TInputFieldMixin, TInputValueMixin<boo
 }
 
 class _TSwitchState<T> extends State<TSwitch>
-    with TInputValueStateMixin<bool, TSwitch>, TFocusStateMixin<TSwitch>, TInputValidationStateMixin<bool, TSwitch>, TInputFieldStateMixin<TSwitch> {
+    with
+        TInputValueStateMixin<bool, TSwitch>,
+        TFocusStateMixin<TSwitch>,
+        TInputValidationStateMixin<bool, TSwitch>,
+        TInputFieldStateMixin<TSwitch> {
   (double, double, double) _getSwitchSize() {
     switch (widget.size) {
       case TInputSize.xs:

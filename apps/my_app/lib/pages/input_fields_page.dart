@@ -46,7 +46,6 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             style: TextStyle(fontSize: 13, color: context.colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
-
           // Basic Text Field
           WidgetDocCard(
             title: 'Text Field',
@@ -185,12 +184,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             title: 'Flanked Number Field (Split Stepper)',
             description: 'TNumberField with splitStepper: true placing the minus button in pre-widget and plus button in post-widget',
             icon: Icons.unfold_more,
-            preview: TNumberField(
-              label: 'Adjust Value',
-              placeholder: '0',
-              splitStepper: true,
-              valueNotifier: ValueNotifier<double?>(10.0),
-            ),
+            preview: TNumberField(label: 'Adjust Value', placeholder: '0', splitStepper: true, valueNotifier: ValueNotifier<double?>(10.0)),
             code: '''TNumberField(
   label: 'Adjust Value',
   placeholder: '0',
@@ -578,9 +572,7 @@ ValueListenableBuilder<String?>(
               helperText: 'You can opt out at any time.',
               isRequired: true,
               valueNotifier: ValueNotifier<bool?>(false),
-              theme: context.theme.inputFieldTheme.copyWith(
-                labelPosition: TLabelPosition.aboveField,
-              ),
+              theme: context.theme.inputFieldTheme.copyWith(labelPosition: TLabelPosition.aboveField),
             ),
             code: '''TCheckbox(
   label: 'Receive promotional emails',
@@ -991,9 +983,7 @@ TSwitch(
               helperText: 'Requires an active internet connection.',
               isRequired: true,
               valueNotifier: ValueNotifier<bool>(true),
-              theme: context.theme.inputFieldTheme.copyWith(
-                labelPosition: TLabelPosition.aboveField,
-              ),
+              theme: context.theme.inputFieldTheme.copyWith(labelPosition: TLabelPosition.aboveField),
             ),
             code: '''TSwitch(
   label: 'Automatic Backups',

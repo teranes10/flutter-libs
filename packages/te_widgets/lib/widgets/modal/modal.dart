@@ -138,17 +138,17 @@ class TModal extends StatelessWidget {
         body: CustomSingleChildLayout(
           delegate: _ModalPositionDelegate(preferredTopRatio: preferredTopRatio),
           child: GestureDetector(
-              onTap: () {}, // Prevent tap propagation
-              child: Container(
-                width: mWidth,
-                height: mHeight,
-                constraints: mConstraints,
-                decoration: BoxDecoration(
-                  color: colors.surface,
-                  borderRadius: mBorderRadius,
-                ),
-                child: layoutBuilder?.call(context, child) ?? _layout(context, colors, child),
+            onTap: () {}, // Prevent tap propagation
+            child: Container(
+              width: mWidth,
+              height: mHeight,
+              constraints: mConstraints,
+              decoration: BoxDecoration(
+                color: colors.surface,
+                borderRadius: mBorderRadius,
               ),
+              child: layoutBuilder?.call(context, child) ?? _layout(context, colors, child),
+            ),
           ),
         ),
       ),

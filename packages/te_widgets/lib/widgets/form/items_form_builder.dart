@@ -62,6 +62,9 @@ class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputV
   /// Custom layout builder for the items list content.
   final Widget Function(BuildContext context, Widget child, VoidCallback onAddNew)? layoutBuilder;
 
+  /// Optional footer widget to display below the items list.
+  final Widget? footer;
+
   /// Creates an items form builder.
   const TItemsFormBuilder({
     super.key,
@@ -73,6 +76,7 @@ class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputV
     this.buttonLabel = 'Add New',
     this.itemAddPosition = TItemAddPosition.first,
     this.layoutBuilder,
+    this.footer,
   });
 
   @override
@@ -86,7 +90,10 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
   @override
   void initState() {
     super.initState();
-    _listController = TListController(items: widget.value != null ? List.from(widget.value!) : List.empty());
+    _listController = TListController(
+      items: widget.value != null ? List.from(widget.value!) : List.empty(),
+      itemKey: (item) => identityHashCode(item),
+    );
   }
 
   @override
@@ -155,11 +162,25 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
     );
 
     return widget.layoutBuilder?.call(context, content, _onNewItem) ??
-        Column(
-          children: [
-            _buildToolbar(colors),
-            content,
-          ],
+        TAccordion(
+          title: widget.label ?? 'Items',
+          initiallyExpanded: true,
+          content: content,
+          footer: widget.footer,
+          builder: (context, isExpanded, toggleExpand) {
+            return TButton(
+              type: TButtonType.text,
+              size: TButtonSize.sm.copyWith(hPad: 0),
+              text: widget.buttonLabel,
+              icon: Icons.add_rounded,
+              onTap: () {
+                if (!isExpanded) {
+                  toggleExpand();
+                }
+                _onNewItem();
+              },
+            );
+          },
         );
   }
 
@@ -176,31 +197,5 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
   void _removeItem(T item) {
     _listController.removeItem(item);
     _update();
-  }
-
-  Widget _buildToolbar(ColorScheme colors) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 2, 2, 2),
-      margin: EdgeInsets.only(bottom: 15),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          widget.label != null
-              ? Text(
-                  widget.label!,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: colors.onSurface),
-                )
-              : SizedBox.shrink(),
-          TButton(
-            type: TButtonType.text,
-            size: TButtonSize.sm.copyWith(hPad: 0),
-            text: widget.buttonLabel,
-            icon: Icons.add_rounded,
-            onTap: _onNewItem,
-          )
-        ],
-      ),
-    );
   }
 }

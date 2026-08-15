@@ -131,6 +131,30 @@ class _TTagsFieldState extends State<TTagsField>
         TTagsFieldStateMixin<TTagsField>,
         TInputValueStateMixin<List<String>, TTagsField>,
         TInputValidationStateMixin<List<String>, TTagsField> {
+  bool _hasTags = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hasTags = tagsController.tags.isNotEmpty;
+    tagsController.addListener(_onTagsChanged);
+  }
+
+  @override
+  void dispose() {
+    tagsController.removeListener(_onTagsChanged);
+    super.dispose();
+  }
+
+  void _onTagsChanged() {
+    final hasTags = tagsController.tags.isNotEmpty;
+    if (_hasTags != hasTags) {
+      setState(() {
+        _hasTags = hasTags;
+      });
+    }
+  }
+
   @override
   void onExternalValueChanged(List<String>? value) {
     super.onExternalValueChanged(value);
@@ -164,12 +188,10 @@ class _TTagsFieldState extends State<TTagsField>
   Widget build(BuildContext context) {
     return buildContainer(
       expands: true,
-      hasValue: tagsController.tags.isNotEmpty,
+      hasValue: _hasTags,
       onClear: () {
-        setState(() {
-          tagsController.updateState(tags: []);
-          notifyValueChanged([]);
-        });
+        tagsController.updateState(tags: []);
+        notifyValueChanged([]);
       },
       child: buildTagsField(onKeyEvent: _onKeyEvent),
     );

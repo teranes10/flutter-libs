@@ -150,7 +150,11 @@ class TCheckbox extends StatefulWidget with TInputFieldMixin, TInputValueMixin<b
 }
 
 class _TCheckboxState<T> extends State<TCheckbox>
-    with TInputValueStateMixin<bool?, TCheckbox>, TFocusStateMixin<TCheckbox>, TInputValidationStateMixin<bool?, TCheckbox>, TInputFieldStateMixin<TCheckbox> {
+    with
+        TInputValueStateMixin<bool?, TCheckbox>,
+        TFocusStateMixin<TCheckbox>,
+        TInputValidationStateMixin<bool?, TCheckbox>,
+        TInputFieldStateMixin<TCheckbox> {
   double _getCheckboxSize() {
     switch (widget.size) {
       case TInputSize.xs:

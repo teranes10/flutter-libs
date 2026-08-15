@@ -745,11 +745,7 @@ TSlider(
                 title: 'Color Picker - Plus Icon Only (Selected: $hex)',
                 description: 'Compact color picker showing only the plus button.',
                 icon: Icons.add_circle_outline,
-                preview: TColorPicker(
-                  label: 'Accent Color',
-                  valueNotifier: _colorPickerNotifier,
-                  onlyPlusIcon: true,
-                ),
+                preview: TColorPicker(label: 'Accent Color', valueNotifier: _colorPickerNotifier, onlyPlusIcon: true),
                 code: '''// Via TFormField:
 TFormField.colorPicker(accentColorProp, 'Accent Color', onlyPlusIcon: true)
 
@@ -759,12 +755,7 @@ TColorPicker(
   onlyPlusIcon: true,
 )''',
                 properties: const [
-                  PropertyDoc(
-                    name: 'onlyPlusIcon',
-                    type: 'bool',
-                    defaultValue: 'true',
-                    description: 'Renders only the plus button circle',
-                  ),
+                  PropertyDoc(name: 'onlyPlusIcon', type: 'bool', defaultValue: 'true', description: 'Renders only the plus button circle'),
                 ],
               );
             },
