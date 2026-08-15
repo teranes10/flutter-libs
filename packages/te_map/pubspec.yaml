@@ -1,6 +1,6 @@
 name: te_map
 description: "Te Map Widgets for mapping and location"
-version: 3.1.1
+version: 3.1.2
 
 homepage: https://teranes10.github.io/flutter-libs/myapp
 repository: https://github.com/teranes10/flutter-libs/tree/master/packages/te_map
