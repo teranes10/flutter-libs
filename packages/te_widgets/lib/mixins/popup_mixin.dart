@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
@@ -161,6 +162,10 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
     return OverlayPortal.overlayChildLayoutBuilder(
       controller: _overlayController,
       overlayChildBuilder: (ctx, layoutInfo) {
+        final rawMaxWidth = contentMaxWidth ?? layoutInfo.childSize.width;
+        final effectiveMaxWidth = math.max(contentMinWidth, rawMaxWidth);
+        final effectiveMaxHeight = contentMaxHeight != null ? math.max(contentMinHeight, contentMaxHeight!) : double.infinity;
+
         final constraints = TPopupConstraints.calculate(
           context,
           targetSize: layoutInfo.childSize,
@@ -168,9 +173,10 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
           inputConstraints: BoxConstraints(
             minWidth: contentMinWidth,
             minHeight: contentMinHeight,
-            maxWidth: contentMaxWidth ?? layoutInfo.childSize.width,
-            maxHeight: contentMaxHeight ?? double.infinity,
+            maxWidth: effectiveMaxWidth,
+            maxHeight: effectiveMaxHeight,
           ),
+          popupAlignment: _widget.alignment,
           defaultSize: _defaultSize,
         );
 

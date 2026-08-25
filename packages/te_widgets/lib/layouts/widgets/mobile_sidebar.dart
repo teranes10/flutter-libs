@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/layouts/widgets/top_bar.dart';
 
 // ─────────────────────────────────────────────────────────────────────────
 // Mobile sidebar overlay

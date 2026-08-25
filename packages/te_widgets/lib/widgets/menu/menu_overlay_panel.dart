@@ -64,8 +64,8 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
     final isDark = colors.isDarkMode;
 
     return MouseRegion(
-      onEnter: (_) => TMenuOverlayController.setMouseInArea(true),
-      onExit: (_) => TMenuOverlayController.setMouseInArea(false),
+      onEnter: (_) => TMenuOverlayController.setPanelHovered(widget.level, true),
+      onExit: (_) => TMenuOverlayController.setPanelHovered(widget.level, false),
       hitTestBehavior: HitTestBehavior.opaque,
       child: AnimatedBuilder(
         animation: _controller,
@@ -106,6 +106,9 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
 
     return List.generate(visible.length, (index) {
       final item = visible[index];
+      if (item.customContent != null) {
+        return item.customContent!;
+      }
       final row = TMenuOverlayItem<T>(
         item: item,
         level: widget.level,

@@ -200,20 +200,57 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return maxLevel;
   }
 
+  List<TTableHeader<T, K>> get _effectiveHeaders {
+    final order = listController.headerOrder;
+    final visibility = listController.headerVisibility;
+    if (order.isEmpty) {
+      return widget.headers.where((h) => visibility[h.text] ?? true).toList();
+    }
+
+    final orderedVisibleHeaders = <TTableHeader<T, K>>[];
+    for (final text in order) {
+      if (visibility[text] ?? true) {
+        final index = widget.headers.indexWhere((h) => h.text == text);
+        if (index != -1) {
+          orderedVisibleHeaders.add(widget.headers[index]);
+        }
+      }
+    }
+    // Also include any headers that are not in headerOrder (e.g. actions column)
+    for (final h in widget.headers) {
+      if (!order.contains(h.text)) {
+        if (visibility[h.text] ?? true) {
+          orderedVisibleHeaders.add(h);
+        }
+      }
+    }
+    return orderedVisibleHeaders;
+  }
+
+  bool _headersEquals(List<TTableHeader<T, K>> a, List<TTableHeader<T, K>> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i].text != b[i].text) return false;
+    }
+    return true;
+  }
+
   double _getRequiredWidth() {
+    final headers = _effectiveHeaders;
     final selectable = listController.selectable;
     final expandable = listController.expandable;
     final maxLevel = _getMaxTreeLevel();
     if (_cachedRequiredWidth != null &&
-        _cachedRequiredWidthForHeaders == widget.headers &&
+        _cachedRequiredWidthForHeaders != null &&
+        _headersEquals(_cachedRequiredWidthForHeaders!, headers) &&
         _cachedRequiredWidthSelectable == selectable &&
         _cachedRequiredWidthExpandable == expandable &&
         _cachedRequiredWidthMaxLevel == maxLevel) {
       return _cachedRequiredWidth!;
     }
-    final width = TTableTheme.calculateTotalRequiredWidth(widget.headers, selectable, expandable, maxTreeLevel: maxLevel);
+    final width = TTableTheme.calculateTotalRequiredWidth(headers, selectable, expandable, maxTreeLevel: maxLevel);
     _cachedRequiredWidth = width;
-    _cachedRequiredWidthForHeaders = widget.headers;
+    _cachedRequiredWidthForHeaders = headers;
     _cachedRequiredWidthSelectable = selectable;
     _cachedRequiredWidthExpandable = expandable;
     _cachedRequiredWidthMaxLevel = maxLevel;
@@ -228,19 +265,21 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   int? _cachedColumnWidthsMaxLevel;
 
   Map<int, TableColumnWidth> _getColumnWidths() {
+    final headers = _effectiveHeaders;
     final selectable = listController.selectable;
     final expandable = listController.expandable;
     final maxLevel = _getMaxTreeLevel();
     if (_cachedColumnWidths != null &&
-        _cachedColumnWidthsForHeaders == widget.headers &&
+        _cachedColumnWidthsForHeaders != null &&
+        _headersEquals(_cachedColumnWidthsForHeaders!, headers) &&
         _cachedColumnWidthsSelectable == selectable &&
         _cachedColumnWidthsExpandable == expandable &&
         _cachedColumnWidthsMaxLevel == maxLevel) {
       return _cachedColumnWidths!;
     }
-    final widths = TTableTheme.calculateColumnWidths(widget.headers, selectable, expandable, maxTreeLevel: maxLevel);
+    final widths = TTableTheme.calculateColumnWidths(headers, selectable, expandable, maxTreeLevel: maxLevel);
     _cachedColumnWidths = widths;
-    _cachedColumnWidthsForHeaders = widget.headers;
+    _cachedColumnWidthsForHeaders = headers;
     _cachedColumnWidthsSelectable = selectable;
     _cachedColumnWidthsExpandable = expandable;
     _cachedColumnWidthsMaxLevel = maxLevel;
@@ -541,7 +580,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return TTableRowCard<T, K>(
       index: index,
       item: item,
-      headers: widget.headers,
+      headers: _effectiveHeaders,
       theme: wTheme.rowCardTheme,
       width: wTheme.cardWidth,
       columnWidths: columnWidths,
@@ -563,7 +602,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return TTableMobileCard<T, K>(
       index: index,
       item: item,
-      headers: widget.headers,
+      headers: _effectiveHeaders,
       theme: wTheme.mobileCardTheme,
       width: wTheme.cardWidth,
       expandable: listController.expandable,

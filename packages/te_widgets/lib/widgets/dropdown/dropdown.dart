@@ -47,6 +47,10 @@ class TDropdown extends StatelessWidget {
       theme: effectiveTheme,
       triggerMode: effectiveMode,
       builder: builder,
+      onItemTap: (item) {
+        item.onTap?.call();
+        TMenuOverlayController.hideAll();
+      },
       child: child,
     );
   }

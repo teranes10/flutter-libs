@@ -5,12 +5,23 @@ import 'app_colors.dart';
 
 final themeModeKey = 'te_theme_mode';
 final sidebarMinifiedKey = 'te_sidebar_minified';
+final sidebarModeKey = 'te_sidebar_mode';
 final primaryColorIndexKey = 'te_primary_color_index';
 
-late final SharedPreferences _prefs;
-late final ThemeMode _initialTheme;
-late final bool _initialSidebarMinified;
-late final int _initialPrimaryColorIndex;
+ThemeMode _initialTheme = ThemeMode.system;
+TSidebarMode _initialSidebarMode = TSidebarMode.full;
+int _initialPrimaryColorIndex = 0;
+
+/// Tristate modes for the navigation sidebar.
+enum TSidebarMode {
+  minified,
+  full,
+  none;
+
+  bool get isMinified => this == TSidebarMode.minified;
+  bool get isFull => this == TSidebarMode.full;
+  bool get isNone => this == TSidebarMode.none;
+}
 
 class TThemeState {
   final ThemeMode themeMode;
@@ -37,16 +48,26 @@ class TThemeState {
 Future<void> initializeApp([SharedPreferences? prefs]) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  _prefs = prefs ?? await SharedPreferences.getInstance();
+  final p = prefs ?? await SharedPreferences.getInstance();
 
-  _initialTheme = switch (_prefs.getString(themeModeKey)) {
+  _initialTheme = switch (p.getString(themeModeKey)) {
     'light' => ThemeMode.light,
     'dark' => ThemeMode.dark,
     _ => ThemeMode.system,
   };
 
-  _initialSidebarMinified = _prefs.getBool(sidebarMinifiedKey) ?? false;
-  _initialPrimaryColorIndex = _prefs.getInt(primaryColorIndexKey) ?? 0;
+  final savedMode = p.getString(sidebarModeKey);
+  if (savedMode != null) {
+    _initialSidebarMode = TSidebarMode.values.firstWhere(
+      (m) => m.name == savedMode,
+      orElse: () => TSidebarMode.full,
+    );
+  } else {
+    final oldMinified = p.getBool(sidebarMinifiedKey) ?? false;
+    _initialSidebarMode = oldMinified ? TSidebarMode.minified : TSidebarMode.full;
+  }
+
+  _initialPrimaryColorIndex = p.getInt(primaryColorIndexKey) ?? 0;
 }
 
 class ThemeNotifier extends Notifier<TThemeState> {
@@ -62,6 +83,11 @@ class ThemeNotifier extends Notifier<TThemeState> {
     final nextMode = state.themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
     state = state.copyWith(themeMode: nextMode);
     _saveThemeMode(nextMode);
+  }
+
+  void setThemeMode(ThemeMode mode) {
+    state = state.copyWith(themeMode: mode);
+    _saveThemeMode(mode);
   }
 
   void selectColor(int index) {
@@ -82,23 +108,29 @@ class ThemeNotifier extends Notifier<TThemeState> {
   }
 }
 
-class SidebarNotifier extends Notifier<bool> {
+class SidebarNotifier extends Notifier<TSidebarMode> {
   @override
-  bool build() => _initialSidebarMinified;
+  TSidebarMode build() => _initialSidebarMode;
 
   void toggleSidebar() {
-    state = !state;
-    _saveSidebar(state);
+    final nextIndex = (state.index + 1) % TSidebarMode.values.length;
+    setMode(TSidebarMode.values[nextIndex]);
   }
 
-  Future<void> _saveSidebar(bool value) async {
+  void setMode(TSidebarMode mode) {
+    state = mode;
+    _saveSidebar(mode);
+  }
+
+  Future<void> _saveSidebar(TSidebarMode mode) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(sidebarMinifiedKey, value);
+    await prefs.setString(sidebarModeKey, mode.name);
+    await prefs.setBool(sidebarMinifiedKey, mode == TSidebarMode.minified);
   }
 }
 
 final themeNotifierProvider = NotifierProvider<ThemeNotifier, TThemeState>(() => ThemeNotifier());
-final sidebarNotifierProvider = NotifierProvider<SidebarNotifier, bool>(() => SidebarNotifier());
+final sidebarNotifierProvider = NotifierProvider<SidebarNotifier, TSidebarMode>(() => SidebarNotifier());
 
 class PrimaryColorOption {
   final String name;

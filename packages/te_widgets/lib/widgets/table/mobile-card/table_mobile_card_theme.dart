@@ -34,6 +34,7 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     super.forceKeyValue,
     super.keyValueBreakPoint,
     super.showLeftBorder,
+    required super.borderColor,
     super.alignment,
     super.narrowPadding,
     super.narrowItemBottomSpacing,
@@ -50,6 +51,12 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     super.additionalNaturalWidth,
     super.maxItemsPerRow,
     super.gridInline,
+    super.columnar,
+    super.columns,
+    super.inlineKeyWidth,
+    super.inlineKeyMaxWidth,
+    super.inlineKeyGap,
+    super.inlineKeyAlignment,
   });
 
   factory TTableMobileCardTheme.defaultTheme(ColorScheme colors) {
@@ -58,6 +65,7 @@ class TTableMobileCardTheme extends TKeyValueTheme {
       keyStyle: baseTheme.keyStyle,
       labelStyle: baseTheme.labelStyle,
       valueStyle: baseTheme.valueStyle,
+      borderColor: baseTheme.borderColor,
       backgroundColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.selected) ? colors.primaryContainer.withAlpha(25) : colors.surface,
       ),
@@ -86,6 +94,7 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     bool? forceKeyValue,
     double? keyValueBreakPoint,
     bool? showLeftBorder,
+    Color? borderColor,
     Alignment? alignment,
     EdgeInsets? narrowPadding,
     double? narrowItemBottomSpacing,
@@ -95,13 +104,19 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     EdgeInsets? gridCellPadding,
     double? gridCellGap,
     double? maxColWidthFraction,
-    double? minFractionFixed,
+    minFractionFixed,
     double? minFractionStructured,
     double? minFractionCompact,
     double? minFractionProse,
     double? additionalNaturalWidth,
     int? maxItemsPerRow,
     bool? gridInline,
+    bool? columnar,
+    int? columns,
+    double? inlineKeyWidth,
+    double? inlineKeyMaxWidth,
+    double? inlineKeyGap,
+    Alignment? inlineKeyAlignment,
   }) {
     return TTableMobileCardTheme(
       margin: margin ?? this.margin,
@@ -119,6 +134,7 @@ class TTableMobileCardTheme extends TKeyValueTheme {
       forceKeyValue: forceKeyValue ?? this.forceKeyValue,
       keyValueBreakPoint: keyValueBreakPoint ?? this.keyValueBreakPoint,
       showLeftBorder: showLeftBorder ?? this.showLeftBorder,
+      borderColor: borderColor ?? this.borderColor,
       alignment: alignment ?? this.alignment,
       narrowPadding: narrowPadding ?? this.narrowPadding,
       narrowItemBottomSpacing: narrowItemBottomSpacing ?? this.narrowItemBottomSpacing,
@@ -135,6 +151,12 @@ class TTableMobileCardTheme extends TKeyValueTheme {
       additionalNaturalWidth: additionalNaturalWidth ?? this.additionalNaturalWidth,
       maxItemsPerRow: maxItemsPerRow ?? this.maxItemsPerRow,
       gridInline: gridInline ?? this.gridInline,
+      columnar: columnar ?? this.columnar,
+      columns: columns ?? this.columns,
+      inlineKeyWidth: inlineKeyWidth ?? this.inlineKeyWidth,
+      inlineKeyMaxWidth: inlineKeyMaxWidth ?? this.inlineKeyMaxWidth,
+      inlineKeyGap: inlineKeyGap ?? this.inlineKeyGap,
+      inlineKeyAlignment: inlineKeyAlignment ?? this.inlineKeyAlignment,
     );
   }
 }

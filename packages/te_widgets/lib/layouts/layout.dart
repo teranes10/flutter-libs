@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:te_widgets/layouts/widgets/mobile_sidebar.dart';
-import 'package:te_widgets/layouts/widgets/top_bar.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TLayout extends ConsumerStatefulWidget {
@@ -18,12 +17,14 @@ class TLayout extends ConsumerStatefulWidget {
   final double maxWidth;
   final double minifiedWidth;
   final bool? isMinimized;
+  final TSidebarMode? sidebarMode;
   final bool showHamburgerMenu;
   final bool showThemeToggle;
   final bool showFullscreenToggle;
   final bool showColorToggle;
   final bool showLogout;
   final VoidCallback? onLogout;
+  final TSidebarTheme? sidebarTheme;
 
   const TLayout({
     super.key,
@@ -39,12 +40,14 @@ class TLayout extends ConsumerStatefulWidget {
     this.maxWidth = 300,
     this.minifiedWidth = 80,
     this.isMinimized,
+    this.sidebarMode,
     this.showHamburgerMenu = false,
     this.showThemeToggle = true,
     this.showFullscreenToggle = true,
     this.showColorToggle = true,
     this.showLogout = true,
     this.onLogout,
+    this.sidebarTheme,
   });
 
   @override
@@ -54,26 +57,38 @@ class TLayout extends ConsumerStatefulWidget {
 class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStateMixin {
   bool _isMobileSidebarOpen = false;
 
-  late final AnimationController _overlayController = AnimationController(
-    duration: const Duration(milliseconds: 280),
-    vsync: this,
-  );
-  late final Animation<double> _overlayCurve = CurvedAnimation(
-    parent: _overlayController,
-    curve: Curves.easeOutCubic,
-    reverseCurve: Curves.easeInCubic,
-  );
+  late final AnimationController _overlayController;
+  late final Animation<double> _overlayCurve;
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.isMinimized != null) {
+    _overlayController = AnimationController(
+      duration: const Duration(milliseconds: 280),
+      vsync: this,
+    );
+    _overlayCurve = CurvedAnimation(
+      parent: _overlayController,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    );
+
+    if (widget.sidebarMode != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        final isCurrentlyMinimized = ref.read(sidebarNotifierProvider);
-        if (isCurrentlyMinimized != widget.isMinimized) {
-          ref.read(sidebarNotifierProvider.notifier).toggleSidebar();
+        final currentMode = ref.read(sidebarNotifierProvider);
+        if (currentMode != widget.sidebarMode) {
+          ref.read(sidebarNotifierProvider.notifier).setMode(widget.sidebarMode!);
+        }
+      });
+    } else if (widget.isMinimized != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final currentMode = ref.read(sidebarNotifierProvider);
+        final targetMode = widget.isMinimized! ? TSidebarMode.minified : TSidebarMode.full;
+        if (currentMode != targetMode) {
+          ref.read(sidebarNotifierProvider.notifier).setMode(targetMode);
         }
       });
     }
@@ -143,50 +158,59 @@ class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStat
                             Expanded(child: _MainContent(isMobile: true, child: widget.child)),
                           ],
                         )
-                      : Row(
-                          children: [
-                            // ── Sidebar (full height) ──────────────────────
-                            Consumer(
-                              builder: (context, ref, _) => Sidebar(
-                                items: resolved.sidebarItems,
-                                minWidth: widget.minWidth,
-                                maxWidth: widget.maxWidth,
-                                minifiedWidth: widget.minifiedWidth,
-                                isMinimized: ref.watch(sidebarNotifierProvider),
-                                header: widget.logo != null
-                                    ? Padding(
-                                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                                        child: widget.logo!,
-                                      )
-                                    : null,
-                                minifiedHeader: widget.minifiedLogo != null
-                                    ? Padding(
-                                        padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
-                                        child: widget.minifiedLogo!,
-                                      )
-                                    : null,
-                              ),
-                            ),
-                            // ── Top bar + content ──────────────────────────
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  LayoutDesktopTopBar(
-                                    homeItem: resolved.homeItem,
-                                    resolvedItems: resolved.allItems,
-                                    profile: widget.profile,
-                                    showThemeToggle: widget.showThemeToggle,
-                                    showColorToggle: widget.showColorToggle,
-                                    actions: widget.actions,
-                                    showFullscreenToggle: widget.showFullscreenToggle,
-                                    showLogout: widget.showLogout,
-                                    onLogout: widget.onLogout,
+                      : Builder(
+                          builder: (context) {
+                            final sidebarMode = ref.watch(sidebarNotifierProvider);
+
+                            return Row(
+                              children: [
+                                // ── Sidebar (full height) ──────────────────────
+                                Sidebar(
+                                  items: resolved.sidebarItems,
+                                  minWidth: widget.minWidth,
+                                  maxWidth: widget.maxWidth,
+                                  minifiedWidth: widget.minifiedWidth,
+                                  mode: sidebarMode,
+                                  theme: widget.sidebarTheme,
+                                  header: widget.logo != null
+                                      ? Padding(
+                                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                                          child: widget.logo!,
+                                        )
+                                      : null,
+                                  minifiedHeader: widget.minifiedLogo != null
+                                      ? Padding(
+                                          padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
+                                          child: widget.minifiedLogo!,
+                                        )
+                                      : null,
+                                ),
+                                // ── Top bar + content ──────────────────────────
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      LayoutDesktopTopBar(
+                                        logo: widget.logo,
+                                        minifiedLogo: widget.minifiedLogo,
+                                        homeItem: resolved.homeItem,
+                                        resolvedItems: resolved.allItems,
+                                        sidebarItems: resolved.sidebarItems,
+                                        profile: widget.profile,
+                                        showThemeToggle: widget.showThemeToggle,
+                                        showColorToggle: widget.showColorToggle,
+                                        actions: widget.actions,
+                                        showFullscreenToggle: widget.showFullscreenToggle,
+                                        showLogout: widget.showLogout,
+                                        onLogout: widget.onLogout,
+                                        sidebarTheme: widget.sidebarTheme,
+                                      ),
+                                      Expanded(child: _MainContent(isMobile: false, child: widget.child)),
+                                    ],
                                   ),
-                                  Expanded(child: _MainContent(isMobile: false, child: widget.child)),
-                                ],
-                              ),
-                            ),
-                          ],
+                                ),
+                              ],
+                            );
+                          },
                         ),
                 ),
               ),
@@ -305,6 +329,8 @@ class _MainContent extends StatelessWidget {
               ),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+                bottomLeft: Radius.circular(12),
                 bottomRight: Radius.circular(12),
               ),
               boxShadow: [
@@ -323,7 +349,7 @@ class _MainContent extends StatelessWidget {
             child: Padding(
               padding: isMobile
                   ? const EdgeInsets.symmetric(vertical: 8, horizontal: 12)
-                  : const EdgeInsets.only(left: 24, right: 24, bottom: 6, top: 16),
+                  : const EdgeInsets.only(left: 20, right: 6, bottom: 6, top: 14),
               child: child,
             ),
           ),

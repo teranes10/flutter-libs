@@ -27,15 +27,18 @@ class TabRenderer<T> {
 
     final color = tab.isEnabled ? (isSelected ? defaultSelectedColor : defaultUnselectedColor) : defaultDisabledColor;
 
+    final effectiveIndicatorWidth = indicatorWidth ?? 1;
     final indicatorBorder = isSelected
         ? (axis == Axis.horizontal
-            ? Border(bottom: BorderSide(color: defaultIndicatorColor, width: indicatorWidth ?? 1))
-            : Border(right: BorderSide(color: defaultIndicatorColor, width: indicatorWidth ?? 1)))
-        : null;
+            ? Border(bottom: BorderSide(color: defaultIndicatorColor, width: effectiveIndicatorWidth))
+            : Border(right: BorderSide(color: defaultIndicatorColor, width: effectiveIndicatorWidth)))
+        : (axis == Axis.horizontal
+            ? Border(bottom: BorderSide(color: Colors.transparent, width: effectiveIndicatorWidth))
+            : Border(right: BorderSide(color: Colors.transparent, width: effectiveIndicatorWidth)));
 
-    // For vertical tabs on mobile, show only icons to prevent overflow
+    // For vertical tabs on mobile, show only icons to prevent overflow unless icon is null
     final isMobile = context.isMobile;
-    final showTextInVertical = axis == Axis.horizontal || !isMobile;
+    final showTextInVertical = axis == Axis.horizontal || !isMobile || tab.icon == null;
 
     final content = axis == Axis.horizontal
         ? _buildHorizontalTabContent(
@@ -60,6 +63,7 @@ class TabRenderer<T> {
         child: InkWell(
           onTap: onTab,
           child: Container(
+              alignment: axis == Axis.vertical ? Alignment.center : null,
               padding: tabPadding ??
                   (axis == Axis.horizontal
                       ? const EdgeInsets.symmetric(vertical: 6, horizontal: 8)

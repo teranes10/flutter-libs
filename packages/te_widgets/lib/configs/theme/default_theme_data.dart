@@ -125,12 +125,11 @@ class TAppTheme {
       interactive: true,
       thumbVisibility: WidgetStateProperty.resolveWith<bool>((states) => states.contains(WidgetState.hovered)),
       trackVisibility: const WidgetStatePropertyAll(false),
-      radius: const Radius.circular(8.0),
-      crossAxisMargin: -3,
-      mainAxisMargin: 3,
-      thickness: WidgetStateProperty.resolveWith<double?>((states) => states.contains(WidgetState.hovered) ? 8.0 : 6.0),
+      radius: const Radius.circular(12.0),
+      crossAxisMargin: -2,
+      thickness: WidgetStateProperty.resolveWith<double?>((states) => states.contains(WidgetState.hovered) ? 6.0 : 5.0),
       thumbColor: WidgetStateProperty.resolveWith<Color?>(
-        (states) => states.contains(WidgetState.hovered) ? lightScheme.outlineVariant : lightScheme.outline,
+        (states) => states.contains(WidgetState.hovered) ? colors.outlineVariant : colors.outline,
       ),
     );
   }

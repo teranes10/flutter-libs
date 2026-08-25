@@ -445,7 +445,7 @@ class _TooltipContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.theme;
     final mType = type ?? theme.tooltipType;
-    final wTheme = color != null ? context.getWidgetTheme(mType, color) : TWidgetTheme.surfaceTheme(context.colors, variant: mType);
+    final wTheme = context.getWidgetTheme(mType, color);
 
     final (defaultPadding, fontSize) = _sizeStyle();
     final effectivePadding = padding ?? defaultPadding;

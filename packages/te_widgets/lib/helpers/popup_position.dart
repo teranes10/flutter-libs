@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/extensions/media_query_data_x.dart';
 
@@ -38,7 +39,9 @@ class TPopupConstraints {
     required Matrix4 transform,
     required BoxConstraints inputConstraints,
     Alignment? alignment,
+    TPopupAlignment popupAlignment = TPopupAlignment.bottomLeft,
     double defaultSize = 100.0,
+    double margin = 30.0,
   }) {
     final mediaQuery = MediaQuery.of(context);
     final keyboardHeight = mediaQuery.viewInsets.bottom;
@@ -49,15 +52,47 @@ class TPopupConstraints {
     // Get the actual size of the Overlay to ensure correct space calculations
     final overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
     final overlaySize = overlay?.size ?? mediaQuery.size;
-    final viewportSize = Size(overlaySize.width, overlaySize.height - keyboardHeight);
+    final effectiveHeight = math.max(0.0, overlaySize.height - keyboardHeight);
+    final effectiveWidth = math.max(0.0, overlaySize.width);
+    final viewportSize = Size(effectiveWidth, effectiveHeight);
 
-    // Clip constraints to screen size to prevent clipping/overflow
-    final minWidth = inputConstraints.minWidth.clamp(0.0, viewportSize.width);
-    final minHeight = inputConstraints.minHeight.clamp(0.0, viewportSize.height);
-    final maxWidth =
-        (inputConstraints.maxWidth == double.infinity ? viewportSize.width : inputConstraints.maxWidth).clamp(minWidth, viewportSize.width);
-    final maxHeight = (inputConstraints.maxHeight == double.infinity ? viewportSize.height : inputConstraints.maxHeight)
-        .clamp(minHeight, viewportSize.height);
+    final isOpenOnSide = popupAlignment == TPopupAlignment.rightTop ||
+        popupAlignment == TPopupAlignment.rightBottom ||
+        popupAlignment == TPopupAlignment.rightCenter ||
+        popupAlignment == TPopupAlignment.leftTop ||
+        popupAlignment == TPopupAlignment.leftBottom ||
+        popupAlignment == TPopupAlignment.leftCenter;
+
+    final double spaceBelow;
+    final double spaceAbove;
+
+    if (isOpenOnSide) {
+      // For side popups, top aligns with target top (downwards) or bottom aligns with target bottom (upwards)
+      spaceBelow = viewportSize.height - targetOffset.dy - margin;
+      spaceAbove = (targetOffset.dy + targetSize.height) - margin;
+    } else {
+      // For top/bottom popups, popup opens below target bottom or above target top
+      spaceBelow = viewportSize.height - (targetOffset.dy + targetSize.height) - margin;
+      spaceAbove = targetOffset.dy - margin;
+    }
+
+    final maxAvailableHeight = spaceAbove > spaceBelow ? spaceAbove : spaceBelow;
+    final clampedAvailableHeight = maxAvailableHeight > 0
+        ? math.min(viewportSize.height, math.max(defaultSize, maxAvailableHeight))
+        : viewportSize.height;
+
+    // Clip constraints to screen size and available height safely
+    final maxWidth = (inputConstraints.maxWidth.isFinite
+            ? math.min(inputConstraints.maxWidth, viewportSize.width)
+            : viewportSize.width)
+        .clamp(0.0, viewportSize.width);
+    final minWidth = math.min(inputConstraints.minWidth, maxWidth).clamp(0.0, maxWidth);
+
+    final allowedMaxHeight = inputConstraints.maxHeight.isFinite
+        ? math.min(inputConstraints.maxHeight, clampedAvailableHeight)
+        : clampedAvailableHeight;
+    final maxHeight = allowedMaxHeight.clamp(0.0, viewportSize.height);
+    final minHeight = math.min(inputConstraints.minHeight, maxHeight).clamp(0.0, maxHeight);
 
     return TPopupConstraints(
       screenSize: viewportSize,
@@ -224,8 +259,10 @@ class PopupPositionDelegate extends SingleChildLayoutDelegate {
     }
 
     // Boundary check
-    dx = dx.clamp(0.0, screenSize.width - contentWidth);
-    dy = dy.clamp(0.0, screenSize.height - contentHeight);
+    final maxDx = math.max(0.0, screenSize.width - contentWidth);
+    final maxDy = math.max(0.0, screenSize.height - contentHeight);
+    dx = dx.clamp(0.0, maxDx);
+    dy = dy.clamp(0.0, maxDy);
 
     return Offset(dx, dy);
   }

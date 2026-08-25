@@ -29,12 +29,14 @@ import 'package:my_app/pages/tables_dialog_page.dart';
 import 'package:my_app/pages/tables_page_mode_page.dart';
 import 'package:my_app/pages/cursor_pagination_page.dart';
 import 'package:my_app/pages/lists_page.dart';
+import 'package:my_app/pages/list_detail_page.dart';
 import 'package:my_app/pages/stepper_page.dart';
 import 'package:my_app/pages/tables_sub_item_page.dart';
 import 'package:my_app/pages/tables_create_builder_page.dart';
 import 'package:my_app/pages/tables_tree_children_page.dart';
 import 'package:my_app/pages/tabs_page.dart';
 import 'package:my_app/pages/delivery_page.dart';
+import 'package:my_app/pages/timeline_page.dart';
 
 final sidebarItems = [
   TSidebarItem(icon: Icons.text_fields, text: 'Input Fields', route: '/input-fields', page: const InputFieldsPage()),
@@ -55,7 +57,9 @@ final sidebarItems = [
   ),
   TSidebarItem(icon: Icons.tab, text: 'Tabs', route: '/tabs', page: const TabsPage()),
   TSidebarItem(icon: Icons.list, text: 'Lists', route: '/lists', page: const ListsPage()),
+  TSidebarItem(icon: Icons.splitscreen, text: 'List Detail', route: '/list-detail', page: const ListDetailPage()),
   TSidebarItem(icon: Icons.linear_scale, text: 'Stepper', route: '/stepper', page: const StepperPage()),
+  TSidebarItem(icon: Icons.timeline, text: 'Timeline', route: '/timeline', page: const TimelinePage()),
   TSidebarItem(icon: Icons.message, text: 'Popups', route: '/popups', page: const PopupsPage()),
   TSidebarItem(
     icon: Icons.table_chart,

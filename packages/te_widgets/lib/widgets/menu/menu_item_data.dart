@@ -25,4 +25,6 @@ abstract class TMenuItemData<T extends TMenuItemData<T>> {
 
   /// Invoked when the item itself (not a child with a submenu) is activated.
   void tap(BuildContext context);
+
+  Widget? get customContent => null;
 }

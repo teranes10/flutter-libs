@@ -19,6 +19,8 @@ class TMap extends StatefulWidget {
   final double minZoom;
   final double maxZoom;
   final double borderRadius;
+  final LatLngBounds? bounds;
+  final EdgeInsets? boundsPadding;
 
   const TMap({
     super.key,
@@ -36,6 +38,8 @@ class TMap extends StatefulWidget {
     this.minZoom = 4.0,
     this.maxZoom = 17.0,
     this.borderRadius = 12,
+    this.bounds,
+    this.boundsPadding,
   });
 
   @override
@@ -65,10 +69,12 @@ class _TMapState extends State<TMap> {
     return total / count;
   }
 
-  LatLng _getCalculatedCenter() => LatLng(
-    _averageOf(widget.pins.map((pin) => pin.coordinates.latitude)),
-    _averageOf(widget.pins.map((pin) => pin.coordinates.longitude)),
+  LatLng _averageCoordinatesOf(List<TMapPin> pins) => LatLng(
+    _averageOf(pins.map((pin) => pin.coordinates.latitude)),
+    _averageOf(pins.map((pin) => pin.coordinates.longitude)),
   );
+
+  LatLng _getCalculatedCenter() => _averageCoordinatesOf(widget.pins);
 
   LatLng _resolveCenter() => widget.initialCoordinates ?? (widget.pins.isEmpty ? TMapConfig.mapCenter : _getCalculatedCenter());
 
@@ -77,23 +83,61 @@ class _TMapState extends State<TMap> {
     super.initState();
     _center = _resolveCenter();
     _zoomLevel = widget.zoom;
+
+    if (widget.bounds != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          try {
+            _mapController.fitCamera(
+              CameraFit.bounds(
+                bounds: widget.bounds!,
+                padding: widget.boundsPadding ?? const EdgeInsets.all(48),
+                maxZoom: 16,
+              ),
+            );
+          } catch (_) {}
+        }
+      });
+    }
   }
 
   @override
   void didUpdateWidget(TMap oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialCoordinates != widget.initialCoordinates || oldWidget.pins != widget.pins) {
-      _center = _resolveCenter();
-      // Only fly the camera when the caller intentionally changes the center.
-      // Pin/label updates (e.g. after a tap or reverse-geocode) must not recenter.
-      final newCenter = widget.initialCoordinates;
-      final oldCenter = oldWidget.initialCoordinates;
-      if (newCenter != null &&
-          (oldCenter == null ||
-              oldCenter.latitude != newCenter.latitude ||
-              oldCenter.longitude != newCenter.longitude)) {
-        _center = newCenter;
-        _mapController.move(_center, _zoomLevel);
+    final boundsChanged = widget.bounds != oldWidget.bounds && widget.bounds != null;
+
+    if (boundsChanged) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.bounds != null) {
+          try {
+            _mapController.fitCamera(
+              CameraFit.bounds(
+                bounds: widget.bounds!,
+                padding: widget.boundsPadding ?? const EdgeInsets.all(48),
+                maxZoom: 16,
+              ),
+            );
+          } catch (_) {}
+        }
+      });
+    } else if (oldWidget.initialCoordinates != widget.initialCoordinates || oldWidget.pins != widget.pins) {
+      final newCenter = _resolveCenter();
+      final oldCenter = oldWidget.initialCoordinates ?? (oldWidget.pins.isEmpty ? null : _averageCoordinatesOf(oldWidget.pins));
+      _center = newCenter;
+      _zoomLevel = widget.zoom;
+
+      final bool centerChanged = oldCenter == null ||
+          oldCenter.latitude != newCenter.latitude ||
+          oldCenter.longitude != newCenter.longitude;
+
+      if (centerChanged) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            try {
+              _mapController.move(_center, _zoomLevel);
+            } catch (_) {}
+          }
+        });
       }
     }
   }
@@ -159,12 +203,15 @@ class _TMapState extends State<TMap> {
   }
 
   /// Builds the full pin widget (ground shadow + lifted icon + optional
-  /// label), shared between the interactive marker layer and the static
+  /// floating label badge), shared between the interactive marker layer and the static
   /// center pin so the visual treatment never drifts out of sync.
   Widget _buildPin(TMapPin pin, ColorScheme colors, bool isDark, {required bool selected}) {
-    return Stack(
+    final hasLabel = pin.label != null && pin.label!.isNotEmpty;
+    final pinColor = pin.iconColor ?? colors.primary;
+
+    final pinIcon = Stack(
       clipBehavior: Clip.none,
-      alignment: Alignment.topCenter,
+      alignment: Alignment.bottomCenter,
       children: [
         Positioned(bottom: 0, child: _pinGroundShadow(isDark, selected)),
         AnimatedScale(
@@ -182,25 +229,62 @@ class _TMapState extends State<TMap> {
             ),
           ),
         ),
-        if (pin.label != null)
-          Positioned(
-            left: 36,
-            top: 12,
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 180),
-              child: Text(
-                pin.label!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: colors.onSurface,
-                  shadows: [Shadow(color: colors.surface.withAlpha(200), blurRadius: 3)],
+      ],
+    );
+
+    if (!hasLabel) {
+      return pinIcon;
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Floating pill badge
+        Container(
+          constraints: const BoxConstraints(maxWidth: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xF01E293B) : Colors.white.withAlpha(245),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: pinColor.withAlpha(140),
+              width: 1,
+            ),
+            boxShadow: const [
+              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: pinColor,
+                  shape: BoxShape.circle,
                 ),
               ),
-            ),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  pin.label!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : colors.onSurface,
+                  ),
+                ),
+              ),
+            ],
           ),
+        ),
+        const SizedBox(height: 2),
+        pinIcon,
       ],
     );
   }
@@ -331,14 +415,15 @@ class _TMapState extends State<TMap> {
 
     final pinMarkers = widget.pins.map((pin) {
       final isCustom = pin.customBuilder != null || pin.assetPath != null;
-      final defaultAlignment = isCustom ? Alignment.center : Alignment.topCenter;
+      final defaultAlignment = isCustom ? Alignment.center : Alignment.bottomCenter;
       final alignment = pin.alignment ?? defaultAlignment;
       final isSelected = identical(_selectedPin, pin);
+      final hasLabel = pin.label != null && pin.label!.isNotEmpty;
 
       return Marker(
         point: pin.coordinates,
-        width: _markerBoxSize,
-        height: _markerBoxSize,
+        width: hasLabel ? 160.0 : _markerBoxSize,
+        height: hasLabel ? 64.0 : _markerBoxSize,
         alignment: alignment,
         child: GestureDetector(
           onTap: widget.interactive ? () => setState(() => _selectedPin = pin) : null,
@@ -354,6 +439,13 @@ class _TMapState extends State<TMap> {
           options: MapOptions(
             initialCenter: _center,
             initialZoom: _zoomLevel.toDouble(),
+            initialCameraFit: widget.bounds != null
+                ? CameraFit.bounds(
+                    bounds: widget.bounds!,
+                    padding: widget.boundsPadding ?? const EdgeInsets.all(48),
+                    maxZoom: 16,
+                  )
+                : null,
             minZoom: widget.minZoom,
             maxZoom: widget.maxZoom,
             interactionOptions: InteractionOptions(flags: widget.interactive ? InteractiveFlag.all : InteractiveFlag.none),

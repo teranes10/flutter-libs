@@ -72,6 +72,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     VoidCallback? onClear,
     String? placeholder,
     bool expands = false,
+    FloatingLabelAlignment? labelAlignment,
   }) {
     final infoIcon = _widget.info != null ? wTheme.buildInfoIcon(_widget.info!, colors) : null;
 
@@ -89,6 +90,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
       isRequired: _widget.isRequired,
       onClear: _widget.clearable && hasValue && !_widget.disabled && onClear != null ? onClear : null,
       infoIcon: infoIcon,
+      labelAlignment: labelAlignment,
     );
   }
 
@@ -131,6 +133,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     bool focusOnTap = true,
     String? placeholder,
     bool floatingLabelAlways = false,
+    FloatingLabelAlignment? labelAlignment,
   }) {
     return buildWrapper(
       child: InkWell(
@@ -166,13 +169,14 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
             onClear: onClear,
             placeholder: placeholder,
             expands: expands,
+            labelAlignment: labelAlignment,
           ),
           child: Container(
             constraints: BoxConstraints(
-              minHeight: wTheme.fieldHeight - wTheme.fieldPadding.top,
+              minHeight: wTheme.fieldHeight - wTheme.fieldPadding.vertical,
               minWidth: block ? double.infinity : 0,
             ),
-            alignment: Alignment.centerLeft,
+            alignment: labelAlignment == FloatingLabelAlignment.center ? Alignment.center : Alignment.centerLeft,
             child: child,
           ),
         ),

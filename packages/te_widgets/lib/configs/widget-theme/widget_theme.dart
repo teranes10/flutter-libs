@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 enum TThemeType {
+  primary,
+  secondary,
   success,
   warning,
   error,
-  info;
+  info,
+  neutral;
 
   Color getColor(BuildContext context) {
     return switch (this) {
+      TThemeType.primary => context.theme.primary,
+      TThemeType.secondary => context.theme.secondary,
       TThemeType.success => context.theme.success,
       TThemeType.warning => context.theme.warning,
       TThemeType.error => context.theme.danger,
       TThemeType.info => context.theme.info,
+      TThemeType.neutral => context.theme.grey,
     };
   }
 }
@@ -111,15 +117,15 @@ class TWidgetTheme {
     );
   }
 
-  static TWidgetTheme surfaceTheme(ColorScheme colors, {TVariant variant = TVariant.tonal, bool active = false}) {
+  static TWidgetTheme surfaceTheme(ColorScheme colors, {TVariant variant = TVariant.tonal}) {
     return TWidgetTheme(
       isDarkMode: colors.isDarkMode,
       type: variant,
-      color: active ? colors.primary.toMaterial() : colors.onSurfaceVariant.toMaterial(),
-      container: active ? colors.primaryContainer : colors.surfaceContainer,
-      containerVariant: active ? colors.primaryContainer : colors.surfaceContainerHigh,
-      onContainer: active ? colors.onPrimaryContainer : colors.onSurface,
-      onContainerVariant: active ? colors.onPrimaryContainer : colors.onSurfaceVariant,
+      color: colors.onSurfaceVariant.toMaterial(),
+      container: colors.surfaceContainer,
+      containerVariant: colors.surfaceContainerHigh,
+      onContainer: colors.onSurface,
+      onContainerVariant: colors.onSurfaceVariant,
       shadow: colors.shadow,
     );
   }

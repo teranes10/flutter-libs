@@ -2,11 +2,11 @@ part of 'table.dart';
 
 typedef TTableCreateBuilder<T, K> = Widget Function(BuildContext ctx, TListItem<T, K>? item, int? index);
 
-enum TTableExpansionMode { bottom, side, dialog, page }
+enum TTableExpansionMode { bottom, side, dialog, page, sideOverlay }
 
 /// An [InheritedWidget] providing details expansion mode and state to descendants.
 class TTableDetailsScope extends InheritedWidget {
-  /// The active expansion mode (bottom, side, dialog, page).
+  /// The active expansion mode (bottom, side, dialog, page, sideOverlay).
   final TTableExpansionMode mode;
 
   /// Whether the expanded detail content is in creation mode.
@@ -48,19 +48,19 @@ class TTableDetails<T, K> {
   /// Defines how the expanded content is presented during creation/editing.
   final TTableExpansionMode? createMode;
 
-  /// Function to extract the title from an item (used in dialogs/pages).
+  /// Function to extract the title from an item (used in dialogs/pages/sheets).
   final String? Function(T item)? itemTitle;
 
-  /// Function to extract the sub-title from an item (used in dialogs/pages).
+  /// Function to extract the sub-title from an item (used in dialogs/pages/sheets).
   final String? Function(T item)? itemSubTitle;
 
-  /// Function to extract the description from an item (used in dialogs/pages).
+  /// Function to extract the description from an item (used in dialogs/pages/sheets).
   final String? Function(T item)? itemDescription;
 
-  /// Function to extract the image URL from an item (used in dialogs/pages).
+  /// Function to extract the image URL from an item (used in dialogs/pages/sheets).
   final String? Function(T item)? itemImageUrl;
 
-  /// Function to extract key-value information from an item (used in dialogs/pages).
+  /// Function to extract key-value information from an item (used in dialogs/pages/sheets).
   final List<TKeyValue>? Function(T item)? itemInfo;
 
   /// Whether to display key and value inline in grid layout (Key: Value) for itemInfo. Defaults to true.
@@ -104,6 +104,12 @@ class TTableDetails<T, K> {
   /// The width of the dialog when creating or editing items in dialog mode. Defaults to [dialogWidth] or 800.
   final double? createDialogWidth;
 
+  /// The width of the side overlay when expansion mode is sideOverlay. Defaults to 500.
+  final double sideOverlayWidth;
+
+  /// The width of the side overlay when creating or editing items in sideOverlay mode. Defaults to [sideOverlayWidth] or 500.
+  final double? createSideOverlayWidth;
+
   /// Whether to automatically expand the first item in the list initially.
   final bool autoExpandFirst;
 
@@ -130,10 +136,66 @@ class TTableDetails<T, K> {
     this.showLayoutForBottom = false,
     this.dialogWidth = 800.0,
     this.createDialogWidth,
+    this.sideOverlayWidth = 500.0,
+    this.createSideOverlayWidth,
     this.autoExpandFirst = false,
     this.autoSelectFirst = false,
     this.itemInfoGridInline = true,
   });
+
+  TTableDetails<T, K> copyWith({
+    TTableExpansionMode? mode,
+    TTableExpansionMode? createMode,
+    String? Function(T item)? itemTitle,
+    String? Function(T item)? itemSubTitle,
+    String? Function(T item)? itemDescription,
+    String? Function(T item)? itemImageUrl,
+    List<TKeyValue>? Function(T item)? itemInfo,
+    bool? itemInfoGridInline,
+    List<Widget> Function(T item)? actions,
+    Future<bool> Function(K key)? onWillExpand,
+    Future<bool> Function(K key)? onWillCollapse,
+    bool? focus,
+    double? dimmedOpacity,
+    TListExpandedBuilder<T, K>? builder,
+    TTableCreateBuilder<T, K>? createBuilder,
+    String? Function(T? item)? createTitle,
+    Widget Function(BuildContext context, TTableDetails<T, K> details, T? item, Widget child)? layoutBuilder,
+    bool? showLayoutForBottom,
+    double? dialogWidth,
+    double? createDialogWidth,
+    double? sideOverlayWidth,
+    double? createSideOverlayWidth,
+    bool? autoExpandFirst,
+    bool? autoSelectFirst,
+  }) {
+    return TTableDetails<T, K>(
+      mode: mode ?? this.mode,
+      createMode: createMode ?? this.createMode,
+      itemTitle: itemTitle ?? this.itemTitle,
+      itemSubTitle: itemSubTitle ?? this.itemSubTitle,
+      itemDescription: itemDescription ?? this.itemDescription,
+      itemImageUrl: itemImageUrl ?? this.itemImageUrl,
+      itemInfo: itemInfo ?? this.itemInfo,
+      itemInfoGridInline: itemInfoGridInline ?? this.itemInfoGridInline,
+      actions: actions ?? this.actions,
+      onWillExpand: onWillExpand ?? this.onWillExpand,
+      onWillCollapse: onWillCollapse ?? this.onWillCollapse,
+      focus: focus ?? this.focus,
+      dimmedOpacity: dimmedOpacity ?? this.dimmedOpacity,
+      builder: builder ?? this.builder,
+      createBuilder: createBuilder ?? this.createBuilder,
+      createTitle: createTitle ?? this.createTitle,
+      layoutBuilder: layoutBuilder ?? this.layoutBuilder,
+      showLayoutForBottom: showLayoutForBottom ?? this.showLayoutForBottom,
+      dialogWidth: dialogWidth ?? this.dialogWidth,
+      createDialogWidth: createDialogWidth ?? this.createDialogWidth,
+      sideOverlayWidth: sideOverlayWidth ?? this.sideOverlayWidth,
+      createSideOverlayWidth: createSideOverlayWidth ?? this.createSideOverlayWidth,
+      autoExpandFirst: autoExpandFirst ?? this.autoExpandFirst,
+      autoSelectFirst: autoSelectFirst ?? this.autoSelectFirst,
+    );
+  }
 }
 
 enum _DetailKind { view, edit, create }
@@ -155,7 +217,8 @@ bool _sameDetailTarget<K>(_ActiveDetailTarget<K>? a, _ActiveDetailTarget<K>? b) 
 
 const Object _kTransitionResult = 'table_transition';
 
-bool _isOverlayMode(TTableExpansionMode mode) => mode == TTableExpansionMode.dialog || mode == TTableExpansionMode.page;
+bool _isOverlayMode(TTableExpansionMode mode) =>
+    mode == TTableExpansionMode.dialog || mode == TTableExpansionMode.page || mode == TTableExpansionMode.sideOverlay;
 
 extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
   /// Derives what *should* be shown right now from controller state.
@@ -273,7 +336,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       itemInfoGridInline: details.itemInfoGridInline,
       actions: actions,
       onBackPressed: () => TTableScope.of(context).close(context),
-      shrinkWrap: details.mode != TTableExpansionMode.page,
+      shrinkWrap: details.mode != TTableExpansionMode.page && details.mode != TTableExpansionMode.sideOverlay,
       child: child,
     );
 
@@ -316,10 +379,10 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
 
   void _dismissOverlay(TTableExpansionMode mode, {Object? result}) {
     if (!mounted) return;
-    Navigator.of(context, rootNavigator: mode == TTableExpansionMode.dialog).maybePop(result);
+    Navigator.of(context, rootNavigator: mode == TTableExpansionMode.dialog || mode == TTableExpansionMode.sideOverlay).maybePop(result);
   }
 
-  /// Presents a target as a dialog or page. Used for both view and
+  /// Presents a target as a dialog, page, or side overlay sheet. Used for both view and
   /// create/edit flows — no more duplicated push/showDialog logic.
   void _presentOverlay(_ActiveDetailTarget<K> target) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -337,6 +400,17 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
           builder: (_) => _buildScopedContent(config.$1, config.$2),
         );
         result = await navigator.push<Object?>(route);
+      } else if (target.mode == TTableExpansionMode.sideOverlay) {
+        final sideWidth = (target.kind == _DetailKind.create || target.kind == _DetailKind.edit)
+            ? (details?.createSideOverlayWidth ?? details?.sideOverlayWidth ?? 500.0)
+            : (details?.sideOverlayWidth ?? 500.0);
+
+        result = await TSheetService.showSideSheet<Object?>(
+          context,
+          (_) => _buildScopedContent(config.$1, config.$2),
+          width: sideWidth,
+          layoutBuilder: (ctx, child) => child,
+        );
       } else {
         // dialog mode — adaptive: TModal on desktop, page-push on mobile.
         final modalWidth = (target.kind == _DetailKind.create || target.kind == _DetailKind.edit)
@@ -367,7 +441,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
           listController.cancelEditItem();
           break;
         case _DetailKind.view:
-          listController.collapseAll();
+          listController.collapseDetail();
           break;
       }
     });
@@ -406,78 +480,39 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
   }
 
   Widget _buildSideLayout(ColorScheme colors, BoxConstraints constraints) {
-    final config = getEffectiveConfig();
-    if (config == null) return const SizedBox.shrink();
+    final details = widget.details;
+    if (details == null) return const SizedBox.shrink();
 
-    final sideListWidth = wTheme.expandSideListWidth ?? 275.0;
-    final minRequiredWidth = wTheme.minSideExpandWidth ?? 700.0;
-    final showSideList = constraints.maxWidth >= minRequiredWidth;
-
-    if (!showSideList) {
-      return _buildScopedContent(config.$1, config.$2);
-    }
-
-    return Row(
-      key: const ValueKey('table_side_expand_layout'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(width: sideListWidth, child: _buildSideList(colors, constraints)),
-        const SizedBox(width: 1),
-        Expanded(child: _buildScopedContent(config.$1, config.$2)),
-      ],
-    );
-  }
-
-  Widget _buildSideList(ColorScheme colors, BoxConstraints constraints) {
-    final hasBoundedHeight = constraints.hasBoundedHeight;
-    final listWidget = TList<T, K>(
+    return TListDetail<T, K>(
       controller: listController,
-      shrinkWrap: !hasBoundedHeight,
+      sideListWidth: wTheme.expandSideListWidth ?? 275.0,
+      minSideExpandWidth: wTheme.minSideExpandWidth ?? 700.0,
+      itemTitle: details.itemTitle,
+      itemSubTitle: details.itemSubTitle,
+      itemImageUrl: details.itemImageUrl,
+      actions: details.actions,
+      sidebarHeaderBuilder: widget.beforeItemsBuilder,
+      showSearch: true,
       itemBuilder: (ctx, item, index) => _buildSideListItem(ctx, item, index),
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: hasBoundedHeight ? MainAxisSize.max : MainAxisSize.min,
-      children: [
-        if (widget.search != null || widget.beforeItemsBuilder != null)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12, right: 14),
-            child: widget.beforeItemsBuilder?.call(context) ?? const SizedBox.shrink(),
-          ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12, right: 14),
-          child: Row(
-            children: [
-              Expanded(
-                child: TTextField(
-                  value: listController.value.search,
-                  theme: context.theme.textFieldTheme.copyWith(
-                    size: TInputSize.sm,
-                    labelPosition: TLabelPosition.aboveField,
-                    decorationType: TInputDecorationType.filled,
-                    postWidget: Icon(Icons.search_rounded, size: 18, color: colors.onSurface),
-                  ),
-                  placeholder: 'Search...',
-                  onValueChanged: (String? input) {
-                    listController.handleSearchChange(input ?? '');
-                  },
-                ),
-              ),
-              if (widget.details?.createBuilder != null) ...[
-                const SizedBox(width: 8),
-                TButton(
-                  type: TButtonType.tonal,
-                  size: TButtonSize.sm,
-                  icon: Icons.add,
-                  onPressed: (_) => listController.beginCreateItem(),
-                ),
-              ],
-            ],
-          ),
-        ),
-        if (hasBoundedHeight) Expanded(child: listWidget) else listWidget,
-      ],
+      detailBuilder: (context, item, index) {
+        return _buildScopedContent(
+          TTableExpansionMode.side,
+          (ctx) => details.builder?.call(ctx, item, index) ??
+              wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index),
+        );
+      },
+      createBuilder: details.createBuilder != null
+          ? (context) => _buildScopedContent(
+                TTableExpansionMode.side,
+                (ctx) => details.createBuilder!(ctx, null, null),
+              )
+          : null,
+      editBuilder: details.createBuilder != null
+          ? (context, item, index) => _buildScopedContent(
+                TTableExpansionMode.side,
+                (ctx) => details.createBuilder!(ctx, item, index),
+              )
+          : null,
     );
   }
 

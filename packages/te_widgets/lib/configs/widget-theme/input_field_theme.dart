@@ -26,6 +26,7 @@ class TInputFieldTheme {
   final WidgetStateProperty<Color>? backgroundColor;
   final WidgetStateProperty<Color> borderColor;
   final WidgetStateProperty<TextStyle> labelStyle;
+  final WidgetStateProperty<TextStyle> floatingLabelStyle;
   final WidgetStateProperty<TextStyle> helperTextStyle;
   final WidgetStateProperty<TextStyle> errorTextStyle;
   final WidgetStateProperty<TextStyle> tagStyle;
@@ -70,6 +71,7 @@ class TInputFieldTheme {
     this.backgroundColor,
     required this.borderColor,
     required this.labelStyle,
+    required this.floatingLabelStyle,
     required this.helperTextStyle,
     required this.errorTextStyle,
     required this.tagStyle,
@@ -102,6 +104,7 @@ class TInputFieldTheme {
     WidgetStateProperty<Color>? backgroundColor,
     WidgetStateProperty<Color>? borderColor,
     WidgetStateProperty<TextStyle>? labelStyle,
+    WidgetStateProperty<TextStyle>? floatingLabelStyle,
     WidgetStateProperty<TextStyle>? helperTextStyle,
     WidgetStateProperty<TextStyle>? errorTextStyle,
     WidgetStateProperty<TextStyle>? tagStyle,
@@ -113,6 +116,7 @@ class TInputFieldTheme {
     WidgetStateProperty<ErrorsBuilder>? errorsBuilder,
   }) {
     final newLabelStyle = labelStyle ?? this.labelStyle;
+    final newFloatingLabelStyle = floatingLabelStyle ?? this.floatingLabelStyle;
     final newHelperTextStyle = helperTextStyle ?? this.helperTextStyle;
     final newErrorTextStyle = errorTextStyle ?? this.errorTextStyle;
     final newTagStyle = tagStyle ?? this.tagStyle;
@@ -125,6 +129,7 @@ class TInputFieldTheme {
       backgroundColor: backgroundColor ?? this.backgroundColor,
       borderColor: borderColor ?? this.borderColor,
       labelStyle: newLabelStyle,
+      floatingLabelStyle: newFloatingLabelStyle,
       helperTextStyle: newHelperTextStyle,
       errorTextStyle: newErrorTextStyle,
       tagStyle: newTagStyle,
@@ -178,6 +183,21 @@ class TInputFieldTheme {
       );
     });
 
+    final floatingLabelStyle = WidgetStateProperty.resolveWith((states) {
+      final baseFontSize = labelPosition == TLabelPosition.aboveField ? 12.0 : size.fontSize;
+      return TextStyle(
+        fontSize: labelPosition == TLabelPosition.inlineFloating ? baseFontSize * 1.25 : baseFontSize,
+        fontWeight: FontWeight.w500,
+        color: states.contains(WidgetState.disabled)
+            ? colors.onSurfaceVariant
+            : states.contains(WidgetState.error)
+                ? colors.error
+                : states.contains(WidgetState.focused)
+                    ? colors.primary
+                    : colors.onSurfaceVariant,
+      );
+    });
+
     final helperTextStyle =
         WidgetStateProperty.all(TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: colors.onSurfaceVariant.withAlpha(200)));
 
@@ -203,6 +223,7 @@ class TInputFieldTheme {
       color: color,
       borderColor: borderColor,
       labelStyle: labelStyle,
+      floatingLabelStyle: floatingLabelStyle,
       helperTextStyle: helperTextStyle,
       errorTextStyle: errorTextStyle,
       tagStyle: labelStyle,
@@ -263,11 +284,9 @@ class TInputFieldTheme {
     bool isRequired = false,
     VoidCallback? onClear,
     Widget? infoIcon,
+    FloatingLabelAlignment? labelAlignment,
   }) {
     final inputBorder = buildInputBorder(states);
-
-    final hasPrefix = beforePreWidget != null || preWidget != null;
-    final hasSuffix = onClear != null || beforePostWidget != null || infoIcon != null || postWidget != null;
 
     final isFilled = decorationType == TInputDecorationType.filled;
 
@@ -281,9 +300,14 @@ class TInputFieldTheme {
       focusedBorder: inputBorder,
       errorBorder: inputBorder,
       contentPadding: fieldPadding,
+      constraints: BoxConstraints(
+        minHeight: fieldHeight,
+        maxHeight: expands ? double.infinity : fieldHeight,
+      ),
       label: labelPosition == TLabelPosition.aboveField ? null : labelBuilder.resolve(states)(label, tag, isRequired, null),
       labelStyle: labelStyle.resolve(states),
-      floatingLabelStyle: labelStyle.resolve(states),
+      floatingLabelStyle: floatingLabelStyle.resolve(states),
+      floatingLabelAlignment: labelAlignment,
       floatingLabelBehavior: switch (labelPosition) {
         TLabelPosition.aboveField => FloatingLabelBehavior.never,
         TLabelPosition.floating || TLabelPosition.inlineFloating => FloatingLabelBehavior.auto,
@@ -292,9 +316,9 @@ class TInputFieldTheme {
       visualDensity: VisualDensity.compact,
       hintText: placeholder,
       hintStyle: hintStyle.resolve(states),
-      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight - fieldPadding.vertical, minWidth: hasPrefix ? 40 : fieldPadding.left),
+      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight - fieldPadding.vertical, minWidth: fieldPadding.left),
       prefixIcon: _buildPreWidget(beforePreWidget),
-      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight - fieldPadding.vertical, minWidth: hasSuffix ? 40 : fieldPadding.right),
+      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight - fieldPadding.vertical, minWidth: fieldPadding.right),
       suffixIcon: _buildPostWidget(
         beforePostWidget: beforePostWidget,
         onClear: onClear,

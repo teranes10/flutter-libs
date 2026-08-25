@@ -28,6 +28,9 @@ part of 'form_builder.dart';
 /// - `group()` - Nested form
 /// - `groupFields()` - Group of manual fields
 /// - `items()` - Dynamic list of forms
+/// - `tabs()` - Sub-forms in tabs (horizontal/vertical)
+/// - `horizontalTabs()` - Sub-forms in horizontal tabs
+/// - `verticalTabs()` - Sub-forms in vertical tabs
 ///
 /// ## Usage Example
 ///
@@ -53,12 +56,15 @@ class TFormField<T> {
   /// Builder function that creates the widget.
   final Widget Function(ValueChanged<T?>) builder;
 
+  /// Whether this field represents a sub-form (e.g. tabs or nested form group).
+  final bool isSubForm;
+
   late final Widget _field;
   TGridSize _size = const TGridSize();
   VoidCallback? _callback;
 
   /// Creates a form field.
-  TFormField({required this.builder, this.prop}) {
+  TFormField({required this.builder, this.prop, this.isSubForm = false}) {
     _field = builder.call(_onValueChanged);
   }
 
@@ -68,7 +74,6 @@ class TFormField<T> {
   }
 
   void _attach(VoidCallback callback) {
-    assert(_callback == null, 'Form field value listener already attached.');
     _callback = callback;
   }
 
@@ -596,6 +601,7 @@ class TFormField<T> {
   }) {
     return TFormField<T>(
       prop: prop,
+      isSubForm: true,
       builder: (onValueChanged) => TFormBuilder(
         label: label,
         description: description,
@@ -617,6 +623,7 @@ class TFormField<T> {
     Widget? footer,
   }) {
     return TFormField(
+      isSubForm: true,
       builder: (onValueChanged) => TFormBuilder(
         label: label,
         description: description,
@@ -641,6 +648,7 @@ class TFormField<T> {
   }) {
     return TFormField<List<T>>(
       prop: prop,
+      isSubForm: true,
       builder: (onValueChanged) => TItemsFormBuilder(
         label: label,
         buttonLabel: buttonLabel,
@@ -655,6 +663,261 @@ class TFormField<T> {
       ),
     );
   }
+
+  /// Creates a sub-form field rendered with tabs using [TTabs].
+  ///
+  /// Supports both [Axis.horizontal] and [Axis.vertical] tab layouts.
+  ///
+  /// Example:
+  /// ```dart
+  /// TFormField.tabs(
+  ///   tabs: [
+  ///     TFormTab(
+  ///       title: 'General',
+  ///       icon: Icons.info,
+  ///       input: GeneralForm(),
+  ///     ),
+  ///     TFormTab(
+  ///       title: 'Security',
+  ///       icon: Icons.security,
+  ///       fields: [
+  ///         TFormField.text(password, 'Password'),
+  ///       ],
+  ///     ),
+  ///   ],
+  ///   axis: Axis.horizontal,
+  /// )
+  /// ```
+  static TFormField<dynamic> tabs({
+    required List<TFormTab> tabs,
+    Axis axis = Axis.horizontal,
+    TFormType? formType,
+    String? label,
+    String? description,
+    IconData? icon,
+    bool initiallyExpanded = false,
+    TTabController<dynamic>? controller,
+    dynamic initialValue,
+    ValueChanged<dynamic>? onTabChanged,
+    double? tabWidth,
+    bool scrollable = false,
+    bool showNavigationButtons = true,
+    bool inline = false,
+    bool wrap = false,
+    EdgeInsets? tabPadding,
+    double tabSpacing = 2,
+    double? indicatorWidth,
+    Color? selectedColor,
+    Color? unselectedColor,
+    Color? indicatorColor,
+    Color? borderColor,
+    Widget Function(BuildContext, TTab<dynamic>, bool, VoidCallback?)? tabBuilder,
+    double gapX = 16.0,
+    double gapY = 26.0,
+    Widget? footer,
+  }) {
+    return TFormField<dynamic>(
+      isSubForm: true,
+      builder: (onValueChanged) => TFormBuilder(
+        tabs: tabs,
+        tabAxis: axis,
+        formType: formType,
+        label: label,
+        description: description,
+        icon: icon,
+        initiallyExpanded: initiallyExpanded,
+        tabController: controller,
+        initialTabValue: initialValue,
+        onTabChanged: onTabChanged,
+        tabWidth: tabWidth,
+        scrollableTabs: scrollable,
+        showTabNavigationButtons: showNavigationButtons,
+        tabInline: inline,
+        tabWrap: wrap,
+        tabPadding: tabPadding,
+        tabSpacing: tabSpacing,
+        tabIndicatorWidth: indicatorWidth,
+        tabSelectedColor: selectedColor,
+        tabUnselectedColor: unselectedColor,
+        tabIndicatorColor: indicatorColor,
+        tabBorderColor: borderColor,
+        tabBuilder: tabBuilder,
+        gapX: gapX,
+        gapY: gapY,
+        footer: footer,
+        onValueChanged: () {
+          onValueChanged(null);
+        },
+      ),
+    );
+  }
+
+  /// Creates a sub-form field rendered with horizontal tabs.
+  static TFormField<dynamic> horizontalTabs({
+    required List<TFormTab> tabs,
+    TFormType? formType,
+    String? label,
+    String? description,
+    IconData? icon,
+    bool initiallyExpanded = false,
+    TTabController<dynamic>? controller,
+    dynamic initialValue,
+    ValueChanged<dynamic>? onTabChanged,
+    bool scrollable = false,
+    bool showNavigationButtons = true,
+    bool inline = false,
+    bool wrap = false,
+    EdgeInsets? tabPadding,
+    double tabSpacing = 2,
+    double? indicatorWidth,
+    Color? selectedColor,
+    Color? unselectedColor,
+    Color? indicatorColor,
+    Color? borderColor,
+    Widget Function(BuildContext, TTab<dynamic>, bool, VoidCallback?)? tabBuilder,
+    double gapX = 16.0,
+    double gapY = 26.0,
+    Widget? footer,
+  }) {
+    return tabsMethod(
+      tabs: tabs,
+      axis: Axis.horizontal,
+      formType: formType,
+      label: label,
+      description: description,
+      icon: icon,
+      initiallyExpanded: initiallyExpanded,
+      controller: controller,
+      initialValue: initialValue,
+      onTabChanged: onTabChanged,
+      scrollable: scrollable,
+      showNavigationButtons: showNavigationButtons,
+      inline: inline,
+      wrap: wrap,
+      tabPadding: tabPadding,
+      tabSpacing: tabSpacing,
+      indicatorWidth: indicatorWidth,
+      selectedColor: selectedColor,
+      unselectedColor: unselectedColor,
+      indicatorColor: indicatorColor,
+      borderColor: borderColor,
+      tabBuilder: tabBuilder,
+      gapX: gapX,
+      gapY: gapY,
+      footer: footer,
+    );
+  }
+
+  /// Creates a sub-form field rendered with vertical tabs.
+  static TFormField<dynamic> verticalTabs({
+    required List<TFormTab> tabs,
+    TFormType? formType,
+    String? label,
+    String? description,
+    IconData? icon,
+    bool initiallyExpanded = false,
+    TTabController<dynamic>? controller,
+    dynamic initialValue,
+    ValueChanged<dynamic>? onTabChanged,
+    double? tabWidth,
+    bool scrollable = false,
+    bool showNavigationButtons = true,
+    EdgeInsets? tabPadding,
+    double tabSpacing = 2,
+    double? indicatorWidth,
+    Color? selectedColor,
+    Color? unselectedColor,
+    Color? indicatorColor,
+    Color? borderColor,
+    Widget Function(BuildContext, TTab<dynamic>, bool, VoidCallback?)? tabBuilder,
+    double gapX = 16.0,
+    double gapY = 26.0,
+    Widget? footer,
+  }) {
+    return tabsMethod(
+      tabs: tabs,
+      axis: Axis.vertical,
+      formType: formType,
+      label: label,
+      description: description,
+      icon: icon,
+      initiallyExpanded: initiallyExpanded,
+      controller: controller,
+      initialValue: initialValue,
+      onTabChanged: onTabChanged,
+      tabWidth: tabWidth,
+      scrollable: scrollable,
+      showNavigationButtons: showNavigationButtons,
+      tabPadding: tabPadding,
+      tabSpacing: tabSpacing,
+      indicatorWidth: indicatorWidth,
+      selectedColor: selectedColor,
+      unselectedColor: unselectedColor,
+      indicatorColor: indicatorColor,
+      borderColor: borderColor,
+      tabBuilder: tabBuilder,
+      gapX: gapX,
+      gapY: gapY,
+      footer: footer,
+    );
+  }
+
+  static TFormField<dynamic> tabsMethod({
+    required List<TFormTab> tabs,
+    Axis axis = Axis.horizontal,
+    TFormType? formType,
+    String? label,
+    String? description,
+    IconData? icon,
+    bool initiallyExpanded = false,
+    TTabController<dynamic>? controller,
+    dynamic initialValue,
+    ValueChanged<dynamic>? onTabChanged,
+    double? tabWidth,
+    bool scrollable = false,
+    bool showNavigationButtons = true,
+    bool inline = false,
+    bool wrap = false,
+    EdgeInsets? tabPadding,
+    double tabSpacing = 2,
+    double? indicatorWidth,
+    Color? selectedColor,
+    Color? unselectedColor,
+    Color? indicatorColor,
+    Color? borderColor,
+    Widget Function(BuildContext, TTab<dynamic>, bool, VoidCallback?)? tabBuilder,
+    double gapX = 16.0,
+    double gapY = 26.0,
+    Widget? footer,
+  }) =>
+      TFormField.tabs(
+        tabs: tabs,
+        axis: axis,
+        formType: formType,
+        label: label,
+        description: description,
+        icon: icon,
+        initiallyExpanded: initiallyExpanded,
+        controller: controller,
+        initialValue: initialValue,
+        onTabChanged: onTabChanged,
+        tabWidth: tabWidth,
+        scrollable: scrollable,
+        showNavigationButtons: showNavigationButtons,
+        inline: inline,
+        wrap: wrap,
+        tabPadding: tabPadding,
+        tabSpacing: tabSpacing,
+        indicatorWidth: indicatorWidth,
+        selectedColor: selectedColor,
+        unselectedColor: unselectedColor,
+        indicatorColor: indicatorColor,
+        borderColor: borderColor,
+        tabBuilder: tabBuilder,
+        gapX: gapX,
+        gapY: gapY,
+        footer: footer,
+      );
 
   static TFormField<bool> toggle(
     TFieldProp<bool> prop,

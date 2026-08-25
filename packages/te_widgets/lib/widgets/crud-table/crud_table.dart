@@ -156,8 +156,17 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Defines how the expanded content is presented during creation/editing.
   final TTableExpansionMode? createMode;
 
+  /// Custom width for the dialog when in dialog mode. Defaults to 800.
+  final double? dialogWidth;
+
   /// Custom width for the dialog when creating or editing items in dialog mode.
   final double? createDialogWidth;
+
+  /// Custom width for the side overlay when in sideOverlay mode. Defaults to 500.
+  final double? sideOverlayWidth;
+
+  /// Custom width for the side overlay when creating or editing items in sideOverlay mode.
+  final double? createSideOverlayWidth;
 
   /// Function to extract the title from an item.
   final String? Function(T item)? itemTitle;
@@ -215,7 +224,10 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.expandedDetails,
     this.expansionMode = TTableExpansionMode.dialog,
     this.createMode,
+    this.dialogWidth,
     this.createDialogWidth,
+    this.sideOverlayWidth,
+    this.createSideOverlayWidth,
     this.itemTitle,
     this.itemSubTitle,
     this.itemDescription,
@@ -250,6 +262,46 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
   bool _hasInitializedRouteSettings = false;
 
+  List<String> get _headerOrder => _listController.headerOrder;
+  Map<String, bool> get _headerVisibility => _listController.headerVisibility;
+  final GlobalKey _dropdownListKey = GlobalKey();
+  Offset _lastPointerPosition = Offset.zero;
+
+
+
+  void _reconcileHeaders(List<String> restoredOrder, Map<String, bool> restoredVisibility) {
+    final widgetHeaderTexts = widget.headers.map((h) => h.text).toList();
+    final newOrder = <String>[];
+    for (final text in restoredOrder) {
+      if (widgetHeaderTexts.contains(text)) {
+        newOrder.add(text);
+      }
+    }
+    for (final text in widgetHeaderTexts) {
+      if (!newOrder.contains(text)) {
+        newOrder.add(text);
+      }
+    }
+
+    final newVisibility = <String, bool>{};
+    for (final text in widgetHeaderTexts) {
+      newVisibility[text] = restoredVisibility[text] ?? true;
+    }
+    
+    _listController.updateColumns(newOrder, newVisibility);
+    _archiveListController.updateColumns(newOrder, newVisibility);
+  }
+
+  void toggleHeaderVisibility(String text, bool visible) {
+    _listController.updateHeaderVisibility(text, visible);
+    _archiveListController.updateHeaderVisibility(text, visible);
+    _persistRouteSettings();
+  }
+
+  void rebuildTable() {
+    setState(() {});
+  }
+
   bool _dense = false;
   bool get dense => _dense;
   set dense(bool value) {
@@ -262,6 +314,14 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   set viewMode(int value) {
     setState(() => _viewMode = value);
     _persistRouteSettings();
+  }
+
+  final TDebouncer _settingsDebouncer = TDebouncer(milliseconds: 500);
+
+  void _debouncedPersistRouteSettings() {
+    _settingsDebouncer.run(() {
+      _persistRouteSettings();
+    });
   }
 
   TTableExpansionMode? _selectedExpansionMode;
@@ -279,6 +339,38 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     _persistRouteSettings();
   }
 
+  double? _dialogWidth;
+  double get effectiveDialogWidth =>
+      _dialogWidth ?? widget.expandedDetails?.dialogWidth ?? widget.dialogWidth ?? 800.0;
+  set dialogWidth(double value) {
+    setState(() => _dialogWidth = value);
+    _debouncedPersistRouteSettings();
+  }
+
+  double? _sideOverlayWidth;
+  double get effectiveSideOverlayWidth =>
+      _sideOverlayWidth ?? widget.expandedDetails?.sideOverlayWidth ?? widget.sideOverlayWidth ?? 500.0;
+  set sideOverlayWidth(double value) {
+    setState(() => _sideOverlayWidth = value);
+    _debouncedPersistRouteSettings();
+  }
+
+  double? _createDialogWidth;
+  double get effectiveCreateDialogWidth =>
+      _createDialogWidth ?? widget.expandedDetails?.createDialogWidth ?? widget.createDialogWidth ?? effectiveDialogWidth;
+  set createDialogWidth(double value) {
+    setState(() => _createDialogWidth = value);
+    _debouncedPersistRouteSettings();
+  }
+
+  double? _createSideOverlayWidth;
+  double get effectiveCreateSideOverlayWidth =>
+      _createSideOverlayWidth ?? widget.expandedDetails?.createSideOverlayWidth ?? widget.createSideOverlayWidth ?? effectiveSideOverlayWidth;
+  set createSideOverlayWidth(double value) {
+    setState(() => _createSideOverlayWidth = value);
+    _debouncedPersistRouteSettings();
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -291,8 +383,10 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   @override
   void initState() {
     super.initState();
-
     _dense = widget.config.dense ?? false;
+
+    final initialOrder = widget.headers.map((h) => h.text).toList();
+    final initialVisibility = {for (var h in widget.headers) h.text: true};
 
     _isControllerOwned = widget.controller == null;
     _isArchiveControllerOwned = widget.archiveController == null;
@@ -312,7 +406,25 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           expansionMode: hasBuilder ? TExpansionMode.single : TExpansionMode.none,
           autoExpandFirst: autoExpandFirst,
           autoSelectFirst: autoSelectFirst,
+          additional: {
+            'headerOrder': initialOrder,
+            'headerVisibility': initialVisibility,
+          },
         );
+
+    if (widget.controller != null) {
+      final additional = Map<String, dynamic>.from(_listController.value.additional);
+      if (!additional.containsKey('headerOrder')) {
+        additional['headerOrder'] = initialOrder;
+      }
+      if (!additional.containsKey('headerVisibility')) {
+        additional['headerVisibility'] = initialVisibility;
+      }
+      _listController.updateState(
+        who: 'initHeaderState',
+        additional: additional,
+      );
+    }
 
     widget.onControllerReady?.call(_listController);
 
@@ -326,7 +438,25 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           expansionMode: hasBuilder ? TExpansionMode.single : TExpansionMode.none,
           autoExpandFirst: autoExpandFirst,
           autoSelectFirst: autoSelectFirst,
+          additional: {
+            'headerOrder': initialOrder,
+            'headerVisibility': initialVisibility,
+          },
         );
+
+    if (widget.archiveController != null) {
+      final additional = Map<String, dynamic>.from(_archiveListController.value.additional);
+      if (!additional.containsKey('headerOrder')) {
+        additional['headerOrder'] = initialOrder;
+      }
+      if (!additional.containsKey('headerVisibility')) {
+        additional['headerVisibility'] = initialVisibility;
+      }
+      _archiveListController.updateState(
+        who: 'initHeaderStateArchive',
+        additional: additional,
+      );
+    }
 
     widget.onArchiveControllerReady?.call(_archiveListController);
   }
@@ -334,6 +464,10 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   @override
   void didUpdateWidget(covariant TCrudTable<T, K, F> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.headers != widget.headers) {
+      _reconcileHeaders(_headerOrder, _headerVisibility);
+    }
 
     if ((oldWidget.items != null && widget.items != null) && !oldWidget.items!.listEquals(widget.items!)) {
       _listController.updateItems(widget.items ?? []);
@@ -346,6 +480,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
   @override
   void dispose() {
+    _settingsDebouncer.dispose();
     _permissionCache.clear();
     if (_isControllerOwned) {
       _listController.dispose();

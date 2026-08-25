@@ -15,21 +15,24 @@ class TDropdownItem extends TMenuItemData<TDropdownItem> {
   final bool hidden;
   @override
   final Color? color;
-
-  const TDropdownItem({
-    this.icon,
-    this.text,
-    this.children,
-    this.onTap,
-    this.initiallyExpanded = false,
-    this.extra,
-    this.hidden = false,
-    this.color,
-  });
-
   @override
-  bool get isClickable => onTap != null;
-
-  @override
-  void tap(BuildContext context) => onTap?.call();
-}
+  final Widget? customContent;
+ 
+   const TDropdownItem({
+     this.icon,
+     this.text,
+     this.children,
+     this.onTap,
+     this.initiallyExpanded = false,
+     this.extra,
+     this.hidden = false,
+     this.color,
+     this.customContent,
+   });
+ 
+   @override
+   bool get isClickable => onTap != null;
+ 
+   @override
+   void tap(BuildContext context) => onTap?.call();
+ }

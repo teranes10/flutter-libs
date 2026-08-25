@@ -33,6 +33,8 @@ class TKeyValueTheme {
   /// Whether to show a left vertical border/separator on grid cells.
   final bool showLeftBorder;
 
+  final Color borderColor;
+
   // ─── Alignment Configuration ───────────────────────────────────────────────
 
   /// Default alignment for key-value content.
@@ -87,6 +89,27 @@ class TKeyValueTheme {
   /// Whether to display key and value inline in grid layout (Key: Value).
   final bool gridInline;
 
+  /// Fixed number of columns for grid layout.
+  /// When specified, items are distributed into a columnar grid of this width.
+  final int? columns;
+
+  /// Fixed width for key columns in inline grid layout.
+  final double? inlineKeyWidth;
+
+  /// Maximum width allowed for key columns in inline grid layout.
+  final double? inlineKeyMaxWidth;
+
+  /// Horizontal gap between the key and value in inline grid layout.
+  final double inlineKeyGap;
+
+  /// Alignment of the key within its column in inline grid layout.
+  final Alignment? inlineKeyAlignment;
+
+  /// Whether to arrange items in a columnar grid.
+  /// When true (or when [columns] is set), items are arranged in uniform columns with aligned keys.
+  /// When false (default), items flow dynamically into rows based on natural widths.
+  final bool columnar;
+
   /// Creates a key-value theme.
   const TKeyValueTheme({
     required this.keyStyle,
@@ -97,15 +120,16 @@ class TKeyValueTheme {
     this.minGridColWidth = 110,
     this.forceKeyValue = false,
     this.keyValueBreakPoint = 300,
+    required this.borderColor,
     this.showLeftBorder = false,
-    this.alignment = Alignment.centerLeft,
+    this.alignment = Alignment.topLeft,
     this.narrowPadding = const EdgeInsets.symmetric(vertical: 6),
     this.narrowItemBottomSpacing = 10,
     this.narrowKeyFlex = 2,
     this.narrowValueFlex = 3,
     this.narrowGap = 12,
     this.gridCellPadding = const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-    this.gridCellGap = 0,
+    this.gridCellGap = 4,
     this.maxColWidthFraction = 0.7,
     this.minFractionFixed = 1.0,
     this.minFractionStructured = 0.9,
@@ -114,6 +138,12 @@ class TKeyValueTheme {
     this.additionalNaturalWidth = 15,
     this.maxItemsPerRow = 12,
     this.gridInline = false,
+    this.columnar = false,
+    this.columns,
+    this.inlineKeyWidth,
+    this.inlineKeyMaxWidth,
+    this.inlineKeyGap = 8,
+    this.inlineKeyAlignment = Alignment.topLeft,
   });
 
   factory TKeyValueTheme.defaultTheme(ColorScheme colors) {
@@ -121,6 +151,7 @@ class TKeyValueTheme {
       keyStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
       labelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant),
       valueStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: colors.onSurface),
+      borderColor: colors.outlineVariant,
     );
   }
 
@@ -133,6 +164,7 @@ class TKeyValueTheme {
     double? minGridColWidth,
     bool? forceKeyValue,
     double? keyValueBreakPoint,
+    Color? borderColor,
     bool? showLeftBorder,
     Alignment? alignment,
     EdgeInsets? narrowPadding,
@@ -150,6 +182,12 @@ class TKeyValueTheme {
     double? additionalNaturalWidth,
     int? maxItemsPerRow,
     bool? gridInline,
+    bool? columnar,
+    int? columns,
+    double? inlineKeyWidth,
+    double? inlineKeyMaxWidth,
+    double? inlineKeyGap,
+    Alignment? inlineKeyAlignment,
   }) {
     return TKeyValueTheme(
       keyStyle: keyStyle ?? this.keyStyle,
@@ -160,6 +198,7 @@ class TKeyValueTheme {
       minGridColWidth: minGridColWidth ?? this.minGridColWidth,
       forceKeyValue: forceKeyValue ?? this.forceKeyValue,
       keyValueBreakPoint: keyValueBreakPoint ?? this.keyValueBreakPoint,
+      borderColor: borderColor ?? this.borderColor,
       showLeftBorder: showLeftBorder ?? this.showLeftBorder,
       alignment: alignment ?? this.alignment,
       narrowPadding: narrowPadding ?? this.narrowPadding,
@@ -177,6 +216,12 @@ class TKeyValueTheme {
       additionalNaturalWidth: additionalNaturalWidth ?? this.additionalNaturalWidth,
       maxItemsPerRow: maxItemsPerRow ?? this.maxItemsPerRow,
       gridInline: gridInline ?? this.gridInline,
+      columnar: columnar ?? this.columnar,
+      columns: columns ?? this.columns,
+      inlineKeyWidth: inlineKeyWidth ?? this.inlineKeyWidth,
+      inlineKeyMaxWidth: inlineKeyMaxWidth ?? this.inlineKeyMaxWidth,
+      inlineKeyGap: inlineKeyGap ?? this.inlineKeyGap,
+      inlineKeyAlignment: inlineKeyAlignment ?? this.inlineKeyAlignment,
     );
   }
 }

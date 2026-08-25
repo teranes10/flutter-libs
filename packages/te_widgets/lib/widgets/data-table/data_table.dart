@@ -360,7 +360,10 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
     return SizedBox(
       width: width,
       child: TSelect<int, int, int>(
-        theme: theme.textFieldTheme.copyWith(size: TInputSize.xs),
+        theme: theme.textFieldTheme.copyWith(
+          size: TInputSize.xs,
+          labelPosition: TLabelPosition.aboveField,
+        ),
         cardTheme: theme.listCardTheme.copyWith(showSelectionIndicator: false),
         listTheme: theme.listTheme.copyWith(
           animationBuilder: TListAnimationBuilders.fadeIn,

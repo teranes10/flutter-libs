@@ -87,6 +87,9 @@ class TModal extends StatelessWidget {
   final double minHeight;
   final bool fullscreen;
 
+  /// Optional actions to display in the header before the close button.
+  final List<Widget>? actions;
+
   final Function(BuildContext context, Widget child)? layoutBuilder;
 
   /// Creates a modal dialog.
@@ -102,6 +105,7 @@ class TModal extends StatelessWidget {
     this.minWidth = 150.0,
     this.minHeight = 100.0,
     this.fullscreen = false,
+    this.actions,
     this.layoutBuilder,
   });
 
@@ -139,15 +143,16 @@ class TModal extends StatelessWidget {
           delegate: _ModalPositionDelegate(preferredTopRatio: preferredTopRatio),
           child: GestureDetector(
             onTap: () {}, // Prevent tap propagation
-            child: Container(
-              width: mWidth,
-              height: mHeight,
-              constraints: mConstraints,
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: mBorderRadius,
+            child: Material(
+              color: colors.surface,
+              borderRadius: mBorderRadius,
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                width: mWidth,
+                height: mHeight,
+                constraints: mConstraints,
+                child: layoutBuilder?.call(context, child) ?? _layout(context, colors, child),
               ),
-              child: layoutBuilder?.call(context, child) ?? _layout(context, colors, child),
             ),
           ),
         ),
@@ -159,7 +164,7 @@ class TModal extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if ((title != null || showCloseButton == true)) _buildHeader(context, colors),
+        if ((title != null || showCloseButton == true || actions != null)) _buildHeader(context, colors),
 
         // Scrollable content area
         Flexible(
@@ -196,6 +201,7 @@ class TModal extends StatelessWidget {
                     ))
                 : SizedBox.shrink(),
           ),
+          if (actions != null) ...actions!,
           if (showCloseButton == true && !isMobile) TIcon.close(size: 20, onTap: () => onClose?.call()),
         ],
       ),

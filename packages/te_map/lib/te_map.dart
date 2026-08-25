@@ -13,3 +13,4 @@ export 'src/google_places_client.dart';
 export 'src/extensions/latlng_x.dart';
 export 'src/extensions/position_x.dart';
 export 'src/helpers/location/location_helper.dart';
+export 'src/route_result.dart';

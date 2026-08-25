@@ -15,6 +15,7 @@ part 'list_controller_pagination.dart';
 part 'list_controller_selection.dart';
 part 'list_controller_actions.dart';
 part 'list_controller_riverpod.dart';
+part 'list_controller_table.dart';
 
 /// A powerful controller for managing list state and operations.
 ///
@@ -227,6 +228,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     bool loading = false,
     bool hasMoreItems = true,
     this.loadOnSearchOnly = false,
+    Map<String, dynamic>? additional,
   })  : isServerSide = onLoad != null,
         _debouncer = TDebouncer(milliseconds: searchDelay ?? (onLoad != null ? 2500 : 750)),
         itemToString = itemToString ?? _defaultItemToString,
@@ -245,6 +247,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
             hasMoreItems: hasMoreItems,
             search: search,
             error: null,
+            additional: additional ?? const {},
           ),
         ) {
     assert(

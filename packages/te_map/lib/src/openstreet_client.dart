@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:latlong2/latlong.dart';
 import 'place_autocomplete.dart';
+import 'route_result.dart';
 
-/// Client to interact with Nominatim OpenStreetMap API.
+/// Client to interact with Nominatim and OSRM OpenStreetMap APIs.
 class TOpenStreetMapClient {
   final Dio _dio;
 
@@ -63,5 +65,60 @@ class TOpenStreetMapClient {
       }
     } catch (_) {}
     return [];
+  }
+
+  /// Fetches the best driving route between [origin] and [destination] using OSRM.
+  Future<TRouteResult?> fetchRoute(LatLng origin, LatLng destination) async {
+    try {
+      final url =
+          'https://router.project-osrm.org/route/v1/driving/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}';
+      final response = await _dio.get(
+        url,
+        queryParameters: {
+          'overview': 'full',
+          'geometries': 'geojson',
+        },
+        options: Options(headers: {'User-Agent': 'te_widgets_map_routing'}),
+      );
+
+      final data = response.data;
+      if (data is! Map<String, dynamic>) return null;
+      if (data['code']?.toString() != 'Ok') return null;
+
+      final routes = data['routes'] as List<dynamic>?;
+      if (routes == null || routes.isEmpty) return null;
+
+      final firstRoute = routes.first as Map<String, dynamic>;
+      final geometry = firstRoute['geometry'] as Map<String, dynamic>?;
+      final coordinates = geometry?['coordinates'] as List<dynamic>?;
+
+      final List<LatLng> points = [];
+      if (coordinates != null) {
+        for (final coord in coordinates) {
+          if (coord is List && coord.length >= 2) {
+            final lng = double.tryParse(coord[0].toString()) ?? 0.0;
+            final lat = double.tryParse(coord[1].toString()) ?? 0.0;
+            points.add(LatLng(lat, lng));
+          }
+        }
+      }
+
+      final distanceMeters = double.tryParse(firstRoute['distance']?.toString() ?? '') ?? 0.0;
+      final durationSeconds = double.tryParse(firstRoute['duration']?.toString() ?? '') ?? 0.0;
+
+      return TRouteResult(
+        points: points.isNotEmpty ? points : [origin, destination],
+        distanceMeters: distanceMeters,
+        durationSeconds: durationSeconds,
+      );
+    } catch (_) {
+      // Fallback straight line distance using Haversine Distance
+      const distanceCalc = Distance();
+      final meters = distanceCalc.as(LengthUnit.Meter, origin, destination);
+      return TRouteResult(
+        points: [origin, destination],
+        distanceMeters: meters.toDouble(),
+      );
+    }
   }
 }

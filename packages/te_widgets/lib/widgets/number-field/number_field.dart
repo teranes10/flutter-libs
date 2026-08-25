@@ -239,6 +239,8 @@ class _TNumberFieldState<T extends num?> extends State<TNumberField<T>>
         notifyValueChanged(null);
       },
       textAlign: isSplit ? TextAlign.center : TextAlign.start,
+      textAlignVertical: isSplit ? TextAlignVertical.center : null,
+      labelAlignment: isSplit ? FloatingLabelAlignment.center : null,
       beforePreWidget: isSplit && wTheme.decreaseButtonBuilder != null
           ? Padding(
               padding: const EdgeInsets.only(left: 8),

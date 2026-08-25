@@ -73,6 +73,12 @@ class TListView<T, K> extends StatelessWidget {
   /// Callback when reorder completes.
   final TListReorderCallback? onReorder;
 
+  /// Callback when reorder drag-and-drop starts.
+  final void Function(int index)? onReorderStart;
+
+  /// Callback when reorder drag-and-drop ends.
+  final void Function(int index)? onReorderEnd;
+
   /// Grid mode (masonry, aligned, or null for list).
   final TGridMode? grid;
 
@@ -113,6 +119,8 @@ class TListView<T, K> extends StatelessWidget {
     this.reorderable = false,
     this.dragProxyDecorator,
     this.onReorder,
+    this.onReorderStart,
+    this.onReorderEnd,
     this.grid,
     this.gridDelegate,
     this.height,
@@ -131,12 +139,17 @@ class TListView<T, K> extends StatelessWidget {
 
         Widget listView = CustomScrollView(
           controller: effectiveShrinkWrap ? null : scrollController,
+          primary: effectiveShrinkWrap ? null : (scrollController == null ? true : null),
           shrinkWrap: effectiveShrinkWrap,
           physics: effectiveShrinkWrap ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics(),
           slivers: buildSlivers(context),
         );
 
         if (!effectiveShrinkWrap) {
+          listView = Scrollbar(
+            controller: scrollController,
+            child: listView,
+          );
           if (height != null) {
             listView = SizedBox(height: height, child: listView);
           } else {
@@ -235,6 +248,8 @@ class TListView<T, K> extends StatelessWidget {
             onReorder?.call(oldIndex, newIndex);
           }
         },
+        onReorderStart: onReorderStart,
+        onReorderEnd: onReorderEnd,
         proxyDecorator: dragProxyDecorator,
       );
     } else if (grid != null) {

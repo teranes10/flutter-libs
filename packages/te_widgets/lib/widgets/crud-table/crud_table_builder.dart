@@ -18,63 +18,69 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       required List<TTableHeader<T, K>> headers,
       required TListController<T, K> controller,
     }) {
-      return ValueListenableBuilder<TListState<T, K>>(
-        valueListenable: controller,
-        builder: (context, state, _) {
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              TTableTheme effectiveTheme = tableTheme;
-              if (viewMode == 1) {
-                effectiveTheme = tableTheme.copyWith(forceCardStyle: true, grid: null);
-              } else if (viewMode == 2) {
-                effectiveTheme = tableTheme.copyWith(
-                  forceCardStyle: false,
-                  grid: TGridMode.masonry,
-                  gridDelegate: (context) => context.isMobile ? TGridDelegate(crossAxisCount: 1) : TGridDelegate(maxCrossAxisExtent: 350),
-                );
-              } else {
-                effectiveTheme = tableTheme.copyWith(forceCardStyle: false, grid: null);
-              }
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          TTableTheme effectiveTheme = tableTheme;
+          if (viewMode == 1) {
+            effectiveTheme = tableTheme.copyWith(forceCardStyle: true, grid: null);
+          } else if (viewMode == 2) {
+            effectiveTheme = tableTheme.copyWith(
+              forceCardStyle: false,
+              grid: TGridMode.masonry,
+              gridDelegate: (context) => context.isMobile ? TGridDelegate(crossAxisCount: 1) : TGridDelegate(maxCrossAxisExtent: 350),
+            );
+          } else {
+            effectiveTheme = tableTheme.copyWith(forceCardStyle: false, grid: null);
+          }
 
-              return TDataTable<T, K>(
-                key: const ValueKey('table_layout'),
-                theme: effectiveTheme.copyWith(dense: dense),
-                optionalPaginationBar: widget.config.optionalPaginationBar,
-                headers: headers,
-                controller: controller,
-                itemsPerPageOptions: widget.config.itemsPerPageOptions,
-                rowBuilder: widget.rowBuilder,
-                rowColorBuilder: widget.rowColorBuilder,
-                details: widget.expandedDetails ??
-                    TTableDetails<T, K>(
-                      mode: effectiveExpansionMode,
-                      createMode: effectiveCreateMode,
-                      createDialogWidth: widget.createDialogWidth,
-                      builder: widget.expandedBuilder,
-                      createBuilder: _buildInlineCreateBuilder(),
-                      itemTitle: widget.itemTitle,
-                      itemSubTitle: widget.itemSubTitle,
-                      itemDescription: widget.itemDescription,
-                      itemImageUrl: widget.itemImageUrl,
-                      itemInfo: widget.itemInfo,
-                      itemInfoGridInline: widget.itemInfoGridInline,
-                      actions: (item) {
-                        final buttonItems = controller == listController
-                            ? _buildActiveActionButtons(theme, item)
-                            : (controller == archiveListController ? _buildArchiveActionButtons(theme, item) : <TButtonGroupItem>[]);
+          return TDataTable<T, K>(
+            key: const ValueKey('table_layout'),
+            theme: effectiveTheme.copyWith(dense: dense),
+            optionalPaginationBar: widget.config.optionalPaginationBar,
+            headers: headers,
+            controller: controller,
+            itemsPerPageOptions: widget.config.itemsPerPageOptions,
+            rowBuilder: widget.rowBuilder,
+            rowColorBuilder: widget.rowColorBuilder,
+            details: (widget.expandedDetails != null)
+                ? widget.expandedDetails!.copyWith(
+                    mode: effectiveExpansionMode,
+                    createMode: effectiveCreateMode,
+                    dialogWidth: effectiveDialogWidth,
+                    createDialogWidth: effectiveCreateDialogWidth,
+                    sideOverlayWidth: effectiveSideOverlayWidth,
+                    createSideOverlayWidth: effectiveCreateSideOverlayWidth,
+                  )
+                : TTableDetails<T, K>(
+                    mode: effectiveExpansionMode,
+                    createMode: effectiveCreateMode,
+                    dialogWidth: effectiveDialogWidth,
+                    createDialogWidth: effectiveCreateDialogWidth,
+                    sideOverlayWidth: effectiveSideOverlayWidth,
+                    createSideOverlayWidth: effectiveCreateSideOverlayWidth,
+                    builder: widget.expandedBuilder,
+                    createBuilder: _buildInlineCreateBuilder(),
+                    itemTitle: widget.itemTitle,
+                    itemSubTitle: widget.itemSubTitle,
+                    itemDescription: widget.itemDescription,
+                    itemImageUrl: widget.itemImageUrl,
+                    itemInfo: widget.itemInfo,
+                    itemInfoGridInline: widget.itemInfoGridInline,
+                    actions: (item) {
+                      final buttonItems = controller == listController
+                          ? _buildActiveActionButtons(theme, item)
+                          : (controller == archiveListController ? _buildArchiveActionButtons(theme, item) : <TButtonGroupItem>[]);
 
-                        return buttonItems
-                            .map((b) => IconButton(
-                                  icon: Icon(b.icon),
-                                  color: b.color,
-                                  tooltip: b.tooltip,
-                                  onPressed: b.onPressed != null ? () => b.onPressed!(TButtonPressOptions(stopLoading: () {})) : null,
-                                ))
-                            .toList();
-                      },
-                    ),
-              );
-            },
+                      return buttonItems
+                          .map((b) => IconButton(
+                                icon: Icon(b.icon),
+                                color: b.color,
+                                tooltip: b.tooltip,
+                                onPressed: b.onPressed != null ? () => b.onPressed!(TButtonPressOptions(stopLoading: () {})) : null,
+                              ))
+                          .toList();
+                    },
+                  ),
           );
         },
       );
@@ -91,7 +97,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   }
 
   List<TTableHeader<T, K>> _buildActiveHeaders(TWidgetThemeExtension theme) {
-    final headers = [...widget.headers];
+    final headers = List<TTableHeader<T, K>>.from(widget.headers);
 
     if (widget.config.showActions && hasActiveActions) {
       if (widget.config.flatActions) {
@@ -115,7 +121,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   }
 
   List<TTableHeader<T, K>> _buildArchiveHeaders(TWidgetThemeExtension theme) {
-    final headers = [...widget.headers];
+    final headers = List<TTableHeader<T, K>>.from(widget.headers);
 
     if (widget.config.showActions && hasArchiveActions) {
       if (widget.config.flatActions) {

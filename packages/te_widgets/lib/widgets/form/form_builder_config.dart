@@ -18,7 +18,19 @@ abstract class TFormBase {
   bool get isFormCloseButton => true;
 
   /// Returns the list of fields in the form.
-  List<TFormField> get fields;
+  List<TFormField> get fields => const [];
+
+  /// Optional list of tabs for tabbed/sub-form layouts.
+  List<TFormTab>? get tabs => null;
+
+  /// Default layout type for forms with sub-forms (accordion, horizontalTabs, or verticalTabs).
+  TFormType? get defaultFormType => null;
+
+  /// Optional custom storage identifier for persisting form layout preference.
+  String? get storageKey => null;
+
+  /// Whether to persist form type selection across sessions.
+  bool get persistFormType => true;
 
   /// Optional footer widget to display at the bottom of the form.
   ///
@@ -41,8 +53,37 @@ abstract class TFormBase {
   /// - lg: sidebar occupies 4 columns, main fields occupy 8 columns.
   TGridSize get sidebarSize => const TGridSize(sm: 0, md: 0, lg: 4);
 
-  // All field including sidebar sidebar fields
-  List<TFormField> get allFields => [...fields, if (sidebarFields != null) ...sidebarFields!];
+  // All field including sidebar fields and tabs
+  List<TFormField> get allFields => [
+        ...fields,
+        if (sidebarFields != null) ...sidebarFields!,
+        if (tabs != null)
+          for (var tab in tabs!) ...[
+            if (tab.input != null) ...tab.input!.allFields,
+            if (tab.fields != null) ...tab.fields!,
+            if (tab.sidebarFields != null) ...tab.sidebarFields!,
+          ],
+      ];
+
+  /// Whether this form contains any sub-forms (e.g. tabs or nested form groups).
+  bool get hasSubForms {
+    if (tabs != null && tabs!.isNotEmpty) return true;
+    return _checkHasSubForms(allFields);
+  }
+
+  bool _checkHasSubForms(List<TFormField> fieldsToCheck) {
+    for (var field in fieldsToCheck) {
+      if (field.isSubForm) return true;
+      if (field._field is TFormBuilder) {
+        final fb = field._field as TFormBuilder;
+        if (fb.tabs != null && fb.tabs!.isNotEmpty) return true;
+        if (fb.input != null && fb.input != this) return true;
+      } else if (field._field is TItemsFormBuilder) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   /// Collects validation errors from all fields.
   List<String> get validationErrors => _getValidationErrors(allFields);
@@ -76,6 +117,14 @@ abstract class TFormBase {
           errorsList.addAll(fb.input!.validationErrors);
         } else if (fb.fields != null) {
           errorsList.addAll(_getValidationErrors(fb.fields!));
+        } else if (fb.tabs != null) {
+          for (var tab in fb.tabs!) {
+            if (tab.input != null) {
+              errorsList.addAll(tab.input!.validationErrors);
+            } else if (tab.fields != null) {
+              errorsList.addAll(_getValidationErrors(tab.fields!));
+            }
+          }
         }
       }
     }
@@ -101,6 +150,14 @@ abstract class TFormBase {
           return true;
         } else if (fb.fields != null && _getIsChanged(fb.fields!)) {
           return true;
+        } else if (fb.tabs != null) {
+          for (var tab in fb.tabs!) {
+            if (tab.input != null && tab.input!.isChanged) {
+              return true;
+            } else if (tab.fields != null && _getIsChanged(tab.fields!)) {
+              return true;
+            }
+          }
         }
       } else if (field._field is TItemsFormBuilder) {
         final items = prop?.value;
@@ -131,6 +188,14 @@ abstract class TFormBase {
           fb.input!.saveBaseline();
         } else if (fb.fields != null) {
           _saveBaselineFields(fb.fields!);
+        } else if (fb.tabs != null) {
+          for (var tab in fb.tabs!) {
+            if (tab.input != null) {
+              tab.input!.saveBaseline();
+            } else if (tab.fields != null) {
+              _saveBaselineFields(tab.fields!);
+            }
+          }
         }
       } else if (field._field is TItemsFormBuilder) {
         final items = field.prop?.value;
@@ -150,8 +215,18 @@ abstract class TFormBase {
       field.prop?.reset();
       if (field._field is TFormBuilder) {
         final fb = field._field as TFormBuilder;
-        if (fb.fields != null) {
+        if (fb.input != null) {
+          fb.input!.reset();
+        } else if (fb.fields != null) {
           _resetFields(fb.fields!);
+        } else if (fb.tabs != null) {
+          for (var tab in fb.tabs!) {
+            if (tab.input != null) {
+              tab.input!.reset();
+            } else if (tab.fields != null) {
+              _resetFields(tab.fields!);
+            }
+          }
         }
       }
     }
@@ -168,8 +243,18 @@ abstract class TFormBase {
       field.prop?.dispose();
       if (field._field is TFormBuilder) {
         final fb = field._field as TFormBuilder;
-        if (fb.fields != null) {
+        if (fb.input != null) {
+          fb.input!.dispose();
+        } else if (fb.fields != null) {
           _disposeFields(fb.fields!);
+        } else if (fb.tabs != null) {
+          for (var tab in fb.tabs!) {
+            if (tab.input != null) {
+              tab.input!.dispose();
+            } else if (tab.fields != null) {
+              _disposeFields(tab.fields!);
+            }
+          }
         }
       }
     }

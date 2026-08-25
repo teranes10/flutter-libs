@@ -25,6 +25,7 @@ class TModalService {
     double gap = 50,
     String? title,
     bool? showCloseButton,
+    List<Widget>? actions,
     Widget Function(BuildContext context, Widget child)? layoutBuilder,
   }) {
     return showDialog<T>(
@@ -41,6 +42,7 @@ class TModalService {
           gap: gap,
           title: title,
           showCloseButton: showCloseButton,
+          actions: actions,
           layoutBuilder: layoutBuilder,
           onClose: () {
             Navigator.of(dialogContext).pop();
@@ -64,6 +66,7 @@ class TModalService {
     bool persistent = false,
     double? width,
     bool? showCloseButton,
+    List<Widget>? actions,
     Widget Function(BuildContext context, Widget child)? layoutBuilder,
   }) {
     final layout = layoutBuilder ??
@@ -74,6 +77,7 @@ class TModalService {
               subTitle: subTitle,
               imageUrl: imageUrl,
               description: description,
+              actions: actions,
               onBackPressed: () => Navigator.of(ctx).pop(),
             );
 
@@ -83,7 +87,9 @@ class TModalService {
         MaterialPageRoute(
           builder: (mContext) {
             final modalCtx = TModalContext<T>(mContext);
-            return layout(mContext, builder(modalCtx));
+            return Scaffold(
+              body: layout(mContext, builder(modalCtx)),
+            );
           },
         ),
       );
@@ -94,6 +100,9 @@ class TModalService {
       builder,
       persistent: persistent,
       width: width,
+      title: title,
+      showCloseButton: showCloseButton,
+      actions: actions,
       layoutBuilder: layout,
     );
   }
@@ -106,6 +115,7 @@ class TModalService {
     String? subTitle,
     String? imageUrl,
     String? description,
+    List<Widget>? actions,
     VoidCallback? onBackPressed,
   }) {
     return TPageWrapper(
@@ -113,6 +123,7 @@ class TModalService {
       subTitle: subTitle,
       imageUrl: imageUrl,
       description: description,
+      actions: actions,
       onBackPressed: onBackPressed,
       shrinkWrap: true,
       child: child,

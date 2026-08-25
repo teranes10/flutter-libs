@@ -73,6 +73,8 @@ mixin TTextFieldStateMixin<W extends StatefulWidget> on State<W>, TInputFieldSta
     VoidCallback? onTap,
     String? placeholder,
     TextAlign textAlign = TextAlign.start,
+    TextAlignVertical? textAlignVertical,
+    FloatingLabelAlignment? labelAlignment,
   }) {
     return buildWrapper(
       child: wTheme.buildTextField(
@@ -88,12 +90,15 @@ mixin TTextFieldStateMixin<W extends StatefulWidget> on State<W>, TInputFieldSta
         onValueChanged: onValueChanged,
         onTap: onTap,
         textAlign: textAlign,
+        textAlignVertical: textAlignVertical,
         inputDecoration: buildInputDecoration(
           beforePostWidget: beforePostWidget,
           beforePreWidget: beforePreWidget,
           hasValue: hasValue,
           onClear: onClear,
           placeholder: placeholder,
+          expands: rows > 1,
+          labelAlignment: labelAlignment,
         ),
       ),
     );

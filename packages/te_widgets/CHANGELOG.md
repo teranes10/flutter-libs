@@ -1,3 +1,24 @@
+## 3.2.0
+
+- **Form Types & Layout Persistence**:
+  - Introduced `TFormType` (`accordion`, `horizontalTabs`, `verticalTabs`) supporting flexible subform presentation styles.
+  - Added `TFormTypePersistence` managing multi-tier form type layout persistence across user sessions (in-memory cache, `PageStorage`, and `SharedPreferences`).
+  - Added `TFormTypeScope` and `TFormTypeToggleSwitch` for cycling form layout presentation.
+  - Integrated `TFormService.show` with subform detection (`hasSubForms`) to automatically display layout toggle action before the modal close button and persist user layout choices.
+  - Added accordion layout support (`_buildAccordionTabsContent`) in `TFormBuilder`.
+  - Configured `TTabs` with `Axis.vertical` to expand all tabs to the width of the widest tab using intrinsic width and stretched layout.
+- **Top Bar & Navigation Enhancements**:
+  - Added responsive top navigation menu and actions row (`TTopBar`, `TDesktopTopBar`, `TMobileTopBar`, `TTopNavMenu`, `TActionsRow`).
+  - Added `ProfileButton` with popups for theme, color, fullscreen, and logout.
+  - Added `SidebarTristateButton` for toggling sidebar modes.
+- **Timeline & List Detail Widgets**:
+  - Introduced `TTimeline`, `TTimelineItem`, `TTimelineIndicator`, and `TDashedLine` with rich variant theming.
+  - Added `TListDetail` for split-view master-detail layouts with animated pane transitions.
+- **Table & Layout Enhancements**:
+  - Added `TTableExpansionMode.sideOverlay` for side overlay details view.
+  - Added responsive width options in `TCrudTable`.
+  - Added `Material` support across `TModal` and `TPageWrapper` for reliable input field rendering.
+
 ## 3.1.0
 
  - **FEAT**: modularize packages and configure melos scripts.

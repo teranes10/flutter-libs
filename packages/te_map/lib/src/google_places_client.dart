@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:latlong2/latlong.dart';
 import 'map_config.dart';
+import 'route_result.dart';
 
 /// Circle defining location bias or restriction.
 class TGoogleCircle {
@@ -471,5 +472,59 @@ class TGoogleClient {
     final address = first['formatted_address']?.toString().trim();
     if (address == null || address.isEmpty) return null;
     return address;
+  }
+
+  /// Fetches the best driving route between [origin] and [destination] using Google Directions API.
+  Future<TRouteResult?> fetchRoute(LatLng origin, LatLng destination) async {
+    final apiKey = _resolveApiKey();
+    if (apiKey == null || apiKey.isEmpty) {
+      return null;
+    }
+
+    try {
+      final response = await _dio.get(
+        'https://maps.googleapis.com/maps/api/directions/json',
+        queryParameters: {
+          'origin': '${origin.latitude},${origin.longitude}',
+          'destination': '${destination.latitude},${destination.longitude}',
+          'mode': 'driving',
+          'key': apiKey,
+        },
+      );
+
+      final data = response.data;
+      if (data is! Map<String, dynamic>) return null;
+      if (data['status']?.toString() != 'OK') return null;
+
+      final routes = data['routes'] as List<dynamic>?;
+      if (routes == null || routes.isEmpty) return null;
+
+      final firstRoute = routes.first as Map<String, dynamic>;
+      final overviewPolyline = firstRoute['overview_polyline'] as Map<String, dynamic>?;
+      final pointsStr = overviewPolyline?['points']?.toString();
+
+      final legs = firstRoute['legs'] as List<dynamic>?;
+      final firstLeg = legs != null && legs.isNotEmpty ? legs.first as Map<String, dynamic> : null;
+
+      final distanceMap = firstLeg?['distance'] as Map<String, dynamic>?;
+      final durationMap = firstLeg?['duration'] as Map<String, dynamic>?;
+
+      final distanceMeters = double.tryParse(distanceMap?['value']?.toString() ?? '') ?? 0.0;
+      final distanceText = distanceMap?['text']?.toString();
+      final durationSeconds = double.tryParse(durationMap?['value']?.toString() ?? '') ?? 0.0;
+      final durationText = durationMap?['text']?.toString();
+
+      final points = pointsStr != null && pointsStr.isNotEmpty ? decodePolyline(pointsStr) : <LatLng>[origin, destination];
+
+      return TRouteResult(
+        points: points,
+        distanceMeters: distanceMeters,
+        durationSeconds: durationSeconds,
+        distanceText: distanceText,
+        durationText: durationText,
+      );
+    } catch (_) {
+      return null;
+    }
   }
 }

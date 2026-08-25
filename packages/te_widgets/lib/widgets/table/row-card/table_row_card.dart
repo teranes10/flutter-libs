@@ -93,6 +93,8 @@ class TTableRowCard<T, K> extends StatelessWidget {
     switch (mode) {
       case TTableExpansionMode.side:
         return isExpanded ? Icons.chevron_left : Icons.chevron_right;
+      case TTableExpansionMode.sideOverlay:
+        return isExpanded ? Icons.close : Icons.open_in_new_outlined;
       case TTableExpansionMode.dialog:
         return isExpanded ? Icons.close : Icons.open_in_new_outlined;
       case TTableExpansionMode.page:

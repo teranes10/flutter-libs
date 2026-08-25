@@ -78,7 +78,7 @@ class _TMenuRootTriggerState<T extends TMenuItemData<T>> extends State<TMenuRoot
   void _onEnter() {
     if (_useTapOnly) return;
     setState(() => _isHovered = true);
-    TMenuOverlayController.setMouseInArea(true);
+    TMenuOverlayController.setTriggerHovered(true);
     _scheduleShow();
   }
 
@@ -86,7 +86,7 @@ class _TMenuRootTriggerState<T extends TMenuItemData<T>> extends State<TMenuRoot
     if (_useTapOnly) return;
     setState(() => _isHovered = false);
     _hoverTimer?.cancel();
-    TMenuOverlayController.setMouseInArea(false);
+    TMenuOverlayController.setTriggerHovered(false);
   }
 
   void _scheduleShow() {
@@ -109,6 +109,7 @@ class _TMenuRootTriggerState<T extends TMenuItemData<T>> extends State<TMenuRoot
           targetSize: layoutInfo.childSize,
           transform: layoutInfo.childPaintTransform,
           inputConstraints: widget.theme.boxConstraints,
+          popupAlignment: widget.theme.alignment,
           alignment: FractionalOffset.topLeft,
         );
 

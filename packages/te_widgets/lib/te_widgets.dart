@@ -54,6 +54,7 @@ export 'layouts/widgets/sidebar/sidebar_items.dart';
 export 'layouts/widgets/sidebar/sidebar.dart';
 
 export 'layouts/widgets/logo.dart';
+export 'layouts/widgets/top_bar.dart';
 export 'layouts/layout.dart';
 
 export 'mixins/focus_mixin.dart';
@@ -148,6 +149,7 @@ export 'widgets/list/list_state.dart';
 export 'widgets/list/list_theme.dart';
 export 'widgets/list/list_view.dart';
 export 'widgets/list/list.dart';
+export 'widgets/list/list_detail.dart';
 
 export 'widgets/loading-icon/loading_icon.dart';
 
@@ -200,6 +202,7 @@ export 'widgets/reactive-selector/reactive_selector.dart';
 export 'widgets/scroll-top/scroll_top.dart';
 
 export 'widgets/stepper/stepper.dart';
+export 'widgets/timeline/timeline.dart';
 
 export 'widgets/scrollbar/scrollbar.dart';
 

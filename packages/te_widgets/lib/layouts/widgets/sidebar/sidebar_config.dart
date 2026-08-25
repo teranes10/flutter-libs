@@ -144,6 +144,9 @@ class TSidebarTheme extends TMenuTheme {
     super.itemBorderRadius = const BorderRadius.all(Radius.circular(6.0)),
     super.fontSize = 14.0,
     super.fontWeight = FontWeight.w300,
+    super.arrowIcon,
+    super.dropdownIcon,
+    super.expandIcon,
   });
 
   factory TSidebarTheme.defaultTheme(BuildContext context) {
@@ -158,6 +161,7 @@ class TSidebarTheme extends TMenuTheme {
     );
   }
 
+  @override
   TSidebarTheme copyWith({
     Color? defaultColor,
     Color? hoverColor,
@@ -185,6 +189,9 @@ class TSidebarTheme extends TMenuTheme {
     BorderRadius? itemBorderRadius,
     double? fontSize,
     FontWeight? fontWeight,
+    IconData? arrowIcon,
+    IconData? dropdownIcon,
+    IconData? expandIcon,
   }) {
     return TSidebarTheme(
       defaultColor: defaultColor ?? this.defaultColor,
@@ -213,6 +220,9 @@ class TSidebarTheme extends TMenuTheme {
       itemBorderRadius: itemBorderRadius ?? this.itemBorderRadius,
       fontSize: fontSize ?? this.fontSize,
       fontWeight: fontWeight ?? this.fontWeight,
+      arrowIcon: arrowIcon ?? this.arrowIcon,
+      dropdownIcon: dropdownIcon ?? this.dropdownIcon,
+      expandIcon: expandIcon ?? this.expandIcon,
     );
   }
 }

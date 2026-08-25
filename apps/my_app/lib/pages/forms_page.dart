@@ -29,6 +29,16 @@ class FormsPage extends StatelessWidget {
             }
           },
         ),
+        const SizedBox(height: 12),
+        TButton(
+          text: 'Show Tabbed Sub-forms Modal',
+          onPressed: (_) async {
+            final value = await TFormService.show(context, TabbedSettingsForm());
+            if (value != null) {
+              debugPrint('__save tabbed $value');
+            }
+          },
+        ),
       ],
     );
   }
@@ -196,3 +206,77 @@ class ProductForm extends TFormBase {
       'ProductForm name: $name, category: $category, price: $price, '
       'stock: $stock, sku: $sku, featured: $featured, active: $active, tags: ${tags.value}';
 }
+
+/// Demo form that showcases horizontal and vertical tab sub forms.
+class TabbedSettingsForm extends TFormBase {
+  final siteName = TFieldProp('My Awesome Site');
+  final siteUrl = TFieldProp('https://example.com');
+  final maintenanceMode = TFieldProp(false);
+
+  final smtpHost = TFieldProp('');
+  final smtpPort = TFieldProp(587);
+  final smtpUser = TFieldProp('');
+
+  final enable2FA = TFieldProp(true);
+  final sessionTimeout = TFieldProp(30);
+
+  final notifyEmail = TFieldProp(true);
+  final notifyPush = TFieldProp(false);
+
+  @override
+  double get formWidth => 800;
+
+  @override
+  String get formTitle => 'Application Settings';
+
+  @override
+  String get formActionName => 'Save Settings';
+
+  @override
+  List<TFormField> get fields => [
+        TFormField.verticalTabs(
+          tabWidth: 160,
+          tabs: [
+            TFormTab.fields(
+              title: 'General',
+              icon: Icons.tune,
+              fields: [
+                TFormField.text(siteName, 'Site Name', isRequired: true),
+                TFormField.text(siteUrl, 'Site URL', isRequired: true),
+                TFormField.toggle(maintenanceMode, 'Maintenance Mode'),
+              ],
+            ),
+            TFormTab.fields(
+              title: 'Email / SMTP',
+              icon: Icons.mail_outline,
+              fields: [
+                TFormField.text(smtpHost, 'SMTP Host').size(8),
+                TFormField.number<int>(smtpPort, 'Port').size(4),
+                TFormField.text(smtpUser, 'Username'),
+              ],
+            ),
+            TFormTab.fields(
+              title: 'Security',
+              icon: Icons.security,
+              fields: [
+                TFormField.toggle(enable2FA, 'Require 2FA for all users'),
+                TFormField.number<int>(sessionTimeout, 'Session Timeout (minutes)'),
+              ],
+            ),
+            TFormTab.fields(
+              title: 'Notifications',
+              icon: Icons.notifications_outlined,
+              fields: [
+                TFormField.toggle(notifyEmail, 'Email Notifications'),
+                TFormField.toggle(notifyPush, 'Push Notifications'),
+              ],
+            ),
+          ],
+        ),
+      ];
+
+  @override
+  String toString() =>
+      'TabbedSettingsForm siteName: $siteName, siteUrl: $siteUrl, 2FA: $enable2FA';
+}
+

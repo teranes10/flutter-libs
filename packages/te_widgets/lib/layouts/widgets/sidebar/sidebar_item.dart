@@ -35,12 +35,6 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   bool _isHovered = false;
   Timer? _hoverTimer;
 
-  // Replaces the old raw-OverlayEntry + LayerLink/CompositedTransformFollower
-  // plumbing: the popup (submenu panel, or a tooltip for a leaf item) is now
-  // an OverlayPortal owned by this widget and positioned by the same
-  // PopupPositionDelegate the dropdown uses, so nested-submenu positioning
-  // no longer needs the hand-computed RenderBox/offset math the old
-  // TSidebarOverlayItem did.
   final OverlayPortalController _overlayController = OverlayPortalController();
 
   @override
@@ -202,13 +196,10 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
       targetSize: layoutInfo.childSize,
       transform: layoutInfo.childPaintTransform,
       inputConstraints: widget.theme.boxConstraints,
+      popupAlignment: widget.theme.alignment,
       alignment: FractionalOffset.topLeft,
     );
 
-    // Children -> a submenu panel. Leaf item -> a tooltip, since a bare
-    // icon (minimized rail) or a width-overflowed label alone isn't
-    // enough context. This mirrors the sidebar's original behavior, now
-    // driven by the shared engine instead of a bespoke OverlayEntry.
     final content = widget.item.hasVisibleChildren
         ? TMenuOverlayPanel<TSidebarItem>(
             items: widget.item.visibleChildren,
@@ -240,6 +231,43 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   Widget _buildMainItem(bool isCurrentRoute, bool containsCurrentRoute) {
     final colors = context.colors;
 
+    if (widget.isMinimized) {
+      final color = widget.theme.getItemColor(
+        isActive: isCurrentRoute,
+        containsActive: containsCurrentRoute,
+        isHovered: _isHovered,
+      );
+
+      return MouseRegion(
+        onEnter: (_) => _onHoverEnter(),
+        onExit: (_) => _onHoverExit(),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: InkWell(
+              onTap: _handleTap,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              customBorder: const CircleBorder(),
+              child: Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isCurrentRoute ? widget.theme.activeBackgroundColor : colors.surfaceContainerHigh,
+                ),
+                child: widget.item.icon != null
+                    ? Icon(widget.item.icon, size: widget.theme.iconSize, color: color)
+                    : const SizedBox.shrink(),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return MouseRegion(
       onEnter: (_) => _onHoverEnter(),
       onExit: (_) => _onHoverExit(),
@@ -250,25 +278,12 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
         highlightColor: Colors.transparent,
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: widget.isMinimized
-              ? widget.theme.minimizedItemPadding
-              : widget.level == 0
-                  ? widget.theme.itemPadding
-                  : widget.theme.childPadding,
-          margin: widget.isMinimized
-              ? const EdgeInsets.symmetric(vertical: 3)
-              : isCurrentRoute
-                  ? const EdgeInsets.fromLTRB(8, 8, 12, 8)
-                  : EdgeInsets.only(left: 8, right: 12),
-          decoration: widget.isMinimized
-              ? BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isCurrentRoute ? widget.theme.activeBackgroundColor : colors.surfaceContainerHigh,
-                )
-              : BoxDecoration(
-                  color: isCurrentRoute ? widget.theme.activeBackgroundColor : null,
-                  borderRadius: BorderRadius.circular(8),
-                ),
+          padding: widget.level == 0 ? widget.theme.itemPadding : widget.theme.childPadding,
+          margin: isCurrentRoute ? const EdgeInsets.fromLTRB(8, 8, 12, 8) : const EdgeInsets.only(left: 8, right: 12),
+          decoration: BoxDecoration(
+            color: isCurrentRoute ? widget.theme.activeBackgroundColor : null,
+            borderRadius: BorderRadius.circular(8),
+          ),
           child: _buildItemContent(isCurrentRoute, containsCurrentRoute),
         ),
       ),
@@ -279,22 +294,26 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     final color = widget.theme.getItemColor(isActive: isCurrentRoute, containsActive: containsCurrentRoute, isHovered: _isHovered);
 
     return Row(
-      mainAxisAlignment: widget.isMinimized ? MainAxisAlignment.center : MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        if (widget.item.icon != null) Icon(widget.item.icon, size: widget.theme.iconSize, color: color.withValues(alpha: 50)),
-        if (widget.item.text != null && !widget.isMinimized) ...[
+        if (widget.item.icon != null) Icon(widget.item.icon, size: widget.theme.iconSize, color: color),
+        if (widget.item.text != null) ...[
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               widget.item.text!,
-              style: TextStyle(fontSize: widget.theme.fontSize, fontWeight: FontWeight.w300, color: color),
+              style: TextStyle(
+                fontSize: widget.theme.fontSize,
+                fontWeight: isCurrentRoute ? FontWeight.w400 : FontWeight.w300,
+                color: color,
+              ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
           ),
         ],
-        if (widget.item.hasVisibleChildren && !widget.isMinimized) ...[
-          const SizedBox(width: 8),
+        if (widget.item.hasVisibleChildren) ...[
+          const SizedBox(width: 14),
           _buildExpandIcon(color),
         ],
       ],
@@ -307,7 +326,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
       builder: (context, child) {
         return Transform.rotate(
           angle: _rotationAnimation.value * 3.14159,
-          child: Icon(Icons.expand_more, size: widget.theme.expandIconSize, color: color),
+          child: Icon(widget.theme.expandIcon ?? Icons.expand_more, size: widget.theme.expandIconSize, color: color),
         );
       },
     );

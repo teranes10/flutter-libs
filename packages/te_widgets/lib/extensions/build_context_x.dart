@@ -29,7 +29,10 @@ extension BuildContextX on BuildContext {
     return ext;
   }
 
-  TWidgetTheme getWidgetTheme(TVariant type, Color? color) => TWidgetTheme.from(isDarkMode, color ?? theme.primary, type);
+  TWidgetTheme getWidgetTheme(TVariant type, [Color? color]) =>
+      color != null
+          ? TWidgetTheme.from(isDarkMode, color, type)
+          : TWidgetTheme.surfaceTheme(colors, variant: type);
 
   Color getBackgroundColor(Color defaultColor) => TBackgroundColorScope.maybeOf(this) ?? defaultColor;
 
@@ -42,8 +45,15 @@ extension BuildContextX on BuildContext {
   bool get isTablet => mediaQuery.isTablet;
   bool get isDesktop => mediaQuery.isDesktop;
 
-  bool get isMobilePlatform => kIsMobilePlatform;
-  bool get isDesktopPlatform => kIsDesktopPlatform;
+  bool get isMobilePlatform {
+    final p = Theme.of(this).platform;
+    return p == TargetPlatform.android || p == TargetPlatform.iOS;
+  }
+
+  bool get isDesktopPlatform {
+    final p = Theme.of(this).platform;
+    return p == TargetPlatform.macOS || p == TargetPlatform.windows || p == TargetPlatform.linux;
+  }
 
   /// Navigates to a path with optional breadcrumb labels for dynamic segments.
   ///

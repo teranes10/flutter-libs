@@ -169,8 +169,7 @@ class TButtonTheme {
     TButtonShape shape = TButtonShape.normal,
     TButtonSize size = TButtonSize.md,
   }) {
-    final color = colors.primary;
-    final baseTheme = TWidgetTheme.from(colors.isDarkMode, color, type);
+    final baseTheme = TWidgetTheme.from(colors.isDarkMode, colors.primary, type);
 
     return TButtonTheme(
       baseTheme: baseTheme,

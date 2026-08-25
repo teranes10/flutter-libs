@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// A uniform page wrapper widget used across popups, details pages, and fullscreen modals on mobile.
+///
+/// Provides a modern elevated content layout with sticky header and footer,
+/// and dynamic vertical edge shadows as content scrolls.
 class TPageWrapper extends StatefulWidget {
   /// The main content of the page.
   final Widget child;
 
-  /// Optional title displayed in the AppBar.
+  /// Optional title displayed in the header.
   final String? title;
 
   /// Optional subtitle displayed below the title.
@@ -18,10 +21,10 @@ class TPageWrapper extends StatefulWidget {
   /// Optional description displayed below the title area.
   final String? description;
 
-  /// Optional callback for the back button in the AppBar.
+  /// Optional callback for the back/close button in the header.
   final VoidCallback? onBackPressed;
 
-  /// Optional actions to display in the AppBar.
+  /// Optional actions to display in the header.
   final List<Widget>? actions;
 
   /// Optional key-value information to display below the description.
@@ -33,7 +36,10 @@ class TPageWrapper extends StatefulWidget {
   /// Whether the page wrapper should shrink wrap its content vertically.
   final bool shrinkWrap;
 
+  /// Padding for the header area.
   final EdgeInsets padding;
+
+  /// Padding for the scrollable content area.
   final EdgeInsets contentPadding;
 
   /// Optional background color for the entire wrapper.
@@ -68,19 +74,28 @@ class TPageWrapper extends StatefulWidget {
 
 class _TPageWrapperState extends State<TPageWrapper> {
   late final ScrollController _scrollController;
-  final ValueNotifier<bool> _isScrolled = ValueNotifier(false);
+  final ValueNotifier<bool> _canScrollUp = ValueNotifier(false);
+  final ValueNotifier<bool> _canScrollDown = ValueNotifier(false);
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onScroll());
   }
 
   void _onScroll() {
-    final scrolled = _scrollController.offset > 0;
-    if (_isScrolled.value != scrolled) {
-      _isScrolled.value = scrolled;
+    if (!mounted || !_scrollController.hasClients || !_scrollController.position.hasContentDimensions) return;
+    final pos = _scrollController.position;
+    final canUp = pos.pixels > 0;
+    final canDown = pos.pixels < (pos.maxScrollExtent - 1);
+
+    if (_canScrollUp.value != canUp) {
+      _canScrollUp.value = canUp;
+    }
+    if (_canScrollDown.value != canDown) {
+      _canScrollDown.value = canDown;
     }
   }
 
@@ -88,8 +103,222 @@ class _TPageWrapperState extends State<TPageWrapper> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
-    _isScrolled.dispose();
+    _canScrollUp.dispose();
+    _canScrollDown.dispose();
     super.dispose();
+  }
+
+  Widget _buildHeader(BuildContext context, ColorScheme colors, bool isDark, bool isDesktop) {
+    final hasMainRow = widget.title != null ||
+        widget.subTitle != null ||
+        widget.imageUrl != null ||
+        widget.onBackPressed != null ||
+        widget.actions != null;
+
+    final hasDescription = widget.description != null && widget.description!.isNotEmpty;
+    final hasItemInfo = widget.itemInfo != null && widget.itemInfo!.isNotEmpty;
+
+    if (!hasMainRow && !hasDescription && !hasItemInfo) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: widget.padding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasMainRow)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (!isDesktop && widget.onBackPressed != null) ...[
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: widget.onBackPressed,
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) ...[
+                  Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    child: TImage(
+                      url: widget.imageUrl,
+                      size: widget.subTitle != null ? 52 : 42,
+                      color: colors.surfaceContainerLow,
+                      disabled: true,
+                      border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.title != null)
+                        Text(
+                          widget.title!,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      if (widget.subTitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          widget.subTitle!,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w300,
+                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (widget.actions != null) ...widget.actions!,
+                if (isDesktop && widget.onBackPressed != null) ...[
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: widget.onBackPressed,
+                  ),
+                ],
+              ],
+            ),
+          if (hasDescription) ...[
+            if (hasMainRow) const SizedBox(height: 8),
+            Text(
+              widget.description!,
+              style: TextStyle(
+                fontSize: 13,
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+              ),
+            ),
+          ],
+          if (hasItemInfo) ...[
+            const SizedBox(height: 10),
+            TKeyValueSection(
+              values: widget.itemInfo!,
+              theme: context.theme.keyValueTheme.copyWith(
+                gridInline: widget.itemInfoGridInline,
+                valueStyle: context.theme.keyValueTheme.valueStyle.copyWith(
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                ),
+                keyStyle: context.theme.keyValueTheme.keyStyle.copyWith(
+                  color: isDark ? Colors.grey.shade500 : Colors.grey.shade500,
+                ),
+                labelStyle: context.theme.keyValueTheme.labelStyle.copyWith(
+                  color: isDark ? Colors.grey.shade500 : Colors.grey.shade500,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, ColorScheme colors, bool isDark, bool shouldShrinkWrap) {
+    final scrollView = SingleChildScrollView(
+      controller: _scrollController,
+      padding: widget.contentPadding,
+      child: widget.child,
+    );
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        _onScroll();
+        return false;
+      },
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          if (shouldShrinkWrap) scrollView else Positioned.fill(child: scrollView),
+          // Top vertical shadow (casts downward when scrolled down from top)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: ValueListenableBuilder<bool>(
+              valueListenable: _canScrollUp,
+              builder: (context, canScrollUp, _) {
+                return IgnorePointer(
+                  child: AnimatedOpacity(
+                    opacity: canScrollUp ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withAlpha(isDark ? 55 : 25),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          // Bottom vertical shadow (casts upward when content can scroll further down)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: ValueListenableBuilder<bool>(
+              valueListenable: _canScrollDown,
+              builder: (context, canScrollDown, _) {
+                return IgnorePointer(
+                  child: AnimatedOpacity(
+                    opacity: canScrollDown ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    child: Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withAlpha(isDark ? 55 : 25),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget? _buildFooter(BuildContext context, ColorScheme colors, bool isDark) {
+    if (widget.footer == null) return null;
+
+    final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor(colors.surface);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: effectiveBg,
+      ),
+      child: widget.footer!,
+    );
   }
 
   @override
@@ -99,236 +328,43 @@ class _TPageWrapperState extends State<TPageWrapper> {
     final colors = context.colors;
     final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor(colors.surface);
 
-    final bool hasHeaderInfo = widget.title != null || widget.subTitle != null || widget.imageUrl != null;
-    final bool showAppBar = hasHeaderInfo || widget.onBackPressed != null || widget.actions != null;
-
-    Widget? buildTitleWidget() {
-      if (!hasHeaderInfo) return null;
-
-      if (widget.subTitle == null && widget.imageUrl == null) {
-        return Text(widget.title ?? '');
-      }
-
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty)
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              child: TImage(
-                url: widget.imageUrl,
-                size: 60,
-                color: colors.surfaceContainerLow,
-                disabled: true,
-                border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-            ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.title != null)
-                  Text(
-                    widget.title!,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                if (widget.subTitle != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.subTitle!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.grey.shade600 : Colors.grey.shade700,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      );
-    }
-
-    double? toolbarHeight;
-    if (hasHeaderInfo) {
-      if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) {
-        toolbarHeight = 80.0;
-      } else if (widget.subTitle != null) {
-        toolbarHeight = 68.0;
-      }
-    }
-
-    Widget buildAppBar() {
-      final titleWidget = buildTitleWidget();
-
-      return ValueListenableBuilder<bool>(
-        valueListenable: _isScrolled,
-        builder: (context, isScrolled, _) {
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            decoration: BoxDecoration(
-              color: effectiveBg,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              boxShadow: isScrolled
-                  ? [
-                      BoxShadow(
-                        color: Colors.black54.withAlpha(20),
-                        blurRadius: 8,
-                        spreadRadius: 0,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : [],
-            ),
-            child: AppBar(
-              toolbarHeight: toolbarHeight,
-              automaticallyImplyLeading: false,
-              backgroundColor: Colors.transparent,
-              surfaceTintColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              scrolledUnderElevation: 0,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-              ),
-              leading: !isDesktop && widget.onBackPressed != null
-                  ? Padding(
-                      padding: EdgeInsets.only(left: widget.padding.left, right: 3),
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: widget.onBackPressed,
-                      ),
-                    )
-                  : null,
-              titleSpacing: (!isDesktop && widget.onBackPressed != null) ? 0.0 : widget.padding.left,
-              title: titleWidget,
-              centerTitle: false,
-              actions: [
-                if (widget.actions != null) ...widget.actions!,
-                if (isDesktop && widget.onBackPressed != null)
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: widget.onBackPressed,
-                  ),
-                SizedBox(width: widget.padding.right),
-              ],
-            ),
-          );
-        },
-      );
-    }
-
-    final appBarWidget = showAppBar ? buildAppBar() : null;
-
-    final descriptionWidget = widget.description != null && widget.description!.isNotEmpty
-        ? Container(
-            padding: EdgeInsets.only(
-              top: 2,
-              left: widget.padding.left,
-              right: widget.padding.right,
-            ),
-            child: Text(
-              widget.description!,
-              style: TextStyle(fontSize: 13, color: isDark ? Colors.grey.shade700 : Colors.grey.shade600),
-            ),
-          )
-        : null;
-
-    final itemInfoWidget = widget.itemInfo != null && widget.itemInfo!.isNotEmpty
-        ? Padding(
-            padding: EdgeInsets.only(
-              left: widget.padding.left - 5,
-              right: widget.padding.right,
-              top: widget.description != null && widget.description!.isNotEmpty ? 4.0 : 0.0,
-            ),
-            child: TKeyValueSection(
-              values: widget.itemInfo!,
-              theme: context.theme.keyValueTheme.copyWith(
-                gridInline: widget.itemInfoGridInline,
-                valueStyle: context.theme.keyValueTheme.valueStyle.copyWith(color: isDark ? Colors.grey.shade500 : Colors.grey.shade600),
-                keyStyle: context.theme.keyValueTheme.keyStyle.copyWith(color: isDark ? Colors.grey.shade600 : Colors.grey.shade500),
-                labelStyle: context.theme.keyValueTheme.labelStyle.copyWith(color: isDark ? Colors.grey.shade600 : Colors.grey.shade500),
-              ),
-            ),
-          )
-        : null;
+    final headerWidget = _buildHeader(context, colors, isDark, isDesktop);
+    final footerWidget = _buildFooter(context, colors, isDark);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final shouldShrinkWrap = widget.shrinkWrap || !constraints.hasBoundedHeight;
 
         if (shouldShrinkWrap) {
-          final appBarHeight = appBarWidget != null ? (toolbarHeight ?? kToolbarHeight) : 0.0;
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Flexible(
-                child: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      controller: _scrollController,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          SizedBox(height: appBarHeight),
-                          if (descriptionWidget != null) descriptionWidget,
-                          if (itemInfoWidget != null) itemInfoWidget,
-                          Padding(
-                            padding: widget.contentPadding,
-                            child: widget.child,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (appBarWidget != null) Positioned(top: 0, left: 0, right: 0, child: appBarWidget),
-                  ],
+          return Material(
+            color: effectiveBg,
+            borderRadius: BorderRadius.circular(12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                headerWidget,
+                Flexible(
+                  child: _buildContent(context, colors, isDark, true),
                 ),
-              ),
-              if (widget.footer != null) widget.footer!,
-            ],
+                if (footerWidget != null) footerWidget,
+              ],
+            ),
           );
         }
 
-        final appBarHeight = toolbarHeight ?? kToolbarHeight;
-
-        return Scaffold(
-          backgroundColor: effectiveBg,
-          body: SafeArea(
+        return Material(
+          color: effectiveBg,
+          borderRadius: BorderRadius.circular(12),
+          child: SafeArea(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                headerWidget,
                 Expanded(
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: SingleChildScrollView(
-                          controller: _scrollController,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (appBarWidget != null) SizedBox(height: appBarHeight),
-                              if (descriptionWidget != null) descriptionWidget,
-                              if (itemInfoWidget != null) itemInfoWidget,
-                              Padding(
-                                padding: widget.contentPadding,
-                                child: widget.child,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      if (appBarWidget != null) Positioned(top: 0, left: 0, right: 0, child: appBarWidget),
-                    ],
-                  ),
+                  child: _buildContent(context, colors, isDark, false),
                 ),
-                if (widget.footer != null) widget.footer!,
+                if (footerWidget != null) footerWidget,
               ],
             ),
           ),

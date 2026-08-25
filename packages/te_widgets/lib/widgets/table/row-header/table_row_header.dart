@@ -31,6 +31,33 @@ class TTableRowHeader<T, K> extends StatelessWidget {
   Widget build(BuildContext context) {
     final wTheme = theme ?? context.theme.tableTheme.headerTheme;
 
+    final order = controller.headerOrder;
+    final visibility = controller.headerVisibility;
+
+    final List<TTableHeader<T, K>> effectiveHeaders;
+    if (order.isEmpty) {
+      effectiveHeaders = headers.where((h) => visibility[h.text] ?? true).toList();
+    } else {
+      final orderedVisibleHeaders = <TTableHeader<T, K>>[];
+      for (final text in order) {
+        if (visibility[text] ?? true) {
+          final index = headers.indexWhere((h) => h.text == text);
+          if (index != -1) {
+            orderedVisibleHeaders.add(headers[index]);
+          }
+        }
+      }
+      // Also include any headers that are not in headerOrder (e.g. actions column)
+      for (final h in headers) {
+        if (!order.contains(h.text)) {
+          if (visibility[h.text] ?? true) {
+            orderedVisibleHeaders.add(h);
+          }
+        }
+      }
+      effectiveHeaders = orderedVisibleHeaders;
+    }
+
     return Container(
       width: double.infinity,
       padding: controller.reorderable ? wTheme.padding.copyWith(left: wTheme.padding.left + 25) : wTheme.padding,
@@ -49,7 +76,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
                   onValueChanged: (value) => controller.toggleSelectAll(),
                 ),
               ),
-            ...headers.map((header) => buildHeaderCell(wTheme, header)),
+            ...effectiveHeaders.map((header) => buildHeaderCell(wTheme, header)),
           ])
         ],
       ),

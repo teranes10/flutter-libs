@@ -38,6 +38,10 @@ class TMenuTheme {
   final double fontSize;
   final FontWeight fontWeight;
 
+  final IconData? arrowIcon;
+  final IconData? dropdownIcon;
+  final IconData? expandIcon;
+
   const TMenuTheme({
     required this.defaultColor,
     required this.hoverColor,
@@ -53,7 +57,7 @@ class TMenuTheme {
     this.secondaryOffset = 8.0,
     this.boxConstraints = const BoxConstraints(minWidth: 175),
     this.iconSize = 20.0,
-    this.arrowIconSize = 11.0,
+    this.arrowIconSize = 14.0,
     this.gap = 10.0,
     this.overlayElevation = 8.0,
     this.overlayBorderRadius = const BorderRadius.all(Radius.circular(8.0)),
@@ -62,11 +66,72 @@ class TMenuTheme {
     this.itemBorderRadius = const BorderRadius.all(Radius.circular(6.0)),
     this.fontSize = 14.0,
     this.fontWeight = FontWeight.w300,
+    this.arrowIcon,
+    this.dropdownIcon,
+    this.expandIcon,
   });
 
   Color getItemColor({required bool isActive, required bool containsActive, required bool isHovered}) {
     if (isActive || containsActive) return activeColor;
     if (isHovered) return hoverColor;
     return defaultColor;
+  }
+
+  TMenuTheme copyWith({
+    Color? defaultColor,
+    Color? hoverColor,
+    Color? activeColor,
+    Color? activeBackgroundColor,
+    Color? borderColor,
+    Duration? animationDuration,
+    Duration? showDelay,
+    Duration? hideDelay,
+    TPopupAlignment? alignment,
+    double? offset,
+    TPopupAlignment? secondaryAlignment,
+    double? secondaryOffset,
+    BoxConstraints? boxConstraints,
+    double? iconSize,
+    double? arrowIconSize,
+    double? gap,
+    double? overlayElevation,
+    BorderRadius? overlayBorderRadius,
+    EdgeInsets? overlayPadding,
+    EdgeInsets? itemPadding,
+    BorderRadius? itemBorderRadius,
+    double? fontSize,
+    FontWeight? fontWeight,
+    IconData? arrowIcon,
+    IconData? dropdownIcon,
+    IconData? expandIcon,
+  }) {
+    return TMenuTheme(
+      defaultColor: defaultColor ?? this.defaultColor,
+      hoverColor: hoverColor ?? this.hoverColor,
+      activeColor: activeColor ?? this.activeColor,
+      activeBackgroundColor: activeBackgroundColor ?? this.activeBackgroundColor,
+      borderColor: borderColor ?? this.borderColor,
+      animationDuration: animationDuration ?? this.animationDuration,
+      showDelay: showDelay ?? this.showDelay,
+      hideDelay: hideDelay ?? this.hideDelay,
+      alignment: alignment ?? this.alignment,
+      offset: offset ?? this.offset,
+      secondaryAlignment: secondaryAlignment ?? this.secondaryAlignment,
+      secondaryOffset: secondaryOffset ?? this.secondaryOffset,
+      boxConstraints: boxConstraints ?? this.boxConstraints,
+      iconSize: iconSize ?? this.iconSize,
+      arrowIconSize: arrowIconSize ?? this.arrowIconSize,
+      gap: gap ?? this.gap,
+      overlayElevation: overlayElevation ?? this.overlayElevation,
+      overlayBorderRadius: overlayBorderRadius ?? this.overlayBorderRadius,
+      overlayPadding: overlayPadding ?? this.overlayPadding,
+      itemPadding: itemPadding ?? this.itemPadding,
+      itemBorderRadius: itemBorderRadius ?? this.itemBorderRadius,
+      fontSize: fontSize ?? this.fontSize,
+      fontWeight: fontWeight ?? this.fontWeight,
+      arrowIcon: arrowIcon ?? this.arrowIcon,
+      dropdownIcon: dropdownIcon ?? this.dropdownIcon,
+      expandIcon: expandIcon ?? this.expandIcon,
+    );
   }
 }

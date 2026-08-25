@@ -66,7 +66,7 @@ class TSnackbarService {
   }) {
     final theme = context.theme;
     final mType = type ?? theme.snackbarType;
-    final wTheme = color != null ? context.getWidgetTheme(mType, color) : TWidgetTheme.surfaceTheme(context.colors, variant: mType);
+    final wTheme = context.getWidgetTheme(mType, color);
     final isMobile = context.isMobile;
     final resolvedAlignment = alignment ?? Alignment.bottomCenter;
 

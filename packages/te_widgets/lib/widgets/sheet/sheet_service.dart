@@ -69,17 +69,24 @@ class TSheetService {
     TModalWidgetBuilder? footer,
     bool persistent = false,
     double width = 400,
+    double minWidth = 280,
     String? title,
+    String? subTitle,
     bool? showCloseButton,
     TSheetAnimationType animationType = TSheetAnimationType.sliding,
     bool fromLeft = false,
+    Color? backgroundColor,
+    BorderRadius? borderRadius,
+    Widget Function(BuildContext context, Widget child)? layoutBuilder,
+    Duration transitionDuration = const Duration(milliseconds: 250),
+    Color barrierColor = Colors.black54,
   }) {
     return showGeneralDialog<T>(
       context: context,
       barrierDismissible: !persistent,
       barrierLabel: 'SideSheet',
-      barrierColor: Colors.black54,
-      transitionDuration: const Duration(milliseconds: 300),
+      barrierColor: barrierColor,
+      transitionDuration: transitionDuration,
       pageBuilder: (context, animation, secondaryAnimation) {
         final mContext = TModalContext<T>(context);
         return Align(
@@ -91,18 +98,29 @@ class TSheetService {
               header: header?.call(mContext),
               footer: footer?.call(mContext),
               title: title,
-              showCloseButton: showCloseButton,
-              onClose: () => Navigator.pop(context),
+              subTitle: subTitle,
+              showCloseButton: showCloseButton ?? !persistent,
+              onClose: () => Navigator.of(context).pop(),
               width: width,
+              minWidth: minWidth,
               fromLeft: fromLeft,
+              persistent: persistent,
+              backgroundColor: backgroundColor,
+              borderRadius: borderRadius,
+              layoutBuilder: layoutBuilder,
             ),
           ),
         );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
         if (animationType == TSheetAnimationType.drawing) {
           return SizeTransition(
-            sizeFactor: animation,
+            sizeFactor: curvedAnimation,
             axis: Axis.horizontal,
             axisAlignment: fromLeft ? -1 : 1,
             child: child,
@@ -112,7 +130,7 @@ class TSheetService {
             position: Tween<Offset>(
               begin: Offset(fromLeft ? -1 : 1, 0),
               end: Offset.zero,
-            ).animate(animation),
+            ).animate(curvedAnimation),
             child: child,
           );
         }

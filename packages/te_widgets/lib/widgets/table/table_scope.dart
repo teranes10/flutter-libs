@@ -49,8 +49,10 @@ class TTableScope extends InheritedWidget {
       controller.collapseDetail();
     }
 
-    if (expansionMode == TTableExpansionMode.dialog || expansionMode == TTableExpansionMode.page) {
-      final useRoot = expansionMode == TTableExpansionMode.dialog;
+    if (expansionMode == TTableExpansionMode.dialog ||
+        expansionMode == TTableExpansionMode.page ||
+        expansionMode == TTableExpansionMode.sideOverlay) {
+      final useRoot = expansionMode == TTableExpansionMode.dialog || expansionMode == TTableExpansionMode.sideOverlay;
       Navigator.of(context, rootNavigator: useRoot).maybePop();
     }
   }

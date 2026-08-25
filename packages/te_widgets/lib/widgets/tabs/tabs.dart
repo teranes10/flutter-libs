@@ -169,7 +169,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
     }
   }
 
-  Widget _buildTab(BuildContext context, TTab<T> tab, ColorScheme colors, bool inline) {
+  Widget _buildTab(BuildContext context, TTab<T> tab, ColorScheme colors) {
     final sel = widget.controller?.value ?? widget.selectedValue ?? (widget.tabs.isNotEmpty ? widget.tabs.first.value : null);
     final isSelected = sel == tab.value;
     final key = _tabKeys[tab.value]!;
@@ -206,152 +206,169 @@ class _TTabsState<T> extends State<TTabs<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final isExpandedByParent = constraints.hasBoundedWidth && constraints.minWidth == constraints.maxWidth;
-      final effectiveInline = isExpandedByParent ? false : widget.inline;
-      final colors = context.colors;
-      final borderColor = widget.borderColor ?? Colors.transparent;
-      final navColor = widget.navigationButtonColor ?? colors.onSurface;
-      final navBg = widget.navigationButtonBackgroundColor ?? colors.surfaceContainer;
+    final colors = context.colors;
+    final borderColor = widget.borderColor ?? Colors.transparent;
+    final navColor = widget.navigationButtonColor ?? colors.onSurface;
+    final navBg = widget.navigationButtonBackgroundColor ?? colors.surfaceContainer;
 
-      final tabWidgets = [
-        for (final tab in widget.tabs) _buildTab(context, tab, colors, effectiveInline),
-      ];
+    final tabWidgets = [
+      for (final tab in widget.tabs) _buildTab(context, tab, colors),
+    ];
 
-      Widget body;
+    Widget body;
 
-      if (widget.scrollable) {
-        final showButtons = widget.showNavigationButtons && context.isDesktopPlatform && _showArrows;
+    if (widget.scrollable) {
+      final showButtons = widget.showNavigationButtons && context.isDesktopPlatform && _showArrows;
 
-        Widget scrollView = NotificationListener<ScrollMetricsNotification>(
-          onNotification: (notification) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => _updateScrollButtons());
-            return false;
-          },
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            scrollDirection: widget.axis,
-            child: widget.axis == Axis.horizontal
-                ? Padding(
-                    padding: showButtons ? const EdgeInsets.symmetric(horizontal: 39) : EdgeInsets.zero,
-                    child: Row(spacing: widget.tabSpacing, children: tabWidgets),
-                  )
-                : Padding(
-                    padding: showButtons ? const EdgeInsets.symmetric(vertical: 39) : EdgeInsets.zero,
-                    child: Column(spacing: widget.tabSpacing, children: tabWidgets),
-                  ),
-          ),
-        );
-
-        if (showButtons) {
-          body = Stack(
-            clipBehavior: Clip.none,
-            children: [
-              scrollView,
-              if (widget.axis == Axis.horizontal) ...[
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: TIcon(
-                      shadow:
-                          !_canScrollStart ? null : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: Offset(0, 0))],
-                      background: !_canScrollStart ? null : navBg,
-                      icon: Icons.chevron_left,
-                      size: 20,
-                      onTap: !_canScrollStart ? null : () => _scrollBy(-200),
-                      color: _canScrollStart ? navColor : navColor.o(0.4),
-                      borderRadius: BorderRadius.circular(100)),
-                ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: TIcon(
-                      shadow:
-                          !_canScrollEnd ? null : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: Offset(0, 0))],
-                      background: !_canScrollEnd ? null : navBg,
-                      icon: Icons.chevron_right,
-                      size: 20,
-                      onTap: !_canScrollEnd ? null : () => _scrollBy(200),
-                      color: _canScrollEnd ? navColor : navColor.o(0.4),
-                      borderRadius: BorderRadius.circular(100)),
+      Widget scrollView = NotificationListener<ScrollMetricsNotification>(
+        onNotification: (notification) {
+          WidgetsBinding.instance.addPostFrameCallback((_) => _updateScrollButtons());
+          return false;
+        },
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          scrollDirection: widget.axis,
+          child: widget.axis == Axis.horizontal
+              ? Padding(
+                  padding: showButtons ? const EdgeInsets.symmetric(horizontal: 39) : EdgeInsets.zero,
+                  child: Row(spacing: widget.tabSpacing, children: tabWidgets),
                 )
-              ] else ...[
-                Positioned(
-                  top: 4,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Material(
-                      type: MaterialType.circle,
-                      elevation: 4,
-                      shadowColor: colors.shadow.o(0.35),
-                      color: navBg,
-                      child: TIcon(
-                          icon: Icons.keyboard_arrow_up,
-                          size: 20,
-                          onTap: () => _scrollBy(-200),
-                          color: _canScrollStart ? navColor : navColor.o(0.4),
-                          borderRadius: BorderRadius.circular(100)),
+              : Padding(
+                  padding: showButtons ? const EdgeInsets.symmetric(vertical: 39) : EdgeInsets.zero,
+                  child: IntrinsicWidth(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: widget.tabSpacing,
+                      children: tabWidgets,
                     ),
                   ),
                 ),
-                Positioned(
-                  bottom: 4,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Material(
-                      type: MaterialType.circle,
-                      elevation: 4,
-                      shadowColor: colors.shadow.o(0.35),
-                      color: navBg,
-                      child: TIcon(
-                          icon: Icons.keyboard_arrow_down,
-                          size: 20,
-                          onTap: () => _scrollBy(200),
-                          color: _canScrollEnd ? navColor : navColor.o(0.4),
-                          borderRadius: BorderRadius.circular(100)),
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          );
-        } else {
-          body = scrollView;
-        }
-      } else if (widget.wrap && effectiveInline) {
-        body = Wrap(
-          direction: widget.axis,
-          spacing: widget.tabSpacing,
-          runSpacing: widget.tabRunSpacing,
-          children: tabWidgets,
-        );
-      } else if (effectiveInline) {
-        body = widget.axis == Axis.horizontal
-            ? Row(mainAxisSize: MainAxisSize.min, spacing: widget.tabSpacing, children: tabWidgets)
-            : Column(mainAxisSize: MainAxisSize.min, spacing: widget.tabSpacing, children: tabWidgets);
-      } else {
-        // Full-width
-        body = widget.axis == Axis.horizontal
-            ? TAlignedRow(
-                spacing: widget.tabSpacing,
-                left: tabWidgets,
-                wrapperModeThreshold: 0,
-                wrapperExpanded: true,
-              )
-            : IntrinsicHeight(child: Column(spacing: widget.tabSpacing, children: tabWidgets));
-      }
-
-      final border =
-          widget.axis == Axis.horizontal ? Border(bottom: BorderSide(color: borderColor)) : Border(right: BorderSide(color: borderColor));
-
-      return Container(
-        decoration: BoxDecoration(border: border),
-        child: body,
+        ),
       );
-    });
+
+      if (showButtons) {
+        body = Stack(
+          clipBehavior: Clip.none,
+          children: [
+            scrollView,
+            if (widget.axis == Axis.horizontal) ...[
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: TIcon(
+                    shadow: !_canScrollStart
+                        ? null
+                        : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: const Offset(0, 0))],
+                    background: !_canScrollStart ? null : navBg,
+                    icon: Icons.chevron_left,
+                    size: 20,
+                    onTap: !_canScrollStart ? null : () => _scrollBy(-200),
+                    color: _canScrollStart ? navColor : navColor.o(0.4),
+                    borderRadius: BorderRadius.circular(100)),
+              ),
+              Positioned(
+                right: 0,
+                top: 0,
+                bottom: 0,
+                child: TIcon(
+                    shadow: !_canScrollEnd
+                        ? null
+                        : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: const Offset(0, 0))],
+                    background: !_canScrollEnd ? null : navBg,
+                    icon: Icons.chevron_right,
+                    size: 20,
+                    onTap: !_canScrollEnd ? null : () => _scrollBy(200),
+                    color: _canScrollEnd ? navColor : navColor.o(0.4),
+                    borderRadius: BorderRadius.circular(100)),
+              )
+            ] else ...[
+              Positioned(
+                top: 4,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Material(
+                    type: MaterialType.circle,
+                    elevation: 4,
+                    shadowColor: colors.shadow.o(0.35),
+                    color: navBg,
+                    child: TIcon(
+                        icon: Icons.keyboard_arrow_up,
+                        size: 20,
+                        onTap: () => _scrollBy(-200),
+                        color: _canScrollStart ? navColor : navColor.o(0.4),
+                        borderRadius: BorderRadius.circular(100)),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 4,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Material(
+                    type: MaterialType.circle,
+                    elevation: 4,
+                    shadowColor: colors.shadow.o(0.35),
+                    color: navBg,
+                    child: TIcon(
+                        icon: Icons.keyboard_arrow_down,
+                        size: 20,
+                        onTap: () => _scrollBy(200),
+                        color: _canScrollEnd ? navColor : navColor.o(0.4),
+                        borderRadius: BorderRadius.circular(100)),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        );
+      } else {
+        body = scrollView;
+      }
+    } else if (widget.wrap && widget.inline) {
+      body = Wrap(
+        direction: widget.axis,
+        spacing: widget.tabSpacing,
+        runSpacing: widget.tabRunSpacing,
+        children: tabWidgets,
+      );
+    } else if (widget.inline) {
+      body = widget.axis == Axis.horizontal
+          ? Row(mainAxisSize: MainAxisSize.min, spacing: widget.tabSpacing, children: tabWidgets)
+          : IntrinsicWidth(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: widget.tabSpacing,
+                children: tabWidgets,
+              ),
+            );
+    } else {
+      // Full-width (or full stretch for vertical)
+      body = widget.axis == Axis.horizontal
+          ? TAlignedRow(
+              spacing: widget.tabSpacing,
+              left: tabWidgets,
+              wrapperModeThreshold: 0,
+              wrapperExpanded: true,
+            )
+          : IntrinsicWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: widget.tabSpacing,
+                children: tabWidgets,
+              ),
+            );
+    }
+
+    final border =
+        widget.axis == Axis.horizontal ? Border(bottom: BorderSide(color: borderColor)) : Border(right: BorderSide(color: borderColor));
+
+    return Container(
+      decoration: BoxDecoration(border: border),
+      child: body,
+    );
   }
 }

@@ -31,6 +31,9 @@ class TPlaceAutoComplete extends StatefulWidget {
   final TLabelPosition? labelPosition;
   final int limit;
   final TGooglePlacesConfig? config;
+  final TTextFieldTheme? theme;
+  final Widget? preWidget;
+  final VoidCallback? onTap;
 
   const TPlaceAutoComplete({
     super.key,
@@ -43,6 +46,9 @@ class TPlaceAutoComplete extends StatefulWidget {
     this.selectedAddress,
     this.labelPosition = TLabelPosition.aboveField,
     this.config,
+    this.theme,
+    this.preWidget,
+    this.onTap,
   });
 
   @override
@@ -189,11 +195,20 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
     final apiKey = _resolveApiKey();
     final hasGoogle = apiKey != null && apiKey.isNotEmpty;
 
+    final defaultTheme = Theme.of(context).extension<TWidgetThemeExtension>()?.textFieldTheme ??
+        TTextFieldTheme.defaultTheme(Theme.of(context).colorScheme);
+
+    final effectiveTheme = (widget.theme ?? defaultTheme).copyWith(
+      labelPosition: widget.labelPosition,
+      preWidget: widget.preWidget ?? widget.theme?.preWidget ?? defaultTheme.preWidget,
+    );
+
     return TSelect<TPlaceResult, TPlaceResult, int>(
-      theme: context.theme.textFieldTheme.copyWith(labelPosition: widget.labelPosition),
+      theme: effectiveTheme,
       value: _selectedPlace,
       label: widget.label,
       placeholder: widget.placeholder ?? 'Search location...',
+      onTap: widget.onTap,
       onLoad: widget.onLoad ?? (options) => _loadGooglePlaces(options.search ?? ''),
       itemText: (item) => item.address,
       onValueChanged: (val) async {

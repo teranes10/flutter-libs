@@ -7,6 +7,7 @@ class Sidebar extends StatelessWidget {
   final double? maxWidth;
   final double minifiedWidth;
   final bool isMinimized;
+  final TSidebarMode? mode;
   final Function(TSidebarItem)? onTap;
   final Widget? header;
   final Widget? minifiedHeader;
@@ -20,6 +21,7 @@ class Sidebar extends StatelessWidget {
     this.maxWidth,
     this.minifiedWidth = 80,
     this.isMinimized = true,
+    this.mode,
     this.onTap,
     this.header,
     this.minifiedHeader,
@@ -29,10 +31,21 @@ class Sidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveMode = mode ?? (isMinimized ? TSidebarMode.minified : TSidebarMode.full);
+
+    if (effectiveMode == TSidebarMode.none) {
+      return AnimatedSize(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOutCubic,
+        alignment: Alignment.topLeft,
+        child: const SizedBox(width: 0, height: 0),
+      );
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final effectiveMaxWidth = maxWidth ?? (constraints.maxWidth < double.infinity ? constraints.maxWidth : null);
-        bool effectiveMin = isMinimized;
+        bool effectiveMin = effectiveMode == TSidebarMode.minified;
         if (!effectiveMin && effectiveMaxWidth != null && items != null) {
           double maxItemWidth = 0.0;
           final textStyle = const TextStyle(fontSize: 15, fontWeight: FontWeight.w300);
@@ -61,9 +74,10 @@ class Sidebar extends StatelessWidget {
         final Widget? resolvedHeader = effectiveMin ? (minifiedHeader ?? header) : header;
 
         // The scrollable body (items + footer).
-        final Widget scrollBody = SingleChildScrollView(
+        final Widget child = SingleChildScrollView(
+          primary: true,
           child: Container(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            constraints: BoxConstraints(minHeight: constraints.maxHeight.isFinite ? constraints.maxHeight : 0.0),
             child: IntrinsicHeight(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -84,14 +98,27 @@ class Sidebar extends StatelessWidget {
           ),
         );
 
+        final Widget scrollBody = ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(
+            scrollbars: false,
+            overscroll: false,
+          ),
+          child: !effectiveMin
+              ? Scrollbar(
+                  scrollbarOrientation: ScrollbarOrientation.left,
+                  child: child,
+                )
+              : child,
+        );
+
         // Header is pinned above the scroll area (not part of the scroll).
         final Widget innerContent = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (resolvedHeader != null) resolvedHeader,
             Expanded(
-              child: Padding(
-                padding: EdgeInsetsGeometry.only(top: 32, bottom: 16),
+              child: Container(
+                padding: EdgeInsetsGeometry.only(top: 36, bottom: 16),
                 child: scrollBody,
               ),
             ),

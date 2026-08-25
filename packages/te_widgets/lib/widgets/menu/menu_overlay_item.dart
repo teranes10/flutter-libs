@@ -86,7 +86,6 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
     if (_useTapOnly) return;
     setState(() => _isHovered = true);
     _exitTimer?.cancel();
-    TMenuOverlayController.setMouseInArea(true);
 
     if (widget.item.hasVisibleChildren) {
       _scheduleSubOverlay();
@@ -102,9 +101,6 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
     if (_useTapOnly) return;
     setState(() => _isHovered = false);
     _hoverTimer?.cancel();
-    _exitTimer = Timer(widget.theme.hideDelay, () {
-      if (!_isHovered) TMenuOverlayController.setMouseInArea(false);
-    });
   }
 
   void _scheduleSubOverlay() {
@@ -129,7 +125,37 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
           targetSize: layoutInfo.childSize,
           transform: layoutInfo.childPaintTransform,
           inputConstraints: widget.theme.boxConstraints,
+          popupAlignment: widget.theme.secondaryAlignment,
           alignment: FractionalOffset.topLeft,
+        );
+
+        final targetOffset = constraints.targetOffset;
+        final targetSize = constraints.targetSize;
+        final screenSize = constraints.screenSize;
+        final spaceRight = screenSize.width - (targetOffset.dx + targetSize.width);
+        final spaceLeft = targetOffset.dx;
+        final requiredWidthSpace = (constraints.contentBox.minWidth > 0 ? constraints.contentBox.minWidth : 180.0) + widget.theme.secondaryOffset;
+
+        final canShowRight = spaceRight >= requiredWidthSpace;
+        final canShowLeft = spaceLeft >= requiredWidthSpace;
+
+        TPopupAlignment actualAlignment = widget.theme.secondaryAlignment;
+
+        // If parent preferred right, but cannot fit on right and can fit on left: open to left
+        if (actualAlignment == TPopupAlignment.rightTop || actualAlignment == TPopupAlignment.rightBottom || actualAlignment == TPopupAlignment.rightCenter) {
+          if (!canShowRight && canShowLeft) {
+            actualAlignment = actualAlignment == TPopupAlignment.rightBottom ? TPopupAlignment.leftBottom : TPopupAlignment.leftTop;
+          }
+        }
+        // If parent preferred left (or opened to left), continue opening to left as long as spaceLeft is sufficient
+        else if (actualAlignment == TPopupAlignment.leftTop || actualAlignment == TPopupAlignment.leftBottom || actualAlignment == TPopupAlignment.leftCenter) {
+          if (!canShowLeft && canShowRight) {
+            actualAlignment = actualAlignment == TPopupAlignment.leftBottom ? TPopupAlignment.rightBottom : TPopupAlignment.rightTop;
+          }
+        }
+
+        final childTheme = widget.theme.copyWith(
+          secondaryAlignment: actualAlignment,
         );
 
         return Stack(
@@ -137,13 +163,13 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
             CustomSingleChildLayout(
               delegate: PopupPositionDelegate(
                 constraints: constraints,
-                alignment: widget.theme.secondaryAlignment,
+                alignment: actualAlignment,
                 offset: widget.theme.secondaryOffset,
               ),
               child: TMenuOverlayPanel<T>(
                 items: widget.item.visibleChildren,
                 level: widget.level + 1,
-                theme: widget.theme,
+                theme: childTheme,
                 isActive: widget.isActiveFn,
                 containsActive: widget.containsActiveFn,
                 onItemTap: widget.onTap,
@@ -196,7 +222,16 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
         if (widget.item.hasVisibleChildren)
           Padding(
             padding: EdgeInsets.only(left: widget.theme.gap),
-            child: Icon(Icons.arrow_forward_ios, size: widget.theme.arrowIconSize, color: color),
+            child: Icon(
+              widget.theme.arrowIcon ??
+                  (widget.theme.secondaryAlignment == TPopupAlignment.leftTop ||
+                   widget.theme.secondaryAlignment == TPopupAlignment.leftBottom ||
+                   widget.theme.secondaryAlignment == TPopupAlignment.leftCenter
+                      ? Icons.chevron_left_rounded
+                      : Icons.chevron_right_rounded),
+              size: widget.theme.arrowIconSize > 0 ? widget.theme.arrowIconSize : 16,
+              color: color,
+            ),
           ),
       ],
     );

@@ -49,6 +49,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     required super.backgroundColor,
     required super.borderColor,
     required super.labelStyle,
+    required super.floatingLabelStyle,
     required super.helperTextStyle,
     required super.errorTextStyle,
     required super.tagStyle,
@@ -87,6 +88,7 @@ class TTextFieldTheme extends TInputFieldTheme {
     WidgetStateProperty<Color>? backgroundColor,
     WidgetStateProperty<Color>? borderColor,
     WidgetStateProperty<TextStyle>? labelStyle,
+    WidgetStateProperty<TextStyle>? floatingLabelStyle,
     WidgetStateProperty<TextStyle>? helperTextStyle,
     WidgetStateProperty<TextStyle>? errorTextStyle,
     WidgetStateProperty<TextStyle>? tagStyle,
@@ -120,6 +122,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       backgroundColor: backgroundColor,
       borderColor: borderColor,
       labelStyle: labelStyle,
+      floatingLabelStyle: floatingLabelStyle,
       helperTextStyle: helperTextStyle,
       errorTextStyle: errorTextStyle,
       tagStyle: tagStyle,
@@ -145,6 +148,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       backgroundColor: baseTheme.backgroundColor,
       borderColor: baseTheme.borderColor,
       labelStyle: baseTheme.labelStyle,
+      floatingLabelStyle: baseTheme.floatingLabelStyle,
       helperTextStyle: baseTheme.helperTextStyle,
       errorTextStyle: baseTheme.errorTextStyle,
       tagStyle: baseTheme.tagStyle,
@@ -186,6 +190,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       backgroundColor: baseTheme.backgroundColor,
       borderColor: baseTheme.borderColor,
       labelStyle: baseTheme.labelStyle,
+      floatingLabelStyle: baseTheme.floatingLabelStyle,
       helperTextStyle: baseTheme.helperTextStyle,
       errorTextStyle: baseTheme.errorTextStyle,
       tagStyle: baseTheme.tagStyle,
@@ -224,17 +229,12 @@ class TTextFieldTheme extends TInputFieldTheme {
     VoidCallback? onTap,
     required InputDecoration inputDecoration,
     TextAlign textAlign = TextAlign.start,
+    TextAlignVertical? textAlignVertical,
   }) {
     final isDisabled = states.contains(WidgetState.disabled);
     final isMultiline = rows > 1;
     final style = textStyle.resolve(states).copyWith(fontSize: fieldFontSize);
-    final decoration = isMultiline
-        ? inputDecoration.copyWith(
-            contentPadding: fieldPadding.copyWith(
-            top: fieldPadding.top + 8,
-            bottom: fieldPadding.bottom + 8,
-          ))
-        : inputDecoration;
+    final decoration = inputDecoration;
 
     return TextField(
       controller: controller,
@@ -260,6 +260,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       onChanged: onValueChanged,
       onTap: onTap,
       textAlign: textAlign,
+      textAlignVertical: textAlignVertical,
     );
   }
 

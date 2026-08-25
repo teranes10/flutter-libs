@@ -178,6 +178,9 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Whether the footer should be sticky.
   final bool? footerSticky;
 
+  /// Callback when reorder drag-and-drop ends.
+  final VoidCallback? onReorderEnd;
+
   // Padding
   final EdgeInsets? padding;
 
@@ -219,6 +222,7 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.infiniteScroll,
     this.headerSticky,
     this.footerSticky,
+    this.onReorderEnd,
     this.padding,
   })  : assert(
           theme == null ||
@@ -462,6 +466,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               reorderable: listController.reorderable,
               dragProxyDecorator: wTheme.dragProxyDecorator,
               onReorder: listController.reorder,
+              onReorderEnd: widget.onReorderEnd != null ? (_) => widget.onReorderEnd!() : null,
               grid: wTheme.grid,
               gridDelegate: wTheme.gridDelegate,
               //    height: _calculateHeight(state),

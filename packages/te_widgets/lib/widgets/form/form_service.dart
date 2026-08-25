@@ -41,20 +41,56 @@ class TFormService {
   /// Shows a form in a modal dialog.
   ///
   /// Returns the form instance if saved, null if cancelled.
-  static Future<T?> show<T extends TFormBase>(BuildContext context, T input) {
+  static Future<T?> show<T extends TFormBase>(
+    BuildContext context,
+    T input, {
+    bool? persistent,
+    bool? showCloseButton,
+    double? width,
+    bool showFormTypeToggle = true,
+  }) {
+    final hasSubForms = input.hasSubForms;
+    ValueNotifier<TFormType>? formTypeNotifier;
+    List<Widget>? modalActions;
+
+    if (hasSubForms && showFormTypeToggle) {
+      final initialType = TFormTypePersistence.getInitialType(context, input);
+      formTypeNotifier = ValueNotifier<TFormType>(initialType);
+      TFormTypePersistence.loadPersistedType(context, input, formTypeNotifier);
+
+      modalActions = [
+        TFormTypeToggleSwitch(
+          notifier: formTypeNotifier,
+          onChanged: (newType) {
+            TFormTypePersistence.saveType(context, input, newType);
+          },
+        ),
+      ];
+    }
+
     return TModalService.showAdaptive<T>(
       context,
       title: input.formTitle,
-      persistent: input.isFormPersistent,
-      showCloseButton: input.isFormCloseButton,
-      width: input.formWidth,
+      persistent: persistent ?? input.isFormPersistent,
+      showCloseButton: showCloseButton ?? input.isFormCloseButton,
+      width: width ?? input.formWidth,
+      actions: modalActions,
       (mContext) {
-        return _TFormContent<T>(
+        final content = _TFormContent<T>(
           input: input,
           padding: EdgeInsets.all(0),
-          topSpacing: 0,
+          topSpacing: 12,
           onClose: (result) => mContext.close(result),
         );
+
+        if (formTypeNotifier != null) {
+          return TFormTypeScope(
+            formTypeNotifier: formTypeNotifier,
+            child: content,
+          );
+        }
+
+        return content;
       },
     );
   }

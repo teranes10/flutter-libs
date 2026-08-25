@@ -48,6 +48,11 @@
       ]
     },
     {
+      "name": "lints",
+      "version": "6.1.0",
+      "dependencies": []
+    },
+    {
       "name": "yaml_edit",
       "version": "2.2.2",
       "dependencies": [
@@ -344,11 +349,6 @@
         "source_span",
         "string_scanner"
       ]
-    },
-    {
-      "name": "lints",
-      "version": "6.1.0",
-      "dependencies": []
     }
   ],
   "configVersion": 1

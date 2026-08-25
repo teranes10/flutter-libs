@@ -16,20 +16,29 @@ class SidebarItems extends StatelessWidget {
 
     final sidebarTheme = theme ?? TSidebarTheme.defaultTheme(context);
 
-    return ScrollConfiguration(
-      behavior: ScrollConfiguration.of(context).copyWith(
-        scrollbars: !isMinimized,
-        overscroll: false,
-      ),
-      child: SingleChildScrollView(
-        child: Container(
-          color: Colors.transparent,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: _buildAnimatedItems(sidebarTheme),
-          ),
+    final child = SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      reverse: true,
+      child: Container(
+        color: Colors.transparent,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: _buildAnimatedItems(sidebarTheme),
         ),
       ),
+    );
+
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        scrollbars: false,
+        overscroll: false,
+      ),
+      child: !isMinimized
+          ? Scrollbar(
+              scrollbarOrientation: ScrollbarOrientation.left,
+              child: child,
+            )
+          : child,
     );
   }
 
