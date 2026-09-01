@@ -156,6 +156,7 @@ class TTableTheme extends TListTheme {
     bool selectable,
     bool expandable, {
     int maxTreeLevel = 0,
+    bool isHierarchical = false,
   }) {
     Map<int, TableColumnWidth> columnWidths = {};
     int columnIndex = 0;
@@ -170,7 +171,8 @@ class TTableTheme extends TListTheme {
       columnIndex++;
     }
 
-    final treeIndentBonus = maxTreeLevel > 0 ? (maxTreeLevel * 16.0 + 48.0) : 0.0;
+    final effectiveTreeLevel = isHierarchical && maxTreeLevel == 0 ? 1 : maxTreeLevel;
+    final treeIndentBonus = (isHierarchical || maxTreeLevel > 0) ? (effectiveTreeLevel * 16.0 + 36.0) : 0.0;
 
     for (int i = 0; i < headers.length; i++) {
       final header = headers[i];
@@ -195,6 +197,7 @@ class TTableTheme extends TListTheme {
     bool selectable,
     bool expandable, {
     int maxTreeLevel = 0,
+    bool isHierarchical = false,
   }) {
     double totalWidth = 0;
 
@@ -202,7 +205,8 @@ class TTableTheme extends TListTheme {
     if (expandable) totalWidth += 50;
     if (selectable) totalWidth += 50;
 
-    final treeIndentBonus = maxTreeLevel > 0 ? (maxTreeLevel * 16.0 + 48.0) : 0.0;
+    final effectiveTreeLevel = isHierarchical && maxTreeLevel == 0 ? 1 : maxTreeLevel;
+    final treeIndentBonus = (isHierarchical || maxTreeLevel > 0) ? (effectiveTreeLevel * 16.0 + 36.0) : 0.0;
 
     for (int i = 0; i < headers.length; i++) {
       final header = headers[i];

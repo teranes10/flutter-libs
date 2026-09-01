@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 abstract class TMenuItemData<T extends TMenuItemData<T>> {
   const TMenuItemData();
 
-  IconData? get icon;
+  dynamic get icon;
   String? get text;
   List<T>? get children;
   bool get hidden;

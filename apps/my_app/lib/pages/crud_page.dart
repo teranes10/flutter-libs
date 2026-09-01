@@ -108,93 +108,175 @@ class CrudPage extends StatelessWidget {
       expansionMode: TTableExpansionMode.side,
       expandedBuilder: (ctx, item, index) {
         final data = item.data;
+        final mockReviews = const [
+          _Review('John Doe', 5, 'Excellent product, highly recommended!'),
+          _Review('Jane Smith', 4, 'Very good quality, but shipping took a while.'),
+          _Review('Bob Johnson', 3, 'Decent, but a bit overpriced.'),
+        ];
 
-        return TRowExpandedBuilder.tabs(
-          ctx,
-          tabs: [
-            TTab(
-              value: 'info',
-              text: 'Info',
-              content: (ctx) => SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: TKeyValueSection(
-                  values: [
-                    TKeyValue(
-                      'QR Code',
-                      widget: data.meta?.qrCode != null ? TImage(url: data.meta!.qrCode, size: 60) : const SizedBox.shrink(),
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. General Product Information Card
+              TCard(
+                title: 'Product Information',
+                icon: Icons.info_outline_rounded,
+                trailing: TChip(
+                  text: data.category.toUpperCase(),
+                  type: TVariant.tonal,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TKeyValueSection.columnsInline(
+                      gap: 12,
+                      hSpacing: 20,
+                      vSpacing: 10,
+                      values: [
+                        TKeyValue.text('Title', data.title),
+                        TKeyValue.text('SKU', data.sku),
+                        TKeyValue.text('Category', data.category),
+                        TKeyValue.text('Price', '\$${data.price.toStringAsFixed(2)}'),
+                        TKeyValue.text('Discount', '${data.discountPercentage}%'),
+                        TKeyValue.text('Rating', '${data.rating} / 5.0'),
+                        TKeyValue.text('Barcode', data.meta?.barcode),
+                        TKeyValue.datetime('Created At', data.meta?.createdAt),
+                        TKeyValue.datetime('Updated At', data.meta?.updatedAt),
+                      ],
                     ),
-                    ...TKeyValue.mapHeaders(ctx, headers, item, index),
-                    TKeyValue.text('Barcode', data.meta?.barcode),
-                    TKeyValue.datetime('Created At', data.meta?.createdAt),
-                    TKeyValue.datetime('Updated At', data.meta?.updatedAt),
-                    TKeyValue.text('Description', data.description),
+                    if (data.description.isNotEmpty || data.meta?.qrCode != null) ...[
+                      const SizedBox(height: 12),
+                      Divider(height: 1, color: ctx.colors.outlineVariant.withAlpha(80)),
+                      const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (data.meta?.qrCode != null) ...[
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'QR Code',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: ctx.colors.onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                TImage(
+                                  url: data.meta!.qrCode,
+                                  size: 64,
+                                  border: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 16),
+                          ],
+                          if (data.description.isNotEmpty)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Description',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: ctx.colors.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    data.description,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: ctx.colors.onSurface,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
-            ),
-            TTab(
-              value: 'stock',
-              text: 'Stock',
-              content: (ctx) => SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: TKeyValueSection(
+              const SizedBox(height: 16),
+
+              // 2. Inventory & Stock Distribution Card
+              TCard(
+                title: 'Stock & Warehouses',
+                icon: Icons.warehouse_outlined,
+                trailing: TChip(
+                  text: '${data.stock} Units',
+                  type: TVariant.tonal,
+                  color: data.stock > 0 ? ctx.colors.primary : ctx.colors.error,
+                ),
+                child: TKeyValueSection.columnsInline(
                   values: [
                     TKeyValue.text('Total Stock', '${data.stock} units'),
                     TKeyValue.text('SKU', data.sku),
-                    TKeyValue.text('Warehouse A', '${(data.stock * 0.6).round()} units'),
-                    TKeyValue.text('Warehouse B', '${(data.stock * 0.4).round()} units'),
+                    TKeyValue.text('Warehouse A (60%)', '${(data.stock * 0.6).round()} units'),
+                    TKeyValue.text('Warehouse B (40%)', '${(data.stock * 0.4).round()} units'),
                   ],
                 ),
               ),
-            ),
+              const SizedBox(height: 16),
 
-            TTab(
-              value: 'images',
-              text: 'Images',
-              content: (ctx) => data.images == null || data.images!.isEmpty
-                  ? const Center(child: Text('No images available'))
-                  : GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(16),
-                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 150,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
+              // 3. Product Gallery Card
+              TCard(
+                title: 'Product Gallery',
+                subtitle: (data.images != null && data.images!.isNotEmpty)
+                    ? '${data.images!.length} images'
+                    : 'No images available',
+                icon: Icons.photo_library_outlined,
+                child: data.images == null || data.images!.isEmpty
+                    ? Text(
+                        'No images available',
+                        style: TextStyle(color: ctx.colors.onSurfaceVariant),
+                      )
+                    : Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: data.images!
+                            .map(
+                              (img) => TImage(
+                                url: img,
+                                size: 100,
+                                border: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            )
+                            .toList(),
                       ),
-                      itemCount: data.images!.length,
-                      itemBuilder: (context, i) => TImage(
-                        url: data.images![i],
-                        size: 150,
-                        border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
-            ),
-            TTab(
-              value: 'reviews',
-              text: 'Reviews',
-              content: (ctx) {
-                final mockReviews = [
-                  const _Review('John Doe', 5, 'Excellent product, highly recommended!'),
-                  const _Review('Jane Smith', 4, 'Very good quality, but shipping took a while.'),
-                  const _Review('Bob Johnson', 3, 'Decent, but a bit overpriced.'),
-                ];
+              ),
+              const SizedBox(height: 16),
 
-                return Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TDataTable<_Review, int>(
-                    shrinkWrap: true,
-                    headers: [
-                      TTableHeader('Reviewer', map: (r) => r.reviewer),
-                      TTableHeader.rating('Rating', (r) => r.rating.toDouble()),
-                      TTableHeader('Comment', map: (r) => r.comment),
-                    ],
-                    items: mockReviews,
-                  ),
-                );
-              },
-            ),
-          ],
+              // 4. Customer Reviews Card
+              TCard(
+                title: 'Customer Reviews',
+                subtitle: '${mockReviews.length} reviews',
+                icon: Icons.rate_review_outlined,
+                child: TDataTable<_Review, int>(
+                  shrinkWrap: true,
+                  headers: [
+                    TTableHeader('Reviewer', map: (r) => r.reviewer),
+                    TTableHeader.rating('Rating', (r) => r.rating.toDouble()),
+                    TTableHeader('Comment', map: (r) => r.comment),
+                  ],
+                  items: mockReviews,
+                ),
+              ),
+            ],
+          ),
         );
       },
 

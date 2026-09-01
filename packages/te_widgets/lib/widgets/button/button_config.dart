@@ -11,8 +11,14 @@ class TButtonPressOptions {
 
 /// Defines an item within a [TButtonGroup].
 class TButtonGroupItem {
-  /// Optional icon for the button.
-  final IconData? icon;
+  /// Optional icon for the button. Supports [IconData], [List<List<dynamic>>] (HugeIcon), or [Widget].
+  final dynamic icon;
+
+  /// Optional icon when active. Supports [IconData], [List<List<dynamic>>] (HugeIcon), or [Widget].
+  final dynamic activeIcon;
+
+  /// Rotation turns (initial, active) for animation when active state changes.
+  final (double initial, double active)? turns;
 
   /// Optional text label.
   final String? text;
@@ -53,6 +59,8 @@ class TButtonGroupItem {
   /// Creates a button group item.
   TButtonGroupItem({
     this.icon,
+    this.activeIcon,
+    this.turns,
     this.text,
     this.loading = false,
     this.loadingText = 'Loading...',
@@ -77,7 +85,7 @@ extension TButtonExtension on TButton {
     TButtonShape? shape,
     TButtonType? type,
     TButtonSize? size,
-    IconData? icon,
+    dynamic icon,
     String? imageUrl,
     Color? color,
     String? text,
@@ -85,8 +93,9 @@ extension TButtonExtension on TButton {
     String? loadingText,
     String? tooltip,
     bool? active,
-    IconData? activeIcon,
+    dynamic activeIcon,
     Color? activeColor,
+    (double initial, double active)? turns,
     bool? showTick,
     Alignment? tickAlignment,
     Widget? tickWidget,
@@ -113,6 +122,7 @@ extension TButtonExtension on TButton {
       active: active ?? this.active,
       activeIcon: activeIcon ?? this.activeIcon,
       activeColor: activeColor ?? this.activeColor,
+      turns: turns ?? this.turns,
       showTick: showTick ?? this.showTick,
       tickAlignment: tickAlignment ?? this.tickAlignment,
       tickWidget: tickWidget ?? this.tickWidget,

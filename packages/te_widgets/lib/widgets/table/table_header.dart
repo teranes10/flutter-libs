@@ -92,10 +92,12 @@ class TTableHeader<T, K> {
     this.flex,
     this.alignment,
     double width = 50,
+    double? minWidth,
+    double? maxWidth,
     bool forceCache = false,
   })  : map = null,
-        minWidth = width + 16,
-        maxWidth = width + 16,
+        minWidth = minWidth ?? (width + 16),
+        maxWidth = maxWidth ?? (flex != null ? null : (width + 16)),
         builder = ((ctx, item, __) {
           final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
           final imgUrl = map(item.data);
@@ -192,6 +194,31 @@ class TTableHeader<T, K> {
           return dateTime != null ? TDateTimeText(dateTime: dateTime) : SizedBox.shrink();
         });
 
+  /// Creates a header for displaying and editing boolean values using [TSwitch].
+  TTableHeader.toggle(
+    this.text,
+    bool? Function(T) get,
+    void Function(T, bool)? set, {
+    this.flex,
+    this.minWidth,
+    this.maxWidth,
+    this.alignment = Alignment.center,
+    bool disabled = false,
+    bool Function(T data)? isDisabled,
+  })  : map = get,
+        builder = ((ctx, item, __) {
+          final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
+          final val = get(item.data) ?? false;
+          final isOff = disabled || (isDisabled?.call(item.data) ?? false);
+
+          return TSwitch(
+            value: val,
+            disabled: isOff,
+            size: isDense ? TInputSize.xs : TInputSize.sm,
+            onValueChanged: isOff || set == null ? null : (newVal) => set(item.data, newVal ?? false),
+          );
+        });
+
   /// Creates a header for row actions.
   TTableHeader.actions(
     List<TButtonGroupItem> Function(TListItem<T, K>) builder, {
@@ -222,44 +249,211 @@ class TTableHeader<T, K> {
     this.text, {
     required Object? Function(T) get,
     required Widget Function(BuildContext ctx, T data) builder,
+    Widget Function(BuildContext ctx, T data)? displayBuilder,
+    String? Function(T data)? error,
+    String? placeholder,
     this.flex,
-    this.minWidth = 150,
+    this.minWidth,
     this.maxWidth,
     this.alignment,
   })  : map = get,
         builder = ((ctx, item, index) {
-          final activeCursor = TTableCellScope.maybeOf(ctx);
+          final cellScope = TTableCellScope.maybeScopeOf(ctx);
+          final activeCursor = cellScope?.activeCellNotifier ?? TTableCellScope.maybeOf(ctx);
           final data = item.data;
           final cellKey = "${item.key}_$text";
-          final textStyle = ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
+          final colors = ctx.colors;
+          final textStyle =
+              TTableScope.maybeOf(ctx)?.theme?.rowCardTheme.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
+
+          final cellError = error?.call(data) ?? cellScope?.getError(data, text, cellKey);
+          final hasError = cellError != null && cellError.isNotEmpty;
+
+          final textAlign = alignment == null
+              ? TextAlign.left
+              : (alignment == Alignment.centerRight || alignment == Alignment.topRight || alignment == Alignment.bottomRight
+                  ? TextAlign.right
+                  : (alignment == Alignment.center ? TextAlign.center : TextAlign.left));
+
+          Widget buildDisplay() {
+            if (displayBuilder != null) {
+              return displayBuilder(ctx, data);
+            }
+
+            final rawVal = get(data);
+            final displayStr = rawVal?.toString() ?? '';
+            final isEmpty = displayStr.trim().isEmpty;
+
+            if (hasError) {
+              return Tooltip(
+                message: cellError,
+                waitDuration: const Duration(milliseconds: 200),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        isEmpty ? (placeholder ?? '—') : displayStr,
+                        style: textStyle?.copyWith(
+                              color: colors.error,
+                              fontWeight: FontWeight.w600,
+                            ) ??
+                            TextStyle(
+                              color: colors.error,
+                              fontWeight: FontWeight.w600,
+                            ),
+                        textAlign: textAlign,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    TIcon.raw(
+                      HugeIcons.strokeRoundedAlert02,
+                      size: 14,
+                      color: colors.error,
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (isEmpty && placeholder != null) {
+              return Text(
+                placeholder,
+                style: textStyle?.copyWith(
+                      color: colors.onSurfaceVariant.withAlpha(100),
+                      fontStyle: FontStyle.italic,
+                    ) ??
+                    TextStyle(
+                      color: colors.onSurfaceVariant.withAlpha(100),
+                      fontStyle: FontStyle.italic,
+                    ),
+                textAlign: textAlign,
+                overflow: TextOverflow.ellipsis,
+              );
+            }
+
+            return Text(
+              displayStr,
+              style: textStyle,
+              textAlign: textAlign,
+              overflow: TextOverflow.ellipsis,
+            );
+          }
+
+          Widget buildEditor() {
+            final editorWidget = builder(ctx, data);
+            if (hasError) {
+              return Tooltip(
+                message: cellError,
+                waitDuration: const Duration(milliseconds: 200),
+                child: editorWidget,
+              );
+            }
+            return editorWidget;
+          }
 
           if (activeCursor != null) {
             return InkWell(
+              focusColor: Colors.transparent,
+              splashColor: Colors.transparent,
               onTap: () => activeCursor.value = cellKey,
-              child: ValueListenableBuilder(
-                valueListenable: activeCursor,
-                builder: (ctx, active, _) => active == cellKey ? builder(ctx, data) : Text(get(data)?.toString() ?? '', style: textStyle),
+              child: Container(
+                width: double.infinity,
+                alignment: alignment ?? Alignment.centerLeft,
+                child: ValueListenableBuilder(
+                  valueListenable: activeCursor,
+                  builder: (ctx, active, _) => active == cellKey ? buildEditor() : buildDisplay(),
+                ),
               ),
             );
           }
-          return Text(get(data)?.toString() ?? '', style: textStyle);
+          return buildDisplay();
         });
 
   /// Creates an editable text field header.
   TTableHeader.textField(
     String text,
     String? Function(T) get,
-    void Function(T, String?) set,
-  ) : this.editable(text,
-            get: get, builder: (ctx, data) => TTextField(autoFocus: true, value: get(data), onValueChanged: (v) => set(data, v)));
+    void Function(T, String?) set, {
+    int? flex,
+    double? minWidth,
+    double? maxWidth,
+    Alignment? alignment,
+    String? Function(T data)? error,
+    String? placeholder,
+    Widget Function(BuildContext ctx, T data)? displayBuilder,
+  }) : this.editable(
+          text,
+          get: get,
+          flex: flex,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          alignment: alignment,
+          error: error,
+          placeholder: placeholder,
+          displayBuilder: displayBuilder,
+          builder: (ctx, data) {
+            final style =
+                TTableScope.maybeOf(ctx)?.theme?.rowCardTheme.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
+            final fontSize = style?.fontSize ?? 13.6;
+            return TTextField<String>(
+              theme: ctx.theme.textFieldTheme.copyWith(
+                decorationType: TInputDecorationType.none,
+                labelPosition: TLabelPosition.aboveField,
+                padding: EdgeInsets.zero,
+                fontSize: fontSize,
+                height: fontSize + 6,
+              ),
+              placeholder: placeholder,
+              autoFocus: true,
+              value: get(data),
+              onValueChanged: (v) => set(data, v),
+            );
+          },
+        );
 
   /// Creates an editable number field header.
   TTableHeader.numberField(
     String text,
     num? Function(T) get,
-    void Function(T, num?) set,
-  ) : this.editable(text,
-            get: get,
-            minWidth: 200,
-            builder: (ctx, data) => TNumberField(autoFocus: true, value: get(data), onValueChanged: (v) => set(data, v)));
+    void Function(T, num?) set, {
+    int? flex,
+    double? minWidth,
+    double? maxWidth,
+    Alignment? alignment,
+    String? Function(T data)? error,
+    String? placeholder,
+    Widget Function(BuildContext ctx, T data)? displayBuilder,
+  }) : this.editable(
+          text,
+          get: get,
+          flex: flex,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          alignment: alignment,
+          error: error,
+          placeholder: placeholder,
+          displayBuilder: displayBuilder,
+          builder: (ctx, data) {
+            final style =
+                TTableScope.maybeOf(ctx)?.theme?.rowCardTheme.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
+            final fontSize = style?.fontSize ?? 13.6;
+            return TNumberField<num>(
+              theme: ctx.theme.numberFieldTheme.copyWith(
+                decorationType: TInputDecorationType.none,
+                labelPosition: TLabelPosition.aboveField,
+                padding: EdgeInsets.zero,
+                fontSize: fontSize,
+                height: fontSize + 6,
+                splitStepper: true,
+              ),
+              placeholder: placeholder,
+              autoFocus: true,
+              value: get(data),
+              onValueChanged: (v) => set(data, v),
+            );
+          },
+        );
 }

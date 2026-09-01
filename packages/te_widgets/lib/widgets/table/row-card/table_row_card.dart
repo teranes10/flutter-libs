@@ -46,6 +46,12 @@ class TTableRowCard<T, K> extends StatelessWidget {
   /// Whether expansion happens on the side.
   final bool expandSide;
 
+  /// Custom icon for collapsed state.
+  final dynamic expandIcon;
+
+  /// Custom icon for expanded state.
+  final dynamic collapseIcon;
+
   //selectable
   /// Whether the row is selectable.
   final bool selectable;
@@ -80,6 +86,8 @@ class TTableRowCard<T, K> extends StatelessWidget {
     this.expandedContent,
     this.expansionMode = TTableExpansionMode.bottom,
     this.expandSide = false,
+    this.expandIcon,
+    this.collapseIcon,
 
     //selectable
     this.selectable = false,
@@ -89,25 +97,28 @@ class TTableRowCard<T, K> extends StatelessWidget {
     this.backgroundColor,
   });
 
-  IconData _getDetailExpandIcon(TTableExpansionMode mode, bool isExpanded) {
+  dynamic _getDetailExpandIcon(TTableExpansionMode mode, bool isExpanded) {
+    if (isExpanded && collapseIcon != null) return collapseIcon;
+    if (!isExpanded && expandIcon != null) return expandIcon;
+
     switch (mode) {
-      case TTableExpansionMode.side:
-        return isExpanded ? Icons.chevron_left : Icons.chevron_right;
-      case TTableExpansionMode.sideOverlay:
-        return isExpanded ? Icons.close : Icons.open_in_new_outlined;
       case TTableExpansionMode.dialog:
-        return isExpanded ? Icons.close : Icons.open_in_new_outlined;
+        return isExpanded ? HugeIcons.strokeRoundedCancel01 : HugeIcons.strokeRoundedArrowUp02;
+      case TTableExpansionMode.sideOverlay:
+        return isExpanded ? HugeIcons.strokeRoundedCancel01 : HugeIcons.strokeRoundedArrowUpRight01;
+      case TTableExpansionMode.side:
+        return isExpanded ? HugeIcons.strokeRoundedArrowLeft01 : HugeIcons.strokeRoundedArrowRight01;
       case TTableExpansionMode.page:
-        return isExpanded ? Icons.close : Icons.open_in_new_outlined;
+        return isExpanded ? HugeIcons.strokeRoundedCancel01 : HugeIcons.strokeRoundedLinkForward;
       case TTableExpansionMode.bottom:
-        return isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down;
+        return isExpanded ? HugeIcons.strokeRoundedArrowUp01 : HugeIcons.strokeRoundedArrowDown01;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final wTheme = theme ?? context.theme.tableTheme.rowCardTheme;
+    final wTheme = theme ?? TTableScope.maybeOf(context)?.theme?.rowCardTheme ?? context.theme.tableTheme.rowCardTheme;
     final states = <WidgetState>{if (isSelected) WidgetState.selected};
     final themeBgColor = wTheme.backgroundColor.resolve(states);
     final resolvedBgColor = backgroundColor ?? (themeBgColor == colors.surface ? context.getBackgroundColor(colors.surface) : themeBgColor);
@@ -124,10 +135,11 @@ class TTableRowCard<T, K> extends StatelessWidget {
       backgroundColor: resolvedBgColor,
       padding: wTheme.padding,
       onTap: onTap,
-      hoverColor: colors.primaryContainer.withAlpha(120),
-      splashColor: colors.primary.withAlpha(50),
-      highlightColor: colors.primaryContainer.withAlpha(150),
+      hoverColor: colors.onSurface.withAlpha(12),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Table(
             columnWidths: columnWidths,
@@ -160,7 +172,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
 
                   Widget cellWidget = header.builder != null
                       ? Builder(builder: (context) => header.builder!(context, item, index))
-                      : SelectableText(header.getValue(item.data), style: wTheme.contentTextStyle);
+                      : Text(header.getValue(item.data), style: wTheme.contentTextStyle);
 
                   if (headerIndex == 0) {
                     final iconSlotWidth = isDense ? 20.0 : 24.0;
@@ -175,9 +187,9 @@ class TTableRowCard<T, K> extends StatelessWidget {
                           Builder(builder: (ctx) {
                             final isTreeExpanded = controller?.isExpanded(item.key) ?? false;
                             return Padding(
-                              padding: EdgeInsetsGeometry.only(top: 1.5),
+                              padding: const EdgeInsets.only(top: 1.5),
                               child: TIcon(
-                                icon: isTreeExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
+                                icon: isTreeExpanded ? HugeIcons.strokeRoundedArrowDown01 : HugeIcons.strokeRoundedArrowRight01,
                                 size: isDense ? 18 : 20,
                                 padding: const EdgeInsets.all(0),
                                 color: colors.onSurfaceVariant,
@@ -198,15 +210,19 @@ class TTableRowCard<T, K> extends StatelessWidget {
                     );
                   }
 
+                  final isTreeMode = (controller?.isHierarchical ?? false) || item.level > 0 || item.hasChildren;
+                  final treeArrowWidth = item.hasChildren ? 26.0 : (isTreeMode ? (isDense ? 20.0 : 24.0) : 0.0);
+                  final rowTreeExtraWidth = (headerIndex == 0 && isTreeMode) ? (indentWidth + treeArrowWidth) : 0.0;
+                  final cellMinWidth = (header.minWidth ?? 50) + rowTreeExtraWidth;
+                  final cellMaxWidth = (header.maxWidth != null && header.maxWidth != double.infinity)
+                      ? header.maxWidth! + rowTreeExtraWidth
+                      : double.infinity;
+
                   return Container(
-                    constraints: BoxConstraints(minWidth: header.minWidth ?? 50, maxWidth: header.maxWidth ?? double.infinity),
-                    child: Align(
-                      alignment: header.alignment ?? Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: cellWidget,
-                      ),
-                    ),
+                    constraints: BoxConstraints(minWidth: cellMinWidth, maxWidth: cellMaxWidth),
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    alignment: header.alignment ?? Alignment.centerLeft,
+                    child: cellWidget,
                   );
                 }),
               ])

@@ -60,7 +60,7 @@ class TListCardTheme {
   /// Creates a default theme derived from the context colors.
   factory TListCardTheme.defaultTheme(ColorScheme colors) {
     return TListCardTheme(
-      backgroundColor: colors.surface,
+      backgroundColor: Colors.transparent,
       selectedBackgroundColor: colors.primaryContainer,
       disabledBackgroundColor: colors.surfaceContainerHighest,
       expansionIndicatorBuilder: defaultExpansionIndicatorBuilder(colors),
@@ -86,20 +86,20 @@ class TListCardTheme {
       final color = isDisabled
           ? colors.onSurface.o(0.38)
           : isSelected
-              ? colors.primary
+              ? colors.onPrimaryContainer
               : colors.onSurfaceVariant;
 
       if (multiple) {
         return Padding(
           padding: const EdgeInsets.only(right: 8.0),
-          child: Icon(isSelected ? Icons.check_box : Icons.check_box_outline_blank, size: 18, color: color),
+          child: TIcon.raw(isSelected ? HugeIcons.strokeRoundedCheckmarkSquare03 : HugeIcons.strokeRoundedSquare, size: 18, color: color),
         );
       }
 
       if (isSelected) {
         return Padding(
           padding: const EdgeInsets.only(right: 8.0),
-          child: Icon(Icons.check, size: 18, color: color),
+          child: TIcon.raw(HugeIcons.strokeRoundedTick01, size: 18, color: color),
         );
       }
 
@@ -118,7 +118,7 @@ class TListCardTheme {
       final titleColor = isDisabled
           ? colors.onSurface.o(0.38)
           : isSelected
-              ? colors.primary
+              ? colors.onPrimaryContainer
               : colors.onSurface;
 
       final textContent = Column(

@@ -6,7 +6,7 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
   final Widget? page;
   final Widget Function(BuildContext context, GoRouterState state)? builder;
   @override
-  final IconData? icon;
+  final dynamic icon;
   @override
   final String? text;
   final String? route;
@@ -38,7 +38,7 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
   TSidebarItem copyWith({
     Widget? page,
     Widget Function(BuildContext context, GoRouterState state)? builder,
-    IconData? icon,
+    dynamic icon,
     String? text,
     String? route,
     List<TSidebarItem>? children,

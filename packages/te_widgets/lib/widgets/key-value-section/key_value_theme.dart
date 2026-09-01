@@ -110,6 +110,13 @@ class TKeyValueTheme {
   /// When false (default), items flow dynamically into rows based on natural widths.
   final bool columnar;
 
+  /// Whether to remove optional/empty values (null, empty strings, 0, '-') by default.
+  final bool removeEmpty;
+
+  /// Whether text values should be selectable with text selection gestures.
+  /// Defaults to false so parent card/container tap events work smoothly.
+  final bool selectable;
+
   /// Creates a key-value theme.
   const TKeyValueTheme({
     required this.keyStyle,
@@ -123,12 +130,12 @@ class TKeyValueTheme {
     required this.borderColor,
     this.showLeftBorder = false,
     this.alignment = Alignment.topLeft,
-    this.narrowPadding = const EdgeInsets.symmetric(vertical: 6),
+    this.narrowPadding = EdgeInsets.zero,
     this.narrowItemBottomSpacing = 10,
     this.narrowKeyFlex = 2,
     this.narrowValueFlex = 3,
     this.narrowGap = 12,
-    this.gridCellPadding = const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+    this.gridCellPadding = EdgeInsets.zero,
     this.gridCellGap = 4,
     this.maxColWidthFraction = 0.7,
     this.minFractionFixed = 1.0,
@@ -144,6 +151,8 @@ class TKeyValueTheme {
     this.inlineKeyMaxWidth,
     this.inlineKeyGap = 8,
     this.inlineKeyAlignment = Alignment.topLeft,
+    this.removeEmpty = true,
+    this.selectable = false,
   });
 
   factory TKeyValueTheme.defaultTheme(ColorScheme colors) {
@@ -188,6 +197,8 @@ class TKeyValueTheme {
     double? inlineKeyMaxWidth,
     double? inlineKeyGap,
     Alignment? inlineKeyAlignment,
+    bool? removeEmpty,
+    bool? selectable,
   }) {
     return TKeyValueTheme(
       keyStyle: keyStyle ?? this.keyStyle,
@@ -222,6 +233,8 @@ class TKeyValueTheme {
       inlineKeyMaxWidth: inlineKeyMaxWidth ?? this.inlineKeyMaxWidth,
       inlineKeyGap: inlineKeyGap ?? this.inlineKeyGap,
       inlineKeyAlignment: inlineKeyAlignment ?? this.inlineKeyAlignment,
+      removeEmpty: removeEmpty ?? this.removeEmpty,
+      selectable: selectable ?? this.selectable,
     );
   }
 }

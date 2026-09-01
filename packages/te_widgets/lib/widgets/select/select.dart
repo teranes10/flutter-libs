@@ -468,8 +468,8 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
           listController.handleSearchChange(value);
         },
         hasValue: currentValue != null,
-        beforePostWidget:
-            Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
+        beforePostWidget: TIcon.raw(isPopupShowing ? HugeIcons.strokeRoundedArrowUp01 : HugeIcons.strokeRoundedArrowDown01,
+            size: 16, color: colors.onSurfaceVariant),
         onClear: () {
           listController.updateSelectionState(LinkedHashSet<K>());
           notifyValueChanged(null);

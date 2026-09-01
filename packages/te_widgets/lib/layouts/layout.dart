@@ -141,78 +141,75 @@ class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStat
               padding: EdgeInsets.all(isMobile ? 0.0 : widget.mainCardRadius / 2.4),
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: colors.surface,
+                  color: colors.surface.adaptiveContrast(context, 0.007),
                   borderRadius: BorderRadius.circular(isMobile ? 0 : widget.mainCardRadius),
                 ),
-                child: TBackgroundColorScope(
-                  backgroundColor: colors.surface,
-                  child: isMobile
-                      ? Column(
-                          children: [
-                            LayoutMobileTopBar(
-                              resolvedItems: resolved.allItems,
-                              showHamburgerMenu: widget.showHamburgerMenu,
-                              isSidebarOpen: _isMobileSidebarOpen,
-                              onToggleSidebar: _toggleMobileSidebar,
-                            ),
-                            Expanded(child: _MainContent(isMobile: true, child: widget.child)),
-                          ],
-                        )
-                      : Builder(
-                          builder: (context) {
-                            final sidebarMode = ref.watch(sidebarNotifierProvider);
+                child: isMobile
+                    ? Column(
+                        children: [
+                          LayoutMobileTopBar(
+                            resolvedItems: resolved.allItems,
+                            showHamburgerMenu: widget.showHamburgerMenu,
+                            isSidebarOpen: _isMobileSidebarOpen,
+                            onToggleSidebar: _toggleMobileSidebar,
+                          ),
+                          Expanded(child: _MainContent(isMobile: true, child: widget.child)),
+                        ],
+                      )
+                    : Builder(
+                        builder: (context) {
+                          final sidebarMode = ref.watch(sidebarNotifierProvider);
 
-                            return Row(
-                              children: [
-                                // ── Sidebar (full height) ──────────────────────
-                                Sidebar(
-                                  items: resolved.sidebarItems,
-                                  minWidth: widget.minWidth,
-                                  maxWidth: widget.maxWidth,
-                                  minifiedWidth: widget.minifiedWidth,
-                                  mode: sidebarMode,
-                                  theme: widget.sidebarTheme,
-                                  header: widget.logo != null
-                                      ? Padding(
-                                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                                          child: widget.logo!,
-                                        )
-                                      : null,
-                                  minifiedHeader: widget.minifiedLogo != null
-                                      ? Padding(
-                                          padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
-                                          child: widget.minifiedLogo!,
-                                        )
-                                      : null,
+                          return Row(
+                            children: [
+                              // ── Sidebar (full height) ──────────────────────
+                              Sidebar(
+                                items: resolved.sidebarItems,
+                                minWidth: widget.minWidth,
+                                maxWidth: widget.maxWidth,
+                                minifiedWidth: widget.minifiedWidth,
+                                mode: sidebarMode,
+                                theme: widget.sidebarTheme,
+                                header: widget.logo != null
+                                    ? Padding(
+                                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                                        child: widget.logo!,
+                                      )
+                                    : null,
+                                minifiedHeader: widget.minifiedLogo != null
+                                    ? Padding(
+                                        padding: const EdgeInsets.fromLTRB(8, 12, 8, 0),
+                                        child: widget.minifiedLogo!,
+                                      )
+                                    : null,
+                              ),
+                              // ── Top bar + content ──────────────────────────
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    LayoutDesktopTopBar(
+                                      logo: widget.logo,
+                                      minifiedLogo: widget.minifiedLogo,
+                                      homeItem: resolved.homeItem,
+                                      resolvedItems: resolved.allItems,
+                                      sidebarItems: resolved.sidebarItems,
+                                      profile: widget.profile,
+                                      showThemeToggle: widget.showThemeToggle,
+                                      showColorToggle: widget.showColorToggle,
+                                      actions: widget.actions,
+                                      showFullscreenToggle: widget.showFullscreenToggle,
+                                      showLogout: widget.showLogout,
+                                      onLogout: widget.onLogout,
+                                      sidebarTheme: widget.sidebarTheme,
+                                    ),
+                                    Expanded(child: _MainContent(isMobile: false, child: widget.child)),
+                                  ],
                                 ),
-                                // ── Top bar + content ──────────────────────────
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      LayoutDesktopTopBar(
-                                        logo: widget.logo,
-                                        minifiedLogo: widget.minifiedLogo,
-                                        homeItem: resolved.homeItem,
-                                        resolvedItems: resolved.allItems,
-                                        sidebarItems: resolved.sidebarItems,
-                                        profile: widget.profile,
-                                        showThemeToggle: widget.showThemeToggle,
-                                        showColorToggle: widget.showColorToggle,
-                                        actions: widget.actions,
-                                        showFullscreenToggle: widget.showFullscreenToggle,
-                                        showLogout: widget.showLogout,
-                                        onLogout: widget.onLogout,
-                                        sidebarTheme: widget.sidebarTheme,
-                                      ),
-                                      Expanded(child: _MainContent(isMobile: false, child: widget.child)),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
               ),
             ),
             if (isMobile)
@@ -311,49 +308,53 @@ class _MainContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final background = colors.surface;
 
-    return DecoratedBox(
-      decoration: isMobile
-          ? BoxDecoration(
-              color: colors.surface,
-              border: Border(
-                top: BorderSide(color: colors.shadow, width: 0.5),
-                bottom: BorderSide(color: colors.shadow, width: 0.5),
+    return TBackgroundColorScope(
+      backgroundColor: background,
+      child: DecoratedBox(
+        decoration: isMobile
+            ? BoxDecoration(
+                color: background,
+                border: Border(
+                  top: BorderSide(color: colors.shadow, width: 0.5),
+                  bottom: BorderSide(color: colors.shadow, width: 0.5),
+                ),
+              )
+            : BoxDecoration(
+                color: background,
+                border: Border(
+                  top: BorderSide(color: colors.outlineVariant, width: 1),
+                  left: BorderSide(color: colors.outlineVariant, width: 1),
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
+                  bottomLeft: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    offset: Offset(-2, -4),
+                    blurRadius: 12,
+                    spreadRadius: -6,
+                    color: colors.outline.withAlpha(50),
+                  )
+                ],
               ),
-            )
-          : BoxDecoration(
-              color: colors.surface,
-              border: Border(
-                top: BorderSide(color: colors.outlineVariant, width: 1),
-                left: BorderSide(color: colors.outlineVariant, width: 1),
+        child: Column(
+          children: [
+            SizedBox(height: isMobile ? 4 : 8),
+            Expanded(
+              child: Padding(
+                padding: isMobile
+                    ? const EdgeInsets.symmetric(vertical: 8, horizontal: 12)
+                    : const EdgeInsets.only(left: 20, right: 6, bottom: 6, top: 14),
+                child: child,
               ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
-                bottomLeft: Radius.circular(12),
-                bottomRight: Radius.circular(12),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(-2, -4),
-                  blurRadius: 12,
-                  spreadRadius: -6,
-                  color: colors.outline.withAlpha(50),
-                )
-              ],
             ),
-      child: Column(
-        children: [
-          SizedBox(height: isMobile ? 4 : 8),
-          Expanded(
-            child: Padding(
-              padding: isMobile
-                  ? const EdgeInsets.symmetric(vertical: 8, horizontal: 12)
-                  : const EdgeInsets.only(left: 20, right: 6, bottom: 6, top: 14),
-              child: child,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -387,8 +388,8 @@ class _LayoutBottomBar extends StatelessWidget {
         }
       },
       items: [
-        for (final item in items) TBottomBarItem(icon: item.icon ?? Icons.circle_outlined, label: item.text ?? ''),
-        const TBottomBarItem(icon: Icons.more_horiz_rounded, label: 'More'),
+        for (final item in items) TBottomBarItem(icon: item.icon ?? HugeIcons.strokeRoundedCircle, label: item.text ?? ''),
+        const TBottomBarItem(icon: HugeIcons.strokeRoundedMoreHorizontal, label: 'More'),
       ],
     );
   }

@@ -3,7 +3,7 @@ import 'package:te_widgets/widgets/menu/menu_item_data.dart';
 
 class TDropdownItem extends TMenuItemData<TDropdownItem> {
   @override
-  final IconData? icon;
+  final dynamic icon;
   @override
   final String? text;
   @override

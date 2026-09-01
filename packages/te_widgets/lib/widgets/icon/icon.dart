@@ -46,8 +46,8 @@ import 'package:te_widgets/te_widgets.dart';
 /// See also:
 /// - [TImage] for image display
 class TIcon extends StatelessWidget {
-  /// The icon to display.
-  final IconData icon;
+  /// The icon to display. Supports [IconData], [List<List<dynamic>>] (HugeIcon), or [Widget].
+  final dynamic icon;
 
   /// The size of the icon.
   final double size;
@@ -56,7 +56,7 @@ class TIcon extends StatelessWidget {
   final EdgeInsets padding;
 
   /// Alternative icon to show when active.
-  final IconData? activeIcon;
+  final dynamic activeIcon;
 
   /// Callback fired when the icon is tapped.
   final VoidCallback? onTap;
@@ -113,11 +113,49 @@ class TIcon extends StatelessWidget {
     EdgeInsets padding = const EdgeInsets.all(8),
   }) {
     return TIcon(
-      icon: Icons.cancel_outlined,
+      icon: HugeIcons.strokeRoundedCancel01,
       onTap: onTap,
       size: size,
       padding: padding,
       themeType: TThemeType.error,
+    );
+  }
+
+  /// Creates a raw icon with no padding, background, shape, border radius, or container wrapping.
+  ///
+  /// Acts as a direct drop-in replacement for Flutter's [Icon] with added support
+  /// for [HugeIcons], custom [Widget]s, theme colors, and rotation [turns].
+  factory TIcon.raw(
+    dynamic icon, {
+    Key? key,
+    double size = 16,
+    Color? color,
+    Color? activeColor,
+    Color? hoverColor,
+    dynamic activeIcon,
+    bool active = false,
+    (double initial, double active)? turns,
+    int animationMilliseconds = 200,
+    VoidCallback? onTap,
+    TThemeType? themeType,
+  }) {
+    return TIcon(
+      key: key,
+      icon: icon,
+      size: size,
+      padding: EdgeInsets.zero,
+      color: color,
+      activeColor: activeColor,
+      hoverColor: hoverColor,
+      activeIcon: activeIcon,
+      active: active,
+      turns: turns,
+      animationMilliseconds: animationMilliseconds,
+      onTap: onTap,
+      background: null,
+      borderRadius: null,
+      shadow: null,
+      themeType: themeType,
     );
   }
 
@@ -135,7 +173,20 @@ class TIcon extends StatelessWidget {
               ? (activeColor ?? baseColor)
               : baseColor;
 
-      Widget iconWidget = Icon(effectiveIcon, size: size, color: effectiveColor);
+      Widget iconWidget;
+      if (effectiveIcon is IconData) {
+        iconWidget = Icon(effectiveIcon, size: size, color: effectiveColor);
+      } else if (effectiveIcon is List<List<dynamic>>) {
+        iconWidget = HugeIcon(
+          icon: effectiveIcon,
+          size: size,
+          color: effectiveColor,
+        );
+      } else if (effectiveIcon is Widget) {
+        iconWidget = effectiveIcon;
+      } else {
+        iconWidget = Icon(Icons.help_outline, size: size, color: effectiveColor);
+      }
 
       if (turns != null) {
         final (initialTurn, activeTurn) = turns!;
@@ -149,6 +200,14 @@ class TIcon extends StatelessWidget {
       return iconWidget;
     }
 
+    final effectiveIconWidget = hoverOrActiveColor == null
+        ? buildIcon(isHovering: false)
+        : THoverable(builder: (context, isHovering) => buildIcon(isHovering: isHovering));
+
+    if (onTap == null && background == null && shadow == null && borderRadius == null && padding == EdgeInsets.zero) {
+      return effectiveIconWidget;
+    }
+
     return InkWell(
       onTap: onTap,
       borderRadius: borderRadius,
@@ -156,9 +215,7 @@ class TIcon extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(shape: shape, color: background, borderRadius: borderRadius, boxShadow: shadow),
         padding: padding,
-        child: hoverOrActiveColor == null
-            ? buildIcon(isHovering: false)
-            : THoverable(builder: (context, isHovering) => buildIcon(isHovering: isHovering)),
+        child: effectiveIconWidget,
       ),
     );
   }

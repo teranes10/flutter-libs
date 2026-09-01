@@ -15,7 +15,7 @@ import 'package:te_widgets/te_widgets.dart';
 ///
 /// This widget is typically used internally by [TList], but can be used directly
 /// for advanced custom layouts.
-class TListView<T, K> extends StatelessWidget {
+class TListView<T, K> extends StatefulWidget {
   /// The list of items to display.
   final List<TListItem<T, K>> items;
 
@@ -131,40 +131,204 @@ class TListView<T, K> extends StatelessWidget {
   }) : assert(grid == null || !reorderable, "GridView does not support item reordering.");
 
   @override
+  State<TListView<T, K>> createState() => _TListViewState<T, K>();
+}
+
+class _TListViewState<T, K> extends State<TListView<T, K>> {
+  late final ValueNotifier<bool> _canScrollUp;
+  late final ValueNotifier<bool> _canScrollDown;
+  ScrollController? _internalScrollController;
+
+  ScrollController get _effectiveScrollController => widget.scrollController ?? (_internalScrollController ??= ScrollController());
+
+  @override
+  void initState() {
+    super.initState();
+    _canScrollUp = ValueNotifier(false);
+    _canScrollDown = ValueNotifier(false);
+    _effectiveScrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onScroll());
+  }
+
+  @override
+  void didUpdateWidget(TListView<T, K> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.scrollController != widget.scrollController) {
+      if (oldWidget.scrollController != null) {
+        oldWidget.scrollController!.removeListener(_onScroll);
+      } else {
+        _internalScrollController?.removeListener(_onScroll);
+      }
+      _effectiveScrollController.addListener(_onScroll);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _onScroll());
+  }
+
+  void _onScroll() {
+    if (!mounted) return;
+    if (_effectiveScrollController.hasClients && _effectiveScrollController.position.hasContentDimensions) {
+      final pos = _effectiveScrollController.position;
+      final canUp = pos.pixels > 0;
+      final canDown = pos.pixels < (pos.maxScrollExtent - 1);
+
+      if (_canScrollUp.value != canUp) {
+        _canScrollUp.value = canUp;
+      }
+      if (_canScrollDown.value != canDown) {
+        _canScrollDown.value = canDown;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.scrollController != null) {
+      widget.scrollController!.removeListener(_onScroll);
+    }
+    _internalScrollController?.removeListener(_onScroll);
+    _internalScrollController?.dispose();
+    _canScrollUp.dispose();
+    _canScrollDown.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final shadowColor = colors.shadow.withAlpha(50);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isUnbounded = !constraints.hasBoundedHeight;
-        final bool effectiveShrinkWrap = shrinkWrap || isUnbounded;
+        final bool effectiveShrinkWrap = widget.shrinkWrap || isUnbounded;
 
         Widget listView = CustomScrollView(
-          controller: effectiveShrinkWrap ? null : scrollController,
-          primary: effectiveShrinkWrap ? null : (scrollController == null ? true : null),
+          controller: effectiveShrinkWrap ? null : _effectiveScrollController,
+          primary: effectiveShrinkWrap ? null : (widget.scrollController == null ? true : null),
           shrinkWrap: effectiveShrinkWrap,
           physics: effectiveShrinkWrap ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics(),
-          slivers: buildSlivers(context),
+          slivers: _buildSlivers(context),
         );
 
         if (!effectiveShrinkWrap) {
           listView = Scrollbar(
-            controller: scrollController,
+            controller: _effectiveScrollController,
             child: listView,
           );
-          if (height != null) {
-            listView = SizedBox(height: height, child: listView);
+        }
+
+        final hasStickyHeader = widget.headerBuilder != null && widget.headerSticky;
+        final hasStickyFooter = widget.footerBuilder != null && widget.footerSticky;
+
+        Widget? headerContent;
+        if (hasStickyHeader) {
+          headerContent = Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              widget.headerBuilder!(context),
+              if (widget.loading && widget.loadingBuilder != null) widget.loadingBuilder!(context),
+            ],
+          );
+        }
+
+        Widget? footerContent;
+        if (hasStickyFooter) {
+          footerContent = widget.footerBuilder!(context);
+        }
+
+        Widget elevatedListContent = NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            _onScroll();
+            return false;
+          },
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              if (effectiveShrinkWrap) listView else Positioned.fill(child: ClipRect(child: listView)),
+              // Soft fade cast BY the sticky header ONTO the list — header reads as elevated.
+              if (hasStickyHeader)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: _canScrollUp,
+                    builder: (context, canScrollUp, _) {
+                      return IgnorePointer(
+                        child: AnimatedOpacity(
+                          opacity: canScrollUp ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          child: Container(
+                            height: 14,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  shadowColor,
+                                  shadowColor.withAlpha(0),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              // Soft fade cast BY the sticky footer ONTO the list.
+              if (hasStickyFooter)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: _canScrollDown,
+                    builder: (context, canScrollDown, _) {
+                      return IgnorePointer(
+                        child: AnimatedOpacity(
+                          opacity: canScrollDown ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          child: Container(
+                            height: 14,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  shadowColor,
+                                  shadowColor.withAlpha(0),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        );
+
+        if (!effectiveShrinkWrap) {
+          if (widget.height != null) {
+            elevatedListContent = SizedBox(height: widget.height, child: elevatedListContent);
           } else {
-            listView = Expanded(child: listView);
+            elevatedListContent = Expanded(child: elevatedListContent);
           }
         }
 
         return Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (headerBuilder != null && headerSticky == true) headerBuilder!(context),
-            if (loading && loadingBuilder != null && headerSticky == true) loadingBuilder!(context),
-            listView,
-            if (footerBuilder != null && footerSticky == true) footerBuilder!(context),
+            if (headerContent != null) headerContent,
+            elevatedListContent,
+            if (footerContent != null) footerContent,
           ],
         );
       },
@@ -172,115 +336,115 @@ class TListView<T, K> extends StatelessWidget {
   }
 
   /// Builds the slivers for the scroll view.
-  List<Widget> buildSlivers(BuildContext context) {
+  List<Widget> _buildSlivers(BuildContext context) {
     return [
-      if (sliverBefore != null) ...sliverBefore!.map((x) => x(context)),
+      if (widget.sliverBefore != null) ...widget.sliverBefore!.map((x) => x(context)),
       // Non-sticky header
-      if (headerBuilder != null && headerSticky != true)
+      if (widget.headerBuilder != null && widget.headerSticky != true)
         SliverToBoxAdapter(
-          child: Container(key: const ValueKey('list_header'), child: headerBuilder!(context)),
+          child: Container(key: const ValueKey('list_header'), child: widget.headerBuilder!(context)),
         ),
       // Non-sticky loading indicator
-      if (loading && loadingBuilder != null && headerSticky != true)
+      if (widget.loading && widget.loadingBuilder != null && widget.headerSticky != true)
         SliverToBoxAdapter(
-          child: loadingBuilder!(context),
+          child: widget.loadingBuilder!(context),
         ),
       // Main content with padding
       SliverPadding(
-        padding: padding ?? EdgeInsets.zero,
+        padding: widget.padding ?? EdgeInsets.zero,
         sliver: SliverMainAxisGroup(
           slivers: [
-            if (beforeItemsBuilder != null)
+            if (widget.beforeItemsBuilder != null)
               SliverToBoxAdapter(
                 child: Container(
                   key: const ValueKey('list_before_items'),
-                  child: beforeItemsBuilder!(context),
+                  child: widget.beforeItemsBuilder!(context),
                 ),
               ),
-            buildContentSliver(context),
+            _buildContentSliver(context),
           ],
         ),
       ),
       // Infinite scroll indicator
-      if (infiniteScroll && infiniteScrollFooterBuilder != null)
+      if (widget.infiniteScroll && widget.infiniteScrollFooterBuilder != null)
         SliverToBoxAdapter(
-          child: Container(key: const ValueKey('list_infinite_scroll_footer'), child: infiniteScrollFooterBuilder!(context)),
+          child: Container(key: const ValueKey('list_infinite_scroll_footer'), child: widget.infiniteScrollFooterBuilder!(context)),
         ),
       // Non-sticky footer
-      if (footerBuilder != null && footerSticky != true)
+      if (widget.footerBuilder != null && widget.footerSticky != true)
         SliverToBoxAdapter(
-          child: Container(key: const ValueKey('list_footer'), child: footerBuilder!(context)),
+          child: Container(key: const ValueKey('list_footer'), child: widget.footerBuilder!(context)),
         ),
-      if (sliverAfter != null) ...sliverAfter!.map((x) => x(context)),
+      if (widget.sliverAfter != null) ...widget.sliverAfter!.map((x) => x(context)),
     ];
   }
 
   /// Builds the main content sliver.
-  Widget buildContentSliver(BuildContext context) {
-    if (error != null) {
+  Widget _buildContentSliver(BuildContext context) {
+    if (widget.error != null) {
       return SliverToBoxAdapter(
         child: Container(
           key: const ValueKey('list_error_message'),
-          child: errorStateBuilder?.call(context, error!) ??
-              TListTheme.buildErrorState(context.colors, title: error!.title, message: error!.message),
+          child: widget.errorStateBuilder?.call(context, widget.error!) ??
+              TListTheme.buildErrorState(context.colors, title: widget.error!.title, message: widget.error!.message),
         ),
       );
     }
 
-    if (!loading && error == null && items.isEmpty) {
+    if (!widget.loading && widget.error == null && widget.items.isEmpty) {
       return SliverToBoxAdapter(
         child: Container(
           key: const ValueKey('list_empty_message'),
-          child: emptyStateBuilder?.call(context) ?? TListTheme.buildEmptyState(context.colors),
+          child: widget.emptyStateBuilder?.call(context) ?? TListTheme.buildEmptyState(context.colors),
         ),
       );
     }
 
-    if (reorderable) {
+    if (widget.reorderable) {
       return SliverReorderableList(
-        itemBuilder: buildItem,
-        itemCount: items.length,
+        itemBuilder: _buildItem,
+        itemCount: widget.items.length,
         onReorder: (int oldIndex, int newIndex) {
           if (newIndex > oldIndex) {
             newIndex -= 1;
           }
-          if (oldIndex >= 0 && oldIndex < items.length && newIndex >= 0 && newIndex < items.length) {
-            onReorder?.call(oldIndex, newIndex);
+          if (oldIndex >= 0 && oldIndex < widget.items.length && newIndex >= 0 && newIndex < widget.items.length) {
+            widget.onReorder?.call(oldIndex, newIndex);
           }
         },
-        onReorderStart: onReorderStart,
-        onReorderEnd: onReorderEnd,
-        proxyDecorator: dragProxyDecorator,
+        onReorderStart: widget.onReorderStart,
+        onReorderEnd: widget.onReorderEnd,
+        proxyDecorator: widget.dragProxyDecorator,
       );
-    } else if (grid != null) {
-      final config = gridDelegate!(context);
+    } else if (widget.grid != null) {
+      final config = widget.gridDelegate!(context);
 
-      if (grid == TGridMode.masonry) {
+      if (widget.grid == TGridMode.masonry) {
         return SliverMasonryGrid(
-          delegate: SliverChildBuilderDelegate(buildItem, childCount: items.length),
+          delegate: SliverChildBuilderDelegate(_buildItem, childCount: widget.items.length),
           gridDelegate: config.simpleGridDelegate,
           mainAxisSpacing: config.mainAxisSpacing,
           crossAxisSpacing: config.crossAxisSpacing,
         );
-      } else if (grid == TGridMode.aligned) {
+      } else if (widget.grid == TGridMode.aligned) {
         return SliverAlignedGrid(
-          itemBuilder: buildItem,
-          itemCount: items.length,
+          itemBuilder: _buildItem,
+          itemCount: widget.items.length,
           gridDelegate: config.simpleGridDelegate,
           mainAxisSpacing: config.mainAxisSpacing,
           crossAxisSpacing: config.crossAxisSpacing,
         );
       }
-    } else if (listSeparatorBuilder != null) {
+    } else if (widget.listSeparatorBuilder != null) {
       return SliverList.separated(
-        itemCount: items.length,
-        itemBuilder: buildItem,
-        separatorBuilder: listSeparatorBuilder!,
+        itemCount: widget.items.length,
+        itemBuilder: _buildItem,
+        separatorBuilder: widget.listSeparatorBuilder!,
       );
     } else {
       return SliverList.builder(
-        itemCount: items.length,
-        itemBuilder: buildItem,
+        itemCount: widget.items.length,
+        itemBuilder: _buildItem,
       );
     }
 
@@ -288,12 +452,12 @@ class TListView<T, K> extends StatelessWidget {
   }
 
   /// Builds a single list item helper.
-  Widget buildItem(BuildContext context, int index) {
-    final item = items[index];
-    final child = itemBuilder(context, item, index);
+  Widget _buildItem(BuildContext context, int index) {
+    final item = widget.items[index];
+    final child = widget.itemBuilder(context, item, index);
     final keyedChild = Container(key: ValueKey('list_item_${item.key}'), child: child);
 
-    if (reorderable) {
+    if (widget.reorderable) {
       return Row(
         key: keyedChild.key,
         children: [

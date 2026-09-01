@@ -30,7 +30,6 @@ class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
 
   @override
   void performLayout(Size size) {
-    const gapAfterBreadcrumbs = 100.0;
     const spacing = 20.0;
     const itemSpacing = 16.0;
 
@@ -91,9 +90,8 @@ class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
     }
 
     // 6. Determine which items fit
-    final menuMaxX = tristateX - spacing;
-    final menuMinX = breadcrumbsX + breadcrumbsSize.width + gapAfterBreadcrumbs;
-    final availableMenuWidth = menuMaxX - menuMinX;
+    final breadcrumbsEnd = breadcrumbsX + (hasChild(_TopBarSlot.breadcrumbs) ? breadcrumbsSize.width : 0.0);
+    final availableMenuWidth = tristateX - spacing - (breadcrumbsEnd + spacing);
 
     int fitCount = 0;
     double fitWidth = 0.0;
@@ -122,9 +120,9 @@ class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
       positionChild(_TopBarSlot.breadcrumbs, Offset(breadcrumbsX, y));
     }
 
-    // 9. Position menu items (right-aligned before tristate button, vertically bottom-aligned)
+    // 9. Position menu items (centered between breadcrumbs and sidebar state icon, vertically bottom-aligned)
     if (fitCount > 0) {
-      double currentX = menuMaxX - fitWidth;
+      double currentX = (breadcrumbsEnd + tristateX - fitWidth) / 2;
       for (int i = 0; i < fitCount; i++) {
         if (hasChild(i)) {
           final y = (size.height - itemSizes[i].height).clamp(0.0, size.height);

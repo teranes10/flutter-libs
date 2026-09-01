@@ -116,6 +116,15 @@ class TTableDetails<T, K> {
   /// Whether to automatically select the first item in the list initially.
   final bool autoSelectFirst;
 
+  /// Whether tapping on a row expands its details. Defaults to true.
+  final bool expandOnRowTap;
+
+  /// Optional custom icon (HugeIcon, IconData, or Widget) for collapsed state.
+  final dynamic expandIcon;
+
+  /// Optional custom icon (HugeIcon, IconData, or Widget) for expanded state.
+  final dynamic collapseIcon;
+
   const TTableDetails({
     this.mode = TTableExpansionMode.bottom,
     this.createMode,
@@ -141,7 +150,15 @@ class TTableDetails<T, K> {
     this.autoExpandFirst = false,
     this.autoSelectFirst = false,
     this.itemInfoGridInline = true,
-  });
+    bool? expandOnRowTap,
+    this.expandIcon,
+    this.collapseIcon,
+    bool? rowTapDetails,
+    bool? onRowTapDetails,
+  }) : expandOnRowTap = expandOnRowTap ?? rowTapDetails ?? onRowTapDetails ?? true;
+
+  bool get rowTapDetails => expandOnRowTap;
+  bool get onRowTapDetails => expandOnRowTap;
 
   TTableDetails<T, K> copyWith({
     TTableExpansionMode? mode,
@@ -168,6 +185,9 @@ class TTableDetails<T, K> {
     double? createSideOverlayWidth,
     bool? autoExpandFirst,
     bool? autoSelectFirst,
+    bool? expandOnRowTap,
+    dynamic expandIcon,
+    dynamic collapseIcon,
   }) {
     return TTableDetails<T, K>(
       mode: mode ?? this.mode,
@@ -194,6 +214,9 @@ class TTableDetails<T, K> {
       createSideOverlayWidth: createSideOverlayWidth ?? this.createSideOverlayWidth,
       autoExpandFirst: autoExpandFirst ?? this.autoExpandFirst,
       autoSelectFirst: autoSelectFirst ?? this.autoSelectFirst,
+      expandOnRowTap: expandOnRowTap ?? this.expandOnRowTap,
+      expandIcon: expandIcon ?? this.expandIcon,
+      collapseIcon: collapseIcon ?? this.collapseIcon,
     );
   }
 }
@@ -270,8 +293,9 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
   /// Wraps builder output with the scope needed by every presentation mode
   /// (side panel, dialog, page). Extracted so it's written once.
   Widget _buildScopedContent(TTableExpansionMode mode, Widget Function(BuildContext) builder) {
-    return TTableScope(
+    Widget content = TTableScope(
       controller: listController,
+      theme: wTheme,
       dense: wTheme.dense ?? false,
       expansionMode: mode,
       onWillCollapse: widget.details?.onWillCollapse != null ? (dynamic key) => widget.details!.onWillCollapse!(key as K) : null,
@@ -282,6 +306,14 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
         child: Builder(builder: builder),
       ),
     );
+
+    if (widget.selectableText) {
+      content = SelectionArea(
+        child: content,
+      );
+    }
+
+    return content;
   }
 
   Widget getCardWrapper(Widget child) {
@@ -402,8 +434,8 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
         result = await navigator.push<Object?>(route);
       } else if (target.mode == TTableExpansionMode.sideOverlay) {
         final sideWidth = (target.kind == _DetailKind.create || target.kind == _DetailKind.edit)
-            ? (details?.createSideOverlayWidth ?? details?.sideOverlayWidth ?? 500.0)
-            : (details?.sideOverlayWidth ?? 500.0);
+            ? (details?.createSideOverlayWidth ?? details?.sideOverlayWidth ?? 650.0)
+            : (details?.sideOverlayWidth ?? 650.0);
 
         result = await TSheetService.showSideSheet<Object?>(
           context,
@@ -497,8 +529,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       detailBuilder: (context, item, index) {
         return _buildScopedContent(
           TTableExpansionMode.side,
-          (ctx) => details.builder?.call(ctx, item, index) ??
-              wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index),
+          (ctx) => details.builder?.call(ctx, item, index) ?? wTheme.buildDefaultExpandedContent(ctx.colors, item.data, index),
         );
       },
       createBuilder: details.createBuilder != null

@@ -13,7 +13,7 @@ class TTab<T> {
   final String? text;
 
   /// The icon for the tab.
-  final IconData? icon;
+  final dynamic icon;
 
   /// Whether the tab is enabled.
   final bool isEnabled;

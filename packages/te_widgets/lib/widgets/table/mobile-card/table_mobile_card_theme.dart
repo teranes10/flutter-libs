@@ -57,6 +57,8 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     super.inlineKeyMaxWidth,
     super.inlineKeyGap,
     super.inlineKeyAlignment,
+    super.removeEmpty,
+    super.selectable,
   });
 
   factory TTableMobileCardTheme.defaultTheme(ColorScheme colors) {
@@ -117,6 +119,8 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     double? inlineKeyMaxWidth,
     double? inlineKeyGap,
     Alignment? inlineKeyAlignment,
+    bool? removeEmpty,
+    bool? selectable,
   }) {
     return TTableMobileCardTheme(
       margin: margin ?? this.margin,
@@ -157,6 +161,8 @@ class TTableMobileCardTheme extends TKeyValueTheme {
       inlineKeyMaxWidth: inlineKeyMaxWidth ?? this.inlineKeyMaxWidth,
       inlineKeyGap: inlineKeyGap ?? this.inlineKeyGap,
       inlineKeyAlignment: inlineKeyAlignment ?? this.inlineKeyAlignment,
+      removeEmpty: removeEmpty ?? this.removeEmpty,
+      selectable: selectable ?? this.selectable,
     );
   }
 }

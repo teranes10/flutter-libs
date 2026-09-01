@@ -117,7 +117,7 @@ class TModal extends StatelessWidget {
     final mMaxWidth = screenSize.width - gap;
     final mMaxHeight = screenSize.height - gap;
 
-    final mWidth = (fullscreen ? screenSize.width : (width ?? 500.0)).clamp(minWidth, mMaxWidth);
+    final mWidth = (fullscreen ? screenSize.width : (width ?? 650.0)).clamp(minWidth, mMaxWidth);
     final mHeight = fullscreen ? screenSize.height.clamp(minHeight, mMaxHeight) : null;
 
     final mConstraints = BoxConstraints(

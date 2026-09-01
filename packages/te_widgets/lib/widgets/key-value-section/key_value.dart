@@ -39,6 +39,22 @@ class TKeyValue {
     this.maxWidth,
   });
 
+  /// Checks if this key-value item contains an empty, null, or placeholder value.
+  bool get isEmptyValue {
+    if (widget != null) return false;
+    if (value == null) return true;
+    final trimmed = value!.trim();
+    if (trimmed.isEmpty) return true;
+    if (trimmed == '-' ||
+        trimmed.toLowerCase() == 'null' ||
+        trimmed.toLowerCase() == 'n/a' ||
+        trimmed.toLowerCase() == 'none' ||
+        trimmed == '0') {
+      return true;
+    }
+    return false;
+  }
+
   /// Creates a key-value item with text value.
   factory TKeyValue.text(
     String key,

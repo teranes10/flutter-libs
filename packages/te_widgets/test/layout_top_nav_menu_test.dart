@@ -179,6 +179,37 @@ void main() {
       expect(find.text('Subcategories'), findsOneWidget);
     });
 
+    testWidgets('Top nav menu items are centered between breadcrumbs and sidebar state icon in none mode', (tester) async {
+      tester.view.physicalSize = const Size(1920, 1080);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(buildApp(initialMode: TSidebarMode.none));
+      await tester.pumpAndSettle();
+
+      final breadcrumbsFinder = find.byType(TBreadcrumbs);
+      final tristateFinder = find.byType(SidebarTristateButton);
+      final navMenuItemsFinder = find.byType(LayoutTopNavMenuItem);
+
+      expect(breadcrumbsFinder, findsOneWidget);
+      expect(tristateFinder, findsOneWidget);
+      expect(navMenuItemsFinder, findsWidgets);
+
+      final breadcrumbsRect = tester.getRect(breadcrumbsFinder);
+      final tristateRect = tester.getRect(tristateFinder);
+
+      final firstItemRect = tester.getRect(navMenuItemsFinder.first);
+      final lastItemRect = tester.getRect(navMenuItemsFinder.last);
+
+      final itemsLeft = firstItemRect.left;
+      final itemsRight = lastItemRect.right;
+
+      final leftGap = itemsLeft - breadcrumbsRect.right;
+      final rightGap = tristateRect.left - itemsRight;
+
+      expect(leftGap, closeTo(rightGap, 1.0));
+    });
+
     testWidgets('None mode shows possible top bar tabs and tristate down arrow with hover dropdown for remaining items', (tester) async {
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
@@ -198,7 +229,7 @@ void main() {
 
       // Tristate button shows down arrow in none mode
       expect(find.byType(SidebarTristateButton), findsOneWidget);
-      expect(find.byIcon(Icons.keyboard_arrow_down_rounded), findsWidgets);
+      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowDown01), findsWidgets);
 
       // Hovering over tristate button reveals the overflow items dropdown
       final tristateBtn = find.byType(SidebarTristateButton);
@@ -224,22 +255,22 @@ void main() {
       await tester.pumpAndSettle();
 
       // Full mode displays left arrow icon
-      expect(find.byIcon(Icons.chevron_left_rounded), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowLeft01), findsOneWidget);
 
       // Tapping tristate button cycles: full -> none (down arrow)
       await tester.tap(find.byType(SidebarTristateButton));
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.keyboard_arrow_down_rounded), findsWidgets);
+      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowDown01), findsWidgets);
 
       // Tapping again cycles: none -> minified (right arrow)
       await tester.tap(find.byType(SidebarTristateButton));
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowRight01), findsOneWidget);
 
       // Tapping again cycles: minified -> full (left arrow)
       await tester.tap(find.byType(SidebarTristateButton));
       await tester.pumpAndSettle();
-      expect(find.byIcon(Icons.chevron_left_rounded), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowLeft01), findsOneWidget);
     });
 
     testWidgets('Nested submenus propagate left alignment when right side is constrained', (tester) async {

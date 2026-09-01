@@ -13,6 +13,9 @@ class TTableScope extends InheritedWidget {
   /// The list controller managing the table data.
   final TListController controller;
 
+  /// The active table theme.
+  final TTableTheme? theme;
+
   /// Whether the table is dense.
   final bool dense;
 
@@ -27,6 +30,7 @@ class TTableScope extends InheritedWidget {
     super.key,
     required this.controller,
     required this.dense,
+    this.theme,
     this.expansionMode,
     this.onWillCollapse,
     required super.child,
@@ -72,6 +76,7 @@ class TTableScope extends InheritedWidget {
   @override
   bool updateShouldNotify(TTableScope oldWidget) =>
       controller != oldWidget.controller ||
+      theme != oldWidget.theme ||
       dense != oldWidget.dense ||
       expansionMode != oldWidget.expansionMode ||
       onWillCollapse != oldWidget.onWillCollapse;

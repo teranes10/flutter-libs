@@ -48,8 +48,8 @@ void main() {
     await tester.tap(expandModeItem);
     await tester.pumpAndSettle();
 
-    // Verify Modal Dialog and Side Overlay options are present with number fields
-    expect(find.text('Modal Dialog'), findsOneWidget);
+    // Verify Overlay and Side Overlay options are present with number fields
+    expect(find.text('Dialog'), findsOneWidget);
     expect(find.text('Side Overlay'), findsOneWidget);
     expect(find.byType(TNumberField<int>), findsAtLeastNWidgets(2));
 

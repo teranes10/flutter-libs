@@ -1,14 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// An item in the [TBottomBar].
 class TBottomBarItem {
   /// The icon to display.
-  final IconData icon;
+  final dynamic icon;
 
   /// The icon to display when the item is active.
   /// If null, [icon] will be used.
-  final IconData? activeIcon;
+  final dynamic activeIcon;
 
   /// The label text to display.
   final String label;

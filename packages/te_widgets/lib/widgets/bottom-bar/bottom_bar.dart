@@ -186,7 +186,7 @@ class _BottomBarItemWidget extends StatelessWidget {
           fontWeight: isActive ? FontWeight.w400 : FontWeight.w300,
           fontSize: 11,
         );
-    final iconWidget = Icon(icon, color: contentColor, size: iconSize);
+    final iconWidget = TIcon.raw(icon, color: contentColor, size: iconSize);
 
     Widget content;
 

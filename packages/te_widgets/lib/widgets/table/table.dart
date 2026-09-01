@@ -76,6 +76,19 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Whether specific cells are editable.
   final bool editable;
 
+  /// Whether tapping on a row expands its details.
+  /// If not specified, defaults to [details.expandOnRowTap] (which defaults to true).
+  final bool? expandOnRowTap;
+
+  /// Alias for [expandOnRowTap].
+  final bool? rowTapDetails;
+
+  /// Alias for [expandOnRowTap].
+  final bool? onRowTapDetails;
+
+  /// Whether text within the table and its details views is selectable. Defaults to true.
+  final bool selectableText;
+
   // Theme overrides
 
   /// Grid layout mode.
@@ -117,6 +130,15 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
+  /// Custom builder to retrieve a validation error for a given row and column.
+  final String? Function(T data, String column)? cellErrorBuilder;
+
+  /// Optional static map of cell errors.
+  final Map<String, String>? cellErrors;
+
+  /// Optional notifier for dynamic cell errors.
+  final ValueNotifier<Map<String, String>>? cellErrorsNotifier;
+
   /// Creates a data table.
   const TTable({
     super.key,
@@ -134,6 +156,13 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     //Details
     this.details,
     this.editable = false,
+    this.cellErrorBuilder,
+    this.cellErrors,
+    this.cellErrorsNotifier,
+    this.expandOnRowTap,
+    this.rowTapDetails,
+    this.onRowTapDetails,
+    this.selectableText = true,
     // Theme overrides
     this.grid,
     this.gridDelegate,
@@ -192,6 +221,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   bool? _cachedRequiredWidthExpandable;
   int? _cachedRequiredWidthMaxLevel;
 
+  bool? _cachedRequiredWidthIsHierarchical;
+
   int _getMaxTreeLevel() {
     int maxLevel = 0;
     for (final item in listController.value.displayItems) {
@@ -240,20 +271,29 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     final selectable = listController.selectable;
     final expandable = listController.expandable;
     final maxLevel = _getMaxTreeLevel();
+    final isHierarchical = listController.isHierarchical;
     if (_cachedRequiredWidth != null &&
         _cachedRequiredWidthForHeaders != null &&
         _headersEquals(_cachedRequiredWidthForHeaders!, headers) &&
         _cachedRequiredWidthSelectable == selectable &&
         _cachedRequiredWidthExpandable == expandable &&
-        _cachedRequiredWidthMaxLevel == maxLevel) {
+        _cachedRequiredWidthMaxLevel == maxLevel &&
+        _cachedRequiredWidthIsHierarchical == isHierarchical) {
       return _cachedRequiredWidth!;
     }
-    final width = TTableTheme.calculateTotalRequiredWidth(headers, selectable, expandable, maxTreeLevel: maxLevel);
+    final width = TTableTheme.calculateTotalRequiredWidth(
+      headers,
+      selectable,
+      expandable,
+      maxTreeLevel: maxLevel,
+      isHierarchical: isHierarchical,
+    );
     _cachedRequiredWidth = width;
     _cachedRequiredWidthForHeaders = headers;
     _cachedRequiredWidthSelectable = selectable;
     _cachedRequiredWidthExpandable = expandable;
     _cachedRequiredWidthMaxLevel = maxLevel;
+    _cachedRequiredWidthIsHierarchical = isHierarchical;
     return width;
   }
 
@@ -263,26 +303,36 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   bool? _cachedColumnWidthsSelectable;
   bool? _cachedColumnWidthsExpandable;
   int? _cachedColumnWidthsMaxLevel;
+  bool? _cachedColumnWidthsIsHierarchical;
 
   Map<int, TableColumnWidth> _getColumnWidths() {
     final headers = _effectiveHeaders;
     final selectable = listController.selectable;
     final expandable = listController.expandable;
     final maxLevel = _getMaxTreeLevel();
+    final isHierarchical = listController.isHierarchical;
     if (_cachedColumnWidths != null &&
         _cachedColumnWidthsForHeaders != null &&
         _headersEquals(_cachedColumnWidthsForHeaders!, headers) &&
         _cachedColumnWidthsSelectable == selectable &&
         _cachedColumnWidthsExpandable == expandable &&
-        _cachedColumnWidthsMaxLevel == maxLevel) {
+        _cachedColumnWidthsMaxLevel == maxLevel &&
+        _cachedColumnWidthsIsHierarchical == isHierarchical) {
       return _cachedColumnWidths!;
     }
-    final widths = TTableTheme.calculateColumnWidths(headers, selectable, expandable, maxTreeLevel: maxLevel);
+    final widths = TTableTheme.calculateColumnWidths(
+      headers,
+      selectable,
+      expandable,
+      maxTreeLevel: maxLevel,
+      isHierarchical: isHierarchical,
+    );
     _cachedColumnWidths = widths;
     _cachedColumnWidthsForHeaders = headers;
     _cachedColumnWidthsSelectable = selectable;
     _cachedColumnWidthsExpandable = expandable;
     _cachedColumnWidthsMaxLevel = maxLevel;
+    _cachedColumnWidthsIsHierarchical = isHierarchical;
     return widths;
   }
 
@@ -398,17 +448,32 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
 
     Widget scopedContent = TTableScope(
       controller: listController,
+      theme: wTheme,
       dense: wTheme.dense ?? false,
       expansionMode: effectiveExpansionMode,
       onWillCollapse: widget.details?.onWillCollapse != null ? (dynamic key) => widget.details!.onWillCollapse!(key as K) : null,
       child: content,
     );
 
-    // Wrap with TTableCellScope only when editable so that cell-activation
-    // rebuilds are bounded to subscribing editable cells only.
-    if (_activeCellNotifier != null) {
+    // Wrap with TTableCellScope only when editable or when cell errors are present
+    // so that cell-activation and cell-error rebuilds are bounded to subscribing cells only.
+    if (_activeCellNotifier != null ||
+        widget.cellErrorBuilder != null ||
+        widget.cellErrors != null ||
+        widget.cellErrorsNotifier != null) {
       scopedContent = TTableCellScope(
-        notifier: _activeCellNotifier!,
+        activeCellNotifier: _activeCellNotifier ?? ValueNotifier<String?>(null),
+        cellErrorBuilder: widget.cellErrorBuilder != null
+            ? (dynamic data, String col) => widget.cellErrorBuilder!(data as T, col)
+            : null,
+        cellErrors: widget.cellErrors,
+        errorsNotifier: widget.cellErrorsNotifier,
+        child: scopedContent,
+      );
+    }
+
+    if (widget.selectableText) {
+      scopedContent = SelectionArea(
         child: scopedContent,
       );
     }
@@ -443,6 +508,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
 
     return _buildListScaffold(
       headerContent: (ctx) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx),
           TTableRowHeader<T, K>(theme: wTheme.headerTheme, headers: widget.headers, controller: listController, columnWidths: columnWidths),
@@ -533,6 +599,13 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       }
 
       listController.expandDetail(key);
+    } else {
+      if (widget.details?.onWillCollapse != null) {
+        final allowed = await widget.details!.onWillCollapse!(key);
+        if (!allowed) return;
+      }
+
+      listController.collapseDetail();
     }
   }
 
@@ -576,7 +649,19 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return null;
   }
 
+  bool get _expandOnRowTap =>
+      widget.expandOnRowTap ??
+      widget.rowTapDetails ??
+      widget.onRowTapDetails ??
+      widget.details?.expandOnRowTap ??
+      widget.details?.rowTapDetails ??
+      true;
+
   TTableRowCard<T, K> _buildRowCard(Map<int, TableColumnWidth> columnWidths, BuildContext ctx, TListItem<T, K> item, int index) {
+    final onRowTap = (listController.expandable && _expandOnRowTap)
+        ? () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key)
+        : null;
+
     return TTableRowCard<T, K>(
       index: index,
       item: item,
@@ -594,11 +679,18 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       selectable: listController.selectable,
       isSelected: listController.isSelected(item.key),
       onSelectionChanged: () => listController.toggleSelection(item.key),
+      onTap: onRowTap,
+      expandIcon: widget.details?.expandIcon,
+      collapseIcon: widget.details?.collapseIcon,
       backgroundColor: widget.rowColorBuilder?.call(item, index),
     );
   }
 
   TTableMobileCard<T, K> _buildMobileCard(BuildContext ctx, TListItem<T, K> item, int index) {
+    final onRowTap = (listController.expandable && _expandOnRowTap)
+        ? () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key)
+        : null;
+
     return TTableMobileCard<T, K>(
       index: index,
       item: item,
@@ -608,12 +700,16 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       expandable: listController.expandable,
       isExpanded: listController.isExpanded(item.key),
       isDetailExpanded: _isInlineExpanded(item),
+      expansionMode: effectiveExpansionMode,
       expandSide: effectiveExpansionMode == TTableExpansionMode.side,
       onExpansionChanged: () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key),
       expandedContent: _resolveExpandedContent(ctx, item, index),
       selectable: listController.selectable,
       isSelected: listController.isSelected(item.key),
       onSelectionChanged: () => listController.toggleSelection(item.key),
+      onTap: onRowTap,
+      expandIcon: widget.details?.expandIcon,
+      collapseIcon: widget.details?.collapseIcon,
       backgroundColor: widget.rowColorBuilder?.call(item, index),
     );
   }

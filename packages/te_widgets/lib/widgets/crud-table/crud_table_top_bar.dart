@@ -150,7 +150,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
           text: 'Expand Mode',
           children: [
             TDropdownItem(
-              icon: Icons.dock_rounded,
+              icon: HugeIcons.strokeRoundedArrowRight01,
               text: 'Side Panel',
               onTap: () {
                 expansionMode = TTableExpansionMode.side;
@@ -158,7 +158,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             ),
             _buildExpandModeItemWithWidth(
               ctx: ctx,
-              icon: Icons.view_sidebar_rounded,
+              icon: HugeIcons.strokeRoundedArrowUpRight01,
               text: 'Side Overlay',
               isSelected: effectiveExpansionMode == TTableExpansionMode.sideOverlay,
               onSelect: () {
@@ -171,8 +171,8 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             ),
             _buildExpandModeItemWithWidth(
               ctx: ctx,
-              icon: Icons.aspect_ratio_rounded,
-              text: 'Modal Dialog',
+              icon: HugeIcons.strokeRoundedArrowUp02,
+              text: 'Dialog',
               isSelected: effectiveExpansionMode == TTableExpansionMode.dialog,
               onSelect: () {
                 expansionMode = TTableExpansionMode.dialog;
@@ -183,14 +183,14 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
               },
             ),
             TDropdownItem(
-              icon: Icons.article_rounded,
+              icon: HugeIcons.strokeRoundedLinkForward,
               text: 'Full Page',
               onTap: () {
                 expansionMode = TTableExpansionMode.page;
               },
             ),
             TDropdownItem(
-              icon: Icons.expand_more_rounded,
+              icon: HugeIcons.strokeRoundedArrowDown01,
               text: 'Inline Bottom',
               onTap: () {
                 expansionMode = TTableExpansionMode.bottom;
@@ -203,22 +203,16 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             icon: Icons.add_box_rounded,
             text: 'Create Mode',
             children: [
-              _buildExpandModeItemWithWidth(
-                ctx: ctx,
-                icon: Icons.aspect_ratio_rounded,
-                text: 'Modal Dialog',
-                isSelected: effectiveCreateMode == TTableExpansionMode.dialog,
-                onSelect: () {
-                  createMode = TTableExpansionMode.dialog;
-                },
-                currentWidth: effectiveCreateDialogWidth.toInt(),
-                onWidthChanged: (w) {
-                  createDialogWidth = w;
+              TDropdownItem(
+                icon: HugeIcons.strokeRoundedArrowRight01,
+                text: 'Side Panel',
+                onTap: () {
+                  createMode = TTableExpansionMode.side;
                 },
               ),
               _buildExpandModeItemWithWidth(
                 ctx: ctx,
-                icon: Icons.view_sidebar_rounded,
+                icon: HugeIcons.strokeRoundedArrowUpRight01,
                 text: 'Side Overlay',
                 isSelected: effectiveCreateMode == TTableExpansionMode.sideOverlay,
                 onSelect: () {
@@ -229,22 +223,28 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
                   createSideOverlayWidth = w;
                 },
               ),
-              TDropdownItem(
-                icon: Icons.dock_rounded,
-                text: 'Side Panel',
-                onTap: () {
-                  createMode = TTableExpansionMode.side;
+              _buildExpandModeItemWithWidth(
+                ctx: ctx,
+                icon: HugeIcons.strokeRoundedArrowUp02,
+                text: 'Dialog',
+                isSelected: effectiveCreateMode == TTableExpansionMode.dialog,
+                onSelect: () {
+                  createMode = TTableExpansionMode.dialog;
+                },
+                currentWidth: effectiveCreateDialogWidth.toInt(),
+                onWidthChanged: (w) {
+                  createDialogWidth = w;
                 },
               ),
               TDropdownItem(
-                icon: Icons.article_rounded,
+                icon: HugeIcons.strokeRoundedLinkForward,
                 text: 'Full Page',
                 onTap: () {
                   createMode = TTableExpansionMode.page;
                 },
               ),
               TDropdownItem(
-                icon: Icons.expand_more_rounded,
+                icon: HugeIcons.strokeRoundedArrowDown01,
                 text: 'Inline Bottom',
                 onTap: () {
                   createMode = TTableExpansionMode.bottom;
@@ -274,7 +274,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
 
   TDropdownItem _buildExpandModeItemWithWidth({
     required BuildContext ctx,
-    required IconData icon,
+    required dynamic icon,
     required String text,
     required bool isSelected,
     required VoidCallback onSelect,
@@ -299,8 +299,8 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
                   padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
                   child: Row(
                     children: [
-                      Icon(
-                        icon,
+                      TIcon(
+                        icon: icon,
                         size: 20,
                         color: isSelected ? colors.primary : colors.onSurface,
                       ),
@@ -327,8 +327,11 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
               width: 110,
               child: TNumberField<int>(
                 value: currentWidth,
+                label: 'Width',
                 splitStepper: true,
                 theme: ctx.theme.numberFieldTheme.copyWith(
+                  decorationType: TInputDecorationType.outline,
+                  labelPosition: TLabelPosition.inlineFloating,
                   size: TInputSize.xs,
                   increment: 50,
                   decrement: 50,
@@ -389,66 +392,66 @@ class _ColumnVisibilityMenuState extends State<_ColumnVisibilityMenu> {
       child: ReorderableListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 4),
         shrinkWrap: true,
-      itemCount: orderedHeaders.length,
-      buildDefaultDragHandles: false,
-      onReorderStart: (index) {
-        TMenuOverlayController.isLocked = true;
-      },
-      onReorderEnd: (index) {
-        TMenuOverlayController.isLocked = false;
-        widget.onReorderEnd();
-      },
-      onReorder: (oldIndex, newIndex) {
-        setState(() {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
-          }
-          widget.onReorder(oldIndex, newIndex);
-        });
-      },
-      itemBuilder: (context, index) {
-        final header = orderedHeaders[index];
-        return Row(
-          key: ValueKey(header.text),
-          children: [
-            ReorderableDragStartListener(
-              index: index,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Icon(
-                  Icons.drag_indicator_rounded,
-                  size: 20,
-                  color: context.colors.onSurfaceVariant.withAlpha(200),
+        itemCount: orderedHeaders.length,
+        buildDefaultDragHandles: false,
+        onReorderStart: (index) {
+          TMenuOverlayController.isLocked = true;
+        },
+        onReorderEnd: (index) {
+          TMenuOverlayController.isLocked = false;
+          widget.onReorderEnd();
+        },
+        onReorder: (oldIndex, newIndex) {
+          setState(() {
+            if (newIndex > oldIndex) {
+              newIndex -= 1;
+            }
+            widget.onReorder(oldIndex, newIndex);
+          });
+        },
+        itemBuilder: (context, index) {
+          final header = orderedHeaders[index];
+          return Row(
+            key: ValueKey(header.text),
+            children: [
+              ReorderableDragStartListener(
+                index: index,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Icon(
+                    Icons.drag_indicator_rounded,
+                    size: 20,
+                    color: context.colors.onSurfaceVariant.withAlpha(200),
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: Text(
-                header.text,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: context.colors.onSurface,
+              Expanded(
+                child: Text(
+                  header.text,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.colors.onSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: TSwitch(
-                size: TInputSize.xs,
-                value: widget.headerVisibility[header.text] ?? true,
-                onValueChanged: (val) {
-                  setState(() {
-                    widget.onVisibilityChanged(header.text, val ?? false);
-                  });
-                },
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: TSwitch(
+                  size: TInputSize.xs,
+                  value: widget.headerVisibility[header.text] ?? true,
+                  onValueChanged: (val) {
+                    setState(() {
+                      widget.onVisibilityChanged(header.text, val ?? false);
+                    });
+                  },
+                ),
               ),
-            ),
-          ],
-        );
-      },
-    ),
-  );
-}
+            ],
+          );
+        },
+      ),
+    );
+  }
 }

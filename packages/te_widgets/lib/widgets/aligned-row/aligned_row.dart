@@ -71,9 +71,19 @@ class TAlignedRow extends MultiChildRenderObjectWidget {
     this.wrapperExpandedRatioBased = true,
     this.wrapperAlignment = MainAxisAlignment.center,
   }) : super(children: [
-          ...left.map((w) => _Side(isRight: false, child: w)),
-          ...right.map((w) => _Side(isRight: true, child: w)),
+          ...left.map((w) => _wrapSide(w, false)),
+          ...right.map((w) => _wrapSide(w, true)),
         ]);
+
+  static Widget _wrapSide(Widget w, bool isRight) {
+    if (w is Expanded) {
+      return _Side(isRight: isRight, child: w.child);
+    }
+    if (w is Flexible) {
+      return _Side(isRight: isRight, child: w.child);
+    }
+    return _Side(isRight: isRight, child: w);
+  }
 
   @override
   RenderObject createRenderObject(BuildContext context) => RenderAlignedRow(

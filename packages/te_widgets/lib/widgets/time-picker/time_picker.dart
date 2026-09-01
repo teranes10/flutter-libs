@@ -147,7 +147,7 @@ class _TTimePickerState extends State<TTimePicker>
     return buildWithDropdownTarget(
       child: buildTextField(
         hasValue: currentValue != null,
-        beforePreWidget: Icon(Icons.calendar_today_rounded, size: 16, color: colors.onSurfaceVariant),
+        beforePreWidget: TIcon.raw(HugeIcons.strokeRoundedClock01, size: 16, color: colors.onSurfaceVariant),
         onClear: () {
           _onTimeSelected(null);
         },

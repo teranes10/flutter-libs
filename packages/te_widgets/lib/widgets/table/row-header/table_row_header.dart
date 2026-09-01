@@ -29,7 +29,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wTheme = theme ?? context.theme.tableTheme.headerTheme;
+    final wTheme = theme ?? TTableScope.maybeOf(context)?.theme?.headerTheme ?? context.theme.tableTheme.headerTheme;
 
     final order = controller.headerOrder;
     final visibility = controller.headerVisibility;
@@ -76,7 +76,23 @@ class TTableRowHeader<T, K> extends StatelessWidget {
                   onValueChanged: (value) => controller.toggleSelectAll(),
                 ),
               ),
-            ...effectiveHeaders.map((header) => buildHeaderCell(wTheme, header)),
+            ...effectiveHeaders.asMap().entries.map((entry) {
+              final headerIndex = entry.key;
+              final header = entry.value;
+              int maxLevel = 0;
+              if (controller.isHierarchical) {
+                for (final item in controller.value.displayItems) {
+                  if (item.level > maxLevel) maxLevel = item.level;
+                }
+                if (maxLevel == 0 && controller.value.displayItems.any((i) => i.hasChildren)) {
+                  maxLevel = 1;
+                }
+              }
+              final treeExtraWidth = (headerIndex == 0 && (controller.isHierarchical || maxLevel > 0))
+                  ? (maxLevel * 16.0 + 36.0)
+                  : 0.0;
+              return buildHeaderCell(wTheme, header, extraWidth: treeExtraWidth);
+            }),
           ])
         ],
       ),
@@ -84,9 +100,14 @@ class TTableRowHeader<T, K> extends StatelessWidget {
   }
 
   /// Builds a single header cell.
-  Widget buildHeaderCell(TTableRowHeaderTheme wTheme, TTableHeader<T, K> header) {
+  Widget buildHeaderCell(TTableRowHeaderTheme wTheme, TTableHeader<T, K> header, {double extraWidth = 0.0}) {
+    final minW = (header.minWidth ?? 50) + extraWidth;
+    final maxW = (header.maxWidth != null && header.maxWidth != double.infinity)
+        ? header.maxWidth! + extraWidth
+        : double.infinity;
+
     return Container(
-      constraints: BoxConstraints(minWidth: header.minWidth ?? 50, maxWidth: header.maxWidth ?? double.infinity),
+      constraints: BoxConstraints(minWidth: minW, maxWidth: maxW),
       child: Align(
         alignment: header.alignment ?? Alignment.centerLeft,
         child: Padding(

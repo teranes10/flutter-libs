@@ -61,17 +61,17 @@ class SidebarTristateButton extends ConsumerWidget {
         },
         items: [
           TButtonGroupItem(
-            icon: Icons.chevron_right_rounded,
+            icon: HugeIcons.strokeRoundedArrowRight01,
             tooltip: 'Sidebar: Minified',
             active: mode == TSidebarMode.minified,
           ),
           TButtonGroupItem(
-            icon: Icons.chevron_left_rounded,
+            icon: HugeIcons.strokeRoundedArrowLeft01,
             tooltip: 'Sidebar: Full',
             active: mode == TSidebarMode.full,
           ),
           TButtonGroupItem(
-            icon: Icons.keyboard_arrow_down_rounded,
+            icon: HugeIcons.strokeRoundedArrowDown01,
             tooltip: 'Menu (Sidebar: Hidden)',
             active: mode == TSidebarMode.none,
           ),

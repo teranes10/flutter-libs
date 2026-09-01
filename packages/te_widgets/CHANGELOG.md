@@ -1,5 +1,27 @@
+## 3.3.0
+
+- **CSV Editor (`TCsvEditor`)**:
+  - Introduced `TCsvEditor` — an interactive CSV/TSV upload, visual header re-mapping, inline editing, and export component.
+  - Added `TCsvColumn` schema definition with typed factories (`text`, `number`, `integer`, `boolean`), validation rules, default values, and column aliases.
+  - Added `TCsvHeaderMapperModal` and `TCsvHeaderMapping` for automatic and interactive visual header re-mapping with sample data previews.
+  - Added `TCsvParser` supporting comma and semicolon delimiter detection, RFC 4180 parsing, and starter template generation.
+  - Modularized editor implementation into `csv_editor_actions.dart`, `csv_editor_banners.dart`, and `csv_editor_table.dart`.
+  - Integrated `TTabs<int>` toolbar to filter between All, Valid, and Errors with dynamic row counts and error indicators.
+- **Table & Cell Scoped Errors**:
+  - Added `TTableHeader.toggle` for boolean switch toggle columns.
+  - Added `TTableCellScope` for cell-scoped error handling and validation error indicators at table level.
+  - Expanded editable cell tap target (`TTableHeader.editable`, `textField`, `numberField`) to the full column width.
+  - Fixed horizontal column bounding alignment between table header and row cards.
+- **Metric Tiles**:
+  - Added `TMetricTile` for KPI metrics and analytical summary cards.
+
 ## 3.2.0
 
+- **Button & Icon Enhancements**:
+  - Integrated `TIcon` into `TButton` and `TButtonGroup` supporting `IconData`, `HugeIcons`, and custom `Widget` icons dynamically.
+  - Added support for rotation animations (`turns: (initial, active)`) and active icon transitions in `TButton` and `TButtonGroupItem`.
+  - Added `TIcon.raw` factory constructor as a zero-overhead drop-in replacement for Flutter's `Icon(...)` without outer padding, background, shape, or container wrapping.
+  - Updated `TPagination` navigation icon buttons to use `HugeIcons` via `TIcon` (`strokeRoundedArrowLeftDouble`, `strokeRoundedArrowLeft01`, `strokeRoundedArrowRight01`, `strokeRoundedArrowRightDouble`).
 - **Form Types & Layout Persistence**:
   - Introduced `TFormType` (`accordion`, `horizontalTabs`, `verticalTabs`) supporting flexible subform presentation styles.
   - Added `TFormTypePersistence` managing multi-tier form type layout persistence across user sessions (in-memory cache, `PageStorage`, and `SharedPreferences`).

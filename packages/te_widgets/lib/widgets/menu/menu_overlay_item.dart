@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/helpers/popup_position.dart';
+import 'package:te_widgets/widgets/icon/icon.dart';
 import 'package:te_widgets/widgets/menu/menu_item_data.dart';
 import 'package:te_widgets/widgets/menu/menu_theme.dart';
 import 'package:te_widgets/widgets/menu/menu_overlay_controller.dart';
@@ -206,7 +207,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
     return Row(
       children: [
         if (widget.item.icon != null) ...[
-          Icon(widget.item.icon, size: widget.theme.iconSize, color: color),
+          TIcon(icon: widget.item.icon, size: widget.theme.iconSize, color: color),
           if (widget.item.text != null) SizedBox(width: widget.theme.gap),
         ],
         if (widget.item.text != null)

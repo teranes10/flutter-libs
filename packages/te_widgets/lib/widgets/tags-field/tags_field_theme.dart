@@ -242,7 +242,7 @@ class TTagsFieldTheme extends TTextFieldTheme {
                 ),
               ),
               const SizedBox(width: 5.0),
-              InkWell(onTap: onRemove, child: Icon(Icons.close, size: 14, color: colors.onSurface)),
+              InkWell(onTap: onRemove, child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 14, color: colors.onSurface)),
             ],
           ),
         ),

@@ -166,13 +166,13 @@ class _PaginationState extends State<TPagination> {
       children: [
         // First page button
         _PaginationIconButton(
-          icon: Icons.first_page,
+          icon: HugeIcons.strokeRoundedArrowLeftDouble,
           isEnabled: _hasFirstPage,
           onPressed: _gotoFirstPage,
         ),
         // Previous page button
         _PaginationIconButton(
-          icon: Icons.chevron_left,
+          icon: HugeIcons.strokeRoundedArrowLeft01,
           isEnabled: _hasPreviousPage,
           onPressed: _gotoPreviousPage,
         ),
@@ -186,13 +186,13 @@ class _PaginationState extends State<TPagination> {
         }),
         // Next page button
         _PaginationIconButton(
-          icon: Icons.chevron_right,
+          icon: HugeIcons.strokeRoundedArrowRight01,
           isEnabled: _hasNextPage,
           onPressed: _gotoNextPage,
         ),
         // Last page button
         _PaginationIconButton(
-          icon: Icons.last_page,
+          icon: HugeIcons.strokeRoundedArrowRightDouble,
           isEnabled: _hasLastPage,
           onPressed: _gotoLastPage,
         ),
@@ -202,7 +202,7 @@ class _PaginationState extends State<TPagination> {
 }
 
 class _PaginationIconButton extends StatelessWidget {
-  final IconData icon;
+  final dynamic icon;
   final bool isEnabled;
   final VoidCallback onPressed;
 
@@ -214,10 +214,17 @@ class _PaginationIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final color = isEnabled ? colors.onSurface : colors.onSurface.withAlpha(75);
+
     return IconButton(
-      icon: Icon(icon),
+      icon: TIcon.raw(
+        icon,
+        size: 18,
+        color: color,
+      ),
       onPressed: isEnabled ? onPressed : null,
-      iconSize: 20,
+      iconSize: 18,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(
         minWidth: 36,

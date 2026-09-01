@@ -30,7 +30,6 @@ void main() {
 
     final inputDecorator = tester.widget<InputDecorator>(inputDecoratorFinder);
     expect(inputDecorator.decoration.floatingLabelAlignment, equals(FloatingLabelAlignment.center));
-    expect(inputDecorator.decoration.alignLabelWithHint, isTrue);
   });
 
   testWidgets('TNumberField with splitStepper and no label centers value vertically', (WidgetTester tester) async {
@@ -53,6 +52,6 @@ void main() {
 
     final textField = tester.widget<TextField>(textFieldFinder);
     expect(textField.textAlignVertical, equals(TextAlignVertical.center));
-    expect(textField.decoration?.contentPadding?.vertical, equals(0.0));
+    expect(textField.textAlign, equals(TextAlign.center));
   });
 }

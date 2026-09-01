@@ -142,7 +142,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
 
   void handleLoadMore() {
     if (!hasMoreItems || isFetching) return;
-    _executePaginationAction('handleLoadMore', page: page + 1, append: true);
+    _executePaginationAction('handleLoadMore', cursor: nextCursor, page: page + 1, append: true);
   }
 
   void handleRefresh() {
@@ -327,7 +327,11 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
 
       List<TListItem<T, K>> rawDisplayItems;
       if (append && value.displayItems.isNotEmpty) {
-        final newItems = result.items.map((item) => getItem(itemKey(item))!).toList();
+        final existingKeys = value.displayItems.map((e) => e.key).toSet();
+        final newItems = result.items
+            .where((item) => !existingKeys.contains(itemKey(item)))
+            .map((item) => getItem(itemKey(item))!)
+            .toList();
         rawDisplayItems = List<TListItem<T, K>>.of(value.displayItems)..addAll(newItems);
       } else {
         rawDisplayItems = result.items.map((item) => getItem(itemKey(item))!).toList();
@@ -355,7 +359,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
         displayItems: rawDisplayItems,
         hasMoreItems: result.hasNextPage ??
             (append
-                ? rawDisplayItems.length < result.totalItems
+                ? (result.items.isNotEmpty && rawDisplayItems.length < result.totalItems)
                 : ((page ?? value.page) - 1) * (itemsPerPage ?? value.itemsPerPage) + rawDisplayItems.length < result.totalItems),
         currentCursor: cursor,
         nextCursor: result.nextCursor,

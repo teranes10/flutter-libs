@@ -100,19 +100,19 @@ class TChip extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: padding ?? const EdgeInsets.symmetric(horizontal: 6),
         decoration: BoxDecoration(
             color: mBackgroundColor,
-            borderRadius: borderRadius ?? BorderRadius.circular(8),
+            borderRadius: borderRadius ?? BorderRadius.circular(6),
             border: Border.all(color: wTheme.outline ?? Colors.transparent, width: 1)),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 16, color: mTextColor),
+              Icon(icon, size: 13, color: mTextColor),
               if (text != null) const SizedBox(width: 4),
             ],
-            if (text != null) Text(text!, style: TextStyle(color: mTextColor, fontSize: 12, fontWeight: FontWeight.w400)),
+            if (text != null) Text(text!, style: TextStyle(color: mTextColor, fontSize: 11, fontWeight: FontWeight.w400)),
           ],
         ),
       ),

@@ -171,8 +171,8 @@ class _TopNavItemButton extends StatelessWidget {
               ),
             if (hasChildren) ...[
               const SizedBox(width: 3),
-              Icon(
-                theme.dropdownIcon ?? Icons.keyboard_arrow_down_rounded,
+              TIcon.raw(
+                theme.dropdownIcon ?? HugeIcons.strokeRoundedArrowDown01,
                 size: theme.arrowIconSize > 0 ? theme.arrowIconSize : 14,
                 color: color,
               ),

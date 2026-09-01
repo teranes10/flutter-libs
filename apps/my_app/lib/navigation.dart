@@ -11,6 +11,7 @@ import 'package:my_app/pages/buttons_page.dart';
 import 'package:my_app/pages/chips_page.dart';
 import 'package:my_app/pages/crud_page.dart';
 import 'package:my_app/pages/crud_riverpod_page.dart';
+import 'package:my_app/pages/csv_editor_page.dart';
 import 'package:my_app/pages/editor_page.dart';
 import 'package:my_app/pages/rich_text_field_page.dart';
 import 'package:my_app/pages/forms_page.dart';
@@ -87,6 +88,7 @@ final sidebarItems = [
   TSidebarItem(icon: Icons.layers, text: 'Layout', route: '/layout', page: const LayoutPage()),
   TSidebarItem(icon: Icons.storage, text: 'Crud', route: '/crud', page: const CrudPage()),
   TSidebarItem(icon: Icons.storage, text: 'Crud (Riverpod)', route: '/crud-riverpod', page: const CrudRiverpodPage()),
+  TSidebarItem(icon: Icons.table_view_rounded, text: 'CSV Editor', route: '/csv-editor', page: const CsvEditorPage()),
   TSidebarItem(icon: Icons.edit_note, text: 'Editor', route: '/editor', page: const EditorPage()),
   TSidebarItem(icon: Icons.text_snippet, text: 'Rich Text Field', route: '/rich-text-field', page: const RichTextFieldPage()),
   TSidebarItem(icon: Icons.assignment, text: 'Forms', route: '/forms', page: const FormsPage()),

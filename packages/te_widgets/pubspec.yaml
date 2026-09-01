@@ -1,6 +1,6 @@
 name: te_widgets
 description: "Te Flutter Widgets"
-version: 3.2.0
+version: 3.3.0
 
 
 homepage: https://teranes10.github.io/flutter-libs/myapp
@@ -30,6 +30,7 @@ dependencies:
   path_provider: ^2.1.6
   dio: ^5.9.2
   crypto: ^3.0.7
+  hugeicons: ^1.1.7
   
 dev_dependencies:
   flutter_test:

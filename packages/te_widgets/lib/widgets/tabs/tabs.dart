@@ -261,7 +261,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
                         ? null
                         : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: const Offset(0, 0))],
                     background: !_canScrollStart ? null : navBg,
-                    icon: Icons.chevron_left,
+                    icon: HugeIcons.strokeRoundedArrowLeft01,
                     size: 20,
                     onTap: !_canScrollStart ? null : () => _scrollBy(-200),
                     color: _canScrollStart ? navColor : navColor.o(0.4),
@@ -276,7 +276,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
                         ? null
                         : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: const Offset(0, 0))],
                     background: !_canScrollEnd ? null : navBg,
-                    icon: Icons.chevron_right,
+                    icon: HugeIcons.strokeRoundedArrowRight01,
                     size: 20,
                     onTap: !_canScrollEnd ? null : () => _scrollBy(200),
                     color: _canScrollEnd ? navColor : navColor.o(0.4),
@@ -294,7 +294,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
                     shadowColor: colors.shadow.o(0.35),
                     color: navBg,
                     child: TIcon(
-                        icon: Icons.keyboard_arrow_up,
+                        icon: HugeIcons.strokeRoundedArrowUp01,
                         size: 20,
                         onTap: () => _scrollBy(-200),
                         color: _canScrollStart ? navColor : navColor.o(0.4),
@@ -313,7 +313,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
                     shadowColor: colors.shadow.o(0.35),
                     color: navBg,
                     child: TIcon(
-                        icon: Icons.keyboard_arrow_down,
+                        icon: HugeIcons.strokeRoundedArrowDown01,
                         size: 20,
                         onTap: () => _scrollBy(200),
                         color: _canScrollEnd ? navColor : navColor.o(0.4),

@@ -53,6 +53,8 @@ class TKeyValueSection extends StatelessWidget {
   final double? gridHorizontalSpacing;
   final double? gridVerticalSpacing;
   final double? gridCellGap;
+  final bool? removeEmpty;
+  final bool? selectable;
 
   const TKeyValueSection({
     super.key,
@@ -66,6 +68,8 @@ class TKeyValueSection extends StatelessWidget {
     this.inlineKeyWidth,
     this.inlineKeyMaxWidth,
     this.inlineKeyAlignment,
+    this.removeEmpty,
+    this.selectable,
     double? inlineKeyGap,
     double? gridHorizontalSpacing,
     double? gridVerticalSpacing,
@@ -86,6 +90,7 @@ class TKeyValueSection extends StatelessWidget {
     double gap = 8,
     double hSpacing = 20,
     double vSpacing = 12,
+    bool? removeEmpty,
   }) {
     return TKeyValueSection(
       key: key,
@@ -96,6 +101,7 @@ class TKeyValueSection extends StatelessWidget {
       inlineKeyGap: gap,
       gridHorizontalSpacing: hSpacing,
       gridVerticalSpacing: vSpacing,
+      removeEmpty: removeEmpty,
     );
   }
 
@@ -107,6 +113,7 @@ class TKeyValueSection extends StatelessWidget {
     double gap = 4,
     double hSpacing = 16,
     double vSpacing = 12,
+    bool? removeEmpty,
   }) {
     return TKeyValueSection(
       key: key,
@@ -117,6 +124,7 @@ class TKeyValueSection extends StatelessWidget {
       gridCellGap: gap,
       gridHorizontalSpacing: hSpacing,
       gridVerticalSpacing: vSpacing,
+      removeEmpty: removeEmpty,
     );
   }
 
@@ -128,10 +136,11 @@ class TKeyValueSection extends StatelessWidget {
     int? columns,
     double? keyWidth,
     double? keyMaxWidth,
-    double gap = 8,
+    double gap = 16,
     Alignment? keyAlignment,
     double hSpacing = 24,
     double vSpacing = 12,
+    bool? removeEmpty,
   }) {
     return TKeyValueSection(
       key: key,
@@ -146,6 +155,7 @@ class TKeyValueSection extends StatelessWidget {
       inlineKeyAlignment: keyAlignment,
       gridHorizontalSpacing: hSpacing,
       gridVerticalSpacing: vSpacing,
+      removeEmpty: removeEmpty,
     );
   }
 
@@ -158,6 +168,7 @@ class TKeyValueSection extends StatelessWidget {
     double gap = 4,
     double hSpacing = 20,
     double vSpacing = 14,
+    bool? removeEmpty,
   }) {
     return TKeyValueSection(
       key: key,
@@ -169,6 +180,7 @@ class TKeyValueSection extends StatelessWidget {
       gridCellGap: gap,
       gridHorizontalSpacing: hSpacing,
       gridVerticalSpacing: vSpacing,
+      removeEmpty: removeEmpty,
     );
   }
 
@@ -180,6 +192,7 @@ class TKeyValueSection extends StatelessWidget {
     bool valueAfterKey = false,
     double gap = 8,
     double vSpacing = 10,
+    bool? removeEmpty,
   }) {
     return TKeyValueSection(
       key: key,
@@ -189,6 +202,7 @@ class TKeyValueSection extends StatelessWidget {
       valueAfterKey: valueAfterKey,
       gridCellGap: gap,
       gridVerticalSpacing: vSpacing,
+      removeEmpty: removeEmpty,
     );
   }
 
@@ -208,12 +222,22 @@ class TKeyValueSection extends StatelessWidget {
       gridHorizontalSpacing: gridHorizontalSpacing,
       gridVerticalSpacing: gridVerticalSpacing,
       gridCellGap: gridCellGap,
+      removeEmpty: removeEmpty,
+      selectable: selectable,
     );
+
+    final shouldRemoveEmpty = wTheme.removeEmpty;
+    final effectiveValues = shouldRemoveEmpty ? values.where((kv) => !kv.isEmptyValue).toList() : values;
+
+    if (effectiveValues.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     final isForceKeyValue = wTheme.forceKeyValue;
 
     if (isForceKeyValue) {
       return _KeyValueLayout(
-        values: values,
+        values: effectiveValues,
         theme: wTheme,
         colors: colors,
         valueAfterKey: valueAfterKey ?? false,
@@ -223,14 +247,14 @@ class TKeyValueSection extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth > wTheme.keyValueBreakPoint) {
         return _GridLayout(
-          values: values,
+          values: effectiveValues,
           theme: wTheme,
           colors: colors,
           maxWidth: constraints.maxWidth,
         );
       }
       return _KeyValueLayout(
-        values: values,
+        values: effectiveValues,
         theme: wTheme,
         colors: colors,
         valueAfterKey: valueAfterKey ?? false,
@@ -297,48 +321,54 @@ class _KeyValueLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveBottomSpacing = theme.gridInline ? (theme.narrowItemBottomSpacing / 2) : theme.narrowItemBottomSpacing;
-    return Padding(
-      padding: theme.narrowPadding,
-      child: Column(
-        children: [
-          for (int i = 0; i < values.length; i++)
-            Padding(
-              padding: EdgeInsets.only(
-                bottom: i < (values.length - 1) ? effectiveBottomSpacing : 0,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (values[i].icon != null) ...[
-                    values[i].icon!,
-                    const SizedBox(width: 8),
-                  ],
-                  if (valueAfterKey) ...[
-                    Text(values[i].key, style: theme.keyStyle).when(!values[i].key.isNullOrBlank),
-                    const SizedBox(width: 8).when(!values[i].key.isNullOrBlank),
-                    Flexible(
+    Widget content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (int i = 0; i < values.length; i++)
+          Padding(
+            padding: EdgeInsets.only(
+              bottom: i < (values.length - 1) ? effectiveBottomSpacing : 0,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (values[i].icon != null) ...[
+                  values[i].icon!,
+                  const SizedBox(width: 8),
+                ],
+                if (valueAfterKey) ...[
+                  Text(values[i].key, style: theme.keyStyle).when(!values[i].key.isNullOrBlank),
+                  const SizedBox(width: 8).when(!values[i].key.isNullOrBlank),
+                  Flexible(
+                    child: _CellContent(kv: values[i], theme: theme),
+                  ),
+                ] else ...[
+                  Expanded(
+                    flex: theme.narrowKeyFlex,
+                    child: Text(values[i].key, style: theme.keyStyle),
+                  ).when(!values[i].key.isNullOrBlank),
+                  SizedBox(width: theme.narrowGap).when(!values[i].key.isNullOrBlank),
+                  Expanded(
+                    flex: theme.narrowValueFlex,
+                    child: Align(
+                      alignment: values[i].alignment ?? Alignment.topRight,
                       child: _CellContent(kv: values[i], theme: theme),
                     ),
-                  ] else ...[
-                    Expanded(
-                      flex: theme.narrowKeyFlex,
-                      child: Text(values[i].key, style: theme.keyStyle),
-                    ).when(!values[i].key.isNullOrBlank),
-                    SizedBox(width: theme.narrowGap).when(!values[i].key.isNullOrBlank),
-                    Expanded(
-                      flex: theme.narrowValueFlex,
-                      child: Align(
-                        alignment: values[i].alignment ?? Alignment.topRight,
-                        child: _CellContent(kv: values[i], theme: theme),
-                      ),
-                    ),
-                  ],
+                  ),
                 ],
-              ),
+              ],
             ),
-        ],
-      ),
+          ),
+      ],
     );
+
+    if (theme.narrowPadding != EdgeInsets.zero) {
+      return Padding(
+        padding: theme.narrowPadding,
+        child: content,
+      );
+    }
+    return content;
   }
 }
 
@@ -589,48 +619,52 @@ class _GridCell extends StatelessWidget {
       }
     }
 
-    return Container(
-      padding: inlinePadding,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (keyWidget != null) ...[
-            keyWidget,
-            SizedBox(width: theme.inlineKeyGap),
-          ],
-          Expanded(
-            child: Align(
-              alignment: kv.alignment ?? Alignment.topLeft,
-              child: _CellContent(kv: kv, theme: theme),
-            ),
-          ),
+    Widget cell = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (keyWidget != null) ...[
+          keyWidget,
+          SizedBox(width: theme.inlineKeyGap),
         ],
-      ),
+        Expanded(
+          child: Align(
+            alignment: kv.alignment ?? Alignment.topLeft,
+            child: _CellContent(kv: kv, theme: theme),
+          ),
+        ),
+      ],
     );
+
+    if (inlinePadding != EdgeInsets.zero) {
+      return Padding(padding: inlinePadding, child: cell);
+    }
+    return cell;
   }
 
   Widget _buildStackedCell() {
-    return Container(
-      padding: theme.gridCellPadding,
-      child: Column(
-        crossAxisAlignment: (kv.alignment ?? theme.alignment).colCrossAxis,
-        mainAxisAlignment: (kv.alignment ?? theme.alignment).colMainAxis,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (!kv.key.isNullOrBlank)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (kv.icon != null) ...[kv.icon!, const SizedBox(width: _kIconGap)],
-                Text(kv.key, style: theme.labelStyle),
-              ],
-            ),
-          if (!kv.key.isNullOrBlank) SizedBox(height: theme.gridCellGap + (kv.widget != null ? 2 : 0)),
-          _CellContent(kv: kv, theme: theme),
-        ],
-      ),
+    Widget cell = Column(
+      crossAxisAlignment: (kv.alignment ?? theme.alignment).colCrossAxis,
+      mainAxisAlignment: (kv.alignment ?? theme.alignment).colMainAxis,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (!kv.key.isNullOrBlank)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (kv.icon != null) ...[kv.icon!, const SizedBox(width: _kIconGap)],
+              Text(kv.key, style: theme.labelStyle),
+            ],
+          ),
+        if (!kv.key.isNullOrBlank) SizedBox(height: theme.gridCellGap + (kv.widget != null ? 2 : 0)),
+        _CellContent(kv: kv, theme: theme),
+      ],
     );
+
+    if (theme.gridCellPadding != EdgeInsets.zero) {
+      return Padding(padding: theme.gridCellPadding, child: cell);
+    }
+    return cell;
   }
 }
 
@@ -643,7 +677,10 @@ class _CellContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (kv.widget != null) return kv.widget!;
-    return SelectableText(kv.value ?? '', style: theme.valueStyle);
+    if (theme.selectable) {
+      return SelectableText(kv.value ?? '', style: theme.valueStyle);
+    }
+    return Text(kv.value ?? '', style: theme.valueStyle);
   }
 }
 

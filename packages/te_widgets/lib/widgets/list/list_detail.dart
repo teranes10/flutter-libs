@@ -50,6 +50,66 @@ class TListDetail<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Placeholder text for the search field. Defaults to 'Search...'.
   final String searchPlaceholder;
 
+  /// The horizontal gap/spacing between the sidebar card and detail card in split layout.
+  /// Defaults to 12.0.
+  final double gap;
+
+  /// Optional padding around the split layout.
+  final EdgeInsetsGeometry? padding;
+
+  /// Default border radius for both cards in split layout.
+  /// Defaults to `BorderRadius.circular(16)`.
+  final BorderRadius? borderRadius;
+
+  /// Default shadow for both cards in split layout.
+  /// Defaults to a modern subtle elevation shadow.
+  final List<BoxShadow>? shadow;
+
+  /// Default border color for both cards in split layout.
+  /// Defaults to `colors.outlineVariant.o(0.5)`.
+  final Color? borderColor;
+
+  /// Custom border radius override for the items sidebar panel in split layout.
+  final BorderRadius? sidebarBorderRadius;
+
+  /// Custom shadow override for the items sidebar panel in split layout.
+  final List<BoxShadow>? sidebarShadow;
+
+  /// Custom border color override for the items sidebar panel in split layout.
+  final Color? sidebarBorderColor;
+
+  /// Custom border radius override for the detail pane in split layout.
+  final BorderRadius? detailBorderRadius;
+
+  /// Custom shadow override for the detail pane in split layout.
+  final List<BoxShadow>? detailShadow;
+
+  /// Custom border color override for the detail pane in split layout.
+  final Color? detailBorderColor;
+
+  /// Optional background color for the floating cards.
+  /// Defaults to [ColorScheme.surface] when null.
+  final Color? cardBackgroundColor;
+
+  /// Optional background color for the container behind the cards.
+  /// Defaults to [ColorScheme.surface] when null.
+  final Color? backgroundColor;
+
+  /// Optional custom builder for the empty state when no item is selected.
+  final WidgetBuilder? emptyBuilder;
+
+  /// Optional icon to display in the default empty state.
+  /// Defaults to [Icons.touch_app_outlined].
+  final IconData? emptyIcon;
+
+  /// Optional title text in the default empty state.
+  /// Defaults to 'No item selected'.
+  final String? emptyTitle;
+
+  /// Optional description text in the default empty state.
+  /// Defaults to 'Select an item from the list to view its details'.
+  final String? emptyDescription;
+
   // TListMixin implementation properties
   @override
   final List<T>? items;
@@ -91,6 +151,23 @@ class TListDetail<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.minSideExpandWidth = 700.0,
     this.showSearch = true,
     this.searchPlaceholder = 'Search...',
+    this.gap = 0.0,
+    this.padding,
+    this.borderRadius,
+    this.shadow,
+    this.borderColor,
+    this.sidebarBorderRadius,
+    this.sidebarShadow,
+    this.sidebarBorderColor,
+    this.detailBorderRadius,
+    this.detailShadow,
+    this.detailBorderColor,
+    this.cardBackgroundColor,
+    this.backgroundColor,
+    this.emptyBuilder,
+    this.emptyIcon,
+    this.emptyTitle,
+    this.emptyDescription,
     // List Config
     this.items,
     this.itemsPerPage,
@@ -123,6 +200,8 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor(colors.surface);
+    final effectiveCardBg = widget.cardBackgroundColor ?? effectiveBg;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -130,51 +209,85 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
 
         return TListScope(
           controller: listController,
-          child: ListenableBuilder(
-            listenable: listController,
-            builder: (context, _) {
-              final val = listController.value;
-              final isCreating = val.isCreatingItem;
-              final isEditing = val.isEditingItem;
-              
-              // We check both activeKey and expandedDetailKey for the active selected item
-              final activeKey = val.activeKey ?? val.expandedDetailKey;
-              final TListItem<T, K>? activeItem = activeKey != null ? listController.getItem(activeKey) : null;
-              final activeIndex = activeItem != null ? val.displayItems.indexWhere((x) => x.key == activeItem.key) : -1;
+          child: Container(
+            color: effectiveBg,
+            child: TBackgroundColorScope(
+              backgroundColor: effectiveBg,
+              child: ListenableBuilder(
+                listenable: listController,
+                builder: (context, _) {
+                  final val = listController.value;
+                  final isCreating = val.isCreatingItem;
+                  final isEditing = val.isEditingItem;
 
-              final hasDetailTarget = isCreating || isEditing || activeItem != null;
+                  // We check both activeKey and expandedDetailKey for the active selected item
+                  final activeKey = val.activeKey ?? val.expandedDetailKey;
+                  final TListItem<T, K>? activeItem = activeKey != null ? listController.getItem(activeKey) : null;
+                  final activeIndex = activeItem != null ? val.displayItems.indexWhere((x) => x.key == activeItem.key) : -1;
 
-              if (showSplitLayout) {
-                return Row(
-                  key: const ValueKey('list_detail_split_layout'),
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SizedBox(
-                      width: widget.sideListWidth,
-                      child: _buildSidebar(context, colors),
-                    ),
-                    VerticalDivider(width: 1, thickness: 1, color: colors.outlineVariant),
-                    Expanded(
-                      child: _buildDetailPane(context, colors, activeItem, activeIndex, isCreating, isEditing, true),
-                    ),
-                  ],
-                );
-              } else {
-                // Mobile layout: stack/single pane view
-                if (hasDetailTarget) {
-                  return _buildDetailPane(context, colors, activeItem, activeIndex, isCreating, isEditing, false);
-                } else {
-                  return _buildSidebar(context, colors);
-                }
-              }
-            },
+                  final hasDetailTarget = isCreating || isEditing || activeItem != null;
+
+                  Widget layoutWidget;
+                  if (showSplitLayout) {
+                    layoutWidget = Row(
+                      key: const ValueKey('list_detail_split_layout'),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          width: widget.sideListWidth,
+                          child: _buildSidebar(context, colors, effectiveCardBg, true),
+                        ),
+                        SizedBox(width: widget.gap),
+                        Expanded(
+                          child: _buildDetailPane(
+                            context,
+                            colors,
+                            effectiveCardBg,
+                            activeItem,
+                            activeIndex,
+                            isCreating,
+                            isEditing,
+                            true,
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    // Mobile layout: stack/single pane view
+                    if (hasDetailTarget) {
+                      layoutWidget = _buildDetailPane(
+                        context,
+                        colors,
+                        effectiveCardBg,
+                        activeItem,
+                        activeIndex,
+                        isCreating,
+                        isEditing,
+                        false,
+                      );
+                    } else {
+                      layoutWidget = _buildSidebar(context, colors, effectiveCardBg, false);
+                    }
+                  }
+
+                  if (widget.padding != null) {
+                    return Padding(
+                      padding: widget.padding!,
+                      child: layoutWidget,
+                    );
+                  }
+
+                  return layoutWidget;
+                },
+              ),
+            ),
           ),
         );
       },
     );
   }
 
-  Widget _buildSidebar(BuildContext context, ColorScheme colors) {
+  Widget _buildSidebar(BuildContext context, ColorScheme colors, Color effectiveCardBg, bool isSplit) {
     final listWidget = TList<T, K>(
       controller: listController,
       shrinkWrap: false,
@@ -197,13 +310,13 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
           },
     );
 
-    return Column(
+    final sidebarContent = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (widget.sidebarHeaderBuilder != null) widget.sidebarHeaderBuilder!(context),
         if (widget.showSearch)
           Padding(
-            padding: const EdgeInsets.only(bottom: 12, right: 12, left: 12, top: 8),
+            padding: const EdgeInsets.only(bottom: 12, right: 12, top: 12),
             child: Row(
               children: [
                 Expanded(
@@ -237,69 +350,142 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
         if (widget.sidebarFooterBuilder != null) widget.sidebarFooterBuilder!(context),
       ],
     );
+
+    if (!isSplit) {
+      return Container(
+        color: effectiveCardBg,
+        child: sidebarContent,
+      );
+    }
+
+    return sidebarContent;
+  }
+
+  Widget _buildEmptyState(BuildContext context, ColorScheme colors) {
+    if (widget.emptyBuilder != null) {
+      return widget.emptyBuilder!(context);
+    }
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerHighest.o(0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                widget.emptyIcon ?? Icons.touch_app_outlined,
+                size: 28,
+                color: colors.onSurfaceVariant.o(0.8),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              widget.emptyTitle ?? 'No item selected',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: colors.onSurface,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              widget.emptyDescription ?? 'Select an item from the list to view its details',
+              style: TextStyle(
+                fontSize: 13,
+                color: colors.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildDetailPane(
     BuildContext context,
     ColorScheme colors,
+    Color effectiveCardBg,
     TListItem<T, K>? item,
     int index,
     bool isCreating,
     bool isEditing,
     bool isSplit,
   ) {
+    Widget content;
     if (!isCreating && !isEditing && item == null) {
-      return Container(
-        color: colors.surface,
-        child: Center(
-          child: Text(
-            'Select an item to view details',
-            style: TextStyle(color: colors.onSurfaceVariant),
-          ),
-        ),
+      content = _buildEmptyState(context, colors);
+    } else {
+      Widget bodyContent;
+      if (isCreating) {
+        bodyContent = widget.createBuilder?.call(context) ?? const SizedBox.shrink();
+      } else if (isEditing && widget.editBuilder != null) {
+        bodyContent = widget.editBuilder!(context, item!, index);
+      } else {
+        bodyContent = widget.detailBuilder(context, item!, index);
+      }
+
+      final title = isCreating ? 'Create' : (isEditing ? 'Edit' : (item != null ? widget.itemTitle?.call(item.data) : null));
+      final subTitle = (isCreating || item == null) ? null : widget.itemSubTitle?.call(item.data);
+      final imageUrl = (isCreating || item == null) ? null : widget.itemImageUrl?.call(item.data);
+
+      final actions = (!isCreating && !isEditing && item != null) ? widget.actions?.call(item.data) : null;
+
+      content = TPageWrapper(
+        backgroundColor: effectiveCardBg,
+        title: title,
+        subTitle: subTitle,
+        imageUrl: imageUrl,
+        actions: actions,
+        onBackPressed: () {
+          final tableScope = TTableScope.maybeOf(context);
+          if (tableScope != null) {
+            tableScope.close(context);
+          } else if (isCreating) {
+            listController.cancelCreateItem();
+          } else if (isEditing) {
+            listController.cancelEditItem();
+          } else {
+            listController.collapseDetail();
+            listController.collapseAll();
+          }
+        },
+        child: bodyContent,
       );
     }
 
-    Widget content;
-    if (isCreating) {
-      content = widget.createBuilder?.call(context) ?? const SizedBox.shrink();
-    } else if (isEditing && widget.editBuilder != null) {
-      content = widget.editBuilder!(context, item!, index);
-    } else {
-      content = widget.detailBuilder(context, item!, index);
+    if (!isSplit) {
+      return Container(
+        color: effectiveCardBg,
+        child: content,
+      );
     }
 
-    final title = isCreating
-        ? 'Create'
-        : (isEditing ? 'Edit' : (item != null ? widget.itemTitle?.call(item.data) : null));
-    final subTitle = (isCreating || item == null) ? null : widget.itemSubTitle?.call(item.data);
-    final imageUrl = (isCreating || item == null) ? null : widget.itemImageUrl?.call(item.data);
-
-    final actions = (!isCreating && !isEditing && item != null) ? widget.actions?.call(item.data) : null;
-
-    final background = context.getBackgroundColor(colors.surface);
-    final wrapperBackground = isSplit ? background.adaptiveContrast(context, 0.01) : background;
+    final effectiveRadius = widget.detailBorderRadius ?? widget.borderRadius ?? BorderRadius.circular(16);
+    final effectiveBorderColor = widget.detailBorderColor ?? widget.borderColor ?? colors.outlineVariant.o(0.5);
 
     return Container(
-      color: wrapperBackground,
-      child: TBackgroundColorScope(
-        backgroundColor: wrapperBackground,
-        child: TPageWrapper(
-          title: title,
-          subTitle: subTitle,
-          imageUrl: imageUrl,
-          actions: actions,
-          onBackPressed: () {
-            if (isCreating) {
-              listController.cancelCreateItem();
-            } else if (isEditing) {
-              listController.cancelEditItem();
-            } else {
-              listController.collapseAll();
-            }
-          },
-          child: content,
+      margin: EdgeInsets.only(right: 6),
+      decoration:
+          BoxDecoration(color: effectiveCardBg, borderRadius: effectiveRadius, border: Border.all(color: effectiveBorderColor), boxShadow: [
+        BoxShadow(
+          blurRadius: 6,
+          spreadRadius: 0,
+          color: colors.shadow,
+          offset: Offset(-2, 0),
         ),
+      ]),
+      child: ClipRRect(
+        borderRadius: effectiveRadius,
+        child: content,
       ),
     );
   }

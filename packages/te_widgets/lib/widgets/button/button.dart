@@ -90,8 +90,9 @@ class TButton extends StatefulWidget {
 
   /// The icon to display in the button.
   ///
+  /// Supports [IconData], [List<List<dynamic>>] (HugeIcon), or [Widget].
   /// Cannot be used together with [imageUrl].
-  final IconData? icon;
+  final dynamic icon;
 
   /// The URL of an image to display in the button.
   ///
@@ -136,13 +137,17 @@ class TButton extends StatefulWidget {
 
   /// The icon to display when the button is active.
   ///
+  /// Supports [IconData], [List<List<dynamic>>] (HugeIcon), or [Widget].
   /// Falls back to [icon] if not provided.
-  final IconData? activeIcon;
+  final dynamic activeIcon;
 
   /// The color to use when the button is active.
   ///
   /// Falls back to [color] if not provided.
   final Color? activeColor;
+
+  /// Rotation turns (initial, active) for animation when active state changes.
+  final (double initial, double active)? turns;
 
   /// Whether to show a checkmark tick when the button is active.
   final bool showTick;
@@ -208,6 +213,7 @@ class TButton extends StatefulWidget {
     this.active = false,
     this.activeIcon,
     this.activeColor,
+    this.turns,
     this.showTick = false,
     this.tickAlignment = Alignment.topRight,
     this.tickWidget,
@@ -360,6 +366,8 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
 
     assert(theme.shape != TButtonShape.circle || text.isNullOrBlank, 'Circle shape only supports icon, no text.');
 
+    final hasIcon = icon != null;
+
     final contentChildren = [
       if (_isLoading)
         SizedBox(
@@ -370,12 +378,30 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             valueColor: AlwaysStoppedAnimation(theme.baseTheme.foregroundState.resolve(_statesController.value)),
           ),
         )
-      else if (icon != null)
-        AnimatedSwitcher(
-          duration: widget.duration,
-          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-          child: Icon(key: ValueKey(_isActive), icon, size: size.icon),
-        )
+      else if (hasIcon)
+        widget.turns != null
+            ? TIcon(
+                icon: widget.icon,
+                activeIcon: widget.activeIcon,
+                active: _isActive,
+                size: size.icon,
+                padding: EdgeInsets.zero,
+                color: theme.baseTheme.foregroundState.resolve(_statesController.value),
+                turns: widget.turns,
+                animationMilliseconds: widget.duration.inMilliseconds,
+              )
+            : AnimatedSwitcher(
+                duration: widget.duration,
+                transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                child: TIcon(
+                  key: ValueKey(_isActive),
+                  icon: icon,
+                  size: size.icon,
+                  padding: EdgeInsets.zero,
+                  color: theme.baseTheme.foregroundState.resolve(_statesController.value),
+                  animationMilliseconds: widget.duration.inMilliseconds,
+                ),
+              )
       else if (widget.imageUrl != null)
         if (theme.shape == TButtonShape.normal)
           TImage(
@@ -399,7 +425,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
                 builder: (context, value, _) => Text(value),
               )
             : Text(_isLoading ? widget.loadingText : text!),
-      if ((icon != null || widget.imageUrl != null) && !text.isNullOrBlank && theme.shape == TButtonShape.pill)
+      if ((hasIcon || widget.imageUrl != null) && !text.isNullOrBlank && theme.shape == TButtonShape.pill)
         SizedBox(width: theme.size.spacing),
       if (widget.child != null) widget.child!,
     ];

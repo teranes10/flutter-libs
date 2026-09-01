@@ -86,7 +86,7 @@ class TabRenderer<T> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (tab.icon != null) ...[
-          Icon(tab.icon, size: 16, color: color),
+          TIcon.raw(tab.icon, size: 16, color: color),
           if (tab.text != null) const SizedBox(width: 8),
         ],
         if (tab.text != null)
@@ -123,7 +123,7 @@ class TabRenderer<T> {
     return Column(
       children: [
         if (tab.icon != null) ...[
-          Icon(tab.icon, size: 16, color: color),
+          TIcon.raw(tab.icon, size: 16, color: color),
           if (tab.text != null && showText) const SizedBox(height: 4),
         ],
         if (tab.text != null && showText)

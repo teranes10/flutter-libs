@@ -30,7 +30,7 @@ class TTimelineIndicator extends StatelessWidget {
   final Widget? icon;
 
   /// Optional [IconData] shorthand for [icon].
-  final IconData? iconData;
+  final dynamic iconData;
 
   /// Size of the icon. Defaults to `size * 0.44`.
   final double? iconSize;
@@ -108,8 +108,7 @@ class TTimelineIndicator extends StatelessWidget {
     final wTheme = context.getWidgetTheme(variant, resolvedColor);
 
     // Resolve outer ring color
-    final resolvedRingColor =
-        ringColor ?? (isActive || isCompleted || color != null ? resolvedColor : colors.outlineVariant);
+    final resolvedRingColor = ringColor ?? (isActive || isCompleted || color != null ? resolvedColor : colors.outlineVariant);
 
     // Resolve inner circle background and icon colors based on variant
     final resolvedInnerBg = innerColor ?? (wTheme.container.isTransparent ? colors.surface : wTheme.container);
@@ -125,9 +124,9 @@ class TTimelineIndicator extends StatelessWidget {
           child: icon!,
         );
       } else if (iconData != null) {
-        contentWidget = Icon(iconData, size: resolvedIconSize, color: resolvedFg);
+        contentWidget = TIcon.raw(iconData, size: resolvedIconSize, color: resolvedFg);
       } else if (isCompleted && !isDot) {
-        contentWidget = Icon(Icons.check, size: resolvedIconSize, color: resolvedFg);
+        contentWidget = TIcon.raw(HugeIcons.strokeRoundedTick01, size: resolvedIconSize, color: resolvedFg);
       } else if (isDot) {
         final dotSize = (size - 2 * (ringWidth + ringGap)) * 0.5;
         contentWidget = Center(

@@ -255,16 +255,16 @@ class _TPageWrapperState extends State<TPageWrapper> {
                     duration: const Duration(milliseconds: 200),
                     curve: Curves.easeInOut,
                     child: Container(
-                      height: 8,
+                      height: 1,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withAlpha(isDark ? 55 : 25),
-                            Colors.transparent,
-                          ],
-                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: colors.shadow.withAlpha(isDark ? 80 : 35),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -286,16 +286,16 @@ class _TPageWrapperState extends State<TPageWrapper> {
                     duration: const Duration(milliseconds: 200),
                     curve: Curves.easeInOut,
                     child: Container(
-                      height: 8,
+                      height: 1,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Colors.black.withAlpha(isDark ? 55 : 25),
-                            Colors.transparent,
-                          ],
-                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: colors.shadow.withAlpha(isDark ? 80 : 35),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                            offset: const Offset(0, -3),
+                          ),
+                        ],
                       ),
                     ),
                   ),

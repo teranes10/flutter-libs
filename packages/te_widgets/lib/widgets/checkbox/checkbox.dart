@@ -256,7 +256,7 @@ class _TCheckboxState<T> extends State<TCheckbox>
             message: widget.info!,
             color: colors.onSurfaceVariant,
             triggerMode: TTooltipTriggerMode.adaptive,
-            child: Icon(Icons.info_outline, size: 16, color: colors.onSurfaceVariant.withAlpha(200)),
+            child: TIcon.raw(HugeIcons.strokeRoundedInformationCircle, size: 14, color: colors.onSurfaceVariant.withAlpha(200)),
           ),
         ],
       ],

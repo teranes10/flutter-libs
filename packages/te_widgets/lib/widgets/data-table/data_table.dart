@@ -167,6 +167,9 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
+  /// Whether text within the table is selectable. Defaults to true.
+  final bool selectableText;
+
   /// Creates a data table component.
   const TDataTable({
     super.key,
@@ -183,6 +186,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.onControllerReady,
     //Details
     this.details,
+    this.selectableText = true,
     //DataTable
     this.paginationTotalVisible = 7,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
@@ -275,6 +279,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
         rowBuilder: widget.rowBuilder,
         rowColorBuilder: widget.rowColorBuilder,
         beforeItemsBuilder: widget.beforeItemsBuilder,
+        selectableText: widget.selectableText,
       );
     });
   }

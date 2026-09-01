@@ -349,7 +349,7 @@ class TInputFieldTheme {
       triggerMode: TTooltipTriggerMode.adaptive,
       child: Padding(
         padding: const EdgeInsets.only(left: 4),
-        child: Icon(Icons.info_outline, size: 16, color: colors.onSurfaceVariant.withAlpha(200)),
+        child: TIcon.raw(HugeIcons.strokeRoundedInformationCircle, size: 14, color: colors.onSurfaceVariant.withAlpha(200)),
       ),
     );
   }
@@ -377,8 +377,8 @@ class TInputFieldTheme {
   Widget _buildPaddedWidget(Widget widget, {required bool isPrefix}) {
     return Padding(
       padding: EdgeInsets.only(
-        left: isPrefix ? fieldPadding.left : 0,
-        right: isPrefix ? 0 : fieldPadding.right,
+        left: isPrefix ? fieldPadding.left : fieldPadding.left * 0.5,
+        right: isPrefix ? fieldPadding.right * 0.5 : fieldPadding.right,
       ),
       child: widget,
     );

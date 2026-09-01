@@ -372,8 +372,8 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
           notifyValueChanged([]);
         },
         child: buildTagsField(onInputChanged: widget.filterable && isPopupShowing ? listController.handleSearchChange : null, onTap: onTap),
-        beforePostWidget:
-            Icon(isPopupShowing ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, size: 16, color: colors.onSurfaceVariant),
+        beforePostWidget: TIcon.raw(isPopupShowing ? HugeIcons.strokeRoundedArrowUp01 : HugeIcons.strokeRoundedArrowDown01,
+            size: 16, color: colors.onSurfaceVariant),
         onTap: onTap,
       ),
     );

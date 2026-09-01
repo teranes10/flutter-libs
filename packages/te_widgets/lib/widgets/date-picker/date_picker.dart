@@ -182,7 +182,7 @@ class _TDatePickerState extends State<TDatePicker>
     return buildWithDropdownTarget(
       child: buildTextField(
         hasValue: currentValue != null,
-        beforePreWidget: Icon(Icons.calendar_today_rounded, size: 16, color: colors.onSurfaceVariant),
+        beforePreWidget: TIcon.raw(HugeIcons.strokeRoundedCalendar04, size: 16, color: colors.onSurfaceVariant),
         onClear: () {
           _onDateSelected(null);
         },

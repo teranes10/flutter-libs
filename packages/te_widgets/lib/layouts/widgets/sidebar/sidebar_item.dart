@@ -259,7 +259,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
                   color: isCurrentRoute ? widget.theme.activeBackgroundColor : colors.surfaceContainerHigh,
                 ),
                 child: widget.item.icon != null
-                    ? Icon(widget.item.icon, size: widget.theme.iconSize, color: color)
+                    ? TIcon(icon: widget.item.icon, size: widget.theme.iconSize, color: color)
                     : const SizedBox.shrink(),
               ),
             ),
@@ -296,7 +296,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        if (widget.item.icon != null) Icon(widget.item.icon, size: widget.theme.iconSize, color: color),
+        if (widget.item.icon != null) TIcon(icon: widget.item.icon, size: widget.theme.iconSize, color: color),
         if (widget.item.text != null) ...[
           const SizedBox(width: 8),
           Expanded(
@@ -326,7 +326,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
       builder: (context, child) {
         return Transform.rotate(
           angle: _rotationAnimation.value * 3.14159,
-          child: Icon(widget.theme.expandIcon ?? Icons.expand_more, size: widget.theme.expandIconSize, color: color),
+          child: TIcon.raw(widget.theme.expandIcon ?? HugeIcons.strokeRoundedArrowDown01, size: widget.theme.expandIconSize, color: color),
         );
       },
     );

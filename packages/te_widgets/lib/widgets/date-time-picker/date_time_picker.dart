@@ -230,8 +230,8 @@ class _TDateTimePickerState extends State<TDateTimePicker>
               tabPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               borderColor: colors.outline,
               tabs: [
-                TTab(icon: Icons.calendar_today, text: 'Date', isActive: _selectedDate != null, value: 0),
-                TTab(icon: Icons.access_time, text: 'Time', value: 1),
+                TTab(icon: HugeIcons.strokeRoundedCalendar04, text: 'Date', isActive: _selectedDate != null, value: 0),
+                TTab(icon: HugeIcons.strokeRoundedClock01, text: 'Time', value: 1),
               ],
               selectedValue: _currentTabIndex,
               onTabChanged: _onTabChanged,
@@ -259,7 +259,7 @@ class _TDateTimePickerState extends State<TDateTimePicker>
     return buildWithDropdownTarget(
       child: buildTextField(
         hasValue: currentValue != null,
-        beforePreWidget: Icon(Icons.calendar_today_rounded, size: 16, color: colors.onSurfaceVariant),
+        beforePreWidget: TIcon.raw(HugeIcons.strokeRoundedDateTime, size: 16, color: colors.onSurfaceVariant),
         onClear: () {
           setState(() {
             _selectedDate = null;

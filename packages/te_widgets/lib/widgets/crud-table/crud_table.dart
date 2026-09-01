@@ -169,19 +169,19 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   final double? createSideOverlayWidth;
 
   /// Function to extract the title from an item.
-  final String? Function(T item)? itemTitle;
+  final String? Function(T x)? itemTitle;
 
   /// Function to extract the sub-title from an item.
-  final String? Function(T item)? itemSubTitle;
+  final String? Function(T x)? itemSubTitle;
 
   /// Function to extract the description from an item.
-  final String? Function(T item)? itemDescription;
+  final String? Function(T x)? itemDescription;
 
   /// Function to extract the image URL from an item.
-  final String? Function(T item)? itemImageUrl;
+  final String? Function(T x)? itemImageUrl;
 
   /// Function to extract key-value information from an item.
-  final List<TKeyValue>? Function(T item)? itemInfo;
+  final List<TKeyValue>? Function(T x)? itemInfo;
 
   /// Whether to display key and value inline in grid layout (Key: Value) for itemInfo. Defaults to true.
   final bool itemInfoGridInline;
@@ -267,8 +267,6 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   final GlobalKey _dropdownListKey = GlobalKey();
   Offset _lastPointerPosition = Offset.zero;
 
-
-
   void _reconcileHeaders(List<String> restoredOrder, Map<String, bool> restoredVisibility) {
     final widgetHeaderTexts = widget.headers.map((h) => h.text).toList();
     final newOrder = <String>[];
@@ -287,7 +285,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     for (final text in widgetHeaderTexts) {
       newVisibility[text] = restoredVisibility[text] ?? true;
     }
-    
+
     _listController.updateColumns(newOrder, newVisibility);
     _archiveListController.updateColumns(newOrder, newVisibility);
   }
@@ -340,16 +338,14 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   }
 
   double? _dialogWidth;
-  double get effectiveDialogWidth =>
-      _dialogWidth ?? widget.expandedDetails?.dialogWidth ?? widget.dialogWidth ?? 800.0;
+  double get effectiveDialogWidth => _dialogWidth ?? widget.expandedDetails?.dialogWidth ?? widget.dialogWidth ?? 800.0;
   set dialogWidth(double value) {
     setState(() => _dialogWidth = value);
     _debouncedPersistRouteSettings();
   }
 
   double? _sideOverlayWidth;
-  double get effectiveSideOverlayWidth =>
-      _sideOverlayWidth ?? widget.expandedDetails?.sideOverlayWidth ?? widget.sideOverlayWidth ?? 500.0;
+  double get effectiveSideOverlayWidth => _sideOverlayWidth ?? widget.expandedDetails?.sideOverlayWidth ?? widget.sideOverlayWidth ?? 650.0;
   set sideOverlayWidth(double value) {
     setState(() => _sideOverlayWidth = value);
     _debouncedPersistRouteSettings();
@@ -365,7 +361,10 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
   double? _createSideOverlayWidth;
   double get effectiveCreateSideOverlayWidth =>
-      _createSideOverlayWidth ?? widget.expandedDetails?.createSideOverlayWidth ?? widget.createSideOverlayWidth ?? effectiveSideOverlayWidth;
+      _createSideOverlayWidth ??
+      widget.expandedDetails?.createSideOverlayWidth ??
+      widget.createSideOverlayWidth ??
+      effectiveSideOverlayWidth;
   set createSideOverlayWidth(double value) {
     setState(() => _createSideOverlayWidth = value);
     _debouncedPersistRouteSettings();

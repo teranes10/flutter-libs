@@ -133,8 +133,8 @@ class _TDateTimeTextFieldState<T extends String?> extends State<TDateTimeTextFie
         textController.text = widget.formatType.placeholder;
         notifyValueChanged((null is T ? null : '') as T);
       },
-      beforePreWidget: Icon(
-        widget.formatType == TDateTimeFormatType.time ? Icons.access_time : Icons.calendar_today,
+      beforePreWidget: TIcon.raw(
+        widget.formatType == TDateTimeFormatType.time ? HugeIcons.strokeRoundedClock01 : HugeIcons.strokeRoundedCalendar04,
         size: 16,
         color: colors.onSurfaceVariant,
       ),

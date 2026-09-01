@@ -38,8 +38,17 @@ class TTableMobileCard<T, K> extends StatelessWidget {
   /// Content to show when expanded.
   final Widget? expandedContent;
 
+  /// The expansion mode for details (bottom, side, dialog, page).
+  final TTableExpansionMode expansionMode;
+
   /// Whether expansion happens on the side.
   final bool expandSide;
+
+  /// Custom icon for collapsed state.
+  final dynamic expandIcon;
+
+  /// Custom icon for expanded state.
+  final dynamic collapseIcon;
 
   //selectable
   /// Whether the card is selectable.
@@ -50,6 +59,9 @@ class TTableMobileCard<T, K> extends StatelessWidget {
 
   /// Callback when selection toggles.
   final VoidCallback? onSelectionChanged;
+
+  /// Callback when card is tapped.
+  final VoidCallback? onTap;
 
   /// Custom background color for the card.
   final Color? backgroundColor;
@@ -69,19 +81,41 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     this.isDetailExpanded = false,
     this.onExpansionChanged,
     this.expandedContent,
+    this.expansionMode = TTableExpansionMode.bottom,
     this.expandSide = false,
+    this.expandIcon,
+    this.collapseIcon,
 
     //selectable
     this.selectable = false,
     this.isSelected = false,
     this.onSelectionChanged,
+    this.onTap,
     this.backgroundColor,
   });
+
+  dynamic _getDetailExpandIcon(TTableExpansionMode mode, bool isExpanded) {
+    if (isExpanded && collapseIcon != null) return collapseIcon;
+    if (!isExpanded && expandIcon != null) return expandIcon;
+
+    switch (mode) {
+      case TTableExpansionMode.dialog:
+        return isExpanded ? HugeIcons.strokeRoundedCancel01 : HugeIcons.strokeRoundedArrowUp02;
+      case TTableExpansionMode.sideOverlay:
+        return isExpanded ? HugeIcons.strokeRoundedCancel01 : HugeIcons.strokeRoundedArrowUpRight01;
+      case TTableExpansionMode.side:
+        return isExpanded ? HugeIcons.strokeRoundedArrowLeft01 : HugeIcons.strokeRoundedArrowRight01;
+      case TTableExpansionMode.page:
+        return isExpanded ? HugeIcons.strokeRoundedCancel01 : HugeIcons.strokeRoundedLinkForward;
+      case TTableExpansionMode.bottom:
+        return isExpanded ? HugeIcons.strokeRoundedArrowUp01 : HugeIcons.strokeRoundedArrowDown01;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final wTheme = theme ?? context.theme.tableTheme.mobileCardTheme;
+    final wTheme = theme ?? TTableScope.maybeOf(context)?.theme?.mobileCardTheme ?? context.theme.tableTheme.mobileCardTheme;
 
     final states = <WidgetState>{if (isSelected) WidgetState.selected};
     final themeBgColor = wTheme.backgroundColor.resolve(states);
@@ -100,7 +134,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     final mappedKeyValues = TKeyValue.mapHeaders(context, headers, item, index);
     if (isTreeMode && mappedKeyValues.isNotEmpty) {
       final firstKv = mappedKeyValues.first;
-      final originalWidget = firstKv.widget ?? SelectableText(firstKv.value ?? '', style: wTheme.valueStyle);
+      final originalWidget = firstKv.widget ?? Text(firstKv.value ?? '', style: wTheme.valueStyle);
       mappedKeyValues[0] = TKeyValue(
         firstKv.key,
         widget: Row(
@@ -111,7 +145,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
               Builder(builder: (ctx) {
                 final isTreeExpanded = controller?.isExpanded(item.key) ?? false;
                 return TIcon(
-                  icon: isTreeExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
+                  icon: isTreeExpanded ? HugeIcons.strokeRoundedArrowDown01 : HugeIcons.strokeRoundedArrowRight01,
                   size: isDense ? 18 : 20,
                   padding: const EdgeInsets.all(1),
                   color: colors.onSurfaceVariant,
@@ -136,6 +170,10 @@ class TTableMobileCard<T, K> extends StatelessWidget {
       borderRadius: wTheme.borderRadius,
       backgroundColor: resolvedBgColor,
       padding: EdgeInsets.zero,
+      onTap: onTap,
+      hoverColor: colors.onSurface.withAlpha(12),
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -157,13 +195,12 @@ class TTableMobileCard<T, K> extends StatelessWidget {
                   "",
                   widget: Builder(builder: (context) {
                     return TIcon(
-                      icon: expandSide ? Icons.keyboard_arrow_right : Icons.keyboard_arrow_down,
+                      icon: _getDetailExpandIcon(expansionMode, isDetailExpanded),
                       size: isDense ? 18 : 20,
                       color: colors.onSurfaceVariant,
                       background: colors.surfaceContainerLow,
                       padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
                       borderRadius: BorderRadius.circular(20),
-                      turns: expandSide ? (0, -0.5) : (0, 0.5),
                       active: isDetailExpanded,
                       onTap: onExpansionChanged,
                     );

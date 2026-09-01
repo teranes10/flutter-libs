@@ -357,6 +357,8 @@ class _TButtonGroupState extends State<TButtonGroup> {
 
     TButton button = TButton(
       icon: item.icon,
+      activeIcon: item.activeIcon,
+      turns: item.turns,
       text: item.text,
       loading: item.loading,
       loadingText: item.loadingText,

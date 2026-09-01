@@ -45,7 +45,7 @@ class TToastService {
     BuildContext context,
     String? message, {
     String? title,
-    IconData? icon,
+    dynamic icon,
     Duration? duration,
     Alignment? alignment,
     Color? color,
@@ -81,7 +81,7 @@ class TToastService {
             onExit: (_) => holder.start(),
             child: Row(
               children: [
-                if (icon != null) Icon(icon, color: wTheme.onContainer, size: 20),
+                if (icon != null) TIcon.raw(icon, color: wTheme.onContainer, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -99,7 +99,7 @@ class TToastService {
                 TButton(
                   type: TButtonType.text,
                   size: TButtonSize.xxs,
-                  icon: Icons.close_rounded,
+                  icon: HugeIcons.strokeRoundedCancel01,
                   color: color,
                   onPressed: (_) {
                     toastification.dismissById(holder.id);
@@ -115,21 +115,21 @@ class TToastService {
 
   /// Shows a success toast.
   static void success(BuildContext context, String message, [String? title]) {
-    show(context, message, title: title, icon: Icons.check_circle_outline_rounded, color: context.theme.success);
+    show(context, message, title: title, icon: HugeIcons.strokeRoundedCheckmarkCircle03, color: context.theme.success);
   }
 
   /// Shows an info toast.
   static void info(BuildContext context, String message, [String? title]) {
-    show(context, message, title: title, icon: Icons.info_outline_rounded, color: context.theme.info);
+    show(context, message, title: title, icon: HugeIcons.strokeRoundedInformationCircle, color: context.theme.info);
   }
 
   /// Shows a warning toast.
   static void warning(BuildContext context, String message, [String? title]) {
-    show(context, message, title: title, icon: Icons.warning_amber_rounded, color: context.theme.warning);
+    show(context, message, title: title, icon: HugeIcons.strokeRoundedAlert01, color: context.theme.warning);
   }
 
   /// Shows an error toast.
   static void error(BuildContext context, String? message, [String? title, TError? error]) {
-    show(context, message, title: title, icon: Icons.error_outline_rounded, color: context.theme.danger, error: error);
+    show(context, message, title: title, icon: HugeIcons.strokeRoundedAlertCircle, color: context.theme.danger, error: error);
   }
 }
