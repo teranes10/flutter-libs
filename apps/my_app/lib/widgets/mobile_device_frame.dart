@@ -9,6 +9,9 @@ class TMobileDeviceFrame extends StatelessWidget {
   final ValueChanged<int>? onBottomBarTap;
   final VoidCallback? onBackPressed;
 
+  final double? width;
+  final double? height;
+
   const TMobileDeviceFrame({
     super.key,
     required this.title,
@@ -17,15 +20,39 @@ class TMobileDeviceFrame extends StatelessWidget {
     this.currentBottomIndex = 0,
     this.onBottomBarTap,
     this.onBackPressed,
+    this.width = 375,
+    this.height,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
+    final bodyContent = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Status Bar Mock
+        _buildMockStatusBar(),
+        // Custom Header
+        _buildCustomHeader(context),
+        // Content
+        if (height != null) Expanded(child: child) else child,
+        // TBottomBar navigation
+        if (bottomBarItems.isNotEmpty)
+          TBottomBar(
+            currentIndex: currentBottomIndex,
+            onTap: onBottomBarTap,
+            items: bottomBarItems,
+            variant: TVariant.text,
+            textPosition: TBottomBarTextPosition.bottomAlways,
+          ),
+      ],
+    );
+
     return Container(
-      width: 375,
-      height: 812,
+      width: width,
+      height: height,
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(40),
@@ -34,29 +61,9 @@ class TMobileDeviceFrame extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
-        child: Scaffold(
-          backgroundColor: colors.surface,
-          body: SafeArea(
-            child: Column(
-              children: [
-                // Status Bar Mock
-                _buildMockStatusBar(),
-                // Custom Header
-                _buildCustomHeader(context),
-                // Content
-                Expanded(child: child),
-                // TBottomBar navigation
-                if (bottomBarItems.isNotEmpty)
-                  TBottomBar(
-                    currentIndex: currentBottomIndex,
-                    onTap: onBottomBarTap,
-                    items: bottomBarItems,
-                    variant: TVariant.text,
-                    textPosition: TBottomBarTextPosition.bottomAlways,
-                  ),
-              ],
-            ),
-          ),
+        child: Material(
+          color: colors.surface,
+          child: bodyContent,
         ),
       ),
     );

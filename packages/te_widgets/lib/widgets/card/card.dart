@@ -115,6 +115,7 @@ class TCard extends StatelessWidget {
   final Color? highlightColor;
 
   final List<BoxShadow>? shadow;
+  final BoxBorder? border;
 
   /// The clip behavior of the card.
   final Clip? clipBehavior;
@@ -147,6 +148,7 @@ class TCard extends StatelessWidget {
     this.splashColor,
     this.highlightColor,
     this.shadow,
+    this.border,
     this.clipBehavior,
   });
 
@@ -256,6 +258,7 @@ class TCard extends StatelessWidget {
       margin: margin ?? const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         borderRadius: defaultBorderRadius,
+        border: border,
         boxShadow: shadow ?? [BoxShadow(color: colors.shadow, offset: const Offset(0, 1), blurRadius: 0, spreadRadius: 0)],
       ),
       child: Material(

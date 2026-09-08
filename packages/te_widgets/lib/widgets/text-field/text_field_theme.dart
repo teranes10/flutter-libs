@@ -260,7 +260,7 @@ class TTextFieldTheme extends TInputFieldTheme {
       onChanged: onValueChanged,
       onTap: onTap,
       textAlign: textAlign,
-      textAlignVertical: textAlignVertical,
+      textAlignVertical: textAlignVertical ?? (isMultiline ? TextAlignVertical.top : TextAlignVertical.center),
     );
   }
 

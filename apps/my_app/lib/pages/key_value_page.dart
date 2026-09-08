@@ -10,10 +10,7 @@ class KeyValuePage extends StatelessWidget {
       TKeyValue.text('Order ID', 'ORD-2024-8910', icon: const Icon(Icons.receipt_long, size: 14)),
       TKeyValue.text('Customer Name', 'Jane Doe'),
       TKeyValue.text('Contact Email', 'jane.doe@example.com'),
-      TKeyValue(
-        'Status',
-        widget: const TChip(text: 'In Transit', icon: Icons.local_shipping, type: TVariant.tonal),
-      ),
+
       TKeyValue.text('Total Amount', '\$1,450.00'),
       TKeyValue.datetime('Order Placed', DateTime.now().toIso8601String()),
       TKeyValue.text('Payment Terms', 'Net 30 Days'),

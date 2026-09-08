@@ -122,7 +122,7 @@ class TMapPinning extends StatefulWidget with TPopupMixin, TInputFieldMixin {
   State<TMapPinning> createState() => _TMapPinningState();
 
   @override
-  TPopupAlignment get alignment => TPopupAlignment.bottomCenter;
+  TPopupAlignment get popupAlignment => TPopupAlignment.bottomCenter;
 }
 
 class _TMapPinningState extends _TMapPinningStateBase {

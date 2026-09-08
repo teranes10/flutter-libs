@@ -36,13 +36,34 @@ class CrudPage extends StatelessWidget {
 
     List<TTableHeader<ProductDto, int>> headers = [
       TTableHeader.image("Image", (x) => x.thumbnail, forceCache: true),
-      TTableHeader.map('SKU', (x) => x.sku),
-      TTableHeader.map('Title', (x) => x.title),
+      TTableHeader.values('Product', (x) => [TKeyValue('Product', value: x.title), TKeyValue('SKU', value: x.sku)]),
       TTableHeader.map('Category', (x) => x.category),
-      TTableHeader.map('Price', (x) => x.price),
-      TTableHeader.map('Discount', (x) => x.discountPercentage),
+      TTableHeader.keyValues(
+        'Pricing',
+        (x) => [TKeyValue('Price', value: '\$${x.price}'), TKeyValue('Discount', value: '${x.discountPercentage}%')],
+      ),
+      TTableHeader.progress(
+        'Fulfillment',
+        (x) => (x.stock / 150).clamp(0.0, 1.0),
+        valueText: (x) => '${x.stock}/150',
+        colorBuilder: (value, percentage) => percentage < 30
+            ? AppColors.danger
+            : percentage < 70
+            ? AppColors.warning
+            : AppColors.success,
+      ),
       TTableHeader.rating('Rating', (x) => x.rating.toDouble()),
-      TTableHeader.chip('Stock', (x) => x.stock, color: (_) => context.theme.info),
+      TTableHeader.row(
+        'Badges',
+        (x) => [
+          TChip.tonal(text: x.category, size: TChipSize.sm),
+          TChip.solid(
+            text: x.stock > 50 ? 'In Stock' : 'Low',
+            color: x.stock > 50 ? context.theme.success : context.theme.warning,
+            size: TChipSize.sm,
+          ),
+        ],
+      ),
     ];
 
     return TCrudTable<ProductDto, int, ProductForm>(
@@ -123,10 +144,7 @@ class CrudPage extends StatelessWidget {
               TCard(
                 title: 'Product Information',
                 icon: Icons.info_outline_rounded,
-                trailing: TChip(
-                  text: data.category.toUpperCase(),
-                  type: TVariant.tonal,
-                ),
+                trailing: TChip(text: data.category.toUpperCase(), type: TVariant.tonal),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -159,19 +177,13 @@ class CrudPage extends StatelessWidget {
                               children: [
                                 Text(
                                   'QR Code',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: ctx.colors.onSurfaceVariant,
-                                  ),
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: ctx.colors.onSurfaceVariant),
                                 ),
                                 const SizedBox(height: 6),
                                 TImage(
                                   url: data.meta!.qrCode,
                                   size: 64,
-                                  border: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
+                                  border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                                 ),
                               ],
                             ),
@@ -184,21 +196,10 @@ class CrudPage extends StatelessWidget {
                                 children: [
                                   Text(
                                     'Description',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: ctx.colors.onSurfaceVariant,
-                                    ),
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: ctx.colors.onSurfaceVariant),
                                   ),
                                   const SizedBox(height: 6),
-                                  Text(
-                                    data.description,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: ctx.colors.onSurface,
-                                      height: 1.4,
-                                    ),
-                                  ),
+                                  Text(data.description, style: TextStyle(fontSize: 13, color: ctx.colors.onSurface, height: 1.4)),
                                 ],
                               ),
                             ),
@@ -233,15 +234,10 @@ class CrudPage extends StatelessWidget {
               // 3. Product Gallery Card
               TCard(
                 title: 'Product Gallery',
-                subtitle: (data.images != null && data.images!.isNotEmpty)
-                    ? '${data.images!.length} images'
-                    : 'No images available',
+                subtitle: (data.images != null && data.images!.isNotEmpty) ? '${data.images!.length} images' : 'No images available',
                 icon: Icons.photo_library_outlined,
                 child: data.images == null || data.images!.isEmpty
-                    ? Text(
-                        'No images available',
-                        style: TextStyle(color: ctx.colors.onSurfaceVariant),
-                      )
+                    ? Text('No images available', style: TextStyle(color: ctx.colors.onSurfaceVariant))
                     : Wrap(
                         spacing: 10,
                         runSpacing: 10,
@@ -250,9 +246,7 @@ class CrudPage extends StatelessWidget {
                               (img) => TImage(
                                 url: img,
                                 size: 100,
-                                border: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                                border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
                             )
                             .toList(),

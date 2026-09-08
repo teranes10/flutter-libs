@@ -29,6 +29,9 @@ class TDropdownTheme extends TMenuTheme {
     super.itemBorderRadius = const BorderRadius.all(Radius.circular(6.0)),
     super.fontSize = 14.0,
     super.fontWeight = FontWeight.w300,
+    super.arrowIcon,
+    super.dropdownIcon,
+    super.expandIcon,
   });
 
   factory TDropdownTheme.defaultTheme(ColorScheme? colors) {
@@ -40,6 +43,65 @@ class TDropdownTheme extends TMenuTheme {
       activeColor: colorScheme.onPrimaryContainer,
       activeBackgroundColor: colorScheme.primaryContainer,
       borderColor: colorScheme.outline,
+    );
+  }
+
+  @override
+  TDropdownTheme copyWith({
+    Color? defaultColor,
+    Color? hoverColor,
+    Color? activeColor,
+    Color? activeBackgroundColor,
+    Color? borderColor,
+    Duration? animationDuration,
+    Duration? showDelay,
+    Duration? hideDelay,
+    TPopupAlignment? alignment,
+    double? offset,
+    TPopupAlignment? secondaryAlignment,
+    double? secondaryOffset,
+    BoxConstraints? boxConstraints,
+    double? iconSize,
+    double? arrowIconSize,
+    double? gap,
+    double? overlayElevation,
+    BorderRadius? overlayBorderRadius,
+    EdgeInsets? overlayPadding,
+    EdgeInsets? itemPadding,
+    BorderRadius? itemBorderRadius,
+    double? fontSize,
+    FontWeight? fontWeight,
+    IconData? arrowIcon,
+    IconData? dropdownIcon,
+    IconData? expandIcon,
+  }) {
+    return TDropdownTheme(
+      defaultColor: defaultColor ?? this.defaultColor,
+      hoverColor: hoverColor ?? this.hoverColor,
+      activeColor: activeColor ?? this.activeColor,
+      activeBackgroundColor: activeBackgroundColor ?? this.activeBackgroundColor,
+      borderColor: borderColor ?? this.borderColor,
+      animationDuration: animationDuration ?? this.animationDuration,
+      showDelay: showDelay ?? this.showDelay,
+      hideDelay: hideDelay ?? this.hideDelay,
+      alignment: alignment ?? this.alignment,
+      offset: offset ?? this.offset,
+      secondaryAlignment: secondaryAlignment ?? this.secondaryAlignment,
+      secondaryOffset: secondaryOffset ?? this.secondaryOffset,
+      boxConstraints: boxConstraints ?? this.boxConstraints,
+      iconSize: iconSize ?? this.iconSize,
+      arrowIconSize: arrowIconSize ?? this.arrowIconSize,
+      gap: gap ?? this.gap,
+      overlayElevation: overlayElevation ?? this.overlayElevation,
+      overlayBorderRadius: overlayBorderRadius ?? this.overlayBorderRadius,
+      overlayPadding: overlayPadding ?? this.overlayPadding,
+      itemPadding: itemPadding ?? this.itemPadding,
+      itemBorderRadius: itemBorderRadius ?? this.itemBorderRadius,
+      fontSize: fontSize ?? this.fontSize,
+      fontWeight: fontWeight ?? this.fontWeight,
+      arrowIcon: arrowIcon ?? this.arrowIcon,
+      dropdownIcon: dropdownIcon ?? this.dropdownIcon,
+      expandIcon: expandIcon ?? this.expandIcon,
     );
   }
 }

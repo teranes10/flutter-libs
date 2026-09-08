@@ -1,26 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// A collapsible section that allows users to show or hide content.
+///
+/// `TAccordion` provides an expandable panel with a customizable header
+/// ([TAccordionHeader]), animated transition, and themed container styling.
 class TAccordion extends StatefulWidget {
-  final String title;
+  /// The title text to display in the header.
+  final String? title;
+
+  /// Custom widget for the title.
+  final Widget? titleWidget;
+
+  /// Optional subtitle text displayed below the title.
   final String? subtitle;
-  final IconData? leading;
+
+  /// Custom widget for the subtitle.
+  final Widget? subtitleWidget;
+
+  /// Leading icon before the title. Supports [IconData], HugeIcon, or [Widget].
+  final dynamic leading;
+
+  /// Leading icon. Alias for [leading].
+  final dynamic icon;
+
+  /// Custom header widget. If provided, overrides default [TAccordionHeader].
+  final Widget? header;
+
+  /// Color of the leading icon.
+  final Color? iconColor;
+
+  /// Color of the leading icon when hovered.
+  final Color? hoveredIconColor;
+
+  /// Color of the leading icon when expanded.
+  final Color? expandedIconColor;
+
+  /// Background color of the leading icon container.
+  final Color? iconBackgroundColor;
+
+  /// Background color of the leading icon container when hovered.
+  final Color? hoveredIconBackgroundColor;
+
+  /// Background color of the leading icon container when expanded.
+  final Color? expandedIconBackgroundColor;
+
+  /// Padding inside the leading icon container.
+  final EdgeInsetsGeometry? iconPadding;
+
+  /// Border radius of the leading icon container.
+  final BorderRadius? iconBorderRadius;
+
+  /// Size of the leading icon.
+  final double? iconSize;
+
+  /// Text style for the title.
+  final TextStyle? titleStyle;
+
+  /// Text style for the subtitle.
+  final TextStyle? subtitleStyle;
+
+  /// Horizontal spacing between the leading icon and title/subtitle.
+  final double? headerSpacing;
+
+  /// The content displayed when the accordion is expanded.
   final Widget content;
+
+  /// Theme configuration for the accordion.
   final TAccordionTheme? theme;
+
+  /// Whether the accordion starts in an expanded state.
   final bool initiallyExpanded;
+
+  /// Padding for the header tile.
   final EdgeInsetsGeometry? tilePadding;
+
+  /// Padding for the expanded content.
   final EdgeInsetsGeometry? contentPadding;
+
+  /// Margin around the accordion when collapsed.
   final EdgeInsetsGeometry? margin;
+
+  /// Margin around the accordion when expanded.
   final EdgeInsetsGeometry? expandedMargin;
+
+  /// Whether to display the expand/collapse arrow icon.
   final bool showExpandIcon;
+
+  /// Custom expand/collapse trailing icon widget.
+  final Widget? expandIcon;
+
+  /// Optional footer displayed below the content when expanded.
   final Widget? footer;
+
+  /// Optional builder for trailing header actions.
   final Widget Function(BuildContext context, bool isExpanded, VoidCallback toggleExpand)? builder;
 
   const TAccordion({
     super.key,
-    required this.title,
+    this.title,
+    this.titleWidget,
     this.subtitle,
+    this.subtitleWidget,
     this.leading,
+    this.icon,
+    this.header,
+    this.iconColor,
+    this.hoveredIconColor,
+    this.expandedIconColor,
+    this.iconBackgroundColor,
+    this.hoveredIconBackgroundColor,
+    this.expandedIconBackgroundColor,
+    this.iconPadding,
+    this.iconBorderRadius,
+    this.iconSize,
+    this.titleStyle,
+    this.subtitleStyle,
+    this.headerSpacing,
     required this.content,
     this.theme,
     this.initiallyExpanded = false,
@@ -29,6 +125,7 @@ class TAccordion extends StatefulWidget {
     this.margin,
     this.expandedMargin,
     this.showExpandIcon = true,
+    this.expandIcon,
     this.footer,
     this.builder,
   });
@@ -96,6 +193,29 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
         ? (widget.expandedMargin ?? accordionTheme.expandedMargin ?? widget.margin ?? accordionTheme.margin ?? EdgeInsets.zero)
         : (widget.margin ?? accordionTheme.margin ?? EdgeInsets.zero);
 
+    final headerContent = widget.header ??
+        TAccordionHeader(
+          title: widget.title,
+          titleWidget: widget.titleWidget,
+          subtitle: widget.subtitle,
+          subtitleWidget: widget.subtitleWidget,
+          leading: widget.leading ?? widget.icon,
+          iconColor: widget.iconColor,
+          hoveredIconColor: widget.hoveredIconColor,
+          expandedIconColor: widget.expandedIconColor,
+          iconBackgroundColor: widget.iconBackgroundColor,
+          hoveredIconBackgroundColor: widget.hoveredIconBackgroundColor,
+          expandedIconBackgroundColor: widget.expandedIconBackgroundColor,
+          iconPadding: widget.iconPadding,
+          iconBorderRadius: widget.iconBorderRadius,
+          iconSize: widget.iconSize,
+          titleStyle: widget.titleStyle,
+          subtitleStyle: widget.subtitleStyle,
+          spacing: widget.headerSpacing ?? 12.0,
+          isHovered: _isHovered,
+          isExpanded: _isExpanded,
+        );
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeIn,
@@ -125,58 +245,21 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
                 padding: resolvedTilePadding,
                 child: Row(
                   children: [
-                    if (widget.leading != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: _isHovered || _isExpanded ? colors.primaryContainer.withAlpha(128) : colors.onSurface.withAlpha(13),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          widget.leading,
-                          size: 20,
-                          color: _isHovered || _isExpanded ? colors.primary : colors.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                    ],
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.title,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: colors.onSurface,
-                            ),
-                          ),
-                          if (widget.subtitle != null)
-                            Text(
-                              widget.subtitle!,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w300,
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
+                    Expanded(child: headerContent),
                     if (widget.builder != null) ...[
                       widget.builder!(context, _isExpanded, _toggleExpand),
                       if (widget.showExpandIcon) const SizedBox(width: 8),
                     ],
                     if (widget.showExpandIcon)
-                      RotationTransition(
-                        turns: _iconTurns,
-                        child: Icon(
-                          Icons.expand_more,
-                          size: 20,
-                          color: _isHovered || _isExpanded ? colors.primary : colors.onSurfaceVariant,
-                        ),
-                      ),
+                      widget.expandIcon ??
+                          RotationTransition(
+                            turns: _iconTurns,
+                            child: Icon(
+                              Icons.expand_more,
+                              size: 20,
+                              color: _isHovered || _isExpanded ? colors.primary : colors.onSurfaceVariant,
+                            ),
+                          ),
                   ],
                 ),
               ),

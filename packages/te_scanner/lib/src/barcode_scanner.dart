@@ -33,8 +33,10 @@ class TBarcodeScanner extends StatefulWidget with TPopupMixin {
   @override
   final bool disabled;
 
-  @override
   final TPopupAlignment alignment;
+
+  @override
+  TPopupAlignment get popupAlignment => alignment;
 
   @override
   final double offset;

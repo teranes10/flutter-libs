@@ -56,6 +56,18 @@ class TButtonGroupItem {
   /// Custom widget to display for the tick indicator.
   final Widget? tickWidget;
 
+  /// Optional badge to display on the button.
+  final dynamic badge;
+
+  /// The alignment of the badge overlay.
+  final Alignment? badgeAlignment;
+
+  /// The background color for the badge.
+  final Color? badgeColor;
+
+  /// The text color for the badge.
+  final Color? badgeTextColor;
+
   /// Creates a button group item.
   TButtonGroupItem({
     this.icon,
@@ -71,6 +83,10 @@ class TButtonGroupItem {
     this.showTick,
     this.tickAlignment,
     this.tickWidget,
+    this.badge,
+    this.badgeAlignment,
+    this.badgeColor,
+    this.badgeTextColor,
     this.onTap,
     this.onPressed,
   });
@@ -99,6 +115,10 @@ extension TButtonExtension on TButton {
     bool? showTick,
     Alignment? tickAlignment,
     Widget? tickWidget,
+    dynamic badge,
+    Alignment? badgeAlignment,
+    Color? badgeColor,
+    Color? badgeTextColor,
     Widget? child,
     VoidCallback? onTap,
     Function(TButtonPressOptions)? onPressed,
@@ -126,6 +146,10 @@ extension TButtonExtension on TButton {
       showTick: showTick ?? this.showTick,
       tickAlignment: tickAlignment ?? this.tickAlignment,
       tickWidget: tickWidget ?? this.tickWidget,
+      badge: badge ?? this.badge,
+      badgeAlignment: badgeAlignment ?? this.badgeAlignment,
+      badgeColor: badgeColor ?? this.badgeColor,
+      badgeTextColor: badgeTextColor ?? this.badgeTextColor,
       onTap: onTap ?? this.onTap,
       onPressed: onPressed ?? this.onPressed,
       onChanged: onChanged ?? this.onChanged,

@@ -68,12 +68,12 @@ void main() {
 
     // Tooltip should be present with the error message
     final nameTooltip = find.byWidgetPredicate(
-      (w) => w is Tooltip && w.message == 'Name is required',
+      (w) => (w is TTooltip && w.message == 'Name is required') || (w is Tooltip && w.message == 'Name is required'),
     );
     expect(nameTooltip, findsOneWidget);
 
     final ageTooltip = find.byWidgetPredicate(
-      (w) => w is Tooltip && w.message == 'Age must be positive',
+      (w) => (w is TTooltip && w.message == 'Age must be positive') || (w is Tooltip && w.message == 'Age must be positive'),
     );
     expect(ageTooltip, findsOneWidget);
 
@@ -84,7 +84,8 @@ void main() {
     expect(find.byType(TNumberField<num>), findsOneWidget);
     final editorTooltip = find.ancestor(
       of: find.byType(TNumberField<num>),
-      matching: find.byWidgetPredicate((w) => w is Tooltip && w.message == 'Age must be positive'),
+      matching: find.byWidgetPredicate((w) =>
+          (w is TTooltip && w.message == 'Age must be positive') || (w is Tooltip && w.message == 'Age must be positive')),
     );
     expect(editorTooltip, findsOneWidget);
   });

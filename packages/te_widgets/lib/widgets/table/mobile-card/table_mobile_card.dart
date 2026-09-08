@@ -169,7 +169,9 @@ class TTableMobileCard<T, K> extends StatelessWidget {
       elevation: wTheme.elevation,
       borderRadius: wTheme.borderRadius,
       backgroundColor: resolvedBgColor,
-      padding: EdgeInsets.zero,
+      border: BoxBorder.all(color: colors.outlineVariant.withAlpha(50), width: 1.0),
+      shadow: [BoxShadow(color: colors.shadow, blurRadius: 12, spreadRadius: 2)],
+      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
       onTap: onTap,
       hoverColor: colors.onSurface.withAlpha(12),
       splashColor: Colors.transparent,
@@ -179,35 +181,39 @@ class TTableMobileCard<T, K> extends StatelessWidget {
         children: [
           Padding(
             padding: wTheme.padding,
-            child: TKeyValueSection(values: [
-              if (selectable)
-                TKeyValue(
-                  "",
-                  widget: TCheckbox(
-                    value: isSelected,
-                    onValueChanged: (value) => onSelectionChanged?.call(),
+            child: TKeyValueSection(
+              theme: wTheme,
+              mode: wTheme.mode,
+              values: [
+                if (selectable)
+                  TKeyValue(
+                    "",
+                    widget: TCheckbox(
+                      value: isSelected,
+                      onValueChanged: (value) => onSelectionChanged?.call(),
+                    ),
+                    alignment: Alignment.topLeft,
                   ),
-                  alignment: Alignment.topLeft,
-                ),
-              ...mappedKeyValues,
-              if (expandable)
-                TKeyValue(
-                  "",
-                  widget: Builder(builder: (context) {
-                    return TIcon(
-                      icon: _getDetailExpandIcon(expansionMode, isDetailExpanded),
-                      size: isDense ? 18 : 20,
-                      color: colors.onSurfaceVariant,
-                      background: colors.surfaceContainerLow,
-                      padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
-                      borderRadius: BorderRadius.circular(20),
-                      active: isDetailExpanded,
-                      onTap: onExpansionChanged,
-                    );
-                  }),
-                  alignment: Alignment.bottomRight,
-                )
-            ]),
+                ...mappedKeyValues,
+                if (expandable)
+                  TKeyValue(
+                    "",
+                    widget: Builder(builder: (context) {
+                      return TIcon(
+                        icon: _getDetailExpandIcon(expansionMode, isDetailExpanded),
+                        size: isDense ? 18 : 20,
+                        color: colors.onSurfaceVariant,
+                        background: colors.surfaceContainerLow,
+                        padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
+                        borderRadius: BorderRadius.circular(20),
+                        active: isDetailExpanded,
+                        onTap: onExpansionChanged,
+                      );
+                    }),
+                    alignment: Alignment.bottomRight,
+                  )
+              ],
+            ),
           ),
           if (isDetailExpanded && !expandSide && expandedContent != null) Padding(padding: wTheme.padding, child: expandedContent!),
         ],

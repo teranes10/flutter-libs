@@ -63,6 +63,10 @@ class _TCrudInlineFormState<T, K, F extends TFormBase> extends State<_TCrudInlin
     });
 
     try {
+      final shouldSave = await _form.onSave(context);
+      if (!shouldSave) {
+        return;
+      }
       await widget.onSave(context, _form);
     } catch (e) {
       if (mounted) {

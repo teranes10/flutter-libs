@@ -11,6 +11,7 @@ export 'configs/widget-theme/input_field_theme.dart';
 
 export 'enum/file_type.dart';
 export 'enum/input_size.dart';
+export 'enum/size.dart';
 export 'enum/value_type.dart';
 
 export 'extensions/alignment_x.dart';
@@ -30,6 +31,7 @@ export 'extensions/media_query_data_x.dart';
 export 'extensions/pdf_document_x.dart';
 export 'extensions/sidebar_item_list_x.dart';
 export 'extensions/string_x.dart';
+export 'extensions/text_style_x.dart';
 export 'extensions/time_of_day_x.dart';
 export 'extensions/widget_x.dart';
 
@@ -71,6 +73,7 @@ export 'widgets/alert/alert.dart';
 
 export 'widgets/avatar/avatar.dart';
 
+export 'widgets/badge/badge_size.dart';
 export 'widgets/badge/badge.dart';
 
 export 'widgets/button/button.dart';
@@ -84,6 +87,7 @@ export 'widgets/checkbox/checkbox.dart';
 export 'widgets/checkbox/checkbox_group.dart';
 export 'widgets/checkbox/checkbox_config.dart';
 
+export 'widgets/chip/chip_size.dart';
 export 'widgets/chip/chip.dart';
 export 'widgets/color/color.dart';
 
@@ -116,6 +120,7 @@ export 'widgets/dropdown/dropdown_item.dart';
 
 export 'widgets/accordion/accordion.dart';
 export 'widgets/accordion/accordion_theme.dart';
+export 'widgets/tile/tile.dart';
 export 'widgets/dropdown/dropdown.dart';
 
 export 'widgets/error/error_builder.dart';
@@ -124,6 +129,8 @@ export 'widgets/error/error.dart';
 export 'widgets/file-picker/file.dart';
 export 'widgets/file-picker/file_picker_theme.dart';
 export 'widgets/file-picker/file_picker.dart';
+
+export 'widgets/filter/filter.dart';
 
 export 'widgets/form/form_builder.dart';
 export 'widgets/form/form_service.dart';
@@ -135,6 +142,7 @@ export 'widgets/guard/guard.dart';
 
 export 'widgets/hoverable/hoverable.dart';
 export 'widgets/icon/icon.dart';
+export 'widgets/input-container/input_container.dart';
 
 export 'widgets/image/image.dart';
 

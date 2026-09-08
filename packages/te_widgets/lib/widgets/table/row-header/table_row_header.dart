@@ -88,9 +88,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
                   maxLevel = 1;
                 }
               }
-              final treeExtraWidth = (headerIndex == 0 && (controller.isHierarchical || maxLevel > 0))
-                  ? (maxLevel * 16.0 + 36.0)
-                  : 0.0;
+              final treeExtraWidth = (headerIndex == 0 && (controller.isHierarchical || maxLevel > 0)) ? (maxLevel * 16.0 + 36.0) : 0.0;
               return buildHeaderCell(wTheme, header, extraWidth: treeExtraWidth);
             }),
           ])
@@ -102,9 +100,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
   /// Builds a single header cell.
   Widget buildHeaderCell(TTableRowHeaderTheme wTheme, TTableHeader<T, K> header, {double extraWidth = 0.0}) {
     final minW = (header.minWidth ?? 50) + extraWidth;
-    final maxW = (header.maxWidth != null && header.maxWidth != double.infinity)
-        ? header.maxWidth! + extraWidth
-        : double.infinity;
+    final maxW = (header.maxWidth != null && header.maxWidth != double.infinity) ? header.maxWidth! + extraWidth : double.infinity;
 
     return Container(
       constraints: BoxConstraints(minWidth: minW, maxWidth: maxW),

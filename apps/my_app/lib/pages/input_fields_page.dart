@@ -879,8 +879,8 @@ TCheckboxGroup<String>(
 
           // Switch States
           WidgetDocCard(
-            title: 'Switch States and Sizes',
-            description: 'Different switch states, sizes, and colors',
+            title: 'Switch States, Sizes, and Colors',
+            description: 'Different switch states, sizes, and custom active/inactive colors',
             icon: Icons.settings,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -888,6 +888,13 @@ TCheckboxGroup<String>(
                 TSwitch(label: 'Enabled (On)', value: true, onValueChanged: (_) {}),
                 const SizedBox(height: 12),
                 TSwitch(label: 'Enabled (Off)', value: false, onValueChanged: (_) {}),
+                const SizedBox(height: 12),
+                TSwitch(
+                  label: 'Custom Active & Inactive Color',
+                  valueNotifier: ValueNotifier<bool>(false),
+                  color: Colors.teal,
+                  inactiveColor: Colors.amber.withAlpha(100),
+                ),
                 const SizedBox(height: 12),
                 TSwitch(label: 'Disabled (On)', value: true, disabled: true, onValueChanged: (_) {}),
                 const SizedBox(height: 12),
@@ -912,6 +919,14 @@ TSwitch(
   value: false,
 )
 
+// Custom Active & Inactive Colors
+TSwitch(
+  label: 'Custom Colors',
+  color: Colors.teal, // Active/On state color
+  inactiveColor: Colors.amber, // Optional Inactive/Off state track color
+  onValueChanged: (value) => print(value),
+)
+
 // Disabled
 TSwitch(
   label: 'Disabled',
@@ -933,8 +948,9 @@ TSwitch(
 )''',
             properties: const [
               PropertyDoc(name: 'disabled', type: 'bool', defaultValue: 'false', description: 'Whether the switch is disabled'),
-              PropertyDoc(name: 'size', type: 'TInputSize?', description: 'Size of the switch (sm, md, lg)'),
-              PropertyDoc(name: 'color', type: 'Color?', description: 'Custom color for the switch when active'),
+              PropertyDoc(name: 'size', type: 'TInputSize?', description: 'Size of the switch (xs, sm, md, lg)'),
+              PropertyDoc(name: 'color', type: 'Color?', description: 'Custom color for the switch when active/on'),
+              PropertyDoc(name: 'inactiveColor', type: 'Color?', description: 'Optional custom color for the switch track when inactive/off'),
             ],
           ),
 

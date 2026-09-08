@@ -85,7 +85,16 @@ class TPdfWidgetHelper {
         ? (widget.border as fm.RoundedRectangleBorder).borderRadius.resolve(fm.TextDirection.ltr)
         : fm.BorderRadius.zero;
 
-    final imageSize = widget.size / 2;
+    final double imgW = (widget.width ??
+            (widget.height != null && widget.aspectRatio != null
+                ? widget.height! * widget.aspectRatio!
+                : (widget.size ?? 80.0))) /
+        2;
+    final double imgH = (widget.height ??
+            (widget.width != null && widget.aspectRatio != null
+                ? widget.width! / widget.aspectRatio!
+                : (widget.aspectRatio != null ? (widget.size ?? 80.0) / widget.aspectRatio! : (widget.size ?? 80.0)))) /
+        2;
     pw.Widget? imageWidget;
 
     // Try network image first
@@ -94,8 +103,8 @@ class TPdfWidgetHelper {
       if (bytes != null && bytes.isNotEmpty) {
         imageWidget = pw.Image(
           pw.MemoryImage(bytes),
-          width: imageSize,
-          height: imageSize / widget.aspectRatio,
+          width: imgW,
+          height: imgH,
           fit: pw.BoxFit.cover,
         );
       }
@@ -107,16 +116,16 @@ class TPdfWidgetHelper {
       if (bytes != null && bytes.isNotEmpty) {
         imageWidget = pw.Image(
           pw.MemoryImage(bytes),
-          width: imageSize,
-          height: imageSize / widget.aspectRatio,
+          width: imgW,
+          height: imgH,
           fit: pw.BoxFit.contain,
         );
       }
     }
 
     final imageFrame = pw.Container(
-      width: imageSize,
-      height: imageSize / widget.aspectRatio,
+      width: imgW,
+      height: imgH,
       alignment: pw.Alignment.center,
       decoration: pw.BoxDecoration(
         color: widget.color?.toPdfColor() ?? colors.surfaceContainerLow.toPdfColor(),

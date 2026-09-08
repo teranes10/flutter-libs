@@ -20,17 +20,21 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     }) {
       return LayoutBuilder(
         builder: (context, constraints) {
-          TTableTheme effectiveTheme = tableTheme;
+          TTableTheme effectiveTheme = tableTheme.copyWith(
+            mobileCardTheme: tableTheme.mobileCardTheme.copyWith(
+              mode: cardKeyValueMode,
+            ),
+          );
           if (viewMode == 1) {
-            effectiveTheme = tableTheme.copyWith(forceCardStyle: true, grid: null);
+            effectiveTheme = effectiveTheme.copyWith(forceCardStyle: true, grid: null);
           } else if (viewMode == 2) {
-            effectiveTheme = tableTheme.copyWith(
+            effectiveTheme = effectiveTheme.copyWith(
               forceCardStyle: false,
               grid: TGridMode.masonry,
               gridDelegate: (context) => context.isMobile ? TGridDelegate(crossAxisCount: 1) : TGridDelegate(maxCrossAxisExtent: 350),
             );
           } else {
-            effectiveTheme = tableTheme.copyWith(forceCardStyle: false, grid: null);
+            effectiveTheme = effectiveTheme.copyWith(forceCardStyle: false, grid: null);
           }
 
           return TDataTable<T, K>(

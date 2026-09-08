@@ -127,9 +127,7 @@ class TMetricTile extends StatelessWidget {
     final accentColor = color ?? colors.primary;
     final radius = borderRadius ?? BorderRadius.circular(10);
     final effectivePadding = padding ??
-        (compact
-            ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
-            : const EdgeInsets.symmetric(horizontal: 14, vertical: 12));
+        (compact ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8) : const EdgeInsets.symmetric(horizontal: 14, vertical: 12));
 
     final effectiveBgColor = backgroundColor ?? colors.surfaceContainerLow;
     final effectiveBorderColor = borderColor ?? colors.outlineVariant.withAlpha(60);
@@ -258,7 +256,7 @@ class TMetricTile extends StatelessWidget {
     }
 
     if (tooltip != null) {
-      content = Tooltip(
+      content = TTooltip(
         message: tooltip!,
         child: content,
       );

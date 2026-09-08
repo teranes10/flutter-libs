@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
@@ -208,29 +209,6 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return resolved;
   }
 
-  // ---------------------------------------------------------------------------
-  // Column-width memoisation
-  // ---------------------------------------------------------------------------
-
-  /// Cached total required width used to decide card vs table view.
-  /// Keyed on [_cachedRequiredWidthForHeaders] + [_cachedRequiredWidthForConstraint]
-  /// so it re-evaluates when headers or the available width changes.
-  double? _cachedRequiredWidth;
-  List<TTableHeader<T, K>>? _cachedRequiredWidthForHeaders;
-  bool? _cachedRequiredWidthSelectable;
-  bool? _cachedRequiredWidthExpandable;
-  int? _cachedRequiredWidthMaxLevel;
-
-  bool? _cachedRequiredWidthIsHierarchical;
-
-  int _getMaxTreeLevel() {
-    int maxLevel = 0;
-    for (final item in listController.value.displayItems) {
-      if (item.level > maxLevel) maxLevel = item.level;
-    }
-    return maxLevel;
-  }
-
   List<TTableHeader<T, K>> get _effectiveHeaders {
     final order = listController.headerOrder;
     final visibility = listController.headerVisibility;
@@ -266,75 +244,87 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return true;
   }
 
-  double _getRequiredWidth() {
+  // ---------------------------------------------------------------------------
+  // Column-width memoisation
+  // ---------------------------------------------------------------------------
+
+  /// Cached column measurements — the expensive step (text layout over a
+  /// data sample). Only recomputed when headers, selection/expansion mode,
+  /// tree depth, or the underlying data actually change. Turning this into
+  /// either the required-width threshold or final per-column pixel widths
+  /// for a given width is then pure arithmetic — see
+  /// [TTableColumnMeasurements.resolve] — so resizing doesn't re-measure text.
+  TTableColumnMeasurements? _cachedMeasurements;
+  List<TTableHeader<T, K>>? _cachedMeasurementsForHeaders;
+  bool? _cachedMeasurementsSelectable;
+  bool? _cachedMeasurementsExpandable;
+  int? _cachedMeasurementsMaxLevel;
+  bool? _cachedMeasurementsIsHierarchical;
+  List<TListItem<T, K>>? _cachedMeasurementsForItems;
+
+  int _getMaxTreeLevel() {
+    int maxLevel = 0;
+    for (final item in listController.value.displayItems) {
+      if (item.level > maxLevel) maxLevel = item.level;
+    }
+    return maxLevel;
+  }
+
+  bool _itemsEquals(List<TListItem<T, K>>? a, List<TListItem<T, K>>? b) {
+    if (identical(a, b)) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    final sampleCount = math.min(a.length, 50);
+    for (int i = 0; i < sampleCount; i++) {
+      if (a[i].key != b[i].key || a[i].data != b[i].data) return false;
+    }
+    return true;
+  }
+
+  TTableColumnMeasurements _getMeasurements() {
     final headers = _effectiveHeaders;
     final selectable = listController.selectable;
     final expandable = listController.expandable;
     final maxLevel = _getMaxTreeLevel();
     final isHierarchical = listController.isHierarchical;
-    if (_cachedRequiredWidth != null &&
-        _cachedRequiredWidthForHeaders != null &&
-        _headersEquals(_cachedRequiredWidthForHeaders!, headers) &&
-        _cachedRequiredWidthSelectable == selectable &&
-        _cachedRequiredWidthExpandable == expandable &&
-        _cachedRequiredWidthMaxLevel == maxLevel &&
-        _cachedRequiredWidthIsHierarchical == isHierarchical) {
-      return _cachedRequiredWidth!;
+    final displayItems = listController.value.displayItems;
+
+    if (_cachedMeasurements != null &&
+        _cachedMeasurementsForHeaders != null &&
+        _headersEquals(_cachedMeasurementsForHeaders!, headers) &&
+        _cachedMeasurementsSelectable == selectable &&
+        _cachedMeasurementsExpandable == expandable &&
+        _cachedMeasurementsMaxLevel == maxLevel &&
+        _cachedMeasurementsIsHierarchical == isHierarchical &&
+        _itemsEquals(_cachedMeasurementsForItems, displayItems)) {
+      return _cachedMeasurements!;
     }
-    final width = TTableTheme.calculateTotalRequiredWidth(
+
+    final sampleItems = displayItems.take(50).map((e) => e.data).toList();
+    final measurements = TTableTheme.measureColumns<T, K>(
       headers,
       selectable,
       expandable,
       maxTreeLevel: maxLevel,
       isHierarchical: isHierarchical,
+      sampleItems: sampleItems,
+      headerTextStyle: wTheme.headerTheme.textStyle,
+      contentTextStyle: wTheme.rowCardTheme.contentTextStyle,
     );
-    _cachedRequiredWidth = width;
-    _cachedRequiredWidthForHeaders = headers;
-    _cachedRequiredWidthSelectable = selectable;
-    _cachedRequiredWidthExpandable = expandable;
-    _cachedRequiredWidthMaxLevel = maxLevel;
-    _cachedRequiredWidthIsHierarchical = isHierarchical;
-    return width;
+
+    _cachedMeasurements = measurements;
+    _cachedMeasurementsForHeaders = headers;
+    _cachedMeasurementsSelectable = selectable;
+    _cachedMeasurementsExpandable = expandable;
+    _cachedMeasurementsMaxLevel = maxLevel;
+    _cachedMeasurementsIsHierarchical = isHierarchical;
+    _cachedMeasurementsForItems = List<TListItem<T, K>>.of(displayItems);
+    return measurements;
   }
 
-  /// Cached per-column widths used when rendering the table view.
-  Map<int, TableColumnWidth>? _cachedColumnWidths;
-  List<TTableHeader<T, K>>? _cachedColumnWidthsForHeaders;
-  bool? _cachedColumnWidthsSelectable;
-  bool? _cachedColumnWidthsExpandable;
-  int? _cachedColumnWidthsMaxLevel;
-  bool? _cachedColumnWidthsIsHierarchical;
+  double _getRequiredWidth() => _getMeasurements().requiredWidth;
 
-  Map<int, TableColumnWidth> _getColumnWidths() {
-    final headers = _effectiveHeaders;
-    final selectable = listController.selectable;
-    final expandable = listController.expandable;
-    final maxLevel = _getMaxTreeLevel();
-    final isHierarchical = listController.isHierarchical;
-    if (_cachedColumnWidths != null &&
-        _cachedColumnWidthsForHeaders != null &&
-        _headersEquals(_cachedColumnWidthsForHeaders!, headers) &&
-        _cachedColumnWidthsSelectable == selectable &&
-        _cachedColumnWidthsExpandable == expandable &&
-        _cachedColumnWidthsMaxLevel == maxLevel &&
-        _cachedColumnWidthsIsHierarchical == isHierarchical) {
-      return _cachedColumnWidths!;
-    }
-    final widths = TTableTheme.calculateColumnWidths(
-      headers,
-      selectable,
-      expandable,
-      maxTreeLevel: maxLevel,
-      isHierarchical: isHierarchical,
-    );
-    _cachedColumnWidths = widths;
-    _cachedColumnWidthsForHeaders = headers;
-    _cachedColumnWidthsSelectable = selectable;
-    _cachedColumnWidthsExpandable = expandable;
-    _cachedColumnWidthsMaxLevel = maxLevel;
-    _cachedColumnWidthsIsHierarchical = isHierarchical;
-    return widths;
-  }
+  Map<int, TableColumnWidth> _getColumnWidths(double availableWidth) => _getMeasurements().resolve(availableWidth);
 
   TTableTheme _resolveTheme() {
     TTableTheme theme = widget.theme ?? context.theme.tableTheme;
@@ -358,6 +348,14 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           margin: const EdgeInsets.symmetric(vertical: 1),
           borderRadius: const BorderRadius.all(Radius.circular(4)),
+        ),
+        mobileCardTheme: theme.mobileCardTheme.copyWith(
+          padding: const EdgeInsets.all(4),
+          margin: const EdgeInsets.only(bottom: 2),
+          borderRadius: const BorderRadius.all(Radius.circular(6)),
+          vSpacing: 4,
+          hSpacing: 8,
+          gap: 2,
         ),
       );
     }
@@ -393,10 +391,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   void didUpdateWidget(covariant TTable<T, K> oldWidget) {
     super.didUpdateWidget(oldWidget);
     _cachedTheme = null;
-    // Invalidate column-width caches when headers or controller identity changes.
     if (oldWidget.headers != widget.headers || oldWidget.controller != widget.controller) {
-      _cachedRequiredWidth = null;
-      _cachedColumnWidths = null;
+      _cachedMeasurements = null;
     }
     // items/search/itemsPerPage sync is handled automatically by TListStateMixin.didUpdateWidget.
     // Handle table-details-specific updates (expansion mode changes, overlay dismissal).
@@ -421,6 +417,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   void onListStateChanged() {
     super.onListStateChanged();
     _syncDetailFlow();
+    refresh();
   }
 
   @override
@@ -442,7 +439,16 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         // access to constraints.maxWidth for cache invalidation.
         final requiredWidth = _getRequiredWidth();
         final shouldShowCardView = wTheme.forceCardStyle == true || wTheme.grid != null || constraints.maxWidth < requiredWidth;
-        return shouldShowCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
+        final view = shouldShowCardView ? _buildCardView(colors, constraints) : _buildTableView(colors, constraints);
+        return TTableScope(
+          controller: listController,
+          theme: wTheme,
+          dense: wTheme.dense ?? false,
+          isCardView: shouldShowCardView,
+          expansionMode: effectiveExpansionMode,
+          onWillCollapse: widget.details?.onWillCollapse != null ? (dynamic key) => widget.details!.onWillCollapse!(key as K) : null,
+          child: view,
+        );
       },
     );
 
@@ -450,6 +456,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       controller: listController,
       theme: wTheme,
       dense: wTheme.dense ?? false,
+      isCardView: false,
       expansionMode: effectiveExpansionMode,
       onWillCollapse: widget.details?.onWillCollapse != null ? (dynamic key) => widget.details!.onWillCollapse!(key as K) : null,
       child: content,
@@ -457,15 +464,10 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
 
     // Wrap with TTableCellScope only when editable or when cell errors are present
     // so that cell-activation and cell-error rebuilds are bounded to subscribing cells only.
-    if (_activeCellNotifier != null ||
-        widget.cellErrorBuilder != null ||
-        widget.cellErrors != null ||
-        widget.cellErrorsNotifier != null) {
+    if (_activeCellNotifier != null || widget.cellErrorBuilder != null || widget.cellErrors != null || widget.cellErrorsNotifier != null) {
       scopedContent = TTableCellScope(
         activeCellNotifier: _activeCellNotifier ?? ValueNotifier<String?>(null),
-        cellErrorBuilder: widget.cellErrorBuilder != null
-            ? (dynamic data, String col) => widget.cellErrorBuilder!(data as T, col)
-            : null,
+        cellErrorBuilder: widget.cellErrorBuilder != null ? (dynamic data, String col) => widget.cellErrorBuilder!(data as T, col) : null,
         cellErrors: widget.cellErrors,
         errorsNotifier: widget.cellErrorsNotifier,
         child: scopedContent,
@@ -504,7 +506,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   }
 
   Widget _buildTableView(ColorScheme colors, BoxConstraints constraints) {
-    final columnWidths = _getColumnWidths();
+    final columnWidths = _getColumnWidths(constraints.maxWidth);
 
     return _buildListScaffold(
       headerContent: (ctx) => Column(

@@ -96,7 +96,7 @@ class TFormService {
   }
 }
 
-class _TFormContent<T extends TFormBase> extends StatelessWidget {
+class _TFormContent<T extends TFormBase> extends StatefulWidget {
   final T input;
   final void Function(T? result) onClose;
   final EdgeInsets padding;
@@ -110,6 +110,44 @@ class _TFormContent<T extends TFormBase> extends StatelessWidget {
   });
 
   @override
+  State<_TFormContent<T>> createState() => _TFormContentState<T>();
+}
+
+class _TFormContentState<T extends TFormBase> extends State<_TFormContent<T>> {
+  bool _isLoading = false;
+
+  Future<void> _handleSave() async {
+    final errors = widget.input.validationErrors;
+    if (errors.isNotEmpty) {
+      for (var message in errors) {
+        TToastService.error(context, message);
+      }
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final shouldSave = await widget.input.onSave(context);
+      if (shouldSave && mounted) {
+        widget.onClose(widget.input);
+      }
+    } catch (e) {
+      if (mounted) {
+        TToastService.error(context, null, null, TError.from(e));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = context.theme;
     final formWidget = context.isMobilePlatform
@@ -118,18 +156,18 @@ class _TFormContent<T extends TFormBase> extends StatelessWidget {
             panEnabled: true,
             minScale: 1.0,
             maxScale: 1.3,
-            child: TFormBuilder(input: input),
+            child: TFormBuilder(input: widget.input),
           )
-        : TFormBuilder(input: input);
+        : TFormBuilder(input: widget.input);
 
     return Padding(
-      padding: padding,
+      padding: widget.padding,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           formWidget,
           Padding(
-            padding: EdgeInsets.only(top: topSpacing),
+            padding: EdgeInsets.only(top: widget.topSpacing),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               spacing: 10,
@@ -138,22 +176,14 @@ class _TFormContent<T extends TFormBase> extends StatelessWidget {
                   baseTheme: TWidgetTheme.surfaceTheme(context.colors),
                   size: TButtonSize.md.copyWith(minW: 125),
                   text: 'Cancel',
-                  onPressed: (_) => onClose(null),
+                  onPressed: (_) => widget.onClose(null),
                 ),
                 TButton(
                   size: TButtonSize.md.copyWith(minW: 100),
                   color: theme.primary,
                   text: 'Save',
-                  onPressed: (_) {
-                    final errors = input.validationErrors;
-                    if (errors.isNotEmpty) {
-                      for (var message in errors) {
-                        TToastService.error(context, message);
-                      }
-                      return;
-                    }
-                    onClose(input);
-                  },
+                  loading: _isLoading,
+                  onPressed: (_) => _handleSave(),
                 ),
               ],
             ),

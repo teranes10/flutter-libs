@@ -414,6 +414,145 @@ TButton(
 )''',
           ),
 
+          // Button Badges & Alignments
+          WidgetDocCard(
+            title: 'Button Badges & Alignments',
+            description: 'Buttons with notification counts, text pills, status dots, and customizable corner/edge alignments',
+            icon: Icons.mark_chat_unread_outlined,
+            preview: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                TButton(
+                  icon: Icons.notifications_outlined,
+                  text: 'Alerts',
+                  badge: 5,
+                  color: context.theme.primary,
+                  onTap: () {},
+                ),
+                TButton(
+                  type: TButtonType.tonal,
+                  icon: Icons.mail_outline,
+                  text: 'Messages',
+                  badge: 128,
+                  color: context.theme.secondary,
+                  onTap: () {},
+                ),
+                TButton(
+                  shape: TButtonShape.circle,
+                  icon: Icons.chat_bubble_outline,
+                  badge: true,
+                  badgeColor: context.theme.success,
+                  onTap: () {},
+                ),
+                TButton(
+                  type: TButtonType.outline,
+                  icon: Icons.auto_awesome,
+                  text: 'AI Assistant',
+                  badge: 'NEW',
+                  badgeAlignment: Alignment.topLeft,
+                  badgeColor: context.theme.primary,
+                  onTap: () {},
+                ),
+                TButton(
+                  type: TButtonType.softOutline,
+                  icon: Icons.local_offer_outlined,
+                  text: 'Flash Deals',
+                  badge: 'HOT',
+                  badgeAlignment: Alignment.bottomRight,
+                  badgeColor: context.theme.danger,
+                  onTap: () {},
+                ),
+                TButton(
+                  type: TButtonType.tonal,
+                  icon: Icons.inbox,
+                  text: 'Inbox',
+                  badge: 3,
+                  badgeAlignment: Alignment.bottomLeft,
+                  badgeColor: context.theme.info,
+                  onTap: () {},
+                ),
+                TButton(
+                  shape: TButtonShape.circle,
+                  icon: Icons.shopping_bag_outlined,
+                  badge: 2,
+                  onTap: () {},
+                ),
+              ],
+            ),
+            code: '''// 1. Notification Count Badge (Default Top-Right)
+TButton(
+  icon: Icons.notifications_outlined,
+  text: 'Alerts',
+  badge: 5,
+  onTap: () {},
+)
+
+// 2. High Count (Auto Formats to 99+)
+TButton(
+  type: TButtonType.tonal,
+  icon: Icons.mail_outline,
+  text: 'Messages',
+  badge: 128,
+  onTap: () {},
+)
+
+// 3. Status Dot Badge
+TButton(
+  shape: TButtonShape.circle,
+  icon: Icons.chat_bubble_outline,
+  badge: true,
+  badgeColor: AppColors.success,
+  onTap: () {},
+)
+
+// 4. Custom Text Badge on Top-Left
+TButton(
+  type: TButtonType.outline,
+  icon: Icons.auto_awesome,
+  text: 'AI Assistant',
+  badge: 'NEW',
+  badgeAlignment: Alignment.topLeft,
+  badgeColor: AppColors.primary,
+  onTap: () {},
+)
+
+// 5. Custom Text Badge on Bottom-Right
+TButton(
+  icon: Icons.local_offer_outlined,
+  text: 'Flash Deals',
+  badge: 'HOT',
+  badgeAlignment: Alignment.bottomRight,
+  badgeColor: AppColors.danger,
+  onTap: () {},
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'badge',
+                type: 'dynamic',
+                description: 'Badge overlay content. Supports int/num (count), String (text label), bool (status dot), or custom Widget',
+              ),
+              PropertyDoc(
+                name: 'badgeAlignment',
+                type: 'Alignment',
+                defaultValue: 'Alignment.topRight',
+                description: 'The alignment of the badge overlay (topRight, topLeft, bottomRight, bottomLeft, topCenter, etc.)',
+              ),
+              PropertyDoc(
+                name: 'badgeColor',
+                type: 'Color?',
+                description: 'Custom background color for the badge container',
+              ),
+              PropertyDoc(
+                name: 'badgeTextColor',
+                type: 'Color?',
+                defaultValue: 'Colors.white',
+                description: 'Custom text color for numerical or text badges',
+              ),
+            ],
+          ),
+
           // Button Group
           WidgetDocCard(
             title: 'Button Group',

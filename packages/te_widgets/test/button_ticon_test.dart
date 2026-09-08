@@ -208,5 +208,129 @@ void main() {
       expect(find.byType(InkWell), findsNothing);
       expect(find.byType(Container), findsNothing);
     });
+
+    testWidgets('TButton renders count badge with default top-right alignment', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: TButton(
+              icon: Icons.notifications,
+              text: 'Alerts',
+              badge: 5,
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('5'), findsOneWidget);
+
+      final positioned = tester.widget<Positioned>(
+        find.descendant(of: find.byType(TButton), matching: find.byType(Positioned)),
+      );
+      expect(positioned.top, -4.0);
+      expect(positioned.right, -4.0);
+      expect(positioned.left, isNull);
+      expect(positioned.bottom, isNull);
+    });
+
+    testWidgets('TButton renders dot badge when badge is true', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: TButton(
+              icon: Icons.mail,
+              badge: true,
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.descendant(of: find.byType(TButton), matching: find.byType(Positioned)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('TButton renders string badge with custom alignment', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: TButton(
+              icon: Icons.star,
+              text: 'Featured',
+              badge: 'NEW',
+              badgeAlignment: Alignment.topLeft,
+              badgeColor: Colors.blue,
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('NEW'), findsOneWidget);
+
+      final positioned = tester.widget<Positioned>(
+        find.descendant(of: find.byType(TButton), matching: find.byType(Positioned)),
+      );
+      expect(positioned.top, -4.0);
+      expect(positioned.left, -4.0);
+      expect(positioned.right, isNull);
+      expect(positioned.bottom, isNull);
+    });
+
+    testWidgets('TButton renders custom Widget badge', (tester) async {
+      const customKey = Key('custom-badge');
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: TButton(
+              icon: Icons.chat,
+              badge: const SizedBox(key: customKey, width: 10, height: 10),
+              badgeAlignment: Alignment.bottomRight,
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byKey(customKey), findsOneWidget);
+
+      final positioned = tester.widget<Positioned>(
+        find.descendant(of: find.byType(TButton), matching: find.byType(Positioned)),
+      );
+      expect(positioned.bottom, -4.0);
+      expect(positioned.right, -4.0);
+      expect(positioned.top, isNull);
+      expect(positioned.left, isNull);
+    });
+
+    testWidgets('TButton does not render badge when badge is 0, false, empty, or null', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: Column(
+              children: [
+                TButton(text: 'Zero', badge: 0, onTap: () {}),
+                TButton(text: 'False', badge: false, onTap: () {}),
+                TButton(text: 'Empty', badge: '', onTap: () {}),
+                TButton(text: 'Null', badge: null, onTap: () {}),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.descendant(of: find.byType(TButton), matching: find.byType(Positioned)),
+        findsNothing,
+      );
+    });
   });
 }

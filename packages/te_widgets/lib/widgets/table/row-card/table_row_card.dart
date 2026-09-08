@@ -217,13 +217,27 @@ class TTableRowCard<T, K> extends StatelessWidget {
                   final cellMaxWidth = (header.maxWidth != null && header.maxWidth != double.infinity)
                       ? header.maxWidth! + rowTreeExtraWidth
                       : double.infinity;
+                  final cellKey = "${item.key}_${header.text}";
+                  final cellScope = TTableCellScope.maybeScopeOf(context);
+                  final activeCursor = cellScope?.activeCellNotifier ?? TTableCellScope.maybeOf(context);
 
-                  return Container(
+                  final cellContainer = Container(
                     constraints: BoxConstraints(minWidth: cellMinWidth, maxWidth: cellMaxWidth),
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     alignment: header.alignment ?? Alignment.centerLeft,
                     child: cellWidget,
                   );
+
+                  if (activeCursor != null) {
+                    return InkWell(
+                      focusColor: Colors.transparent,
+                      splashColor: Colors.transparent,
+                      onTap: () => activeCursor.value = cellKey,
+                      child: cellContainer,
+                    );
+                  }
+
+                  return cellContainer;
                 }),
               ])
             ],

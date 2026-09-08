@@ -149,7 +149,7 @@ class TTooltip extends StatefulWidget with TPopupMixin {
   final bool disabled;
 
   @override
-  TPopupAlignment get alignment {
+  TPopupAlignment get popupAlignment {
     return switch (position) {
       TTooltipPosition.auto => TPopupAlignment.bottomCenter,
       TTooltipPosition.top => TPopupAlignment.topCenter,

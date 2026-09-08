@@ -5,7 +5,7 @@ enum TInputSize { xs, sm, md, lg }
 extension TInputSizeX on TInputSize? {
   double get height {
     return switch (this) {
-      TInputSize.xs => 32.0,
+      TInputSize.xs => 30.0,
       TInputSize.sm => 38.0,
       TInputSize.md => 48.0,
       TInputSize.lg => 56.0,

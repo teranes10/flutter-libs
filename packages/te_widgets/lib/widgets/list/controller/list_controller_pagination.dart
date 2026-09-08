@@ -171,6 +171,18 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     }
   }
 
+  /// Clears all active advanced search / filter conditions.
+  void clearAdvancedSearch() {
+    handleAdvancedSearchChange(const {});
+  }
+
+  /// Applies a list of [TFilterRule] instances, converting them to JSON and updating advanced search.
+  void handleFilterRulesChange(List<TFilterRule> rules, [List<TFilterDef<T>>? defs]) {
+    final effectiveDefs = defs ?? filterDefs ?? const [];
+    final json = TFilterRule.rulesToJson(rules, effectiveDefs);
+    handleAdvancedSearchChange(json);
+  }
+
   List<int> computeItemsPerPageOptions(List<int> options) {
     if (totalDisplayItems == 0) return [];
     if (totalItems == 0) return <int>{computedItemsPerPage, ...options}.toList()..sort();
@@ -203,12 +215,20 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
         page: page,
         itemsPerPage: itemsPerPage,
         search: search,
+        advancedSearch: advancedSearch,
         append: append,
       );
     }
   }
 
-  void _applyLocalPagination({String? who, int? page, int? itemsPerPage, String? search, bool append = false}) {
+  void _applyLocalPagination({
+    String? who,
+    int? page,
+    int? itemsPerPage,
+    String? search,
+    Map<String, dynamic>? advancedSearch,
+    bool append = false,
+  }) {
     if (itemsPerPage != null && localItems.isEmpty && displayItems.isEmpty) {
       updateState(who: who ?? '_applyLocalPagination', itemsPerPage: itemsPerPage);
       return;
@@ -218,8 +238,16 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     final effectivePage = page ?? value.page;
     final effectiveItemsPerPage = itemsPerPage ?? value.itemsPerPage;
     final effectiveSearch = search ?? value.search;
+    final effectiveAdvancedSearch = advancedSearch ?? value.advancedSearch;
 
-    final filteredItems = _filter.apply(effectiveItems, effectiveSearch);
+    List<T> localFiltered = effectiveItems;
+    if (effectiveAdvancedSearch != null && effectiveAdvancedSearch.isNotEmpty) {
+      localFiltered = localFiltered.where((item) {
+        return TFilterEvaluator.matches(item, effectiveAdvancedSearch, filterDefs);
+      }).toList();
+    }
+
+    final filteredItems = _filter.apply(localFiltered, effectiveSearch);
     final filteredCount = filteredItems.length;
 
     List<TListItem<T, K>> rawDisplayItems;
@@ -251,6 +279,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       page: effectivePage,
       itemsPerPage: effectiveItemsPerPage,
       search: effectiveSearch,
+      advancedSearch: effectiveAdvancedSearch,
       displayItems: rawDisplayItems,
       totalItems: filteredCount,
       hasMoreItems: effectiveItemsPerPage <= 0

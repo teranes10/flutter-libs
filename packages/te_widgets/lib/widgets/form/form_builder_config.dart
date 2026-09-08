@@ -235,6 +235,15 @@ abstract class TFormBase {
   /// Hook called when any value changes.
   void onValueChanged() {}
 
+  /// Hook called after the form has passed validation during submission/saving.
+  ///
+  /// Can be overridden to intercept saving, perform asynchronous confirmation
+  /// (e.g. showing confirmation dialogs with [context]), or run custom pre-save logic.
+  ///
+  /// Return `true` to proceed with saving, or `false` to cancel/abort.
+  /// Defaults to returning `true`.
+  Future<bool> onSave(BuildContext context) async => true;
+
   /// Disposes all field properties.
   void dispose() => _disposeFields(allFields);
 

@@ -29,9 +29,80 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
               },
               tabs: tabs,
             ),
+          if (shouldShowFilterButton) _buildFilterButton(ctx),
           _buildSearchBar(ctx).size(w: 275),
           _buildMoreOptionsButton(ctx),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFilterButton(BuildContext ctx) {
+    final activeController = currentTab == 0 ? _listController : _archiveListController;
+    final defs = effectiveFilterDefs;
+
+    return TDropdown(
+      triggerMode: TDropdownTriggerMode.tap,
+      theme: ctx.theme.dropdownTheme.copyWith(
+        gap: 4.0,
+        boxConstraints: const BoxConstraints(
+          minWidth: 420,
+          maxWidth: 640,
+        ),
+      ),
+      builder: (dropdownCtx, close) {
+        final screenWidth = MediaQuery.of(dropdownCtx).size.width;
+        final panelWidth = (screenWidth * 0.9).clamp(420.0, 580.0);
+
+        return Container(
+          width: panelWidth,
+          constraints: const BoxConstraints(maxHeight: 520),
+          decoration: BoxDecoration(
+            color: dropdownCtx.colors.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: dropdownCtx.colors.outline.withAlpha(80)),
+            boxShadow: [
+              BoxShadow(
+                color: dropdownCtx.colors.shadow.withAlpha(40),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: ValueListenableBuilder<TListState<T, K>>(
+              valueListenable: activeController,
+              builder: (context, state, _) {
+                return TFilterField<Map<String, dynamic>>(
+                  filters: defs,
+                  value: state.advancedSearch,
+                  construct: (json) => json,
+                  toJson: (map) => map,
+                  onValueChanged: (val) => activeController.handleAdvancedSearchChange(val ?? {}),
+                );
+              },
+            ),
+          ),
+        );
+      },
+      child: ValueListenableBuilder<TListState<T, K>>(
+        valueListenable: activeController,
+        builder: (context, state, _) {
+          final activeCount = state.advancedSearch?.keys.length ?? 0;
+          final hasActiveFilters = activeCount > 0;
+
+          return TButton(
+            baseTheme: TWidgetTheme.fieldTheme(
+              context,
+              variant: hasActiveFilters ? TVariant.tonal : TVariant.outline,
+            ),
+            size: TButtonSize.fromInputSize(TInputSize.sm),
+            icon: HugeIcons.strokeRoundedFilter,
+            badge: hasActiveFilters ? activeCount : null,
+            tooltip: hasActiveFilters ? 'Filters ($activeCount active)' : 'Filter',
+          );
+        },
       ),
     );
   }
@@ -125,6 +196,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             TDropdownItem(
               icon: Icons.view_list_rounded,
               text: 'Table View',
+              color: viewMode == 0 ? ctx.colors.primary : null,
               onTap: () {
                 viewMode = 0;
               },
@@ -132,6 +204,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             TDropdownItem(
               icon: Icons.view_agenda_rounded,
               text: 'Card View',
+              color: viewMode == 1 ? ctx.colors.primary : null,
               onTap: () {
                 viewMode = 1;
               },
@@ -139,8 +212,47 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             TDropdownItem(
               icon: Icons.grid_view_rounded,
               text: 'Grid View',
+              color: viewMode == 2 ? ctx.colors.primary : null,
               onTap: () {
                 viewMode = 2;
+              },
+            ),
+          ],
+        ),
+        TDropdownItem(
+          icon: Icons.dashboard_customize_rounded,
+          text: 'Card Layout',
+          children: [
+            TDropdownItem(
+              icon: Icons.wrap_text_rounded,
+              text: 'Stacked Flow',
+              color: cardKeyValueMode == TKeyValueMode.stackedFlow ? ctx.colors.primary : null,
+              onTap: () {
+                cardKeyValueMode = TKeyValueMode.stackedFlow;
+              },
+            ),
+            TDropdownItem(
+              icon: Icons.grid_view_rounded,
+              text: 'Stacked Columns',
+              color: cardKeyValueMode == TKeyValueMode.stackedColumns ? ctx.colors.primary : null,
+              onTap: () {
+                cardKeyValueMode = TKeyValueMode.stackedColumns;
+              },
+            ),
+            TDropdownItem(
+              icon: Icons.horizontal_distribute_rounded,
+              text: 'Inline Flow',
+              color: cardKeyValueMode == TKeyValueMode.inlineFlow ? ctx.colors.primary : null,
+              onTap: () {
+                cardKeyValueMode = TKeyValueMode.inlineFlow;
+              },
+            ),
+            TDropdownItem(
+              icon: Icons.view_column_rounded,
+              text: 'Inline Columns',
+              color: cardKeyValueMode == TKeyValueMode.inlineColumns ? ctx.colors.primary : null,
+              onTap: () {
+                cardKeyValueMode = TKeyValueMode.inlineColumns;
               },
             ),
           ],
@@ -324,7 +436,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             ),
             const SizedBox(width: 8),
             SizedBox(
-              width: 110,
+              width: 125,
               child: TNumberField<int>(
                 value: currentWidth,
                 label: 'Width',

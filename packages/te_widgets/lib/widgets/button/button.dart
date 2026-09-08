@@ -147,6 +147,7 @@ class TButton extends StatefulWidget {
   final Color? activeColor;
 
   /// Rotation turns (initial, active) for animation when active state changes.
+  /// Rotation turns (initial, active) for animation when active state changes.
   final (double initial, double active)? turns;
 
   /// Whether to show a checkmark tick when the button is active.
@@ -157,6 +158,23 @@ class TButton extends StatefulWidget {
 
   /// Custom widget to display for the tick indicator.
   final Widget? tickWidget;
+
+  /// An optional badge to display on the button (e.g. notification count, status dot, text, or custom widget).
+  ///
+  /// Supports [Widget], [String], [num]/[int], or [bool] (for dot indicator).
+  final dynamic badge;
+
+  /// The size configuration for the badge. Defaults to null (uses standard badge size).
+  final TSize? badgeSize;
+
+  /// The alignment of the badge overlay. Defaults to [Alignment.topRight].
+  final Alignment badgeAlignment;
+
+  /// The background color for the badge. Defaults to [AppColors.danger] or error theme color.
+  final Color? badgeColor;
+
+  /// The text color for the badge. Defaults to [Colors.white].
+  final Color? badgeTextColor;
 
   /// A custom child widget to display in the button.
   ///
@@ -217,6 +235,11 @@ class TButton extends StatefulWidget {
     this.showTick = false,
     this.tickAlignment = Alignment.topRight,
     this.tickWidget,
+    this.badge,
+    this.badgeSize,
+    this.badgeAlignment = Alignment.topRight,
+    this.badgeColor,
+    this.badgeTextColor,
     this.child,
     this.onChanged,
     this.duration = const Duration(milliseconds: 400),
@@ -250,12 +273,24 @@ class TButton extends StatefulWidget {
   ///   ),
   /// )
   /// ```
-  static TButton custom({required Widget child, VoidCallback? onTap, String? tooltip}) {
+  static TButton custom({
+    required Widget child,
+    VoidCallback? onTap,
+    String? tooltip,
+    dynamic badge,
+    Alignment badgeAlignment = Alignment.topRight,
+    Color? badgeColor,
+    Color? badgeTextColor,
+  }) {
     return TButton(
       size: TButtonSize.zero,
       shape: TButtonShape.normal,
       onTap: onTap,
       tooltip: tooltip,
+      badge: badge,
+      badgeAlignment: badgeAlignment,
+      badgeColor: badgeColor,
+      badgeTextColor: badgeTextColor,
       child: child,
     );
   }
@@ -353,6 +388,8 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final defaultTheme = context.theme.buttonTheme;
@@ -419,12 +456,14 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             disabled: true,
           ),
       if (!text.isNullOrBlank)
-        widget.loadingNotifier != null && _isLoading
-            ? ValueListenableBuilder<String>(
-                valueListenable: widget.loadingNotifier!,
-                builder: (context, value, _) => Text(value),
-              )
-            : Text(_isLoading ? widget.loadingText : text!),
+        Flexible(
+          child: widget.loadingNotifier != null && _isLoading
+              ? ValueListenableBuilder<String>(
+                  valueListenable: widget.loadingNotifier!,
+                  builder: (context, value, _) => Text(value, overflow: TextOverflow.ellipsis),
+                )
+              : Text(_isLoading ? widget.loadingText : text!, overflow: TextOverflow.ellipsis),
+        ),
       if ((hasIcon || widget.imageUrl != null) && !text.isNullOrBlank && theme.shape == TButtonShape.pill)
         SizedBox(width: theme.size.spacing),
       if (widget.child != null) widget.child!,
@@ -468,7 +507,9 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       );
     }
 
-    if (widget.showTick && _isActive) {
+    final showTick = widget.showTick && _isActive;
+
+    if (showTick) {
       final isTop = widget.tickAlignment.y < 0;
       final isBottom = widget.tickAlignment.y > 0;
       final isLeft = widget.tickAlignment.x < 0;
@@ -477,7 +518,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       final tickColor = widget.activeColor ?? widget.color ?? context.colors.primary;
       final offset = theme.shape.vertical ? 5.0 : 4.0;
 
-      final tick = Positioned(
+      final tickPositioned = Positioned(
         top: isTop ? offset : null,
         bottom: isBottom ? offset : null,
         left: isLeft ? offset : null,
@@ -493,13 +534,24 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             ),
       );
 
-      return Stack(
+      resultButton = Stack(
         fit: StackFit.passthrough,
         clipBehavior: Clip.none,
         children: [
           resultButton,
-          tick,
+          tickPositioned,
         ],
+      );
+    }
+
+    if (widget.badge != null) {
+      resultButton = TBadge(
+        badge: widget.badge,
+        size: widget.badgeSize,
+        alignment: widget.badgeAlignment,
+        color: widget.badgeColor,
+        textColor: widget.badgeTextColor,
+        child: resultButton,
       );
     }
 

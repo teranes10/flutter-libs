@@ -160,6 +160,8 @@ class _TablesPageState extends State<TablesPage> {
               ],
               items: products,
             ),
+            Text('Chips in Tables (Icons, Text & TVariant Variants)', style: context.textTheme.titleMedium),
+            TTable<Product, int>(shrinkWrap: true, headers: chipsTableHeaders, items: products),
             Text('Reorderable Table', style: context.textTheme.titleMedium),
             TTable<Product, String>(
               shrinkWrap: true,
@@ -194,15 +196,113 @@ class Product {
   final int stock;
   final String? imageUrl;
   final String? category;
+  final List<String> tags;
+  final List<String> features;
+  final List<String> badges;
 
-  Product(this.id, this.name, this.price, this.stock, {this.imageUrl, this.category});
+  Product(
+    this.id,
+    this.name,
+    this.price,
+    this.stock, {
+    this.imageUrl,
+    this.category,
+    this.tags = const [],
+    this.features = const [],
+    this.badges = const [],
+  });
 }
 
+final List<TTableHeader<Product, int>> chipsTableHeaders = [
+  TTableHeader.tile(
+    "Product",
+    (x) => x.name,
+    subtitle: (x) => x.category,
+    icon: (x) => Icons.inventory_2_outlined,
+    iconColor: (_) => AppColors.primary,
+    iconBackgroundColor: (_) => AppColors.primary.withAlpha(25),
+  ),
+  // 1. Multiple Chips from Strings via TChip.fromStrings (merges common header color/size)
+  TTableHeader.chips(
+    "Tags (Wrap)",
+    (x) => TChip.fromStrings(x.tags),
+    color: (x, tag) => tag == 'Best Seller' ? AppColors.primary : null,
+    spacing: 4.0,
+  ),
+  // 2. Declarative TChip Items (Each chip defines its own icon/variant/color, or falls back to common config)
+  TTableHeader.chips(
+    "Features (TChip)",
+    (x) => [
+      if (x.features.contains('Pro'))
+        const TChip.solid(text: 'Pro', icon: Icons.star_rounded, color: AppColors.warning),
+      if (x.features.contains('Verified'))
+        const TChip.tonal(text: 'Verified', icon: Icons.verified_rounded, color: AppColors.info),
+      if (x.features.contains('Fast Ship'))
+        const TChip.outline(text: 'Fast Ship', icon: Icons.local_shipping_rounded),
+    ],
+    spacing: 4.0,
+  ),
+  // 3. Chips with Direct TChip Variants (solid, tonal, outline, softOutline)
+  TTableHeader.chips(
+    "Badges",
+    (x) => [
+      for (final badge in x.badges)
+        if (badge == 'Admin Only')
+          const TChip.solid(text: 'Admin Only', color: AppColors.danger)
+        else if (badge == 'Popular')
+          const TChip.tonal(text: 'Popular', color: AppColors.primary)
+        else if (badge == 'New')
+          const TChip.softOutline(text: 'New', color: AppColors.success)
+        else
+          TChip(text: badge), // inherits common fallback config
+    ],
+    type: TVariant.outline,
+    spacing: 4.0,
+  ),
+  // 4. Single Chip with Icon and TVariant
+  TTableHeader.chip(
+    "Status",
+    (x) => x.stock > 0 ? 'In Stock' : 'Out of Stock',
+    icon: (x) => x.stock > 0 ? Icons.check_circle_rounded : Icons.cancel_rounded,
+    typeBuilder: (x) => x.stock > 0 ? TVariant.tonal : TVariant.outline,
+    color: (x) => x.stock > 0 ? AppColors.success : AppColors.danger,
+  ),
+];
+
 final List<TTableHeader<Product, int>> productHeaders = [
-  TTableHeader.image("Image", (x) => x.imageUrl, width: 40),
-  TTableHeader.map("Name", (x) => x.name),
-  TTableHeader.chip("Stock", (x) => x.stock, color: (x) => x.stock < 100 ? AppColors.warning : AppColors.success),
-  TTableHeader.map("Price", (x) => x.price),
+  TTableHeader.tile(
+    "Product",
+    (x) => x.name,
+    subtitle: (x) => x.category,
+    icon: (x) => Icons.inventory_2_outlined,
+    iconColor: (_) => AppColors.primary,
+    iconBackgroundColor: (_) => AppColors.primary.withAlpha(25),
+  ),
+  TTableHeader.progress("Target Goal", (x) => x.stock / 200, valueText: (x) => '${x.stock}/200', colorBuilder: (value, percentage) => percentage < 30 ? AppColors.danger : percentage < 70 ? AppColors.warning : AppColors.success),
+  TTableHeader.chips(
+    "Tags",
+    (x) => TChip.fromStrings(x.tags),
+    spacing: 4.0,
+  ),
+  // Custom Row with STRICT widthEstimator
+  TTableHeader.row(
+    "Custom Badges",
+    (x) => [
+      TChip.tonal(text: x.category ?? 'Item', size: TChipSize.sm),
+      TChip.solid(
+        text: x.stock > 100 ? 'High Stock' : 'Limited',
+        color: x.stock > 100 ? AppColors.success : AppColors.warning,
+        size: TChipSize.sm,
+      ),
+    ],
+    widthEstimator: (x) =>
+        TTableTheme.measureTextWidth(x.category ?? 'Item') +
+        24.0 +
+        TTableTheme.measureTextWidth(x.stock > 100 ? 'High Stock' : 'Limited') +
+        24.0 +
+        8.0,
+  ),
+  TTableHeader.keyValues("Details", (x) => [TKeyValue('ID', value: '#${x.id}'), TKeyValue('Price', value: '\$${x.price}')]),
 ];
 
 final List<Product> products = [
@@ -213,6 +313,9 @@ final List<Product> products = [
     50,
     category: 'Electronics',
     imageUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop',
+    tags: ['Flagship', '5G', 'Best Seller'],
+    features: ['Pro', 'Verified', 'Fast Ship'],
+    badges: ['Popular', 'Admin Only'],
   ),
   Product(
     '2',
@@ -221,6 +324,9 @@ final List<Product> products = [
     150,
     category: 'Audio',
     imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop',
+    tags: ['Wireless', 'Noise Cancelling'],
+    features: ['Verified', 'Fast Ship'],
+    badges: ['New', 'Popular'],
   ),
   Product(
     '3',
@@ -229,5 +335,8 @@ final List<Product> products = [
     75,
     category: 'Wearables',
     imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop',
+    tags: ['Fitness', 'Waterproof'],
+    features: ['Pro', 'Fast Ship'],
+    badges: ['New'],
   ),
 ];

@@ -9,20 +9,78 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         if (widget.showDownloadTemplate)
-          TButton(
-            text: 'Template',
-            icon: Icons.download_rounded,
-            type: TButtonType.tonal,
-            size: TButtonSize.xs,
-            onPressed: (_) => downloadTemplate(),
+          TDropdown(
+            triggerMode: TDropdownTriggerMode.tap,
+            items: [
+              TDropdownItem(
+                icon: Icons.table_chart_rounded,
+                text: 'CSV Template (Comma ,)',
+                onTap: () => downloadTemplate(format: TCsvFileFormat.csv),
+              ),
+              TDropdownItem(
+                icon: Icons.grid_on_rounded,
+                text: 'CSV Template (Semicolon ;)',
+                onTap: () => downloadTemplate(format: TCsvFileFormat.semicolon),
+              ),
+              TDropdownItem(
+                icon: Icons.table_rows_rounded,
+                text: 'TSV Template (Tab \\t)',
+                onTap: () => downloadTemplate(format: TCsvFileFormat.tsv),
+              ),
+              TDropdownItem(
+                icon: Icons.view_column_outlined,
+                text: 'PSV Template (Pipe |)',
+                onTap: () => downloadTemplate(format: TCsvFileFormat.pipe),
+              ),
+              TDropdownItem(
+                icon: Icons.data_object_rounded,
+                text: 'JSON Template (.json)',
+                onTap: () => downloadTemplate(format: TCsvFileFormat.json),
+              ),
+            ],
+            child: TButton(
+              text: 'Template',
+              icon: Icons.download_rounded,
+              type: TButtonType.tonal,
+              size: TButtonSize.xs,
+            ),
           ),
         if (widget.showExport && rows.isNotEmpty)
-          TButton(
-            text: 'Export CSV',
-            icon: Icons.file_download_outlined,
-            type: TButtonType.tonal,
-            size: TButtonSize.xs,
-            onPressed: (_) => exportCurrentData(),
+          TDropdown(
+            triggerMode: TDropdownTriggerMode.tap,
+            items: [
+              TDropdownItem(
+                icon: Icons.table_chart_rounded,
+                text: 'Export as CSV (Comma ,)',
+                onTap: () => exportCurrentData(format: TCsvFileFormat.csv),
+              ),
+              TDropdownItem(
+                icon: Icons.grid_on_rounded,
+                text: 'Export as CSV (Semicolon ;)',
+                onTap: () => exportCurrentData(format: TCsvFileFormat.semicolon),
+              ),
+              TDropdownItem(
+                icon: Icons.table_rows_rounded,
+                text: 'Export as TSV (Tab \\t)',
+                onTap: () => exportCurrentData(format: TCsvFileFormat.tsv),
+              ),
+              TDropdownItem(
+                icon: Icons.view_column_outlined,
+                text: 'Export as PSV (Pipe |)',
+                onTap: () => exportCurrentData(format: TCsvFileFormat.pipe),
+              ),
+              TDropdownItem(
+                icon: Icons.data_object_rounded,
+                text: 'Export as JSON (.json)',
+                onTap: () => exportCurrentData(format: TCsvFileFormat.json),
+              ),
+            ],
+            child: TButton(
+              text: 'Export',
+              icon: Icons.file_download_outlined,
+              type: TButtonType.tonal,
+              size: TButtonSize.xs,
+            ),
           ),
         if (rows.isNotEmpty)
           TButton(
@@ -74,12 +132,12 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
               ),
               const SizedBox(height: 12),
               Text(
-                'Click or Drag & Drop CSV File here',
+                'Click or Drag & Drop File here',
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colors.onSurface),
               ),
               const SizedBox(height: 4),
               Text(
-                'Supports .csv, .tsv, .txt files with comma or semicolon delimiters',
+                'Supports CSV (,), Semicolon (;), TSV (Tab), Pipe (|), and JSON (.json) files with auto-detection',
                 style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
               ),
               const SizedBox(height: 12),
@@ -96,7 +154,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
                   if (widget.allowPaste) ...[
                     const SizedBox(width: 8),
                     TButton(
-                      text: 'Paste CSV Text',
+                      text: 'Paste Data',
                       icon: Icons.paste_rounded,
                       type: TButtonType.softText,
                       size: TButtonSize.xs,
@@ -135,10 +193,15 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
       ),
       child: TAlignedRow(
         left: [
-          Icon(Icons.insert_drive_file_outlined, color: colors.primary, size: 20),
+          Icon(detectedFormat.icon, color: colors.primary, size: 20),
           Text(
             loadedFileName ?? 'Manual Dataset',
             style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colors.onSurface),
+          ),
+          TChip(
+            text: detectedFormat.shortLabel,
+            type: TVariant.tonal,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           ),
           TChip(
             text: '${rows.length} rows',
@@ -177,7 +240,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
           ),
           if (widget.allowPaste)
             TButton(
-              text: 'Paste CSV',
+              text: 'Paste Data',
               icon: Icons.paste_rounded,
               type: TButtonType.softText,
               size: TButtonSize.xs,
@@ -191,6 +254,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
   Widget buildDiffHeadersBanner(ColorScheme colors) {
     final mappedCount = currentMapping?.mapping.values.where((v) => v != null && v.isNotEmpty).length ?? 0;
     final totalExpected = widget.columns.length;
+    final formatLabel = detectedFormat == TCsvFileFormat.json ? 'JSON properties' : 'File headers';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -205,7 +269,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'CSV headers differ from expected schema. ($mappedCount of $totalExpected columns mapped)',
+              '$formatLabel differ from expected schema. ($mappedCount of $totalExpected columns mapped)',
               style: TextStyle(fontSize: 12, color: colors.onPrimaryContainer, fontWeight: FontWeight.w500),
             ),
           ),

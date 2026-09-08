@@ -70,7 +70,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 const TBottomBarItem(icon: Icons.person_outline, label: 'Profile'),
               ],
               currentBottomIndex: 2, // 'Create' is selected
-              child: SingleChildScrollView(
+              child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: TStepper(
                   type: TStepperType.horizontal,
@@ -85,6 +85,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
               ),
             ),
           ),
+          const SizedBox(height: 48),
         ],
       ),
     );

@@ -30,6 +30,9 @@ class TPageWrapper extends StatefulWidget {
   /// Optional key-value information to display below the description.
   final List<TKeyValue>? itemInfo;
 
+  /// Layout presentation mode for [itemInfo]. If provided, takes precedence over [itemInfoGridInline].
+  final TKeyValueMode? itemInfoMode;
+
   /// Whether to display key and value inline in grid layout (Key: Value) for itemInfo. Defaults to true.
   final bool itemInfoGridInline;
 
@@ -60,6 +63,7 @@ class TPageWrapper extends StatefulWidget {
     this.onBackPressed,
     this.actions,
     this.itemInfo,
+    this.itemInfoMode,
     this.itemInfoGridInline = true,
     this.shrinkWrap = false,
     this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -206,8 +210,8 @@ class _TPageWrapperState extends State<TPageWrapper> {
             const SizedBox(height: 10),
             TKeyValueSection(
               values: widget.itemInfo!,
+              mode: widget.itemInfoMode ?? (widget.itemInfoGridInline ? TKeyValueMode.inlineFlow : TKeyValueMode.stackedFlow),
               theme: context.theme.keyValueTheme.copyWith(
-                gridInline: widget.itemInfoGridInline,
                 valueStyle: context.theme.keyValueTheme.valueStyle.copyWith(
                   color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                 ),

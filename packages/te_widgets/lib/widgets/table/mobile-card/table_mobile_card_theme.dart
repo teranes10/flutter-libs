@@ -25,11 +25,10 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     this.borderRadius = const BorderRadius.all(Radius.circular(12)),
     required this.backgroundColor,
     required this.border,
+    super.mode,
     required super.keyStyle,
     required super.labelStyle,
     required super.valueStyle,
-    super.gridHorizontalSpacing,
-    super.gridVerticalSpacing,
     super.minGridColWidth,
     super.forceKeyValue,
     super.keyValueBreakPoint,
@@ -42,7 +41,6 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     super.narrowValueFlex,
     super.narrowGap,
     super.gridCellPadding,
-    super.gridCellGap,
     super.maxColWidthFraction,
     super.minFractionFixed,
     super.minFractionStructured,
@@ -55,15 +53,19 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     super.columns,
     super.inlineKeyWidth,
     super.inlineKeyMaxWidth,
-    super.inlineKeyGap,
     super.inlineKeyAlignment,
     super.removeEmpty,
     super.selectable,
+    super.hSpacing,
+    super.vSpacing,
+    super.gap,
   });
 
   factory TTableMobileCardTheme.defaultTheme(ColorScheme colors) {
     final baseTheme = TKeyValueTheme.defaultTheme(colors);
     return TTableMobileCardTheme(
+      mode: TKeyValueMode.stackedFlow,
+      gridInline: true,
       keyStyle: baseTheme.keyStyle,
       labelStyle: baseTheme.labelStyle,
       valueStyle: baseTheme.valueStyle,
@@ -81,6 +83,7 @@ class TTableMobileCardTheme extends TKeyValueTheme {
 
   @override
   TTableMobileCardTheme copyWith({
+    TKeyValueMode? mode,
     EdgeInsets? margin,
     EdgeInsets? padding,
     double? elevation,
@@ -90,8 +93,6 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     TextStyle? keyStyle,
     TextStyle? labelStyle,
     TextStyle? valueStyle,
-    double? gridHorizontalSpacing,
-    double? gridVerticalSpacing,
     double? minGridColWidth,
     bool? forceKeyValue,
     double? keyValueBreakPoint,
@@ -104,9 +105,8 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     int? narrowValueFlex,
     double? narrowGap,
     EdgeInsets? gridCellPadding,
-    double? gridCellGap,
     double? maxColWidthFraction,
-    minFractionFixed,
+    double? minFractionFixed,
     double? minFractionStructured,
     double? minFractionCompact,
     double? minFractionProse,
@@ -117,12 +117,15 @@ class TTableMobileCardTheme extends TKeyValueTheme {
     int? columns,
     double? inlineKeyWidth,
     double? inlineKeyMaxWidth,
-    double? inlineKeyGap,
     Alignment? inlineKeyAlignment,
     bool? removeEmpty,
     bool? selectable,
+    double? hSpacing,
+    double? vSpacing,
+    double? gap,
   }) {
     return TTableMobileCardTheme(
+      mode: mode ?? this.mode,
       margin: margin ?? this.margin,
       padding: padding ?? this.padding,
       elevation: elevation ?? this.elevation,
@@ -132,8 +135,6 @@ class TTableMobileCardTheme extends TKeyValueTheme {
       keyStyle: keyStyle ?? this.keyStyle,
       labelStyle: labelStyle ?? this.labelStyle,
       valueStyle: valueStyle ?? this.valueStyle,
-      gridHorizontalSpacing: gridHorizontalSpacing ?? this.gridHorizontalSpacing,
-      gridVerticalSpacing: gridVerticalSpacing ?? this.gridVerticalSpacing,
       minGridColWidth: minGridColWidth ?? this.minGridColWidth,
       forceKeyValue: forceKeyValue ?? this.forceKeyValue,
       keyValueBreakPoint: keyValueBreakPoint ?? this.keyValueBreakPoint,
@@ -146,7 +147,6 @@ class TTableMobileCardTheme extends TKeyValueTheme {
       narrowValueFlex: narrowValueFlex ?? this.narrowValueFlex,
       narrowGap: narrowGap ?? this.narrowGap,
       gridCellPadding: gridCellPadding ?? this.gridCellPadding,
-      gridCellGap: gridCellGap ?? this.gridCellGap,
       maxColWidthFraction: maxColWidthFraction ?? this.maxColWidthFraction,
       minFractionFixed: minFractionFixed ?? this.minFractionFixed,
       minFractionStructured: minFractionStructured ?? this.minFractionStructured,
@@ -159,10 +159,12 @@ class TTableMobileCardTheme extends TKeyValueTheme {
       columns: columns ?? this.columns,
       inlineKeyWidth: inlineKeyWidth ?? this.inlineKeyWidth,
       inlineKeyMaxWidth: inlineKeyMaxWidth ?? this.inlineKeyMaxWidth,
-      inlineKeyGap: inlineKeyGap ?? this.inlineKeyGap,
       inlineKeyAlignment: inlineKeyAlignment ?? this.inlineKeyAlignment,
       removeEmpty: removeEmpty ?? this.removeEmpty,
       selectable: selectable ?? this.selectable,
+      hSpacing: hSpacing ?? rawHSpacing,
+      vSpacing: vSpacing ?? rawVSpacing,
+      gap: gap ?? rawGap,
     );
   }
 }

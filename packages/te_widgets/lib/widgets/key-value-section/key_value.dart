@@ -118,14 +118,6 @@ class TKeyValue {
 
   /// Maps table headers to key-value items for list view representation.
   static List<TKeyValue> mapHeaders<T, K>(BuildContext ctx, List<TTableHeader<T, K>> headers, TListItem<T, K> item, int index) {
-    return headers
-        .map((h) => TKeyValue(
-              h.text,
-              value: h.getValue(item.data),
-              widget: h.builder != null ? h.builder!(ctx, item, index) : null,
-              width: h.minWidth,
-              minWidth: h.minWidth,
-            ))
-        .toList();
+    return headers.expand((h) => h.toKeyValues(ctx, item, index)).toList();
   }
 }

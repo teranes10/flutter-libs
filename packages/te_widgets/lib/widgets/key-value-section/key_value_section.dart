@@ -41,6 +41,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TKeyValueSection extends StatelessWidget {
   final List<TKeyValue> values;
   final TKeyValueTheme? theme;
+  final TKeyValueMode? mode;
   final bool? forceKeyValue;
   final bool? valueAfterKey;
   final int? columns;
@@ -48,11 +49,10 @@ class TKeyValueSection extends StatelessWidget {
   final bool? columnar;
   final double? inlineKeyWidth;
   final double? inlineKeyMaxWidth;
-  final double? inlineKeyGap;
   final Alignment? inlineKeyAlignment;
-  final double? gridHorizontalSpacing;
-  final double? gridVerticalSpacing;
-  final double? gridCellGap;
+  final double? hSpacing;
+  final double? vSpacing;
+  final double? gap;
   final bool? removeEmpty;
   final bool? selectable;
 
@@ -60,6 +60,7 @@ class TKeyValueSection extends StatelessWidget {
     super.key,
     required this.values,
     this.theme,
+    this.mode,
     this.forceKeyValue,
     this.valueAfterKey,
     this.columns,
@@ -70,65 +71,80 @@ class TKeyValueSection extends StatelessWidget {
     this.inlineKeyAlignment,
     this.removeEmpty,
     this.selectable,
-    double? inlineKeyGap,
-    double? gridHorizontalSpacing,
-    double? gridVerticalSpacing,
-    double? gridCellGap,
-    double? hSpacing,
-    double? vSpacing,
-    double? gap,
-  })  : inlineKeyGap = gap ?? inlineKeyGap,
-        gridHorizontalSpacing = hSpacing ?? gridHorizontalSpacing,
-        gridVerticalSpacing = vSpacing ?? gridVerticalSpacing,
-        gridCellGap = gap ?? gridCellGap;
+    this.hSpacing,
+    this.vSpacing,
+    this.gap,
+  });
 
-  /// Factory constructor for inline dynamic flow layout where `Key: Value` items wrap naturally based on width.
-  factory TKeyValueSection.flow({
-    Key? key,
-    required List<TKeyValue> values,
-    TKeyValueTheme? theme,
-    double gap = 8,
-    double hSpacing = 20,
-    double vSpacing = 12,
-    bool? removeEmpty,
-  }) {
-    return TKeyValueSection(
-      key: key,
-      values: values,
-      theme: theme,
-      gridInline: true,
-      columnar: false,
-      inlineKeyGap: gap,
-      gridHorizontalSpacing: hSpacing,
-      gridVerticalSpacing: vSpacing,
-      removeEmpty: removeEmpty,
-    );
-  }
-
-  /// Factory constructor for stacked dynamic flow layout where keys are stacked above values and wrap naturally based on width.
+  /// Factory constructor for **stacked flow** layout (keys stacked above values, dynamically wrapping based on content width).
   factory TKeyValueSection.flowStacked({
     Key? key,
     required List<TKeyValue> values,
     TKeyValueTheme? theme,
-    double gap = 4,
-    double hSpacing = 16,
-    double vSpacing = 12,
+    double? gap,
+    double? hSpacing,
+    double? vSpacing,
     bool? removeEmpty,
   }) {
     return TKeyValueSection(
       key: key,
       values: values,
       theme: theme,
-      gridInline: false,
-      columnar: false,
-      gridCellGap: gap,
-      gridHorizontalSpacing: hSpacing,
-      gridVerticalSpacing: vSpacing,
+      mode: TKeyValueMode.stackedFlow,
+      gap: gap,
+      hSpacing: hSpacing,
+      vSpacing: vSpacing,
       removeEmpty: removeEmpty,
     );
   }
 
-  /// Factory constructor for inline multi-column grid layout with vertically aligned key columns.
+  /// Factory constructor for **stacked columns** layout (keys stacked above values in uniform multi-column grid).
+  factory TKeyValueSection.columnsStacked({
+    Key? key,
+    required List<TKeyValue> values,
+    TKeyValueTheme? theme,
+    int? columns,
+    double? gap,
+    double? hSpacing,
+    double? vSpacing,
+    bool? removeEmpty,
+  }) {
+    return TKeyValueSection(
+      key: key,
+      values: values,
+      theme: theme,
+      mode: TKeyValueMode.stackedColumns,
+      columns: columns,
+      gap: gap,
+      hSpacing: hSpacing,
+      vSpacing: vSpacing,
+      removeEmpty: removeEmpty,
+    );
+  }
+
+  /// Factory constructor for **inline flow** layout (`Key: Value` inline, dynamically wrapping based on content width).
+  factory TKeyValueSection.flow({
+    Key? key,
+    required List<TKeyValue> values,
+    TKeyValueTheme? theme,
+    double? gap,
+    double? hSpacing,
+    double? vSpacing,
+    bool? removeEmpty,
+  }) {
+    return TKeyValueSection(
+      key: key,
+      values: values,
+      theme: theme,
+      mode: TKeyValueMode.inlineFlow,
+      gap: gap,
+      hSpacing: hSpacing,
+      vSpacing: vSpacing,
+      removeEmpty: removeEmpty,
+    );
+  }
+
+  /// Factory constructor for **inline columns** layout (`Key: Value` inline in aligned multi-column grid).
   factory TKeyValueSection.columnsInline({
     Key? key,
     required List<TKeyValue> values,
@@ -136,72 +152,48 @@ class TKeyValueSection extends StatelessWidget {
     int? columns,
     double? keyWidth,
     double? keyMaxWidth,
-    double gap = 16,
+    double? gap,
     Alignment? keyAlignment,
-    double hSpacing = 24,
-    double vSpacing = 12,
+    double? hSpacing,
+    double? vSpacing,
     bool? removeEmpty,
   }) {
     return TKeyValueSection(
       key: key,
       values: values,
       theme: theme,
-      gridInline: true,
-      columnar: true,
+      mode: TKeyValueMode.inlineColumns,
       columns: columns,
       inlineKeyWidth: keyWidth,
       inlineKeyMaxWidth: keyMaxWidth,
-      inlineKeyGap: gap,
+      gap: gap,
       inlineKeyAlignment: keyAlignment,
-      gridHorizontalSpacing: hSpacing,
-      gridVerticalSpacing: vSpacing,
+      hSpacing: hSpacing,
+      vSpacing: vSpacing,
       removeEmpty: removeEmpty,
     );
   }
 
-  /// Factory constructor for stacked multi-column grid layout with uniform/proportional columns.
-  factory TKeyValueSection.columnsStacked({
-    Key? key,
-    required List<TKeyValue> values,
-    TKeyValueTheme? theme,
-    int? columns,
-    double gap = 4,
-    double hSpacing = 20,
-    double vSpacing = 14,
-    bool? removeEmpty,
-  }) {
-    return TKeyValueSection(
-      key: key,
-      values: values,
-      theme: theme,
-      gridInline: false,
-      columnar: true,
-      columns: columns,
-      gridCellGap: gap,
-      gridHorizontalSpacing: hSpacing,
-      gridVerticalSpacing: vSpacing,
-      removeEmpty: removeEmpty,
-    );
-  }
-
-  /// Factory constructor for split single-column layout (Key on far left, Value on far right).
+  /// Factory constructor for **split** single-column layout (Key on far left, Value on far right).
   factory TKeyValueSection.split({
     Key? key,
     required List<TKeyValue> values,
     TKeyValueTheme? theme,
     bool valueAfterKey = false,
-    double gap = 8,
-    double vSpacing = 10,
+    double? gap,
+    double? hSpacing,
+    double? vSpacing,
     bool? removeEmpty,
   }) {
     return TKeyValueSection(
       key: key,
       values: values,
       theme: theme,
-      forceKeyValue: true,
+      mode: TKeyValueMode.split,
       valueAfterKey: valueAfterKey,
-      gridCellGap: gap,
-      gridVerticalSpacing: vSpacing,
+      gap: gap,
+      hSpacing: hSpacing,
+      vSpacing: vSpacing,
       removeEmpty: removeEmpty,
     );
   }
@@ -210,18 +202,25 @@ class TKeyValueSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final baseTheme = theme ?? context.theme.keyValueTheme;
+    final effectiveMode = mode ?? baseTheme.mode;
+    final effectiveGridInline =
+        effectiveMode != null ? (effectiveMode == TKeyValueMode.inlineFlow || effectiveMode == TKeyValueMode.inlineColumns) : gridInline;
+    final effectiveColumnar =
+        effectiveMode != null ? (effectiveMode == TKeyValueMode.stackedColumns || effectiveMode == TKeyValueMode.inlineColumns) : columnar;
+    final effectiveForceKeyValue = effectiveMode != null ? (effectiveMode == TKeyValueMode.split) : forceKeyValue;
+
     final wTheme = baseTheme.copyWith(
-      forceKeyValue: forceKeyValue,
-      gridInline: gridInline,
-      columnar: columnar,
+      mode: effectiveMode,
+      forceKeyValue: effectiveForceKeyValue,
+      gridInline: effectiveGridInline,
+      columnar: effectiveColumnar,
       columns: columns,
       inlineKeyWidth: inlineKeyWidth,
       inlineKeyMaxWidth: inlineKeyMaxWidth,
-      inlineKeyGap: inlineKeyGap,
       inlineKeyAlignment: inlineKeyAlignment,
-      gridHorizontalSpacing: gridHorizontalSpacing,
-      gridVerticalSpacing: gridVerticalSpacing,
-      gridCellGap: gridCellGap,
+      hSpacing: hSpacing,
+      vSpacing: vSpacing,
+      gap: gap,
       removeEmpty: removeEmpty,
       selectable: selectable,
     );
@@ -336,11 +335,17 @@ class _KeyValueLayout extends StatelessWidget {
                   values[i].icon!,
                   const SizedBox(width: 8),
                 ],
-                if (valueAfterKey) ...[
-                  Text(values[i].key, style: theme.keyStyle).when(!values[i].key.isNullOrBlank),
+                if (valueAfterKey || theme.gridInline) ...[
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: Text(theme.gridInline ? '${values[i].key}:' : values[i].key, style: theme.keyStyle),
+                  ).when(!values[i].key.isNullOrBlank),
                   const SizedBox(width: 8).when(!values[i].key.isNullOrBlank),
                   Flexible(
-                    child: _CellContent(kv: values[i], theme: theme),
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: _CellContent(kv: values[i], theme: theme),
+                    ),
                   ),
                 ] else ...[
                   Expanded(
@@ -402,7 +407,7 @@ class _GridLayout extends StatelessWidget {
     final dir = Directionality.maybeOf(context) ?? TextDirection.ltr;
     final scaler = MediaQuery.textScalerOf(context);
     final paddingHorizontal = theme.gridCellPadding.horizontal;
-    final spacing = theme.gridHorizontalSpacing;
+    final spacing = theme.hSpacing;
     final maxAllowed = math.min(values.length, theme.maxItemsPerRow);
 
     final measuredKeys = <double>[];
@@ -448,7 +453,7 @@ class _GridLayout extends StatelessWidget {
         for (int i = c; i < values.length; i += cols) {
           double itemW;
           if (theme.gridInline) {
-            final gap = colKeyW > 0 ? theme.inlineKeyGap : 0.0;
+            final gap = colKeyW > 0 ? theme.gap : 0.0;
             itemW = colKeyW + gap + measuredVals[i] + paddingHorizontal;
           } else {
             itemW = math.max(measuredKeys[i], measuredVals[i]) + paddingHorizontal;
@@ -621,14 +626,15 @@ class _GridCell extends StatelessWidget {
 
     Widget cell = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (keyWidget != null) ...[
           keyWidget,
-          SizedBox(width: theme.inlineKeyGap),
+          SizedBox(width: theme.gap),
         ],
-        Expanded(
+        Flexible(
           child: Align(
-            alignment: kv.alignment ?? Alignment.topLeft,
+            alignment: Alignment.topLeft,
             child: _CellContent(kv: kv, theme: theme),
           ),
         ),
@@ -643,8 +649,8 @@ class _GridCell extends StatelessWidget {
 
   Widget _buildStackedCell() {
     Widget cell = Column(
-      crossAxisAlignment: (kv.alignment ?? theme.alignment).colCrossAxis,
-      mainAxisAlignment: (kv.alignment ?? theme.alignment).colMainAxis,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         if (!kv.key.isNullOrBlank)
@@ -656,8 +662,11 @@ class _GridCell extends StatelessWidget {
               Text(kv.key, style: theme.labelStyle),
             ],
           ),
-        if (!kv.key.isNullOrBlank) SizedBox(height: theme.gridCellGap + (kv.widget != null ? 2 : 0)),
-        _CellContent(kv: kv, theme: theme),
+        if (!kv.key.isNullOrBlank) SizedBox(height: theme.gap + (kv.widget != null ? 2 : 0)),
+        Align(
+          alignment: Alignment.topLeft,
+          child: _CellContent(kv: kv, theme: theme),
+        ),
       ],
     );
 
@@ -676,7 +685,9 @@ class _CellContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (kv.widget != null) return kv.widget!;
+    if (kv.widget != null) {
+      return kv.widget!;
+    }
     if (theme.selectable) {
       return SelectableText(kv.value ?? '', style: theme.valueStyle);
     }
@@ -754,8 +765,8 @@ class _RenderKeyValueGrid extends RenderBox
     }
   }
 
-  double get _horizontalSpacing => _theme.gridHorizontalSpacing;
-  double get _verticalSpacing => _theme.gridVerticalSpacing;
+  double get _horizontalSpacing => _theme.hSpacing;
+  double get _verticalSpacing => _theme.vSpacing;
   double get _maxColWidthFraction => _theme.maxColWidthFraction;
   double get _additionalNaturalWidth => _theme.additionalNaturalWidth;
   int? get _fixedColumns => (_theme.columns != null && _theme.columns! > 0) ? _theme.columns : null;
@@ -787,7 +798,12 @@ class _RenderKeyValueGrid extends RenderBox
         parentUsesSize: true,
       );
 
-      final intrinsicWidth = child.getMaxIntrinsicWidth(double.infinity);
+      double intrinsicWidth;
+      try {
+        intrinsicWidth = child.getMaxIntrinsicWidth(double.infinity);
+      } catch (_) {
+        intrinsicWidth = child.size.width;
+      }
       double naturalW = math.min(intrinsicWidth, constrainedMaxWidth) + _additionalNaturalWidth;
 
       if (kv.minWidth != null) naturalW = math.max(naturalW, kv.minWidth!);

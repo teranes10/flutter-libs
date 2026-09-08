@@ -21,7 +21,9 @@ class GridPage extends StatelessWidget {
 
     return TTable<ProductDto, int>(
       grid: TGridMode.aligned,
-      gridDelegate: (context) => context.isMobile ? TGridDelegate(crossAxisCount: 1) : TGridDelegate(maxCrossAxisExtent: 350),
+      gridDelegate: (context) => context.isMobile
+          ? TGridDelegate(crossAxisCount: 1)
+          : TGridDelegate(maxCrossAxisExtent: 400, mainAxisSpacing: 8.0, crossAxisSpacing: 16.0),
       headers: headers,
       onLoad: ProductsClient().loadMore,
     );

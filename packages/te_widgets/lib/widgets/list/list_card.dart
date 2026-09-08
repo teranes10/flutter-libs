@@ -43,6 +43,12 @@ class TListCard extends StatelessWidget {
   /// Optional image URL.
   final String? imageUrl;
 
+  /// Optional icon to display before the text content.
+  final dynamic icon;
+
+  /// Optional custom leading widget.
+  final Widget? leading;
+
   /// Whether the card is selected.
   final bool isSelected;
 
@@ -76,6 +82,8 @@ class TListCard extends StatelessWidget {
     required this.title,
     this.subTitle,
     this.imageUrl,
+    this.icon,
+    this.leading,
     this.isSelected = false,
     this.isExpanded = false,
     this.isDisabled = false,
@@ -118,6 +126,17 @@ class TListCard extends StatelessWidget {
               child: Row(
                 children: [
                   if (wTheme.showSelectionIndicator) wTheme.selectionIndicatorBuilder(multiple, isSelected, isDisabled),
+                  if (leading != null) ...[
+                    leading!,
+                    const SizedBox(width: 10),
+                  ] else if (icon != null) ...[
+                    TIcon.raw(
+                      icon,
+                      size: 18,
+                      color: isSelected ? colors.onPrimaryContainer : colors.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                   Expanded(child: wTheme.contentBuilder(title, subTitle, imageUrl, isSelected, isDisabled)),
                   if (effectiveHasChildren) wTheme.expansionIndicatorBuilder(isExpanded, isDisabled),
                 ],
@@ -134,10 +153,13 @@ class TListCard extends StatelessWidget {
   }
 
   /// Creates a copy of the card with updated properties.
-  TListCard copyWith({int? level, TListCardTheme? theme}) {
+  TListCard copyWith({int? level, TListCardTheme? theme, dynamic icon, Widget? leading}) {
     return TListCard(
       title: title,
       subTitle: subTitle,
+      imageUrl: imageUrl,
+      icon: icon ?? this.icon,
+      leading: leading ?? this.leading,
       isSelected: isSelected,
       isExpanded: isExpanded,
       isDisabled: isDisabled,

@@ -50,6 +50,7 @@ class TMenuRootTrigger<T extends TMenuItemData<T>> extends StatefulWidget {
 
 class _TMenuRootTriggerState<T extends TMenuItemData<T>> extends State<TMenuRootTrigger<T>> {
   final OverlayPortalController _overlayController = OverlayPortalController();
+  final Object _rootId = Object();
   bool _isHovered = false;
   Timer? _hoverTimer;
 
@@ -63,22 +64,22 @@ class _TMenuRootTriggerState<T extends TMenuItemData<T>> extends State<TMenuRoot
   @override
   void dispose() {
     _hoverTimer?.cancel();
+    TMenuOverlayController.disposeRoot(_rootId);
     super.dispose();
   }
 
-  void _toggle() {
+  void _toggle(Object? parentRootId) {
     if (_overlayController.isShowing) {
-      TMenuOverlayController.hideAll();
+      TMenuOverlayController.hideRoot(_rootId);
     } else if (_hasAnything) {
-      TMenuOverlayController.hideAll();
-      TMenuOverlayController.show(0, _overlayController);
+      TMenuOverlayController.show(0, _overlayController, rootId: _rootId, parentRootId: parentRootId);
     }
   }
 
   void _onEnter() {
     if (_useTapOnly) return;
     setState(() => _isHovered = true);
-    TMenuOverlayController.setTriggerHovered(true);
+    TMenuOverlayController.setTriggerHovered(true, rootId: _rootId);
     _scheduleShow();
   }
 
@@ -86,21 +87,23 @@ class _TMenuRootTriggerState<T extends TMenuItemData<T>> extends State<TMenuRoot
     if (_useTapOnly) return;
     setState(() => _isHovered = false);
     _hoverTimer?.cancel();
-    TMenuOverlayController.setTriggerHovered(false);
+    TMenuOverlayController.setTriggerHovered(false, rootId: _rootId);
   }
 
   void _scheduleShow() {
     _hoverTimer?.cancel();
     _hoverTimer = Timer(widget.theme.showDelay, () {
       if (mounted && _isHovered && _hasAnything) {
-        TMenuOverlayController.hideAll();
-        TMenuOverlayController.show(0, _overlayController);
+        final parentRootId = TMenuScope.maybeOf(context);
+        TMenuOverlayController.show(0, _overlayController, rootId: _rootId, parentRootId: parentRootId);
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final parentRootId = TMenuScope.maybeOf(context);
+
     return OverlayPortal.overlayChildLayoutBuilder(
       controller: _overlayController,
       overlayChildBuilder: (context, layoutInfo) {
@@ -113,40 +116,48 @@ class _TMenuRootTriggerState<T extends TMenuItemData<T>> extends State<TMenuRoot
           alignment: FractionalOffset.topLeft,
         );
 
-        Widget content;
-        if (widget.builder != null) {
-          content = Container(constraints: constraints.contentBox, child: widget.builder!(context, TMenuOverlayController.hideAll));
-        } else if (_hasMenu) {
-          content = TMenuOverlayPanel<T>(
-            items: _visibleItems,
-            level: 1,
-            theme: widget.theme,
-            isActive: widget.isActive,
-            containsActive: widget.containsActive,
-            onItemTap: widget.onItemTap,
-          );
-        } else {
-          content = TMenuTooltip(text: widget.tooltipText ?? '', onTap: widget.onTooltipTap);
-        }
-
-        return Stack(
-          children: [
-            if (_useTapOnly)
-              Positioned.fill(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: TMenuOverlayController.hideAll,
+        return TMenuScope(
+          rootId: _rootId,
+          child: Stack(
+            children: [
+              if (_useTapOnly)
+                Positioned.fill(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => TMenuOverlayController.hideRoot(_rootId),
+                  ),
+                ),
+              CustomSingleChildLayout(
+                delegate: PopupPositionDelegate(
+                  constraints: constraints,
+                  alignment: widget.theme.alignment,
+                  offset: widget.theme.offset,
+                ),
+                child: Builder(
+                  builder: (scopeCtx) {
+                    if (widget.builder != null) {
+                      return Container(
+                        constraints: constraints.contentBox,
+                        child: widget.builder!(scopeCtx, () => TMenuOverlayController.hideRoot(_rootId)),
+                      );
+                    } else if (_hasMenu) {
+                      return TMenuOverlayPanel<T>(
+                        items: _visibleItems,
+                        level: 1,
+                        rootId: _rootId,
+                        theme: widget.theme,
+                        isActive: widget.isActive,
+                        containsActive: widget.containsActive,
+                        onItemTap: widget.onItemTap,
+                      );
+                    } else {
+                      return TMenuTooltip(text: widget.tooltipText ?? '', onTap: widget.onTooltipTap);
+                    }
+                  },
                 ),
               ),
-            CustomSingleChildLayout(
-              delegate: PopupPositionDelegate(
-                constraints: constraints,
-                alignment: widget.theme.alignment,
-                offset: widget.theme.offset,
-              ),
-              child: content,
-            ),
-          ],
+            ],
+          ),
         );
       },
       child: MouseRegion(
@@ -154,7 +165,7 @@ class _TMenuRootTriggerState<T extends TMenuItemData<T>> extends State<TMenuRoot
         onExit: (_) => _onExit(),
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: _useTapOnly ? _toggle : null,
+          onTap: () => _toggle(parentRootId),
           child: widget.child,
         ),
       ),

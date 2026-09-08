@@ -65,72 +65,11 @@ class TButtonShape {
   }
 }
 
-/// Defines the size metrics of a button.
-@immutable
-class TButtonSize {
-  final double minW, minH, hPad, vPad, font, icon, spacing;
-
-  WidgetStateProperty<EdgeInsets> get paddingState => WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: hPad, vertical: vPad));
-
-  WidgetStateProperty<EdgeInsets> get tilePaddingState =>
-      WidgetStateProperty.all(EdgeInsets.only(top: vPad * 1.75, bottom: vPad * 1.25, left: hPad, right: hPad));
-
-  WidgetStateProperty<Size> get minimumSizeState => WidgetStateProperty.all(Size(minW, minH));
-
-  const TButtonSize._({
-    required this.minW,
-    required this.minH,
-    required this.hPad,
-    required this.vPad,
-    required this.font,
-    required this.icon,
-    required this.spacing,
-  });
-
-  TButtonSize copyWith({
-    double? minW,
-    double? minH,
-    double? hPad,
-    double? vPad,
-    double? font,
-    double? icon,
-    double? spacing,
-  }) {
-    return TButtonSize._(
-      minW: minW ?? this.minW,
-      minH: minH ?? this.minH,
-      hPad: hPad ?? this.hPad,
-      vPad: vPad ?? this.vPad,
-      font: font ?? this.font,
-      icon: icon ?? this.icon,
-      spacing: spacing ?? this.spacing,
-    );
-  }
-
-  static const TButtonSize zero = TButtonSize._(minW: 0, minH: 0, hPad: 0, vPad: 0, font: 0, icon: 0, spacing: 0);
-  static const TButtonSize xxs = TButtonSize._(minW: 22, minH: 22, hPad: 2, vPad: 2, font: 10, icon: 12, spacing: 3);
-  static const TButtonSize xs = TButtonSize._(minW: 28, minH: 28, hPad: 6, vPad: 2, font: 11, icon: 14, spacing: 4);
-  static const TButtonSize sm = TButtonSize._(minW: 32, minH: 32, hPad: 10, vPad: 4, font: 12, icon: 16, spacing: 5);
-  static const TButtonSize md = TButtonSize._(minW: 38, minH: 38, hPad: 12, vPad: 6, font: 13, icon: 18, spacing: 6);
-  static const TButtonSize lg = TButtonSize._(minW: 45, minH: 45, hPad: 16, vPad: 8, font: 16, icon: 22, spacing: 8);
-  static const TButtonSize block = TButtonSize._(minW: double.infinity, minH: 38, hPad: 12, vPad: 6, font: 13, icon: 18, spacing: 6);
-
-  /// Creates a button size from an input size.
-  TButtonSize.fromInputSize(TInputSize size)
-      : minW = size.height,
-        minH = size.height,
-        hPad = 3,
-        vPad = 3,
-        font = size.fontSize,
-        icon = size.fontSize + 6,
-        spacing = size.padding.right;
-}
-
 /// Theme configuration for [TButton].
 @immutable
 class TButtonTheme {
   final TWidgetTheme baseTheme;
-  final TButtonSize size;
+  final TSize size;
   final TButtonShape shape;
   final ButtonStyle buttonStyle;
   final double? scaleOnPress;
@@ -145,7 +84,7 @@ class TButtonTheme {
 
   TButtonTheme copyWith({
     TWidgetTheme? baseTheme,
-    TButtonSize? size,
+    TSize? size,
     TButtonShape? shape,
     ButtonStyle? buttonStyle,
     double? scaleOnPress,
@@ -167,7 +106,7 @@ class TButtonTheme {
     ColorScheme colors, {
     TVariant type = TVariant.solid,
     TButtonShape shape = TButtonShape.normal,
-    TButtonSize size = TButtonSize.md,
+    TSize size = TSize.md,
   }) {
     final baseTheme = TWidgetTheme.from(colors.isDarkMode, colors.primary, type);
 
@@ -179,7 +118,7 @@ class TButtonTheme {
     );
   }
 
-  static ButtonStyle buildButtonStyle(TWidgetTheme baseTheme, TButtonShape shape, TButtonSize size) {
+  static ButtonStyle buildButtonStyle(TWidgetTheme baseTheme, TButtonShape shape, TSize size) {
     final padding = switch (shape) {
       TButtonShape.tile => size.tilePaddingState,
       _ => size.paddingState,

@@ -6,6 +6,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
     int? viewMode,
     TTableExpansionMode? expansionMode,
     TTableExpansionMode? createMode,
+    TKeyValueMode? cardKeyValueMode,
     double? dialogWidth,
     double? sideOverlayWidth,
     double? createDialogWidth,
@@ -55,6 +56,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       if (cached.viewMode != null) _viewMode = cached.viewMode!;
       if (cached.expansionMode != null) _selectedExpansionMode = cached.expansionMode;
       if (cached.createMode != null) _selectedCreateMode = cached.createMode;
+      if (cached.cardKeyValueMode != null) _cardKeyValueMode = cached.cardKeyValueMode;
       if (cached.dialogWidth != null) _dialogWidth = cached.dialogWidth;
       if (cached.sideOverlayWidth != null) _sideOverlayWidth = cached.sideOverlayWidth;
       if (cached.createDialogWidth != null) _createDialogWidth = cached.createDialogWidth;
@@ -72,6 +74,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       final savedViewMode = pageStorage.readState(context, identifier: 'tc_viewMode_$routeKey') as int?;
       final savedExpModeName = pageStorage.readState(context, identifier: 'tc_expMode_$routeKey') as String?;
       final savedCreateModeName = pageStorage.readState(context, identifier: 'tc_createMode_$routeKey') as String?;
+      final savedCardKvModeName = pageStorage.readState(context, identifier: 'tc_cardKvMode_$routeKey') as String?;
       final savedDialogWidth = pageStorage.readState(context, identifier: 'tc_dialogWidth_$routeKey') as double?;
       final savedSideOverlayWidth = pageStorage.readState(context, identifier: 'tc_sideOverlayWidth_$routeKey') as double?;
       final savedCreateDialogWidth = pageStorage.readState(context, identifier: 'tc_createDialogWidth_$routeKey') as double?;
@@ -88,6 +91,10 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       if (savedCreateModeName != null) {
         _selectedCreateMode =
             TTableExpansionMode.values.firstWhere((e) => e.name == savedCreateModeName, orElse: () => effectiveCreateMode);
+      }
+      if (savedCardKvModeName != null) {
+        _cardKeyValueMode =
+            TKeyValueMode.values.firstWhere((e) => e.name == savedCardKvModeName, orElse: () => cardKeyValueMode);
       }
       if (savedDialogWidth != null) _dialogWidth = savedDialogWidth;
       if (savedSideOverlayWidth != null) _sideOverlayWidth = savedSideOverlayWidth;
@@ -106,6 +113,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       final savedViewMode = prefs.getInt('${prefix}_viewMode');
       final savedExpModeName = prefs.getString('${prefix}_expMode');
       final savedCreateModeName = prefs.getString('${prefix}_createMode');
+      final savedCardKvModeName = prefs.getString('${prefix}_cardKvMode');
       final savedDialogWidth = prefs.getDouble('${prefix}_dialogWidth');
       final savedSideOverlayWidth = prefs.getDouble('${prefix}_sideOverlayWidth');
       final savedCreateDialogWidth = prefs.getDouble('${prefix}_createDialogWidth');
@@ -133,6 +141,13 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
         final mode = TTableExpansionMode.values.firstWhere((e) => e.name == savedCreateModeName, orElse: () => effectiveCreateMode);
         if (mode != _selectedCreateMode) {
           _selectedCreateMode = mode;
+          changed = true;
+        }
+      }
+      if (savedCardKvModeName != null) {
+        final mode = TKeyValueMode.values.firstWhere((e) => e.name == savedCardKvModeName, orElse: () => cardKeyValueMode);
+        if (mode != _cardKeyValueMode) {
+          _cardKeyValueMode = mode;
           changed = true;
         }
       }
@@ -167,6 +182,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
           viewMode: _viewMode,
           expansionMode: _selectedExpansionMode,
           createMode: _selectedCreateMode,
+          cardKeyValueMode: _cardKeyValueMode,
           dialogWidth: _dialogWidth,
           sideOverlayWidth: _sideOverlayWidth,
           createDialogWidth: _createDialogWidth,
@@ -189,6 +205,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       viewMode: _viewMode,
       expansionMode: _selectedExpansionMode,
       createMode: _selectedCreateMode,
+      cardKeyValueMode: _cardKeyValueMode,
       dialogWidth: _dialogWidth,
       sideOverlayWidth: _sideOverlayWidth,
       createDialogWidth: _createDialogWidth,
@@ -206,6 +223,9 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       }
       if (_selectedCreateMode != null) {
         pageStorage.writeState(context, _selectedCreateMode!.name, identifier: 'tc_createMode_$routeKey');
+      }
+      if (_cardKeyValueMode != null) {
+        pageStorage.writeState(context, _cardKeyValueMode!.name, identifier: 'tc_cardKvMode_$routeKey');
       }
       if (_dialogWidth != null) {
         pageStorage.writeState(context, _dialogWidth, identifier: 'tc_dialogWidth_$routeKey');
@@ -233,6 +253,9 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       }
       if (_selectedCreateMode != null) {
         prefs.setString('${prefix}_createMode', _selectedCreateMode!.name);
+      }
+      if (_cardKeyValueMode != null) {
+        prefs.setString('${prefix}_cardKvMode', _cardKeyValueMode!.name);
       }
       if (_dialogWidth != null) {
         prefs.setDouble('${prefix}_dialogWidth', _dialogWidth!);

@@ -21,6 +21,7 @@ import 'package:te_widgets/widgets/menu/menu_overlay_panel.dart';
 class TMenuOverlayItem<T extends TMenuItemData<T>> extends StatefulWidget {
   final T item;
   final int level;
+  final Object? rootId;
   final TMenuTheme theme;
   final bool isActive;
   final bool containsActive;
@@ -38,6 +39,7 @@ class TMenuOverlayItem<T extends TMenuItemData<T>> extends StatefulWidget {
     super.key,
     required this.item,
     required this.level,
+    this.rootId,
     required this.theme,
     this.isActive = false,
     this.containsActive = false,
@@ -73,13 +75,13 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
       if (_overlayController.isShowing) {
         _overlayController.hide();
       } else {
-        TMenuOverlayController.show(widget.level + 1, _overlayController);
+        TMenuOverlayController.show(widget.level + 1, _overlayController, rootId: widget.rootId);
       }
       return;
     }
     if (!widget.item.isClickable) return;
     widget.item.tap(context);
-    TMenuOverlayController.hideAll();
+    TMenuOverlayController.hideRoot(widget.rootId);
     widget.onTap?.call(widget.item);
   }
 
@@ -93,7 +95,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
     } else {
       _hoverTimer?.cancel();
       _hoverTimer = Timer(widget.theme.showDelay, () {
-        if (mounted && _isHovered) TMenuOverlayController.hideDeeperThan(widget.level);
+        if (mounted && _isHovered) TMenuOverlayController.hideDeeperThan(widget.level, rootId: widget.rootId);
       });
     }
   }
@@ -108,7 +110,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
     _hoverTimer?.cancel();
     _hoverTimer = Timer(widget.theme.showDelay, () {
       if (mounted && _isHovered) {
-        TMenuOverlayController.show(widget.level + 1, _overlayController);
+        TMenuOverlayController.show(widget.level + 1, _overlayController, rootId: widget.rootId);
       }
     });
   }
@@ -170,6 +172,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
               child: TMenuOverlayPanel<T>(
                 items: widget.item.visibleChildren,
                 level: widget.level + 1,
+                rootId: widget.rootId,
                 theme: childTheme,
                 isActive: widget.isActiveFn,
                 containsActive: widget.containsActiveFn,

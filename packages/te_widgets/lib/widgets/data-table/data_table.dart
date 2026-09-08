@@ -252,6 +252,14 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
   }
 
   @override
+  void onListStateChanged() {
+    super.onListStateChanged();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
@@ -295,13 +303,14 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
       }
     }
 
-    Widget toolbar = Container(
+    Widget toolbar = Padding(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: TAlignedRow(
           wrapperModeThreshold: 1,
           left: [
             Row(
               mainAxisSize: MainAxisSize.min,
+              spacing: 8,
               children: [
                 _buildPaginationInfo(colors, 'Items per page'),
                 _buildItemsPerPage(80),

@@ -93,19 +93,43 @@ class _TDateTimeTextFieldState<T extends String?> extends State<TDateTimeTextFie
         TInputValueStateMixin<T, TDateTimeTextField<T>>,
         TInputValidationStateMixin<T, TDateTimeTextField<T>> {
   @override
+  void initState() {
+    super.initState();
+    final initialRaw = widget.textController?.text.isNotEmpty == true
+        ? widget.textController!.text
+        : (widget.valueNotifier?.value ?? widget.value);
+    final formatted = widget.formatType.format(initialRaw);
+    if (textController.text != formatted) {
+      textController.text = formatted;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant TDateTimeTextField<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.formatType != widget.formatType) {
+      final formatted = widget.formatType.format(currentValue ?? textController.text);
+      if (textController.text != formatted) {
+        textController.text = formatted;
+      }
+    }
+  }
+
+  @override
   void onExternalValueChanged(T? value) {
     super.onExternalValueChanged(value);
-    final effectiveValue = (value == null || value.isEmpty) ? widget.formatType.placeholder : value;
-    if (textController.text != effectiveValue) {
-      textController.text = effectiveValue;
+    final formatted = widget.formatType.format(value);
+    if (textController.text != formatted) {
+      textController.text = formatted;
     }
   }
 
   @override
   TextEditingController buildTextController() {
+    final initialRaw = widget.valueNotifier?.value ?? widget.value;
     return _TDateTimeEditingController(
       formatType: widget.formatType,
-      text: widget.value ?? widget.formatType.placeholder,
+      text: widget.formatType.format(initialRaw),
     );
   }
 

@@ -165,6 +165,135 @@ TAvatar(
             ],
           ),
 
+          // TImage Sizing & Aspect Ratio
+          WidgetDocCard(
+            title: 'TImage - Sizing & Aspect Ratio',
+            description: 'Supports width-only (auto height), height-only (auto width), size, and explicit aspect ratios',
+            icon: Icons.aspect_ratio,
+            preview: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                // Width only with Aspect Ratio (16:9)
+                TImage(
+                  url: 'https://picsum.photos/400/300',
+                  width: 140,
+                  aspectRatio: 16 / 9,
+                  title: '16:9 Ratio',
+                  subTitle: 'width: 140',
+                ),
+                // Height only with Aspect Ratio (4:3)
+                TImage(
+                  url: 'https://picsum.photos/400/300',
+                  height: 80,
+                  aspectRatio: 4 / 3,
+                  title: '4:3 Ratio',
+                  subTitle: 'height: 80',
+                ),
+                // Fixed size (Square 1:1)
+                TImage(
+                  url: 'https://picsum.photos/400/300',
+                  size: 70,
+                  title: '1:1 Square',
+                  subTitle: 'size: 70',
+                ),
+              ],
+            ),
+            code: '''// Width specified with 16:9 aspect ratio
+TImage(
+  url: 'https://picsum.photos/400/300',
+  width: 140,
+  aspectRatio: 16 / 9,
+  title: '16:9 Ratio',
+)
+
+// Height specified with 4:3 aspect ratio
+TImage(
+  url: 'https://picsum.photos/400/300',
+  height: 80,
+  aspectRatio: 4 / 3,
+  title: '4:3 Ratio',
+)
+
+// Square size
+TImage(
+  url: 'https://picsum.photos/400/300',
+  size: 70,
+)''',
+            properties: const [
+              PropertyDoc(name: 'width', type: 'double?', description: 'Explicit width of the image'),
+              PropertyDoc(name: 'height', type: 'double?', description: 'Explicit height of the image'),
+              PropertyDoc(name: 'size', type: 'double?', defaultValue: '80', description: 'Default square size when width/height are omitted'),
+              PropertyDoc(name: 'aspectRatio', type: 'double?', description: 'Calculates the missing dimension (width/aspectRatio or height*aspectRatio)'),
+            ],
+          ),
+
+          // TImage Cropping Behavior (Alignment)
+          WidgetDocCard(
+            title: 'TImage - Cropping Behavior',
+            description: 'Control how images are cropped using alignment (topCenter, center, bottomCenter)',
+            icon: Icons.crop,
+            preview: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                TImage(
+                  url: 'https://picsum.photos/400/600',
+                  width: 100,
+                  height: 70,
+                  alignment: Alignment.topCenter,
+                  title: 'Top Crop',
+                  subTitle: 'Alignment.topCenter',
+                ),
+                TImage(
+                  url: 'https://picsum.photos/400/600',
+                  width: 100,
+                  height: 70,
+                  alignment: Alignment.center,
+                  title: 'Center Crop',
+                  subTitle: 'Alignment.center',
+                ),
+                TImage(
+                  url: 'https://picsum.photos/400/600',
+                  width: 100,
+                  height: 70,
+                  alignment: Alignment.bottomCenter,
+                  title: 'Bottom Crop',
+                  subTitle: 'Alignment.bottomCenter',
+                ),
+              ],
+            ),
+            code: '''// Top crop alignment
+TImage(
+  url: 'https://picsum.photos/400/600',
+  width: 100,
+  height: 70,
+  alignment: Alignment.topCenter,
+)
+
+// Center crop alignment (default)
+TImage(
+  url: 'https://picsum.photos/400/600',
+  width: 100,
+  height: 70,
+  alignment: Alignment.center,
+)
+
+// Bottom crop alignment
+TImage(
+  url: 'https://picsum.photos/400/600',
+  width: 100,
+  height: 70,
+  alignment: Alignment.bottomCenter,
+)''',
+            properties: const [
+              PropertyDoc(name: 'alignment', type: 'AlignmentGeometry', defaultValue: 'Alignment.center', description: 'Positioning and cropping alignment (e.g. topCenter, center, bottomCenter)'),
+              PropertyDoc(name: 'fit', type: 'BoxFit', defaultValue: 'BoxFit.cover', description: 'How the image should fit within its bounds'),
+            ],
+          ),
+
           const SizedBox(height: 40),
         ],
       ),

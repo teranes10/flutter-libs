@@ -38,9 +38,11 @@ import 'package:my_app/pages/tables_tree_children_page.dart';
 import 'package:my_app/pages/tabs_page.dart';
 import 'package:my_app/pages/delivery_page.dart';
 import 'package:my_app/pages/timeline_page.dart';
+import 'package:my_app/pages/filter_field_page.dart';
 
 final sidebarItems = [
   TSidebarItem(icon: Icons.text_fields, text: 'Input Fields', route: '/input-fields', page: const InputFieldsPage()),
+  TSidebarItem(icon: Icons.filter_alt, text: 'Filter Fields', route: '/filter-fields', page: const FilterFieldPage()),
   TSidebarItem(icon: Icons.check_box, text: 'Select Fields', route: '/select-fields', page: const SelectFieldsPage()),
   TSidebarItem(icon: Icons.calendar_month, text: 'Pickers', route: '/pickers', page: const PickersPage()),
   TSidebarItem(icon: Icons.smart_button, text: 'Buttons', route: '/buttons', page: const ButtonsPage()),

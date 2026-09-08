@@ -9,18 +9,19 @@ part 'csv_editor_actions.dart';
 part 'csv_editor_banners.dart';
 part 'csv_editor_table.dart';
 
-/// A rich, interactive CSV upload, header mapping, and inline-editable data table.
+/// A rich, interactive CSV, TSV, DSV, and JSON upload, header mapping, and inline-editable data table.
 ///
-/// `TCsvEditor` provides an all-in-one solution for CSV management:
-/// - **File upload**: Drag & drop or browse `.csv`, `.tsv`, `.txt` files, or paste raw CSV text.
-/// - **Header mapping**: Automatically matches CSV headers to expected schema columns,
+/// `TCsvEditor` provides an all-in-one generic data management solution:
+/// - **File upload**: Drag & drop or browse `.csv`, `.tsv`, `.txt`, `.json`, `.psv` files, or paste raw data.
+/// - **Auto-detection**: Automatically detects format (JSON vs Delimited) and delimiters (`,`, `;`, `\t`, `|`).
+/// - **Header mapping**: Automatically matches file headers / JSON keys to expected schema columns,
 ///   with interactive visual re-mapping for mismatched column names.
 /// - **Inline editing**: Type-aware table cells:
 ///   - Text: [TTextField]
 ///   - Number / Integer: [TNumberField]
 ///   - Boolean: [TSwitch] toggle via [TTableHeader.toggle]
 /// - **Validation**: Real-time cell & row error detection (required fields, number parsing, custom rules).
-/// - **Actions**: Add/delete/duplicate rows, download CSV starter template, export edited data to CSV,
+/// - **Actions**: Add/delete/duplicate rows, download starter template, export data to CSV/TSV/JSON/PSV with custom delimiters,
 ///   and execute upload/save callbacks.
 ///
 /// ## Basic Usage
@@ -39,7 +40,7 @@ part 'csv_editor_table.dart';
 /// )
 /// ```
 class TCsvEditor extends StatefulWidget {
-  /// The schema of expected columns for the CSV data.
+  /// The schema of expected columns for the CSV/JSON data.
   final List<TCsvColumn> columns;
 
   /// Initial rows to populate the table (optional).
@@ -66,7 +67,7 @@ class TCsvEditor extends StatefulWidget {
   /// Whether to show the Download Template button.
   final bool showDownloadTemplate;
 
-  /// Whether to show the Export CSV button.
+  /// Whether to show the Export button.
   final bool showExport;
 
   /// Whether to allow adding new rows manually.
@@ -78,10 +79,10 @@ class TCsvEditor extends StatefulWidget {
   /// Whether to allow duplicating rows.
   final bool allowDuplicateRow;
 
-  /// Whether to allow raw CSV pasting.
+  /// Whether to allow raw CSV/TSV/JSON pasting.
   final bool allowPaste;
 
-  /// Whether to automatically prompt the header mapping dialog when uploaded CSV headers differ.
+  /// Whether to automatically prompt the header mapping dialog when uploaded headers differ.
   final bool autoPromptMappingOnDiff;
 
   /// Theme configuration for the editor.
@@ -90,14 +91,20 @@ class TCsvEditor extends StatefulWidget {
   /// Items per page for pagination (0 or null for all items in a scrollable view).
   final int itemsPerPage;
 
+  /// Allowed file extensions for the file picker (default: `['csv', 'tsv', 'txt', 'json', 'psv']`).
+  final List<String> allowedExtensions;
+
+  /// Default format to use when exporting or downloading templates.
+  final TCsvFileFormat defaultExportFormat;
+
   const TCsvEditor({
     super.key,
     required this.columns,
     this.initialData,
     this.onSave,
     this.onDataChanged,
-    this.title = 'CSV Data Editor',
-    this.subtitle = 'Upload a CSV file or add rows manually to review and edit data.',
+    this.title = 'Data Editor',
+    this.subtitle = 'Upload a CSV, TSV, or JSON file, or add rows manually to review and edit data.',
     this.saveButtonText = 'Upload Data',
     this.saveButtonIcon = Icons.cloud_upload_outlined,
     this.showDownloadTemplate = true,
@@ -109,6 +116,8 @@ class TCsvEditor extends StatefulWidget {
     this.autoPromptMappingOnDiff = true,
     this.theme,
     this.itemsPerPage = 20,
+    this.allowedExtensions = const ['csv', 'tsv', 'txt', 'json', 'psv'],
+    this.defaultExportFormat = TCsvFileFormat.csv,
   });
 
   @override
@@ -122,6 +131,10 @@ abstract class _TCsvEditorStateContract extends State<TCsvEditor> {
   set loadedFileName(String? val);
   int? get loadedFileSize;
   set loadedFileSize(int? val);
+  TCsvFileFormat get detectedFormat;
+  set detectedFormat(TCsvFileFormat val);
+  String get effectiveDelimiter;
+  set effectiveDelimiter(String val);
   List<String> get rawCsvHeaders;
   set rawCsvHeaders(List<String> val);
   List<List<String>> get rawCsvRows;
@@ -149,6 +162,12 @@ class _TCsvEditorState extends _TCsvEditorStateContract with _TCsvEditorActions,
   int? loadedFileSize;
 
   @override
+  TCsvFileFormat detectedFormat = TCsvFileFormat.csv;
+
+  @override
+  String effectiveDelimiter = ',';
+
+  @override
   List<String> rawCsvHeaders = [];
 
   @override
@@ -172,6 +191,7 @@ class _TCsvEditorState extends _TCsvEditorStateContract with _TCsvEditorActions,
   @override
   void initState() {
     super.initState();
+    detectedFormat = widget.defaultExportFormat;
     if (widget.initialData != null && widget.initialData!.isNotEmpty) {
       for (final map in widget.initialData!) {
         final row = TCsvRow(values: map);

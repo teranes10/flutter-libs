@@ -19,6 +19,9 @@ class TTableScope extends InheritedWidget {
   /// Whether the table is dense.
   final bool dense;
 
+  /// Whether the table is currently rendered as cards (mobile/card view) rather than a row-based table.
+  final bool isCardView;
+
   /// The active expansion mode of the table.
   final TTableExpansionMode? expansionMode;
 
@@ -30,11 +33,20 @@ class TTableScope extends InheritedWidget {
     super.key,
     required this.controller,
     required this.dense,
+    this.isCardView = false,
     this.theme,
     this.expansionMode,
     this.onWillCollapse,
     required super.child,
   });
+
+  /// The content text style based on the current mode (row or card).
+  TextStyle? get contentTextStyle {
+    if (isCardView) {
+      return theme?.mobileCardTheme.valueStyle;
+    }
+    return theme?.rowCardTheme.contentTextStyle;
+  }
 
   /// Collapses or closes the active detail view, checking `onWillCollapse` if provided.
   Future<void> close(BuildContext context) async {
@@ -78,6 +90,7 @@ class TTableScope extends InheritedWidget {
       controller != oldWidget.controller ||
       theme != oldWidget.theme ||
       dense != oldWidget.dense ||
+      isCardView != oldWidget.isCardView ||
       expansionMode != oldWidget.expansionMode ||
       onWillCollapse != oldWidget.onWillCollapse;
 }

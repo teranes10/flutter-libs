@@ -130,6 +130,22 @@ class TWidgetTheme {
     );
   }
 
+  static TWidgetTheme fieldTheme(BuildContext context, {TVariant variant = TVariant.tonal}) {
+    final colors = context.colors;
+    final parentColor = context.getBackgroundColor(colors.surface);
+
+    return TWidgetTheme(
+      isDarkMode: colors.isDarkMode,
+      type: variant,
+      color: colors.onSurfaceVariant.toMaterial(),
+      container: parentColor.adaptiveContrast(context, 0.025),
+      containerVariant: parentColor.adaptiveContrast(context, 0.02),
+      onContainer: colors.onSurface,
+      onContainerVariant: colors.onSurfaceVariant,
+      shadow: colors.shadow,
+    );
+  }
+
   static TWidgetTheme solidTheme(Color color, [bool isDarkMode = false]) {
     final m = color.toMaterial();
     return TWidgetTheme(

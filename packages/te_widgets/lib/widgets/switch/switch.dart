@@ -85,8 +85,11 @@ class TSwitch extends StatefulWidget with TInputFieldMixin, TInputValueMixin<boo
   @override
   final bool disabled;
 
-  /// Custom color for the switch.
+  /// Custom color for the switch when active/on.
   final Color? color;
+
+  /// Custom color for the switch when inactive/off.
+  final Color? inactiveColor;
 
   /// The size of the switch.
   final TInputSize? size;
@@ -116,6 +119,7 @@ class TSwitch extends StatefulWidget with TInputFieldMixin, TInputValueMixin<boo
     this.autoFocus = false,
     this.disabled = false,
     this.color,
+    this.inactiveColor,
     this.size = TInputSize.md,
     this.theme,
   });
@@ -192,7 +196,7 @@ class _TSwitchState<T> extends State<TSwitch>
             activeThumbColor: Colors.white,
             inactiveThumbColor: Colors.white,
             activeTrackColor: widgetTheme.container,
-            inactiveTrackColor: colors.surfaceContainerHighest,
+            inactiveTrackColor: widget.inactiveColor ?? colors.surfaceContainerHighest,
             trackOutlineWidth: WidgetStateProperty.all(0.1),
             trackOutlineColor: WidgetStateProperty.all(colors.outlineVariant),
           ),

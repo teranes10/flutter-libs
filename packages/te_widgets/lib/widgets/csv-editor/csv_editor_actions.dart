@@ -3,14 +3,14 @@ part of 'csv_editor.dart';
 /// Actions, file I/O, parsing, mapping, and mutation handlers for [_TCsvEditorState].
 mixin _TCsvEditorActions on _TCsvEditorStateContract {
   // ---------------------------------------------------------------------------
-  // CSV Upload & Parsing
+  // Data Upload & Parsing
   // ---------------------------------------------------------------------------
 
   Future<void> pickFile() async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['csv', 'tsv', 'txt'],
+        allowedExtensions: widget.allowedExtensions,
         withData: true,
       );
 
@@ -24,24 +24,24 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
       }
 
       final content = utf8.decode(bytes, allowMalformed: true);
-      processCsvContent(content, fileName: file.name, fileSize: file.size);
+      processContent(content, fileName: file.name, fileSize: file.size);
     } catch (e) {
-      if (mounted) TToastService.error(context, 'Error reading CSV file: $e');
+      if (mounted) TToastService.error(context, 'Error reading file: $e');
     }
   }
 
-  void processCsvContent(String content, {String? fileName, int? fileSize}) {
-    final parsed = TCsvParser.parse(content);
+  void processContent(String content, {String? fileName, int? fileSize, String? delimiter}) {
+    final parsed = TCsvParser.parseGeneric(content, delimiter: delimiter);
     if (parsed.isEmpty) {
-      if (mounted) TToastService.warning(context, 'The CSV file is empty.');
+      if (mounted) TToastService.warning(context, 'The file is empty.');
       return;
     }
 
-    final headers = parsed.first;
-    final dataRows = parsed.skip(1).toList();
+    final headers = parsed.headers;
+    final dataRows = parsed.rows;
 
     if (dataRows.isEmpty) {
-      if (mounted) TToastService.warning(context, 'The CSV file contains only headers and no data rows.');
+      if (mounted) TToastService.warning(context, 'The file contains only headers and no data records.');
       return;
     }
 
@@ -54,6 +54,8 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
     setState(() {
       loadedFileName = fileName ?? 'Uploaded File';
       loadedFileSize = fileSize;
+      detectedFormat = parsed.format;
+      effectiveDelimiter = parsed.delimiter ?? ',';
       rawCsvHeaders = headers;
       rawCsvRows = dataRows;
       currentMapping = autoMapping;
@@ -67,10 +69,15 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
       openMappingDialog();
     } else {
       if (mounted) {
-        TToastService.success(context, 'Loaded ${dataRows.length} rows from ${fileName ?? "CSV"}.');
+        final formatName = parsed.format.shortLabel;
+        TToastService.success(context, 'Loaded ${dataRows.length} rows from $formatName file.');
       }
     }
   }
+
+  /// Backward compatible alias for [processContent].
+  void processCsvContent(String content, {String? fileName, int? fileSize}) =>
+      processContent(content, fileName: fileName, fileSize: fileSize);
 
   void applyMapping(TCsvHeaderMapping mapping) {
     setState(() {
@@ -125,14 +132,15 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text(
-            'Paste your raw CSV / TSV text below including header row.',
+            'Paste your raw CSV, TSV, Semicolon, Pipe delimited text, or JSON array below.',
             style: TextStyle(fontSize: 13),
           ),
           const SizedBox(height: 12),
           TTextField(
             textController: textController,
-            rows: 8,
-            placeholder: 'Name,Price,InStock\nItem 1,19.99,true\nItem 2,24.50,false',
+            rows: 9,
+            placeholder:
+                '// CSV / Delimited Example:\nSKU,Name,Price,InStock\nSKU-1,Product 1,19.99,true\n\n// OR JSON Example:\n[\n  {"sku": "SKU-1", "name": "Product 1", "price": 19.99, "in_stock": true}\n]',
             autoFocus: true,
           ),
           const SizedBox(height: 16),
@@ -157,13 +165,13 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
           ),
         ],
       ),
-      title: 'Paste Raw CSV Text',
-      width: 600,
+      title: 'Paste Data (CSV / TSV / JSON)',
+      width: 650,
       showCloseButton: true,
     );
 
     if (pasted != null && pasted.trim().isNotEmpty) {
-      processCsvContent(pasted, fileName: 'Pasted Data (${DateTime.now().hour}:${DateTime.now().minute})');
+      processContent(pasted, fileName: 'Pasted Data (${DateTime.now().hour}:${DateTime.now().minute})');
     }
   }
 
@@ -217,6 +225,7 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
       rawCsvRows.clear();
       currentMapping = null;
       hasDiffHeaders = false;
+      detectedFormat = widget.defaultExportFormat;
     });
 
     notifyChange();
@@ -234,47 +243,107 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
   // Export & Template Downloads
   // ---------------------------------------------------------------------------
 
-  Future<void> downloadTemplate() async {
-    final template = TCsvParser.generateTemplate(widget.columns);
+  Future<void> downloadTemplate({TCsvFileFormat? format, String? delimiter}) async {
+    final targetFormat = format ?? widget.defaultExportFormat;
+    final effectiveDelim = delimiter ?? targetFormat.delimiter ?? ',';
+    final template = TCsvParser.generateTemplate(
+      widget.columns,
+      format: targetFormat,
+      delimiter: effectiveDelim,
+    );
+
     final bytes = utf8.encode(template);
+    final ext = targetFormat.extension;
+    final mime = targetFormat.mimeType;
 
     await FileSaver.instance.saveFile(
-      name: "template_${DateTime.now().millisecondsSinceEpoch}",
+      name: "template_${targetFormat.shortLabel.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}",
       bytes: Uint8List.fromList(bytes),
-      fileExtension: "csv",
-      mimeType: MimeType.csv,
+      fileExtension: ext,
+      mimeType: mime,
     );
 
     if (mounted) {
-      TToastService.success(context, 'Template downloaded.');
+      TToastService.success(context, '${targetFormat.shortLabel} template downloaded.');
     }
   }
 
-  Future<void> exportCurrentData() async {
+  Future<void> downloadJsonTemplate() async => downloadTemplate(format: TCsvFileFormat.json);
+  Future<void> downloadCsvTemplate({String delimiter = ','}) async => downloadTemplate(format: TCsvFileFormat.csv, delimiter: delimiter);
+  Future<void> downloadTsvTemplate() async => downloadTemplate(format: TCsvFileFormat.tsv, delimiter: '\t');
+  Future<void> downloadSemicolonTemplate() async => downloadTemplate(format: TCsvFileFormat.semicolon, delimiter: ';');
+  Future<void> downloadPipeTemplate() async => downloadTemplate(format: TCsvFileFormat.pipe, delimiter: '|');
+
+  Future<void> exportCurrentData({TCsvFileFormat? format, String? delimiter}) async {
     if (rows.isEmpty) {
       TToastService.warning(context, 'No data to export.');
       return;
     }
 
-    final headers = widget.columns.map((c) => c.header).toList();
-    final dataRows = rows.map((row) {
-      return widget.columns.map((c) => c.formatValue(row.getValue(c.key))).toList();
-    }).toList();
+    final targetFormat = format ?? widget.defaultExportFormat;
+    final dataMaps = rows.map((r) => r.toMap()).toList();
 
-    final csvString = TCsvParser.toCsv(headers, dataRows);
-    final bytes = utf8.encode(csvString);
+    if (targetFormat == TCsvFileFormat.json) {
+      await exportToJson();
+      return;
+    }
+
+    final effectiveDelim = delimiter ?? targetFormat.delimiter ?? ',';
+    final outputString = TCsvParser.toCsvFromMaps(
+      dataMaps,
+      columns: widget.columns,
+      delimiter: effectiveDelim,
+    );
+
+    final bytes = utf8.encode(outputString);
+    final ext = targetFormat.extension;
+    final mime = targetFormat.mimeType;
 
     await FileSaver.instance.saveFile(
-      name: "csv_export_${DateTime.now().millisecondsSinceEpoch}",
+      name: "export_${targetFormat.shortLabel.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}",
       bytes: Uint8List.fromList(bytes),
-      fileExtension: "csv",
-      mimeType: MimeType.csv,
+      fileExtension: ext,
+      mimeType: mime,
     );
 
     if (mounted) {
-      TToastService.success(context, 'Exported ${rows.length} rows to CSV.');
+      TToastService.success(context, 'Exported ${rows.length} rows as ${targetFormat.shortLabel}.');
     }
   }
+
+  Future<void> exportToJson({bool pretty = true}) async {
+    if (rows.isEmpty) {
+      TToastService.warning(context, 'No data to export.');
+      return;
+    }
+
+    final dataMaps = rows.map((r) => r.toMap()).toList();
+    final jsonString = TCsvParser.toJson(dataMaps, pretty: pretty);
+    final bytes = utf8.encode(jsonString);
+
+    await FileSaver.instance.saveFile(
+      name: "json_export_${DateTime.now().millisecondsSinceEpoch}",
+      bytes: Uint8List.fromList(bytes),
+      fileExtension: "json",
+      mimeType: MimeType.json,
+    );
+
+    if (mounted) {
+      TToastService.success(context, 'Exported ${rows.length} records as JSON.');
+    }
+  }
+
+  Future<void> exportToCsv({String delimiter = ','}) async =>
+      exportCurrentData(format: TCsvFileFormat.csv, delimiter: delimiter);
+
+  Future<void> exportToTsv() async =>
+      exportCurrentData(format: TCsvFileFormat.tsv, delimiter: '\t');
+
+  Future<void> exportToSemicolon() async =>
+      exportCurrentData(format: TCsvFileFormat.semicolon, delimiter: ';');
+
+  Future<void> exportToPipe() async =>
+      exportCurrentData(format: TCsvFileFormat.pipe, delimiter: '|');
 
   // ---------------------------------------------------------------------------
   // Save / Upload Action
@@ -282,7 +351,7 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
 
   Future<void> handleSave(TButtonPressOptions options) async {
     if (rows.isEmpty) {
-      TToastService.warning(context, 'Please add or upload CSV data first.');
+      TToastService.warning(context, 'Please add or upload data first.');
       options.stopLoading();
       return;
     }

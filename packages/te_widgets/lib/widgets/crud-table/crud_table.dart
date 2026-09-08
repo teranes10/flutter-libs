@@ -197,6 +197,11 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
+  /// Explicit filter field definitions for the table.
+  /// If omitted for client-side tables, filter fields are automatically inferred from [headers].
+  /// For server-side tables, filters must be explicitly provided.
+  final List<TFilterDef<T>>? filters;
+
   /// Creates a CRUD table.
   const TCrudTable({
     super.key,
@@ -237,6 +242,7 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.theme,
     this.rowBuilder,
     this.rowColorBuilder,
+    this.filters,
   })  : assert(
           controller == null || (items == null && onLoad == null && onControllerReady == null && itemKey == null && itemChildren == null),
           'Provide either `controller` OR (`items` / `onLoad` / `onControllerReady` / `itemKey`), not both.',
@@ -304,6 +310,14 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   bool get dense => _dense;
   set dense(bool value) {
     setState(() => _dense = value);
+    _persistRouteSettings();
+  }
+
+  TKeyValueMode? _cardKeyValueMode;
+  TKeyValueMode get cardKeyValueMode =>
+      _cardKeyValueMode ?? widget.config.cardKeyValueMode ?? widget.theme?.mobileCardTheme.mode ?? TKeyValueMode.stackedFlow;
+  set cardKeyValueMode(TKeyValueMode value) {
+    setState(() => _cardKeyValueMode = value);
     _persistRouteSettings();
   }
 
@@ -383,6 +397,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   void initState() {
     super.initState();
     _dense = widget.config.dense ?? false;
+    _cardKeyValueMode = widget.config.cardKeyValueMode;
 
     final initialOrder = widget.headers.map((h) => h.text).toList();
     final initialVisibility = {for (var h in widget.headers) h.text: true};
@@ -394,6 +409,10 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
         widget.expandedBuilder != null || widget.expandedDetails?.builder != null || widget.expandedDetails?.createBuilder != null;
     final autoExpandFirst = widget.expandedDetails?.autoExpandFirst ?? false;
     final autoSelectFirst = widget.expandedDetails?.autoSelectFirst ?? false;
+    final initialSampleItems = widget.items ?? widget.archivedItems;
+    final List<TFilterDef<T>> initialFilterDefs = widget.filters ??
+        widget.config.filters ??
+        TTableHeader.autoGenerateFilterDefs<T, K>(widget.headers, sampleItems: initialSampleItems);
 
     _listController = widget.controller ??
         TListController<T, K>(
@@ -405,6 +424,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           expansionMode: hasBuilder ? TExpansionMode.single : TExpansionMode.none,
           autoExpandFirst: autoExpandFirst,
           autoSelectFirst: autoSelectFirst,
+          filterDefs: initialFilterDefs,
           additional: {
             'headerOrder': initialOrder,
             'headerVisibility': initialVisibility,
@@ -412,6 +432,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
         );
 
     if (widget.controller != null) {
+      widget.controller!.updateFilterDefs(initialFilterDefs);
       final additional = Map<String, dynamic>.from(_listController.value.additional);
       if (!additional.containsKey('headerOrder')) {
         additional['headerOrder'] = initialOrder;
@@ -437,6 +458,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           expansionMode: hasBuilder ? TExpansionMode.single : TExpansionMode.none,
           autoExpandFirst: autoExpandFirst,
           autoSelectFirst: autoSelectFirst,
+          filterDefs: initialFilterDefs,
           additional: {
             'headerOrder': initialOrder,
             'headerVisibility': initialVisibility,
@@ -444,6 +466,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
         );
 
     if (widget.archiveController != null) {
+      widget.archiveController!.updateFilterDefs(initialFilterDefs);
       final additional = Map<String, dynamic>.from(_archiveListController.value.additional);
       if (!additional.containsKey('headerOrder')) {
         additional['headerOrder'] = initialOrder;
@@ -466,6 +489,19 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
     if (oldWidget.headers != widget.headers) {
       _reconcileHeaders(_headerOrder, _headerVisibility);
+    }
+
+    if (oldWidget.headers != widget.headers || oldWidget.filters != widget.filters || oldWidget.config.filters != widget.config.filters) {
+      _listController.updateFilterDefs(effectiveFilterDefs);
+      _archiveListController.updateFilterDefs(effectiveFilterDefs);
+    }
+
+    if (oldWidget.config.dense != widget.config.dense && widget.config.dense != null) {
+      _dense = widget.config.dense!;
+    }
+
+    if (oldWidget.config.cardKeyValueMode != widget.config.cardKeyValueMode && widget.config.cardKeyValueMode != null) {
+      _cardKeyValueMode = widget.config.cardKeyValueMode!;
     }
 
     if ((oldWidget.items != null && widget.items != null) && !oldWidget.items!.listEquals(widget.items!)) {
@@ -522,6 +558,51 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   bool get hasActiveActions => widget.onView != null || canEdit || widget.onArchive != null || widget.config.activeActions.isNotEmpty;
   bool get hasArchiveActions =>
       widget.onView != null || widget.onRestore != null || widget.onDelete != null || widget.config.archiveActions.isNotEmpty;
+
+  /// Inferred or explicit filter definitions for the table.
+  List<TFilterDef<T>> get effectiveFilterDefs {
+    final manual = widget.filters ?? widget.config.filters;
+    if (manual != null) return manual.cast<TFilterDef<T>>();
+    List<T>? sampleItems;
+    if (currentTab == 0) {
+      sampleItems = widget.items;
+      if (sampleItems == null || sampleItems.isEmpty) {
+        try {
+          sampleItems = _listController.localItems;
+        } catch (_) {}
+      }
+    } else {
+      sampleItems = widget.archivedItems;
+      if (sampleItems == null || sampleItems.isEmpty) {
+        try {
+          sampleItems = _archiveListController.localItems;
+        } catch (_) {}
+      }
+    }
+    return TTableHeader.autoGenerateFilterDefs(widget.headers, sampleItems: sampleItems);
+  }
+
+  /// Whether the currently active tab uses server-side data loading.
+  bool get isCurrentServerSide {
+    if (currentTab == 0) {
+      return widget.onLoad != null || _listController.isServerSide;
+    } else {
+      return widget.onArchiveLoad != null || _archiveListController.isServerSide;
+    }
+  }
+
+  /// Whether to display the filter button in the top bar.
+  bool get shouldShowFilterButton {
+    final showFilter = widget.config.showFilter ?? true;
+    if (!showFilter) return false;
+
+    final manualFilters = widget.filters ?? widget.config.filters;
+    if (isCurrentServerSide) {
+      return manualFilters != null && manualFilters.isNotEmpty;
+    }
+
+    return effectiveFilterDefs.isNotEmpty;
+  }
 
   // Getters for controllers and notifiers
   TListController<T, K> get listController => _listController;

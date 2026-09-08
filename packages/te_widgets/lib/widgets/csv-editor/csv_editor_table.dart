@@ -32,7 +32,7 @@ mixin _TCsvEditorTable on _TCsvEditorStateContract, _TCsvEditorActions {
               Text('${index + 1}', style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
               const SizedBox(width: 4),
               if (hasRowError)
-                Tooltip(
+                TTooltip(
                   message: item.data.errors.values.join('\n'),
                   child: Icon(Icons.error_outline_rounded, size: 16, color: colors.error),
                 )
@@ -136,12 +136,12 @@ mixin _TCsvEditorTable on _TCsvEditorStateContract, _TCsvEditorActions {
               Icon(Icons.table_chart_outlined, size: 48, color: colors.onSurfaceVariant),
               const SizedBox(height: 12),
               Text(
-                'No CSV data loaded',
+                'No data loaded',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: colors.onSurface),
               ),
               const SizedBox(height: 8),
               Text(
-                'Import a CSV or initialize with template columns.',
+                'Import CSV, TSV, JSON or initialize with template columns.',
                 style: TextStyle(color: colors.onSurfaceVariant, fontSize: 13),
               ),
             ],
@@ -204,6 +204,6 @@ mixin _TCsvEditorTable on _TCsvEditorStateContract, _TCsvEditorActions {
       }).toList();
     }
 
-    return list;
+    return List<TCsvRow>.from(list);
   }
 }

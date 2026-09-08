@@ -708,6 +708,69 @@ void main() {
       expect(find.text('Child 1'), findsNothing);
       expect(find.text('Submenu Root'), findsNothing);
     });
+
+    testWidgets('Nested dropdown inside custom builder does not close parent when opened', (tester) async {
+      tester.view.physicalSize = const Size(1200, 900);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: Center(
+              child: TDropdown(
+                triggerMode: TDropdownTriggerMode.tap,
+                builder: (context, close) => Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('Parent Panel Content'),
+                      const SizedBox(height: 12),
+                      TDropdown(
+                        triggerMode: TDropdownTriggerMode.tap,
+                        items: [
+                          TDropdownItem(text: 'Nested Item 1', onTap: () {}),
+                          TDropdownItem(text: 'Nested Item 2', onTap: () {}),
+                        ],
+                        child: const Text('Inner Dropdown Trigger'),
+                      ),
+                    ],
+                  ),
+                ),
+                child: const Text('Outer Dropdown Trigger'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap outer dropdown
+      await tester.tap(find.text('Outer Dropdown Trigger'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Parent Panel Content'), findsOneWidget);
+      expect(find.text('Inner Dropdown Trigger'), findsOneWidget);
+
+      // Tap inner dropdown
+      await tester.tap(find.text('Inner Dropdown Trigger'));
+      await tester.pumpAndSettle();
+
+      // BOTH parent panel and inner dropdown items should be visible simultaneously
+      expect(find.text('Parent Panel Content'), findsOneWidget);
+      expect(find.text('Nested Item 1'), findsOneWidget);
+      expect(find.text('Nested Item 2'), findsOneWidget);
+
+      // Tap an item in the nested dropdown
+      await tester.tap(find.text('Nested Item 1'));
+      await tester.pumpAndSettle();
+
+      // Nested dropdown should be closed, but parent panel should STILL be open
+      expect(find.text('Nested Item 1'), findsNothing);
+      expect(find.text('Parent Panel Content'), findsOneWidget);
+    });
   });
 }
 

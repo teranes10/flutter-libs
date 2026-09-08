@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/misc.dart';
 import '../../../extensions/list_x.dart';
 import '../../../helpers/debouncer.dart';
 import '../../../helpers/search_filter.dart';
+import '../../filter/filter.dart';
 import '../list_config.dart';
 import '../list_state.dart';
 
@@ -132,6 +133,8 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   /// Whether to only load data when a search query is present.
   final bool loadOnSearchOnly;
 
+  List<TFilterDef<T>>? _filterDefs;
+
   bool _disposed = false;
   int _requestId = 0;
   final Set<int> _activeRequests = {};
@@ -204,15 +207,12 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     );
   }
 
-  /// Creates a list controller.
-  ///
-  /// For client-side lists, provide [items].
-  /// For server-side lists, provide [onLoad].
+  /// Creates a [TListController].
   TListController({
     List<T> items = const [],
-    int itemsPerPage = 0,
-    String search = '',
+    int itemsPerPage = 10,
     int? searchDelay,
+    String search = '',
     this.selectionMode = TSelectionMode.none,
     this.expansionMode = TExpansionMode.none,
     this.onLoad,
@@ -228,8 +228,10 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     bool loading = false,
     bool hasMoreItems = true,
     this.loadOnSearchOnly = false,
+    List<TFilterDef<T>>? filterDefs,
     Map<String, dynamic>? additional,
   })  : isServerSide = onLoad != null,
+        _filterDefs = filterDefs != null ? List<TFilterDef<T>>.from(filterDefs) : null,
         _debouncer = TDebouncer(milliseconds: searchDelay ?? (onLoad != null ? 2500 : 750)),
         itemToString = itemToString ?? _defaultItemToString,
         itemKey = itemKey ?? defaultItemKey,
@@ -294,6 +296,23 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
 
   /// Keys of currently displayed items.
   List<K> get displayItemKeys => displayItems.map((x) => x.key).toList();
+
+  /// Available filter field definitions associated with this controller.
+  List<TFilterDef<T>>? get filterDefs => _filterDefs;
+
+  /// Updates the filter field definitions and re-applies local pagination if active.
+  void updateFilterDefs(List<TFilterDef<T>>? defs) {
+    _filterDefs = defs != null ? List<TFilterDef<T>>.from(defs) : null;
+    if (!isServerSide && value.advancedSearch != null && value.advancedSearch!.isNotEmpty) {
+      _applyLocalPagination(who: 'updateFilterDefs');
+    }
+  }
+
+  /// The number of active advanced search / filter fields.
+  int get activeFilterCount => value.advancedSearch?.keys.length ?? 0;
+
+  /// Whether the list is currently filtered by search or advanced filters.
+  bool get isFiltered => (value.advancedSearch != null && value.advancedSearch!.isNotEmpty) || value.search.isNotEmpty;
 
   @override
   void dispose() {

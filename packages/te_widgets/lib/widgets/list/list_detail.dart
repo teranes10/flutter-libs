@@ -479,7 +479,7 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
         BoxShadow(
           blurRadius: 6,
           spreadRadius: 0,
-          color: colors.shadow,
+          color: colors.shadow.withAlpha(75),
           offset: Offset(-2, 0),
         ),
       ]),

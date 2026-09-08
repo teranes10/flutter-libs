@@ -24,7 +24,7 @@ abstract class TImageStorage {
       debugPrint('⚠️ [ImageDownloader] Failed to cache image for $remoteUrl: $e');
     }
 
-    return remoteUrl; // Return fallback remote URL on failure
+    return null; // Return null on failure
   }
 
   static Future<String?> storeImage(String key, Uint8List bytes) async {

@@ -49,6 +49,15 @@ class TCircularProgress extends StatelessWidget {
   /// Defaults to [AppColors.primary].
   final Color? color;
 
+  /// Whether to automatically color the progress indicator based on percentage:
+  /// - < 30%: [danger]
+  /// - 30% - 70%: [warning]
+  /// - > 70%: [success]
+  final bool colorByPercentage;
+
+  /// Optional function to dynamically compute the color based on progress value (0.0 to 1.0).
+  final Color? Function(double value)? colorBuilder;
+
   /// The color of the track (background circle).
   ///
   /// Defaults to [AppColors.surfaceContainerHighest].
@@ -56,6 +65,14 @@ class TCircularProgress extends StatelessWidget {
 
   /// Whether to display the percentage text in the center.
   final bool showPercentage;
+
+  /// Optional custom value text to display inside the circle (e.g. '50 / 1000').
+  ///
+  /// When [showPercentage] is true, this is displayed below the percentage.
+  final String? valueText;
+
+  /// Optional custom widget to display inside the center of the circular indicator.
+  final Widget? center;
 
   /// Optional label text displayed below the progress indicator.
   final String? label;
@@ -68,15 +85,26 @@ class TCircularProgress extends StatelessWidget {
     this.size = 40.0,
     this.strokeWidth = 4.0,
     this.color,
+    this.colorByPercentage = false,
+    this.colorBuilder,
     this.backgroundColor,
     this.showPercentage = false,
+    this.valueText,
+    this.center,
     this.label,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final progressColor = color ?? colors.primary;
+    final progressColor = colorBuilder?.call(value) ??
+        (colorByPercentage
+            ? (value < 0.30
+                ? context.theme.danger
+                : value < 0.70
+                    ? context.theme.warning
+                    : context.theme.success)
+            : (color ?? colors.primary));
     final trackColor = backgroundColor ?? colors.surfaceContainerHighest;
 
     Widget indicator;
@@ -92,6 +120,53 @@ class TCircularProgress extends StatelessWidget {
         ),
       );
     } else {
+      Widget? centerContent = center;
+
+      if (centerContent == null) {
+        if (showPercentage && valueText != null) {
+          centerContent = Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '${(value * 100).toInt()}%',
+                style: TextStyle(
+                  fontSize: (size * 0.22).clamp(10.0, 32.0),
+                  fontWeight: FontWeight.bold,
+                  color: progressColor,
+                ),
+              ),
+              Text(
+                valueText!,
+                style: TextStyle(
+                  fontSize: (size * 0.12).clamp(8.0, 14.0),
+                  fontWeight: FontWeight.w500,
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          );
+        } else if (showPercentage) {
+          centerContent = Text(
+            '${(value * 100).toInt()}%',
+            style: TextStyle(
+              fontSize: size * 0.25,
+              fontWeight: FontWeight.bold,
+              color: progressColor,
+            ),
+          );
+        } else if (valueText != null) {
+          centerContent = Text(
+            valueText!,
+            style: TextStyle(
+              fontSize: (size * 0.18).clamp(9.0, 18.0),
+              fontWeight: FontWeight.w600,
+              color: progressColor,
+            ),
+          );
+        }
+      }
+
       indicator = Stack(
         alignment: Alignment.center,
         children: [
@@ -105,15 +180,7 @@ class TCircularProgress extends StatelessWidget {
               backgroundColor: trackColor,
             ),
           ),
-          if (showPercentage)
-            Text(
-              '${(value * 100).toInt()}%',
-              style: TextStyle(
-                fontSize: size * 0.25,
-                fontWeight: FontWeight.bold,
-                color: progressColor,
-              ),
-            ),
+          if (centerContent != null) centerContent,
         ],
       );
     }

@@ -1,3 +1,23 @@
+## 3.4.0
+
+- **Filtering Framework (`TFilter` & `TFilterField`)**:
+  - Added comprehensive declarative filter suite: `TFilterDef`, `TFilterRule`, `TFilterEvaluator`, `TFilterOperator`.
+  - Added typed filter models: `bool_filter`, `date_only_filter`, `date_time_filter`, `enum_filter`, `guid_filter`, `number_filter`, `string_filter`.
+  - Added `TFilterField` and `TFilterFieldTheme` for rendering dynamic filter controls.
+- **Key-Value Section Modes & Spacings (`TKeyValueMode`)**:
+  - Added `TKeyValueMode` enum (`stackedFlow`, `stackedColumns`, `inlineFlow`, `inlineColumns`, `split`) with mode-based spacing/gap defaults and dense mode support.
+  - Added factory constructors `TKeyValueSection.flow`, `TKeyValueSection.columnsInline`, `TKeyValueSection.flowStacked`, `TKeyValueSection.columnsStacked`, `TKeyValueSection.split`.
+  - Removed `FittedBox` constraint restriction on `TKeyValue.widget` for unconstrained child layout safety.
+- **Typography & Sizing Utilities**:
+  - Added `TextStyleX` extension (`adjust`, `stepWeight`, `scale`, `thicker`, `lighter`, `clearColor`).
+  - Added unified `TSize`, `TChipSize`, and `TBadgeSize`.
+- **UI Components & Table Headers**:
+  - Added `TTile` for unified icon/title/subtitle/trailing presentation.
+  - Added `TInputContainer` for structured form input field containers.
+  - Added `TDateTimeTextField` with ISO and formatted date/time inputs.
+  - Added `TTableHeader.chips` and `TTableHeader.tile` table header factories.
+  - Enhanced `TTableHeader.progress` with adaptive dynamic progress color shade styling and item width estimation constraints.
+
 ## 3.3.0
 
 - **CSV Editor (`TCsvEditor`)**:

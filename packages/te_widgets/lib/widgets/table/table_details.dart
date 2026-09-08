@@ -63,6 +63,9 @@ class TTableDetails<T, K> {
   /// Function to extract key-value information from an item (used in dialogs/pages/sheets).
   final List<TKeyValue>? Function(T item)? itemInfo;
 
+  /// Layout presentation mode for [itemInfo]. If not specified, defaults to [itemInfoGridInline] (inlineFlow or stackedFlow).
+  final TKeyValueMode? itemInfoMode;
+
   /// Whether to display key and value inline in grid layout (Key: Value) for itemInfo. Defaults to true.
   final bool itemInfoGridInline;
 
@@ -133,6 +136,7 @@ class TTableDetails<T, K> {
     this.itemDescription,
     this.itemImageUrl,
     this.itemInfo,
+    this.itemInfoMode,
     this.actions,
     this.onWillExpand,
     this.onWillCollapse,
@@ -168,6 +172,7 @@ class TTableDetails<T, K> {
     String? Function(T item)? itemDescription,
     String? Function(T item)? itemImageUrl,
     List<TKeyValue>? Function(T item)? itemInfo,
+    TKeyValueMode? itemInfoMode,
     bool? itemInfoGridInline,
     List<Widget> Function(T item)? actions,
     Future<bool> Function(K key)? onWillExpand,
@@ -197,6 +202,7 @@ class TTableDetails<T, K> {
       itemDescription: itemDescription ?? this.itemDescription,
       itemImageUrl: itemImageUrl ?? this.itemImageUrl,
       itemInfo: itemInfo ?? this.itemInfo,
+      itemInfoMode: itemInfoMode ?? this.itemInfoMode,
       itemInfoGridInline: itemInfoGridInline ?? this.itemInfoGridInline,
       actions: actions ?? this.actions,
       onWillExpand: onWillExpand ?? this.onWillExpand,
@@ -365,6 +371,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       description: description,
       imageUrl: imageUrl,
       itemInfo: itemInfo,
+      itemInfoMode: details.itemInfoMode,
       itemInfoGridInline: details.itemInfoGridInline,
       actions: actions,
       onBackPressed: () => TTableScope.of(context).close(context),

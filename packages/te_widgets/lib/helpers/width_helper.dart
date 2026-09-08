@@ -135,7 +135,10 @@ extension TChipWidthX on TChip {
 
 extension TImageWidthX on TImage {
   double estimateWidth(BuildContext context) {
-    double width = size;
+    double width = this.width ??
+        (height != null && aspectRatio != null
+            ? height! * aspectRatio!
+            : (size ?? 80.0));
     if (!title.isNullOrBlank || !subTitle.isNullOrBlank) {
       width += 7.5; // Spacing between image and text column
       double textWidth = 0;

@@ -21,7 +21,7 @@ class _CsvEditorPageState extends State<CsvEditorPage> {
       key: 'sku',
       header: 'SKU Code',
       isRequired: true,
-      aliases: ['code', 'item_sku', 'product_code'],
+      aliases: ['code', 'item_sku', 'product_code', 'id'],
       minWidth: 110,
     ),
     const TCsvColumn.text(
@@ -125,6 +125,99 @@ class _CsvEditorPageState extends State<CsvEditorPage> {
     TToastService.info(context, 'Loaded 5 sample products with matching schema.');
   }
 
+  void _loadJsonPreset() {
+    const jsonContent = '''[
+  {
+    "sku": "JSON-01",
+    "name": "Smart Fitness Watch Ultra",
+    "category": "Wearables",
+    "price": 249.99,
+    "stock": 35,
+    "in_stock": true,
+    "featured": true
+  },
+  {
+    "sku": "JSON-02",
+    "name": "Bluetooth Tracker Tag",
+    "category": "Accessories",
+    "price": 29.00,
+    "stock": 140,
+    "in_stock": true,
+    "featured": false
+  },
+  {
+    "sku": "JSON-03",
+    "name": "MagSafe Magnetic Stand",
+    "category": "Accessories",
+    "price": 39.95,
+    "stock": 60,
+    "in_stock": true,
+    "featured": true
+  }
+]''';
+
+    final mappedRows = TCsvParser.parseToMaps(jsonContent, columns: _columns);
+
+    setState(() {
+      _initialData = mappedRows;
+      _editorKey = UniqueKey();
+      _lastUploadedData = null;
+    });
+
+    TToastService.success(context, 'Loaded 3 records from JSON payload with auto-type coercion.');
+  }
+
+  void _loadSemicolonPreset() {
+    const semicolonContent = '''sku;name;category;price;stock;in_stock;featured
+SEM-101;Espresso Machine Pro;Appliances;599.00;8;true;true
+SEM-102;Coffee Grinder Burr;Appliances;89.50;25;true;false
+SEM-103;Double Walled Glass Set;Kitchen;24.99;80;true;false''';
+
+    final mappedRows = TCsvParser.parseToMaps(semicolonContent, columns: _columns);
+
+    setState(() {
+      _initialData = mappedRows;
+      _editorKey = UniqueKey();
+      _lastUploadedData = null;
+    });
+
+    TToastService.info(context, 'Loaded Semicolon-delimited (;) dataset with auto-delimiter detection.');
+  }
+
+  void _loadTsvPreset() {
+    const tsvContent = "sku\tname\tcategory\tprice\tstock\tin_stock\tfeatured\n"
+        "TSV-501\tStudio Microphone USB\tAudio\t149.00\t18\ttrue\ttrue\n"
+        "TSV-502\tBoom Arm Stand\tAudio\t45.00\t40\ttrue\tfalse\n"
+        "TSV-503\tPop Filter Shield\tAudio\t15.99\t100\ttrue\tfalse";
+
+    final mappedRows = TCsvParser.parseToMaps(tsvContent, columns: _columns);
+
+    setState(() {
+      _initialData = mappedRows;
+      _editorKey = UniqueKey();
+      _lastUploadedData = null;
+    });
+
+    TToastService.info(context, 'Loaded TSV (Tab-delimited) dataset with auto-delimiter detection.');
+  }
+
+  void _loadPipePreset() {
+    const pipeContent = '''sku|name|category|price|stock|in_stock|featured
+PIPE-901|Portable SSD 2TB|Storage|159.99|50|true|true
+PIPE-902|NVMe M.2 Enclosure|Storage|32.50|75|true|false
+PIPE-903|High-Speed SD Card 256GB|Storage|28.00|120|true|false''';
+
+    final mappedRows = TCsvParser.parseToMaps(pipeContent, columns: _columns);
+
+    setState(() {
+      _initialData = mappedRows;
+      _editorKey = UniqueKey();
+      _lastUploadedData = null;
+    });
+
+    TToastService.info(context, 'Loaded Pipe-delimited (|) dataset with auto-delimiter detection.');
+  }
+
   void _loadMismatchedHeadersPreset() {
     // CSV with different headers: item_sku, item_title, department, cost, qty_available, active_flag
     const csvContent = '''item_sku,item_title,department,cost,qty_available,active_flag,promo
@@ -219,8 +312,8 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
         children: [
           // Quick Preset Toolbar
           TCard(
-            title: 'TCsvEditor Interactive Showcase',
-            subtitle: 'Try preloaded datasets, mismatched headers, validation checking, or upload your own CSV.',
+            title: 'Generic Data & CSV Editor Interactive Showcase',
+            subtitle: 'Try CSV, TSV, Semicolon, Pipe, JSON datasets, mismatched headers, validation checking, or upload your own file.',
             icon: Icons.auto_awesome_rounded,
             padding: const EdgeInsets.all(16),
             child: Wrap(
@@ -228,14 +321,43 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
               runSpacing: 8,
               children: [
                 TButton(
-                  text: 'Matching Preset (5 Products)',
+                  text: 'Standard CSV (5 Items)',
                   icon: Icons.check_circle_outline,
                   type: TButtonType.tonal,
                   size: TButtonSize.xs,
                   onPressed: (_) => _loadMatchingPreset(),
                 ),
                 TButton(
-                  text: 'Mismatched Headers Preset',
+                  text: 'JSON Dataset (.json)',
+                  icon: Icons.data_object_rounded,
+                  type: TButtonType.tonal,
+                  color: colors.primary,
+                  size: TButtonSize.xs,
+                  onPressed: (_) => _loadJsonPreset(),
+                ),
+                TButton(
+                  text: 'TSV Dataset (Tab \\t)',
+                  icon: Icons.table_rows_rounded,
+                  type: TButtonType.tonal,
+                  size: TButtonSize.xs,
+                  onPressed: (_) => _loadTsvPreset(),
+                ),
+                TButton(
+                  text: 'Semicolon Dataset (;)',
+                  icon: Icons.grid_on_rounded,
+                  type: TButtonType.tonal,
+                  size: TButtonSize.xs,
+                  onPressed: (_) => _loadSemicolonPreset(),
+                ),
+                TButton(
+                  text: 'Pipe Dataset (|)',
+                  icon: Icons.view_column_outlined,
+                  type: TButtonType.tonal,
+                  size: TButtonSize.xs,
+                  onPressed: (_) => _loadPipePreset(),
+                ),
+                TButton(
+                  text: 'Mismatched Headers',
                   icon: Icons.alt_route_rounded,
                   type: TButtonType.tonal,
                   color: AppColors.warning,
@@ -243,7 +365,7 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
                   onPressed: (_) => _loadMismatchedHeadersPreset(),
                 ),
                 TButton(
-                  text: 'Validation Errors Preset',
+                  text: 'Validation Errors',
                   icon: Icons.error_outline,
                   type: TButtonType.tonal,
                   color: AppColors.danger,
@@ -251,7 +373,7 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
                   onPressed: (_) => _loadErrorsPreset(),
                 ),
                 TButton(
-                  text: 'Reset to Empty Dropzone',
+                  text: 'Reset / Empty Dropzone',
                   icon: Icons.refresh_rounded,
                   type: TButtonType.softText,
                   size: TButtonSize.xs,
@@ -265,8 +387,8 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
           // Main TCsvEditor Component
           TCsvEditor(
             key: _editorKey,
-            title: 'Product Catalog Import',
-            subtitle: 'Upload CSV or edit inline. Fields support Text, Number, and Interactive True/False Switches.',
+            title: 'Product Catalog Import & Editor',
+            subtitle: 'Upload CSV, TSV, Semicolon, Pipe, or JSON. Inline fields support Text, Number, and Interactive Switches.',
             columns: _columns,
             initialData: _initialData,
             saveButtonText: 'Upload & Process Records',

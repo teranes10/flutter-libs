@@ -17,6 +17,7 @@ import 'package:te_widgets/te_widgets.dart';
 class TMenuOverlayPanel<T extends TMenuItemData<T>> extends StatefulWidget {
   final List<T> items;
   final int level;
+  final Object? rootId;
   final TMenuTheme theme;
   final bool Function(T item)? isActive;
   final bool Function(T item)? containsActive;
@@ -27,6 +28,7 @@ class TMenuOverlayPanel<T extends TMenuItemData<T>> extends StatefulWidget {
     super.key,
     required this.items,
     required this.level,
+    this.rootId,
     required this.theme,
     this.isActive,
     this.containsActive,
@@ -62,10 +64,11 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isDark = colors.isDarkMode;
+    final effectiveRootId = widget.rootId ?? TMenuScope.maybeOf(context);
 
     return MouseRegion(
-      onEnter: (_) => TMenuOverlayController.setPanelHovered(widget.level, true),
-      onExit: (_) => TMenuOverlayController.setPanelHovered(widget.level, false),
+      onEnter: (_) => TMenuOverlayController.setPanelHovered(widget.level, true, rootId: effectiveRootId),
+      onExit: (_) => TMenuOverlayController.setPanelHovered(widget.level, false, rootId: effectiveRootId),
       hitTestBehavior: HitTestBehavior.opaque,
       child: AnimatedBuilder(
         animation: _controller,
@@ -91,7 +94,7 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
                 padding: widget.theme.overlayPadding,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: _buildRows(),
+                  children: _buildRows(effectiveRootId),
                 ),
               ),
             ),
@@ -101,7 +104,7 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
     );
   }
 
-  List<Widget> _buildRows() {
+  List<Widget> _buildRows(Object? effectiveRootId) {
     final visible = widget.items.where((i) => !i.isHidden).toList();
 
     return List.generate(visible.length, (index) {
@@ -112,6 +115,7 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
       final row = TMenuOverlayItem<T>(
         item: item,
         level: widget.level,
+        rootId: effectiveRootId,
         theme: widget.theme,
         isActive: widget.isActive?.call(item) ?? false,
         containsActive: widget.containsActive?.call(item) ?? false,

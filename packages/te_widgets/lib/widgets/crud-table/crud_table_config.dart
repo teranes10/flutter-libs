@@ -68,11 +68,22 @@ class TCrudConfig<T, K> {
   /// Whether the footer pagination bar is skipped when there's only 1 page and no more items.
   final bool? optionalPaginationBar;
 
-  /// Optional unique key to identify and persist table layout settings (dense layout, view mode).
+  /// Default layout presentation mode for items in card view. Defaults to [TKeyValueMode.inlineFlow].
+  final TKeyValueMode? cardKeyValueMode;
+
+  /// Explicit filter field definitions for the table.
+  /// If omitted for client-side tables, filter fields are automatically inferred from [TTableHeader] definitions.
+  /// For server-side tables, filters must be explicitly provided.
+  final List<TFilterDef<T>>? filters;
+
+  /// Whether to show the filter button in the top bar. Defaults to true.
+  final bool? showFilter;
+
+  /// Optional unique key to identify and persist table layout settings (dense layout, view mode, card layout).
   /// If null, settings are automatically persisted by the current route name.
   final String? storageKey;
 
-  /// Whether to persist table layout settings (dense layout, view mode) per route or [storageKey]. Defaults to true.
+  /// Whether to persist table layout settings (dense layout, view mode, card layout) per route or [storageKey]. Defaults to true.
   final bool? persistSettings;
 
   /// Creates a CRUD configuration.
@@ -97,6 +108,9 @@ class TCrudConfig<T, K> {
     this.dense,
     this.flatActions = true,
     this.optionalPaginationBar,
+    this.cardKeyValueMode,
+    this.filters,
+    this.showFilter = true,
     this.storageKey,
     this.persistSettings = true,
   });

@@ -234,6 +234,10 @@ class TInputFieldTheme {
     );
   }
 
+  Color resolveBackgroundColor(BuildContext context, Set<WidgetState> states) {
+    return backgroundColor != null ? backgroundColor!.resolve(states) : _defaultBackgroundColor(decorationType, states, context);
+  }
+
   static Color _defaultBackgroundColor(TInputDecorationType decorationType, Set<WidgetState> states, BuildContext context) {
     final colors = context.colors;
     final parentColor = context.getBackgroundColor(colors.surface);
@@ -290,7 +294,17 @@ class TInputFieldTheme {
 
     final isFilled = decorationType == TInputDecorationType.filled;
 
-    final fillColor = backgroundColor != null ? backgroundColor!.resolve(states) : _defaultBackgroundColor(decorationType, states, context);
+    final fillColor = resolveBackgroundColor(context, states);
+
+    final hasLabel = (label != null && label.isNotEmpty) || (tag != null && tag.isNotEmpty);
+    final showFloatingLabel = labelPosition != TLabelPosition.aboveField && hasLabel;
+
+    final basePadding = padding ?? size.padding;
+    final effectivePadding = decorationType == TInputDecorationType.underline
+        ? basePadding.copyWith(top: 0, bottom: basePadding.bottom)
+        : showFloatingLabel && labelPosition == TLabelPosition.inlineFloating
+            ? basePadding.copyWith(top: basePadding.top / 1.2, bottom: basePadding.bottom / 1.2)
+            : basePadding;
 
     return InputDecoration(
       border: inputBorder,
@@ -299,26 +313,28 @@ class TInputFieldTheme {
       disabledBorder: inputBorder,
       focusedBorder: inputBorder,
       errorBorder: inputBorder,
-      contentPadding: fieldPadding,
+      contentPadding: effectivePadding,
       constraints: BoxConstraints(
         minHeight: fieldHeight,
         maxHeight: expands ? double.infinity : fieldHeight,
       ),
-      label: labelPosition == TLabelPosition.aboveField ? null : labelBuilder.resolve(states)(label, tag, isRequired, null),
-      labelStyle: labelStyle.resolve(states),
-      floatingLabelStyle: floatingLabelStyle.resolve(states),
-      floatingLabelAlignment: labelAlignment,
-      floatingLabelBehavior: switch (labelPosition) {
-        TLabelPosition.aboveField => FloatingLabelBehavior.never,
-        TLabelPosition.floating || TLabelPosition.inlineFloating => FloatingLabelBehavior.auto,
-      },
+      label: showFloatingLabel ? labelBuilder.resolve(states)(label, tag, isRequired, null) : null,
+      labelStyle: showFloatingLabel ? labelStyle.resolve(states) : null,
+      floatingLabelStyle: showFloatingLabel ? floatingLabelStyle.resolve(states) : null,
+      floatingLabelAlignment: showFloatingLabel ? labelAlignment : null,
+      floatingLabelBehavior: showFloatingLabel
+          ? switch (labelPosition) {
+              TLabelPosition.aboveField => FloatingLabelBehavior.never,
+              TLabelPosition.floating || TLabelPosition.inlineFloating => FloatingLabelBehavior.auto,
+            }
+          : FloatingLabelBehavior.never,
       isDense: true,
       visualDensity: VisualDensity.compact,
       hintText: placeholder,
       hintStyle: hintStyle.resolve(states),
-      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight - fieldPadding.vertical, minWidth: fieldPadding.left),
+      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight - effectivePadding.vertical, minWidth: effectivePadding.left),
       prefixIcon: _buildPreWidget(beforePreWidget),
-      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight - fieldPadding.vertical, minWidth: fieldPadding.right),
+      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight - effectivePadding.vertical, minWidth: effectivePadding.right),
       suffixIcon: _buildPostWidget(
         beforePostWidget: beforePostWidget,
         onClear: onClear,

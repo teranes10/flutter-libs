@@ -69,7 +69,7 @@ class TLocationHelper {
   static Future<Position?> getCurrentLocation(LocationSettings locationSettings) async {
     try {
       await canFetchLocation();
-      return Geolocator.getCurrentPosition(locationSettings: locationSettings);
+      return await Geolocator.getCurrentPosition(locationSettings: locationSettings);
     } catch (_) {
       return null;
     }

@@ -15,7 +15,7 @@ mixin TPopupMixin {
   bool get disabled;
 
   /// Preferred alignment of the popup.
-  TPopupAlignment get alignment => TPopupAlignment.bottomLeft;
+  TPopupAlignment get popupAlignment => TPopupAlignment.bottomLeft;
 
   /// Offset from the target widget.
   double get offset => 8;
@@ -176,7 +176,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
             maxWidth: effectiveMaxWidth,
             maxHeight: effectiveMaxHeight,
           ),
-          popupAlignment: _widget.alignment,
+          popupAlignment: _widget.popupAlignment,
           defaultSize: _defaultSize,
         );
 
@@ -209,7 +209,7 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
         CustomSingleChildLayout(
           delegate: PopupPositionDelegate(
             constraints: constraints,
-            alignment: _widget.alignment,
+            alignment: _widget.popupAlignment,
             offset: _widget.offset,
           ),
           child: ConstrainedBox(

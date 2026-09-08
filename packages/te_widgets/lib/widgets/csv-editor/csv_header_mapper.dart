@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../configs/theme/app_colors.dart';
-import '../../configs/widget-theme/widget_theme.dart';
-import '../../extensions/build_context_x.dart';
-import '../button/button.dart';
-import '../chip/chip.dart';
-import '../modal/modal_service.dart';
-import 'csv_column.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 /// Manages mapping between expected schema columns and actual CSV headers.
 class TCsvHeaderMapping {
@@ -177,7 +171,7 @@ class TCsvHeaderMapperModal extends StatefulWidget {
         },
       ),
       width: 720,
-      title: 'Map CSV Headers',
+      title: 'Map Headers & Fields',
       showCloseButton: true,
     );
   }
@@ -242,7 +236,7 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
           children: [
             Expanded(
               child: Text(
-                'Match each expected field to the corresponding column in your CSV file.',
+                'Match each expected field to the corresponding column or property in your file.',
                 style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
               ),
             ),
@@ -370,39 +364,20 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            DropdownButtonFormField<String?>(
-                              initialValue: selectedHeader,
-                              isExpanded: true,
-                              decoration: InputDecoration(
-                                isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(
-                                    color: isUnmappedRequired ? colors.error : colors.outlineVariant,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: BorderSide(
-                                    color: isUnmappedRequired ? colors.error : colors.outlineVariant.withValues(alpha: 0.6),
-                                  ),
-                                ),
+                            TSelect<String, String, String>(
+                              key: ValueKey('mapper_${col.key}_${selectedHeader ?? ""}_$index'),
+                              items: widget.csvHeaders,
+                              value: (selectedHeader != null && widget.csvHeaders.contains(selectedHeader)) ? selectedHeader : null,
+                              placeholder: '-- Do not import --',
+                              clearable: true,
+                              filterable: true,
+                              theme: context.theme.textFieldTheme.copyWith(
+                                size: TInputSize.sm,
+                                labelPosition: TLabelPosition.aboveField,
+                                decorationType: TInputDecorationType.outline,
+                                borderColor: isUnmappedRequired ? WidgetStatePropertyAll(colors.error) : null,
                               ),
-                              hint: Text('-- Do not import --', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
-                              items: [
-                                const DropdownMenuItem<String?>(
-                                  value: null,
-                                  child: Text('-- Do not import --', style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic)),
-                                ),
-                                ...widget.csvHeaders.map((header) {
-                                  return DropdownMenuItem<String?>(
-                                    value: header,
-                                    child: Text(header, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-                                  );
-                                }),
-                              ],
-                              onChanged: (val) {
+                              onValueChanged: (val) {
                                 setState(() {
                                   _currentMapping.mapping[col.key] = val;
                                 });

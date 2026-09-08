@@ -40,7 +40,7 @@ class TAppTheme {
         surfaceContainerLow: grey.shade100.lighten(0.5),
         surfaceContainer: grey.shade100.lighten(0.3),
         surfaceContainerHigh: grey.shade100.lighten(0.15),
-        surfaceContainerHighest: grey.shade100,
+        surfaceContainerHighest: grey.shade200.lighten(0.15),
         onSurface: grey.shade900,
         onSurfaceVariant: grey.shade800,
         outline: grey.shade300,

@@ -1241,4 +1241,52 @@ class TFormField<T> {
       builder: (_) => child,
     );
   }
+
+  /// Creates a filter builder form field for complex filters.
+  static TFormField<T?> filter<T>(
+    TFieldProp<T?> prop,
+    String? label, {
+    required List<TFilterDef> filters,
+    T Function(Map<String, dynamic> json)? construct,
+    Map<String, dynamic> Function(T value)? toJson,
+    String? tag,
+    String? helperText,
+    String? info,
+    bool isRequired = false,
+    bool disabled = false,
+    bool readOnly = false,
+    String addFilterLabel = 'Add Filter',
+    String clearAllLabel = 'Clear All',
+    String emptyLabel = 'No filter conditions applied.',
+    bool showClearAll = true,
+    TFilterFieldTheme? theme,
+    FocusNode? focusNode,
+    List<String? Function(T?)>? rules,
+  }) {
+    return TFormField<T?>(
+      prop: prop,
+      builder: (onValueChanged) => TFilterField<T>(
+        label: label,
+        tag: tag,
+        helperText: helperText,
+        info: info,
+        isRequired: isRequired,
+        disabled: disabled,
+        readOnly: readOnly,
+        focusNode: focusNode,
+        filters: filters,
+        construct: construct,
+        toJson: toJson,
+        addFilterLabel: addFilterLabel,
+        clearAllLabel: clearAllLabel,
+        emptyLabel: emptyLabel,
+        showClearAll: showClearAll,
+        theme: theme,
+        rules: rules,
+        value: prop.value,
+        valueNotifier: prop.valueNotifier,
+        onValueChanged: onValueChanged,
+      ),
+    );
+  }
 }

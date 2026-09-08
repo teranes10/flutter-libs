@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'dart:math' as math;
 
 /// Theme configuration for [TTable].
 ///
@@ -150,81 +151,256 @@ class TTableTheme extends TListTheme {
         mobileCardTheme: TTableMobileCardTheme.defaultTheme(colors));
   }
 
-  /// Calculates column widths based on headers and available options.
+  /// Padding/margin overhead outside the [Table] itself (row card padding,
+  /// margins, etc.) subtracted from the widget's available width before
+  /// it's divided between columns. A single named constant so this always
+  /// agrees with [TTableColumnMeasurements.requiredWidth] — if the two
+  /// disagreed, the table-vs-card breakpoint could pass while columns
+  /// still didn't actually fit.
+  static const double horizontalChrome = 32.0;
+
+  static const TextStyle fallbackTextStyle = TextStyle(fontSize: 13.6);
+
+  /// Measures how wide a column actually wants to be: the header label
+  /// plus the widest sampled row value, laid out with [TextPainter] at
+  /// unlimited width so it reflects the real, unwrapped text.
+  static double _naturalColumnWidth<T, K>(
+    TTableHeader<T, K> header,
+    List<T> sampleItems,
+    TextStyle headerStyle,
+    TextStyle contentStyle,
+  ) {
+    double width = measureTextWidth(header.text, headerStyle);
+
+    if (header.widthEstimator != null) {
+      for (final item in sampleItems) {
+        final w = header.widthEstimator!(item);
+        if (w > width) width = w;
+      }
+    } else if (header.map != null) {
+      for (final item in sampleItems) {
+        final value = header.getValue(item);
+        if (value.isEmpty) continue;
+        final w = measureTextWidth(value, contentStyle);
+        if (w > width) width = w;
+      }
+    } else {
+      // Custom-rendered cell (image/chip/actions/etc.) can't be measured
+      // ahead of layout — give it a sane, distinct default rather than
+      // silently collapsing to a single flat fallback for every such column.
+      width = math.max(width, 80.0);
+    }
+
+    return width + 24.0; // cell padding + a little breathing room
+  }
+
+  /// Measures the width of a text string using [TextPainter].
+  static double measureTextWidth(String text, [TextStyle style = fallbackTextStyle]) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+    return painter.width;
+  }
+
+  /// Measures every column once (the expensive, text-layout part) and
+  /// splits the result into fixed columns (selectable/expandable slots,
+  /// and any header with an explicit [TTableHeader.minWidth]/[maxWidth] —
+  /// those are honored exactly as given, no auto-sizing applied) versus
+  /// auto columns that still need their natural width turned into a final
+  /// pixel width once the available table width is known.
+  ///
+  /// Callers should cache the returned [TTableColumnMeasurements] and only
+  /// call [TTableColumnMeasurements.resolve] on layout/resize — that part
+  /// is pure arithmetic and re-runs no text measurement.
+  static TTableColumnMeasurements measureColumns<T, K>(
+    List<TTableHeader<T, K>> headers,
+    bool selectable,
+    bool expandable, {
+    int maxTreeLevel = 0,
+    bool isHierarchical = false,
+    List<T> sampleItems = const [],
+    TextStyle? headerTextStyle,
+    TextStyle? contentTextStyle,
+  }) {
+    final fixedWidths = <int, TableColumnWidth>{};
+    int columnIndex = 0;
+    double fixedTotal = 0;
+
+    if (selectable) {
+      fixedWidths[columnIndex] = const FixedColumnWidth(50);
+      fixedTotal += 50;
+      columnIndex++;
+    }
+    if (expandable) {
+      fixedWidths[columnIndex] = const FixedColumnWidth(50);
+      fixedTotal += 50;
+      columnIndex++;
+    }
+
+    final effectiveTreeLevel = isHierarchical && maxTreeLevel == 0 ? 1 : maxTreeLevel;
+    final treeIndentBonus = (isHierarchical || maxTreeLevel > 0) ? (effectiveTreeLevel * 16.0 + 36.0) : 0.0;
+
+    final autoIndices = <int>[];
+    final autoBasisWidths = <double>[]; // weighting basis, already clamped into [min, max]
+    final autoMinWidths = <double?>[];
+    final autoMaxWidths = <double?>[];
+
+    for (int i = 0; i < headers.length; i++) {
+      final header = headers[i];
+      final extraWidth = (i == 0) ? treeIndentBonus : 0.0;
+      final index = columnIndex + i;
+
+      final hasMin = header.minWidth != null && header.minWidth! > 0;
+      final hasMax = header.maxWidth != null && header.maxWidth! != double.infinity;
+
+      // Only skip measurement entirely when min and max pin the SAME value —
+      // that's a genuinely fixed column with no range to size within, so
+      // there's no point paying for a TextPainter layout.
+      if (hasMin && hasMax && header.minWidth == header.maxWidth) {
+        final width = header.minWidth! + extraWidth;
+        fixedWidths[index] = FixedColumnWidth(width);
+        fixedTotal += width;
+        continue;
+      }
+
+      final natural = _naturalColumnWidth<T, K>(
+            header,
+            sampleItems,
+            headerTextStyle ?? fallbackTextStyle,
+            contentTextStyle ?? fallbackTextStyle,
+          ) +
+          extraWidth;
+
+      final min = hasMin ? header.minWidth! + extraWidth : null;
+      final max = hasMax ? header.maxWidth! + extraWidth : null;
+
+      // Weighting basis = natural width clamped into this column's own
+      // [min, max] — so a maxWidth cap doesn't inflate what other columns
+      // compete for, and a minWidth-only column still measures/grows like
+      // any other auto column instead of freezing at exactly minWidth.
+      var basis = natural;
+      if (min != null && basis < min) basis = min;
+      if (max != null && basis > max) basis = max;
+
+      autoIndices.add(index);
+      autoBasisWidths.add(basis);
+      autoMinWidths.add(min);
+      autoMaxWidths.add(max);
+    }
+
+    return TTableColumnMeasurements(
+      fixedWidths: fixedWidths,
+      fixedTotal: fixedTotal,
+      autoIndices: autoIndices,
+      autoNaturalWidths: autoBasisWidths,
+      autoMinWidths: autoMinWidths,
+      autoMaxWidths: autoMaxWidths,
+    );
+  }
+
+  /// One-shot convenience wrapper around [measureColumns] + [TTableColumnMeasurements.resolve]
+  /// for callers that don't need to cache the measurement step themselves.
   static Map<int, TableColumnWidth> calculateColumnWidths<T, K>(
     List<TTableHeader<T, K>> headers,
     bool selectable,
     bool expandable, {
     int maxTreeLevel = 0,
     bool isHierarchical = false,
+    List<T> sampleItems = const [],
+    TextStyle? headerTextStyle,
+    TextStyle? contentTextStyle,
+    double availableWidth = double.infinity,
   }) {
-    Map<int, TableColumnWidth> columnWidths = {};
-    int columnIndex = 0;
-
-    if (selectable) {
-      columnWidths[columnIndex] = const FixedColumnWidth(50);
-      columnIndex++;
-    }
-
-    if (expandable) {
-      columnWidths[columnIndex] = const FixedColumnWidth(50);
-      columnIndex++;
-    }
-
-    final effectiveTreeLevel = isHierarchical && maxTreeLevel == 0 ? 1 : maxTreeLevel;
-    final treeIndentBonus = (isHierarchical || maxTreeLevel > 0) ? (effectiveTreeLevel * 16.0 + 36.0) : 0.0;
-
-    for (int i = 0; i < headers.length; i++) {
-      final header = headers[i];
-      final extraWidth = (i == 0) ? treeIndentBonus : 0.0;
-
-      if (header.maxWidth != null && header.maxWidth != double.infinity) {
-        columnWidths[columnIndex] = FixedColumnWidth(header.maxWidth! + extraWidth);
-      } else if (header.minWidth != null && header.minWidth! > 0) {
-        columnWidths[columnIndex] = FixedColumnWidth(header.minWidth! + extraWidth);
-      } else {
-        columnWidths[columnIndex] = FlexColumnWidth(header.flex?.toDouble() ?? 1.0);
-      }
-      columnIndex++;
-    }
-
-    return columnWidths;
+    return measureColumns<T, K>(
+      headers,
+      selectable,
+      expandable,
+      maxTreeLevel: maxTreeLevel,
+      isHierarchical: isHierarchical,
+      sampleItems: sampleItems,
+      headerTextStyle: headerTextStyle,
+      contentTextStyle: contentTextStyle,
+    ).resolve(availableWidth);
   }
 
-  /// Calculates the minimum total width required for the table view.
+  /// Calculates the minimum total width required for the table view
+  /// (used to decide table-vs-card layout). Shares the exact same
+  /// measurement as [calculateColumnWidths] so the two can never disagree.
   static double calculateTotalRequiredWidth<T, K>(
     List<TTableHeader<T, K>> headers,
     bool selectable,
     bool expandable, {
     int maxTreeLevel = 0,
     bool isHierarchical = false,
+    List<T> sampleItems = const [],
+    TextStyle? headerTextStyle,
+    TextStyle? contentTextStyle,
   }) {
-    double totalWidth = 0;
+    return measureColumns<T, K>(
+      headers,
+      selectable,
+      expandable,
+      maxTreeLevel: maxTreeLevel,
+      isHierarchical: isHierarchical,
+      sampleItems: sampleItems,
+      headerTextStyle: headerTextStyle,
+      contentTextStyle: contentTextStyle,
+    ).requiredWidth;
+  }
+}
 
-    // Add width for expand/select columns
-    if (expandable) totalWidth += 50;
-    if (selectable) totalWidth += 50;
+/// Result of measuring a table's columns once. Deliberately separates the
+/// expensive part (text measurement, done in [TTableTheme.measureColumns])
+/// from the cheap part ([resolve], pure arithmetic) so a resize/relayout
+/// doesn't re-run `TextPainter` for every column on every frame.
+class TTableColumnMeasurements {
+  final Map<int, TableColumnWidth> fixedWidths;
+  final double fixedTotal;
+  final List<int> autoIndices;
 
-    final effectiveTreeLevel = isHierarchical && maxTreeLevel == 0 ? 1 : maxTreeLevel;
-    final treeIndentBonus = (isHierarchical || maxTreeLevel > 0) ? (effectiveTreeLevel * 16.0 + 36.0) : 0.0;
+  /// Weighting basis per auto column — natural measured width, already
+  /// clamped into that column's own [autoMinWidths]/[autoMaxWidths] range
+  /// if it declared one.
+  final List<double> autoNaturalWidths;
+  final List<double?> autoMinWidths;
+  final List<double?> autoMaxWidths;
 
-    for (int i = 0; i < headers.length; i++) {
-      final header = headers[i];
-      final extraWidth = (i == 0) ? treeIndentBonus : 0.0;
+  const TTableColumnMeasurements({
+    required this.fixedWidths,
+    required this.fixedTotal,
+    required this.autoIndices,
+    required this.autoNaturalWidths,
+    required this.autoMinWidths,
+    required this.autoMaxWidths,
+  });
 
-      if (header.maxWidth != null && header.maxWidth != double.infinity) {
-        totalWidth += header.maxWidth! + extraWidth;
-      } else if (header.minWidth != null && header.minWidth! > 0) {
-        totalWidth += header.minWidth! + extraWidth;
-      } else {
-        // For flex columns, assume a minimum reasonable width
-        totalWidth += 100 + extraWidth; // Default minimum width for flex columns
-      }
+  double get autoNaturalTotal => autoNaturalWidths.fold(0.0, (a, b) => a + b);
+
+  double get requiredWidth => fixedTotal + autoNaturalTotal + TTableTheme.horizontalChrome;
+
+  Map<int, TableColumnWidth> resolve(double availableWidth) {
+    final result = Map<int, TableColumnWidth>.from(fixedWidths);
+    if (autoIndices.isEmpty) return result;
+
+    final total = autoNaturalTotal;
+    final availableForAuto = availableWidth.isFinite ? (availableWidth - TTableTheme.horizontalChrome - fixedTotal) : double.infinity;
+    final scale = (total > 0 && availableForAuto.isFinite) ? math.max(1.0, availableForAuto / total) : 1.0;
+
+    for (int j = 0; j < autoIndices.length; j++) {
+      var width = autoNaturalWidths[j] * scale;
+      // Re-clamp AFTER scaling: scale can push a max-capped basis back
+      // over the ceiling (e.g. basis=100, scale=1.7 → 170), and this is
+      // the only place that's caught. Min is defensive — scale is
+      // currently always >= 1.0, so basis already satisfies min on its
+      // own, but this keeps the guarantee explicit if that ever changes.
+      final max = autoMaxWidths[j];
+      final min = autoMinWidths[j];
+      if (max != null && width > max) width = max;
+      if (min != null && width < min) width = min;
+      result[autoIndices[j]] = FixedColumnWidth(width);
     }
-
-    // Add some padding for table margins/padding
-    totalWidth += 32; // Account for horizontal padding
-
-    return totalWidth;
+    return result;
   }
 }
