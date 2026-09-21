@@ -15,6 +15,38 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`te_widgets` - `v3.5.1`](#te_widgets---v351)
+ - [`te_scanner` - `v3.2.1`](#te_scanner---v321)
+ - [`te_map` - `v3.2.1`](#te_map---v321)
+ - [`te_editor` - `v3.2.1`](#te_editor---v321)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_scanner` - `v3.2.1`
+ - `te_map` - `v3.2.1`
+ - `te_editor` - `v3.2.1`
+
+---
+
+#### `te_widgets` - `v3.5.1`
+
+ - **FIX**(te_widgets): restore Flutter 3.38 backward compatibility for SizeTransition and ReorderableList.
+
+
+## 2026-09-21
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`te_editor` - `v3.2.0`](#te_editor---v320)
  - [`te_map` - `v3.2.0`](#te_map---v320)
  - [`te_scanner` - `v3.2.0`](#te_scanner---v320)

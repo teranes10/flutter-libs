@@ -1,3 +1,7 @@
+## 3.5.1
+
+ - **FIX**(te_widgets): restore Flutter 3.38 backward compatibility for SizeTransition and ReorderableList.
+
 ## 3.5.0
 
  - **FEAT**(te_widgets): add TMetricGrid, TMetricTile, TTile heading scale, and enhancements.
