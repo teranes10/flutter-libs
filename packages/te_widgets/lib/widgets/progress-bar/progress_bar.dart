@@ -179,13 +179,18 @@ class _TProgressBarState extends State<TProgressBar> with SingleTickerProviderSt
     final progressColor = widget.colorBuilder?.call(widget.value, widget.value * 100) ?? (widget.color ?? colors.primary);
     final trackColor = widget.backgroundColor ?? colors.surfaceContainerHighest;
 
+    String formatPercent(double v) {
+      final pct = v * 100;
+      return pct % 1 == 0 ? '${pct.toInt()}%' : '${pct.toStringAsFixed(1)}%';
+    }
+
     String? displayValue;
     if (widget.valueText != null && widget.showPercentage && !widget.indeterminate) {
-      displayValue = '${widget.valueText} (${(widget.value * 100).toInt()}%)';
+      displayValue = '${widget.valueText} (${formatPercent(widget.value)})';
     } else if (widget.valueText != null) {
       displayValue = widget.valueText;
     } else if (widget.showPercentage && !widget.indeterminate) {
-      displayValue = '${(widget.value * 100).toInt()}%';
+      displayValue = formatPercent(widget.value);
     }
 
     final defaultValueStyle = TextStyle(fontSize: 12, fontWeight: FontWeight.w600);

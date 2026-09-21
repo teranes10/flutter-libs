@@ -95,9 +95,8 @@ class _TDateTimeTextFieldState<T extends String?> extends State<TDateTimeTextFie
   @override
   void initState() {
     super.initState();
-    final initialRaw = widget.textController?.text.isNotEmpty == true
-        ? widget.textController!.text
-        : (widget.valueNotifier?.value ?? widget.value);
+    final initialRaw =
+        widget.textController?.text.isNotEmpty == true ? widget.textController!.text : (widget.valueNotifier?.value ?? widget.value);
     final formatted = widget.formatType.format(initialRaw);
     if (textController.text != formatted) {
       textController.text = formatted;

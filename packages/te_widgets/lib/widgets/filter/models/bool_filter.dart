@@ -55,11 +55,7 @@ class BoolFilter {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is BoolFilter &&
-          other.isNull == isNull &&
-          other.eq == eq &&
-          other.ne == ne;
+      identical(this, other) || other is BoolFilter && other.isNull == isNull && other.eq == eq && other.ne == ne;
 
   @override
   int get hashCode => Object.hash(isNull, eq, ne);

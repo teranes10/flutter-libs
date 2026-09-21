@@ -195,8 +195,8 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
     final apiKey = _resolveApiKey();
     final hasGoogle = apiKey != null && apiKey.isNotEmpty;
 
-    final defaultTheme = Theme.of(context).extension<TWidgetThemeExtension>()?.textFieldTheme ??
-        TTextFieldTheme.defaultTheme(Theme.of(context).colorScheme);
+    final defaultTheme =
+        Theme.of(context).extension<TWidgetThemeExtension>()?.textFieldTheme ?? TTextFieldTheme.defaultTheme(Theme.of(context).colorScheme);
 
     final effectiveTheme = (widget.theme ?? defaultTheme).copyWith(
       labelPosition: widget.labelPosition,

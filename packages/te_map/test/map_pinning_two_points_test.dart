@@ -21,19 +21,11 @@ void main() {
     });
 
     test('TRouteResult formats distance and duration correctly', () {
-      const result1 = TRouteResult(
-        points: [],
-        distanceMeters: 14500,
-        durationSeconds: 1500,
-      );
+      const result1 = TRouteResult(points: [], distanceMeters: 14500, durationSeconds: 1500);
       expect(result1.formattedDistance, '14.5 km');
       expect(result1.formattedDuration, '25 min');
 
-      const result2 = TRouteResult(
-        points: [],
-        distanceMeters: 450,
-        durationSeconds: 4200,
-      );
+      const result2 = TRouteResult(points: [], distanceMeters: 450, durationSeconds: 4200);
       expect(result2.formattedDistance, '450 m');
       expect(result2.formattedDuration, '1 hr 10 min');
     });
@@ -44,10 +36,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: TMapPinning(
-              label: 'Single Point',
-              initialCoordinates: const LatLng(6.9271, 79.8612),
-            ),
+            body: TMapPinning(label: 'Single Point', initialCoordinates: const LatLng(6.9271, 79.8612)),
           ),
         ),
       );

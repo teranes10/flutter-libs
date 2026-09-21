@@ -66,11 +66,7 @@ class GuidFilter {
 
   /// Whether all filter conditions are null or empty.
   bool get isEmpty =>
-      isNull == null &&
-      eq == null &&
-      ne == null &&
-      (inField == null || inField!.isEmpty) &&
-      (notIn == null || notIn!.isEmpty);
+      isNull == null && eq == null && ne == null && (inField == null || inField!.isEmpty) && (notIn == null || notIn!.isEmpty);
 
   /// Whether at least one filter condition is specified.
   bool get isNotEmpty => !isEmpty;
@@ -95,6 +91,5 @@ class GuidFilter {
       );
 
   @override
-  String toString() =>
-      'GuidFilter(isNull: $isNull, eq: $eq, ne: $ne, in: $inField, notIn: $notIn)';
+  String toString() => 'GuidFilter(isNull: $isNull, eq: $eq, ne: $ne, in: $inField, notIn: $notIn)';
 }

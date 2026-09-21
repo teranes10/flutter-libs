@@ -98,6 +98,43 @@ extension TListControllerExpansion<T, K> on TListController<T, K> {
     updateExpansionState(newExpandedKeys);
   }
 
+  void expandDescendants(K key) {
+    final ancestors = getAncestorsOfKey(key);
+    final descendants = getDescendantsOfKey(key);
+    final LinkedHashSet<K> newExpandedKeys;
+
+    if (expansionMode == TExpansionMode.single) {
+      newExpandedKeys = copyKeySet(ancestors)
+        ..add(key)
+        ..addAll(descendants);
+    } else {
+      newExpandedKeys = copyKeySet(expandedKeys)
+        ..addAll(ancestors)
+        ..add(key)
+        ..addAll(descendants);
+    }
+
+    updateExpansionState(newExpandedKeys);
+  }
+
+  void collapseDescendants(K key) {
+    collapse(key);
+  }
+
+  bool areDescendantsExpanded(K key) {
+    final descendants = getDescendantsOfKey(key);
+    if (descendants.isEmpty) return isExpanded(key);
+    return isExpanded(key) && descendants.every((k) => isExpanded(k));
+  }
+
+  void toggleExpandDescendants(K key) {
+    if (areDescendantsExpanded(key)) {
+      collapse(key);
+    } else {
+      expandDescendants(key);
+    }
+  }
+
   void expandKeys(Iterable<K> keys) {
     if (keys.isEmpty) return;
 

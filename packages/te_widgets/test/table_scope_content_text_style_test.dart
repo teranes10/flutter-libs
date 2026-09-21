@@ -21,7 +21,8 @@ void main() {
   final theme = appTheme.lightTheme;
 
   group('TTableScope contentTextStyle and header cell styles', () {
-    testWidgets('TTableScope.contentTextStyle returns rowCardTheme in row mode and mobileCardTheme in card mode', (WidgetTester tester) async {
+    testWidgets('TTableScope.contentTextStyle returns rowCardTheme in row mode and mobileCardTheme in card mode',
+        (WidgetTester tester) async {
       final colors = ColorScheme.fromSeed(seedColor: Colors.blue);
       final customRowStyle = const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w300, color: Colors.blueGrey);
       final customCardStyle = const TextStyle(fontSize: 13.0, fontWeight: FontWeight.w400, color: Colors.teal);
@@ -139,8 +140,7 @@ void main() {
       expect(valueText.style?.fontSize, equals(14.0));
     });
 
-    testWidgets('TTableHeader.tile uses contentTextStyle for title and muted adaptive contrast for subtitle',
-        (WidgetTester tester) async {
+    testWidgets('TTableHeader.tile uses contentTextStyle for title and muted adaptive contrast for subtitle', (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

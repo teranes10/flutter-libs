@@ -98,15 +98,14 @@ class _TInputContainerState extends State<TInputContainer> {
     final effectivePadding = widget.padding ?? effectiveTheme.fieldPadding;
 
     final inputBorder = effectiveTheme.buildInputBorder(states);
-    final borderRadius = inputBorder is OutlineInputBorder
-        ? inputBorder.borderRadius
-        : BorderRadius.circular(effectiveTheme.borderRadius.resolve(states));
+    final borderRadius =
+        inputBorder is OutlineInputBorder ? inputBorder.borderRadius : BorderRadius.circular(effectiveTheme.borderRadius.resolve(states));
 
     final borderColor = effectiveTheme.borderColor.resolve(states);
     final borderWidth = effectiveTheme.borderWidth.resolve(states);
 
-    final bool hasBorderSide = inputBorder.borderSide.style != BorderStyle.none &&
-        effectiveTheme.decorationType != TInputDecorationType.none;
+    final bool hasBorderSide =
+        inputBorder.borderSide.style != BorderStyle.none && effectiveTheme.decorationType != TInputDecorationType.none;
 
     final border = hasBorderSide
         ? (effectiveTheme.decorationType == TInputDecorationType.underline
@@ -116,9 +115,8 @@ class _TInputContainerState extends State<TInputContainer> {
 
     final backgroundColor = effectiveTheme.resolveBackgroundColor(context, states);
 
-    final defaultCursor = widget.disabled
-        ? SystemMouseCursors.basic
-        : (widget.onTap != null ? SystemMouseCursors.click : MouseCursor.defer);
+    final defaultCursor =
+        widget.disabled ? SystemMouseCursors.basic : (widget.onTap != null ? SystemMouseCursors.click : MouseCursor.defer);
 
     return MouseRegion(
       cursor: widget.cursor ?? defaultCursor,
@@ -137,9 +135,7 @@ class _TInputContainerState extends State<TInputContainer> {
           padding: effectivePadding,
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: effectiveTheme.decorationType == TInputDecorationType.underline
-                ? BorderRadius.zero
-                : borderRadius,
+            borderRadius: effectiveTheme.decorationType == TInputDecorationType.underline ? BorderRadius.zero : borderRadius,
             border: border,
           ),
           child: widget.child,

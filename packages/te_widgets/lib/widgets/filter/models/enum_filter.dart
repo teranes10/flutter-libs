@@ -89,10 +89,8 @@ class EnumFilter<T extends Enum> {
         if (gte != null) 'gte': enumSerializer != null ? enumSerializer(gte!) : gte?.name,
         if (lt != null) 'lt': enumSerializer != null ? enumSerializer(lt!) : lt?.name,
         if (lte != null) 'lte': enumSerializer != null ? enumSerializer(lte!) : lte?.name,
-        if (inField != null)
-          'in': inField!.map((e) => enumSerializer != null ? enumSerializer(e) : e.name).toList(),
-        if (notIn != null)
-          'notIn': notIn!.map((e) => enumSerializer != null ? enumSerializer(e) : e.name).toList(),
+        if (inField != null) 'in': inField!.map((e) => enumSerializer != null ? enumSerializer(e) : e.name).toList(),
+        if (notIn != null) 'notIn': notIn!.map((e) => enumSerializer != null ? enumSerializer(e) : e.name).toList(),
       };
 
   /// Creates a copy of this filter with the given fields replaced.
@@ -162,6 +160,5 @@ class EnumFilter<T extends Enum> {
       );
 
   @override
-  String toString() =>
-      'EnumFilter(isNull: $isNull, eq: $eq, ne: $ne, gt: $gt, gte: $gte, lt: $lt, lte: $lte, in: $inField, notIn: $notIn)';
+  String toString() => 'EnumFilter(isNull: $isNull, eq: $eq, ne: $ne, gt: $gt, gte: $gte, lt: $lt, lte: $lte, in: $inField, notIn: $notIn)';
 }

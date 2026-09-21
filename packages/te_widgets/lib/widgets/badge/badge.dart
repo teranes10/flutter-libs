@@ -334,30 +334,20 @@ class TBadge extends StatelessWidget {
     final isRight = alignment.x > 0;
     final isCenterX = alignment.x == 0;
 
-    final double? topVal = isTop
-        ? (defaultOffsetVal + (offset?.dy ?? 0))
-        : (isCenterY ? (offset?.dy ?? 0) : null);
+    final double? topVal = isTop ? (defaultOffsetVal + (offset?.dy ?? 0)) : (isCenterY ? (offset?.dy ?? 0) : null);
 
-    final double? bottomVal = isBottom
-        ? (defaultOffsetVal - (offset?.dy ?? 0))
-        : (isCenterY ? -(offset?.dy ?? 0) : null);
+    final double? bottomVal = isBottom ? (defaultOffsetVal - (offset?.dy ?? 0)) : (isCenterY ? -(offset?.dy ?? 0) : null);
 
-    final double? leftVal = isLeft
-        ? (defaultOffsetVal + (offset?.dx ?? 0))
-        : (isCenterX ? (offset?.dx ?? 0) : null);
+    final double? leftVal = isLeft ? (defaultOffsetVal + (offset?.dx ?? 0)) : (isCenterX ? (offset?.dx ?? 0) : null);
 
-    final double? rightVal = isRight
-        ? (defaultOffsetVal - (offset?.dx ?? 0))
-        : (isCenterX ? -(offset?.dx ?? 0) : null);
+    final double? rightVal = isRight ? (defaultOffsetVal - (offset?.dx ?? 0)) : (isCenterX ? -(offset?.dx ?? 0) : null);
 
     final positionedBadge = Positioned(
       top: topVal,
       bottom: bottomVal,
       left: leftVal,
       right: rightVal,
-      child: (isCenterX || isCenterY)
-          ? Align(alignment: alignment, child: badgeContent)
-          : badgeContent,
+      child: (isCenterX || isCenterY) ? Align(alignment: alignment, child: badgeContent) : badgeContent,
     );
 
     return Stack(
@@ -386,9 +376,7 @@ class TBadge extends StatelessWidget {
     final effectiveColor = color ?? context.theme.danger;
     final effectiveTextColor = textColor ?? Colors.white;
     final effectiveBorderColor = borderColor ?? context.colors.surface;
-    final border = (showBorder && borderWidth > 0)
-        ? Border.all(color: effectiveBorderColor, width: borderWidth)
-        : null;
+    final border = (showBorder && borderWidth > 0) ? Border.all(color: effectiveBorderColor, width: borderWidth) : null;
 
     // 1. Generic badge parameter handling
     if (badge != null) {
@@ -489,8 +477,7 @@ class TBadge extends StatelessWidget {
         (size != null
             ? EdgeInsets.symmetric(horizontal: size!.hPad, vertical: size!.vPad)
             : const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5));
-    final effectiveRadius = borderRadius ??
-        (size != null ? BorderRadius.circular(size!.radius) : BorderRadius.circular(10));
+    final effectiveRadius = borderRadius ?? (size != null ? BorderRadius.circular(size!.radius) : BorderRadius.circular(10));
     final effectiveFontSize = size?.font ?? (text.length > 3 ? 9.5 : 10.0);
     final effectiveTextStyle = textStyle ??
         TextStyle(

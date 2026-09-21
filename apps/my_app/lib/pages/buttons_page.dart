@@ -424,13 +424,7 @@ TButton(
               runSpacing: 12,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                TButton(
-                  icon: Icons.notifications_outlined,
-                  text: 'Alerts',
-                  badge: 5,
-                  color: context.theme.primary,
-                  onTap: () {},
-                ),
+                TButton(icon: Icons.notifications_outlined, text: 'Alerts', badge: 5, color: context.theme.primary, onTap: () {}),
                 TButton(
                   type: TButtonType.tonal,
                   icon: Icons.mail_outline,
@@ -473,12 +467,7 @@ TButton(
                   badgeColor: context.theme.info,
                   onTap: () {},
                 ),
-                TButton(
-                  shape: TButtonShape.circle,
-                  icon: Icons.shopping_bag_outlined,
-                  badge: 2,
-                  onTap: () {},
-                ),
+                TButton(shape: TButtonShape.circle, icon: Icons.shopping_bag_outlined, badge: 2, onTap: () {}),
               ],
             ),
             code: '''// 1. Notification Count Badge (Default Top-Right)
@@ -539,11 +528,7 @@ TButton(
                 defaultValue: 'Alignment.topRight',
                 description: 'The alignment of the badge overlay (topRight, topLeft, bottomRight, bottomLeft, topCenter, etc.)',
               ),
-              PropertyDoc(
-                name: 'badgeColor',
-                type: 'Color?',
-                description: 'Custom background color for the badge container',
-              ),
+              PropertyDoc(name: 'badgeColor', type: 'Color?', description: 'Custom background color for the badge container'),
               PropertyDoc(
                 name: 'badgeTextColor',
                 type: 'Color?',

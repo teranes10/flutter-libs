@@ -61,10 +61,7 @@ class TMobileDeviceFrame extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
-        child: Material(
-          color: colors.surface,
-          child: bodyContent,
-        ),
+        child: Material(color: colors.surface, child: bodyContent),
       ),
     );
   }

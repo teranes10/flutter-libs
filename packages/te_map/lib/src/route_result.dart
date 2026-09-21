@@ -8,13 +8,7 @@ class TRouteResult {
   final String? distanceText;
   final String? durationText;
 
-  const TRouteResult({
-    required this.points,
-    required this.distanceMeters,
-    this.durationSeconds = 0,
-    this.distanceText,
-    this.durationText,
-  });
+  const TRouteResult({required this.points, required this.distanceMeters, this.durationSeconds = 0, this.distanceText, this.durationText});
 
   /// Human-readable distance format (e.g. "12.4 km" or "850 m").
   String get formattedDistance {

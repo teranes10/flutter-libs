@@ -134,8 +134,7 @@ void main() {
 
     return ProviderScope(
       overrides: [
-        if (initialMode != null)
-          sidebarNotifierProvider.overrideWith(() => _TestSidebarNotifier(initialMode)),
+        if (initialMode != null) sidebarNotifierProvider.overrideWith(() => _TestSidebarNotifier(initialMode)),
       ],
       child: MaterialApp.router(
         theme: theme,
@@ -360,7 +359,8 @@ void main() {
       expect(panelSize.height, lessThanOrEqualTo(500));
     });
 
-    testWidgets('Profile button shows end down-arrow and opens dropdown with theme system/light/dark, color, fullscreen, logout', (tester) async {
+    testWidgets('Profile button shows end down-arrow and opens dropdown with theme system/light/dark, color, fullscreen, logout',
+        (tester) async {
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);

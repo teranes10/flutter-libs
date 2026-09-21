@@ -8,8 +8,7 @@ class _SampleRow {
   num age;
   Map<String, String> errors;
 
-  _SampleRow(this.id, this.name, this.age, {Map<String, String>? errors})
-      : errors = errors ?? {};
+  _SampleRow(this.id, this.name, this.age, {Map<String, String>? errors}) : errors = errors ?? {};
 }
 
 void main() {
@@ -84,8 +83,8 @@ void main() {
     expect(find.byType(TNumberField<num>), findsOneWidget);
     final editorTooltip = find.ancestor(
       of: find.byType(TNumberField<num>),
-      matching: find.byWidgetPredicate((w) =>
-          (w is TTooltip && w.message == 'Age must be positive') || (w is Tooltip && w.message == 'Age must be positive')),
+      matching: find.byWidgetPredicate(
+          (w) => (w is TTooltip && w.message == 'Age must be positive') || (w is Tooltip && w.message == 'Age must be positive')),
     );
     expect(editorTooltip, findsOneWidget);
   });

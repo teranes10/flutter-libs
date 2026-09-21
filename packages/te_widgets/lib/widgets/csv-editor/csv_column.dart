@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 /// Supported data types for columns in [TCsvEditor].
@@ -12,7 +13,10 @@ enum TCsvColumnType {
   integer,
 
   /// Boolean switch / checkbox (true/false).
-  boolean;
+  boolean,
+
+  /// Image filename(s), pipe-separated: 'front.jpg|back.jpg'
+  image;
 
   /// Human readable label.
   String get label => switch (this) {
@@ -20,6 +24,7 @@ enum TCsvColumnType {
         TCsvColumnType.number => 'Number',
         TCsvColumnType.integer => 'Integer',
         TCsvColumnType.boolean => 'Boolean',
+        TCsvColumnType.image => 'Image',
       };
 
   /// Icon representing the type.
@@ -28,6 +33,7 @@ enum TCsvColumnType {
         TCsvColumnType.number => Icons.pin_outlined,
         TCsvColumnType.integer => Icons.tag_rounded,
         TCsvColumnType.boolean => Icons.toggle_on_outlined,
+        TCsvColumnType.image => Icons.image_rounded,
       };
 }
 
@@ -91,6 +97,12 @@ class TCsvColumn {
   /// Content alignment inside cell.
   final Alignment alignment;
 
+  /// Upload callback for image columns: receives PlatformFile, returns server URL.
+  final Future<String> Function(PlatformFile file)? uploadCallback;
+
+  /// Separator used to split/join multiple image filenames in a single cell.
+  final String imageSeparator;
+
   const TCsvColumn({
     required this.key,
     required this.header,
@@ -106,6 +118,8 @@ class TCsvColumn {
     this.maxWidth,
     this.flex,
     this.alignment = Alignment.centerLeft,
+    this.uploadCallback,
+    this.imageSeparator = '|',
   });
 
   /// Creates a text column.
@@ -123,7 +137,9 @@ class TCsvColumn {
     this.maxWidth,
     this.flex,
     this.alignment = Alignment.centerLeft,
-  }) : type = TCsvColumnType.text;
+  })  : type = TCsvColumnType.text,
+        uploadCallback = null,
+        imageSeparator = '|';
 
   /// Creates a floating point / decimal number column.
   const TCsvColumn.number({
@@ -140,7 +156,9 @@ class TCsvColumn {
     this.maxWidth,
     this.flex,
     this.alignment = Alignment.centerRight,
-  }) : type = TCsvColumnType.number;
+  })  : type = TCsvColumnType.number,
+        uploadCallback = null,
+        imageSeparator = '|';
 
   /// Creates an integer number column.
   const TCsvColumn.integer({
@@ -157,7 +175,9 @@ class TCsvColumn {
     this.maxWidth,
     this.flex,
     this.alignment = Alignment.centerRight,
-  }) : type = TCsvColumnType.integer;
+  })  : type = TCsvColumnType.integer,
+        uploadCallback = null,
+        imageSeparator = '|';
 
   /// Creates a boolean toggle / switch column.
   const TCsvColumn.boolean({
@@ -174,7 +194,30 @@ class TCsvColumn {
     this.maxWidth = 160,
     this.flex,
     this.alignment = Alignment.center,
-  }) : type = TCsvColumnType.boolean;
+  })  : type = TCsvColumnType.boolean,
+        uploadCallback = null,
+        imageSeparator = '|';
+
+  /// Creates an image filename column with upload support.
+  /// [uploadCallback] receives a PlatformFile and returns the server URL (GUID-named).
+  /// Multiple images are separated by [imageSeparator] (default `|`).
+  const TCsvColumn.image({
+    required this.key,
+    required this.header,
+    this.isRequired = false,
+    this.defaultValue,
+    this.aliases = const [],
+    this.validator,
+    this.format,
+    this.placeholder,
+    this.helperText,
+    this.minWidth = 200,
+    this.maxWidth,
+    this.flex,
+    this.alignment = Alignment.centerLeft,
+    this.uploadCallback,
+    this.imageSeparator = '|',
+  }) : type = TCsvColumnType.image;
 
   /// Parses a raw input value into the column's target data type.
   dynamic parseValue(dynamic rawValue) {
@@ -182,7 +225,7 @@ class TCsvColumn {
       return defaultValue;
     }
 
-    if (type == TCsvColumnType.text) {
+    if (type == TCsvColumnType.text || type == TCsvColumnType.image) {
       final str = rawValue.toString().trim();
       return str.isEmpty ? defaultValue : str;
     }

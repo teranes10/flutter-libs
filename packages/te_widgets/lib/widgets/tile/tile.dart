@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+export 'tile_size.dart';
+
 /// A versatile tile widget containing a leading icon/image container, title, subtitle, and optional trailing widget.
 ///
 /// `TTile` can be used standalone, inside cards, lists, accordions, and table cells.
+/// Sizing uses the unified [TSize] system, with presets [TTileSize.h1] through [TTileSize.h6]
+/// available via [size] or named constructors [TTile.h1] through [TTile.h6].
 /// All visual properties including icon colors, background colors, padding,
 /// border radius, text styles, and spacing are fully configurable.
 class TTile extends StatelessWidget {
+  /// The size configuration of the tile. Defaults to [TTileSize.h5].
+  final TSize size;
+
   /// The title text to display.
   final String? title;
 
@@ -45,29 +52,29 @@ class TTile extends StatelessWidget {
 
   /// Padding inside the leading icon container.
   ///
-  /// Defaults to `EdgeInsets.all(8.0)`.
+  /// Defaults to [size.padding].
   final EdgeInsetsGeometry? iconPadding;
 
   /// Border radius of the leading icon container.
   ///
-  /// Defaults to `BorderRadius.circular(12.0)`.
+  /// Defaults to [size.borderRadius].
   final BorderRadius? iconBorderRadius;
 
   /// Size of the leading icon.
   ///
-  /// Defaults to 20.0.
+  /// Defaults to [size.iconSize].
   final double? iconSize;
 
-  /// Text style for the title.
+  /// Text style for the title. Merged on top of default sizing style if provided.
   final TextStyle? titleStyle;
 
-  /// Text style for the subtitle.
+  /// Text style for the subtitle. Merged on top of default sizing style if provided.
   final TextStyle? subtitleStyle;
 
   /// Horizontal spacing between the leading icon and title/subtitle column.
   ///
-  /// Defaults to 12.0.
-  final double spacing;
+  /// Defaults to [size.spacing].
+  final double? spacing;
 
   /// Cross axis alignment of the row.
   ///
@@ -94,6 +101,7 @@ class TTile extends StatelessWidget {
 
   const TTile({
     super.key,
+    this.size = TTileSize.h5,
     this.title,
     this.titleWidget,
     this.subtitle,
@@ -111,7 +119,7 @@ class TTile extends StatelessWidget {
     this.iconSize,
     this.titleStyle,
     this.subtitleStyle,
-    this.spacing = 12.0,
+    this.spacing,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.trailing,
     this.onTap,
@@ -121,10 +129,195 @@ class TTile extends StatelessWidget {
     this.isExpanded = false,
   });
 
+  /// Heading 1: Extra-large tile for hero headers, primary dashboards, and page titles.
+  const TTile.h1({
+    super.key,
+    this.title,
+    this.titleWidget,
+    this.subtitle,
+    this.subtitleWidget,
+    this.icon,
+    this.leading,
+    this.iconColor,
+    this.hoveredIconColor,
+    this.expandedIconColor,
+    this.iconBackgroundColor,
+    this.hoveredIconBackgroundColor,
+    this.expandedIconBackgroundColor,
+    this.iconPadding,
+    this.iconBorderRadius,
+    this.iconSize,
+    this.titleStyle,
+    this.subtitleStyle,
+    this.spacing,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.trailing,
+    this.onTap,
+    this.padding,
+    this.borderRadius,
+    this.isHovered = false,
+    this.isExpanded = false,
+  }) : size = TTileSize.h1;
+
+  /// Heading 2: Large tile for major section headers and modal titles.
+  const TTile.h2({
+    super.key,
+    this.title,
+    this.titleWidget,
+    this.subtitle,
+    this.subtitleWidget,
+    this.icon,
+    this.leading,
+    this.iconColor,
+    this.hoveredIconColor,
+    this.expandedIconColor,
+    this.iconBackgroundColor,
+    this.hoveredIconBackgroundColor,
+    this.expandedIconBackgroundColor,
+    this.iconPadding,
+    this.iconBorderRadius,
+    this.iconSize,
+    this.titleStyle,
+    this.subtitleStyle,
+    this.spacing,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.trailing,
+    this.onTap,
+    this.padding,
+    this.borderRadius,
+    this.isHovered = false,
+    this.isExpanded = false,
+  }) : size = TTileSize.h2;
+
+  /// Heading 3: Medium-large tile for secondary sections and large card headers.
+  const TTile.h3({
+    super.key,
+    this.title,
+    this.titleWidget,
+    this.subtitle,
+    this.subtitleWidget,
+    this.icon,
+    this.leading,
+    this.iconColor,
+    this.hoveredIconColor,
+    this.expandedIconColor,
+    this.iconBackgroundColor,
+    this.hoveredIconBackgroundColor,
+    this.expandedIconBackgroundColor,
+    this.iconPadding,
+    this.iconBorderRadius,
+    this.iconSize,
+    this.titleStyle,
+    this.subtitleStyle,
+    this.spacing,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.trailing,
+    this.onTap,
+    this.padding,
+    this.borderRadius,
+    this.isHovered = false,
+    this.isExpanded = false,
+  }) : size = TTileSize.h3;
+
+  /// Heading 4: Standard prominent tile for regular cards and dialog sections.
+  const TTile.h4({
+    super.key,
+    this.title,
+    this.titleWidget,
+    this.subtitle,
+    this.subtitleWidget,
+    this.icon,
+    this.leading,
+    this.iconColor,
+    this.hoveredIconColor,
+    this.expandedIconColor,
+    this.iconBackgroundColor,
+    this.hoveredIconBackgroundColor,
+    this.expandedIconBackgroundColor,
+    this.iconPadding,
+    this.iconBorderRadius,
+    this.iconSize,
+    this.titleStyle,
+    this.subtitleStyle,
+    this.spacing,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.trailing,
+    this.onTap,
+    this.padding,
+    this.borderRadius,
+    this.isHovered = false,
+    this.isExpanded = false,
+  }) : size = TTileSize.h4;
+
+  /// Heading 5: Standard default tile for lists, accordions, and table cells.
+  const TTile.h5({
+    super.key,
+    this.title,
+    this.titleWidget,
+    this.subtitle,
+    this.subtitleWidget,
+    this.icon,
+    this.leading,
+    this.iconColor,
+    this.hoveredIconColor,
+    this.expandedIconColor,
+    this.iconBackgroundColor,
+    this.hoveredIconBackgroundColor,
+    this.expandedIconBackgroundColor,
+    this.iconPadding,
+    this.iconBorderRadius,
+    this.iconSize,
+    this.titleStyle,
+    this.subtitleStyle,
+    this.spacing,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.trailing,
+    this.onTap,
+    this.padding,
+    this.borderRadius,
+    this.isHovered = false,
+    this.isExpanded = false,
+  }) : size = TTileSize.h5;
+
+  /// Heading 6: Compact/dense tile for tight lists, sidebars, and dense table rows.
+  const TTile.h6({
+    super.key,
+    this.title,
+    this.titleWidget,
+    this.subtitle,
+    this.subtitleWidget,
+    this.icon,
+    this.leading,
+    this.iconColor,
+    this.hoveredIconColor,
+    this.expandedIconColor,
+    this.iconBackgroundColor,
+    this.hoveredIconBackgroundColor,
+    this.expandedIconBackgroundColor,
+    this.iconPadding,
+    this.iconBorderRadius,
+    this.iconSize,
+    this.titleStyle,
+    this.subtitleStyle,
+    this.spacing,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.trailing,
+    this.onTap,
+    this.padding,
+    this.borderRadius,
+    this.isHovered = false,
+    this.isExpanded = false,
+  }) : size = TTileSize.h6;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final effectiveIcon = icon ?? leading;
+
+    final effectiveIconSize = iconSize ?? size.icon;
+    final effectiveIconPadding = iconPadding ?? (size.hPad > 0 || size.vPad > 0 ? size.padding : const EdgeInsets.all(8));
+    final effectiveIconBorderRadius = iconBorderRadius ?? BorderRadius.circular(size.radius);
+    final effectiveSpacing = spacing ?? size.spacing;
 
     Widget? leadingWidget;
     if (effectiveIcon != null) {
@@ -153,43 +346,67 @@ class TTile extends StatelessWidget {
         }
 
         leadingWidget = Container(
-          padding: iconPadding ?? const EdgeInsets.all(8),
+          padding: effectiveIconPadding,
           decoration: BoxDecoration(
             color: resolvedBg,
-            borderRadius: iconBorderRadius ?? BorderRadius.circular(12),
+            borderRadius: effectiveIconBorderRadius,
           ),
           child: TIcon.raw(
             effectiveIcon,
-            size: iconSize ?? 20,
+            size: effectiveIconSize,
             color: resolvedIconColor,
           ),
         );
       }
     }
 
+    final titleFontWeight = size.font >= 22.0 ? FontWeight.w700 : (size.font >= 16.0 ? FontWeight.w600 : FontWeight.w500);
+
+    final defaultTitleStyle = TextStyle(
+      fontSize: size.font,
+      fontWeight: titleFontWeight,
+      color: colors.onSurface,
+    );
+
     final titleChild = titleWidget ??
         (title != null
             ? Text(
                 title!,
-                style: titleStyle ??
-                    TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: colors.onSurface,
-                    ),
+                style: titleStyle != null ? defaultTitleStyle.merge(titleStyle) : defaultTitleStyle,
               )
             : const SizedBox.shrink());
+
+    final subtitleFontSize = switch (size) {
+      TTileSize.h1 => 15.0,
+      TTileSize.h2 => 14.0,
+      TTileSize.h3 => 13.0,
+      TTileSize.h4 => 12.5,
+      TTileSize.h5 => 12.0,
+      TTileSize.h6 => 11.0,
+      _ => (size.font * 0.85).clamp(10.0, 16.0),
+    };
+
+    final subtitleGap = switch (size) {
+      TTileSize.h1 => 4.0,
+      TTileSize.h2 => 3.5,
+      TTileSize.h3 => 3.0,
+      TTileSize.h4 => 2.5,
+      TTileSize.h5 => 2.0,
+      TTileSize.h6 => 1.5,
+      _ => (size.font * 0.15).clamp(1.5, 4.0),
+    };
+
+    final defaultSubtitleStyle = TextStyle(
+      fontSize: subtitleFontSize,
+      fontWeight: FontWeight.w400,
+      color: colors.onSurfaceVariant,
+    );
 
     final subtitleChild = subtitleWidget ??
         (subtitle != null
             ? Text(
                 subtitle!,
-                style: subtitleStyle ??
-                    TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: colors.onSurfaceVariant,
-                    ),
+                style: subtitleStyle != null ? defaultSubtitleStyle.merge(subtitleStyle) : defaultSubtitleStyle,
               )
             : null);
 
@@ -198,7 +415,7 @@ class TTile extends StatelessWidget {
       children: [
         if (leadingWidget != null) ...[
           leadingWidget,
-          SizedBox(width: spacing),
+          SizedBox(width: effectiveSpacing),
         ],
         Expanded(
           child: Column(
@@ -207,7 +424,7 @@ class TTile extends StatelessWidget {
             children: [
               titleChild,
               if (subtitleChild != null) ...[
-                const SizedBox(height: 2),
+                SizedBox(height: subtitleGap),
                 subtitleChild,
               ],
             ],

@@ -950,7 +950,11 @@ TSwitch(
               PropertyDoc(name: 'disabled', type: 'bool', defaultValue: 'false', description: 'Whether the switch is disabled'),
               PropertyDoc(name: 'size', type: 'TInputSize?', description: 'Size of the switch (xs, sm, md, lg)'),
               PropertyDoc(name: 'color', type: 'Color?', description: 'Custom color for the switch when active/on'),
-              PropertyDoc(name: 'inactiveColor', type: 'Color?', description: 'Optional custom color for the switch track when inactive/off'),
+              PropertyDoc(
+                name: 'inactiveColor',
+                type: 'Color?',
+                description: 'Optional custom color for the switch track when inactive/off',
+              ),
             ],
           ),
 

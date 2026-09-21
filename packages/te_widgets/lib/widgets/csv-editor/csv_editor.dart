@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:file_picker/file_picker.dart';
+import 'package:archive/archive.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +7,7 @@ import 'package:te_widgets/te_widgets.dart';
 
 part 'csv_editor_actions.dart';
 part 'csv_editor_banners.dart';
+part 'csv_editor_image_panel.dart';
 part 'csv_editor_table.dart';
 
 /// A rich, interactive CSV, TSV, DSV, and JSON upload, header mapping, and inline-editable data table.
@@ -149,9 +150,12 @@ abstract class _TCsvEditorStateContract extends State<TCsvEditor> {
   set activeFilterTab(int val);
   TCsvEditorTheme get theme;
   void notifyChange();
+  Future<void> uploadAndReplaceImageUrls();
+  Widget buildImageCell(TCsvRow row, TCsvColumn col, ColorScheme colors);
 }
 
-class _TCsvEditorState extends _TCsvEditorStateContract with _TCsvEditorActions, _TCsvEditorBanners, _TCsvEditorTable {
+class _TCsvEditorState extends _TCsvEditorStateContract
+    with _TCsvEditorActions, _TCsvEditorBanners, _TCsvEditorImagePanel, _TCsvEditorTable {
   @override
   final List<TCsvRow> rows = [];
 
@@ -203,6 +207,7 @@ class _TCsvEditorState extends _TCsvEditorStateContract with _TCsvEditorActions,
 
   @override
   void notifyChange() {
+    _refreshImageReferences();
     widget.onDataChanged?.call(rows.map((r) => r.toMap()).toList());
   }
 
@@ -223,13 +228,16 @@ class _TCsvEditorState extends _TCsvEditorStateContract with _TCsvEditorActions,
           // 1. Upload Dropzone / Loaded File Banner
           if (rows.isEmpty) buildDropzone(colors, isDark) else buildLoadedFileBanner(colors, isDark),
 
-          // 2. Diff Headers Banner
+          // 2. Bulk Image Gallery Panel (active if any image column exists)
+          buildImagePanel(colors, isDark),
+
+          // 3. Diff Headers Banner
           if (hasDiffHeaders && rows.isNotEmpty) ...[
             const SizedBox(height: 12),
             buildDiffHeadersBanner(colors),
           ],
 
-          // 3. Table Toolbar (Search, Filter Tabs, Add Row, Row Count)
+          // 4. Table Toolbar (Search, Filter Tabs, Add Row, Row Count)
           if (rows.isNotEmpty) ...[
             const SizedBox(height: 16),
             buildTableToolbar(colors),

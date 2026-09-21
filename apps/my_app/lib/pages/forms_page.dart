@@ -234,49 +234,44 @@ class TabbedSettingsForm extends TFormBase {
 
   @override
   List<TFormField> get fields => [
-        TFormField.verticalTabs(
-          tabWidth: 160,
-          tabs: [
-            TFormTab.fields(
-              title: 'General',
-              icon: Icons.tune,
-              fields: [
-                TFormField.text(siteName, 'Site Name', isRequired: true),
-                TFormField.text(siteUrl, 'Site URL', isRequired: true),
-                TFormField.toggle(maintenanceMode, 'Maintenance Mode'),
-              ],
-            ),
-            TFormTab.fields(
-              title: 'Email / SMTP',
-              icon: Icons.mail_outline,
-              fields: [
-                TFormField.text(smtpHost, 'SMTP Host').size(8),
-                TFormField.number<int>(smtpPort, 'Port').size(4),
-                TFormField.text(smtpUser, 'Username'),
-              ],
-            ),
-            TFormTab.fields(
-              title: 'Security',
-              icon: Icons.security,
-              fields: [
-                TFormField.toggle(enable2FA, 'Require 2FA for all users'),
-                TFormField.number<int>(sessionTimeout, 'Session Timeout (minutes)'),
-              ],
-            ),
-            TFormTab.fields(
-              title: 'Notifications',
-              icon: Icons.notifications_outlined,
-              fields: [
-                TFormField.toggle(notifyEmail, 'Email Notifications'),
-                TFormField.toggle(notifyPush, 'Push Notifications'),
-              ],
-            ),
+    TFormField.verticalTabs(
+      tabWidth: 160,
+      tabs: [
+        TFormTab.fields(
+          title: 'General',
+          icon: Icons.tune,
+          fields: [
+            TFormField.text(siteName, 'Site Name', isRequired: true),
+            TFormField.text(siteUrl, 'Site URL', isRequired: true),
+            TFormField.toggle(maintenanceMode, 'Maintenance Mode'),
           ],
         ),
-      ];
+        TFormTab.fields(
+          title: 'Email / SMTP',
+          icon: Icons.mail_outline,
+          fields: [
+            TFormField.text(smtpHost, 'SMTP Host').size(8),
+            TFormField.number<int>(smtpPort, 'Port').size(4),
+            TFormField.text(smtpUser, 'Username'),
+          ],
+        ),
+        TFormTab.fields(
+          title: 'Security',
+          icon: Icons.security,
+          fields: [
+            TFormField.toggle(enable2FA, 'Require 2FA for all users'),
+            TFormField.number<int>(sessionTimeout, 'Session Timeout (minutes)'),
+          ],
+        ),
+        TFormTab.fields(
+          title: 'Notifications',
+          icon: Icons.notifications_outlined,
+          fields: [TFormField.toggle(notifyEmail, 'Email Notifications'), TFormField.toggle(notifyPush, 'Push Notifications')],
+        ),
+      ],
+    ),
+  ];
 
   @override
-  String toString() =>
-      'TabbedSettingsForm siteName: $siteName, siteUrl: $siteUrl, 2FA: $enable2FA';
+  String toString() => 'TabbedSettingsForm siteName: $siteName, siteUrl: $siteUrl, 2FA: $enable2FA';
 }
-

@@ -174,11 +174,7 @@ class TCsvParser {
     }
 
     // Look across the first up to 10 non-empty lines for robust detection
-    final lines = text
-        .split(RegExp(r'\r\n|\r|\n'))
-        .where((line) => line.trim().isNotEmpty)
-        .take(10)
-        .toList();
+    final lines = text.split(RegExp(r'\r\n|\r|\n')).where((line) => line.trim().isNotEmpty).take(10).toList();
 
     if (lines.isEmpty) return ',';
 
@@ -480,13 +476,9 @@ class TCsvParser {
   }) {
     if (maps.isEmpty) return '';
 
-    final resolvedHeaders = headers ??
-        columns?.map((c) => c.header).toList() ??
-        maps.first.keys.toList();
+    final resolvedHeaders = headers ?? columns?.map((c) => c.header).toList() ?? maps.first.keys.toList();
 
-    final keys = columns?.map((c) => c.key).toList() ??
-        headers ??
-        maps.first.keys.toList();
+    final keys = columns?.map((c) => c.key).toList() ?? headers ?? maps.first.keys.toList();
 
     final rows = maps.map((map) {
       return keys.map((k) {
@@ -506,24 +498,21 @@ class TCsvParser {
   }
 
   /// Shortcut helper to export to Tab-Separated Values (TSV).
-  static String toTsv(List<String> headers, List<List<dynamic>> rows) =>
-      toCsv(headers, rows, delimiter: '\t');
+  static String toTsv(List<String> headers, List<List<dynamic>> rows) => toCsv(headers, rows, delimiter: '\t');
 
   /// Shortcut helper to export to TSV from maps.
   static String toTsvFromMaps(List<Map<String, dynamic>> maps, {List<TCsvColumn>? columns, List<String>? headers}) =>
       toCsvFromMaps(maps, columns: columns, headers: headers, delimiter: '\t');
 
   /// Shortcut helper to export to Semicolon-Separated Values (`;`).
-  static String toSemicolon(List<String> headers, List<List<dynamic>> rows) =>
-      toCsv(headers, rows, delimiter: ';');
+  static String toSemicolon(List<String> headers, List<List<dynamic>> rows) => toCsv(headers, rows, delimiter: ';');
 
   /// Shortcut helper to export to Semicolon-Separated Values from maps.
   static String toSemicolonFromMaps(List<Map<String, dynamic>> maps, {List<TCsvColumn>? columns, List<String>? headers}) =>
       toCsvFromMaps(maps, columns: columns, headers: headers, delimiter: ';');
 
   /// Shortcut helper to export to Pipe-Separated Values (`|`).
-  static String toPipe(List<String> headers, List<List<dynamic>> rows) =>
-      toCsv(headers, rows, delimiter: '|');
+  static String toPipe(List<String> headers, List<List<dynamic>> rows) => toCsv(headers, rows, delimiter: '|');
 
   /// Shortcut helper to export to Pipe-Separated Values from maps.
   static String toPipeFromMaps(List<Map<String, dynamic>> maps, {List<TCsvColumn>? columns, List<String>? headers}) =>
@@ -609,6 +598,7 @@ class TCsvParser {
               TCsvColumnType.number => 29.99,
               TCsvColumnType.integer => 10,
               TCsvColumnType.boolean => true,
+              TCsvColumnType.image => 'sample_${col.key.toLowerCase()}.jpg',
             };
           }
         }
@@ -627,6 +617,7 @@ class TCsvParser {
           TCsvColumnType.number => '29.99',
           TCsvColumnType.integer => '10',
           TCsvColumnType.boolean => 'true',
+          TCsvColumnType.image => 'sample_${col.key.toLowerCase()}.jpg',
         };
       }).toList();
       sampleRows.add(sampleRow);

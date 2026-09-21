@@ -41,6 +41,7 @@ class CrudRiverpodPage extends ConsumerWidget {
 
     return TCrudTable<ProductDto, int, ProductForm>(
       controller: controller,
+      itemTitle: (x) => x.title,
       headers: [
         TTableHeader.image("Image", (x) => x.thumbnail ?? ''),
         TTableHeader.map('SKU', (x) => x.sku),

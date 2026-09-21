@@ -214,8 +214,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
                   infiniteScroll == null &&
                   headerSticky == null &&
                   footerSticky == null &&
-                  dense == null &&
-                  optionalPaginationBar == null),
+                  dense == null),
           'Cannot provide both theme and individual theme properties.',
         );
 

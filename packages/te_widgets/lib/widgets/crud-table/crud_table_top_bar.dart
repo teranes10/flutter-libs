@@ -2,22 +2,47 @@ part of 'crud_table.dart';
 
 extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F> {
   Widget _buildTopBar(BuildContext ctx, BoxConstraints constraints) {
+    if (!widget.config.enableBulkActions) {
+      return _buildTopBarContent(ctx, hasSelection: false);
+    }
+
+    final activeController = currentTab == 0 ? _listController : _archiveListController;
+    return ValueListenableBuilder<TListState<T, K>>(
+      valueListenable: activeController,
+      builder: (context, state, _) => _buildTopBarContent(ctx, hasSelection: activeController.hasSelection),
+    );
+  }
+
+  Widget _buildTopBarContent(BuildContext ctx, {required bool hasSelection}) {
+    final activeController = currentTab == 0 ? _listController : _archiveListController;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
       child: TAlignedRow(
         moveAllToSecondRow: true,
         wrapperExpanded: true,
         wrapperModeThreshold: 2,
-        left: [
-          if (canCreate)
-            TButton(
-              type: TButtonType.tonal,
-              icon: Icons.add,
-              text: widget.config.addButtonText,
-              onPressed: (_) => handleCreate(),
-            ),
-          ...widget.config.topBarActions,
-        ],
+        left: hasSelection
+            ? [
+                TButton(
+                  type: TButtonType.softText,
+                  icon: Icons.close_rounded,
+                  text: activeController.selectionInfo,
+                  onPressed: (_) => activeController.clearSelection(),
+                ),
+                ...?widget.config.bulkActionsBuilder?.call(ctx, activeController),
+              ]
+            : [
+                if (canCreate)
+                  TButton(
+                    key: const ValueKey('crud_table_add_button'),
+                    type: TButtonType.tonal,
+                    icon: Icons.add,
+                    text: widget.config.addButtonText,
+                    onPressed: (_) => handleCreate(),
+                  ),
+                ...widget.config.topBarActions,
+              ],
         right: [
           if (showTabs)
             TTabs(
@@ -109,6 +134,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
 
   Widget _buildSearchBar(BuildContext ctx) {
     return TTextField(
+      key: const ValueKey('crud_table_search_field'),
       value: listController.value.search,
       theme: ctx.theme.textFieldTheme.copyWith(
         size: TInputSize.sm,
@@ -513,11 +539,8 @@ class _ColumnVisibilityMenuState extends State<_ColumnVisibilityMenu> {
           TMenuOverlayController.isLocked = false;
           widget.onReorderEnd();
         },
-        onReorder: (oldIndex, newIndex) {
+        onReorderItem: (oldIndex, newIndex) {
           setState(() {
-            if (newIndex > oldIndex) {
-              newIndex -= 1;
-            }
             widget.onReorder(oldIndex, newIndex);
           });
         },

@@ -54,6 +54,12 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
                     createDialogWidth: effectiveCreateDialogWidth,
                     sideOverlayWidth: effectiveSideOverlayWidth,
                     createSideOverlayWidth: effectiveCreateSideOverlayWidth,
+                    sideOverlayMinWidth: effectiveSideOverlayMinWidth,
+                    sideOverlayMaxWidth: effectiveSideOverlayMaxWidth,
+                    sideOverlayWidthRatio: effectiveSideOverlayWidthRatio,
+                    createSideOverlayMinWidth: effectiveCreateSideOverlayMinWidth,
+                    createSideOverlayMaxWidth: effectiveCreateSideOverlayMaxWidth,
+                    createSideOverlayWidthRatio: effectiveCreateSideOverlayWidthRatio,
                   )
                 : TTableDetails<T, K>(
                     mode: effectiveExpansionMode,
@@ -62,6 +68,12 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
                     createDialogWidth: effectiveCreateDialogWidth,
                     sideOverlayWidth: effectiveSideOverlayWidth,
                     createSideOverlayWidth: effectiveCreateSideOverlayWidth,
+                    sideOverlayMinWidth: effectiveSideOverlayMinWidth,
+                    sideOverlayMaxWidth: effectiveSideOverlayMaxWidth,
+                    sideOverlayWidthRatio: effectiveSideOverlayWidthRatio,
+                    createSideOverlayMinWidth: effectiveCreateSideOverlayMinWidth,
+                    createSideOverlayMaxWidth: effectiveCreateSideOverlayMaxWidth,
+                    createSideOverlayWidthRatio: effectiveCreateSideOverlayWidthRatio,
                     builder: widget.expandedBuilder,
                     createBuilder: _buildInlineCreateBuilder(),
                     itemTitle: widget.itemTitle,
@@ -107,16 +119,27 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       if (widget.config.flatActions) {
         headers.add(TTableHeader<T, K>.actions(
           (item) => _buildActiveActionButtons(theme, item.data),
+          count: _activeActionsCount(),
           maxWidth: widget.config.actionButtonWidth * _activeActionsCount(),
         ));
       } else {
+        final visibleCount = _effectiveActiveVisibleCount();
         headers.add(TTableHeader<T, K>.actions(
-          (item) => [
-            TButtonGroupItem(
-              child: _buildActionMenu(context, theme, _buildActiveActionButtons(theme, item.data)),
-            ),
-          ],
-          maxWidth: 75.0,
+          (item) {
+            final buttons = _buildActiveActionButtons(theme, item.data);
+            final flatButtons = buttons.where((b) => b.showFlat).toList();
+            final menuButtons = buttons.where((b) => !b.showFlat).toList();
+
+            final result = <TButtonGroupItem>[...flatButtons];
+            if (menuButtons.isNotEmpty) {
+              result.add(TButtonGroupItem(
+                child: _buildActionMenu(context, theme, menuButtons),
+              ));
+            }
+            return result;
+          },
+          count: visibleCount,
+          maxWidth: (widget.config.actionButtonWidth * visibleCount).clamp(75.0, 300.0),
         ));
       }
     }
@@ -131,16 +154,27 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       if (widget.config.flatActions) {
         headers.add(TTableHeader<T, K>.actions(
           (item) => _buildArchiveActionButtons(theme, item.data),
-          minWidth: widget.config.actionButtonWidth * _archiveActionsCount(),
+          count: _archiveActionsCount(),
+          maxWidth: widget.config.actionButtonWidth * _archiveActionsCount(),
         ));
       } else {
+        final visibleCount = _effectiveArchiveVisibleCount();
         headers.add(TTableHeader<T, K>.actions(
-          (item) => [
-            TButtonGroupItem(
-              child: _buildActionMenu(context, theme, _buildArchiveActionButtons(theme, item.data)),
-            ),
-          ],
-          maxWidth: 75.0,
+          (item) {
+            final buttons = _buildArchiveActionButtons(theme, item.data);
+            final flatButtons = buttons.where((b) => b.showFlat).toList();
+            final menuButtons = buttons.where((b) => !b.showFlat).toList();
+
+            final result = <TButtonGroupItem>[...flatButtons];
+            if (menuButtons.isNotEmpty) {
+              result.add(TButtonGroupItem(
+                child: _buildActionMenu(context, theme, menuButtons),
+              ));
+            }
+            return result;
+          },
+          count: visibleCount,
+          maxWidth: (widget.config.actionButtonWidth * visibleCount).clamp(75.0, 300.0),
         ));
       }
     }
@@ -203,6 +237,27 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     return count;
   }
 
+  int _effectiveActiveVisibleCount() {
+    int flat = 0;
+    int menu = 0;
+
+    if (widget.onView != null) {
+      widget.config.canViewFlat ? flat++ : menu++;
+    }
+    if (canEdit) {
+      widget.config.canEditFlat ? flat++ : menu++;
+    }
+    if (widget.onArchive != null) {
+      widget.config.canArchiveFlat ? flat++ : menu++;
+    }
+
+    for (final action in widget.config.activeActions) {
+      action.showFlat ? flat++ : menu++;
+    }
+
+    return flat + (menu > 0 ? 1 : 0);
+  }
+
   List<TButtonGroupItem> _buildActiveActionButtons(TWidgetThemeExtension theme, T item) {
     final buttons = <TButtonGroupItem>[];
 
@@ -211,6 +266,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         tooltip: 'View',
         icon: Icons.visibility,
         color: theme.success,
+        showFlat: widget.config.canViewFlat,
         onPressed: (_) => handleView(item),
       ));
     }
@@ -220,6 +276,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         tooltip: 'Edit',
         icon: Icons.edit,
         color: theme.info,
+        showFlat: widget.config.canEditFlat,
         onPressed: (_) => handleEdit(item),
       ));
     }
@@ -229,6 +286,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         tooltip: 'Archive',
         icon: Icons.archive,
         color: theme.danger,
+        showFlat: widget.config.canArchiveFlat,
         onPressed: (_) => handleArchive(item),
       ));
     }
@@ -239,6 +297,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
           tooltip: action.tooltip,
           icon: action.icon,
           color: action.color,
+          showFlat: action.showFlat,
           onPressed: (_) => performAction(() => action.onPressed(item)),
         ));
       }
@@ -265,6 +324,27 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     return count;
   }
 
+  int _effectiveArchiveVisibleCount() {
+    int flat = 0;
+    int menu = 0;
+
+    if (widget.onView != null) {
+      widget.config.canViewFlat ? flat++ : menu++;
+    }
+    if (widget.onRestore != null) {
+      widget.config.canRestoreFlat ? flat++ : menu++;
+    }
+    if (widget.onDelete != null) {
+      widget.config.canDeleteFlat ? flat++ : menu++;
+    }
+
+    for (final action in widget.config.archiveActions) {
+      action.showFlat ? flat++ : menu++;
+    }
+
+    return flat + (menu > 0 ? 1 : 0);
+  }
+
   List<TButtonGroupItem> _buildArchiveActionButtons(TWidgetThemeExtension theme, T item) {
     final buttons = <TButtonGroupItem>[];
 
@@ -274,6 +354,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         tooltip: 'View',
         icon: Icons.visibility,
         color: theme.success,
+        showFlat: widget.config.canViewFlat,
         onPressed: (_) => handleView(item),
       ));
     }
@@ -284,6 +365,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         tooltip: 'Restore',
         icon: Icons.restore,
         color: theme.info,
+        showFlat: widget.config.canRestoreFlat,
         onPressed: (_) => handleRestore(item),
       ));
     }
@@ -294,6 +376,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         tooltip: 'Delete',
         icon: Icons.delete_forever,
         color: theme.danger,
+        showFlat: widget.config.canDeleteFlat,
         onPressed: (_) => handleDelete(item),
       ));
     }
@@ -305,6 +388,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
           tooltip: action.tooltip,
           icon: action.icon,
           color: action.color,
+          showFlat: action.showFlat,
           onPressed: (_) => performAction(() => action.onPressed(item)),
         ));
       }

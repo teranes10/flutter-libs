@@ -48,6 +48,7 @@ class LayoutPage extends StatelessWidget {
                     spacing: 20,
                     children: [
                       TAlignedRow(
+                        wrapperModeThreshold: 1,
                         left: [
                           Icon(Icons.info_outline),
                           Text('Basic Left Aligned', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -55,11 +56,13 @@ class LayoutPage extends StatelessWidget {
                       ),
                       const Divider(),
                       TAlignedRow(
+                        wrapperModeThreshold: 1,
                         right: [Text('Basic Right Aligned'), Icon(Icons.arrow_forward)],
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
                       const Divider(),
                       TAlignedRow(
+                        wrapperModeThreshold: 1,
                         left: [TButton(type: TButtonType.softText, text: 'Back', icon: Icons.chevron_left, onTap: () {})],
                         right: [
                           TButton(text: 'Save Changes', icon: Icons.save, onTap: () {}),

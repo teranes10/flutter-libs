@@ -85,6 +85,17 @@ mixin _TCsvEditorTable on _TCsvEditorStateContract, _TCsvEditorActions {
           );
         }
 
+        if (col.type == TCsvColumnType.image) {
+          return TTableHeader<TCsvRow, String>(
+            headerTitle,
+            minWidth: col.minWidth,
+            maxWidth: col.maxWidth ?? 220,
+            flex: col.flex,
+            alignment: col.alignment,
+            builder: (ctx, item, index) => buildImageCell(item.data, col, colors),
+          );
+        }
+
         // Text field
         return TTableHeader<TCsvRow, String>.textField(
           headerTitle,

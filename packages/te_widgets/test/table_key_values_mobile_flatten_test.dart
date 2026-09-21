@@ -31,10 +31,12 @@ void main() {
           home: Builder(builder: (context) {
             final headers = [
               TTableHeader<_User, String>.map('Name', (u) => u.name),
-              TTableHeader<_User, String>.keyValues('Contact Info', (u) => [
-                TKeyValue('Email', value: u.email),
-                TKeyValue('Phone', value: u.phone),
-              ]),
+              TTableHeader<_User, String>.keyValues(
+                  'Contact Info',
+                  (u) => [
+                        TKeyValue('Email', value: u.email),
+                        TKeyValue('Phone', value: u.phone),
+                      ]),
             ];
 
             final item = TListItem(
@@ -132,10 +134,12 @@ void main() {
     testWidgets('TTable renders flattened keyValues on small screen card mode', (WidgetTester tester) async {
       final headers = [
         TTableHeader<_User, String>.map('Name', (u) => u.name),
-        TTableHeader<_User, String>.keyValues('Contact Info', (u) => [
-          TKeyValue('Email', value: u.email),
-          TKeyValue('Phone', value: u.phone),
-        ]),
+        TTableHeader<_User, String>.keyValues(
+            'Contact Info',
+            (u) => [
+                  TKeyValue('Email', value: u.email),
+                  TKeyValue('Phone', value: u.phone),
+                ]),
       ];
 
       final tableTheme = TTableTheme.defaultTheme(theme.colorScheme).copyWith(forceCardStyle: true);
@@ -189,13 +193,15 @@ void main() {
       late BuildContext capturedCtx;
 
       final headers = [
-        TTableHeader<_User, String>.values('Details', (u) => [
-          TKeyValue('Name', value: u.name),
-          TKeyValue('Email', value: u.email),
-          TKeyValue('Phone', value: u.phone),
-          TKeyValue('Role', value: u.role),
-          TKeyValue('Department', value: u.department),
-        ]),
+        TTableHeader<_User, String>.values(
+            'Details',
+            (u) => [
+                  TKeyValue('Name', value: u.name),
+                  TKeyValue('Email', value: u.email),
+                  TKeyValue('Phone', value: u.phone),
+                  TKeyValue('Role', value: u.role),
+                  TKeyValue('Department', value: u.department),
+                ]),
       ];
 
       await tester.pumpWidget(
@@ -258,11 +264,13 @@ void main() {
 
     testWidgets('TTableHeader.values flattens into key values on mobile card mode', (WidgetTester tester) async {
       final headers = [
-        TTableHeader<_User, String>.values('User Profile', (u) => [
-          TKeyValue('Name', value: u.name),
-          TKeyValue('Email', value: u.email),
-          TKeyValue('Phone', value: u.phone),
-        ]),
+        TTableHeader<_User, String>.values(
+            'User Profile',
+            (u) => [
+                  TKeyValue('Name', value: u.name),
+                  TKeyValue('Email', value: u.email),
+                  TKeyValue('Phone', value: u.phone),
+                ]),
       ];
 
       final tableTheme = TTableTheme.defaultTheme(theme.colorScheme).copyWith(forceCardStyle: true);

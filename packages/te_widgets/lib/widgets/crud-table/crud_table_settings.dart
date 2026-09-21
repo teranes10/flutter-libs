@@ -1,19 +1,21 @@
 part of 'crud_table.dart';
 
 extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F> {
-  static final Map<String, ({
-    bool? dense,
-    int? viewMode,
-    TTableExpansionMode? expansionMode,
-    TTableExpansionMode? createMode,
-    TKeyValueMode? cardKeyValueMode,
-    double? dialogWidth,
-    double? sideOverlayWidth,
-    double? createDialogWidth,
-    double? createSideOverlayWidth,
-    List<String>? headerOrder,
-    Map<String, bool>? headerVisibility,
-  })> _persistedRouteSettings = {};
+  static final Map<
+      String,
+      ({
+        bool? dense,
+        int? viewMode,
+        TTableExpansionMode? expansionMode,
+        TTableExpansionMode? createMode,
+        TKeyValueMode? cardKeyValueMode,
+        double? dialogWidth,
+        double? sideOverlayWidth,
+        double? createDialogWidth,
+        double? createSideOverlayWidth,
+        List<String>? headerOrder,
+        Map<String, bool>? headerVisibility,
+      })> _persistedRouteSettings = {};
 
   String? _findRouteName(BuildContext context) {
     final modalRouteName = ModalRoute.of(context)?.settings.name;
@@ -80,7 +82,8 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       final savedCreateDialogWidth = pageStorage.readState(context, identifier: 'tc_createDialogWidth_$routeKey') as double?;
       final savedCreateSideOverlayWidth = pageStorage.readState(context, identifier: 'tc_createSideOverlayWidth_$routeKey') as double?;
       final savedHeaderOrder = pageStorage.readState(context, identifier: 'tc_headerOrder_$routeKey') as List<String>?;
-      final savedHeaderVisibilityMap = pageStorage.readState(context, identifier: 'tc_headerVisibility_$routeKey') as Map<dynamic, dynamic>?;
+      final savedHeaderVisibilityMap =
+          pageStorage.readState(context, identifier: 'tc_headerVisibility_$routeKey') as Map<dynamic, dynamic>?;
 
       if (savedDense != null) _dense = savedDense;
       if (savedViewMode != null) _viewMode = savedViewMode;
@@ -93,8 +96,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
             TTableExpansionMode.values.firstWhere((e) => e.name == savedCreateModeName, orElse: () => effectiveCreateMode);
       }
       if (savedCardKvModeName != null) {
-        _cardKeyValueMode =
-            TKeyValueMode.values.firstWhere((e) => e.name == savedCardKvModeName, orElse: () => cardKeyValueMode);
+        _cardKeyValueMode = TKeyValueMode.values.firstWhere((e) => e.name == savedCardKvModeName, orElse: () => cardKeyValueMode);
       }
       if (savedDialogWidth != null) _dialogWidth = savedDialogWidth;
       if (savedSideOverlayWidth != null) _sideOverlayWidth = savedSideOverlayWidth;

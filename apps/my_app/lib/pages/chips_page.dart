@@ -67,8 +67,18 @@ TChip(
   trailing: TIcon.close(size: 11, padding: EdgeInsets.zero, onTap: () {}),
 )''',
             properties: const [
-              PropertyDoc(name: 'size', type: 'TChipSize', defaultValue: 'TChipSize.md', description: 'Size metric configuration (TChipSize.sm, TChipSize.md, TChipSize.lg)'),
-              PropertyDoc(name: 'trailing', type: 'Widget?', description: 'Optional trailing widget, e.g. TIcon.close(size: 11, padding: EdgeInsets.zero, onTap: ...) for onhover close effect'),
+              PropertyDoc(
+                name: 'size',
+                type: 'TChipSize',
+                defaultValue: 'TChipSize.md',
+                description: 'Size metric configuration (TChipSize.sm, TChipSize.md, TChipSize.lg)',
+              ),
+              PropertyDoc(
+                name: 'trailing',
+                type: 'Widget?',
+                description:
+                    'Optional trailing widget, e.g. TIcon.close(size: 11, padding: EdgeInsets.zero, onTap: ...) for onhover close effect',
+              ),
             ],
           ),
 
@@ -165,7 +175,11 @@ TChip(variant: TVariant.text, text: 'Text')''',
                 description: 'The visual variant of the chip: solid, tonal, outline, softOutline, text (or use type alias)',
               ),
               PropertyDoc(name: 'text', type: 'String?', description: 'The text to display'),
-              PropertyDoc(name: 'color', type: 'Color?', description: 'Primary theme color used for background/borders/text based on variant'),
+              PropertyDoc(
+                name: 'color',
+                type: 'Color?',
+                description: 'Primary theme color used for background/borders/text based on variant',
+              ),
             ],
           ),
 
@@ -212,30 +226,10 @@ TChip(variant: TVariant.text, text: 'Text')''',
               spacing: 8,
               runSpacing: 8,
               children: [
-                TChip(
-                  icon: Icons.star_rounded,
-                  text: 'Pro Member',
-                  color: Colors.amber.shade700,
-                  type: TVariant.solid,
-                ),
-                TChip(
-                  icon: Icons.verified_rounded,
-                  text: 'Verified',
-                  color: Colors.blue,
-                  type: TVariant.tonal,
-                ),
-                TChip(
-                  icon: Icons.local_shipping_rounded,
-                  text: 'Fast Delivery',
-                  color: Colors.green,
-                  type: TVariant.outline,
-                ),
-                TChip(
-                  icon: Icons.admin_panel_settings_rounded,
-                  text: 'Superadmin',
-                  color: Colors.red,
-                  type: TVariant.softOutline,
-                ),
+                TChip(icon: Icons.star_rounded, text: 'Pro Member', color: Colors.amber.shade700, type: TVariant.solid),
+                TChip(icon: Icons.verified_rounded, text: 'Verified', color: Colors.blue, type: TVariant.tonal),
+                TChip(icon: Icons.local_shipping_rounded, text: 'Fast Delivery', color: Colors.green, type: TVariant.outline),
+                TChip(icon: Icons.admin_panel_settings_rounded, text: 'Superadmin', color: Colors.red, type: TVariant.softOutline),
               ],
             ),
             code: '''// Solid with icon:
@@ -275,7 +269,11 @@ TTableHeader.chips(
 )''',
             properties: const [
               PropertyDoc(name: 'icon', type: 'dynamic', description: 'Leading icon (IconData, HugeIcon, or Widget)'),
-              PropertyDoc(name: 'type / variant', type: 'TVariant?', description: 'Visual style: TVariant.solid, TVariant.tonal, TVariant.outline, TVariant.softOutline, TVariant.text'),
+              PropertyDoc(
+                name: 'type / variant',
+                type: 'TVariant?',
+                description: 'Visual style: TVariant.solid, TVariant.tonal, TVariant.outline, TVariant.softOutline, TVariant.text',
+              ),
               PropertyDoc(name: 'color', type: 'Color?', description: 'Theme color applied to background/border/text based on variant'),
             ],
           ),

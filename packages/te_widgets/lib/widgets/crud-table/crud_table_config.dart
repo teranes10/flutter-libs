@@ -56,6 +56,23 @@ class TCrudConfig<T, K> {
   /// Custom actions to display in the top bar.
   final List<Widget> topBarActions;
 
+  /// Whether rows can be multi-selected via checkboxes, enabling bulk actions.
+  ///
+  /// When true, a checkbox column appears (desktop and mobile) and
+  /// [bulkActionsBuilder] is used to render the top bar while at least one
+  /// row is selected. Defaults to false -- fully backwards compatible with
+  /// existing [TCrudTable] usages that never opt in.
+  final bool enableBulkActions;
+
+  /// Builds the top-bar content shown while one or more rows are selected
+  /// (only used when [enableBulkActions] is true). Receives the active
+  /// [TListController] so actions can read [TListController.selectedItems]
+  /// / [TListController.selectedCount] and call
+  /// [TListController.clearSelection] when done. Replaces [topBarActions]
+  /// for the duration of the selection; falls back to the normal top bar
+  /// (create button + [topBarActions]) when nothing is selected.
+  final List<Widget> Function(BuildContext context, TListController<T, K> controller)? bulkActionsBuilder;
+
   /// Callback fired when a tab is selected.
   final void Function(int tab)? onTabChange;
 
@@ -83,6 +100,21 @@ class TCrudConfig<T, K> {
   /// If null, settings are automatically persisted by the current route name.
   final String? storageKey;
 
+  /// Whether the view action should render flat (inline).
+  final bool canViewFlat;
+
+  /// Whether the edit action should render flat (inline).
+  final bool canEditFlat;
+
+  /// Whether the delete action should render flat (inline).
+  final bool canDeleteFlat;
+
+  /// Whether the archive action should render flat (inline).
+  final bool canArchiveFlat;
+
+  /// Whether the restore action should render flat (inline).
+  final bool canRestoreFlat;
+
   /// Whether to persist table layout settings (dense layout, view mode, card layout) per route or [storageKey]. Defaults to true.
   final bool? persistSettings;
 
@@ -93,6 +125,11 @@ class TCrudConfig<T, K> {
     this.canDelete,
     this.canArchive,
     this.canRestore,
+    this.canViewFlat = false,
+    this.canEditFlat = false,
+    this.canDeleteFlat = false,
+    this.canArchiveFlat = false,
+    this.canRestoreFlat = false,
     this.addButtonText = 'Add New',
     this.tabs,
     this.tabContents = const [],
@@ -103,6 +140,8 @@ class TCrudConfig<T, K> {
     this.activeActions = const [],
     this.archiveActions = const [],
     this.topBarActions = const [],
+    this.enableBulkActions = false,
+    this.bulkActionsBuilder,
     this.actionButtonWidth = 50.0,
     this.onTabChange,
     this.dense,
@@ -133,6 +172,9 @@ class TCrudCustomAction<T> {
   /// Optional check to enable/disable the action for specific items.
   final Future<bool> Function(T item)? canPerform;
 
+  /// Whether this action should render flat (inline) when [TCrudConfig.flatActions] is false.
+  final bool showFlat;
+
   /// Creates a custom CRUD action.
   const TCrudCustomAction({
     required this.tooltip,
@@ -140,5 +182,6 @@ class TCrudCustomAction<T> {
     required this.color,
     required this.onPressed,
     this.canPerform,
+    this.showFlat = false,
   });
 }

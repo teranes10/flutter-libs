@@ -69,6 +69,9 @@ class TTimelineItem {
   /// Whether this timeline step is completed.
   final bool isCompleted;
 
+  /// Optional custom width for this item in horizontal timelines / runway bars.
+  final double? width;
+
   /// Callback when this timeline item or its indicator is tapped.
   final VoidCallback? onTap;
 
@@ -95,6 +98,7 @@ class TTimelineItem {
     this.content,
     this.isActive = false,
     this.isCompleted = false,
+    this.width,
     this.onTap,
   });
 
@@ -113,6 +117,7 @@ class TTimelineItem {
     Widget? content,
     bool isActive = false,
     bool isCompleted = false,
+    double? width,
     VoidCallback? onTap,
   }) {
     return TTimelineItem(
@@ -129,8 +134,8 @@ class TTimelineItem {
       content: content,
       isActive: isActive,
       isCompleted: isCompleted,
+      width: width,
       onTap: onTap,
     );
   }
 }
-

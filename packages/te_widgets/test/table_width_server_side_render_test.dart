@@ -133,7 +133,8 @@ void main() {
           [
             _Product(
               id: '1',
-              description: 'This is an extraordinarily lengthy product explanation that demands enormous width way beyond five hundred pixels',
+              description:
+                  'This is an extraordinarily lengthy product explanation that demands enormous width way beyond five hundred pixels',
             ),
           ],
           1,

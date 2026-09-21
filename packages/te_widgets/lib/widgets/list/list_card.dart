@@ -132,10 +132,10 @@ class TListCard extends StatelessWidget {
                   ] else if (icon != null) ...[
                     TIcon.raw(
                       icon,
-                      size: 18,
+                      size: 20,
                       color: isSelected ? colors.onPrimaryContainer : colors.onSurfaceVariant,
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                   ],
                   Expanded(child: wTheme.contentBuilder(title, subTitle, imageUrl, isSelected, isDisabled)),
                   if (effectiveHasChildren) wTheme.expansionIndicatorBuilder(isExpanded, isDisabled),

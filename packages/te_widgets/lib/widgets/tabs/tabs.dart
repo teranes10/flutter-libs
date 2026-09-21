@@ -123,7 +123,12 @@ class _TTabsState<T> extends State<TTabs<T>> {
   }
 
   void _updateScrollButtons() {
-    if (!mounted || !_scrollController.hasClients) return;
+    // `.position` throws if the controller is attached to zero or more than
+    // one scroll view — the latter can happen transiently during a route
+    // transition where an outgoing and incoming subtree briefly coexist.
+    // `hasClients` alone only guarantees "at least one", so guard on the
+    // exact count via `positions` instead.
+    if (!mounted || _scrollController.positions.length != 1) return;
     final pos = _scrollController.position;
     setState(() {
       _showArrows = pos.maxScrollExtent > 0;
@@ -149,7 +154,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
   }
 
   void _scrollBy(double delta) {
-    if (!_scrollController.hasClients) return;
+    if (_scrollController.positions.length != 1) return;
     final target = (_scrollController.offset + delta).clamp(0.0, _scrollController.position.maxScrollExtent);
     _scrollController.animateTo(
       target,

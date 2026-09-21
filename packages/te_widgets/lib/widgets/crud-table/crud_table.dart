@@ -168,6 +168,24 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Custom width for the side overlay when creating or editing items in sideOverlay mode.
   final double? createSideOverlayWidth;
 
+  /// Optional minimum width constraint for the side overlay. Defaults to 320.
+  final double? sideOverlayMinWidth;
+
+  /// Optional maximum width constraint for the side overlay.
+  final double? sideOverlayMaxWidth;
+
+  /// Optional width ratio (fraction of screen width, e.g. 0.5) for responsive side overlay.
+  final double? sideOverlayWidthRatio;
+
+  /// Optional minimum width constraint for the side overlay when creating/editing.
+  final double? createSideOverlayMinWidth;
+
+  /// Optional maximum width constraint for the side overlay when creating/editing.
+  final double? createSideOverlayMaxWidth;
+
+  /// Optional width ratio for the side overlay when creating/editing.
+  final double? createSideOverlayWidthRatio;
+
   /// Function to extract the title from an item.
   final String? Function(T x)? itemTitle;
 
@@ -202,6 +220,18 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// For server-side tables, filters must be explicitly provided.
   final List<TFilterDef<T>>? filters;
 
+  /// Custom header widget rendered at the top of the table (above top bar controls and table content).
+  ///
+  /// Useful for placing page titles, descriptions, breadcrumbs, and summary KPI metric tiles
+  /// without needing an external [SingleChildScrollView].
+  final Widget? header;
+
+  /// Custom header builder for building dynamic header content.
+  final Widget Function(BuildContext ctx)? headerBuilder;
+
+  /// Optional padding for the table content and scrollable area.
+  final EdgeInsets? padding;
+
   /// Creates a CRUD table.
   const TCrudTable({
     super.key,
@@ -233,7 +263,13 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.createDialogWidth,
     this.sideOverlayWidth,
     this.createSideOverlayWidth,
-    this.itemTitle,
+    this.sideOverlayMinWidth,
+    this.sideOverlayMaxWidth,
+    this.sideOverlayWidthRatio,
+    this.createSideOverlayMinWidth,
+    this.createSideOverlayMaxWidth,
+    this.createSideOverlayWidthRatio,
+    required this.itemTitle,
     this.itemSubTitle,
     this.itemDescription,
     this.itemImageUrl,
@@ -243,6 +279,9 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.rowBuilder,
     this.rowColorBuilder,
     this.filters,
+    this.header,
+    this.headerBuilder,
+    this.padding,
   })  : assert(
           controller == null || (items == null && onLoad == null && onControllerReady == null && itemKey == null && itemChildren == null),
           'Provide either `controller` OR (`items` / `onLoad` / `onControllerReady` / `itemKey`), not both.',
@@ -384,6 +423,57 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     _debouncedPersistRouteSettings();
   }
 
+  double? _sideOverlayMinWidth;
+  double get effectiveSideOverlayMinWidth =>
+      _sideOverlayMinWidth ?? widget.expandedDetails?.sideOverlayMinWidth ?? widget.sideOverlayMinWidth ?? 320.0;
+  set sideOverlayMinWidth(double? value) {
+    setState(() => _sideOverlayMinWidth = value);
+  }
+
+  double? _sideOverlayMaxWidth;
+  double? get effectiveSideOverlayMaxWidth =>
+      _sideOverlayMaxWidth ?? widget.expandedDetails?.sideOverlayMaxWidth ?? widget.sideOverlayMaxWidth;
+  set sideOverlayMaxWidth(double? value) {
+    setState(() => _sideOverlayMaxWidth = value);
+  }
+
+  double? _sideOverlayWidthRatio;
+  double? get effectiveSideOverlayWidthRatio =>
+      _sideOverlayWidthRatio ?? widget.expandedDetails?.sideOverlayWidthRatio ?? widget.sideOverlayWidthRatio;
+  set sideOverlayWidthRatio(double? value) {
+    setState(() => _sideOverlayWidthRatio = value);
+  }
+
+  double? _createSideOverlayMinWidth;
+  double get effectiveCreateSideOverlayMinWidth =>
+      _createSideOverlayMinWidth ??
+      widget.expandedDetails?.createSideOverlayMinWidth ??
+      widget.createSideOverlayMinWidth ??
+      effectiveSideOverlayMinWidth;
+  set createSideOverlayMinWidth(double? value) {
+    setState(() => _createSideOverlayMinWidth = value);
+  }
+
+  double? _createSideOverlayMaxWidth;
+  double? get effectiveCreateSideOverlayMaxWidth =>
+      _createSideOverlayMaxWidth ??
+      widget.expandedDetails?.createSideOverlayMaxWidth ??
+      widget.createSideOverlayMaxWidth ??
+      effectiveSideOverlayMaxWidth;
+  set createSideOverlayMaxWidth(double? value) {
+    setState(() => _createSideOverlayMaxWidth = value);
+  }
+
+  double? _createSideOverlayWidthRatio;
+  double? get effectiveCreateSideOverlayWidthRatio =>
+      _createSideOverlayWidthRatio ??
+      widget.expandedDetails?.createSideOverlayWidthRatio ??
+      widget.createSideOverlayWidthRatio ??
+      effectiveSideOverlayWidthRatio;
+  set createSideOverlayWidthRatio(double? value) {
+    setState(() => _createSideOverlayWidthRatio = value);
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -425,11 +515,20 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           autoExpandFirst: autoExpandFirst,
           autoSelectFirst: autoSelectFirst,
           filterDefs: initialFilterDefs,
+          selectionMode: widget.config.enableBulkActions ? TSelectionMode.multiple : TSelectionMode.none,
           additional: {
             'headerOrder': initialOrder,
             'headerVisibility': initialVisibility,
           },
         );
+
+    assert(
+      widget.controller == null || !widget.config.enableBulkActions || widget.controller!.selectionMode == TSelectionMode.multiple,
+      'TCrudConfig.enableBulkActions is true but the caller-supplied controller '
+      'was not constructed with selectionMode: TSelectionMode.multiple -- '
+      'TListController.selectionMode is set once at construction and cannot '
+      'be changed afterwards.',
+    );
 
     if (widget.controller != null) {
       widget.controller!.updateFilterDefs(initialFilterDefs);
@@ -459,11 +558,22 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
           autoExpandFirst: autoExpandFirst,
           autoSelectFirst: autoSelectFirst,
           filterDefs: initialFilterDefs,
+          selectionMode: widget.config.enableBulkActions ? TSelectionMode.multiple : TSelectionMode.none,
           additional: {
             'headerOrder': initialOrder,
             'headerVisibility': initialVisibility,
           },
         );
+
+    assert(
+      widget.archiveController == null ||
+          !widget.config.enableBulkActions ||
+          widget.archiveController!.selectionMode == TSelectionMode.multiple,
+      'TCrudConfig.enableBulkActions is true but the caller-supplied archiveController '
+      'was not constructed with selectionMode: TSelectionMode.multiple -- '
+      'TListController.selectionMode is set once at construction and cannot '
+      'be changed afterwards.',
+    );
 
     if (widget.archiveController != null) {
       widget.archiveController!.updateFilterDefs(initialFilterDefs);
@@ -532,10 +642,14 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     final tableTheme = widget.theme ?? theme.tableTheme;
 
     Widget headerContent(BuildContext ctx) {
+      final customHeader = widget.header ?? widget.headerBuilder?.call(ctx) ?? tableTheme.headerBuilder?.call(ctx);
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (tableTheme.headerBuilder != null) tableTheme.headerBuilder!(ctx),
+          if (customHeader != null) ...[
+            customHeader,
+            const SizedBox(height: 16),
+          ],
           LayoutBuilder(builder: _buildTopBar),
         ],
       );
@@ -544,6 +658,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     return _buildContent(
       theme,
       tableTheme.copyWith(
+        padding: widget.padding ?? tableTheme.padding,
         headerBuilder: headerContent,
       ),
     );

@@ -77,20 +77,16 @@ class TPopupConstraints {
     }
 
     final maxAvailableHeight = spaceAbove > spaceBelow ? spaceAbove : spaceBelow;
-    final clampedAvailableHeight = maxAvailableHeight > 0
-        ? math.min(viewportSize.height, math.max(defaultSize, maxAvailableHeight))
-        : viewportSize.height;
+    final clampedAvailableHeight =
+        maxAvailableHeight > 0 ? math.min(viewportSize.height, math.max(defaultSize, maxAvailableHeight)) : viewportSize.height;
 
     // Clip constraints to screen size and available height safely
-    final maxWidth = (inputConstraints.maxWidth.isFinite
-            ? math.min(inputConstraints.maxWidth, viewportSize.width)
-            : viewportSize.width)
+    final maxWidth = (inputConstraints.maxWidth.isFinite ? math.min(inputConstraints.maxWidth, viewportSize.width) : viewportSize.width)
         .clamp(0.0, viewportSize.width);
     final minWidth = math.min(inputConstraints.minWidth, maxWidth).clamp(0.0, maxWidth);
 
-    final allowedMaxHeight = inputConstraints.maxHeight.isFinite
-        ? math.min(inputConstraints.maxHeight, clampedAvailableHeight)
-        : clampedAvailableHeight;
+    final allowedMaxHeight =
+        inputConstraints.maxHeight.isFinite ? math.min(inputConstraints.maxHeight, clampedAvailableHeight) : clampedAvailableHeight;
     final maxHeight = allowedMaxHeight.clamp(0.0, viewportSize.height);
     final minHeight = math.min(inputConstraints.minHeight, maxHeight).clamp(0.0, maxHeight);
 

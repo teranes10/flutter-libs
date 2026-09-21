@@ -28,7 +28,7 @@ class TListCardTheme {
     required this.selectionIndicatorBuilder,
     required this.contentBuilder,
     this.showSelectionIndicator = true,
-    this.padding = const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+    this.padding = const EdgeInsets.symmetric(vertical: 7.5, horizontal: 15),
     this.levelIndentation = 18.0,
   });
 
@@ -125,10 +125,10 @@ class TListCardTheme {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title, style: TextStyle(fontSize: 14, color: titleColor, fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400)),
-          if (subTitle != null) const SizedBox(height: 2.5),
+          Text(title, style: TextStyle(fontSize: 15, color: titleColor, fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400)),
+          if (subTitle != null) const SizedBox(),
           if (subTitle != null)
-            Text(subTitle, style: TextStyle(fontSize: 12.0, color: isDisabled ? colors.onSurface.o(0.38) : colors.onSurfaceVariant)),
+            Text(subTitle, style: TextStyle(fontSize: 11.5, color: isDisabled ? colors.onSurface.o(0.38) : colors.onSurfaceVariant)),
         ],
       );
 

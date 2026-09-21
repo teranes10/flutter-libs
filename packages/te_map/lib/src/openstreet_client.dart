@@ -14,15 +14,8 @@ class TOpenStreetMapClient {
     try {
       final response = await _dio.get(
         'https://nominatim.openstreetmap.org/reverse',
-        queryParameters: {
-          'lat': latitude.toString(),
-          'lon': longitude.toString(),
-          'format': 'json',
-          'addressdetails': '1',
-        },
-        options: Options(
-          headers: {'User-Agent': 'te_widgets_map_pinning'},
-        ),
+        queryParameters: {'lat': latitude.toString(), 'lon': longitude.toString(), 'format': 'json', 'addressdetails': '1'},
+        options: Options(headers: {'User-Agent': 'te_widgets_map_pinning'}),
       );
       final data = response.data;
       if (data is Map) {
@@ -40,12 +33,7 @@ class TOpenStreetMapClient {
     try {
       final response = await _dio.get(
         'https://nominatim.openstreetmap.org/search',
-        queryParameters: {
-          'q': query,
-          'format': 'json',
-          'addressdetails': '1',
-          'limit': limit.toString(),
-        },
+        queryParameters: {'q': query, 'format': 'json', 'addressdetails': '1', 'limit': limit.toString()},
         options: Options(headers: {'User-Agent': 'te_widgets_map_autocomplete'}),
       );
 
@@ -74,10 +62,7 @@ class TOpenStreetMapClient {
           'https://router.project-osrm.org/route/v1/driving/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}';
       final response = await _dio.get(
         url,
-        queryParameters: {
-          'overview': 'full',
-          'geometries': 'geojson',
-        },
+        queryParameters: {'overview': 'full', 'geometries': 'geojson'},
         options: Options(headers: {'User-Agent': 'te_widgets_map_routing'}),
       );
 
@@ -115,10 +100,7 @@ class TOpenStreetMapClient {
       // Fallback straight line distance using Haversine Distance
       const distanceCalc = Distance();
       final meters = distanceCalc.as(LengthUnit.Meter, origin, destination);
-      return TRouteResult(
-        points: [origin, destination],
-        distanceMeters: meters.toDouble(),
-      );
+      return TRouteResult(points: [origin, destination], distanceMeters: meters.toDouble());
     }
   }
 }

@@ -86,9 +86,7 @@ class TPdfWidgetHelper {
         : fm.BorderRadius.zero;
 
     final double imgW = (widget.width ??
-            (widget.height != null && widget.aspectRatio != null
-                ? widget.height! * widget.aspectRatio!
-                : (widget.size ?? 80.0))) /
+            (widget.height != null && widget.aspectRatio != null ? widget.height! * widget.aspectRatio! : (widget.size ?? 80.0))) /
         2;
     final double imgH = (widget.height ??
             (widget.width != null && widget.aspectRatio != null

@@ -11,7 +11,7 @@ enum TItemAddPosition { first, last }
 enum TSelectionMode { none, single, multiple }
 
 /// Mode for expanding list items.
-enum TExpansionMode { none, single, multiple }
+enum TExpansionMode { none, single, multiple, auto }
 
 // Typedefs for item accessors
 typedef ItemToString<T> = String Function(T item);

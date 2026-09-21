@@ -473,8 +473,7 @@ class TTableHeader<T, K> {
             fontSize: isDense ? 10 : 11.0,
             fontWeight: FontWeight.w400,
           );
-          final defaultValStyle =
-              contentStyle?.adjust(sizeMultiplier: 0.8, weightStep: 1, clearColor: true) ?? fallbackValStyle;
+          final defaultValStyle = contentStyle?.adjust(sizeMultiplier: 0.8, weightStep: 1, clearColor: true) ?? fallbackValStyle;
           final effectiveValueStyle = valueStyle != null ? defaultValStyle.merge(valueStyle) : defaultValStyle;
 
           final effectiveEstimator = widthEstimator ??
@@ -836,6 +835,7 @@ class TTableHeader<T, K> {
     String? Function(T) title, {
     String? Function(T)? subtitle,
     dynamic Function(T)? icon,
+    dynamic Function(T)? leading,
     Color? Function(T)? iconColor,
     Color? Function(T)? iconBackgroundColor,
     TextStyle? titleStyle,
@@ -868,8 +868,9 @@ class TTableHeader<T, K> {
               final tWidth = t != null ? TTableTheme.measureTextWidth(t) : 0.0;
               final sWidth = sub != null ? TTableTheme.measureTextWidth(sub) * 0.85 : 0.0;
               final textWidth = math.max(tWidth, sWidth);
-              final hasIcon = icon != null && icon(data) != null;
-              final iconWidth = hasIcon ? ((iconSize ?? 20.0) + 12.0 + spacing) : 0.0;
+              final lead = leading?.call(data) ?? icon?.call(data);
+              final hasIcon = lead != null;
+              final iconWidth = hasIcon ? ((iconSize ?? (lead is Widget ? 80.0 : 20.0)) + 12.0 + spacing) : 0.0;
               final trailingWidth = trailing != null ? 30.0 : 0.0;
               return iconWidth + textWidth + trailingWidth;
             }),
@@ -878,7 +879,7 @@ class TTableHeader<T, K> {
           final isDense = scope?.dense ?? false;
           final t = title(item.data);
           final sub = subtitle?.call(item.data);
-          final ic = icon?.call(item.data);
+          final lead = leading?.call(item.data) ?? icon?.call(item.data);
           final icColor = iconColor?.call(item.data);
           final icBgColor = iconBackgroundColor?.call(item.data);
           final tr = trailing?.call(item.data);
@@ -895,7 +896,7 @@ class TTableHeader<T, K> {
           return TTile(
             title: t,
             subtitle: sub,
-            icon: ic,
+            icon: lead,
             iconColor: icColor,
             iconBackgroundColor: icBgColor,
             iconSize: isDense ? (iconSize != null ? iconSize * 0.8 : 16.0) : (iconSize ?? 20.0),
@@ -977,6 +978,9 @@ class TTableHeader<T, K> {
         });
 
   /// Creates a header for row actions.
+  ///
+  /// Automatically separates items into flat inline buttons (when [TButtonGroupItem.showFlat] is true)
+  /// and an overflow dropdown menu (triple-dots icon) for remaining actions.
   TTableHeader.actions(
     List<TButtonGroupItem> Function(TListItem<T, K>) builder, {
     this.text = "Actions",
@@ -998,17 +1002,52 @@ class TTableHeader<T, K> {
         filterDef = null,
         widthEstimator = widthEstimator ?? ((_) => (count != null ? (40.0 * count + 16.0) : 75.0)),
         maxWidth = maxWidth != null
-            ? maxWidth.clamp(75.0, 180.0)
+            ? maxWidth.clamp(75.0, 300.0)
             : count != null
-                ? (40.0 * count + 36.0).clamp(75.0, 180.0)
+                ? (40.0 * count + 36.0).clamp(75.0, 300.0)
                 : null,
         builder = ((ctx, item, __) {
           final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
+          final allItems = builder(item);
+          if (allItems.isEmpty) return const SizedBox.shrink();
+
+          final hasExplicitFlat = allItems.any((b) => b.showFlat);
+          final hasExplicitChild = allItems.any((b) => b.child != null);
+
+          final List<TButtonGroupItem> effectiveItems;
+          if (!hasExplicitFlat && !hasExplicitChild && allItems.length <= 2) {
+            effectiveItems = allItems;
+          } else if (!hasExplicitFlat && !hasExplicitChild && allItems.length > 2) {
+            effectiveItems = [
+              TButtonGroupItem(
+                child: _buildActionDropdownMenu(ctx, allItems, isDense),
+              ),
+            ];
+          } else {
+            final flatButtons = <TButtonGroupItem>[];
+            final menuButtons = <TButtonGroupItem>[];
+
+            for (final btn in allItems) {
+              if (btn.showFlat || btn.child != null) {
+                flatButtons.add(btn);
+              } else {
+                menuButtons.add(btn);
+              }
+            }
+
+            effectiveItems = <TButtonGroupItem>[...flatButtons];
+            if (menuButtons.isNotEmpty) {
+              effectiveItems.add(TButtonGroupItem(
+                child: _buildActionDropdownMenu(ctx, menuButtons, isDense),
+              ));
+            }
+          }
+
           return TButtonGroup(
             type: TButtonGroupType.icon,
             alignment: WrapAlignment.end,
             size: isDense ? TButtonSize.sm.copyWith(hPad: 4, vPad: 2) : TButtonSize.sm,
-            items: builder(item),
+            items: effectiveItems,
           );
         });
 
@@ -1419,10 +1458,44 @@ class TTableHeader<T, K> {
         displayVal = '${(val * 100).toInt()}%';
       }
       final valWidth = displayVal.isNotEmpty ? TTableTheme.measureTextWidth(displayVal) : 0.0;
-      final isInline =
-          valuePosition == TProgressValuePosition.afterProgress || valuePosition == TProgressValuePosition.beforeProgress;
+      final isInline = valuePosition == TProgressValuePosition.afterProgress || valuePosition == TProgressValuePosition.beforeProgress;
       final minBarWidth = isInline ? 60.0 : 80.0;
       return math.min(progressMaxWidth, isInline ? (valWidth + minBarWidth + 16.0) : math.max(valWidth, minBarWidth));
     };
+  }
+
+  static Widget _buildActionDropdownMenu(BuildContext ctx, List<TButtonGroupItem> buttons, bool isDense) {
+    final dropdownItems = buttons.map((button) {
+      return TDropdownItem(
+        icon: button.icon,
+        text: button.tooltip ?? button.text ?? '',
+        color: button.color,
+        onTap: () {
+          if (button.onPressed != null) {
+            button.onPressed!(TButtonPressOptions(stopLoading: () {}));
+          } else if (button.onTap != null) {
+            button.onTap!();
+          }
+        },
+      );
+    }).toList();
+
+    return TDropdown(
+      items: dropdownItems,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Icon(
+            Icons.more_vert_rounded,
+            size: isDense ? 16 : 18,
+            color: ctx.colors.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
   }
 }

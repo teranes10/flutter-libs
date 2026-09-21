@@ -233,12 +233,9 @@ final List<TTableHeader<Product, int>> chipsTableHeaders = [
   TTableHeader.chips(
     "Features (TChip)",
     (x) => [
-      if (x.features.contains('Pro'))
-        const TChip.solid(text: 'Pro', icon: Icons.star_rounded, color: AppColors.warning),
-      if (x.features.contains('Verified'))
-        const TChip.tonal(text: 'Verified', icon: Icons.verified_rounded, color: AppColors.info),
-      if (x.features.contains('Fast Ship'))
-        const TChip.outline(text: 'Fast Ship', icon: Icons.local_shipping_rounded),
+      if (x.features.contains('Pro')) const TChip.solid(text: 'Pro', icon: Icons.star_rounded, color: AppColors.warning),
+      if (x.features.contains('Verified')) const TChip.tonal(text: 'Verified', icon: Icons.verified_rounded, color: AppColors.info),
+      if (x.features.contains('Fast Ship')) const TChip.outline(text: 'Fast Ship', icon: Icons.local_shipping_rounded),
     ],
     spacing: 4.0,
   ),
@@ -278,12 +275,17 @@ final List<TTableHeader<Product, int>> productHeaders = [
     iconColor: (_) => AppColors.primary,
     iconBackgroundColor: (_) => AppColors.primary.withAlpha(25),
   ),
-  TTableHeader.progress("Target Goal", (x) => x.stock / 200, valueText: (x) => '${x.stock}/200', colorBuilder: (value, percentage) => percentage < 30 ? AppColors.danger : percentage < 70 ? AppColors.warning : AppColors.success),
-  TTableHeader.chips(
-    "Tags",
-    (x) => TChip.fromStrings(x.tags),
-    spacing: 4.0,
+  TTableHeader.progress(
+    "Target Goal",
+    (x) => x.stock / 200,
+    valueText: (x) => '${x.stock}/200',
+    colorBuilder: (value, percentage) => percentage < 30
+        ? AppColors.danger
+        : percentage < 70
+        ? AppColors.warning
+        : AppColors.success,
   ),
+  TTableHeader.chips("Tags", (x) => TChip.fromStrings(x.tags), spacing: 4.0),
   // Custom Row with STRICT widthEstimator
   TTableHeader.row(
     "Custom Badges",

@@ -170,9 +170,9 @@ class TFormBuilder extends StatefulWidget {
     this.initiallyExpanded = false,
     this.footer,
   }) : assert(
-         (input != null ? 1 : 0) + (fields != null ? 1 : 0) + (tabs != null ? 1 : 0) == 1,
-         'Provide exactly one of "input", "fields", or "tabs".',
-       );
+          (input != null ? 1 : 0) + (fields != null ? 1 : 0) + (tabs != null ? 1 : 0) == 1,
+          'Provide exactly one of "input", "fields", or "tabs".',
+        );
 
   /// Creates a form builder with tabs.
   const TFormBuilder.tabs({
@@ -204,8 +204,8 @@ class TFormBuilder extends StatefulWidget {
     this.description,
     this.initiallyExpanded = false,
     this.footer,
-  }) : input = null,
-       fields = null;
+  })  : input = null,
+        fields = null;
 
   /// Creates a form builder with horizontal tabs.
   const TFormBuilder.horizontalTabs({
@@ -235,10 +235,10 @@ class TFormBuilder extends StatefulWidget {
     this.description,
     this.initiallyExpanded = false,
     this.footer,
-  }) : input = null,
-       fields = null,
-       tabAxis = Axis.horizontal,
-       tabWidth = null;
+  })  : input = null,
+        fields = null,
+        tabAxis = Axis.horizontal,
+        tabWidth = null;
 
   /// Creates a form builder with vertical tabs.
   const TFormBuilder.verticalTabs({
@@ -267,11 +267,11 @@ class TFormBuilder extends StatefulWidget {
     this.description,
     this.initiallyExpanded = false,
     this.footer,
-  }) : input = null,
-       fields = null,
-       tabAxis = Axis.vertical,
-       tabInline = false,
-       tabWrap = false;
+  })  : input = null,
+        fields = null,
+        tabAxis = Axis.vertical,
+        tabInline = false,
+        tabWrap = false;
 
   @override
   State<TFormBuilder> createState() => _TFormBuilderState();
@@ -516,10 +516,7 @@ class _TFormBuilderState extends State<TFormBuilder> {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.tabWidth != null)
-            SizedBox(width: widget.tabWidth, child: tabsBar)
-          else
-            tabsBar,
+          if (widget.tabWidth != null) SizedBox(width: widget.tabWidth, child: tabsBar) else tabsBar,
           SizedBox(width: widget.gapX),
           Expanded(child: contentWidget),
         ],

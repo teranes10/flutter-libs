@@ -66,4 +66,84 @@ void main() {
 
     expect(find.byType(TTimelineIndicator), findsOneWidget);
   });
+
+  testWidgets('TTimeline horizontal scrollable mode renders with custom item widths and scrollbar', (WidgetTester tester) async {
+    final controller = ScrollController();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: SizedBox(
+            width: 500,
+            child: TTimeline(
+              direction: Axis.horizontal,
+              scrollable: true,
+              itemWidth: 220,
+              showScrollbar: true,
+              scrollController: controller,
+              items: [
+                const TTimelineItem(titleText: 'Week 1', width: 260),
+                const TTimelineItem(titleText: 'Week 2'),
+                const TTimelineItem(titleText: 'Week 3'),
+                const TTimelineItem(titleText: 'Week 4'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+    expect(find.byType(Scrollbar), findsOneWidget);
+    expect(find.text('Week 1'), findsOneWidget);
+    expect(find.text('Week 2'), findsOneWidget);
+
+    // Verify first item custom width was respected
+    final week1Box = tester.renderObject(find
+        .ancestor(
+          of: find.text('Week 1'),
+          matching: find.byType(SizedBox),
+        )
+        .first) as RenderBox;
+    expect(week1Box.size.width, 260.0);
+
+    // Verify second item fallback width was respected
+    final week2Box = tester.renderObject(find
+        .ancestor(
+          of: find.text('Week 2'),
+          matching: find.byType(SizedBox),
+        )
+        .first) as RenderBox;
+    expect(week2Box.size.width, 220.0);
+  });
+
+  testWidgets('TTimeline horizontal non-scrollable mode expands items evenly', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: const Scaffold(
+          body: SizedBox(
+            width: 600,
+            child: TTimeline(
+              direction: Axis.horizontal,
+              scrollable: false,
+              items: [
+                TTimelineItem(titleText: 'Phase 1'),
+                TTimelineItem(titleText: 'Phase 2'),
+                TTimelineItem(titleText: 'Phase 3'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Should not have SingleChildScrollView in non-scrollable mode
+    expect(find.byType(SingleChildScrollView), findsNothing);
+    expect(find.text('Phase 1'), findsOneWidget);
+    expect(find.text('Phase 2'), findsOneWidget);
+    expect(find.text('Phase 3'), findsOneWidget);
+  });
 }

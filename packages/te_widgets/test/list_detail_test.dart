@@ -13,8 +13,7 @@ class TestItem {
 void main() {
   final theme = TAppTheme.defaultTheme().lightTheme;
 
-  testWidgets('TListDetail split layout renders elevated dual cards with full radius and gap',
-      (WidgetTester tester) async {
+  testWidgets('TListDetail split layout renders elevated dual cards with full radius and gap', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1200, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -62,8 +61,7 @@ void main() {
     expect(find.text('Detail for Item 1'), findsOneWidget);
   });
 
-  testWidgets('TListDetail mobile layout navigates between list and detail pane',
-      (WidgetTester tester) async {
+  testWidgets('TListDetail mobile layout navigates between list and detail pane', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(400, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -103,8 +101,7 @@ void main() {
     expect(find.text('Mobile Detail Item 1'), findsOneWidget);
   });
 
-  testWidgets('TListView renders sticky header, footer, and scrollable content with elevation shadows',
-      (WidgetTester tester) async {
+  testWidgets('TListView renders sticky header, footer, and scrollable content with elevation shadows', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(800, 400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);

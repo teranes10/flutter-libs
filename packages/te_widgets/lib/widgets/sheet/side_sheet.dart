@@ -11,6 +11,8 @@ class TSideSheet extends StatelessWidget {
   final VoidCallback? onClose;
   final double width;
   final double minWidth;
+  final double? maxWidth;
+  final double? widthRatio;
   final bool fromLeft;
   final bool persistent;
   final Color? backgroundColor;
@@ -28,6 +30,8 @@ class TSideSheet extends StatelessWidget {
     this.onClose,
     this.width = 400,
     this.minWidth = 280,
+    this.maxWidth,
+    this.widthRatio,
     this.fromLeft = false,
     this.persistent = false,
     this.backgroundColor,
@@ -39,13 +43,17 @@ class TSideSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final screenSize = MediaQuery.of(context).size;
-    final sheetWidth = width.clamp(minWidth, screenSize.width);
+    final double targetWidth = widthRatio != null ? (screenSize.width * widthRatio!) : width;
+    final effectiveMaxWidth = maxWidth ?? screenSize.width;
+    final effectiveMinWidth = minWidth.clamp(0.0, screenSize.width);
+    final sheetWidth = targetWidth.clamp(
+      effectiveMinWidth,
+      effectiveMaxWidth > effectiveMinWidth ? effectiveMaxWidth : effectiveMinWidth,
+    );
     final effectiveBg = backgroundColor ?? context.getBackgroundColor(colors.surface);
 
     final defaultBorderRadius = borderRadius ??
-        (fromLeft
-            ? const BorderRadius.horizontal(right: Radius.circular(12))
-            : const BorderRadius.horizontal(left: Radius.circular(12)));
+        (fromLeft ? const BorderRadius.horizontal(right: Radius.circular(12)) : const BorderRadius.horizontal(left: Radius.circular(12)));
 
     return Container(
       width: sheetWidth,
@@ -69,9 +77,7 @@ class TSideSheet extends StatelessWidget {
         borderRadius: defaultBorderRadius,
         child: TBackgroundColorScope(
           backgroundColor: effectiveBg,
-          child: layoutBuilder != null
-              ? layoutBuilder!(context, child)
-              : _layout(context, colors),
+          child: layoutBuilder != null ? layoutBuilder!(context, child) : _layout(context, colors),
         ),
       ),
     );

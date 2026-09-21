@@ -123,8 +123,7 @@ class TDateTimeInputFormatter extends TextInputFormatter {
 
   static String _formatTime(String input, TDateTimeFormatType type) {
     // If input is purely a date without any time component (e.g. "2024-05-18" or "18/05/2024"), return placeholder
-    if (RegExp(r'^\d{4}[-\/\.]\d{1,2}[-\/\.]\d{1,2}$').hasMatch(input) ||
-        RegExp(r'^\d{1,2}[-\/\.]\d{1,2}[-\/\.]\d{4}$').hasMatch(input)) {
+    if (RegExp(r'^\d{4}[-\/\.]\d{1,2}[-\/\.]\d{1,2}$').hasMatch(input) || RegExp(r'^\d{1,2}[-\/\.]\d{1,2}[-\/\.]\d{4}$').hasMatch(input)) {
       return type.placeholder;
     }
 

@@ -113,6 +113,24 @@ class TTableDetails<T, K> {
   /// The width of the side overlay when creating or editing items in sideOverlay mode. Defaults to [sideOverlayWidth] or 500.
   final double? createSideOverlayWidth;
 
+  /// Optional minimum width constraint for the side overlay. Defaults to 320.
+  final double? sideOverlayMinWidth;
+
+  /// Optional maximum width constraint for the side overlay.
+  final double? sideOverlayMaxWidth;
+
+  /// Optional width ratio (fraction of screen width, e.g. 0.5) for responsive side overlay.
+  final double? sideOverlayWidthRatio;
+
+  /// Optional minimum width constraint for the side overlay when creating/editing.
+  final double? createSideOverlayMinWidth;
+
+  /// Optional maximum width constraint for the side overlay when creating/editing.
+  final double? createSideOverlayMaxWidth;
+
+  /// Optional width ratio for the side overlay when creating/editing.
+  final double? createSideOverlayWidthRatio;
+
   /// Whether to automatically expand the first item in the list initially.
   final bool autoExpandFirst;
 
@@ -151,6 +169,12 @@ class TTableDetails<T, K> {
     this.createDialogWidth,
     this.sideOverlayWidth = 500.0,
     this.createSideOverlayWidth,
+    this.sideOverlayMinWidth = 320.0,
+    this.sideOverlayMaxWidth,
+    this.sideOverlayWidthRatio,
+    this.createSideOverlayMinWidth,
+    this.createSideOverlayMaxWidth,
+    this.createSideOverlayWidthRatio,
     this.autoExpandFirst = false,
     this.autoSelectFirst = false,
     this.itemInfoGridInline = true,
@@ -163,6 +187,23 @@ class TTableDetails<T, K> {
 
   bool get rowTapDetails => expandOnRowTap;
   bool get onRowTapDetails => expandOnRowTap;
+
+  /// Resolves the effective responsive side overlay width for a given context and screen size.
+  double resolveSideOverlayWidth(BuildContext context, {bool isCreateOrEdit = false}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < kMobileBreakpoint) {
+      return screenWidth;
+    }
+
+    final ratio = isCreateOrEdit ? (createSideOverlayWidthRatio ?? sideOverlayWidthRatio) : sideOverlayWidthRatio;
+    final baseWidth = isCreateOrEdit ? (createSideOverlayWidth ?? sideOverlayWidth) : sideOverlayWidth;
+    final minW = isCreateOrEdit ? (createSideOverlayMinWidth ?? sideOverlayMinWidth ?? 320.0) : (sideOverlayMinWidth ?? 320.0);
+    final maxW = isCreateOrEdit ? (createSideOverlayMaxWidth ?? sideOverlayMaxWidth) : sideOverlayMaxWidth;
+
+    final targetWidth = ratio != null ? (screenWidth * ratio) : baseWidth;
+    final clampedMax = maxW ?? screenWidth;
+    return targetWidth.clamp(minW, clampedMax > minW ? clampedMax : minW);
+  }
 
   TTableDetails<T, K> copyWith({
     TTableExpansionMode? mode,
@@ -188,6 +229,12 @@ class TTableDetails<T, K> {
     double? createDialogWidth,
     double? sideOverlayWidth,
     double? createSideOverlayWidth,
+    double? sideOverlayMinWidth,
+    double? sideOverlayMaxWidth,
+    double? sideOverlayWidthRatio,
+    double? createSideOverlayMinWidth,
+    double? createSideOverlayMaxWidth,
+    double? createSideOverlayWidthRatio,
     bool? autoExpandFirst,
     bool? autoSelectFirst,
     bool? expandOnRowTap,
@@ -218,6 +265,12 @@ class TTableDetails<T, K> {
       createDialogWidth: createDialogWidth ?? this.createDialogWidth,
       sideOverlayWidth: sideOverlayWidth ?? this.sideOverlayWidth,
       createSideOverlayWidth: createSideOverlayWidth ?? this.createSideOverlayWidth,
+      sideOverlayMinWidth: sideOverlayMinWidth ?? this.sideOverlayMinWidth,
+      sideOverlayMaxWidth: sideOverlayMaxWidth ?? this.sideOverlayMaxWidth,
+      sideOverlayWidthRatio: sideOverlayWidthRatio ?? this.sideOverlayWidthRatio,
+      createSideOverlayMinWidth: createSideOverlayMinWidth ?? this.createSideOverlayMinWidth,
+      createSideOverlayMaxWidth: createSideOverlayMaxWidth ?? this.createSideOverlayMaxWidth,
+      createSideOverlayWidthRatio: createSideOverlayWidthRatio ?? this.createSideOverlayWidthRatio,
       autoExpandFirst: autoExpandFirst ?? this.autoExpandFirst,
       autoSelectFirst: autoSelectFirst ?? this.autoSelectFirst,
       expandOnRowTap: expandOnRowTap ?? this.expandOnRowTap,
@@ -440,14 +493,27 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
         );
         result = await navigator.push<Object?>(route);
       } else if (target.mode == TTableExpansionMode.sideOverlay) {
-        final sideWidth = (target.kind == _DetailKind.create || target.kind == _DetailKind.edit)
-            ? (details?.createSideOverlayWidth ?? details?.sideOverlayWidth ?? 650.0)
-            : (details?.sideOverlayWidth ?? 650.0);
+        final isCreateOrEdit = target.kind == _DetailKind.create || target.kind == _DetailKind.edit;
+        final resolvedWidth = details != null
+            ? details.resolveSideOverlayWidth(context, isCreateOrEdit: isCreateOrEdit)
+            : (isCreateOrEdit
+                ? (details?.createSideOverlayWidth ?? details?.sideOverlayWidth ?? 650.0)
+                : (details?.sideOverlayWidth ?? 650.0));
+
+        final minW = isCreateOrEdit
+            ? (details?.createSideOverlayMinWidth ?? details?.sideOverlayMinWidth ?? 320.0)
+            : (details?.sideOverlayMinWidth ?? 320.0);
+        final maxW = isCreateOrEdit ? (details?.createSideOverlayMaxWidth ?? details?.sideOverlayMaxWidth) : details?.sideOverlayMaxWidth;
+        final ratio =
+            isCreateOrEdit ? (details?.createSideOverlayWidthRatio ?? details?.sideOverlayWidthRatio) : details?.sideOverlayWidthRatio;
 
         result = await TSheetService.showSideSheet<Object?>(
           context,
           (_) => _buildScopedContent(config.$1, config.$2),
-          width: sideWidth,
+          width: resolvedWidth,
+          minWidth: minW,
+          maxWidth: maxW,
+          widthRatio: ratio,
           layoutBuilder: (ctx, child) => child,
         );
       } else {

@@ -192,6 +192,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
         border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: TAlignedRow(
+        wrapperModeThreshold: 1,
         left: [
           Icon(detectedFormat.icon, color: colors.primary, size: 20),
           Text(
@@ -290,6 +291,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
     final errorCount = rows.length - validCount;
 
     return TAlignedRow(
+      wrapperModeThreshold: 1,
       left: [
         if (widget.allowAddRow)
           TButton(

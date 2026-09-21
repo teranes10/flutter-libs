@@ -388,8 +388,6 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final defaultTheme = context.theme.buttonTheme;

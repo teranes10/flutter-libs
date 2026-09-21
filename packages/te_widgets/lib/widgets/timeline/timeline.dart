@@ -121,6 +121,21 @@ class TTimeline extends StatelessWidget {
   /// Custom text style for trailing/time texts.
   final TextStyle? timeStyle;
 
+  /// Whether the timeline is scrollable. Defaults to true for horizontal and false for vertical.
+  final bool? scrollable;
+
+  /// Width of each item in a horizontal timeline. Defaults to 180.0 when scrollable.
+  final double? itemWidth;
+
+  /// Scroll controller for the timeline when scrollable is true.
+  final ScrollController? scrollController;
+
+  /// Scroll physics for the timeline when scrollable is true.
+  final ScrollPhysics? physics;
+
+  /// Whether to display a visible scrollbar when scrollable is true. Defaults to false.
+  final bool showScrollbar;
+
   const TTimeline({
     super.key,
     required this.items,
@@ -144,13 +159,40 @@ class TTimeline extends StatelessWidget {
     this.subtitleStyle,
     this.descriptionStyle,
     this.timeStyle,
+    this.scrollable,
+    this.itemWidth,
+    this.scrollController,
+    this.physics,
+    this.showScrollbar = false,
   });
+
+  bool get isScrollable => scrollable ?? (direction == Axis.horizontal);
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
 
-    final content = direction == Axis.vertical ? _buildVerticalTimeline(context) : _buildHorizontalTimeline(context);
+    Widget content;
+    if (direction == Axis.vertical) {
+      content = _buildVerticalTimeline(context);
+      if (scrollable == true) {
+        content = SingleChildScrollView(
+          controller: scrollController,
+          physics: physics,
+          scrollDirection: Axis.vertical,
+          child: content,
+        );
+        if (showScrollbar) {
+          content = Scrollbar(
+            controller: scrollController,
+            thumbVisibility: true,
+            child: content,
+          );
+        }
+      }
+    } else {
+      content = _buildHorizontalTimeline(context);
+    }
 
     if (padding != null) {
       return Padding(padding: padding!, child: content);
@@ -236,60 +278,97 @@ class TTimeline extends StatelessWidget {
   // ---------------------------------------------------------------------------
 
   Widget _buildHorizontalTimeline(BuildContext context) {
-    return SingleChildScrollView(
+    final horizontalScrollable = isScrollable;
+    final defaultItemW = itemWidth ?? 180.0;
+
+    final children = List.generate(items.length, (index) {
+      final item = items[index];
+      final isLast = index == items.length - 1;
+
+      final resolvedLineStyle = item.lineStyle ?? lineStyle;
+      final resolvedLineColor = item.lineColor ??
+          lineColor ??
+          (item.isCompleted && item.color != null
+              ? item.color!.withAlpha(160)
+              : (item.isCompleted ? context.theme.primary.withAlpha(160) : context.colors.outlineVariant));
+
+      final node = Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _buildIndicator(context, index, item),
+              if (!isLast)
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: lineGap),
+                    child: TDashedLine(
+                      direction: Axis.horizontal,
+                      color: resolvedLineColor,
+                      strokeWidth: lineWidth,
+                      dashLength: dashLength,
+                      dashGap: dashGap,
+                      style: resolvedLineStyle,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildItemContent(context, index, item),
+        ],
+      );
+
+      if (horizontalScrollable) {
+        final w = item.width ?? defaultItemW;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: w,
+              child: node,
+            ),
+            if (!isLast && itemGap > 0) SizedBox(width: itemGap),
+          ],
+        );
+      } else {
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: isLast ? 0 : itemGap),
+            child: node,
+          ),
+        );
+      }
+    });
+
+    if (!horizontalScrollable) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
+      );
+    }
+
+    final scrollView = SingleChildScrollView(
+      controller: scrollController,
+      physics: physics,
       scrollDirection: Axis.horizontal,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: List.generate(items.length, (index) {
-          final item = items[index];
-          final isLast = index == items.length - 1;
-
-          final resolvedLineStyle = item.lineStyle ?? lineStyle;
-          final resolvedLineColor = item.lineColor ??
-              lineColor ??
-              (item.isCompleted && item.color != null
-                  ? item.color!.withAlpha(160)
-                  : (item.isCompleted ? context.theme.primary.withAlpha(160) : context.colors.outlineVariant));
-
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 180,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        _buildIndicator(context, index, item),
-                        if (!isLast)
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: lineGap),
-                              child: TDashedLine(
-                                direction: Axis.horizontal,
-                                color: resolvedLineColor,
-                                strokeWidth: lineWidth,
-                                dashLength: dashLength,
-                                dashGap: dashGap,
-                                style: resolvedLineStyle,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildItemContent(context, index, item),
-                  ],
-                ),
-              ),
-              if (!isLast) SizedBox(width: itemGap),
-            ],
-          );
-        }),
+        children: children,
       ),
     );
+
+    if (showScrollbar) {
+      return Scrollbar(
+        controller: scrollController,
+        thumbVisibility: true,
+        child: scrollView,
+      );
+    }
+
+    return scrollView;
   }
 
   // ---------------------------------------------------------------------------

@@ -30,9 +30,7 @@ extension BuildContextX on BuildContext {
   }
 
   TWidgetTheme getWidgetTheme(TVariant type, [Color? color]) =>
-      color != null
-          ? TWidgetTheme.from(isDarkMode, color, type)
-          : TWidgetTheme.surfaceTheme(colors, variant: type);
+      color != null ? TWidgetTheme.from(isDarkMode, color, type) : TWidgetTheme.surfaceTheme(colors, variant: type);
 
   Color getBackgroundColor(Color defaultColor) => TBackgroundColorScope.maybeOf(this) ?? defaultColor;
 

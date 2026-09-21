@@ -68,6 +68,9 @@ class TButtonGroupItem {
   /// The text color for the badge.
   final Color? badgeTextColor;
 
+  /// Whether this action should always render flat (inline) even in hybrid menu mode.
+  final bool showFlat;
+
   /// Creates a button group item.
   TButtonGroupItem({
     this.icon,
@@ -87,6 +90,7 @@ class TButtonGroupItem {
     this.badgeAlignment,
     this.badgeColor,
     this.badgeTextColor,
+    this.showFlat = false,
     this.onTap,
     this.onPressed,
   });

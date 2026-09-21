@@ -333,17 +333,13 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
     }
   }
 
-  Future<void> exportToCsv({String delimiter = ','}) async =>
-      exportCurrentData(format: TCsvFileFormat.csv, delimiter: delimiter);
+  Future<void> exportToCsv({String delimiter = ','}) async => exportCurrentData(format: TCsvFileFormat.csv, delimiter: delimiter);
 
-  Future<void> exportToTsv() async =>
-      exportCurrentData(format: TCsvFileFormat.tsv, delimiter: '\t');
+  Future<void> exportToTsv() async => exportCurrentData(format: TCsvFileFormat.tsv, delimiter: '\t');
 
-  Future<void> exportToSemicolon() async =>
-      exportCurrentData(format: TCsvFileFormat.semicolon, delimiter: ';');
+  Future<void> exportToSemicolon() async => exportCurrentData(format: TCsvFileFormat.semicolon, delimiter: ';');
 
-  Future<void> exportToPipe() async =>
-      exportCurrentData(format: TCsvFileFormat.pipe, delimiter: '|');
+  Future<void> exportToPipe() async => exportCurrentData(format: TCsvFileFormat.pipe, delimiter: '|');
 
   // ---------------------------------------------------------------------------
   // Save / Upload Action
@@ -369,6 +365,7 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
 
     if (widget.onSave != null) {
       try {
+        await uploadAndReplaceImageUrls();
         final data = rows.map((r) => r.toMap()).toList();
         await widget.onSave!(data);
         if (mounted) {

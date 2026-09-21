@@ -259,12 +259,11 @@ class _TMapPinningState extends _TMapPinningStateBase {
   }
 
   @override
-  TInputFieldTheme get wTheme => (widget.theme ??
-          Theme.of(context).extension<TWidgetThemeExtension>()?.inputFieldTheme ??
-          TInputFieldTheme.defaultTheme(Theme.of(context).colorScheme))
-      .copyWith(
-    labelPosition: TLabelPosition.aboveField,
-  );
+  TInputFieldTheme get wTheme =>
+      (widget.theme ??
+              Theme.of(context).extension<TWidgetThemeExtension>()?.inputFieldTheme ??
+              TInputFieldTheme.defaultTheme(Theme.of(context).colorScheme))
+          .copyWith(labelPosition: TLabelPosition.aboveField);
 
   List<TMapPin> _buildMapPins(BuildContext context) {
     final colors = context.colors;
@@ -299,13 +298,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
     if (!widget.isTwoPoints || routeResult == null || routeResult!.points.isEmpty) {
       return const [];
     }
-    return [
-      TMapPolyline(
-        points: routeResult!.points,
-        color: context.colors.primary,
-        strokeWidth: 4.0,
-      ),
-    ];
+    return [TMapPolyline(points: routeResult!.points, color: context.colors.primary, strokeWidth: 4.0)];
   }
 
   @override
@@ -332,7 +325,10 @@ class _TMapPinningState extends _TMapPinningStateBase {
             Positioned.fill(
               child: TMap(
                 initialCoordinates: isTwo && toCoordinates != null
-                    ? LatLng((fromCoordinates.latitude + toCoordinates!.latitude) / 2, (fromCoordinates.longitude + toCoordinates!.longitude) / 2)
+                    ? LatLng(
+                        (fromCoordinates.latitude + toCoordinates!.latitude) / 2,
+                        (fromCoordinates.longitude + toCoordinates!.longitude) / 2,
+                      )
                     : fromCoordinates,
                 zoom: isTwo && toCoordinates != null ? 13 : zoomLevel,
                 interactive: false,
@@ -383,11 +379,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
       ),
     );
 
-    return buildWithDropdownTarget(
-      child: buildWrapper(
-        child: mapWidget,
-      ),
-    );
+    return buildWithDropdownTarget(child: buildWrapper(child: mapWidget));
   }
 
   Widget _buildSinglePointTriggerContainer(BuildContext context) {
@@ -407,9 +399,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
             color: isDark ? const Color(0xE61E293B) : Colors.white.withAlpha(240),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: colors.outlineVariant.withAlpha(120)),
-            boxShadow: const [
-              BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
-            ],
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
           ),
           child: Row(
             children: [
@@ -451,9 +441,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
             color: isDark ? const Color(0xE61E293B) : Colors.white.withAlpha(240),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: colors.outlineVariant.withAlpha(120)),
-            boxShadow: const [
-              BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
-            ],
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -652,7 +640,11 @@ class _TMapPinningState extends _TMapPinningStateBase {
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
               child: Row(
                 children: [
-                  Container(width: 9, height: 9, decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle)),
+                  Container(
+                    width: 9,
+                    height: 9,
+                    decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -679,11 +671,11 @@ class _TMapPinningState extends _TMapPinningStateBase {
                   if (activePoint == TMapPointType.from)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withAlpha(30),
-                        borderRadius: BorderRadius.circular(10),
+                      decoration: BoxDecoration(color: Colors.green.withAlpha(30), borderRadius: BorderRadius.circular(10)),
+                      child: const Text(
+                        'Active',
+                        style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold),
                       ),
-                      child: const Text('Active', style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
                     ),
                 ],
               ),
@@ -729,7 +721,9 @@ class _TMapPinningState extends _TMapPinningStateBase {
                         Text(
                           toAddress.isNotEmpty
                               ? toAddress
-                              : (toCoordinates != null ? 'Coordinates: ${toCoordinates!.formattedString}' : (widget.toLabel ?? 'Select drop-off location')),
+                              : (toCoordinates != null
+                                    ? 'Coordinates: ${toCoordinates!.formattedString}'
+                                    : (widget.toLabel ?? 'Select drop-off location')),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
@@ -742,7 +736,9 @@ class _TMapPinningState extends _TMapPinningStateBase {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          toCoordinates != null ? 'Coordinates: ${toCoordinates!.formattedString}' : 'Tap map or search below to set destination',
+                          toCoordinates != null
+                              ? 'Coordinates: ${toCoordinates!.formattedString}'
+                              : 'Tap map or search below to set destination',
                           style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
                         ),
                       ],
@@ -751,11 +747,11 @@ class _TMapPinningState extends _TMapPinningStateBase {
                   if (activePoint == TMapPointType.to)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent.withAlpha(30),
-                        borderRadius: BorderRadius.circular(10),
+                      decoration: BoxDecoration(color: Colors.redAccent.withAlpha(30), borderRadius: BorderRadius.circular(10)),
+                      child: const Text(
+                        'Active',
+                        style: TextStyle(fontSize: 10, color: Colors.redAccent, fontWeight: FontWeight.bold),
                       ),
-                      child: const Text('Active', style: TextStyle(fontSize: 10, color: Colors.redAccent, fontWeight: FontWeight.bold)),
                     ),
                 ],
               ),
@@ -1061,10 +1057,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                     const SizedBox(height: 2),
-                    Text(
-                      'Coordinates: ${fromCoordinates.formattedString}',
-                      style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
-                    ),
+                    Text('Coordinates: ${fromCoordinates.formattedString}', style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
                   ],
                 ),
               ),
@@ -1081,11 +1074,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
         const SizedBox(height: 12),
         Row(
           children: [
-            TButton(
-              text: 'Cancel',
-              type: TButtonType.outline,
-              onTap: () => hidePopup(),
-            ),
+            TButton(text: 'Cancel', type: TButtonType.outline, onTap: () => hidePopup()),
             const SizedBox(width: 12),
             Expanded(
               child: TButton(
@@ -1128,11 +1117,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
   Widget _buildTwoPointsFooter(BuildContext context) {
     return Row(
       children: [
-        TButton(
-          text: 'Cancel',
-          type: TButtonType.outline,
-          onTap: () => hidePopup(),
-        ),
+        TButton(text: 'Cancel', type: TButtonType.outline, onTap: () => hidePopup()),
         const SizedBox(width: 12),
         Expanded(
           child: TButton(

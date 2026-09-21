@@ -357,10 +357,8 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       List<TListItem<T, K>> rawDisplayItems;
       if (append && value.displayItems.isNotEmpty) {
         final existingKeys = value.displayItems.map((e) => e.key).toSet();
-        final newItems = result.items
-            .where((item) => !existingKeys.contains(itemKey(item)))
-            .map((item) => getItem(itemKey(item))!)
-            .toList();
+        final newItems =
+            result.items.where((item) => !existingKeys.contains(itemKey(item))).map((item) => getItem(itemKey(item))!).toList();
         rawDisplayItems = List<TListItem<T, K>>.of(value.displayItems)..addAll(newItems);
       } else {
         rawDisplayItems = result.items.map((item) => getItem(itemKey(item))!).toList();

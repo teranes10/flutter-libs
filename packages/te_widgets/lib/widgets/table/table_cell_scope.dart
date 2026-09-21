@@ -38,9 +38,7 @@ class TTableCellScope extends InheritedNotifier<Listenable> {
     this.errorsNotifier,
     required super.child,
   }) : super(
-          notifier: errorsNotifier != null
-              ? Listenable.merge([activeCellNotifier, errorsNotifier])
-              : activeCellNotifier,
+          notifier: errorsNotifier != null ? Listenable.merge([activeCellNotifier, errorsNotifier]) : activeCellNotifier,
         );
 
   /// Returns the active-cell notifier for the nearest [TTableCellScope], or
@@ -97,4 +95,3 @@ class TTableCellScope extends InheritedNotifier<Listenable> {
     return scope?.getError(data, column, cellKey);
   }
 }
-

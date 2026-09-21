@@ -230,6 +230,7 @@ class _TablesTreeChildrenPageState extends State<TablesTreeChildrenPage> {
                         ),
                         const SizedBox(height: 12),
                         TAlignedRow(
+                          wrapperModeThreshold: 1,
                           left: [Text('Code: ${data.code}', style: TextStyle(color: colors.onSurfaceVariant))],
                           right: [
                             TButton(type: TButtonType.softText, text: 'Cancel', onPressed: (_) => _controller.cancelEditItem()),

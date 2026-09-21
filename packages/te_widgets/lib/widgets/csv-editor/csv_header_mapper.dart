@@ -6,8 +6,7 @@ class TCsvHeaderMapping {
   /// Maps each [TCsvColumn.key] to the selected CSV header name (or null if unmapped).
   final Map<String, String?> mapping;
 
-  TCsvHeaderMapping([Map<String, String?>? initial])
-      : mapping = initial != null ? Map<String, String?>.from(initial) : <String, String?>{};
+  TCsvHeaderMapping([Map<String, String?>? initial]) : mapping = initial != null ? Map<String, String?>.from(initial) : <String, String?>{};
 
   /// Creates a copy of this mapping.
   TCsvHeaderMapping clone() => TCsvHeaderMapping(mapping);
@@ -23,7 +22,9 @@ class TCsvHeaderMapping {
     // 1. Exact match (case-insensitive)
     for (final col in expectedColumns) {
       final match = csvHeaders.firstWhere(
-        (h) => !usedHeaders.contains(h) && (h.trim().toLowerCase() == col.header.trim().toLowerCase() || h.trim().toLowerCase() == col.key.trim().toLowerCase()),
+        (h) =>
+            !usedHeaders.contains(h) &&
+            (h.trim().toLowerCase() == col.header.trim().toLowerCase() || h.trim().toLowerCase() == col.key.trim().toLowerCase()),
         orElse: () => '',
       );
       if (match.isNotEmpty) {
@@ -59,7 +60,8 @@ class TCsvHeaderMapping {
       for (final alias in col.aliases) {
         final normalizedAlias = _normalize(alias);
         final match = csvHeaders.firstWhere(
-          (h) => !usedHeaders.contains(h) && (_normalize(h) == normalizedAlias || h.trim().toLowerCase().contains(alias.trim().toLowerCase())),
+          (h) =>
+              !usedHeaders.contains(h) && (_normalize(h) == normalizedAlias || h.trim().toLowerCase().contains(alias.trim().toLowerCase())),
           orElse: () => '',
         );
         if (match.isNotEmpty) {
@@ -211,11 +213,8 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
     final index = widget.csvHeaders.indexOf(headerName);
     if (index == -1) return 'No preview';
 
-    final samples = widget.sampleRows
-        .take(3)
-        .where((row) => index < row.length && row[index].trim().isNotEmpty)
-        .map((row) => row[index])
-        .toList();
+    final samples =
+        widget.sampleRows.take(3).where((row) => index < row.length && row[index].trim().isNotEmpty).map((row) => row[index]).toList();
 
     if (samples.isEmpty) return 'Empty in sample rows';
     return samples.join(', ');

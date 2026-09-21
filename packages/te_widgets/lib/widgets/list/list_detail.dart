@@ -31,6 +31,12 @@ class TListDetail<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Callback to extract the image URL from an item.
   final String? Function(T item)? itemImageUrl;
 
+  /// Optional callback to extract the icon from an item.
+  final dynamic Function(T item)? itemIcon;
+
+  /// Optional callback to extract the leading widget from an item.
+  final Widget Function(T item)? itemLeading;
+
   /// Optional custom builder for items in the list. If null, a default [TListCard] is rendered.
   final ListItemBuilder<T, K>? itemBuilder;
 
@@ -99,8 +105,8 @@ class TListDetail<T, K> extends StatefulWidget with TListMixin<T, K> {
   final WidgetBuilder? emptyBuilder;
 
   /// Optional icon to display in the default empty state.
-  /// Defaults to [Icons.touch_app_outlined].
-  final IconData? emptyIcon;
+  /// Supports [IconData], [List<List<dynamic>>] (HugeIcon), or [Widget].
+  final dynamic emptyIcon;
 
   /// Optional title text in the default empty state.
   /// Defaults to 'No item selected'.
@@ -145,6 +151,8 @@ class TListDetail<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.itemTitle,
     this.itemSubTitle,
     this.itemImageUrl,
+    this.itemIcon,
+    this.itemLeading,
     this.itemBuilder,
     this.actions,
     this.sideListWidth = 275.0,
@@ -296,12 +304,16 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
             final title = widget.itemTitle?.call(item.data) ?? item.data.toString();
             final subTitle = widget.itemSubTitle?.call(item.data);
             final imageUrl = widget.itemImageUrl?.call(item.data);
+            final icon = widget.itemIcon?.call(item.data);
+            final leading = widget.itemLeading?.call(item.data);
             final isSelected = listController.isDetailExpanded(item.key);
 
             return TListCard(
               title: title,
               subTitle: subTitle,
               imageUrl: imageUrl,
+              icon: icon,
+              leading: leading,
               isSelected: isSelected,
               onTap: () {
                 listController.expandDetail(item.key);
@@ -380,8 +392,9 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
                 color: colors.surfaceContainerHighest.o(0.5),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                widget.emptyIcon ?? Icons.touch_app_outlined,
+              alignment: Alignment.center,
+              child: TIcon(
+                icon: widget.emptyIcon ?? Icons.touch_app_outlined,
                 size: 28,
                 color: colors.onSurfaceVariant.o(0.8),
               ),

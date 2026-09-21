@@ -176,28 +176,11 @@ TAvatar(
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 // Width only with Aspect Ratio (16:9)
-                TImage(
-                  url: 'https://picsum.photos/400/300',
-                  width: 140,
-                  aspectRatio: 16 / 9,
-                  title: '16:9 Ratio',
-                  subTitle: 'width: 140',
-                ),
+                TImage(url: 'https://picsum.photos/400/300', width: 140, aspectRatio: 16 / 9, title: '16:9 Ratio', subTitle: 'width: 140'),
                 // Height only with Aspect Ratio (4:3)
-                TImage(
-                  url: 'https://picsum.photos/400/300',
-                  height: 80,
-                  aspectRatio: 4 / 3,
-                  title: '4:3 Ratio',
-                  subTitle: 'height: 80',
-                ),
+                TImage(url: 'https://picsum.photos/400/300', height: 80, aspectRatio: 4 / 3, title: '4:3 Ratio', subTitle: 'height: 80'),
                 // Fixed size (Square 1:1)
-                TImage(
-                  url: 'https://picsum.photos/400/300',
-                  size: 70,
-                  title: '1:1 Square',
-                  subTitle: 'size: 70',
-                ),
+                TImage(url: 'https://picsum.photos/400/300', size: 70, title: '1:1 Square', subTitle: 'size: 70'),
               ],
             ),
             code: '''// Width specified with 16:9 aspect ratio
@@ -224,8 +207,17 @@ TImage(
             properties: const [
               PropertyDoc(name: 'width', type: 'double?', description: 'Explicit width of the image'),
               PropertyDoc(name: 'height', type: 'double?', description: 'Explicit height of the image'),
-              PropertyDoc(name: 'size', type: 'double?', defaultValue: '80', description: 'Default square size when width/height are omitted'),
-              PropertyDoc(name: 'aspectRatio', type: 'double?', description: 'Calculates the missing dimension (width/aspectRatio or height*aspectRatio)'),
+              PropertyDoc(
+                name: 'size',
+                type: 'double?',
+                defaultValue: '80',
+                description: 'Default square size when width/height are omitted',
+              ),
+              PropertyDoc(
+                name: 'aspectRatio',
+                type: 'double?',
+                description: 'Calculates the missing dimension (width/aspectRatio or height*aspectRatio)',
+              ),
             ],
           ),
 
@@ -289,8 +281,18 @@ TImage(
   alignment: Alignment.bottomCenter,
 )''',
             properties: const [
-              PropertyDoc(name: 'alignment', type: 'AlignmentGeometry', defaultValue: 'Alignment.center', description: 'Positioning and cropping alignment (e.g. topCenter, center, bottomCenter)'),
-              PropertyDoc(name: 'fit', type: 'BoxFit', defaultValue: 'BoxFit.cover', description: 'How the image should fit within its bounds'),
+              PropertyDoc(
+                name: 'alignment',
+                type: 'AlignmentGeometry',
+                defaultValue: 'Alignment.center',
+                description: 'Positioning and cropping alignment (e.g. topCenter, center, bottomCenter)',
+              ),
+              PropertyDoc(
+                name: 'fit',
+                type: 'BoxFit',
+                defaultValue: 'BoxFit.cover',
+                description: 'How the image should fit within its bounds',
+              ),
             ],
           ),
 

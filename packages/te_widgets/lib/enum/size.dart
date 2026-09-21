@@ -40,8 +40,7 @@ class TSize {
   BorderRadius get borderRadius => BorderRadius.circular(radius);
 
   // ── Button State Properties ──────────────────────────────────────────────
-  WidgetStateProperty<EdgeInsets> get paddingState =>
-      WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: hPad, vertical: vPad));
+  WidgetStateProperty<EdgeInsets> get paddingState => WidgetStateProperty.all(EdgeInsets.symmetric(horizontal: hPad, vertical: vPad));
 
   WidgetStateProperty<EdgeInsets> get tilePaddingState =>
       WidgetStateProperty.all(EdgeInsets.only(top: vPad * 1.75, bottom: vPad * 1.25, left: hPad, right: hPad));

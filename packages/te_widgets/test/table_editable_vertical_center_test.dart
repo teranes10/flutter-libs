@@ -54,10 +54,12 @@ void main() {
     // Verify TTextField is rendered and centered
     expect(find.byType(TTextField<String>), findsOneWidget);
     final textFieldAlign = tester.widget<Align>(
-      find.ancestor(
-        of: find.byType(TTextField<String>),
-        matching: find.byType(Align),
-      ).first,
+      find
+          .ancestor(
+            of: find.byType(TTextField<String>),
+            matching: find.byType(Align),
+          )
+          .first,
     );
     expect((textFieldAlign.alignment as Alignment).y, equals(0.0)); // vertically centered
 
@@ -68,10 +70,12 @@ void main() {
     // Verify TNumberField is rendered and centered
     expect(find.byType(TNumberField<num>), findsOneWidget);
     final numberFieldAlign = tester.widget<Align>(
-      find.ancestor(
-        of: find.byType(TNumberField<num>),
-        matching: find.byType(Align),
-      ).first,
+      find
+          .ancestor(
+            of: find.byType(TNumberField<num>),
+            matching: find.byType(Align),
+          )
+          .first,
     );
     expect((numberFieldAlign.alignment as Alignment).y, equals(0.0)); // vertically centered
   });

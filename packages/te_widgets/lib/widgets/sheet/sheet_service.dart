@@ -46,7 +46,7 @@ class TSheetService {
           return SizeTransition(
             sizeFactor: animation,
             axis: Axis.vertical,
-            axisAlignment: 1,
+            alignment: Alignment.bottomCenter,
             child: child,
           );
         } else {
@@ -70,6 +70,8 @@ class TSheetService {
     bool persistent = false,
     double width = 400,
     double minWidth = 280,
+    double? maxWidth,
+    double? widthRatio,
     String? title,
     String? subTitle,
     bool? showCloseButton,
@@ -103,6 +105,8 @@ class TSheetService {
               onClose: () => Navigator.of(context).pop(),
               width: width,
               minWidth: minWidth,
+              maxWidth: maxWidth,
+              widthRatio: widthRatio,
               fromLeft: fromLeft,
               persistent: persistent,
               backgroundColor: backgroundColor,
@@ -122,7 +126,7 @@ class TSheetService {
           return SizeTransition(
             sizeFactor: curvedAnimation,
             axis: Axis.horizontal,
-            axisAlignment: fromLeft ? -1 : 1,
+            alignment: fromLeft ? Alignment.centerLeft : Alignment.centerRight,
             child: child,
           );
         } else {

@@ -185,7 +185,8 @@ SEM-103;Double Walled Glass Set;Kitchen;24.99;80;true;false''';
   }
 
   void _loadTsvPreset() {
-    const tsvContent = "sku\tname\tcategory\tprice\tstock\tin_stock\tfeatured\n"
+    const tsvContent =
+        "sku\tname\tcategory\tprice\tstock\tin_stock\tfeatured\n"
         "TSV-501\tStudio Microphone USB\tAudio\t149.00\t18\ttrue\ttrue\n"
         "TSV-502\tBoom Arm Stand\tAudio\t45.00\t40\ttrue\tfalse\n"
         "TSV-503\tPop Filter Shield\tAudio\t15.99\t100\ttrue\tfalse";
@@ -230,17 +231,10 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
     final headers = parsed.first;
     final dataRows = parsed.skip(1).toList();
 
-    final autoMapping = TCsvHeaderMapping.autoMap(
-      expectedColumns: _columns,
-      csvHeaders: headers,
-    );
+    final autoMapping = TCsvHeaderMapping.autoMap(expectedColumns: _columns, csvHeaders: headers);
 
     final mappedRows = dataRows.map((rawRow) {
-      return autoMapping.mapRow(
-        expectedColumns: _columns,
-        csvHeaders: headers,
-        csvRow: rawRow,
-      );
+      return autoMapping.mapRow(expectedColumns: _columns, csvHeaders: headers, csvRow: rawRow);
     }).toList();
 
     setState(() {
@@ -431,11 +425,7 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
                 ),
                 child: SelectableText(
                   const JsonEncoder.withIndent('  ').convert(_lastUploadedData),
-                  style: TextStyle(
-                    fontFamily: 'monospace',
-                    fontSize: 12,
-                    color: colors.onSurface,
-                  ),
+                  style: TextStyle(fontFamily: 'monospace', fontSize: 12, color: colors.onSurface),
                 ),
               ),
             ),

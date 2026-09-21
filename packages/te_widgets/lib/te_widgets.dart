@@ -121,6 +121,7 @@ export 'widgets/dropdown/dropdown_item.dart';
 export 'widgets/accordion/accordion.dart';
 export 'widgets/accordion/accordion_theme.dart';
 export 'widgets/tile/tile.dart';
+export 'widgets/tile/tile_size.dart';
 export 'widgets/dropdown/dropdown.dart';
 
 export 'widgets/error/error_builder.dart';
@@ -129,6 +130,7 @@ export 'widgets/error/error.dart';
 export 'widgets/file-picker/file.dart';
 export 'widgets/file-picker/file_picker_theme.dart';
 export 'widgets/file-picker/file_picker.dart';
+export 'package:file_picker/file_picker.dart' show PlatformFile, FilePicker, FileType, FilePickerResult;
 
 export 'widgets/filter/filter.dart';
 
@@ -171,6 +173,7 @@ export 'widgets/loading-icon/loading_icon.dart';
 
 export 'widgets/measure-size/measure_size.dart';
 
+export 'widgets/metric-tile/metric_grid.dart';
 export 'widgets/metric-tile/metric_tile.dart';
 
 export 'widgets/menu/menu_item_data.dart';

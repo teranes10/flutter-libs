@@ -66,7 +66,7 @@ class TAlignedRow extends MultiChildRenderObjectWidget {
     this.expandBelowWidth,
     // new
     this.moveAllToSecondRow = false,
-    this.wrapperModeThreshold = 1,
+    this.wrapperModeThreshold = 2,
     this.wrapperExpanded = false,
     this.wrapperExpandedRatioBased = true,
     this.wrapperAlignment = MainAxisAlignment.center,
@@ -531,28 +531,28 @@ class RenderAlignedRow extends RenderBox
       y += rh;
     } else {
       // Right doesn't fit beside the last left row.
-      // Decide whether to apply moveAllToSecondRow logic.
       final rightRows = _buildRows(right, maxWidth);
       final allRightFitOneRow = rightRows.length == 1;
 
-      // Place all left rows first.
-      for (int i = 0; i < leftRows.length; i++) {
+      // Place all left rows EXCEPT the last one.
+      for (int i = 0; i < leftRows.length - 1; i++) {
         final row = leftRows[i];
         final rh = _rowHeight(row);
         _placeRow(row, y, rh, maxWidth, MainAxisAlignment.start, dry);
         y += rh + _rowSpacing;
       }
+      // y now correctly points at the START of leftRows.last.
 
       if (allRightFitOneRow) {
         if (_moveAllToSecondRow) {
-          // Put all right items on a single new row, right-aligned.
+          final lrh = _rowHeight(leftRows.last);
+          _placeRow(leftRows.last, y, lrh, maxWidth, MainAxisAlignment.start, dry);
+          y += lrh + _rowSpacing;
+
           final rh = _rowHeight(right);
           _placeRow(right, y, rh, maxWidth, MainAxisAlignment.end, dry);
           y += rh;
         } else {
-          // Keep as many right items on the "last left row" line as possible,
-          // move only the overflow item(s) to the next row.
-          // Strategy: find the largest prefix of right that fits after lw.
           final available = maxWidth - lw - _spacing;
           final fits = <_Child>[];
           final overflow = <_Child>[];
@@ -566,18 +566,14 @@ class RenderAlignedRow extends RenderBox
               overflow.add(c);
             }
           }
+
           if (fits.isNotEmpty) {
-            // Re-place last left row with the fitting right items beside it.
-            // We need to subtract the last rowSpacing we added above.
-            y -= _rowSpacing;
             final combinedRow = [...leftRows.last, ...fits];
             final rh = _rowHeight(combinedRow);
-            if (!dry) {
-              // Re-place the last left row (y is now pointing at its start).
-              _placeRow(leftRows.last, y, rh, maxWidth, MainAxisAlignment.start, dry);
-              _placeRow(fits, y, rh, maxWidth, MainAxisAlignment.end, dry);
-            }
+            _placeRow(leftRows.last, y, rh, maxWidth, MainAxisAlignment.start, dry);
+            _placeRow(fits, y, rh, maxWidth, MainAxisAlignment.end, dry);
             y += rh;
+
             if (overflow.isNotEmpty) {
               y += _rowSpacing;
               final rh2 = _rowHeight(overflow);
@@ -585,19 +581,27 @@ class RenderAlignedRow extends RenderBox
               y += rh2;
             }
           } else {
-            // Nothing fits alongside left — fall back to all-on-second-row.
+            final lrh = _rowHeight(leftRows.last);
+            _placeRow(leftRows.last, y, lrh, maxWidth, MainAxisAlignment.start, dry);
+            y += lrh + _rowSpacing;
+
             final rh = _rowHeight(right);
             _placeRow(right, y, rh, maxWidth, MainAxisAlignment.end, dry);
             y += rh;
           }
         }
       } else {
-        // Right items themselves need more than one row → flow them wrapped.
+        // Right needs more than one row of its own.
+        final lrh = _rowHeight(leftRows.last);
+        _placeRow(leftRows.last, y, lrh, maxWidth, MainAxisAlignment.start, dry);
+        y += lrh;
+
         for (int i = 0; i < rightRows.length; i++) {
           final row = rightRows[i];
           final rh = _rowHeight(row);
+          y += _rowSpacing;
           _placeRow(row, y, rh, maxWidth, MainAxisAlignment.end, dry);
-          y += rh + (i < rightRows.length - 1 ? _rowSpacing : 0);
+          y += rh;
         }
       }
     }

@@ -129,9 +129,7 @@ class TDashedLine extends StatelessWidget {
         dashGap: dashGap,
         style: style,
       ),
-      child: direction == Axis.vertical
-          ? SizedBox(width: strokeWidth)
-          : SizedBox(height: strokeWidth),
+      child: direction == Axis.vertical ? SizedBox(width: strokeWidth) : SizedBox(height: strokeWidth),
     );
   }
 }

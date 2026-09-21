@@ -186,20 +186,41 @@ class TTableRowCard<T, K> extends StatelessWidget {
                         if (item.hasChildren) ...[
                           Builder(builder: (ctx) {
                             final isTreeExpanded = controller?.isExpanded(item.key) ?? false;
-                            return Padding(
+                            final isAutoMode = controller?.expansionMode == TExpansionMode.auto;
+
+                            Widget iconWidget = Padding(
                               padding: const EdgeInsets.only(top: 1.5),
-                              child: TIcon(
-                                icon: isTreeExpanded ? HugeIcons.strokeRoundedArrowDown01 : HugeIcons.strokeRoundedArrowRight01,
-                                size: isDense ? 18 : 20,
-                                padding: const EdgeInsets.all(0),
-                                color: colors.onSurfaceVariant,
-                                background: colors.surfaceContainerLow,
-                                active: isTreeExpanded,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
                                 onTap: () {
                                   controller?.toggleExpansion(item.key);
                                 },
+                                onDoubleTap: isAutoMode
+                                    ? () {
+                                        controller?.toggleExpandDescendants(item.key);
+                                      }
+                                    : null,
+                                child: TIcon(
+                                  icon: isTreeExpanded ? HugeIcons.strokeRoundedArrowDown01 : HugeIcons.strokeRoundedArrowRight01,
+                                  size: isDense ? 18 : 20,
+                                  padding: const EdgeInsets.all(0),
+                                  color: colors.onSurfaceVariant,
+                                  background: colors.surfaceContainerLow,
+                                  active: isTreeExpanded,
+                                ),
                               ),
                             );
+
+                            if (isAutoMode) {
+                              iconWidget = TTooltip(
+                                message: isTreeExpanded
+                                    ? 'Click to collapse, double-click to collapse all'
+                                    : 'Click to expand, double-click to expand all',
+                                child: iconWidget,
+                              );
+                            }
+
+                            return iconWidget;
                           }),
                           const SizedBox(width: 6),
                         ] else if (isTreeMode) ...[

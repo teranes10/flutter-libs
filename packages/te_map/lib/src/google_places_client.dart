@@ -454,10 +454,7 @@ class TGoogleClient {
 
     final response = await _dio.get(
       'https://maps.googleapis.com/maps/api/geocode/json',
-      queryParameters: {
-        'latlng': '$latitude,$longitude',
-        'key': apiKey,
-      },
+      queryParameters: {'latlng': '$latitude,$longitude', 'key': apiKey},
     );
 
     final data = response.data;

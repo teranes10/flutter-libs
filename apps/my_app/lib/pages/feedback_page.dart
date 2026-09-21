@@ -114,7 +114,8 @@ TProgressBar(
                 name: 'valuePosition',
                 type: 'TProgressValuePosition',
                 defaultValue: 'topRight',
-                description: 'Position of value/percentage (topRight, topLeft, afterProgress, beforeProgress, bottomRight, bottomLeft, inside)',
+                description:
+                    'Position of value/percentage (topRight, topLeft, afterProgress, beforeProgress, bottomRight, bottomLeft, inside)',
               ),
               PropertyDoc(name: 'height', type: 'double', defaultValue: '8.0', description: 'Height of the bar'),
               PropertyDoc(name: 'color', type: 'Color?', description: 'Color of the progress indicator'),
@@ -299,8 +300,8 @@ TProgressBar(
                   colorBuilder: (val, percent) => percent < 30
                       ? context.theme.danger
                       : percent < 70
-                          ? context.theme.warning
-                          : context.theme.success,
+                      ? context.theme.warning
+                      : context.theme.success,
                   label: 'Low Completion (<30% Danger)',
                 ),
                 const SizedBox(height: 20),
@@ -311,8 +312,8 @@ TProgressBar(
                   colorBuilder: (val, percent) => percent < 30
                       ? context.theme.danger
                       : percent < 70
-                          ? context.theme.warning
-                          : context.theme.success,
+                      ? context.theme.warning
+                      : context.theme.success,
                   label: 'Medium Completion (30-70% Warning)',
                 ),
                 const SizedBox(height: 20),
@@ -323,20 +324,44 @@ TProgressBar(
                   colorBuilder: (val, percent) => percent < 30
                       ? context.theme.danger
                       : percent < 70
-                          ? context.theme.warning
-                          : context.theme.success,
+                      ? context.theme.warning
+                      : context.theme.success,
                   label: 'High Completion (>70% Success)',
                 ),
                 const SizedBox(height: 24),
-                Text('Circular Progress with colorByPercentage:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.onSurface)),
+                Text(
+                  'Circular Progress with colorByPercentage:',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.onSurface),
+                ),
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 28,
                   runSpacing: 16,
                   children: [
-                    TCircularProgress(value: 0.20, size: 72, showPercentage: true, valueText: '20/100', colorByPercentage: true, label: 'Low (<30%)'),
-                    TCircularProgress(value: 0.55, size: 72, showPercentage: true, valueText: '55/100', colorByPercentage: true, label: 'Medium (55%)'),
-                    TCircularProgress(value: 0.95, size: 72, showPercentage: true, valueText: '95/100', colorByPercentage: true, label: 'High (>70%)'),
+                    TCircularProgress(
+                      value: 0.20,
+                      size: 72,
+                      showPercentage: true,
+                      valueText: '20/100',
+                      colorByPercentage: true,
+                      label: 'Low (<30%)',
+                    ),
+                    TCircularProgress(
+                      value: 0.55,
+                      size: 72,
+                      showPercentage: true,
+                      valueText: '55/100',
+                      colorByPercentage: true,
+                      label: 'Medium (55%)',
+                    ),
+                    TCircularProgress(
+                      value: 0.95,
+                      size: 72,
+                      showPercentage: true,
+                      valueText: '95/100',
+                      colorByPercentage: true,
+                      label: 'High (>70%)',
+                    ),
                   ],
                 ),
               ],
@@ -468,28 +493,11 @@ TProgressBar(
                   color: context.theme.success,
                 ),
                 // Percentage inside circle with label below
-                TCircularProgress(
-                  value: 0.50,
-                  size: 64,
-                  strokeWidth: 5,
-                  showPercentage: true,
-                  label: '50 / 1000 Completed',
-                ),
+                TCircularProgress(value: 0.50, size: 64, strokeWidth: 5, showPercentage: true, label: '50 / 1000 Completed'),
                 // Compact percentage inside circle
-                TCircularProgress(
-                  value: 0.4,
-                  size: 56,
-                  strokeWidth: 5,
-                  showPercentage: true,
-                  color: context.theme.warning,
-                ),
+                TCircularProgress(value: 0.4, size: 56, strokeWidth: 5, showPercentage: true, color: context.theme.warning),
                 // Indeterminate spinner
-                TCircularProgress(
-                  indeterminate: true,
-                  size: 36,
-                  strokeWidth: 3,
-                  label: 'Loading...',
-                ),
+                TCircularProgress(indeterminate: true, size: 36, strokeWidth: 3, label: 'Loading...'),
               ],
             ),
             code: '''// Value (e.g. 50 / 1000) below percentage inside circle
@@ -525,7 +533,12 @@ TCircularProgress(
               PropertyDoc(name: 'indeterminate', type: 'bool', defaultValue: 'false', description: 'Whether the progress is unknown'),
               PropertyDoc(name: 'size', type: 'double', defaultValue: '40.0', description: 'Diameter of the circle'),
               PropertyDoc(name: 'strokeWidth', type: 'double', defaultValue: '4.0', description: 'Thickness of the progress line'),
-              PropertyDoc(name: 'showPercentage', type: 'bool', defaultValue: 'false', description: 'Show percentage in the center of the circle'),
+              PropertyDoc(
+                name: 'showPercentage',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Show percentage in the center of the circle',
+              ),
               PropertyDoc(name: 'valueText', type: 'String?', description: 'Value text displayed below percentage inside circle'),
               PropertyDoc(name: 'label', type: 'String?', description: 'Label text displayed below the circular indicator'),
               PropertyDoc(name: 'center', type: 'Widget?', description: 'Custom center widget inside the circle'),

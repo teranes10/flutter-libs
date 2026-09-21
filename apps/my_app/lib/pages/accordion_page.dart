@@ -107,7 +107,11 @@ class AccordionPage extends StatelessWidget {
             properties: const [
               PropertyDoc(name: 'icon', type: 'dynamic', description: 'Leading icon (IconData, HugeIcon, or Widget)'),
               PropertyDoc(name: 'iconBackgroundColor', type: 'Color?', description: 'Container background color of the leading icon'),
-              PropertyDoc(name: 'expandedIconBackgroundColor', type: 'Color?', description: 'Background color of icon container when expanded'),
+              PropertyDoc(
+                name: 'expandedIconBackgroundColor',
+                type: 'Color?',
+                description: 'Background color of icon container when expanded',
+              ),
               PropertyDoc(name: 'iconColor', type: 'Color?', description: 'Color of the leading icon'),
               PropertyDoc(name: 'expandedIconColor', type: 'Color?', description: 'Color of the leading icon when expanded'),
               PropertyDoc(name: 'iconBorderRadius', type: 'BorderRadius?', description: 'Border radius of the icon container'),

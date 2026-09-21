@@ -5,6 +5,7 @@ import 'package:my_app/pages/colors_page.dart';
 import 'package:my_app/pages/bottom_bar_page.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:my_app/pages/map_sample_page.dart';
+import 'package:my_app/pages/metric_tile_page.dart';
 import 'package:my_app/pages/avatars_page.dart';
 import 'package:my_app/pages/breadcrumbs_page.dart';
 import 'package:my_app/pages/buttons_page.dart';
@@ -86,6 +87,7 @@ final sidebarItems = [
   ),
   TSidebarItem(icon: Icons.navigate_next, text: 'Cursor Pagination', route: '/cursor-pagination', page: const CursorPaginationPage()),
   TSidebarItem(icon: Icons.grid_view, text: 'Grid', route: '/grid', page: const GridPage()),
+  TSidebarItem(icon: Icons.speed_rounded, text: 'Metrics & Tiles', route: '/metrics-tiles', page: const MetricTilePage()),
   TSidebarItem(icon: Icons.list_alt, text: 'Key Value', route: '/key-value', page: const KeyValuePage()),
   TSidebarItem(icon: Icons.layers, text: 'Layout', route: '/layout', page: const LayoutPage()),
   TSidebarItem(icon: Icons.storage, text: 'Crud', route: '/crud', page: const CrudPage()),

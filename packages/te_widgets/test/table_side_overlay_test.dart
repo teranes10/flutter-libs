@@ -174,4 +174,60 @@ void main() {
     expect(controller.value.expandedDetailKey, isNull);
     expect(controller.value.activeKey, isNull);
   });
+
+  testWidgets('TTableDetails with responsive sideOverlayWidthRatio and maxWidth calculates sheet width correctly',
+      (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() => tester.view.resetPhysicalSize());
+
+    final controller = TListController<_TestProduct, String>(
+      items: [
+        const _TestProduct('1', 'Product Alpha'),
+      ],
+      itemKey: (p) => p.id,
+      expansionMode: TExpansionMode.single,
+    );
+
+    final headers = [
+      TTableHeader<_TestProduct, String>.map('Name', (p) => p.name),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: TTable<_TestProduct, String>(
+            headers: headers,
+            controller: controller,
+            details: TTableDetails(
+              mode: TTableExpansionMode.sideOverlay,
+              sideOverlayWidthRatio: 0.5, // 50% of 1400 = 700
+              sideOverlayMaxWidth: 800,
+              sideOverlayMinWidth: 400,
+              itemTitle: (p) => p.name,
+              builder: (ctx, item, index) => Text('Details for ${item.data.name}'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Expand
+    controller.expandDetail('1');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Details for Product Alpha'), findsOneWidget);
+
+    // Verify TSideSheet width
+    final sideSheet = tester.widget<TSideSheet>(find.byType(TSideSheet));
+    expect(sideSheet.widthRatio, 0.5);
+    expect(sideSheet.maxWidth, 800);
+    expect(sideSheet.minWidth, 400);
+
+    final sideSheetBox = tester.renderObject(find.byType(TSideSheet)) as RenderBox;
+    expect(sideSheetBox.size.width, 700.0);
+  });
 }

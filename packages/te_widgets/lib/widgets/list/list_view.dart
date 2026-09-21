@@ -204,7 +204,6 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
 
         Widget listView = CustomScrollView(
           controller: effectiveShrinkWrap ? null : _effectiveScrollController,
-          primary: effectiveShrinkWrap ? null : (widget.scrollController == null ? true : null),
           shrinkWrap: effectiveShrinkWrap,
           physics: effectiveShrinkWrap ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics(),
           slivers: _buildSlivers(context),
@@ -404,10 +403,7 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
       return SliverReorderableList(
         itemBuilder: _buildItem,
         itemCount: widget.items.length,
-        onReorder: (int oldIndex, int newIndex) {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
-          }
+        onReorderItem: (int oldIndex, int newIndex) {
           if (oldIndex >= 0 && oldIndex < widget.items.length && newIndex >= 0 && newIndex < widget.items.length) {
             widget.onReorder?.call(oldIndex, newIndex);
           }

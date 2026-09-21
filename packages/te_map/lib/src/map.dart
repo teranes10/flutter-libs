@@ -69,10 +69,8 @@ class _TMapState extends State<TMap> {
     return total / count;
   }
 
-  LatLng _averageCoordinatesOf(List<TMapPin> pins) => LatLng(
-    _averageOf(pins.map((pin) => pin.coordinates.latitude)),
-    _averageOf(pins.map((pin) => pin.coordinates.longitude)),
-  );
+  LatLng _averageCoordinatesOf(List<TMapPin> pins) =>
+      LatLng(_averageOf(pins.map((pin) => pin.coordinates.latitude)), _averageOf(pins.map((pin) => pin.coordinates.longitude)));
 
   LatLng _getCalculatedCenter() => _averageCoordinatesOf(widget.pins);
 
@@ -89,11 +87,7 @@ class _TMapState extends State<TMap> {
         if (mounted) {
           try {
             _mapController.fitCamera(
-              CameraFit.bounds(
-                bounds: widget.bounds!,
-                padding: widget.boundsPadding ?? const EdgeInsets.all(48),
-                maxZoom: 16,
-              ),
+              CameraFit.bounds(bounds: widget.bounds!, padding: widget.boundsPadding ?? const EdgeInsets.all(48), maxZoom: 16),
             );
           } catch (_) {}
         }
@@ -111,11 +105,7 @@ class _TMapState extends State<TMap> {
         if (mounted && widget.bounds != null) {
           try {
             _mapController.fitCamera(
-              CameraFit.bounds(
-                bounds: widget.bounds!,
-                padding: widget.boundsPadding ?? const EdgeInsets.all(48),
-                maxZoom: 16,
-              ),
+              CameraFit.bounds(bounds: widget.bounds!, padding: widget.boundsPadding ?? const EdgeInsets.all(48), maxZoom: 16),
             );
           } catch (_) {}
         }
@@ -126,9 +116,8 @@ class _TMapState extends State<TMap> {
       _center = newCenter;
       _zoomLevel = widget.zoom;
 
-      final bool centerChanged = oldCenter == null ||
-          oldCenter.latitude != newCenter.latitude ||
-          oldCenter.longitude != newCenter.longitude;
+      final bool centerChanged =
+          oldCenter == null || oldCenter.latitude != newCenter.latitude || oldCenter.longitude != newCenter.longitude;
 
       if (centerChanged) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -248,13 +237,8 @@ class _TMapState extends State<TMap> {
           decoration: BoxDecoration(
             color: isDark ? const Color(0xF01E293B) : Colors.white.withAlpha(245),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: pinColor.withAlpha(140),
-              width: 1,
-            ),
-            boxShadow: const [
-              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-            ],
+            border: Border.all(color: pinColor.withAlpha(140), width: 1),
+            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -262,10 +246,7 @@ class _TMapState extends State<TMap> {
               Container(
                 width: 6,
                 height: 6,
-                decoration: BoxDecoration(
-                  color: pinColor,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: pinColor, shape: BoxShape.circle),
               ),
               const SizedBox(width: 5),
               Flexible(
@@ -273,11 +254,7 @@ class _TMapState extends State<TMap> {
                   pin.label!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : colors.onSurface,
-                  ),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: isDark ? Colors.white : colors.onSurface),
                 ),
               ),
             ],
@@ -440,11 +417,7 @@ class _TMapState extends State<TMap> {
             initialCenter: _center,
             initialZoom: _zoomLevel.toDouble(),
             initialCameraFit: widget.bounds != null
-                ? CameraFit.bounds(
-                    bounds: widget.bounds!,
-                    padding: widget.boundsPadding ?? const EdgeInsets.all(48),
-                    maxZoom: 16,
-                  )
+                ? CameraFit.bounds(bounds: widget.bounds!, padding: widget.boundsPadding ?? const EdgeInsets.all(48), maxZoom: 16)
                 : null,
             minZoom: widget.minZoom,
             maxZoom: widget.maxZoom,

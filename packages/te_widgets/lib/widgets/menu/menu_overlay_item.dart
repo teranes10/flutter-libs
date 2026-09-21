@@ -137,7 +137,8 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
         final screenSize = constraints.screenSize;
         final spaceRight = screenSize.width - (targetOffset.dx + targetSize.width);
         final spaceLeft = targetOffset.dx;
-        final requiredWidthSpace = (constraints.contentBox.minWidth > 0 ? constraints.contentBox.minWidth : 180.0) + widget.theme.secondaryOffset;
+        final requiredWidthSpace =
+            (constraints.contentBox.minWidth > 0 ? constraints.contentBox.minWidth : 180.0) + widget.theme.secondaryOffset;
 
         final canShowRight = spaceRight >= requiredWidthSpace;
         final canShowLeft = spaceLeft >= requiredWidthSpace;
@@ -145,13 +146,17 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
         TPopupAlignment actualAlignment = widget.theme.secondaryAlignment;
 
         // If parent preferred right, but cannot fit on right and can fit on left: open to left
-        if (actualAlignment == TPopupAlignment.rightTop || actualAlignment == TPopupAlignment.rightBottom || actualAlignment == TPopupAlignment.rightCenter) {
+        if (actualAlignment == TPopupAlignment.rightTop ||
+            actualAlignment == TPopupAlignment.rightBottom ||
+            actualAlignment == TPopupAlignment.rightCenter) {
           if (!canShowRight && canShowLeft) {
             actualAlignment = actualAlignment == TPopupAlignment.rightBottom ? TPopupAlignment.leftBottom : TPopupAlignment.leftTop;
           }
         }
         // If parent preferred left (or opened to left), continue opening to left as long as spaceLeft is sufficient
-        else if (actualAlignment == TPopupAlignment.leftTop || actualAlignment == TPopupAlignment.leftBottom || actualAlignment == TPopupAlignment.leftCenter) {
+        else if (actualAlignment == TPopupAlignment.leftTop ||
+            actualAlignment == TPopupAlignment.leftBottom ||
+            actualAlignment == TPopupAlignment.leftCenter) {
           if (!canShowLeft && canShowRight) {
             actualAlignment = actualAlignment == TPopupAlignment.leftBottom ? TPopupAlignment.rightBottom : TPopupAlignment.rightTop;
           }
@@ -229,8 +234,8 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
             child: Icon(
               widget.theme.arrowIcon ??
                   (widget.theme.secondaryAlignment == TPopupAlignment.leftTop ||
-                   widget.theme.secondaryAlignment == TPopupAlignment.leftBottom ||
-                   widget.theme.secondaryAlignment == TPopupAlignment.leftCenter
+                          widget.theme.secondaryAlignment == TPopupAlignment.leftBottom ||
+                          widget.theme.secondaryAlignment == TPopupAlignment.leftCenter
                       ? Icons.chevron_left_rounded
                       : Icons.chevron_right_rounded),
               size: widget.theme.arrowIconSize > 0 ? widget.theme.arrowIconSize : 16,

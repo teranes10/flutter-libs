@@ -11,8 +11,7 @@ extension TTableListControllerExt<T, K> on TListController<T, K> {
   /// Updates the header visibility state reactively.
   void updateHeaderVisibility(String text, bool visible) {
     final newVisibility = Map<String, bool>.from(headerVisibility)..[text] = visible;
-    final newAdditional = Map<String, dynamic>.from(value.additional)
-      ..['headerVisibility'] = newVisibility;
+    final newAdditional = Map<String, dynamic>.from(value.additional)..['headerVisibility'] = newVisibility;
     updateState(
       who: 'updateHeaderVisibility',
       additional: newAdditional,
@@ -21,8 +20,7 @@ extension TTableListControllerExt<T, K> on TListController<T, K> {
 
   /// Updates the header order state reactively.
   void updateHeaderOrder(List<String> newOrder) {
-    final newAdditional = Map<String, dynamic>.from(value.additional)
-      ..['headerOrder'] = List<String>.from(newOrder);
+    final newAdditional = Map<String, dynamic>.from(value.additional)..['headerOrder'] = List<String>.from(newOrder);
     updateState(
       who: 'updateHeaderOrder',
       additional: newAdditional,
