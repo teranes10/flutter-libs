@@ -1,3 +1,7 @@
+## 3.5.0
+
+ - **FEAT**(te_widgets): add TMetricGrid, TMetricTile, TTile heading scale, and enhancements.
+
 ## 3.4.0
 
 - **Filtering Framework (`TFilter` & `TFilterField`)**:

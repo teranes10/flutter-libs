@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-09-21
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`te_editor` - `v3.2.0`](#te_editor---v320)
+ - [`te_map` - `v3.2.0`](#te_map---v320)
+ - [`te_scanner` - `v3.2.0`](#te_scanner---v320)
+ - [`te_widgets` - `v3.5.0`](#te_widgets---v350)
+
+---
+
+#### `te_editor` - `v3.2.0`
+
+ - **FEAT**(te_widgets): add TMetricGrid, TMetricTile, TTile heading scale, and enhancements.
+ - **FEAT**(te_widgets): release v3.2.0 with form type persistence, responsive vertical tabs, and navigation enhancements.
+
+#### `te_map` - `v3.2.0`
+
+ - **FEAT**(te_widgets): add TMetricGrid, TMetricTile, TTile heading scale, and enhancements.
+ - **FEAT**(te_widgets): release v3.4.0 with TFilter suite, TKeyValueMode, TextStyleX, TTile, and table header enhancements.
+ - **FEAT**(te_widgets): release v3.2.0 with form type persistence, responsive vertical tabs, and navigation enhancements.
+
+#### `te_scanner` - `v3.2.0`
+
+ - **FEAT**(te_widgets): add TMetricGrid, TMetricTile, TTile heading scale, and enhancements.
+ - **FEAT**(te_widgets): release v3.4.0 with TFilter suite, TKeyValueMode, TextStyleX, TTile, and table header enhancements.
+
+#### `te_widgets` - `v3.5.0`
+
+ - **FEAT**(te_widgets): add TMetricGrid, TMetricTile, TTile heading scale, and enhancements.
+
+
 ## 2026-08-16
 
 ### Changes

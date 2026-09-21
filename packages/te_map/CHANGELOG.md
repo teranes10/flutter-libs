@@ -1,3 +1,9 @@
+## 3.2.0
+
+ - **FEAT**(te_widgets): add TMetricGrid, TMetricTile, TTile heading scale, and enhancements.
+ - **FEAT**(te_widgets): release v3.4.0 with TFilter suite, TKeyValueMode, TextStyleX, TTile, and table header enhancements.
+ - **FEAT**(te_widgets): release v3.2.0 with form type persistence, responsive vertical tabs, and navigation enhancements.
+
 ## 3.1.4
 
  - **FIX**: automated deployment and release.
