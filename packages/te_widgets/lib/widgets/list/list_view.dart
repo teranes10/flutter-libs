@@ -403,7 +403,11 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
       return SliverReorderableList(
         itemBuilder: _buildItem,
         itemCount: widget.items.length,
-        onReorderItem: (int oldIndex, int newIndex) {
+        // ignore: deprecated_member_use
+        onReorder: (int oldIndex, int newIndex) {
+          if (newIndex > oldIndex) {
+            newIndex -= 1;
+          }
           if (oldIndex >= 0 && oldIndex < widget.items.length && newIndex >= 0 && newIndex < widget.items.length) {
             widget.onReorder?.call(oldIndex, newIndex);
           }

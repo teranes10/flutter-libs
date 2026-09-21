@@ -343,7 +343,8 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
         return child!;
       },
       child: SizeTransition(
-        alignment: Alignment.bottomCenter,
+        // ignore: deprecated_member_use
+        axisAlignment: 1.0,
         sizeFactor: _slideAnimation,
         child: Padding(
           padding: EdgeInsets.only(

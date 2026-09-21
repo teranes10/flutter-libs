@@ -46,7 +46,8 @@ class TSheetService {
           return SizeTransition(
             sizeFactor: animation,
             axis: Axis.vertical,
-            alignment: Alignment.bottomCenter,
+            // ignore: deprecated_member_use
+            axisAlignment: 1,
             child: child,
           );
         } else {
@@ -126,7 +127,8 @@ class TSheetService {
           return SizeTransition(
             sizeFactor: curvedAnimation,
             axis: Axis.horizontal,
-            alignment: fromLeft ? Alignment.centerLeft : Alignment.centerRight,
+            // ignore: deprecated_member_use
+            axisAlignment: fromLeft ? -1 : 1,
             child: child,
           );
         } else {

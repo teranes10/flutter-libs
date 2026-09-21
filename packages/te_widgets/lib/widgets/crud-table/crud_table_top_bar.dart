@@ -539,8 +539,12 @@ class _ColumnVisibilityMenuState extends State<_ColumnVisibilityMenu> {
           TMenuOverlayController.isLocked = false;
           widget.onReorderEnd();
         },
-        onReorderItem: (oldIndex, newIndex) {
+        // ignore: deprecated_member_use
+        onReorder: (oldIndex, newIndex) {
           setState(() {
+            if (newIndex > oldIndex) {
+              newIndex -= 1;
+            }
             widget.onReorder(oldIndex, newIndex);
           });
         },
