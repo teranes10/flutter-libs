@@ -1,3 +1,7 @@
+## 3.6.0
+
+ - **FEAT**(te_widgets): add gap analysis widgets suite (Phases 1-6) and showcase pages.
+
 ## 3.5.1
 
  - **FIX**(te_widgets): restore Flutter 3.38 backward compatibility for SizeTransition and ReorderableList.
