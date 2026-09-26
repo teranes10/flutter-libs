@@ -8,11 +8,17 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final GoRouter router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/input-fields',
+  initialLocation: '/forms/input-fields',
   routes: [
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
-      routes: sidebarItems.toGoRoutes(),
+      routes: [
+        GoRoute(
+          path: '/',
+          redirect: (_, __) => '/forms/input-fields',
+        ),
+        ...sidebarItems.toGoRoutes(),
+      ],
       builder: (context, state, child) {
         return TLayout(
           logo: const TLogo(text: 'Te Widgets'),

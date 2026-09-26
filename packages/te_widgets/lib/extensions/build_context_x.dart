@@ -29,6 +29,8 @@ extension BuildContextX on BuildContext {
     return ext;
   }
 
+  TWidgetThemeExtension? get themeOrNull => Theme.of(this).extension<TWidgetThemeExtension>();
+
   TWidgetTheme getWidgetTheme(TVariant type, [Color? color]) =>
       color != null ? TWidgetTheme.from(isDarkMode, color, type) : TWidgetTheme.surfaceTheme(colors, variant: type);
 

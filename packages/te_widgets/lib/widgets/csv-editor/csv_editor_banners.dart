@@ -257,31 +257,15 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
     final totalExpected = widget.columns.length;
     final formatLabel = detectedFormat == TCsvFileFormat.json ? 'JSON properties' : 'File headers';
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: colors.primaryContainer.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colors.primary.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.info_outline_rounded, size: 18, color: colors.primary),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              '$formatLabel differ from expected schema. ($mappedCount of $totalExpected columns mapped)',
-              style: TextStyle(fontSize: 12, color: colors.onPrimaryContainer, fontWeight: FontWeight.w500),
-            ),
-          ),
-          TButton(
-            text: 'Review Mapping',
-            icon: Icons.tune_rounded,
-            type: TButtonType.tonal,
-            size: TButtonSize.xxs,
-            onPressed: (_) => openMappingDialog(),
-          ),
-        ],
+    return TBanner.info(
+      variant: TVariant.tonal,
+      message: '$formatLabel differ from expected schema. ($mappedCount of $totalExpected columns mapped)',
+      action: TButton(
+        text: 'Review Mapping',
+        icon: Icons.tune_rounded,
+        type: TButtonType.tonal,
+        size: TButtonSize.xxs,
+        onPressed: (_) => openMappingDialog(),
       ),
     );
   }

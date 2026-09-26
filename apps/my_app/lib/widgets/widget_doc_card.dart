@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_highlight/themes/github.dart';
 import 'package:flutter_highlight/themes/dracula.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -100,7 +99,6 @@ class WidgetDocCard extends StatefulWidget {
 
 class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProviderStateMixin {
   late ValueNotifier _tabController;
-  bool _codeCopied = false;
 
   @override
   void initState() {
@@ -233,12 +231,10 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                         Positioned(
                           top: 0,
                           right: 0,
-                          child: TButton(
+                          child: TCopyButton(
+                            text: widget.code.trim(),
                             size: TButtonSize.xs,
                             type: TButtonType.tonal,
-                            icon: _codeCopied ? Icons.check : Icons.copy,
-                            color: _codeCopied ? context.theme.success : context.theme.primary,
-                            onTap: _copyCode,
                           ),
                         ),
                       ],
@@ -258,16 +254,6 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
         ],
       ),
     );
-  }
-
-  void _copyCode() {
-    Clipboard.setData(ClipboardData(text: widget.code.trim()));
-    setState(() => _codeCopied = true);
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() => _codeCopied = false);
-      }
-    });
   }
 }
 

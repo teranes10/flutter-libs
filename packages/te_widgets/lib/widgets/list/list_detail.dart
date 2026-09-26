@@ -379,46 +379,10 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
     }
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest.o(0.5),
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: TIcon(
-                icon: widget.emptyIcon ?? Icons.touch_app_outlined,
-                size: 28,
-                color: colors.onSurfaceVariant.o(0.8),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              widget.emptyTitle ?? 'No item selected',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: colors.onSurface,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              widget.emptyDescription ?? 'Select an item from the list to view its details',
-              style: TextStyle(
-                fontSize: 13,
-                color: colors.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+      child: TEmptyState(
+        icon: widget.emptyIcon ?? Icons.touch_app_outlined,
+        title: widget.emptyTitle ?? 'No item selected',
+        description: widget.emptyDescription ?? 'Select an item from the list to view its details',
       ),
     );
   }
