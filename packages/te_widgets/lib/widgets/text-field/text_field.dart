@@ -181,6 +181,71 @@ class TTextField<T extends String?> extends StatefulWidget
   /// Optional input formatters to apply.
   final List<TextInputFormatter>? inputFormatters;
 
+  /// The keyboard action button. Defaults to `next` (single line) / `newline`.
+  final TextInputAction? textInputAction;
+
+  /// Called when the user submits the field (keyboard action or the Enter key
+  /// sent by a hardware / keyboard-wedge barcode scanner).
+  final ValueChanged<String>? onSubmitted;
+
+  /// Selects the whole text when the field gains focus, so a new scan or
+  /// typed value replaces the old one.
+  final bool selectAllOnFocus;
+
+  /// Clears the field after [onSubmitted] fires (scan-and-go fields).
+  final bool clearOnSubmit;
+
+  /// Re-requests focus after [onSubmitted] so the next scan is captured
+  /// without the operator touching the screen.
+  final bool keepFocusOnSubmit;
+
+  /// Creates a scan-first input for handheld workflows.
+  ///
+  /// A hardware (keyboard-wedge) scanner types the barcode and sends Enter;
+  /// that fires [onScan] with the scanned text, clears the field and keeps
+  /// focus ready for the next scan. [onCameraTap] adds a camera scan button.
+  factory TTextField.scan({
+    Key? key,
+    String? label,
+    String? placeholder = 'Scan or type',
+    required ValueChanged<String> onScan,
+    VoidCallback? onCameraTap,
+    TInputSize? size,
+    bool autoFocus = true,
+    bool disabled = false,
+    String? helperText,
+    FocusNode? focusNode,
+    TextEditingController? textController,
+  }) {
+    return TTextField<T>(
+      key: key,
+      label: label,
+      placeholder: placeholder,
+      helperText: helperText,
+      size: size,
+      autoFocus: autoFocus,
+      disabled: disabled,
+      focusNode: focusNode,
+      textController: textController,
+      textInputAction: TextInputAction.done,
+      selectAllOnFocus: true,
+      clearOnSubmit: true,
+      keepFocusOnSubmit: true,
+      postWidget: onCameraTap == null
+          ? null
+          : IconButton(
+              tooltip: 'Scan with camera',
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              icon: const Icon(Icons.qr_code_scanner_rounded),
+              onPressed: disabled ? null : onCameraTap,
+            ),
+      onSubmitted: (text) {
+        final trimmed = text.trim();
+        if (trimmed.isNotEmpty) onScan(trimmed);
+      },
+    );
+  }
+
   /// Creates a text input field.
   const TTextField({
     super.key,
@@ -212,6 +277,11 @@ class TTextField<T extends String?> extends StatefulWidget
     this.labelPosition,
     this.keyboardType,
     this.inputFormatters,
+    this.textInputAction,
+    this.onSubmitted,
+    this.selectAllOnFocus = false,
+    this.clearOnSubmit = false,
+    this.keepFocusOnSubmit = false,
   })  : assert(
           theme == null ||
               (preWidget == null &&
@@ -274,13 +344,39 @@ class _TTextFieldState<T extends String?> extends State<TTextField<T>>
   }
 
   @override
+  void onFocusChanged(bool hasFocus) {
+    super.onFocusChanged(hasFocus);
+    if (hasFocus && widget.selectAllOnFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !focusNode.hasFocus) return;
+        textController.selection = TextSelection(baseOffset: 0, extentOffset: textController.text.length);
+      });
+    }
+  }
+
+  void _onSubmitted(String text) {
+    widget.onSubmitted?.call(text);
+    if (widget.clearOnSubmit) {
+      textController.clear();
+      _onValueChanged('');
+    }
+    if (widget.keepFocusOnSubmit) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) focusNode.requestFocus();
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return buildTextField(
       rows: widget.rows,
       onValueChanged: _onValueChanged,
       hasValue: textController.text.isNotEmpty,
       keyboardType: widget.keyboardType,
+      textInputAction: widget.textInputAction,
       inputFormatters: widget.inputFormatters,
+      onSubmitted: widget.onSubmitted == null && !widget.clearOnSubmit && !widget.keepFocusOnSubmit ? null : _onSubmitted,
       onClear: () {
         textController.clear();
         _onValueChanged('');

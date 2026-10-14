@@ -348,7 +348,7 @@ class _MainContent extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: isMobile
-                    ? const EdgeInsets.symmetric(vertical: 8, horizontal: 12)
+                    ? const EdgeInsets.symmetric(vertical: 4, horizontal: 6)
                     : const EdgeInsets.only(left: 20, right: 6, bottom: 6, top: 14),
                 child: child,
               ),

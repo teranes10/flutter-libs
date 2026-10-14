@@ -1,5 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:te_widgets/te_widgets.dart';
+
+/// Where a [TFilePicker] gets its files from.
+enum TFilePickerSource {
+  /// The system file / gallery browser (default).
+  files,
+
+  /// Opens the camera directly and returns the captured photo
+  /// (proof of delivery, damage evidence...).
+  camera,
+
+  /// Asks the user to choose between the camera and the file browser.
+  filesOrCamera,
+}
 
 /// A file picker input with preview and validation.
 ///
@@ -87,6 +101,30 @@ class TFilePicker extends StatefulWidget
   /// Whether to display selected files in gallery mode (100x100 TImage thumbnails with hover overlay).
   final bool isGalleryMode;
 
+  /// Where files come from. Defaults to [TFilePickerSource.files].
+  ///
+  /// With [TFilePickerSource.camera] / [TFilePickerSource.filesOrCamera] a
+  /// photo is captured with the device camera and downscaled to
+  /// [maxImageDimension] / [imageQuality] before it is added.
+  final TFilePickerSource source;
+
+  /// Longest side (px) a captured photo is downscaled to. Keeps proof photos
+  /// small on mobile networks. Defaults to 1600.
+  final double maxImageDimension;
+
+  /// JPEG quality (1-100) of captured photos. Defaults to 85.
+  final int imageQuality;
+
+  /// Test hook replacing the camera capture.
+  @visibleForTesting
+  static Future<XFile?> Function(double maxDimension, int quality)? debugCameraCapture;
+
+  /// Callback invoked when files are added, providing the list of added files.
+  final ValueChanged<List<TFile>>? onAdd;
+
+  /// Callback invoked when files are removed, providing the list of removed files.
+  final ValueChanged<List<TFile>>? onRemove;
+
   /// Creates a file picker.
   const TFilePicker({
     super.key,
@@ -111,6 +149,11 @@ class TFilePicker extends StatefulWidget
     this.allowedExtensions,
     this.fileType = TFileType.any,
     this.isGalleryMode = false,
+    this.source = TFilePickerSource.files,
+    this.maxImageDimension = 1600,
+    this.imageQuality = 85,
+    this.onAdd,
+    this.onRemove,
   });
 
   @override
@@ -132,6 +175,69 @@ class _TFilePickerState extends State<TFilePicker>
     setState(() {});
   }
 
+  Future<void> _onTap() async {
+    if (widget.disabled) return;
+
+    switch (widget.source) {
+      case TFilePickerSource.files:
+        await _pickFiles();
+      case TFilePickerSource.camera:
+        await _capturePhoto();
+      case TFilePickerSource.filesOrCamera:
+        final choice = await showModalBottomSheet<TFilePickerSource>(
+          context: context,
+          showDragHandle: true,
+          builder: (context) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  minTileHeight: 56,
+                  leading: const Icon(Icons.photo_camera_outlined),
+                  title: const Text('Take photo'),
+                  onTap: () => Navigator.pop(context, TFilePickerSource.camera),
+                ),
+                ListTile(
+                  minTileHeight: 56,
+                  leading: const Icon(Icons.folder_open_outlined),
+                  title: const Text('Choose file'),
+                  onTap: () => Navigator.pop(context, TFilePickerSource.files),
+                ),
+              ],
+            ),
+          ),
+        );
+        if (choice == TFilePickerSource.camera) {
+          await _capturePhoto();
+        } else if (choice == TFilePickerSource.files) {
+          await _pickFiles();
+        }
+    }
+  }
+
+  Future<void> _capturePhoto() async {
+    try {
+      final capture = TFilePicker.debugCameraCapture ??
+          (double maxDimension, int quality) => ImagePicker().pickImage(
+                source: ImageSource.camera,
+                maxWidth: maxDimension,
+                maxHeight: maxDimension,
+                imageQuality: quality,
+              );
+      final photo = await capture(widget.maxImageDimension, widget.imageQuality);
+      if (photo == null) return;
+
+      final bytes = await photo.readAsBytes();
+      _addFiles([TFile(name: photo.name.isEmpty ? 'photo_${DateTime.now().millisecondsSinceEpoch}.jpg' : photo.name, bytes: bytes)]);
+    } catch (e) {
+      debugPrint('Error capturing photo, falling back to file picker: $e');
+      if (mounted) {
+        TToastService.warning(context, 'No camera device found');
+      }
+      await _pickFiles();
+    }
+  }
+
   Future<void> _pickFiles() async {
     if (widget.disabled) return;
 
@@ -145,44 +251,69 @@ class _TFilePickerState extends State<TFilePicker>
 
       if (result == null) return;
 
-      for (final file in result.toFiles()) {
-        _addFile(file);
-      }
+      _addFiles(result.toFiles());
     } catch (e) {
       debugPrint('Error picking files: $e');
     }
   }
 
-  void _addFile(TFile file) {
-    if (currentValue?.any((f) => f == file) == true) return;
+  void _addFiles(List<TFile> files) {
+    if (files.isEmpty) return;
 
     if (widget.allowMultiple) {
-      final newValue = List<TFile>.from(currentValue ?? []);
-      newValue.add(file);
+      final current = currentValue ?? [];
+      final toAdd = files.where((file) => !current.any((f) => f == file)).toList();
+      if (toAdd.isEmpty) return;
 
+      final newValue = List<TFile>.from(current)..addAll(toAdd);
       setState(() => notifyValueChanged(newValue));
+      widget.onAdd?.call(toAdd);
     } else {
-      setState(() => notifyValueChanged([file]));
+      final file = files.first;
+      if (currentValue?.length == 1 && currentValue!.first == file) return;
+
+      final previous = currentValue ?? [];
+      final newValue = [file];
+      setState(() => notifyValueChanged(newValue));
+      if (previous.isNotEmpty && !previous.any((f) => f == file)) {
+        widget.onRemove?.call(List<TFile>.from(previous));
+      }
+      widget.onAdd?.call([file]);
     }
   }
 
-  void _removeFile(TFile file) {
-    final newValue = List<TFile>.from(currentValue ?? []);
-    newValue.removeWhere((f) => f == file);
+  void _removeFiles(List<TFile> files) {
+    if (files.isEmpty) return;
+    final current = currentValue ?? [];
+    final toRemove = files.where((file) => current.any((f) => f == file)).toList();
+    if (toRemove.isEmpty) return;
+
+    final newValue = List<TFile>.from(current);
+    newValue.removeWhere((f) => toRemove.any((removed) => removed == f));
 
     setState(() => notifyValueChanged(newValue));
+    widget.onRemove?.call(toRemove);
+  }
+
+  void _removeFile(TFile file) {
+    _removeFiles([file]);
   }
 
   @override
   Widget build(BuildContext context) {
     return buildContainer(
-      onTap: _pickFiles,
+      onTap: _onTap,
       expands: true,
       hasValue: hasValue,
       onClear: () {
-        setState(() => notifyValueChanged([]));
+        if (currentValue != null && currentValue!.isNotEmpty) {
+          _removeFiles(List<TFile>.from(currentValue!));
+        } else {
+          setState(() => notifyValueChanged([]));
+        }
       },
-      beforePreWidget: Icon(Icons.attach_file_rounded, size: 16, color: colors.onSurfaceVariant),
+      beforePreWidget: Icon(widget.source == TFilePickerSource.files ? Icons.attach_file_rounded : Icons.photo_camera_outlined,
+          size: 16, color: colors.onSurfaceVariant),
       child: Focus(
         focusNode: focusNode,
         autofocus: widget.autoFocus,

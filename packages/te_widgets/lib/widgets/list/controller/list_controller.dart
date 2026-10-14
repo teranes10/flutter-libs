@@ -116,7 +116,14 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   final TSelectionMode selectionMode;
 
   /// The expansion mode for hierarchical lists.
-  final TExpansionMode expansionMode;
+  TExpansionMode _expansionMode;
+  TExpansionMode get expansionMode => _expansionMode;
+  set expansionMode(TExpansionMode value) {
+    if (_expansionMode != value) {
+      _expansionMode = value;
+      notifyListeners();
+    }
+  }
 
   /// Whether items can be reordered.
   final bool reorderable;
@@ -214,7 +221,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     int? searchDelay,
     String search = '',
     this.selectionMode = TSelectionMode.none,
-    this.expansionMode = TExpansionMode.none,
+    TExpansionMode expansionMode = TExpansionMode.none,
     this.onLoad,
     ItemKeyAccessor<T, K>? itemKey,
     ItemToString<T>? itemToString,
@@ -230,7 +237,8 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     this.loadOnSearchOnly = false,
     List<TFilterDef<T>>? filterDefs,
     Map<String, dynamic>? additional,
-  })  : isServerSide = onLoad != null,
+  })  : _expansionMode = expansionMode,
+        isServerSide = onLoad != null,
         _filterDefs = filterDefs != null ? List<TFilterDef<T>>.from(filterDefs) : null,
         _debouncer = TDebouncer(milliseconds: searchDelay ?? (onLoad != null ? 2500 : 750)),
         itemToString = itemToString ?? _defaultItemToString,

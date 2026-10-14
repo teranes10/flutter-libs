@@ -18,6 +18,14 @@ class TBottomBarItem {
   // Optional items to show in popup
   final List<TDropdownItem>? items;
 
+  /// Optional badge on the icon: an `int` count, a `bool` dot, a `String`
+  /// label or a custom `Widget` (same semantics as [TButton.badge]).
+  final dynamic badge;
+
+  /// Renders the item as a raised, filled circular primary action (e.g. a
+  /// centre "Scan" button) instead of a regular tab.
+  final bool emphasized;
+
   /// Creates a bottom bar item.
   const TBottomBarItem({
     required this.icon,
@@ -25,5 +33,7 @@ class TBottomBarItem {
     required this.label,
     this.tooltip,
     this.items,
+    this.badge,
+    this.emphasized = false,
   });
 }

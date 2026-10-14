@@ -82,6 +82,10 @@ class TBadge extends StatelessWidget {
   final Alignment alignment;
 
   /// Optional fine-grained offset to adjust badge positioning.
+  ///
+  /// For left- or right-aligned badges, the horizontal offset acts as the anchor
+  /// point with the measured badge text width automatically appended so the badge
+  /// expands outward (away from the child) rather than covering the child.
   final Offset? offset;
 
   /// The background color of the badge.
@@ -334,20 +338,40 @@ class TBadge extends StatelessWidget {
     final isRight = alignment.x > 0;
     final isCenterX = alignment.x == 0;
 
-    final double? topVal = isTop ? (defaultOffsetVal + (offset?.dy ?? 0)) : (isCenterY ? (offset?.dy ?? 0) : null);
+    // Calculate badge text width and append to the horizontal offset so that
+    // both right-aligned and left-aligned badges expand outward (away from the child)
+    // as text grows instead of expanding inwards over the child.
+    final badgeText = _getBadgeText();
+    final double textWidth = badgeText != null ? _calculateTextWidth(context, badgeText) : 0.0;
 
-    final double? bottomVal = isBottom ? (defaultOffsetVal - (offset?.dy ?? 0)) : (isCenterY ? -(offset?.dy ?? 0) : null);
+    final effectiveOffset = Offset(
+      (offset?.dx ?? 0) + ((isRight || isLeft) ? textWidth : 0.0),
+      offset?.dy ?? 0,
+    );
 
-    final double? leftVal = isLeft ? (defaultOffsetVal + (offset?.dx ?? 0)) : (isCenterX ? (offset?.dx ?? 0) : null);
+    final double? topVal = isTop ? (defaultOffsetVal + effectiveOffset.dy) : (isCenterY ? effectiveOffset.dy : null);
 
-    final double? rightVal = isRight ? (defaultOffsetVal - (offset?.dx ?? 0)) : (isCenterX ? -(offset?.dx ?? 0) : null);
+    final double? bottomVal = isBottom ? (defaultOffsetVal - effectiveOffset.dy) : (isCenterY ? -effectiveOffset.dy : null);
+
+    final double? leftVal = isLeft ? (defaultOffsetVal - effectiveOffset.dx) : (isCenterX ? effectiveOffset.dx : null);
+
+    final double? rightVal = isRight ? (defaultOffsetVal - effectiveOffset.dx) : (isCenterX ? -effectiveOffset.dx : null);
 
     final positionedBadge = Positioned(
       top: topVal,
       bottom: bottomVal,
       left: leftVal,
       right: rightVal,
-      child: (isCenterX || isCenterY) ? Align(alignment: alignment, child: badgeContent) : badgeContent,
+      child: (isCenterX || isCenterY)
+          ? Align(
+              alignment: alignment,
+              child: IntrinsicWidth(
+                child: IntrinsicHeight(
+                  child: badgeContent,
+                ),
+              ),
+            )
+          : badgeContent,
     );
 
     return Stack(
@@ -358,6 +382,58 @@ class TBadge extends StatelessWidget {
         positionedBadge,
       ],
     );
+  }
+
+  String? _getBadgeText() {
+    if (hidden) return null;
+    if (dot) return null;
+    if (badgeWidget != null) return null;
+
+    if (badge != null) {
+      if (badge is bool) return null;
+      if (badge is Widget) return null;
+      if (badge is num) {
+        final countNum = (badge as num).toInt();
+        if (countNum == 0 && hideZero) return null;
+        return countNum > maxCount ? '$maxCount+' : countNum.toString();
+      }
+      if (badge is String) {
+        final text = badge as String;
+        return text.isEmpty ? null : text;
+      }
+    }
+
+    if (count != null) {
+      if (count == 0 && hideZero) return null;
+      return count! > maxCount ? '$maxCount+' : count.toString();
+    }
+
+    if (label != null && label!.isNotEmpty) {
+      return label;
+    }
+
+    return null;
+  }
+
+  double _calculateTextWidth(BuildContext context, String text) {
+    final effectiveFontSize = size?.font ?? (text.length > 3 ? 9.5 : 10.0);
+    final effectiveTextStyle = textStyle ??
+        TextStyle(
+          color: textColor ?? Colors.white,
+          fontSize: effectiveFontSize,
+          fontWeight: FontWeight.bold,
+          height: 1.1,
+        );
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(text: text, style: effectiveTextStyle),
+      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+    );
+    try {
+      textPainter.layout();
+      return textPainter.width;
+    } finally {
+      textPainter.dispose();
+    }
   }
 
   bool _isDot() {
@@ -490,22 +566,25 @@ class TBadge extends StatelessWidget {
     final effectiveMinW = size != null && size!.minW > 0 ? size!.minW : minSize;
     final effectiveMinH = size != null && size!.minH > 0 ? size!.minH : minSize;
 
-    return Container(
-      padding: effectivePadding,
-      constraints: BoxConstraints(
-        minWidth: effectiveMinW,
-        minHeight: effectiveMinH,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: shape == BoxShape.circle ? null : effectiveRadius,
-        shape: shape ?? BoxShape.rectangle,
-        border: border,
-      ),
-      child: Center(
-        child: Text(
-          text,
-          style: effectiveTextStyle,
+    return IntrinsicWidth(
+      child: IntrinsicHeight(
+        child: Container(
+          padding: effectivePadding,
+          constraints: BoxConstraints(
+            minWidth: effectiveMinW,
+            minHeight: effectiveMinH,
+          ),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: shape == BoxShape.circle ? null : effectiveRadius,
+            shape: shape ?? BoxShape.rectangle,
+            border: border,
+          ),
+          child: Text(
+            text,
+            style: effectiveTextStyle,
+          ),
         ),
       ),
     );

@@ -1090,6 +1090,8 @@ class TFormField<T> {
     List<String>? allowedExtensions,
     TFileType fileType = TFileType.any,
     bool isGalleryMode = false,
+    ValueChanged<List<TFile>>? onAdd,
+    ValueChanged<List<TFile>>? onRemove,
   }) {
     return TFormField<List<TFile>>(
       prop: prop,
@@ -1114,6 +1116,8 @@ class TFormField<T> {
         value: prop.value,
         valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,
+        onAdd: onAdd,
+        onRemove: onRemove,
       ),
     );
   }

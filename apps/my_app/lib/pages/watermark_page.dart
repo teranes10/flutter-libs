@@ -212,21 +212,24 @@ class _WatermarkPageState extends State<WatermarkPage> {
                       color: theme.cardColor,
                     ),
                     clipBehavior: Clip.antiAlias,
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Employee ID', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Department', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Salary (USD)', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold))),
-                      ],
-                      rows: [
-                        _buildRow('EMP-1049', 'Sarah Connor', 'Security Operations', '\$145,000', colors),
-                        _buildRow('EMP-2841', 'John Reese', 'Machine Intelligence', '\$162,000', colors),
-                        _buildRow('EMP-3920', 'Harold Finch', 'Systems Architecture', '\$210,000', colors),
-                        _buildRow('EMP-4481', 'Sameen Shaw', 'Field Operations', '\$138,000', colors),
-                        _buildRow('EMP-5923', 'Root Groves', 'Special Projects', '\$195,000', colors),
-                      ],
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Employee ID', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Department', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Salary (USD)', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold))),
+                        ],
+                        rows: [
+                          _buildRow('EMP-1049', 'Sarah Connor', 'Security Operations', '\$145,000', colors),
+                          _buildRow('EMP-2841', 'John Reese', 'Machine Intelligence', '\$162,000', colors),
+                          _buildRow('EMP-3920', 'Harold Finch', 'Systems Architecture', '\$210,000', colors),
+                          _buildRow('EMP-4481', 'Sameen Shaw', 'Field Operations', '\$138,000', colors),
+                          _buildRow('EMP-5923', 'Root Groves', 'Special Projects', '\$195,000', colors),
+                        ],
+                      ),
                     ),
                   ),
                 ),

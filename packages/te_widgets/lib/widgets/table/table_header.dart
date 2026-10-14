@@ -834,17 +834,19 @@ class TTableHeader<T, K> {
     this.text,
     String? Function(T) title, {
     String? Function(T)? subtitle,
+    String? Function(T)? desc,
     dynamic Function(T)? icon,
     dynamic Function(T)? leading,
     Color? Function(T)? iconColor,
     Color? Function(T)? iconBackgroundColor,
     TextStyle? titleStyle,
     TextStyle? subtitleStyle,
+    TextStyle? descStyle,
     double? iconSize,
     EdgeInsetsGeometry? iconPadding,
     BorderRadius? iconBorderRadius,
     double spacing = 10.0,
-    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+    CrossAxisAlignment? crossAxisAlignment,
     Widget Function(T)? trailing,
     this.flex,
     this.minWidth,
@@ -865,9 +867,11 @@ class TTableHeader<T, K> {
             ((data) {
               final t = title(data);
               final sub = subtitle?.call(data);
+              final d = desc?.call(data);
               final tWidth = t != null ? TTableTheme.measureTextWidth(t) : 0.0;
               final sWidth = sub != null ? TTableTheme.measureTextWidth(sub) * 0.85 : 0.0;
-              final textWidth = math.max(tWidth, sWidth);
+              final dWidth = d != null ? TTableTheme.measureTextWidth(d) * 0.8 : 0.0;
+              final textWidth = math.max(math.max(tWidth, sWidth), dWidth);
               final lead = leading?.call(data) ?? icon?.call(data);
               final hasIcon = lead != null;
               final iconWidth = hasIcon ? ((iconSize ?? (lead is Widget ? 80.0 : 20.0)) + 12.0 + spacing) : 0.0;
@@ -879,6 +883,7 @@ class TTableHeader<T, K> {
           final isDense = scope?.dense ?? false;
           final t = title(item.data);
           final sub = subtitle?.call(item.data);
+          final d = desc?.call(item.data);
           final lead = leading?.call(item.data) ?? icon?.call(item.data);
           final icColor = iconColor?.call(item.data);
           final icBgColor = iconBackgroundColor?.call(item.data);
@@ -892,10 +897,15 @@ class TTableHeader<T, K> {
             color: contentStyle.color?.adaptiveContrast(ctx, -0.5),
             sizeMultiplier: 0.85,
           );
+          final defaultDescStyle = contentStyle?.adjust(
+            color: contentStyle.color?.adaptiveContrast(ctx, -0.6),
+            sizeMultiplier: 0.8,
+          );
 
           return TTile(
             title: t,
             subtitle: sub,
+            desc: d,
             icon: lead,
             iconColor: icColor,
             iconBackgroundColor: icBgColor,
@@ -906,6 +916,7 @@ class TTableHeader<T, K> {
             crossAxisAlignment: crossAxisAlignment,
             titleStyle: titleStyle ?? defaultTitleStyle,
             subtitleStyle: subtitleStyle ?? defaultSubtitleStyle,
+            descStyle: descStyle ?? defaultDescStyle,
             trailing: tr,
           );
         });

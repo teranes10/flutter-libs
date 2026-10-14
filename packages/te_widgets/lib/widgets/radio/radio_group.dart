@@ -73,6 +73,10 @@ class TRadioGroup<T> extends StatefulWidget with TInputFieldMixin, TInputValueMi
   final double spacing;
   final double runSpacing;
 
+  /// Renders each option as a full-width, 56dp selectable [TOptionTile]
+  /// (always vertical). Use on touch / handheld screens.
+  final bool tile;
+
   /// Creates a radio group.
   const TRadioGroup({
     super.key,
@@ -98,6 +102,7 @@ class TRadioGroup<T> extends StatefulWidget with TInputFieldMixin, TInputValueMi
     this.autoFocus = false,
     this.spacing = 16,
     this.runSpacing = 8,
+    this.tile = false,
   });
 
   @override
@@ -275,6 +280,19 @@ class _TRadioGroupState<T> extends State<TRadioGroup<T>>
       final item = widget.items[i];
       final focusNode = _radioFocusNodes[i];
 
+      if (widget.tile) {
+        items.add(TOptionTile(
+          focusNode: focusNode,
+          label: item.label,
+          color: item.color ?? color,
+          disabled: widget.disabled,
+          indicator: TOptionIndicator.radio,
+          selected: currentValue == item.value,
+          onTap: () => _onItemChanged(item.value),
+        ));
+        continue;
+      }
+
       items.add(TRadio<T>(
         focusNode: focusNode,
         label: item.label,
@@ -286,9 +304,9 @@ class _TRadioGroupState<T> extends State<TRadioGroup<T>>
       ));
     }
 
-    return widget.vertical
+    return widget.vertical || widget.tile
         ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: widget.tile ? CrossAxisAlignment.stretch : CrossAxisAlignment.start,
             spacing: widget.runSpacing,
             children: items,
           )

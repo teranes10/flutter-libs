@@ -39,11 +39,13 @@ export 'formatters/decimal_input_formatter.dart';
 export 'formatters/integer_input_formatter.dart';
 export 'formatters/date_time_input_formatter.dart';
 export 'formatters/phone_number_input_formatter.dart';
+export 'formatters/number_range_input_formatter.dart';
 
 export 'helpers/t_formatter.dart';
 export 'helpers/color_helper.dart';
 export 'helpers/countries.dart';
 export 'helpers/debouncer.dart';
+export 'helpers/feedback.dart';
 export 'helpers/popup_position.dart';
 export 'helpers/search_filter.dart';
 export 'helpers/validations.dart';
@@ -154,6 +156,9 @@ export 'widgets/key-value-section/key_value_theme.dart';
 
 export 'widgets/aligned-row/aligned_row.dart';
 export 'widgets/page-wrapper/page_wrapper.dart';
+export 'widgets/action-bar/action_bar.dart';
+export 'widgets/input-container/option_tile.dart';
+export 'widgets/signature-pad/signature_pad.dart';
 export 'widgets/lazy-indexed-stack/lazy_indexed_stack.dart';
 
 export 'widgets/list/list_animation.dart';
@@ -297,4 +302,10 @@ export 'widgets/tour/tour.dart';
 export 'widgets/kanban/kanban.dart';
 export 'widgets/sparkline/sparkline.dart';
 export 'widgets/speed-dial/speed_dial.dart';
+
+export 'widgets/carousel/carousel.dart';
+export 'widgets/affix/affix.dart';
+export 'widgets/mentions/mentions_field.dart';
+export 'widgets/menubar/menubar.dart';
+export 'widgets/calendar/calendar_view.dart';
 

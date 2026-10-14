@@ -207,6 +207,21 @@ class TButton extends StatefulWidget {
   /// Defaults to null (no throttle).
   final Duration? throttleDuration;
 
+  /// An optional gradient for the button background.
+  ///
+  /// If not provided, a subtle lighting gradient is automatically generated
+  /// for filled buttons (solid and tonal) to provide tactile depth.
+  final Gradient? gradient;
+
+  /// The elevation of the button.
+  ///
+  /// Defaults to null, resolving to minimal elevation (resting 1.0, hover 2.0, pressed 0.5)
+  /// for solid buttons, 0.5 for tonal buttons, and 0.0 for outline/text buttons.
+  final double? elevation;
+
+  /// Custom shadow color for the button elevation.
+  final Color? shadowColor;
+
   /// Creates a customizable button widget.
   ///
   /// At least one of [onTap], [onPressed], or [onChanged] should be provided
@@ -244,6 +259,9 @@ class TButton extends StatefulWidget {
     this.onChanged,
     this.duration = const Duration(milliseconds: 400),
     this.throttleDuration,
+    this.gradient,
+    this.elevation,
+    this.shadowColor,
   })  : assert(
           theme == null || (baseTheme == null && type == null && size == null && shape == null && color == null),
           'If theme is provided, baseTheme, type, shape, color and size must be null.',
@@ -281,10 +299,16 @@ class TButton extends StatefulWidget {
     Alignment badgeAlignment = Alignment.topRight,
     Color? badgeColor,
     Color? badgeTextColor,
+    double? elevation,
+    Gradient? gradient,
+    Color? shadowColor,
   }) {
     return TButton(
       size: TButtonSize.zero,
       shape: TButtonShape.normal,
+      elevation: elevation ?? 0.0,
+      gradient: gradient,
+      shadowColor: shadowColor,
       onTap: onTap,
       tooltip: tooltip,
       badge: badge,
@@ -308,7 +332,10 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     vsync: this,
   );
 
-  late final Animation<double> _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(CurvedAnimation(
+  late final Animation<double> _scaleAnimation = Tween<double>(
+    begin: 1.0,
+    end: widget.theme?.scaleOnPress ?? 0.96,
+  ).animate(CurvedAnimation(
     parent: _pressController,
     curve: Curves.easeOutCubic,
     reverseCurve: Curves.easeInCubic,
@@ -388,6 +415,32 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     }
   }
 
+  Gradient? _resolveGradient({
+    required TWidgetTheme baseTheme,
+    required bool isFill,
+  }) {
+    if (widget.gradient != null) return widget.gradient;
+    if (widget.theme?.gradient != null) return widget.theme!.gradient;
+    if (!isFill) return null;
+
+    final baseColor = baseTheme.container;
+    if (baseColor.isTransparent) return null;
+
+    final isDark = baseTheme.isDarkMode;
+    final isTonal = baseTheme.type == TVariant.tonal;
+    final topAmount = isTonal ? (isDark ? 0.03 : 0.04) : (isDark ? 0.06 : 0.07);
+    final bottomAmount = isTonal ? (isDark ? 0.02 : 0.02) : (isDark ? 0.04 : 0.04);
+
+    return LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        baseColor.lighten(topAmount),
+        baseColor.darken(bottomAmount),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final defaultTheme = context.theme.buttonTheme;
@@ -397,7 +450,15 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     final text = widget.text;
     final baseTheme =
         widget.baseTheme ?? widget.theme?.baseTheme ?? defaultTheme.baseTheme.rebuild(color: activeColor, type: widget.type?.colorType);
-    final theme = widget.theme ?? defaultTheme.copyWith(size: size, shape: widget.shape, baseTheme: baseTheme);
+    final theme = widget.theme ??
+        defaultTheme.copyWith(
+          size: size,
+          shape: widget.shape,
+          baseTheme: baseTheme,
+          elevation: widget.elevation,
+          gradient: widget.gradient,
+          shadowColor: widget.shadowColor,
+        );
 
     assert(theme.shape != TButtonShape.circle || text.isNullOrBlank, 'Circle shape only supports icon, no text.');
 
@@ -467,92 +528,178 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       if (widget.child != null) widget.child!,
     ];
 
-    final buttonContent = AnimatedContainer(
-      duration: widget.duration,
-      curve: Curves.easeInOut,
-      padding: widget.showTick ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2) : EdgeInsets.zero,
-      child: theme.shape.vertical
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: size.spacing,
-              children: contentChildren,
-            )
-          : Row(
-              mainAxisSize: size.minW.isInfinite ? MainAxisSize.max : MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: size.spacing,
-              children: contentChildren,
-            ),
-    );
+    Widget buildButton() {
+      final isExpandedOrBlock = size.minW.isInfinite;
 
-    Widget resultButton = ScaleTransition(
-      scale: _scaleAnimation,
-      child: ElevatedButton(
-        statesController: _statesController,
-        onPressed: (widget.onPressed == null && widget.onTap == null && widget.onChanged == null) ? null : _handlePress,
-        style: theme.buttonStyle,
-        child: buttonContent,
-      ),
-    );
-
-    if (widget.tooltip != null) {
-      resultButton = TTooltip(
-        triggerMode: TTooltipTriggerMode.hover,
-        message: widget.tooltip!,
-        color: theme.baseTheme.color,
-        child: resultButton,
-      );
-    }
-
-    final showTick = widget.showTick && _isActive;
-
-    if (showTick) {
-      final isTop = widget.tickAlignment.y < 0;
-      final isBottom = widget.tickAlignment.y > 0;
-      final isLeft = widget.tickAlignment.x < 0;
-      final isRight = widget.tickAlignment.x > 0;
-
-      final tickColor = widget.activeColor ?? widget.color ?? context.colors.primary;
-      final offset = theme.shape.vertical ? 5.0 : 4.0;
-
-      final tickPositioned = Positioned(
-        top: isTop ? offset : null,
-        bottom: isBottom ? offset : null,
-        left: isLeft ? offset : null,
-        right: isRight ? offset : null,
-        child: widget.tickWidget ??
-            Container(
-              padding: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: tickColor,
+      final buttonContent = AnimatedContainer(
+        duration: widget.duration,
+        curve: Curves.easeInOut,
+        padding: widget.showTick ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2) : EdgeInsets.zero,
+        child: theme.shape.vertical
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: size.spacing,
+                children: contentChildren,
+              )
+            : Row(
+                mainAxisSize: isExpandedOrBlock ? MainAxisSize.max : MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: size.spacing,
+                children: contentChildren,
               ),
-              child: const Icon(Icons.check, size: 9, color: Colors.white),
-            ),
       );
 
-      resultButton = Stack(
-        fit: StackFit.passthrough,
-        clipBehavior: Clip.none,
-        children: [
-          resultButton,
-          tickPositioned,
-        ],
+      final isCustomChildOnly = widget.child != null &&
+          widget.text == null &&
+          widget.icon == null &&
+          widget.imageUrl == null &&
+          size == TButtonSize.zero;
+
+      final isFill = baseTheme.type == TVariant.solid ||
+          (!baseTheme.container.isTransparent &&
+              baseTheme.type != TVariant.outline &&
+              baseTheme.type != TVariant.text);
+
+      final isDisabled = widget.onPressed == null && widget.onTap == null && widget.onChanged == null;
+      final states = _statesController.value;
+      final effectiveElevation = widget.elevation ??
+          theme.elevation ??
+          (isFill ? (baseTheme.type == TVariant.solid ? 1.0 : 0.5) : 0.0);
+
+      final effectiveShadowColor = (widget.shadowColor ??
+              theme.shadowColor ??
+              baseTheme.shadow ??
+              baseTheme.color.shade(900))
+          .withValues(alpha: 0.18);
+
+      final OutlinedBorder effectiveBorder =
+          theme.buttonStyle.shape?.resolve(states) ?? theme.shape.border;
+
+      final resolvedPadding = switch (theme.shape) {
+        TButtonShape.tile => size.tilePaddingState.resolve(states),
+        _ => size.paddingState.resolve(states),
+      };
+
+      final effectiveGradient = (isCustomChildOnly || isDisabled)
+          ? widget.gradient
+          : _resolveGradient(
+              baseTheme: baseTheme,
+              isFill: isFill,
+            );
+
+      final effectiveButtonStyle = theme.buttonStyle.copyWith(
+        padding: WidgetStateProperty.all(EdgeInsets.zero),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        backgroundColor: WidgetStateProperty.resolveWith((s) {
+          if (effectiveGradient != null && !s.contains(WidgetState.disabled)) {
+            return Colors.transparent;
+          }
+          return baseTheme.backgroundState.resolve(s);
+        }),
+        elevation: WidgetStateProperty.resolveWith((s) {
+          if (s.contains(WidgetState.disabled)) return 0.0;
+          if (!isFill && widget.elevation == null && theme.elevation == null) return 0.0;
+          if (s.contains(WidgetState.pressed)) return (effectiveElevation * 0.5).clamp(0.0, 1.0);
+          if (s.contains(WidgetState.hovered)) return effectiveElevation + 1.0;
+          return effectiveElevation;
+        }),
+        shadowColor: WidgetStateProperty.resolveWith((s) {
+          if (!isFill && widget.shadowColor == null && theme.shadowColor == null) return Colors.transparent;
+          return effectiveShadowColor;
+        }),
       );
+
+      final decorationBorder = effectiveBorder.copyWith(side: BorderSide.none);
+
+      final Widget innerWidget = isCustomChildOnly
+          ? buttonContent
+          : Ink(
+              decoration: effectiveGradient != null && !isDisabled
+                  ? ShapeDecoration(
+                      shape: decorationBorder,
+                      gradient: effectiveGradient,
+                    )
+                  : null,
+              child: Container(
+                width: isExpandedOrBlock ? double.infinity : null,
+                alignment: isExpandedOrBlock ? Alignment.center : null,
+                constraints: BoxConstraints(minWidth: size.minW, minHeight: size.minH),
+                padding: resolvedPadding,
+                child: buttonContent,
+              ),
+            );
+
+      Widget resultButton = ScaleTransition(
+        scale: _scaleAnimation,
+        child: ElevatedButton(
+          statesController: _statesController,
+          onPressed: isDisabled ? null : _handlePress,
+          style: effectiveButtonStyle,
+          child: innerWidget,
+        ),
+      );
+
+      if (widget.tooltip != null) {
+        resultButton = TTooltip(
+          triggerMode: TTooltipTriggerMode.hover,
+          message: widget.tooltip!,
+          color: theme.baseTheme.color,
+          child: resultButton,
+        );
+      }
+
+      final showTick = widget.showTick && _isActive;
+
+      if (showTick) {
+        final isTop = widget.tickAlignment.y < 0;
+        final isBottom = widget.tickAlignment.y > 0;
+        final isLeft = widget.tickAlignment.x < 0;
+        final isRight = widget.tickAlignment.x > 0;
+
+        final tickColor = widget.activeColor ?? widget.color ?? context.colors.primary;
+        final offset = theme.shape.vertical ? 5.0 : 4.0;
+
+        final tickPositioned = Positioned(
+          top: isTop ? offset : null,
+          bottom: isBottom ? offset : null,
+          left: isLeft ? offset : null,
+          right: isRight ? offset : null,
+          child: widget.tickWidget ??
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: tickColor,
+                ),
+                child: const Icon(Icons.check, size: 9, color: Colors.white),
+              ),
+        );
+
+        resultButton = Stack(
+          fit: StackFit.passthrough,
+          clipBehavior: Clip.none,
+          children: [
+            resultButton,
+            tickPositioned,
+          ],
+        );
+      }
+
+      if (widget.badge != null) {
+        resultButton = TBadge(
+          badge: widget.badge,
+          size: widget.badgeSize,
+          alignment: widget.badgeAlignment,
+          color: widget.badgeColor,
+          textColor: widget.badgeTextColor,
+          child: resultButton,
+        );
+      }
+
+      return resultButton;
     }
 
-    if (widget.badge != null) {
-      resultButton = TBadge(
-        badge: widget.badge,
-        size: widget.badgeSize,
-        alignment: widget.badgeAlignment,
-        color: widget.badgeColor,
-        textColor: widget.badgeTextColor,
-        child: resultButton,
-      );
-    }
-
-    return resultButton;
+    return buildButton();
   }
 }

@@ -215,5 +215,132 @@ void main() {
       expect(find.text('Notifications'), findsOneWidget);
       expect(find.text('10'), findsOneWidget);
     });
+
+    testWidgets('appends badge text width to offset acting as start point rather than center point', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: Row(
+              children: const [
+                TBadge(
+                  key: Key('badge_single'),
+                  count: 1,
+                  child: SizedBox(width: 24, height: 24),
+                ),
+                TBadge(
+                  key: Key('badge_long'),
+                  count: 999,
+                  child: SizedBox(width: 24, height: 24),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final singleBadgeRect = tester.getRect(find.text('1'));
+      final longBadgeRect = tester.getRect(find.text('99+'));
+
+      // As text grows longer (from 1 to 99+), the badge text width expands to the right
+      expect(longBadgeRect.width, greaterThan(singleBadgeRect.width));
+      // And the right boundary is pushed further to the right
+      expect(longBadgeRect.right, greaterThan(singleBadgeRect.right));
+    });
+
+    testWidgets('topLeft, centerLeft, and bottomLeft badges expand outward to the left away from the child', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: Row(
+              children: const [
+                TBadge(
+                  key: Key('badge_left_single'),
+                  alignment: Alignment.topLeft,
+                  count: 1,
+                  child: SizedBox(width: 50, height: 50),
+                ),
+                SizedBox(width: 50),
+                TBadge(
+                  key: Key('badge_left_long'),
+                  alignment: Alignment.topLeft,
+                  count: 999,
+                  child: SizedBox(width: 50, height: 50),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final singleBadgeRect = tester.getRect(find.text('1'));
+      final longBadgeRect = tester.getRect(find.text('99+'));
+
+      // Both badges are rendered
+      expect(singleBadgeRect, isNotNull);
+      expect(longBadgeRect, isNotNull);
+
+      // The longer badge should be wider
+      expect(longBadgeRect.width, greaterThan(singleBadgeRect.width));
+    });
+
+    testWidgets('topCenter, bottomCenter, centerLeft, centerRight, and center do not stretch to full element size', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: Center(
+              child: Column(
+                children: const [
+                  TBadge(
+                    alignment: Alignment.topCenter,
+                    badge: 'HOT',
+                    child: SizedBox(width: 80, height: 80),
+                  ),
+                  TBadge(
+                    alignment: Alignment.bottomCenter,
+                    badge: 'SALE',
+                    child: SizedBox(width: 80, height: 80),
+                  ),
+                  TBadge(
+                    alignment: Alignment.centerLeft,
+                    badge: 'NEW',
+                    child: SizedBox(width: 80, height: 80),
+                  ),
+                  TBadge(
+                    alignment: Alignment.centerRight,
+                    badge: '12',
+                    child: SizedBox(width: 80, height: 80),
+                  ),
+                  TBadge(
+                    alignment: Alignment.center,
+                    badge: 'VIP',
+                    child: SizedBox(width: 80, height: 80),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final hotRect = tester.getRect(find.text('HOT'));
+      final saleRect = tester.getRect(find.text('SALE'));
+      final newRect = tester.getRect(find.text('NEW'));
+      final twelveRect = tester.getRect(find.text('12'));
+      final vipRect = tester.getRect(find.text('VIP'));
+
+      // None of the badges should stretch to 80px width or height
+      expect(hotRect.width, lessThan(60));
+      expect(saleRect.width, lessThan(60));
+      expect(newRect.height, lessThan(40));
+      expect(twelveRect.height, lessThan(40));
+      expect(vipRect.width, lessThan(60));
+      expect(vipRect.height, lessThan(40));
+    });
   });
 }

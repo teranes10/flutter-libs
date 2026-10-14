@@ -46,6 +46,7 @@ class TabRenderer<T> {
             color: color,
             isSelected: isSelected,
             defaultIndicatorColor: defaultIndicatorColor,
+            colors: colors,
           )
         : _buildVerticalTabContent(
             tab: tab,
@@ -63,7 +64,9 @@ class TabRenderer<T> {
         child: InkWell(
           onTap: onTab,
           child: Container(
-              alignment: axis == Axis.vertical ? Alignment.center : null,
+              // Touch-friendly: horizontal tabs are at least 48dp tall on mobile.
+              constraints: BoxConstraints(minHeight: axis == Axis.horizontal && isMobile ? 48 : 0),
+              alignment: axis == Axis.vertical || isMobile ? Alignment.center : null,
               padding: tabPadding ??
                   (axis == Axis.horizontal
                       ? const EdgeInsets.symmetric(vertical: 6, horizontal: 8)
@@ -80,6 +83,7 @@ class TabRenderer<T> {
     required Color color,
     required bool isSelected,
     required Color defaultIndicatorColor,
+    required ColorScheme colors,
   }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -96,6 +100,23 @@ class TabRenderer<T> {
               color: color,
               fontSize: 13,
               fontWeight: isSelected ? FontWeight.w400 : FontWeight.w300,
+            ),
+          ),
+        if (tab.count != null)
+          Container(
+            margin: const EdgeInsets.only(left: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 1),
+            decoration: BoxDecoration(
+              color: isSelected ? colors.primary : colors.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '${tab.count}',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? colors.onPrimary : colors.onSurfaceVariant,
+              ),
             ),
           ),
         if (tab.isActive)

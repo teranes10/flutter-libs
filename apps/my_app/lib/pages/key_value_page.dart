@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/widgets/widget_doc_card.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class KeyValuePage extends StatelessWidget {
@@ -10,11 +11,23 @@ class KeyValuePage extends StatelessWidget {
       TKeyValue.text('Order ID', 'ORD-2024-8910', icon: const Icon(Icons.receipt_long, size: 14)),
       TKeyValue.text('Customer Name', 'Jane Doe'),
       TKeyValue.text('Contact Email', 'jane.doe@example.com'),
-
+      TKeyValue.chip('Status', 'Shipped', color: Colors.green),
       TKeyValue.text('Total Amount', '\$1,450.00'),
       TKeyValue.datetime('Order Placed', DateTime.now().toIso8601String()),
       TKeyValue.text('Payment Terms', 'Net 30 Days'),
       TKeyValue.text('Shipping Method', 'Express Priority (Next Day Air)'),
+    ];
+
+    final specializedValues = [
+      TKeyValue.text('Product Name', 'Pro Wireless Headphones', icon: const Icon(Icons.headphones_rounded, size: 14)),
+      TKeyValue.image('Thumbnail', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100', size: 36, borderRadius: BorderRadius.circular(6)),
+      TKeyValue.chip('Stock Status', 'In Stock', color: Colors.green),
+      TKeyValue.chips('Tags', ['Wireless', 'Noise-Cancelling', 'USB-C'], color: Colors.blue),
+      TKeyValue.rating('User Rating', 4.5),
+      TKeyValue.progress('Target Sales', 0.78, color: Colors.indigo),
+      TKeyValue.toggle('Active Listing', true),
+      TKeyValue.color('Primary Accent', '#6366F1'),
+      TKeyValue.datetime('Created At', DateTime.now().toIso8601String()),
     ];
 
     Widget buildCard({required String title, required String subtitle, required Widget child}) {
@@ -47,6 +60,45 @@ class KeyValuePage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // 0. Specialized Value Factories
+          WidgetDocCard(
+            title: 'Specialized Value Factories (TKeyValue.*)',
+            description:
+                'Mirroring TTableHeader, TKeyValue provides dedicated factory constructors for datetime, image, chip, chips, rating, progress, toggle, and color without manual widget boilerplate.',
+            icon: Icons.auto_awesome_rounded,
+            preview: TKeyValueSection.columnsInline(
+              values: specializedValues,
+              columns: 2,
+              hSpacing: 24,
+              vSpacing: 14,
+            ),
+            code: '''final values = [
+  TKeyValue.text('Product Name', 'Pro Wireless Headphones', icon: const Icon(Icons.headphones_rounded, size: 14)),
+  TKeyValue.image('Thumbnail', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100', size: 36, borderRadius: BorderRadius.circular(6)),
+  TKeyValue.chip('Stock Status', 'In Stock', color: Colors.green),
+  TKeyValue.chips('Tags', ['Wireless', 'Noise-Cancelling', 'USB-C'], color: Colors.blue),
+  TKeyValue.rating('User Rating', 4.5),
+  TKeyValue.progress('Target Sales', 0.78, color: Colors.indigo),
+  TKeyValue.toggle('Active Listing', true),
+  TKeyValue.color('Primary Accent', '#6366F1'),
+  TKeyValue.datetime('Created At', DateTime.now().toIso8601String()),
+];
+
+TKeyValueSection.columnsInline(values: values, columns: 2);''',
+            properties: const [
+              PropertyDoc(name: 'TKeyValue.text', type: 'factory', description: 'Displays simple or icon-adorned text.'),
+              PropertyDoc(name: 'TKeyValue.datetime', type: 'factory', description: 'Formats UTC/ISO dates with TDateTimeText.'),
+              PropertyDoc(name: 'TKeyValue.image', type: 'factory', description: 'Renders remote or memory images with TImage.'),
+              PropertyDoc(name: 'TKeyValue.chip', type: 'factory', description: 'Displays a single status chip with TChip.'),
+              PropertyDoc(name: 'TKeyValue.chips', type: 'factory', description: 'Displays multiple chips wrapped with custom colors/icons.'),
+              PropertyDoc(name: 'TKeyValue.rating', type: 'factory', description: 'Renders star ratings using TRating.'),
+              PropertyDoc(name: 'TKeyValue.progress', type: 'factory', description: 'Renders progress bars using TProgressBar.'),
+              PropertyDoc(name: 'TKeyValue.toggle', type: 'factory', description: 'Interactive or read-only switch using TSwitch.'),
+              PropertyDoc(name: 'TKeyValue.color', type: 'factory', description: 'Displays color swatch circle and hex code.'),
+            ],
+          ),
+          const SizedBox(height: 28),
+
           // 1. Flow Inline (Dynamic Wrap)
           buildCard(
             title: '1. Inline Flow (Dynamic Wrap)',

@@ -1,3 +1,24 @@
+## 3.7.0
+
+- **New Widgets**:
+  - Added `TCarousel`, `TMentionsField`, `TMenubar`, `TCalendarView`, `TAffix`.
+  - Added mobile/field widgets: `TActionBar`, `TOptionTile`, `TSignaturePad` (with `TSignaturePadController`).
+  - Added `TTile.task` task-row variant and `TBanner.offline` connectivity/sync-status banner.
+- **Inputs & Forms**:
+  - Added `TNumberField` quantity variant (`TNumberFieldVariant`) with step buttons.
+  - Added `TTextField.scan` for scan-first entry.
+  - Added `TNumberRangeInputFormatter`.
+  - Radio, checkbox and switch groups support a tile mode for large touch targets.
+  - `TFilePicker` updated; added `image_picker` dependency.
+- **Buttons**:
+  - Added `gradient`, `elevation` and `shadowColor` to `TButton`, `TButtonConfig` and `TButtonTheme`. Filled buttons get a subtle default lighting gradient and minimal elevation.
+- **Feedback**:
+  - Added `TFeedback` helper for central haptic and sound feedback (`selection`, `step`, `success`, `warning`, `error`).
+- **Sizing & Layout**:
+  - Added `TSize.xl` and `TTile` `h7`/`sm`/`md`/`lg` sizes; `TTile`, `TKeyValue`, `TCard`, tabs, accordion, bottom bar, alert, badge, chip and result refinements.
+  - Layout, page wrapper and width helper updates for mobile layouts.
+  - Table header, row card and mobile card adjustments.
+
 ## 3.6.0
 
  - **FEAT**(te_widgets): add gap analysis widgets suite (Phases 1-6) and showcase pages.

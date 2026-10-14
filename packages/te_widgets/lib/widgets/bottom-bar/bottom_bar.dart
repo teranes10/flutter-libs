@@ -75,6 +75,9 @@ class TBottomBar extends StatelessWidget {
   final double iconSize;
   final EdgeInsets itemPadding;
 
+  /// Plays a light selection haptic when an item is tapped. Defaults to true.
+  final bool haptic;
+
   /// Creates a bottom bar.
   const TBottomBar({
     super.key,
@@ -92,6 +95,7 @@ class TBottomBar extends StatelessWidget {
     this.textStyle,
     this.iconSize = 24,
     this.itemPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    this.haptic = true,
   });
 
   @override
@@ -130,7 +134,10 @@ class TBottomBar extends StatelessWidget {
               textPosition: textPosition,
               color: color,
               borderRadius: mBorderRadius,
-              onTap: () => onTap?.call(index),
+              onTap: () {
+                if (haptic) TFeedback.selection();
+                onTap?.call(index);
+              },
               textStyle: textStyle,
               iconSize: iconSize,
               padding: itemPadding,
@@ -186,7 +193,10 @@ class _BottomBarItemWidget extends StatelessWidget {
           fontWeight: isActive ? FontWeight.w400 : FontWeight.w300,
           fontSize: 11,
         );
-    final iconWidget = TIcon.raw(icon, color: contentColor, size: iconSize);
+    final rawIcon = TIcon.raw(icon, color: contentColor, size: iconSize);
+    final iconWidget = item.badge == null ? rawIcon : TBadge(badge: item.badge, child: rawIcon);
+
+    if (item.emphasized) return _buildEmphasized(context, mColor, mTextStyle);
 
     Widget content;
 
@@ -238,6 +248,7 @@ class _BottomBarItemWidget extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(borderRadius),
       child: AnimatedContainer(
+        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
         duration: const Duration(milliseconds: 200),
         padding: padding,
         decoration: BoxDecoration(
@@ -246,6 +257,43 @@ class _BottomBarItemWidget extends StatelessWidget {
           border: isActive && wTheme.outline != null ? Border.all(color: wTheme.outline!) : null,
         ),
         child: content,
+      ),
+    );
+  }
+
+  /// A raised circular primary action (e.g. the centre "Scan" button).
+  Widget _buildEmphasized(BuildContext context, Color mColor, TextStyle labelStyle) {
+    final colors = context.colors;
+    final icon = isActive ? (item.activeIcon ?? item.icon) : item.icon;
+
+    return Semantics(
+      button: true,
+      label: item.label,
+      child: InkResponse(
+        onTap: onTap,
+        radius: 36,
+        child: Transform.translate(
+          offset: const Offset(0, -10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: mColor,
+                  boxShadow: [
+                    BoxShadow(color: mColor.withValues(alpha: 0.35), blurRadius: 12, offset: const Offset(0, 4)),
+                  ],
+                ),
+                child: TIcon.raw(icon, color: colors.onPrimary, size: iconSize + 2),
+              ),
+              const SizedBox(height: 2),
+              Text(item.label, style: labelStyle.copyWith(color: mColor), maxLines: 1, overflow: TextOverflow.ellipsis),
+            ],
+          ),
+        ),
       ),
     );
   }

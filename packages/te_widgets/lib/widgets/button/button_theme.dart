@@ -73,13 +73,19 @@ class TButtonTheme {
   final TButtonShape shape;
   final ButtonStyle buttonStyle;
   final double? scaleOnPress;
+  final Gradient? gradient;
+  final double? elevation;
+  final Color? shadowColor;
 
   const TButtonTheme({
     required this.baseTheme,
     required this.size,
     required this.shape,
     required this.buttonStyle,
-    this.scaleOnPress = 0.95,
+    this.scaleOnPress = 0.96,
+    this.gradient,
+    this.elevation,
+    this.shadowColor,
   });
 
   TButtonTheme copyWith({
@@ -88,17 +94,32 @@ class TButtonTheme {
     TButtonShape? shape,
     ButtonStyle? buttonStyle,
     double? scaleOnPress,
+    Gradient? gradient,
+    double? elevation,
+    Color? shadowColor,
   }) {
     final effectiveBaseTheme = baseTheme ?? this.baseTheme;
     final effectiveSize = size ?? this.size;
     final effectiveShape = shape ?? this.shape;
+    final effectiveElevation = elevation ?? this.elevation;
+    final effectiveShadowColor = shadowColor ?? this.shadowColor;
 
     return TButtonTheme(
       baseTheme: effectiveBaseTheme,
       size: effectiveSize,
       shape: effectiveShape,
-      buttonStyle: buttonStyle ?? buildButtonStyle(effectiveBaseTheme, effectiveShape, effectiveSize),
+      buttonStyle: buttonStyle ??
+          buildButtonStyle(
+            effectiveBaseTheme,
+            effectiveShape,
+            effectiveSize,
+            elevation: effectiveElevation,
+            shadowColor: effectiveShadowColor,
+          ),
       scaleOnPress: scaleOnPress ?? this.scaleOnPress,
+      gradient: gradient ?? this.gradient,
+      elevation: effectiveElevation,
+      shadowColor: effectiveShadowColor,
     );
   }
 
@@ -107,6 +128,9 @@ class TButtonTheme {
     TVariant type = TVariant.solid,
     TButtonShape shape = TButtonShape.normal,
     TSize size = TSize.md,
+    Gradient? gradient,
+    double? elevation,
+    Color? shadowColor,
   }) {
     final baseTheme = TWidgetTheme.from(colors.isDarkMode, colors.primary, type);
 
@@ -114,15 +138,38 @@ class TButtonTheme {
       baseTheme: baseTheme,
       shape: shape,
       size: size,
-      buttonStyle: buildButtonStyle(baseTheme, shape, size),
+      buttonStyle: buildButtonStyle(
+        baseTheme,
+        shape,
+        size,
+        elevation: elevation,
+        shadowColor: shadowColor,
+      ),
+      gradient: gradient,
+      elevation: elevation,
+      shadowColor: shadowColor,
     );
   }
 
-  static ButtonStyle buildButtonStyle(TWidgetTheme baseTheme, TButtonShape shape, TSize size) {
+  static ButtonStyle buildButtonStyle(
+    TWidgetTheme baseTheme,
+    TButtonShape shape,
+    TSize size, {
+    double? elevation,
+    Color? shadowColor,
+  }) {
     final padding = switch (shape) {
       TButtonShape.tile => size.tilePaddingState,
       _ => size.paddingState,
     };
+
+    final isFill = baseTheme.type == TVariant.solid ||
+        (!baseTheme.container.isTransparent &&
+            baseTheme.type != TVariant.outline &&
+            baseTheme.type != TVariant.text);
+
+    final defaultElevation = isFill ? (baseTheme.type == TVariant.solid ? 1.0 : 0.5) : 0.0;
+    final effectiveElevation = elevation ?? defaultElevation;
 
     return ButtonStyle(
       backgroundColor: baseTheme.backgroundState,
@@ -132,8 +179,28 @@ class TButtonTheme {
       padding: padding,
       minimumSize: size.minimumSizeState,
       visualDensity: VisualDensity.standard,
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      elevation: WidgetStateProperty.all(0.0),
+      overlayColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) return Colors.transparent;
+        if (states.contains(WidgetState.pressed)) {
+          return Colors.black.withValues(alpha: baseTheme.isDarkMode ? 0.10 : 0.06);
+        }
+        if (states.contains(WidgetState.hovered)) {
+          return Colors.white.withValues(alpha: baseTheme.isDarkMode ? 0.08 : 0.10);
+        }
+        return Colors.transparent;
+      }),
+      elevation: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) return 0.0;
+        if (!isFill && elevation == null) return 0.0;
+        if (states.contains(WidgetState.pressed)) return (effectiveElevation * 0.5).clamp(0.0, 1.0);
+        if (states.contains(WidgetState.hovered)) return effectiveElevation + 1.0;
+        return effectiveElevation;
+      }),
+      shadowColor: WidgetStateProperty.resolveWith((states) {
+        if (!isFill && shadowColor == null) return Colors.transparent;
+        final shadow = shadowColor ?? baseTheme.shadow ?? baseTheme.color.shade(900);
+        return shadow.withValues(alpha: 0.18);
+      }),
       textStyle: WidgetStateProperty.all(TextStyle(fontSize: size.font, fontWeight: baseTheme.type.fontWeight, letterSpacing: 0.65)),
       shape: WidgetStateProperty.all(shape.border),
     );

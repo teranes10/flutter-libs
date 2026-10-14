@@ -20,6 +20,8 @@ class _MetricTilePageState extends State<MetricTilePage> {
 
   // Selected tile for TTile active state demo
   int _selectedTileIndex = 0;
+  int _selectedTaskIndex = 0;
+  TKeyValueMode _selectedValuesMode = TKeyValueMode.inlineFlow;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +51,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
               TChip.tonal(text: 'TMetricGrid', icon: Icons.grid_view_rounded, color: theme.primary),
               TChip.tonal(text: 'TMetricTile', icon: Icons.speed_rounded, color: theme.info),
               TChip.tonal(text: 'TTile', icon: Icons.splitscreen_rounded, color: theme.success),
+              TChip.tonal(text: 'TTile.task', icon: Icons.task_alt_rounded, color: theme.warning),
             ],
           ),
           const SizedBox(height: 32),
@@ -931,6 +934,632 @@ TTile(
             ],
           ),
 
+          const SizedBox(height: 24),
+
+          // 4.4 Product Image Sizing Scale & Smart Descriptions
+          WidgetDocCard(
+            title: 'Product Tiles & Smart Descriptions (TTile.sm, md, lg & desc)',
+            description:
+                'Product-focused image scale (sm: 50px, md: 75px, lg: 100px) with start alignment. Smart desc positioning automatically places description beside the image below subtitle if it fits within image height, or spans below the image across full width if it exceeds image height.',
+            icon: Icons.inventory_2_outlined,
+            preview: Column(
+              children: [
+                _buildTileContainer(
+                  context,
+                  child: TTile.sm(
+                    leading: TImage(
+                      url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100',
+                      width: 50,
+                      height: 50,
+                      border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    title: 'Nike Air Max (sm • 50px image • 14px font)',
+                    subtitle: 'SKU: NK-AIR-90 • In Stock (120 units)',
+                    desc: 'Short note fits beside the 50px image below subtitle.',
+                    trailing: const TChip(text: '\$129.99', color: Colors.blue),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildTileContainer(
+                  context,
+                  child: TTile.md(
+                    leading: TImage(
+                      url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150',
+                      width: 75,
+                      height: 75,
+                      border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    title: 'Minimalist Chrono Watch (md • 75px image • 16px font)',
+                    subtitle: 'SKU: WT-CHR-01 • Genuine Leather Strap',
+                    desc:
+                        'Detailed multi-line specification that exceeds image height automatically flows below the image across the full tile width.',
+                    trailing: const TBadge(label: '\$249.00', color: Colors.teal),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildTileContainer(
+                  context,
+                  child: TTile.lg(
+                    leading: TImage(
+                      url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200',
+                      width: 100,
+                      height: 100,
+                      border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    title: 'Wireless Studio Headphones (lg • 100px image • 18px font)',
+                    subtitle: 'SKU: HP-ST-PRO • Active Noise Cancellation',
+                    desc:
+                        'Full specifications: 40mm neodymium drivers, 30-hour battery life, fast charging via USB-C, memory foam cushions.',
+                    trailing: const TBadge(label: '\$349.50', color: Colors.purple),
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                ),
+              ],
+            ),
+            code: '''// Small product tile (50px image, 14px title font, start-aligned)
+TTile.sm(
+  leading: TImage(
+    url: 'https://.../shoe.jpg',
+    width: 50,
+    height: 50,
+    border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+  ),
+  title: 'Nike Air Max',
+  subtitle: 'SKU: NK-AIR-90 • In Stock (120 units)',
+  desc: 'Short note fits beside the image below subtitle.',
+  trailing: TBadge(label: '\$129.99', color: Colors.blue),
+)
+
+// Medium product tile (75px image, 16px title font, start-aligned)
+TTile.md(
+  leading: TImage(
+    url: 'https://.../watch.jpg',
+    width: 75,
+    height: 75,
+    border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  ),
+  title: 'Minimalist Chrono Watch',
+  subtitle: 'SKU: WT-CHR-01 • Genuine Leather Strap',
+  desc: 'Detailed specs exceeding image height flow below the image container.',
+  trailing: TBadge(label: '\$249.00', color: Colors.teal),
+)
+
+// Large product tile (100px image, 18px title font, start-aligned)
+TTile.lg(
+  leading: TImage(
+    url: 'https://.../headphones.jpg',
+    width: 100,
+    height: 100,
+    border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  ),
+  title: 'Wireless Studio Headphones',
+  subtitle: 'SKU: HP-ST-PRO • Active Noise Cancellation',
+  desc: 'Full specifications: 40mm neodymium drivers, 30-hour battery life, USB-C fast charging.',
+  trailing: TBadge(label: '\$349.50', color: Colors.purple),
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'size',
+                type: 'TSize',
+                defaultValue: 'TTileSize.h5',
+                description:
+                    'Product image sizes TTileSize.sm (50px, font 14), md (75px, font 16), lg (100px, font 18) default to CrossAxisAlignment.start; headings h1-h6 default to CrossAxisAlignment.center.',
+              ),
+              PropertyDoc(
+                name: 'crossAxisAlignment',
+                type: 'CrossAxisAlignment?',
+                description: 'Vertical alignment of leading image, title column, and trailing. Defaults to size.crossAxisAlignment.',
+              ),
+              PropertyDoc(
+                name: 'desc',
+                type: 'String?',
+                description:
+                    'Smart description: automatically renders beside the image below subtitle if total text height fits within image height, or moves below image across full width if it exceeds image height.',
+              ),
+              PropertyDoc(name: 'descWidget', type: 'Widget?', description: 'Custom widget replacing the default description text.'),
+              PropertyDoc(name: 'descStyle', type: 'TextStyle?', description: 'Custom text style for the description.'),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // 4.5 Key-Value Metadata & Layout Modes (values, valuesMode)
+          WidgetDocCard(
+            title: 'Embedded Key-Value Data (values & valuesMode)',
+            description:
+                'TTile supports structured key-value metadata embedded directly below the tile header using the values property and TKeyValueSection. The valuesMode property controls layout across 5 presentation styles: inlineFlow, stackedFlow, inlineColumns, stackedColumns, and split.',
+            icon: Icons.data_array_rounded,
+            preview: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Select a valuesMode to switch presentation layout:',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final mode in TKeyValueMode.values)
+                      InkWell(
+                        onTap: () => setState(() => _selectedValuesMode = mode),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: _selectedValuesMode == mode ? theme.primary : colors.surfaceContainerLowest,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: _selectedValuesMode == mode ? theme.primary : colors.outlineVariant.withAlpha(80)),
+                          ),
+                          child: Text(
+                            mode.name,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: _selectedValuesMode == mode ? FontWeight.w600 : FontWeight.normal,
+                              color: _selectedValuesMode == mode ? Colors.white : colors.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: theme.primary.withAlpha(15),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: theme.primary.withAlpha(40)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline_rounded, size: 16, color: theme.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(switch (_selectedValuesMode) {
+                          TKeyValueMode.inlineFlow => 'inlineFlow (default): Keys and values flow inline (Key: Value), wrapping naturally.',
+                          TKeyValueMode.stackedFlow => 'stackedFlow: Keys stacked above values, flowing dynamically into wrapped rows.',
+                          TKeyValueMode.inlineColumns => 'inlineColumns: Multi-column uniform grid with keys and values inline.',
+                          TKeyValueMode.stackedColumns =>
+                            'stackedColumns: Multi-column uniform grid with keys stacked vertically above values.',
+                          TKeyValueMode.split => 'split: Single-column full-width layout with keys on left and values on right.',
+                        }, style: TextStyle(fontSize: 12, color: theme.primary, fontWeight: FontWeight.w500)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _buildTileContainer(
+                  context,
+                  child: TTile(
+                    icon: Icons.receipt_long_rounded,
+                    iconBackgroundColor: theme.primary.withAlpha(25),
+                    iconColor: theme.primary,
+                    title: 'Purchase Order #PO-94021',
+                    subtitle: 'Vendor: Global Logistics Ltd · Created Oct 8, 2026',
+                    trailing: const TBadge(label: 'Approved', color: Colors.green),
+                    valuesMode: _selectedValuesMode,
+                    values: [
+                      TKeyValue('Vendor ID', value: 'VND-4810'),
+                      TKeyValue('Department', value: 'Procurement'),
+                      TKeyValue('Payment Terms', value: 'Net 30'),
+                      TKeyValue('Warehouse', value: 'Central Hub (B-12)'),
+                      TKeyValue('Total Amount', value: '\$18,450.00'),
+                      TKeyValue.chip('Status', 'Ready to Ship', color: theme.primary),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text('Side-by-Side Mode Comparisons:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 10),
+                _buildTileContainer(
+                  context,
+                  child: TTile(
+                    icon: Icons.account_balance_wallet_rounded,
+                    iconBackgroundColor: theme.success.withAlpha(25),
+                    iconColor: theme.success,
+                    title: 'Settlement Breakdown (valuesMode: TKeyValueMode.split)',
+                    subtitle: 'Invoice #INV-2024-009 · Auto-calculated',
+                    valuesMode: TKeyValueMode.split,
+                    values: [
+                      TKeyValue('Subtotal', value: '\$1,200.00'),
+                      TKeyValue('Tax (8.25%)', value: '\$99.00'),
+                      TKeyValue('Shipping Fee', value: '\$15.00'),
+                      TKeyValue('Net Payable', value: '\$1,314.00'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _buildTileContainer(
+                  context,
+                  child: TTile(
+                    icon: Icons.dns_rounded,
+                    iconBackgroundColor: theme.info.withAlpha(25),
+                    iconColor: theme.info,
+                    title: 'Kubernetes Cluster Node (valuesMode: TKeyValueMode.stackedColumns)',
+                    subtitle: 'Pod Fleet: us-east-prod-01 • Healthy',
+                    valuesMode: TKeyValueMode.stackedColumns,
+                    values: [
+                      TKeyValue('CPU Usage', value: '42.8%'),
+                      TKeyValue('Memory', value: '18.4 / 32 GB'),
+                      TKeyValue('Uptime', value: '99.98%'),
+                      TKeyValue('Pods Active', value: '28 / 30'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            code: '''// 1. Default inlineFlow mode (Key: Value wrapped dynamically)
+TTile(
+  icon: Icons.receipt_long_rounded,
+  title: 'Purchase Order #PO-94021',
+  subtitle: 'Vendor: Global Logistics Ltd',
+  trailing: TBadge(label: 'Approved', color: Colors.green),
+  valuesMode: TKeyValueMode.inlineFlow, // Default
+  values: [
+    TKeyValue('Vendor ID', value: 'VND-4810'),
+    TKeyValue('Department', value: 'Procurement'),
+    TKeyValue('Payment Terms', value: 'Net 30'),
+    TKeyValue('Total Amount', value: '\$18,450.00'),
+    TKeyValue.chip('Status', 'Ready to Ship', color: context.theme.primary),
+  ],
+)
+
+// 2. stackedColumns mode (Uniform grid columns with keys stacked above values)
+TTile(
+  icon: Icons.dns_rounded,
+  title: 'Kubernetes Cluster Node',
+  subtitle: 'Pod Fleet: us-east-prod-01',
+  valuesMode: TKeyValueMode.stackedColumns,
+  values: [
+    TKeyValue('CPU Usage', value: '42.8%'),
+    TKeyValue('Memory', value: '18.4 / 32 GB'),
+    TKeyValue('Uptime', value: '99.98%'),
+    TKeyValue('Pods Active', value: '28 / 30'),
+  ],
+)
+
+// 3. split mode (Single column with keys on left and values on right)
+TTile(
+  icon: Icons.account_balance_wallet_rounded,
+  title: 'Settlement Breakdown',
+  subtitle: 'Invoice #INV-2024-009',
+  valuesMode: TKeyValueMode.split,
+  values: [
+    TKeyValue('Subtotal', value: '\$1,200.00'),
+    TKeyValue('Tax (8.25%)', value: '\$99.00'),
+    TKeyValue('Shipping Fee', value: '\$15.00'),
+    TKeyValue('Net Payable', value: '\$1,314.00'),
+  ],
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'values',
+                type: 'List<TKeyValue>?',
+                description: 'List of structured key-value items rendered below the tile content via TKeyValueSection.',
+              ),
+              PropertyDoc(
+                name: 'valuesMode',
+                type: 'TKeyValueMode?',
+                defaultValue: 'TKeyValueMode.inlineFlow',
+                description: 'Layout presentation mode: inlineFlow (default), stackedFlow, inlineColumns, stackedColumns, or split.',
+              ),
+              PropertyDoc(
+                name: 'valuesSpacing',
+                type: 'double?',
+                defaultValue: '16.0',
+                description: 'Vertical spacing between the tile header row and the values key-value section.',
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // 4.5 Card wrapper + shadow levels
+          WidgetDocCard(
+            title: 'Card Wrapper & Shadow Levels (.card / TCardShadow)',
+            description:
+                'TTile never draws its own card. Wrap any widget with .card() for a flat TCard surface. Prefer no shadow; add TCardShadow.sm only when elevation is genuinely needed.',
+            icon: Icons.layers_rounded,
+            preview: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                for (final level in TCardShadow.values)
+                  TTile.h5(
+                    icon: Icons.layers_outlined,
+                    title: 'TCardShadow.${level.name}',
+                    subtitle: 'Shadow level',
+                  ).card(shadow: level),
+              ],
+            ),
+            code: '''// Tiles shrink to fit when there is no trailing widget,
+// so they can be dropped straight into a Wrap or Row.
+TTile.h5(icon: Icons.layers_outlined, title: 'Flat', subtitle: 'none')
+    .card();
+
+// Only when elevation is needed (keep it sm):
+TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
+    .cardSm();''',
+            properties: const [
+              PropertyDoc(name: 'shadow', type: 'TCardShadow', defaultValue: 'TCardShadow.none', description: 'Preset shadow depth: none, sm, md, lg.'),
+              PropertyDoc(name: 'padding', type: 'EdgeInsetsGeometry', defaultValue: 'EdgeInsets.all(12)', description: 'Inner padding of the card.'),
+              PropertyDoc(name: 'margin', type: 'EdgeInsetsGeometry', defaultValue: 'EdgeInsets.zero', description: 'Outer margin of the card.'),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // 4.5b Icon on top
+          WidgetDocCard(
+            title: 'Icon On Top (iconOnTop)',
+            description:
+                'Set iconOnTop to stack the icon above the title block, ideal for hub/launcher tiles. A trailing widget moves to the far end of the icon row.',
+            icon: Icons.dashboard_customize_rounded,
+            preview: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                SizedBox(
+                  width: 200,
+                  child: TTile.h4(
+                    iconOnTop: true,
+                    icon: Icons.inventory_2_outlined,
+                    iconColor: theme.primary,
+                    title: 'Stocktake',
+                    subtitle: '12 open counts',
+                    trailing: TBadge(label: '12', color: theme.primary),
+                  ).card(padding: const EdgeInsets.all(16)),
+                ),
+                SizedBox(
+                  width: 200,
+                  child: TTile.h4(
+                    iconOnTop: true,
+                    icon: Icons.local_shipping_outlined,
+                    iconColor: theme.warning,
+                    title: 'Dispatch',
+                    subtitle: '3 pending',
+                  ).card(padding: const EdgeInsets.all(16)),
+                ),
+              ],
+            ),
+            code: '''TTile.h4(
+  iconOnTop: true,
+  icon: Icons.inventory_2_outlined,
+  title: 'Stocktake',
+  subtitle: '12 open counts',
+  trailing: TBadge(label: '12', color: context.theme.primary),
+).card(padding: const EdgeInsets.all(16))''',
+            properties: const [
+              PropertyDoc(name: 'iconOnTop', type: 'bool', defaultValue: 'false', description: 'Stacks the icon above the title/subtitle/desc instead of beside them.'),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // 4.5c Product accordion
+          WidgetDocCard(
+            title: 'Product Accordion (TAccordion + TTile header)',
+            description:
+                'TAccordion accepts the same image, size, subtitle, desc and trailing options as TTile. The header shows image, title, SKU and price; expanding reveals the details.',
+            icon: Icons.shopping_bag_outlined,
+            preview: Column(
+              children: [
+                TAccordion(
+                  size: TTileSize.md,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150',
+                  title: 'Minimalist Chrono Watch',
+                  subtitle: 'SKU: WT-CHR-01',
+                  trailing: const TBadge(label: '\$249.00', color: Colors.teal),
+                  content: TKeyValueSection(
+                    values: [
+                      TKeyValue('Strap', value: 'Genuine leather'),
+                      TKeyValue('Stock', value: '38 units'),
+                      TKeyValue('Warehouse', value: 'Central Hub (B-12)'),
+                    ],
+                    mode: TKeyValueMode.split,
+                  ),
+                ),
+              ],
+            ),
+            code: '''TAccordion(
+  size: TTileSize.md,
+  crossAxisAlignment: CrossAxisAlignment.start,
+  imageUrl: product.imageUrl,
+  title: product.name,
+  subtitle: 'SKU: \${product.sku}',
+  trailing: TBadge(label: product.price, color: Colors.teal),
+  content: TKeyValueSection(values: details, mode: TKeyValueMode.split),
+)''',
+            properties: const [
+              PropertyDoc(name: 'imageUrl', type: 'String?', description: 'Leading product thumbnail.'),
+              PropertyDoc(name: 'size', type: 'TSize', defaultValue: 'TTileSize.h5', description: 'Header tile size (h1-h6, sm, md, lg).'),
+              PropertyDoc(name: 'trailing', type: 'Widget?', description: 'Always-visible widget before the expand arrow, e.g. a price.'),
+              PropertyDoc(name: 'iconOnTop', type: 'bool', defaultValue: 'false', description: 'Stack the icon above the title in the header.'),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // 4.6 Task Cards (TTile.task)
+          WidgetDocCard(
+            title: 'Task Cards (TTile.task)',
+            description:
+                'Touch-friendly task rows for mobile and handheld field apps (warehouse picking, dispatch, delivery, and audits). Features an accent status strip, status chip, fine-print metadata, and a built-in done/total progress bar. Like every TTile it has no card chrome; wrap it with .card() for a surface and shadow.',
+            icon: Icons.task_alt_rounded,
+            preview: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Tap any task card below to toggle active selection:',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 12),
+                TTile.task(
+                  icon: Icons.inventory_2_outlined,
+                  title: 'SO-10452 · Order Picking',
+                  subtitle: 'Zone A · Electronics · Aisle 3, Shelf B',
+                  meta: 'Due today at 3:30 PM • 12 lines remaining',
+                  status: 'Picking',
+                  statusColor: theme.primary,
+                  done: 8,
+                  total: 12,
+                  selected: _selectedTaskIndex == 0,
+                  onTap: () {
+                    setState(() => _selectedTaskIndex = 0);
+                    TToastService.info(context, 'Selected picking task SO-10452');
+                  },
+                ).card(padding: EdgeInsets.zero),
+                const SizedBox(height: 10),
+                TTile.task(
+                  icon: Icons.local_shipping_outlined,
+                  title: 'DO-90312 · Express Dispatch',
+                  subtitle: 'Dock 4 · Carrier: FreightWay Express',
+                  meta: 'Urgent departure in 20 min • Awaiting supervisor scan',
+                  status: 'Urgent',
+                  statusColor: theme.danger,
+                  done: 1,
+                  total: 6,
+                  selected: _selectedTaskIndex == 1,
+                  onTap: () {
+                    setState(() => _selectedTaskIndex = 1);
+                    TToastService.info(context, 'Selected dispatch task DO-90312');
+                  },
+                ).card(padding: EdgeInsets.zero),
+                const SizedBox(height: 10),
+                TTile.task(
+                  icon: Icons.check_circle_outline_rounded,
+                  title: 'WO-88201 · Assembly & Packaging',
+                  subtitle: 'Station 2 · 24 finished units packaged',
+                  meta: 'Completed by Alex Miller at 2:15 PM',
+                  status: 'Done',
+                  statusColor: theme.success,
+                  done: 24,
+                  total: 24,
+                  selected: _selectedTaskIndex == 2,
+                  onTap: () {
+                    setState(() => _selectedTaskIndex = 2);
+                    TToastService.info(context, 'Selected completed task WO-88201');
+                  },
+                ).card(padding: EdgeInsets.zero),
+                const SizedBox(height: 10),
+                TTile.task(
+                  icon: Icons.pending_actions_outlined,
+                  title: 'PO-30119 · Inbound Receiving Audit',
+                  subtitle: 'Receiving Bay 1 • 50 cartons expected',
+                  meta: 'Scheduled for tomorrow 09:00 AM',
+                  status: 'Scheduled',
+                  statusColor: theme.warning,
+                  selected: _selectedTaskIndex == 3,
+                  onTap: () {
+                    setState(() => _selectedTaskIndex = 3);
+                    TToastService.info(context, 'Selected audit task PO-30119');
+                  },
+                ).card(padding: EdgeInsets.zero),
+              ],
+            ),
+            code: '''// 1. In-progress task with progress bar & status chip:
+TTile.task(
+  icon: Icons.inventory_2_outlined,
+  title: 'SO-10452 · Order Picking',
+  subtitle: 'Zone A · Electronics · Aisle 3, Shelf B',
+  meta: 'Due today at 3:30 PM • 12 lines remaining',
+  status: 'Picking',
+  statusColor: context.theme.primary,
+  done: 8,
+  total: 12,
+  selected: isSelected,
+  onTap: () => onTaskTapped(),
+)
+
+// 2. Urgent task with high-priority status color:
+TTile.task(
+  icon: Icons.local_shipping_outlined,
+  title: 'DO-90312 · Express Dispatch',
+  subtitle: 'Dock 4 · Carrier: FreightWay Express',
+  meta: 'Urgent departure in 20 min',
+  status: 'Urgent',
+  statusColor: context.theme.danger,
+  done: 1,
+  total: 6,
+  onTap: () {},
+)
+
+// 3. Completed task:
+TTile.task(
+  icon: Icons.check_circle_outline_rounded,
+  title: 'WO-88201 · Assembly & Packaging',
+  subtitle: 'Station 2 · 24 finished units packaged',
+  meta: 'Completed by Alex at 2:15 PM',
+  status: 'Done',
+  statusColor: context.theme.success,
+  done: 24,
+  total: 24,
+  onTap: () {},
+)
+
+// 4. Milestone / pending task without progress bar:
+TTile.task(
+  icon: Icons.pending_actions_outlined,
+  title: 'PO-30119 · Inbound Receiving Audit',
+  subtitle: 'Receiving Bay 1 • 50 cartons expected',
+  meta: 'Scheduled for tomorrow 09:00 AM',
+  status: 'Scheduled',
+  statusColor: context.theme.warning,
+  onTap: () {},
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'title',
+                type: 'String',
+                isRequired: true,
+                description: 'Bold title text (maxLines: 1) displayed prominently at the top.',
+              ),
+              PropertyDoc(
+                name: 'subtitle',
+                type: 'String?',
+                description: 'Optional secondary line describing task details, location, or SKU info.',
+              ),
+              PropertyDoc(
+                name: 'meta',
+                type: 'String?',
+                description: 'Optional fine-print metadata line (e.g. due time, priority, assignee).',
+              ),
+              PropertyDoc(name: 'status', type: 'String?', description: 'Label text rendered inside a pill chip next to the title.'),
+              PropertyDoc(
+                name: 'statusColor',
+                type: 'Color?',
+                description: 'Color theme applied to the left accent strip, status chip, icon, and progress bar.',
+              ),
+              PropertyDoc(name: 'done', type: 'int?', description: 'Number of completed units/items for the linear progress bar.'),
+              PropertyDoc(
+                name: 'total',
+                type: 'int?',
+                description: 'Total number of units/items. When greater than 0, renders a progress bar and done/total counter.',
+              ),
+              PropertyDoc(
+                name: 'icon',
+                type: 'dynamic',
+                description: 'Leading icon displayed beside the title. Accepts IconData, HugeIcon, or Widget.',
+              ),
+              PropertyDoc(
+                name: 'selected',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether the task card is highlighted with a themed background tint and border.',
+              ),
+              PropertyDoc(
+                name: 'onTap',
+                type: 'VoidCallback?',
+                description: 'Callback when the card is pressed, enabling touch-friendly task interaction.',
+              ),
+            ],
+          ),
+
           const SizedBox(height: 36),
 
           // ==================== SECTION 5: REALISTIC DASHBOARD SUMMARY ====================
@@ -1203,9 +1832,9 @@ TTile(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          TAlignedRow(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            left: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1214,23 +1843,20 @@ TTile(
                   Text('Real-time overview for past 30 days', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
                 ],
               ),
-              Row(
-                children: [
-                  TButton(
-                    type: TButtonType.outline,
-                    size: TButtonSize.sm,
-                    icon: Icons.file_download_outlined,
-                    text: 'Export CSV',
-                    onTap: () => TToastService.info(context, 'Exporting analytical report...'),
-                  ),
-                  const SizedBox(width: 8),
-                  TButton(
-                    size: TButtonSize.sm,
-                    icon: Icons.refresh_rounded,
-                    text: 'Refresh',
-                    onTap: () => TToastService.success(context, 'Metrics reloaded'),
-                  ),
-                ],
+            ],
+            right: [
+              TButton(
+                type: TButtonType.outline,
+                size: TButtonSize.sm,
+                icon: Icons.file_download_outlined,
+                text: 'Export CSV',
+                onTap: () => TToastService.info(context, 'Exporting analytical report...'),
+              ),
+              TButton(
+                size: TButtonSize.sm,
+                icon: Icons.refresh_rounded,
+                text: 'Refresh',
+                onTap: () => TToastService.success(context, 'Metrics reloaded'),
               ),
             ],
           ),
@@ -1333,15 +1959,10 @@ TTile(
   }
 
   Widget _buildTileContainer(BuildContext context, {required Widget child}) {
-    final colors = context.colors;
-    return Container(
+    return child.card(
+      backgroundColor: context.colors.surfaceContainerLowest,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colors.outlineVariant.withAlpha(80)),
-      ),
-      child: child,
+      borderRadius: BorderRadius.circular(10),
     );
   }
 }

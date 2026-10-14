@@ -74,7 +74,7 @@ class TFormService {
       persistent: persistent ?? input.isFormPersistent,
       showCloseButton: showCloseButton ?? input.isFormCloseButton,
       width: width ?? input.formWidth,
-      actions: modalActions,
+      actions: context.isMobile ? [] : modalActions,
       (mContext) {
         final content = _TFormContent<T>(
           input: input,

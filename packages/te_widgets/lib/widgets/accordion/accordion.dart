@@ -24,6 +24,29 @@ class TAccordion extends StatefulWidget {
   /// Leading icon. Alias for [leading].
   final dynamic icon;
 
+  /// Description shown under the title/subtitle (see [TTile.desc]).
+  final String? desc;
+
+  /// Custom widget for the description.
+  final Widget? descWidget;
+
+  /// Product/entity thumbnail URL shown as the leading image when no icon is set.
+  final String? imageUrl;
+
+  /// Size of the header tile. Defaults to [TTileSize.h5]; use [TTileSize.sm]
+  /// to [TTileSize.lg] for product-style headers.
+  final TSize size;
+
+  /// Cross-axis alignment of the header tile row.
+  final CrossAxisAlignment? crossAxisAlignment;
+
+  /// Stacks the leading icon above the title block (see [TTile.iconOnTop]).
+  final bool iconOnTop;
+
+  /// Always-visible widget at the end of the header, before the expand arrow
+  /// (e.g. a price tag or status chip).
+  final Widget? trailing;
+
   /// Custom header widget. If provided, overrides default [TAccordionHeader].
   final Widget? header;
 
@@ -72,6 +95,17 @@ class TAccordion extends StatefulWidget {
   /// Whether the accordion starts in an expanded state.
   final bool initiallyExpanded;
 
+  /// Externally controlled expansion state. When provided, the accordion
+  /// becomes controlled: its expanded/collapsed state is driven by this
+  /// value instead of internal state, and [onExpansionChanged] must be
+  /// used to react to taps (e.g. from [TAccordionGroup]).
+  final bool? isExpanded;
+
+  /// Called when the header is tapped, with the next expansion state.
+  /// If [isExpanded] is null (uncontrolled), the accordion still toggles
+  /// itself internally in addition to invoking this callback.
+  final ValueChanged<bool>? onExpansionChanged;
+
   /// Padding for the header tile.
   final EdgeInsetsGeometry? tilePadding;
 
@@ -104,6 +138,13 @@ class TAccordion extends StatefulWidget {
     this.subtitleWidget,
     this.leading,
     this.icon,
+    this.desc,
+    this.descWidget,
+    this.imageUrl,
+    this.size = TTileSize.h5,
+    this.crossAxisAlignment,
+    this.iconOnTop = false,
+    this.trailing,
     this.header,
     this.iconColor,
     this.hoveredIconColor,
@@ -120,6 +161,8 @@ class TAccordion extends StatefulWidget {
     required this.content,
     this.theme,
     this.initiallyExpanded = false,
+    this.isExpanded,
+    this.onExpansionChanged,
     this.tilePadding,
     this.contentPadding,
     this.margin,
@@ -144,14 +187,29 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _isExpanded = widget.initiallyExpanded;
+    _isExpanded = widget.isExpanded ?? widget.initiallyExpanded;
     _controller = AnimationController(
-      value: widget.initiallyExpanded ? 1.0 : 0.0,
+      value: _isExpanded ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
     _iconTurns = _controller.drive(Tween<double>(begin: 0.0, end: 0.5).chain(CurveTween(curve: Curves.easeIn)));
     _heightFactor = _controller.drive(CurveTween(curve: Curves.easeIn));
+  }
+
+  @override
+  void didUpdateWidget(TAccordion oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isExpanded != null && widget.isExpanded != _isExpanded) {
+      setState(() {
+        _isExpanded = widget.isExpanded!;
+        if (_isExpanded) {
+          _controller.forward();
+        } else {
+          _controller.reverse();
+        }
+      });
+    }
   }
 
   @override
@@ -162,6 +220,8 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
 
   void _toggleExpand() {
     final target = !_isExpanded;
+    widget.onExpansionChanged?.call(target);
+    if (widget.isExpanded != null) return;
     if (_isExpanded != target) {
       setState(() {
         _isExpanded = target;
@@ -199,6 +259,12 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
           titleWidget: widget.titleWidget,
           subtitle: widget.subtitle,
           subtitleWidget: widget.subtitleWidget,
+          desc: widget.desc,
+          descWidget: widget.descWidget,
+          imageUrl: widget.imageUrl,
+          size: widget.size,
+          crossAxisAlignment: widget.crossAxisAlignment,
+          iconOnTop: widget.iconOnTop,
           leading: widget.leading ?? widget.icon,
           iconColor: widget.iconColor,
           hoveredIconColor: widget.hoveredIconColor,
@@ -211,7 +277,7 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
           iconSize: widget.iconSize,
           titleStyle: widget.titleStyle,
           subtitleStyle: widget.subtitleStyle,
-          spacing: widget.headerSpacing ?? 12.0,
+          spacing: widget.headerSpacing,
           isHovered: _isHovered,
           isExpanded: _isExpanded,
         );
@@ -246,6 +312,11 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
                 child: Row(
                   children: [
                     Expanded(child: headerContent),
+                    if (widget.trailing != null) ...[
+                      const SizedBox(width: 8),
+                      widget.trailing!,
+                      if (widget.showExpandIcon || widget.builder != null) const SizedBox(width: 8),
+                    ],
                     if (widget.builder != null) ...[
                       widget.builder!(context, _isExpanded, _toggleExpand),
                       if (widget.showExpandIcon) const SizedBox(width: 8),
@@ -287,6 +358,105 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
           ],
         ),
       ),
+    );
+  }
+}
+
+/// A group of [TAccordion] items where expanding one automatically
+/// collapses the others, so at most one item is open at a time.
+///
+/// Pass the accordions as [children]; `TAccordionGroup` controls their
+/// expansion state internally and ignores any `initiallyExpanded`,
+/// `isExpanded`, or `onExpansionChanged` set directly on the children.
+class TAccordionGroup extends StatefulWidget {
+  /// The accordions managed by this group.
+  final List<TAccordion> children;
+
+  /// Spacing between consecutive accordion items.
+  final double spacing;
+
+  /// Index of the item expanded by default. Pass `null` to start with
+  /// all items collapsed.
+  final int? initiallyExpandedIndex;
+
+  const TAccordionGroup({
+    super.key,
+    required this.children,
+    this.spacing = 12.0,
+    this.initiallyExpandedIndex,
+  });
+
+  @override
+  State<TAccordionGroup> createState() => _TAccordionGroupState();
+}
+
+class _TAccordionGroupState extends State<TAccordionGroup> {
+  int? _expandedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _expandedIndex = widget.initiallyExpandedIndex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < widget.children.length; i++) ...[
+          if (i > 0) SizedBox(height: widget.spacing),
+          _buildItem(i, widget.children[i]),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildItem(int index, TAccordion accordion) {
+    return TAccordion(
+      key: accordion.key,
+      title: accordion.title,
+      titleWidget: accordion.titleWidget,
+      subtitle: accordion.subtitle,
+      subtitleWidget: accordion.subtitleWidget,
+      desc: accordion.desc,
+      descWidget: accordion.descWidget,
+      imageUrl: accordion.imageUrl,
+      size: accordion.size,
+      crossAxisAlignment: accordion.crossAxisAlignment,
+      iconOnTop: accordion.iconOnTop,
+      trailing: accordion.trailing,
+      leading: accordion.leading,
+      icon: accordion.icon,
+      header: accordion.header,
+      iconColor: accordion.iconColor,
+      hoveredIconColor: accordion.hoveredIconColor,
+      expandedIconColor: accordion.expandedIconColor,
+      iconBackgroundColor: accordion.iconBackgroundColor,
+      hoveredIconBackgroundColor: accordion.hoveredIconBackgroundColor,
+      expandedIconBackgroundColor: accordion.expandedIconBackgroundColor,
+      iconPadding: accordion.iconPadding,
+      iconBorderRadius: accordion.iconBorderRadius,
+      iconSize: accordion.iconSize,
+      titleStyle: accordion.titleStyle,
+      subtitleStyle: accordion.subtitleStyle,
+      headerSpacing: accordion.headerSpacing,
+      content: accordion.content,
+      theme: accordion.theme,
+      tilePadding: accordion.tilePadding,
+      contentPadding: accordion.contentPadding,
+      margin: accordion.margin,
+      expandedMargin: accordion.expandedMargin,
+      showExpandIcon: accordion.showExpandIcon,
+      expandIcon: accordion.expandIcon,
+      footer: accordion.footer,
+      builder: accordion.builder,
+      isExpanded: _expandedIndex == index,
+      onExpansionChanged: (expanded) {
+        setState(() {
+          _expandedIndex = expanded ? index : null;
+        });
+      },
     );
   }
 }

@@ -57,19 +57,17 @@ class TTableScope extends InheritedWidget {
 
     if (!context.mounted) return;
 
+    // Mutating the controller synchronously notifies the table, which runs
+    // _syncDetailFlow and already pops the active dialog/page/sideOverlay
+    // route itself. Popping again here would race that pop (it can land on
+    // the wrong route once the first pop already advances the Navigator),
+    // so this is the only place the overlay gets dismissed.
     if (controller.value.isCreatingItem) {
       controller.cancelCreateItem();
     } else if (controller.value.isEditingItem) {
       controller.cancelEditItem();
     } else {
       controller.collapseDetail();
-    }
-
-    if (expansionMode == TTableExpansionMode.dialog ||
-        expansionMode == TTableExpansionMode.page ||
-        expansionMode == TTableExpansionMode.sideOverlay) {
-      final useRoot = expansionMode == TTableExpansionMode.dialog || expansionMode == TTableExpansionMode.sideOverlay;
-      Navigator.of(context, rootNavigator: useRoot).maybePop();
     }
   }
 

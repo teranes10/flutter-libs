@@ -82,6 +82,10 @@ class TBanner extends StatelessWidget {
   /// Supports [IconData], HugeIcon, or a custom [Widget]. Set to `null` with [showIcon: false] to hide.
   final dynamic icon;
 
+  /// Custom size for the leading icon.
+  /// Defaults to 20.0 when [title] is present, or 18.0 for message-only callouts.
+  final double? iconSize;
+
   /// Whether to display the leading icon. Defaults to true.
   final bool showIcon;
 
@@ -117,6 +121,7 @@ class TBanner extends StatelessWidget {
     this.message,
     this.child,
     this.icon,
+    this.iconSize,
     this.showIcon = true,
     this.variant = TVariant.tonal,
     this.color,
@@ -128,6 +133,92 @@ class TBanner extends StatelessWidget {
     this.bordered = true,
   });
 
+  /// Creates a connectivity / sync-status banner for offline-capable apps.
+  ///
+  /// Renders nothing when everything is synced (`online`, not [syncing], no
+  /// [pendingCount] and no [error]). Otherwise shows, in priority order:
+  /// a sync failure with a Retry action, a syncing progress notice, an
+  /// "offline" notice (with the pending count and [lastSync]), or a
+  /// "changes waiting to sync" notice with a Sync now action.
+  ///
+  /// Set [sticky] to dock it flush to the top/bottom edge of a screen.
+  static Widget offline({
+    Key? key,
+    bool online = false,
+    bool syncing = false,
+    int pendingCount = 0,
+    DateTime? lastSync,
+    String? error,
+    VoidCallback? onRetry,
+    VoidCallback? onViewPending,
+    bool sticky = false,
+    dynamic icon,
+    double? iconSize,
+  }) {
+    final isSynced = online && !syncing && pendingCount == 0 && error == null;
+    if (isSynced) return const SizedBox.shrink();
+
+    final actionSize = TSize.lg.copyWith(minH: 48);
+    final pending = pendingCount > 0 ? '$pendingCount pending' : null;
+    final last = lastSync != null ? 'Last sync ${lastSync.formatAgo()}' : null;
+    final details = [if (pending != null) pending, if (last != null) last].join(' · ');
+
+    final TBannerType type;
+    final String title;
+    final String? message;
+    Widget? action;
+    dynamic resolvedIcon;
+    final effectiveIconSize = iconSize ?? 20.0;
+
+    if (error != null) {
+      type = TBannerType.error;
+      title = 'Sync failed';
+      message = error;
+      action = onRetry == null ? null : TButton(text: 'Retry', type: TButtonType.tonal, size: actionSize, onTap: onRetry);
+      resolvedIcon = icon ?? Icons.error_outline_rounded;
+    } else if (syncing) {
+      type = TBannerType.info;
+      title = pendingCount > 0 ? 'Syncing $pendingCount changes…' : 'Syncing…';
+      message = null;
+      resolvedIcon = icon ??
+          SizedBox(
+            width: effectiveIconSize,
+            height: effectiveIconSize,
+            child: const CircularProgressIndicator(strokeWidth: 2.5),
+          );
+    } else if (!online) {
+      type = TBannerType.warning;
+      title = "You're offline";
+      message = details.isEmpty
+          ? 'Tasks and scans are saved on this device and sync when you are back online.'
+          : 'Saved on this device and synced when back online. $details';
+      action = onViewPending == null || pendingCount == 0
+          ? null
+          : TButton(text: 'View pending', type: TButtonType.tonal, size: actionSize, onTap: onViewPending);
+      resolvedIcon = icon ?? Icons.cloud_off_rounded;
+    } else {
+      type = TBannerType.info;
+      title = '$pendingCount changes waiting to sync';
+      message = last;
+      action = onRetry == null ? null : TButton(text: 'Sync now', type: TButtonType.tonal, size: actionSize, onTap: onRetry);
+      resolvedIcon = icon ?? Icons.cloud_upload_outlined;
+    }
+
+    return TBanner(
+      key: key,
+      type: type,
+      title: title,
+      message: message,
+      icon: resolvedIcon,
+      iconSize: effectiveIconSize,
+      action: action,
+      margin: sticky ? EdgeInsets.zero : const EdgeInsets.only(bottom: 12.0),
+      borderRadius: sticky ? BorderRadius.zero : null,
+      bordered: !sticky,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+    );
+  }
+
   /// Creates an informational banner.
   const TBanner.info({
     super.key,
@@ -135,6 +226,7 @@ class TBanner extends StatelessWidget {
     this.message,
     this.child,
     this.icon,
+    this.iconSize,
     this.showIcon = true,
     this.variant = TVariant.tonal,
     this.color,
@@ -153,6 +245,7 @@ class TBanner extends StatelessWidget {
     this.message,
     this.child,
     this.icon,
+    this.iconSize,
     this.showIcon = true,
     this.variant = TVariant.tonal,
     this.color,
@@ -171,6 +264,7 @@ class TBanner extends StatelessWidget {
     this.message,
     this.child,
     this.icon,
+    this.iconSize,
     this.showIcon = true,
     this.variant = TVariant.tonal,
     this.color,
@@ -189,6 +283,7 @@ class TBanner extends StatelessWidget {
     this.message,
     this.child,
     this.icon,
+    this.iconSize,
     this.showIcon = true,
     this.variant = TVariant.tonal,
     this.color,
@@ -207,6 +302,7 @@ class TBanner extends StatelessWidget {
     this.message,
     this.child,
     this.icon,
+    this.iconSize,
     this.showIcon = true,
     this.variant = TVariant.tonal,
     this.color,
@@ -256,78 +352,210 @@ class TBanner extends StatelessWidget {
     }
 
     final effectiveIcon = icon ?? type.defaultIcon;
+    final double effectiveIconSize = iconSize ?? (title != null ? 20.0 : 18.0);
+    final double firstLineHeight = title != null ? 20.0 : 18.0;
 
-    return Container(
-      margin: margin,
-      padding: padding,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: effectiveRadius,
-        border: borderColor != null ? Border.all(color: borderColor, width: 1.0) : null,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (showIcon && effectiveIcon != null) ...[
-            Padding(
-              padding: const EdgeInsets.only(top: 1.0),
-              child: TIcon.raw(
-                effectiveIcon,
-                size: 18.0,
-                color: iconColor,
-              ),
-            ),
-            const SizedBox(width: 10.0),
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (title != null) ...[
-                  Text(
-                    title!,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                      color: textColor,
-                    ),
-                  ),
-                  if (message != null || child != null) const SizedBox(height: 3.0),
-                ],
-                if (message != null)
-                  Text(
-                    message!,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: textColor.withValues(alpha: 0.9),
-                      height: 1.35,
-                    ),
-                  ),
-                if (child != null) child!,
-              ],
-            ),
+    final Widget iconWidget = icon is Widget && icon is! IconData
+        ? (icon as Widget)
+        : TIcon.raw(
+            effectiveIcon,
+            size: effectiveIconSize,
+            color: iconColor,
+          );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // On narrow (phone) widths an inline action starves the text of
+        // width, so the action drops under the text instead.
+        final stackAction = action != null && constraints.maxWidth < 480;
+
+        final messageStyle = TextStyle(
+          fontSize: 12.5,
+          color: textColor.withValues(alpha: 0.9),
+          height: 1.35,
+        );
+
+        bool isSingleLineMessage = false;
+        if (title != null && message != null) {
+          if (!message!.contains('\n')) {
+            if (!constraints.hasBoundedWidth) {
+              isSingleLineMessage = true;
+            } else {
+              final double iconSpace = (showIcon && effectiveIcon != null) ? (effectiveIconSize + 8.0) : 0.0;
+              final EdgeInsets resolvedPadding = padding.resolve(Directionality.maybeOf(context) ?? TextDirection.ltr);
+              final double paddingSpace = resolvedPadding.left + resolvedPadding.right;
+              final double dismissSpace = (onDismiss != null) ? (20.0 + 6.0) : 0.0;
+              final double actionSpace = (action != null && !stackAction) ? 100.0 : 0.0;
+              final double availableWidthUnderTitle = constraints.maxWidth - paddingSpace - iconSpace - dismissSpace - actionSpace;
+
+              if (availableWidthUnderTitle > 0) {
+                final textScaler = MediaQuery.maybeTextScalerOf(context) ?? TextScaler.noScaling;
+                final textPainter = TextPainter(
+                  text: TextSpan(text: message!, style: messageStyle),
+                  textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+                  textScaler: textScaler,
+                  maxLines: 1,
+                )..layout(maxWidth: availableWidthUnderTitle);
+
+                isSingleLineMessage = !textPainter.didExceedMaxLines;
+              }
+            }
+          }
+        }
+
+        return Container(
+          margin: margin,
+          padding: padding,
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: effectiveRadius,
+            border: borderColor != null ? Border.all(color: borderColor, width: 1.0) : null,
           ),
-          if (action != null) ...[
-            const SizedBox(width: 10.0),
-            Padding(
-              padding: const EdgeInsets.only(top: 0.0),
-              child: action!,
-            ),
-          ],
-          if (onDismiss != null) ...[
-            const SizedBox(width: 6.0),
-            IconButton(
-              icon: Icon(Icons.close_rounded, size: 16.0, color: textColor.withValues(alpha: 0.7)),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(minWidth: 24.0, minHeight: 24.0),
-              splashRadius: 16.0,
-              onPressed: onDismiss,
-              tooltip: 'Dismiss',
-            ),
-          ],
-        ],
-      ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (title != null) ...[
+                      if (isSingleLineMessage) ...[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (showIcon && effectiveIcon != null) ...[
+                              SizedBox(
+                                height: firstLineHeight,
+                                width: effectiveIconSize,
+                                child: Center(child: iconWidget),
+                              ),
+                              const SizedBox(width: 8.0),
+                            ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    title!,
+                                    style: TextStyle(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4.0),
+                                  Text(
+                                    message!,
+                                    style: messageStyle,
+                                  ),
+                                  if (child != null) ...[
+                                    const SizedBox(height: 4.0),
+                                    child!,
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ] else ...[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (showIcon && effectiveIcon != null) ...[
+                              SizedBox(
+                                height: firstLineHeight,
+                                width: effectiveIconSize,
+                                child: Center(child: iconWidget),
+                              ),
+                              const SizedBox(width: 8.0),
+                            ],
+                            Expanded(
+                              child: Text(
+                                title!,
+                                style: TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (message != null || child != null) const SizedBox(height: 4.0),
+                        if (message != null)
+                          Text(
+                            message!,
+                            style: messageStyle,
+                          ),
+                        if (child != null) child!,
+                      ],
+                    ] else ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (showIcon && effectiveIcon != null) ...[
+                            SizedBox(
+                              height: firstLineHeight,
+                              width: effectiveIconSize,
+                              child: Center(child: iconWidget),
+                            ),
+                            const SizedBox(width: 8.0),
+                          ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (message != null)
+                                  Text(
+                                    message!,
+                                    style: messageStyle,
+                                  ),
+                                if (child != null) child!,
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (stackAction) ...[
+                      const SizedBox(height: 10.0),
+                      Align(alignment: Alignment.centerLeft, child: action!),
+                    ],
+                  ],
+                ),
+              ),
+              if (action != null && !stackAction) ...[
+                const SizedBox(width: 10.0),
+                Padding(
+                  padding: const EdgeInsets.only(top: 0.0),
+                  child: action!,
+                ),
+              ],
+              if (onDismiss != null) ...[
+                const SizedBox(width: 6.0),
+                SizedBox(
+                  height: firstLineHeight,
+                  child: Center(
+                    child: IconButton(
+                      icon: Icon(Icons.close_rounded, size: 16.0, color: textColor.withValues(alpha: 0.7)),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(minWidth: 20.0, minHeight: 20.0),
+                      splashRadius: 16.0,
+                      onPressed: onDismiss,
+                      tooltip: 'Dismiss',
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 }

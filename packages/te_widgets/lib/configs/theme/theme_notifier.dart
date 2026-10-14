@@ -8,7 +8,7 @@ final sidebarMinifiedKey = 'te_sidebar_minified';
 final sidebarModeKey = 'te_sidebar_mode';
 final primaryColorIndexKey = 'te_primary_color_index';
 
-ThemeMode _initialTheme = ThemeMode.system;
+ThemeMode _initialTheme = ThemeMode.light;
 TSidebarMode _initialSidebarMode = TSidebarMode.full;
 int _initialPrimaryColorIndex = 0;
 
@@ -53,7 +53,7 @@ Future<void> initializeApp([SharedPreferences? prefs]) async {
   _initialTheme = switch (p.getString(themeModeKey)) {
     'light' => ThemeMode.light,
     'dark' => ThemeMode.dark,
-    _ => ThemeMode.system,
+    _ => ThemeMode.light,
   };
 
   final savedMode = p.getString(sidebarModeKey);

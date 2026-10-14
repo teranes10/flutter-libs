@@ -21,6 +21,9 @@ class TTab<T> {
   /// Whether to show an active indicator dot.
   final bool isActive;
 
+  /// Optional count shown as a pill after the label (e.g. `All (12)`).
+  final int? count;
+
   /// Optional content builder for this tab.
   ///
   /// When provided, this content will be displayed when the tab is selected.
@@ -49,6 +52,7 @@ class TTab<T> {
     this.icon,
     this.isEnabled = true,
     this.isActive = false,
+    this.count,
     this.content,
     this.data,
   }) : assert(icon != null || text != null, 'Either icon or text must be provided');

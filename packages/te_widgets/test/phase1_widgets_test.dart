@@ -158,6 +158,91 @@ void main() {
       expect(find.text('Success message'), findsOneWidget);
     });
 
+    testWidgets('message starts straight below title when single line, and below icon when multiple lines', (tester) async {
+      // 1. Single-line message: starts straight below title
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: const Scaffold(
+            body: TBanner.info(
+              title: 'Heading',
+              message: 'Short message',
+            ),
+          ),
+        ),
+      );
+
+      final iconFinder = find.byIcon(Icons.info_outline_rounded);
+      final titleFinder = find.text('Heading');
+      final singleMessageFinder = find.text('Short message');
+
+      final iconTopLeft = tester.getTopLeft(iconFinder);
+      final titleTopLeft = tester.getTopLeft(titleFinder);
+      final singleMessageTopLeft = tester.getTopLeft(singleMessageFinder);
+
+      // Icon and title are horizontally aligned
+      expect(titleTopLeft.dx, greaterThan(iconTopLeft.dx));
+      expect((titleTopLeft.dy - iconTopLeft.dy).abs(), lessThanOrEqualTo(4.0));
+
+      // Single line message starts straight below title
+      expect(singleMessageTopLeft.dy, greaterThan(titleTopLeft.dy));
+      expect(singleMessageTopLeft.dx, titleTopLeft.dx);
+
+      // 2. Multi-line message: starts below icon from the start
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: const Scaffold(
+            body: TBanner.info(
+              title: 'Heading',
+              message: 'First line of message\nSecond line of message',
+            ),
+          ),
+        ),
+      );
+
+      final multiIconFinder = find.byIcon(Icons.info_outline_rounded);
+      final multiTitleFinder = find.text('Heading');
+      final multiMessageFinder = find.text('First line of message\nSecond line of message');
+
+      final multiIconTopLeft = tester.getTopLeft(multiIconFinder);
+      final multiTitleTopLeft = tester.getTopLeft(multiTitleFinder);
+      final multiMessageTopLeft = tester.getTopLeft(multiMessageFinder);
+
+      expect(multiTitleTopLeft.dx, greaterThan(multiIconTopLeft.dx));
+      expect(multiMessageTopLeft.dy, greaterThan(multiTitleTopLeft.dy));
+      // Multi-line message starts below icon (aligned with icon X)
+      expect(multiMessageTopLeft.dx, multiIconTopLeft.dx);
+
+      // 3. Long message wrapping onto multiple lines due to width: starts below icon
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: const Scaffold(
+            body: SizedBox(
+              width: 250,
+              child: TBanner.info(
+                title: 'Heading',
+                message: 'This is a very long message that definitely exceeds two hundred and fifty pixels width and wraps onto multiple lines.',
+              ),
+            ),
+          ),
+        ),
+      );
+
+      final wrapIconFinder = find.byIcon(Icons.info_outline_rounded);
+      final wrapTitleFinder = find.text('Heading');
+      final wrapMessageFinder = find.text('This is a very long message that definitely exceeds two hundred and fifty pixels width and wraps onto multiple lines.');
+
+      final wrapIconTopLeft = tester.getTopLeft(wrapIconFinder);
+      final wrapTitleTopLeft = tester.getTopLeft(wrapTitleFinder);
+      final wrapMessageTopLeft = tester.getTopLeft(wrapMessageFinder);
+
+      expect(wrapTitleTopLeft.dx, greaterThan(wrapIconTopLeft.dx));
+      expect(wrapMessageTopLeft.dy, greaterThan(wrapTitleTopLeft.dy));
+      expect(wrapMessageTopLeft.dx, wrapIconTopLeft.dx);
+    });
+
     testWidgets('renders banner with action button and dismiss callback', (tester) async {
       bool actionTapped = false;
       bool dismissed = false;

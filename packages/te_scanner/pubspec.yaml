@@ -5,7 +5,7 @@ version: 3.2.2
 homepage: https://teranes10.github.io/flutter-libs/myapp
 repository: https://github.com/teranes10/flutter-libs/tree/master/packages/te_scanner
 environment:
-  sdk: ^3.10.4
+  sdk: ^3.10.0
   flutter: ">=1.17.0"
 
 dependencies:

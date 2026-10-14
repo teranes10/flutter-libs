@@ -1,6 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Preset shadow depths for [TCard] (and the `Widget.card()` extension).
+enum TCardShadow {
+  /// Flat card with the default 1px hairline shadow.
+  none,
+
+  /// Subtle lift, for list rows and dense groups.
+  sm,
+
+  /// Standard raised card.
+  md,
+
+  /// Prominent card, for hero blocks and floating panels.
+  lg;
+
+  /// Neutral base colour for [sm]..[lg]; the theme's `shadow` colour is a
+  /// light, low-alpha grey that is too faint to differentiate levels.
+  static const Color baseColor = Color(0xFF0F172A);
+
+  /// Resolves the layered [BoxShadow]s for this level using [color] (only its
+  /// RGB is used for [sm]..[lg]).
+  List<BoxShadow> resolve(Color color) => switch (this) {
+        none => [BoxShadow(color: color, offset: const Offset(0, 1))],
+        sm => [
+            BoxShadow(color: color, offset: const Offset(0, 2), blurRadius: 8, spreadRadius: -1),
+            BoxShadow(color: color, offset: const Offset(0, 1), blurRadius: 3, spreadRadius: -1),
+          ],
+        md => [
+            BoxShadow(color: color, offset: const Offset(0, 4), blurRadius: 14, spreadRadius: -2),
+            BoxShadow(color: color, offset: const Offset(0, 2), blurRadius: 5, spreadRadius: -1),
+          ],
+        lg => [
+            BoxShadow(color: color, offset: const Offset(0, 8), blurRadius: 24, spreadRadius: -4),
+            BoxShadow(color: color, offset: const Offset(0, 5), blurRadius: 9, spreadRadius: -2),
+          ],
+      };
+}
+
 /// A Material Design card widget with customizable styling and tap interaction.
 ///
 /// `TCard` provides a container with elevation, rounded corners, and optional
@@ -115,6 +152,9 @@ class TCard extends StatelessWidget {
   final Color? highlightColor;
 
   final List<BoxShadow>? shadow;
+
+  /// Preset shadow depth. Ignored when [shadow] is provided.
+  final TCardShadow shadowLevel;
   final BoxBorder? border;
 
   /// The clip behavior of the card.
@@ -148,6 +188,7 @@ class TCard extends StatelessWidget {
     this.splashColor,
     this.highlightColor,
     this.shadow,
+    this.shadowLevel = TCardShadow.none,
     this.border,
     this.clipBehavior,
   });
@@ -236,7 +277,7 @@ class TCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final defaultBorderRadius = borderRadius ?? BorderRadius.circular(8);
+    final defaultBorderRadius = borderRadius ?? BorderRadius.circular(12);
     final headerNode = _buildHeader(context);
 
     Widget content;
@@ -259,7 +300,7 @@ class TCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: defaultBorderRadius,
         border: border,
-        boxShadow: shadow ?? [BoxShadow(color: colors.shadow, offset: const Offset(0, 1), blurRadius: 0, spreadRadius: 0)],
+        boxShadow: shadow ?? shadowLevel.resolve(shadowColor ?? colors.shadow),
       ),
       child: Material(
         elevation: elevation ?? 0,
@@ -268,7 +309,7 @@ class TCard extends StatelessWidget {
         clipBehavior: clipBehavior ?? Clip.none,
         shape: RoundedRectangleBorder(
           borderRadius: defaultBorderRadius,
-          side: BorderSide(color: borderColor ?? colors.outlineVariant.withAlpha(75)),
+          side: BorderSide(color: borderColor ?? Colors.transparent),
         ),
         child: TBackgroundColorScope(
           backgroundColor: backgroundColor ?? colors.surface,

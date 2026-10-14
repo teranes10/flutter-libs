@@ -86,10 +86,13 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
                       final buttonItems = controller == listController
                           ? _buildActiveActionButtons(theme, item)
                           : (controller == archiveListController ? _buildArchiveActionButtons(theme, item) : <TButtonGroupItem>[]);
-
+                      final isMobile = context.isMobile;
                       return buttonItems
                           .map((b) => IconButton(
                                 icon: Icon(b.icon),
+                                iconSize: 24,
+                                padding: EdgeInsets.all(isMobile ? 4 : 8),
+                                visualDensity: isMobile ? VisualDensity.compact : VisualDensity.standard,
                                 color: b.color,
                                 tooltip: b.tooltip,
                                 onPressed: b.onPressed != null ? () => b.onPressed!(TButtonPressOptions(stopLoading: () {})) : null,

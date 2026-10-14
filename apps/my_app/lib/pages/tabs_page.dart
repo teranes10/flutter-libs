@@ -98,6 +98,128 @@ TTabs<int>(
             ],
           ),
 
+          // Tabs with Count
+          WidgetDocCard(
+            title: 'Tabs with Count',
+            description: 'Tabs displaying numeric counts in badges (e.g. status filters, pending queues)',
+            icon: Icons.numbers,
+            preview: SizedBox(
+              height: 200,
+              child: TTabView<String>(
+                initialValue: 'all',
+                tabs: [
+                  TTab(
+                    value: 'all',
+                    text: 'All',
+                    count: 24,
+                    icon: Icons.list_alt,
+                    content: (context) => Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                        child: Row(
+                          children: [
+                            Icon(Icons.list_alt, color: context.theme.primary, size: 28),
+                            const SizedBox(width: 12),
+                            Text('All Items (24 items total)', style: TextStyle(color: context.colors.onSurface)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  TTab(
+                    value: 'pending',
+                    text: 'Pending',
+                    count: 5,
+                    icon: Icons.schedule,
+                    content: (context) => Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                        child: Row(
+                          children: [
+                            Icon(Icons.schedule, color: context.theme.primary, size: 28),
+                            const SizedBox(width: 12),
+                            Text('Pending Items (5 items awaiting review)', style: TextStyle(color: context.colors.onSurface)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  TTab(
+                    value: 'completed',
+                    text: 'Completed',
+                    count: 18,
+                    icon: Icons.check_circle_outline,
+                    content: (context) => Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                        child: Row(
+                          children: [
+                            Icon(Icons.check_circle_outline, color: context.theme.primary, size: 28),
+                            const SizedBox(width: 12),
+                            Text('Completed Items (18 items finished)', style: TextStyle(color: context.colors.onSurface)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  TTab(
+                    value: 'archived',
+                    text: 'Archived',
+                    count: 1,
+                    icon: Icons.archive_outlined,
+                    content: (context) => Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
+                        child: Row(
+                          children: [
+                            Icon(Icons.archive_outlined, color: context.theme.primary, size: 28),
+                            const SizedBox(width: 12),
+                            Text('Archived Items (1 item in archive)', style: TextStyle(color: context.colors.onSurface)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            code: '''TTabs<String>(
+  selectedValue: _filter,
+  onTabChanged: (val) => setState(() => _filter = val),
+  tabs: const [
+    TTab(value: 'all', text: 'All', count: 24, icon: Icons.list_alt),
+    TTab(value: 'pending', text: 'Pending', count: 5, icon: Icons.schedule),
+    TTab(value: 'completed', text: 'Completed', count: 18, icon: Icons.check_circle_outline),
+    TTab(value: 'archived', text: 'Archived', count: 1, icon: Icons.archive_outlined),
+  ],
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'count',
+                type: 'int?',
+                description: 'Optional count displayed as a styled pill badge next to the tab label',
+              ),
+              PropertyDoc(
+                name: 'text',
+                type: 'String?',
+                description: 'Text label for the tab',
+              ),
+              PropertyDoc(
+                name: 'icon',
+                type: 'dynamic',
+                description: 'Optional icon widget or IconData',
+              ),
+            ],
+          ),
+
           // Scrollable Tabs
           WidgetDocCard(
             title: 'Scrollable Tabs',

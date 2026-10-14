@@ -122,7 +122,7 @@ class TWidgetTheme {
       isDarkMode: colors.isDarkMode,
       type: variant,
       color: colors.onSurfaceVariant.toMaterial(),
-      container: colors.surfaceContainer,
+      container: colors.surfaceDim,
       containerVariant: colors.surfaceContainerHigh,
       onContainer: colors.onSurface,
       onContainerVariant: colors.onSurfaceVariant,

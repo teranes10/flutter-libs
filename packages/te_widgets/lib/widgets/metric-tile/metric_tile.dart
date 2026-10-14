@@ -121,6 +121,38 @@ class TMetricTile extends StatelessWidget {
     this.tooltip,
   });
 
+  TextStyle _labelStyle(ColorScheme colors) =>
+      labelStyle ?? TextStyle(fontSize: compact ? 10 : 11, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant);
+
+  TextStyle _valueStyle(ColorScheme colors) =>
+      valueStyle ?? TextStyle(fontSize: compact ? 13 : 15, fontWeight: FontWeight.bold, color: colors.onSurface);
+
+  TextStyle _subtitleStyle(ColorScheme colors) =>
+      subtitleStyle ?? TextStyle(fontSize: compact ? 9 : 10, color: colors.onSurfaceVariant.withAlpha(180));
+
+  /// Estimates the natural single-line width of this tile: [label], [value]
+  /// (plus [trend]) and [subtitle] measured with their resolved styles, plus
+  /// padding, border, icon and trailing chrome. Used by [TGrid] to size tiles
+  /// by content.
+  double estimateWidth(BuildContext context) {
+    final colors = context.colors;
+    final effectivePadding = padding ??
+        (compact ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8) : const EdgeInsets.symmetric(horizontal: 14, vertical: 12));
+
+    final trendWidth = trend != null
+        ? 6 + 4 * 2 + 10 + 2 + WidthHelper.measureText(context, trend!, const TextStyle(fontSize: 9, fontWeight: FontWeight.w600))
+        : 0.0;
+    final text = [
+      WidthHelper.measureText(context, label, _labelStyle(colors)),
+      WidthHelper.measureText(context, value, _valueStyle(colors)) + trendWidth,
+      if (subtitle != null && subtitle!.isNotEmpty) WidthHelper.measureText(context, subtitle!, _subtitleStyle(colors)),
+    ].reduce((a, b) => a > b ? a : b);
+
+    final iconWidth = (iconWidget != null || icon != null) ? (compact ? 12 : 16) + (compact ? 16 : 20) + (compact ? 8 : 12) : 0.0;
+    final trailingWidth = trailing != null ? 8 + 24.0 : (onTap != null ? 4 + (compact ? 16.0 : 18.0) : 0.0);
+    return effectivePadding.horizontal + 2 + iconWidth + text + trailingWidth;
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -166,25 +198,17 @@ class TMetricTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
+                // Wrap so the badge drops below the label instead of squeezing it.
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4,
+                  runSpacing: 2,
                   children: [
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: labelStyle ??
-                            TextStyle(
-                              fontSize: compact ? 10 : 11,
-                              fontWeight: FontWeight.w500,
-                              color: colors.onSurfaceVariant,
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    Text(
+                      label,
+                      style: _labelStyle(colors),
                     ),
-                    if (badge != null) ...[
-                      const SizedBox(width: 4),
-                      badge!,
-                    ],
+                    if (badge != null) badge!,
                   ],
                 ),
                 const SizedBox(height: 2),
@@ -193,14 +217,7 @@ class TMetricTile extends StatelessWidget {
                     Expanded(
                       child: Text(
                         value,
-                        style: valueStyle ??
-                            TextStyle(
-                              fontSize: compact ? 13 : 15,
-                              fontWeight: FontWeight.bold,
-                              color: colors.onSurface,
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        style: _valueStyle(colors),
                       ),
                     ),
                     if (trend != null) ...[
@@ -213,13 +230,7 @@ class TMetricTile extends StatelessWidget {
                   const SizedBox(height: 1),
                   Text(
                     subtitle!,
-                    style: subtitleStyle ??
-                        TextStyle(
-                          fontSize: compact ? 9 : 10,
-                          color: colors.onSurfaceVariant.withAlpha(180),
-                        ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    style: _subtitleStyle(colors),
                   ),
                 ],
               ],

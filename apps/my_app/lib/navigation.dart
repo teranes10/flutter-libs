@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/pages/accordion_page.dart';
+import 'package:my_app/pages/affix_page.dart';
+import 'package:my_app/pages/card_page.dart';
 import 'package:my_app/pages/avatars_page.dart';
 import 'package:my_app/pages/banners_page.dart';
 import 'package:my_app/pages/bottom_bar_page.dart';
 import 'package:my_app/pages/breadcrumbs_page.dart';
 import 'package:my_app/pages/buttons_page.dart';
+import 'package:my_app/pages/calendar_view_page.dart';
+import 'package:my_app/pages/carousel_page.dart';
 import 'package:my_app/pages/chips_page.dart';
 import 'package:my_app/pages/colors_page.dart';
 import 'package:my_app/pages/command_palette_page.dart';
@@ -31,6 +35,7 @@ import 'package:my_app/pages/layout_page.dart';
 import 'package:my_app/pages/list_detail_page.dart';
 import 'package:my_app/pages/lists_page.dart';
 import 'package:my_app/pages/map_sample_page.dart';
+import 'package:my_app/pages/mentions_menubar_page.dart';
 import 'package:my_app/pages/metric_tile_page.dart';
 import 'package:my_app/pages/pickers_page.dart';
 import 'package:my_app/pages/pin_field_page.dart';
@@ -39,11 +44,13 @@ import 'package:my_app/pages/popups_page.dart';
 import 'package:my_app/pages/results_page.dart';
 import 'package:my_app/pages/rich_text_field_page.dart';
 import 'package:my_app/pages/select_fields_page.dart';
+import 'package:my_app/pages/selection_controls_page.dart';
 import 'package:my_app/pages/skeleton_page.dart';
 import 'package:my_app/pages/sparkline_page.dart';
 import 'package:my_app/pages/speed_dial_page.dart';
 import 'package:my_app/pages/split_pane_page.dart';
 import 'package:my_app/pages/stepper_page.dart';
+import 'package:my_app/pages/stocktake_v2_page.dart';
 import 'package:my_app/pages/tables_bottom_page.dart';
 import 'package:my_app/pages/tables_create_builder_page.dart';
 import 'package:my_app/pages/tables_dialog_page.dart';
@@ -68,6 +75,12 @@ final sidebarItems = [
     route: '/forms',
     children: [
       TSidebarItem(icon: Icons.text_fields, text: 'Input Fields', route: 'input-fields', page: const InputFieldsPage()),
+      TSidebarItem(
+        icon: Icons.checklist_rtl_rounded,
+        text: 'Selection & Option Tiles',
+        route: 'selection-tiles',
+        page: const SelectionControlsPage(),
+      ),
       TSidebarItem(icon: Icons.pin_outlined, text: 'PIN / OTP Field', route: 'pin-field', page: const PinFieldPage()),
       TSidebarItem(icon: Icons.check_box, text: 'Select Fields', route: 'select-fields', page: const SelectFieldsPage()),
       TSidebarItem(icon: Icons.arrow_drop_down_circle, text: 'Dropdown', route: 'dropdown', page: const DropdownSamplePage()),
@@ -77,6 +90,12 @@ final sidebarItems = [
       TSidebarItem(icon: Icons.assignment, text: 'Forms', route: 'forms', page: const FormsPage()),
       TSidebarItem(icon: Icons.edit_note, text: 'Editor', route: 'editor', page: const EditorPage()),
       TSidebarItem(icon: Icons.text_snippet, text: 'Rich Text Field', route: 'rich-text-field', page: const RichTextFieldPage()),
+      TSidebarItem(
+        icon: Icons.alternate_email_rounded,
+        text: 'Mentions & Menubar',
+        route: 'mentions-menubar',
+        page: const MentionsMenubarPage(),
+      ),
     ],
   ),
 
@@ -104,7 +123,12 @@ final sidebarItems = [
       TSidebarItem(icon: Icons.web_asset, text: 'Dialog Expansion', route: 'dialog', page: const TablesDialogPage()),
       TSidebarItem(icon: Icons.article, text: 'Page Expansion', route: 'page', page: const TablesPageModePage()),
       TSidebarItem(icon: Icons.filter_none_outlined, text: 'Sub-Items Table', route: 'sub-item', page: const TablesSubItemPage()),
-      TSidebarItem(icon: Icons.add_box_outlined, text: 'Create Builder Table', route: 'create-builder', page: const TablesCreateBuilderPage()),
+      TSidebarItem(
+        icon: Icons.add_box_outlined,
+        text: 'Create Builder Table',
+        route: 'create-builder',
+        page: const TablesCreateBuilderPage(),
+      ),
       TSidebarItem(icon: Icons.account_tree, text: 'Tree Children Table', route: 'tree-children', page: const TablesTreeChildrenPage()),
     ],
   ),
@@ -139,6 +163,9 @@ final sidebarItems = [
       TSidebarItem(icon: Icons.difference_outlined, text: 'Diff Viewer', route: 'diff-viewer', page: const DiffViewerPage()),
       TSidebarItem(icon: Icons.account_circle, text: 'Avatars', route: 'avatars', page: const AvatarsPage()),
       TSidebarItem(icon: Icons.label, text: 'Chips', route: 'chips', page: const ChipsPage()),
+      TSidebarItem(icon: Icons.view_carousel_outlined, text: 'Carousel', route: 'carousel', page: const CarouselPage()),
+      TSidebarItem(icon: Icons.calendar_view_month_rounded, text: 'Calendar View', route: 'calendar-view', page: const CalendarViewPage()),
+      TSidebarItem(icon: Icons.layers_rounded, text: 'Card', route: 'card', page: const CardPage()),
     ],
   ),
 
@@ -186,6 +213,7 @@ final sidebarItems = [
       TSidebarItem(icon: Icons.view_headline, text: 'Accordion', route: 'accordion', page: const AccordionPage()),
       TSidebarItem(icon: Icons.timeline, text: 'Timeline', route: 'timeline', page: const TimelinePage()),
       TSidebarItem(icon: Icons.branding_watermark_outlined, text: 'Watermark', route: 'watermark', page: const WatermarkPage()),
+      TSidebarItem(icon: Icons.vertical_align_top_rounded, text: 'Affix', route: 'affix', page: const AffixPage()),
     ],
   ),
 
@@ -194,9 +222,7 @@ final sidebarItems = [
     icon: Icons.palette_outlined,
     text: 'Foundations',
     route: '/foundations',
-    children: [
-      TSidebarItem(icon: Icons.schema, text: 'Colors', route: 'colors', page: const ColorsPage()),
-    ],
+    children: [TSidebarItem(icon: Icons.schema, text: 'Colors', route: 'colors', page: const ColorsPage())],
   ),
 
   // ── Samples & Demos ──────────────────────────────────────────────────────
@@ -205,6 +231,7 @@ final sidebarItems = [
     text: 'Samples',
     route: '/samples',
     children: [
+      TSidebarItem(icon: Icons.inventory_rounded, text: 'Stock Take Flow', route: 'stocktake-flow', page: const StocktakeV2Page()),
       TSidebarItem(icon: Icons.local_shipping_outlined, text: 'Delivery App', route: 'delivery-app', page: const DeliveryPage()),
       TSidebarItem(icon: Icons.map, text: 'Maps', route: 'maps', page: const MapSamplePage()),
       TSidebarItem(
@@ -212,7 +239,12 @@ final sidebarItems = [
         text: 'Nested Hierarchy',
         route: 'nested-menu',
         children: [
-          TSidebarItem(icon: Icons.schema, text: 'Child 1', route: 'child1', page: const PlaceholderPage(title: 'Child 1')),
+          TSidebarItem(
+            icon: Icons.schema,
+            text: 'Child 1',
+            route: 'child1',
+            page: const PlaceholderPage(title: 'Child 1'),
+          ),
           TSidebarItem(
             icon: Icons.schema,
             text: 'Child 2',
@@ -223,7 +255,12 @@ final sidebarItems = [
                 text: 'Child 3',
                 route: 'child3',
                 children: [
-                  TSidebarItem(icon: Icons.schema, text: 'Child 4', route: 'child4', page: const PlaceholderPage(title: 'Child 4')),
+                  TSidebarItem(
+                    icon: Icons.schema,
+                    text: 'Child 4',
+                    route: 'child4',
+                    page: const PlaceholderPage(title: 'Child 4'),
+                  ),
                 ],
               ),
             ],

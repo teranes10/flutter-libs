@@ -62,6 +62,235 @@ TBadge(
               PropertyDoc(name: 'color', type: 'Color?', description: 'Background color of the badge'),
             ],
           ),
+          const SizedBox(height: 32),
+
+          // ==================== BADGE ALIGNMENTS (ALL 9 POSITIONS) ====================
+          WidgetDocCard(
+            title: 'Badge Alignments (All 9 Positions)',
+            description:
+                'TBadge supports all 9 standard Alignment positions relative to the child widget (top/center/bottom × left/center/right).',
+            icon: Icons.grid_view_rounded,
+            preview: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 28,
+                  runSpacing: 24,
+                  children: [
+                    _buildAlignmentTile(
+                      context,
+                      alignment: Alignment.topLeft,
+                      name: 'Top Left',
+                      code: 'Alignment.topLeft',
+                      badge: '3',
+                      color: context.theme.danger,
+                      icon: Icons.inbox_rounded,
+                    ),
+                    _buildAlignmentTile(
+                      context,
+                      alignment: Alignment.topCenter,
+                      name: 'Top Center',
+                      code: 'Alignment.topCenter',
+                      badge: 'HOT',
+                      color: context.theme.warning,
+                      icon: Icons.local_fire_department_rounded,
+                    ),
+                    _buildAlignmentTile(
+                      context,
+                      alignment: Alignment.topRight,
+                      name: 'Top Right (Default)',
+                      code: 'Alignment.topRight',
+                      badge: 5,
+                      color: context.theme.danger,
+                      icon: Icons.notifications_rounded,
+                    ),
+                    _buildAlignmentTile(
+                      context,
+                      alignment: Alignment.centerLeft,
+                      name: 'Center Left',
+                      code: 'Alignment.centerLeft',
+                      badge: 'NEW',
+                      color: context.theme.info,
+                      icon: Icons.bookmark_rounded,
+                    ),
+                    _buildAlignmentTile(
+                      context,
+                      alignment: Alignment.center,
+                      name: 'Center',
+                      code: 'Alignment.center',
+                      badge: 'VIP',
+                      color: context.theme.primary,
+                      icon: Icons.verified_user_rounded,
+                    ),
+                    _buildAlignmentTile(
+                      context,
+                      alignment: Alignment.centerRight,
+                      name: 'Center Right',
+                      code: 'Alignment.centerRight',
+                      badge: 12,
+                      color: context.theme.secondary,
+                      icon: Icons.mail_rounded,
+                    ),
+                    _buildAlignmentTile(
+                      context,
+                      alignment: Alignment.bottomLeft,
+                      name: 'Bottom Left',
+                      code: 'Alignment.bottomLeft',
+                      badge: 'OFF',
+                      color: context.theme.grey,
+                      icon: Icons.shopping_bag_rounded,
+                    ),
+                    _buildAlignmentTile(
+                      context,
+                      alignment: Alignment.bottomCenter,
+                      name: 'Bottom Center',
+                      code: 'Alignment.bottomCenter',
+                      badge: 'SALE',
+                      color: context.theme.success,
+                      icon: Icons.sell_rounded,
+                    ),
+                    _buildAlignmentTile(
+                      context,
+                      alignment: Alignment.bottomRight,
+                      name: 'Bottom Right',
+                      code: 'Alignment.bottomRight',
+                      badge: '99+',
+                      color: context.theme.danger,
+                      icon: Icons.chat_bubble_rounded,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  'Common Real-World Patterns:',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.onSurface),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 24,
+                  runSpacing: 16,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    // Avatar online status dot at bottomRight
+                    TBadge(
+                      dot: true,
+                      color: context.theme.success,
+                      alignment: Alignment.bottomRight,
+                      borderWidth: 2,
+                      child: const TAvatar(name: 'Sarah Connor', size: TInputSize.md),
+                    ),
+                    // Avatar busy status dot at topRight
+                    TBadge(
+                      dot: true,
+                      color: context.theme.danger,
+                      alignment: Alignment.topRight,
+                      borderWidth: 2,
+                      child: const TAvatar(name: 'Alex Rivera', size: TInputSize.md),
+                    ),
+                    // Button with badge at topRight
+                    TBadge(
+                      count: 8,
+                      alignment: Alignment.topRight,
+                      child: TButton(
+                        text: 'Pending Orders',
+                        icon: Icons.shopping_cart_outlined,
+                        size: TButtonSize.sm,
+                        onTap: () {},
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            code: '''// Top Alignments
+TBadge(
+  alignment: Alignment.topLeft,
+  badge: '3',
+  child: Icon(Icons.inbox),
+)
+
+TBadge(
+  alignment: Alignment.topCenter,
+  badge: 'HOT',
+  child: Icon(Icons.local_fire_department),
+)
+
+TBadge(
+  alignment: Alignment.topRight, // Default
+  count: 5,
+  child: Icon(Icons.notifications),
+)
+
+// Center Alignments
+TBadge(
+  alignment: Alignment.centerLeft,
+  badge: 'NEW',
+  child: Icon(Icons.bookmark),
+)
+
+TBadge(
+  alignment: Alignment.center,
+  badge: 'VIP',
+  child: Icon(Icons.verified_user),
+)
+
+TBadge(
+  alignment: Alignment.centerRight,
+  count: 12,
+  child: Icon(Icons.mail),
+)
+
+// Bottom Alignments
+TBadge(
+  alignment: Alignment.bottomLeft,
+  badge: 'OFF',
+  child: Icon(Icons.shopping_bag),
+)
+
+TBadge(
+  alignment: Alignment.bottomCenter,
+  badge: 'SALE',
+  child: Icon(Icons.sell),
+)
+
+TBadge(
+  alignment: Alignment.bottomRight,
+  badge: '99+',
+  child: Icon(Icons.chat_bubble),
+)
+
+// Avatar Online Status (Bottom-Right Dot)
+TBadge.dot(
+  alignment: Alignment.bottomRight,
+  color: context.theme.success,
+  child: TAvatar(name: 'Sarah Connor'),
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'alignment',
+                type: 'Alignment',
+                defaultValue: 'Alignment.topRight',
+                description: 'The alignment position of the badge relative to the child widget (all 9 Alignment positions supported)',
+              ),
+              PropertyDoc(
+                name: 'offset',
+                type: 'Offset?',
+                description: 'Optional fine-grained offset (acts as start point for horizontal positioning)',
+              ),
+              PropertyDoc(
+                name: 'badge',
+                type: 'dynamic',
+                description: 'Dynamic badge content: int/num (count), String (label), bool (dot), or custom Widget',
+              ),
+              PropertyDoc(
+                name: 'dot',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Displays a small circular indicator dot (common for online/active status at bottomRight)',
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
 
           // ==================== PROGRESS BAR ====================
           WidgetDocCard(
@@ -550,6 +779,49 @@ TCircularProgress(
           const SizedBox(height: 40),
         ],
       ),
+    );
+  }
+
+  Widget _buildAlignmentTile(
+    BuildContext context, {
+    required Alignment alignment,
+    required String name,
+    required String code,
+    required dynamic badge,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TBadge(
+          alignment: alignment,
+          badge: badge,
+          color: color,
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: context.colors.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: context.colors.outlineVariant.withValues(alpha: 0.5)),
+            ),
+            child: Center(
+              child: Icon(icon, size: 28, color: context.colors.onSurfaceVariant),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          name,
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.onSurface),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          code,
+          style: TextStyle(fontSize: 10, color: context.colors.onSurfaceVariant),
+        ),
+      ],
     );
   }
 }

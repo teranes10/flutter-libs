@@ -129,6 +129,9 @@ extension TButtonExtension on TButton {
     ValueChanged<bool>? onChanged,
     Duration? duration,
     Duration? throttleDuration,
+    Gradient? gradient,
+    double? elevation,
+    Color? shadowColor,
   }) {
     return TButton(
       theme: theme ?? this.theme,
@@ -159,6 +162,9 @@ extension TButtonExtension on TButton {
       onChanged: onChanged ?? this.onChanged,
       duration: duration ?? this.duration,
       throttleDuration: throttleDuration ?? this.throttleDuration,
+      gradient: gradient ?? this.gradient,
+      elevation: elevation ?? this.elevation,
+      shadowColor: shadowColor ?? this.shadowColor,
       child: child ?? this.child,
     );
   }

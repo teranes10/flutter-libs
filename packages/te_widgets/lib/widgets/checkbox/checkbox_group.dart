@@ -89,6 +89,10 @@ class TCheckboxGroup<T> extends StatefulWidget
   final double spacing;
   final double runSpacing;
 
+  /// Renders each option as a full-width, 56dp selectable [TOptionTile]
+  /// (always vertical). Use on touch / handheld screens.
+  final bool tile;
+
   /// Creates a checkbox group.
   const TCheckboxGroup({
     super.key,
@@ -114,6 +118,7 @@ class TCheckboxGroup<T> extends StatefulWidget
     this.autoFocus = false,
     this.spacing = 16,
     this.runSpacing = 8,
+    this.tile = false,
   });
 
   @override
@@ -312,6 +317,19 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
       final isChecked = _selectedValues.contains(item.value);
       final focusNode = _checkboxFocusNodes[i];
 
+      if (widget.tile) {
+        items.add(TOptionTile(
+          focusNode: focusNode,
+          label: item.label,
+          color: item.color ?? color,
+          disabled: widget.disabled,
+          indicator: TOptionIndicator.check,
+          selected: isChecked,
+          onTap: () => _onItemChanged(item.value, !isChecked),
+        ));
+        continue;
+      }
+
       items.add(TCheckbox(
         focusNode: focusNode,
         label: item.label,
@@ -322,9 +340,9 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
       ));
     }
 
-    return widget.vertical
+    return widget.vertical || widget.tile
         ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: widget.tile ? CrossAxisAlignment.stretch : CrossAxisAlignment.start,
             spacing: widget.runSpacing,
             children: items,
           )

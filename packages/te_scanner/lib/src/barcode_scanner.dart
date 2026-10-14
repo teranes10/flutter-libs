@@ -3,6 +3,8 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+import 'scan_overlay.dart';
+
 enum TBarcodeScannerMode {
   /// Automatically close the popup after a successful scan.
   autoClose,
@@ -170,8 +172,8 @@ class _TBarcodeScannerState extends State<TBarcodeScanner> with TPopupStateMixin
                             );
                           },
                         ),
-                        CustomPaint(painter: _ScannerOverlayPainter(scanWindow: scanWindow, borderRadius: 12)),
-                        _ScanningLine(animation: _animationController, scanWindow: scanWindow),
+                        CustomPaint(painter: ScanOverlayPainter(scanWindow: scanWindow, borderRadius: 12)),
+                        ScanningLine(animation: _animationController, scanWindow: scanWindow),
                         if (!kIsWeb)
                           Positioned(
                             top: 8,
@@ -243,59 +245,6 @@ class _TBarcodeScannerState extends State<TBarcodeScanner> with TPopupStateMixin
       child: KeyedSubtree(
         key: GlobalKey(),
         child: InkWell(onTap: () => togglePopup(context), borderRadius: BorderRadius.circular(8), child: widget.child),
-      ),
-    );
-  }
-}
-
-class _ScannerOverlayPainter extends CustomPainter {
-  final Rect scanWindow;
-  final double borderRadius;
-
-  _ScannerOverlayPainter({required this.scanWindow, required this.borderRadius});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final backgroundPath = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    final cutoutPath = Path()..addRRect(RRect.fromRectAndRadius(scanWindow, Radius.circular(borderRadius)));
-
-    final paint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.5)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawPath(Path.combine(PathOperation.difference, backgroundPath, cutoutPath), paint);
-
-    // Draw border
-    final borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    canvas.drawRRect(RRect.fromRectAndRadius(scanWindow, Radius.circular(borderRadius)), borderPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _ScannerOverlayPainter oldDelegate) =>
-      oldDelegate.scanWindow != scanWindow || oldDelegate.borderRadius != borderRadius;
-}
-
-class _ScanningLine extends AnimatedWidget {
-  final Rect scanWindow;
-  const _ScanningLine({required Animation<double> animation, required this.scanWindow}) : super(listenable: animation);
-
-  @override
-  Widget build(BuildContext context) {
-    final animation = listenable as Animation<double>;
-    final top = scanWindow.top + (scanWindow.height * animation.value);
-    return Positioned(
-      top: top,
-      left: scanWindow.left + 8,
-      width: scanWindow.width - 16,
-      child: Container(
-        height: 2,
-        decoration: BoxDecoration(
-          boxShadow: [BoxShadow(color: Colors.red.withValues(alpha: 0.5), blurRadius: 4, spreadRadius: 2)],
-          color: Colors.red,
-        ),
       ),
     );
   }

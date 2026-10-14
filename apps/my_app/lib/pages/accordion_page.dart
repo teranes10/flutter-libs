@@ -170,6 +170,65 @@ TTile(
             ],
           ),
 
+          const SizedBox(height: 24),
+
+          // TAccordionGroup - single open item
+          WidgetDocCard(
+            title: 'Accordion Group (Single Open Item)',
+            description: 'Wrap accordions in TAccordionGroup so expanding one collapses the others.',
+            icon: Icons.view_agenda,
+            preview: TAccordionGroup(
+              initiallyExpandedIndex: 0,
+              children: [
+                TAccordion(
+                  title: 'Shipping Information',
+                  subtitle: 'Delivery address and shipping method',
+                  content: const Text('Enter your shipping address and choose a delivery speed.'),
+                ),
+                TAccordion(
+                  title: 'Payment Details',
+                  subtitle: 'Card, wallet, or bank transfer',
+                  content: const Text('Select a payment method and enter your billing information.'),
+                ),
+                TAccordion(
+                  title: 'Order Review',
+                  subtitle: 'Confirm items before checkout',
+                  content: const Text('Review your cart items, quantities, and total before placing the order.'),
+                ),
+              ],
+            ),
+            code: '''TAccordionGroup(
+  initiallyExpandedIndex: 0,
+  children: [
+    TAccordion(
+      title: 'Shipping Information',
+      subtitle: 'Delivery address and shipping method',
+      content: Text('Enter your shipping address...'),
+    ),
+    TAccordion(
+      title: 'Payment Details',
+      subtitle: 'Card, wallet, or bank transfer',
+      content: Text('Select a payment method...'),
+    ),
+    TAccordion(
+      title: 'Order Review',
+      subtitle: 'Confirm items before checkout',
+      content: Text('Review your cart items...'),
+    ),
+  ],
+)''',
+            properties: const [
+              PropertyDoc(name: 'children', type: 'List<TAccordion>', description: 'The accordions managed by the group'),
+              PropertyDoc(
+                name: 'initiallyExpandedIndex',
+                type: 'int?',
+                defaultValue: 'null',
+                description: 'Index of the item expanded by default',
+              ),
+              PropertyDoc(name: 'spacing', type: 'double', defaultValue: '12.0', description: 'Spacing between items'),
+            ],
+          ),
+
           const SizedBox(height: 40),
         ],
       ),

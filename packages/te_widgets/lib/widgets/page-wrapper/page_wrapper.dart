@@ -40,10 +40,10 @@ class TPageWrapper extends StatefulWidget {
   final bool shrinkWrap;
 
   /// Padding for the header area.
-  final EdgeInsets padding;
+  final EdgeInsets? padding;
 
   /// Padding for the scrollable content area.
-  final EdgeInsets contentPadding;
+  final EdgeInsets? contentPadding;
 
   /// Optional background color for the entire wrapper.
   /// Defaults to [ColorScheme.surface] when null.
@@ -66,8 +66,8 @@ class TPageWrapper extends StatefulWidget {
     this.itemInfoMode,
     this.itemInfoGridInline = true,
     this.shrinkWrap = false,
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-    this.contentPadding = const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    this.padding,
+    this.contentPadding,
     this.backgroundColor,
     this.footer,
   });
@@ -126,115 +126,191 @@ class _TPageWrapperState extends State<TPageWrapper> {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      padding: widget.padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    Widget? leadingWidget;
+    if (!isDesktop && widget.onBackPressed != null) {
+      leadingWidget = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (hasMainRow)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+          TButton(
+            type: TButtonType.text,
+            size: TSize.md.copyWith(icon: 32, hPad: 3),
+            shape: TButtonShape.circle,
+            icon: HugeIcons.strokeRoundedArrowLeft01,
+            color: colors.onSurfaceVariant,
+            onTap: widget.onBackPressed,
+          ),
+          if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) ...[
+            const SizedBox(width: 3),
+            TImage(
+              url: widget.imageUrl,
+              size: widget.subTitle != null ? 45 : 36,
+              color: colors.surfaceContainerLow,
+              disabled: true,
+              border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ],
+        ],
+      );
+    }
+
+    final titleFontSize = isDesktop ? 18.0 : 15.0;
+    final subtitleFontSize = isDesktop ? 12.0 : 11.0;
+    const subtitleGap = 2.0;
+    const descFontSize = 13.0;
+    const descGap = 8.0;
+    final iconSize = widget.subTitle != null ? 52.0 : 42.0;
+
+    final titleFontWeight = titleFontSize >= 22.0 ? FontWeight.w700 : (titleFontSize >= 16.0 ? FontWeight.w600 : FontWeight.w500);
+
+    final hasText = widget.title != null || widget.subTitle != null;
+
+    final titleSubtitleRow = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (leadingWidget != null) ...[
+          leadingWidget,
+          SizedBox(width: isDesktop ? 12 : 20),
+        ] else if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) ...[
+          TImage(
+            url: widget.imageUrl,
+            size: iconSize,
+            color: colors.surfaceContainerLow,
+            disabled: true,
+            border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          const SizedBox(width: 12),
+        ],
+        if (hasText)
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (!isDesktop && widget.onBackPressed != null) ...[
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: widget.onBackPressed,
+                if (widget.title != null)
+                  Text(
+                    widget.title!,
+                    style: TextStyle(fontSize: titleFontSize, fontWeight: titleFontWeight, color: colors.onSurface),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(width: 12),
-                ],
-                if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) ...[
-                  Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    child: TImage(
-                      url: widget.imageUrl,
-                      size: widget.subTitle != null ? 52 : 42,
-                      color: colors.surfaceContainerLow,
-                      disabled: true,
-                      border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.title != null)
-                        Text(
-                          widget.title!,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      if (widget.subTitle != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          widget.subTitle!,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w300,
-                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (widget.actions != null) ...widget.actions!,
-                if (isDesktop && widget.onBackPressed != null) ...[
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: widget.onBackPressed,
+                if (widget.subTitle != null) ...[
+                  const SizedBox(height: subtitleGap),
+                  Text(
+                    widget.subTitle!,
+                    style: TextStyle(fontSize: subtitleFontSize, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ],
             ),
-          if (hasDescription) ...[
-            if (hasMainRow) const SizedBox(height: 8),
-            Text(
-              widget.description!,
-              style: TextStyle(
-                fontSize: 13,
-                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-              ),
-            ),
-          ],
-          if (hasItemInfo) ...[
-            const SizedBox(height: 10),
-            TKeyValueSection(
-              values: widget.itemInfo!,
-              mode: widget.itemInfoMode ?? (widget.itemInfoGridInline ? TKeyValueMode.inlineFlow : TKeyValueMode.stackedFlow),
-              theme: context.theme.keyValueTheme.copyWith(
-                valueStyle: context.theme.keyValueTheme.valueStyle.copyWith(
-                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+          ),
+      ],
+    );
+
+    final hasDescriptionOrValues = hasDescription || hasItemInfo;
+
+    // Only the title/subtitle line goes beside the trailing actions in
+    // TAlignedRow — description/itemInfo are appended below as a separate
+    // full-width block so a long description can't push the close button
+    // off the title row (TAlignedRow wraps based on the whole left item).
+    final descriptionAndInfoBlock = !hasDescriptionOrValues
+        ? null
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hasDescription)
+                Text(
+                  widget.description!,
+                  style: TextStyle(fontSize: descFontSize, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
                 ),
-                keyStyle: context.theme.keyValueTheme.keyStyle.copyWith(
-                  color: isDark ? Colors.grey.shade500 : Colors.grey.shade500,
+              if (hasItemInfo) ...[
+                if (hasDescription) const SizedBox(height: 24),
+                Padding(
+                  // Line the info up with the back arrow glyph, not the button's edge.
+                  padding: EdgeInsets.only(left: leadingWidget != null ? 12 : 0),
+                  child: TKeyValueSection(
+                    values: widget.itemInfo!,
+                    mode: widget.itemInfoMode ?? (widget.itemInfoGridInline ? TKeyValueMode.inlineFlow : TKeyValueMode.stackedFlow),
+                  ),
                 ),
-                labelStyle: context.theme.keyValueTheme.labelStyle.copyWith(
-                  color: isDark ? Colors.grey.shade500 : Colors.grey.shade500,
-                ),
-              ),
-            ),
-          ],
+              ],
+            ],
+          );
+
+    final trailingActions = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.actions != null) ...widget.actions!,
+        if (isDesktop && widget.onBackPressed != null) ...[
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.close),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            onPressed: widget.onBackPressed,
+          ),
         ],
-      ),
+      ],
+    );
+
+    final hasTrailingActions = widget.actions != null && widget.actions!.isNotEmpty || (isDesktop && widget.onBackPressed != null);
+
+    final effectivePadding = widget.padding ??
+        EdgeInsets.symmetric(
+          horizontal: isDesktop ? 16 : 0,
+          vertical: isDesktop ? 16 : 4,
+        );
+
+    final titleRow = hasTrailingActions
+        ? TAlignedRow(
+            moveAllToSecondRow: true,
+            wrapperModeThreshold: 2,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 6,
+            rowSpacing: 3,
+            left: [titleSubtitleRow],
+            right: [trailingActions],
+          )
+        : titleSubtitleRow;
+
+    return Padding(
+      padding: effectivePadding,
+      child: descriptionAndInfoBlock == null
+          ? titleRow
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                titleRow,
+                const SizedBox(height: descGap),
+                descriptionAndInfoBlock,
+              ],
+            ),
     );
   }
 
-  Widget _buildContent(BuildContext context, ColorScheme colors, bool isDark, bool shouldShrinkWrap) {
+  Widget _buildContent(BuildContext context, ColorScheme colors, bool isDark, bool isDesktop, bool shouldShrinkWrap) {
+    final effectiveContentPadding = widget.contentPadding ??
+        EdgeInsets.symmetric(
+          vertical: isDesktop ? 16 : 0,
+          horizontal: isDesktop ? 16 : 0,
+        );
+
     final scrollView = SingleChildScrollView(
       controller: _scrollController,
-      padding: widget.contentPadding,
+      padding: effectiveContentPadding,
       child: widget.child,
     );
+
+    if (shouldShrinkWrap) {
+      // Rendered outside the Stack below: a Stack sizes non-positioned
+      // children using the loose constraints it's handed, and a
+      // SingleChildScrollView greedily fills those instead of shrinking to
+      // its child's intrinsic size — that's what caused the oversized empty
+      // area under shrink-wrapped dialog content.
+      return scrollView;
+    }
 
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
@@ -244,7 +320,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          if (shouldShrinkWrap) scrollView else Positioned.fill(child: scrollView),
+          Positioned.fill(child: scrollView),
           // Top vertical shadow (casts downward when scrolled down from top)
           Positioned(
             top: 0,
@@ -327,17 +403,16 @@ class _TPageWrapperState extends State<TPageWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = context.isDesktop;
     final isDark = context.isDarkMode;
     final colors = context.colors;
     final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor(colors.surface);
 
-    final headerWidget = _buildHeader(context, colors, isDark, isDesktop);
-    final footerWidget = _buildFooter(context, colors, isDark);
-
     return LayoutBuilder(
       builder: (context, constraints) {
+        final isDesktop = constraints.isDesktop;
         final shouldShrinkWrap = widget.shrinkWrap || !constraints.hasBoundedHeight;
+        final headerWidget = _buildHeader(context, colors, isDark, isDesktop);
+        final footerWidget = _buildFooter(context, colors, isDark);
 
         if (shouldShrinkWrap) {
           return Material(
@@ -349,7 +424,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
               children: [
                 headerWidget,
                 Flexible(
-                  child: _buildContent(context, colors, isDark, true),
+                  child: _buildContent(context, colors, isDark, isDesktop, true),
                 ),
                 if (footerWidget != null) footerWidget,
               ],
@@ -366,7 +441,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
               children: [
                 headerWidget,
                 Expanded(
-                  child: _buildContent(context, colors, isDark, false),
+                  child: _buildContent(context, colors, isDark, isDesktop, false),
                 ),
                 if (footerWidget != null) footerWidget,
               ],

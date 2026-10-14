@@ -56,6 +56,12 @@ class TResult extends StatelessWidget {
   /// Whether this result occupies the full page (centers with expanded padding).
   final bool fullPage;
 
+  /// When true together with [fullPage], the actions are docked in a bottom
+  /// bar (stacked, full width, above the system inset) instead of sitting
+  /// inline under the content. Use for handheld "completed" screens so the
+  /// next action is always in the thumb zone.
+  final bool docked;
+
   /// Padding around the result widget.
   final EdgeInsetsGeometry padding;
 
@@ -73,6 +79,7 @@ class TResult extends StatelessWidget {
     this.secondaryAction,
     this.extra,
     this.fullPage = false,
+    this.docked = false,
     this.padding = const EdgeInsets.all(32.0),
   });
 
@@ -90,6 +97,7 @@ class TResult extends StatelessWidget {
     this.secondaryAction,
     this.extra,
     this.fullPage = false,
+    this.docked = false,
     this.padding = const EdgeInsets.all(32.0),
   }) : status = TResultStatus.success;
 
@@ -107,6 +115,7 @@ class TResult extends StatelessWidget {
     this.secondaryAction,
     this.extra,
     this.fullPage = false,
+    this.docked = false,
     this.padding = const EdgeInsets.all(32.0),
   }) : status = TResultStatus.error;
 
@@ -124,6 +133,7 @@ class TResult extends StatelessWidget {
     this.secondaryAction,
     this.extra,
     this.fullPage = false,
+    this.docked = false,
     this.padding = const EdgeInsets.all(32.0),
   }) : status = TResultStatus.warning;
 
@@ -141,6 +151,7 @@ class TResult extends StatelessWidget {
     this.secondaryAction,
     this.extra,
     this.fullPage = false,
+    this.docked = false,
     this.padding = const EdgeInsets.all(32.0),
   }) : status = TResultStatus.info;
 
@@ -158,6 +169,7 @@ class TResult extends StatelessWidget {
     this.secondaryAction,
     this.extra,
     this.fullPage = false,
+    this.docked = false,
     this.padding = const EdgeInsets.all(32.0),
   }) : status = TResultStatus.forbidden;
 
@@ -175,6 +187,7 @@ class TResult extends StatelessWidget {
     this.secondaryAction,
     this.extra,
     this.fullPage = false,
+    this.docked = false,
     this.padding = const EdgeInsets.all(32.0),
   }) : status = TResultStatus.notFound;
 
@@ -192,6 +205,7 @@ class TResult extends StatelessWidget {
     this.secondaryAction,
     this.extra,
     this.fullPage = false,
+    this.docked = false,
     this.padding = const EdgeInsets.all(32.0),
   }) : status = TResultStatus.serverError;
 
@@ -246,6 +260,7 @@ class TResult extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final (resolvedIcon, effectiveColor, effectiveBg) = _resolveStatusVisuals(context);
+    final dockActions = fullPage && docked && (primaryAction != null || secondaryAction != null);
 
     final content = Center(
       child: ConstrainedBox(
@@ -311,7 +326,7 @@ class TResult extends StatelessWidget {
               ],
 
               // Actions Row
-              if (primaryAction != null || secondaryAction != null) ...[
+              if (!dockActions && (primaryAction != null || secondaryAction != null)) ...[
                 const SizedBox(height: 28),
                 Wrap(
                   spacing: 12,
@@ -334,6 +349,22 @@ class TResult extends StatelessWidget {
       return Scaffold(
         backgroundColor: colors.surface,
         body: Center(child: SingleChildScrollView(child: content)),
+        bottomNavigationBar: dockActions
+            ? SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (primaryAction != null) primaryAction!,
+                      if (primaryAction != null && secondaryAction != null) const SizedBox(height: 10),
+                      if (secondaryAction != null) secondaryAction!,
+                    ],
+                  ),
+                ),
+              )
+            : null,
       );
     }
 

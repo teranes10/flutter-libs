@@ -55,6 +55,13 @@ class ChipsPage extends StatelessWidget {
                   text: 'Large Chip (lg)',
                   trailing: TIcon.close(size: 14, padding: EdgeInsets.zero, onTap: () {}),
                 ),
+                TChip(
+                  size: TChipSize.xl,
+                  type: TVariant.tonal,
+                  icon: Icons.filter_alt,
+                  text: 'Extra Large Chip (xl)',
+                  trailing: TIcon.close(size: 14, padding: EdgeInsets.zero, onTap: () {}),
+                ),
               ],
             ),
             code: '''TChip(size: TChipSize.sm, text: 'Small Chip')

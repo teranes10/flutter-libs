@@ -14,18 +14,12 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
   final _emailNotifier = ValueNotifier<String?>('');
   final _passwordNotifier = ValueNotifier<String?>('');
   final _quantityNotifier = ValueNotifier<double?>(null);
-  final _termsNotifier = ValueNotifier<bool?>(false);
-  final _notificationsNotifier = ValueNotifier<bool>(false);
-  final _interestsNotifier = ValueNotifier<List<String>>([]);
 
   @override
   void dispose() {
     _emailNotifier.dispose();
     _passwordNotifier.dispose();
     _quantityNotifier.dispose();
-    _termsNotifier.dispose();
-    _notificationsNotifier.dispose();
-    _interestsNotifier.dispose();
     super.dispose();
   }
 
@@ -213,6 +207,96 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
                 type: 'bool',
                 defaultValue: 'false',
                 description: 'Whether to show a clear button when field has a value',
+              ),
+            ],
+          ),
+
+          // Quantity Stepper Variant (Handheld / Touch Flow)
+          WidgetDocCard(
+            title: 'Quantity Stepper Variant',
+            description:
+                'Touch-optimized quantity stepper with large 64dp buttons, min/max clamping, unit caption, and quick-add preset chips',
+            icon: Icons.add_circle_outline_rounded,
+            preview: SizedBox(
+              width: 340,
+              child: TNumberField<int>(
+                label: 'Confirm Pick Quantity',
+                variant: TNumberFieldVariant.quantity,
+                value: 4,
+                min: 0,
+                max: 24,
+                unit: 'boxes (12 pcs each)',
+                presets: const [1, 5, 10],
+                onValueChanged: (value) => debugPrint('Quantity: $value'),
+              ),
+            ),
+            code: '''TNumberField<int>(
+  label: 'Confirm Pick Quantity',
+  variant: TNumberFieldVariant.quantity,
+  value: 4,
+  min: 0,
+  max: 24,
+  unit: 'boxes (12 pcs each)',
+  presets: [1, 5, 10], // Quick-add preset chips (+1, +5, +10) + 'Max' chip
+  onValueChanged: (value) {
+    print('Quantity: \$value');
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'variant',
+                type: 'TNumberFieldVariant',
+                defaultValue: 'TNumberFieldVariant.field',
+                description: 'Visual presentation: field (standard input) or quantity (handheld touch stepper)',
+              ),
+              PropertyDoc(name: 'min', type: 'num?', description: 'Minimum allowed value; steppers clamp to this boundary'),
+              PropertyDoc(name: 'max', type: 'num?', description: 'Maximum allowed value; steppers clamp to this and renders "Max" chip'),
+              PropertyDoc(
+                name: 'presets',
+                type: 'List<num>',
+                defaultValue: '[]',
+                description: 'Quick-add chips (+1, +5, ...) shown under quantity stepper',
+              ),
+              PropertyDoc(
+                name: 'unit',
+                type: 'String?',
+                description: 'Unit caption displayed below the numeric value (e.g. boxes, pcs, kg)',
+              ),
+            ],
+          ),
+
+          // Number Field with Min & Max Bounds
+          WidgetDocCard(
+            title: 'Number Field with Min & Max Bounds',
+            description: 'Standard number field with min and max constraints clamping stepper increments and input',
+            icon: Icons.tune_rounded,
+            preview: TNumberField<double>(
+              label: 'Discount Percentage',
+              placeholder: '0',
+              value: 15.0,
+              min: 0,
+              max: 100,
+              splitStepper: true,
+              helperText: 'Value clamped between 0% and 100%',
+              onValueChanged: (v) => debugPrint('Discount: $v'),
+            ),
+            code: '''TNumberField<double>(
+  label: 'Discount Percentage',
+  placeholder: '0',
+  value: 15.0,
+  min: 0,
+  max: 100, // Clamps values between 0 and 100
+  splitStepper: true,
+  helperText: 'Value clamped between 0% and 100%',
+  onValueChanged: (value) => print('Discount: \$value%'),
+)''',
+            properties: const [
+              PropertyDoc(name: 'min', type: 'num?', description: 'Lowest value allowed for steppers and validation clamping'),
+              PropertyDoc(name: 'max', type: 'num?', description: 'Highest value allowed for steppers and validation clamping'),
+              PropertyDoc(
+                name: 'splitStepper',
+                type: 'bool?',
+                description: 'Places decrement button in pre-widget and increment in post-widget',
               ),
             ],
           ),
@@ -484,540 +568,6 @@ ValueListenableBuilder<String?>(
             ],
           ),
 
-          // ==================== CHECKBOX ====================
-
-          // Basic Checkbox
-          WidgetDocCard(
-            title: 'Checkbox',
-            description: 'Single checkbox for boolean selection',
-            icon: Icons.check_box,
-            preview: TCheckbox(label: 'I agree to the terms and conditions', valueNotifier: _termsNotifier),
-            code: '''TCheckbox(
-  label: 'I agree to the terms and conditions',
-  onValueChanged: (value) {
-    print('Checked: \$value');
-  },
-)''',
-            properties: const [
-              PropertyDoc(name: 'label', type: 'String?', description: 'Label text displayed next to the checkbox'),
-              PropertyDoc(name: 'value', type: 'bool?', description: 'Current checkbox state (true, false, or null for indeterminate)'),
-              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<bool?>?', description: 'Callback fired when checkbox state changes'),
-            ],
-          ),
-
-          // Checkbox with Info
-          WidgetDocCard(
-            title: 'Checkbox with Info Tooltip',
-            description: 'Checkbox with informational tooltip next to label',
-            icon: Icons.info_outline,
-            preview: TCheckbox(
-              label: 'Subscribe to newsletter',
-              info: 'We send weekly updates about new features and releases',
-              valueNotifier: ValueNotifier<bool?>(false),
-            ),
-            code: '''TCheckbox(
-  label: 'Subscribe to newsletter',
-  info: 'We send weekly updates about new features and releases',
-  onValueChanged: (value) {
-    print('Subscribed: \$value');
-  },
-)''',
-            properties: const [
-              PropertyDoc(name: 'info', type: 'String?', description: 'Informational text displayed in a tooltip next to the label'),
-            ],
-          ),
-
-          // Checkbox with Validation
-          WidgetDocCard(
-            title: 'Required Checkbox with Validation',
-            description: 'Checkbox with required validation',
-            icon: Icons.verified,
-            preview: TCheckbox(
-              label: 'I accept the privacy policy',
-              isRequired: true,
-              valueNotifier: ValueNotifier<bool?>(false),
-              rules: [
-                (value) {
-                  if (value != true) return 'You must accept the privacy policy';
-                  return null;
-                },
-              ],
-            ),
-            code: '''TCheckbox(
-  label: 'I accept the privacy policy',
-  isRequired: true,
-  rules: [
-    (value) {
-      if (value != true) return 'You must accept the privacy policy';
-      return null;
-    },
-  ],
-  onValueChanged: (value) => print(value),
-)''',
-            properties: const [
-              PropertyDoc(name: 'isRequired', type: 'bool', defaultValue: 'false', description: 'Whether the checkbox is required'),
-              PropertyDoc(name: 'rules', type: 'List<String? Function(bool?)>?', description: 'Validation rules for the checkbox'),
-            ],
-          ),
-
-          // Checkbox with Label Position Above
-          WidgetDocCard(
-            title: 'Checkbox with Label Above',
-            description: 'TCheckbox configured with TLabelPosition.aboveField inside a custom input field theme',
-            icon: Icons.vertical_align_top,
-            preview: TCheckbox(
-              label: 'Receive promotional emails',
-              tag: 'New',
-              info: 'Weekly marketing updates',
-              helperText: 'You can opt out at any time.',
-              isRequired: true,
-              valueNotifier: ValueNotifier<bool?>(false),
-              theme: context.theme.inputFieldTheme.copyWith(labelPosition: TLabelPosition.aboveField),
-            ),
-            code: '''TCheckbox(
-  label: 'Receive promotional emails',
-  tag: 'New',
-  info: 'Weekly marketing updates',
-  helperText: 'You can opt out at any time.',
-  isRequired: true,
-  theme: context.theme.inputFieldTheme.copyWith(
-    labelPosition: TLabelPosition.aboveField,
-  ),
-  onValueChanged: (value) => print(value),
-)''',
-          ),
-
-          // ==================== CHECKBOX GROUP ====================
-
-          // Basic Checkbox Group
-          WidgetDocCard(
-            title: 'Checkbox Group',
-            description: 'Multiple checkbox selection with group management',
-            icon: Icons.checklist,
-            preview: TCheckboxGroup<String>(
-              label: 'Interests',
-              items: [
-                TCheckboxGroupItem.map('Technology'),
-                TCheckboxGroupItem.map('Sports'),
-                TCheckboxGroupItem.map('Music'),
-                TCheckboxGroupItem.map('Travel'),
-              ],
-              valueNotifier: _interestsNotifier,
-            ),
-            code: '''TCheckboxGroup<String>(
-  label: 'Interests',
-  items: [
-    TCheckboxGroupItem.map('Technology'),
-    TCheckboxGroupItem.map('Sports'),
-    TCheckboxGroupItem.map('Music'),
-    TCheckboxGroupItem.map('Travel'),
-  ],
-  onValueChanged: (selected) {
-    print('Selected: \$selected');
-  },
-)''',
-            properties: const [
-              PropertyDoc(name: 'items', type: 'List<TCheckboxGroupItem<T>>', description: 'List of checkbox items to display'),
-              PropertyDoc(name: 'value', type: 'List<T>?', description: 'Currently selected values'),
-              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<List<T>?>?', description: 'Callback fired when selection changes'),
-            ],
-          ),
-
-          // Checkbox Group Layouts
-          WidgetDocCard(
-            title: 'Checkbox Group Layouts',
-            description: 'Vertical and horizontal layouts for checkbox groups',
-            icon: Icons.view_agenda,
-            preview: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Horizontal Layout',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.onSurface),
-                ),
-                const SizedBox(height: 8),
-                TCheckboxGroup<String>(
-                  label: 'Preferences',
-                  items: [TCheckboxGroupItem.map('Email'), TCheckboxGroupItem.map('SMS'), TCheckboxGroupItem.map('Push')],
-                  vertical: false,
-                  valueNotifier: ValueNotifier<List<String>>([]),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Vertical Layout',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: context.colors.onSurface),
-                ),
-                const SizedBox(height: 8),
-                TCheckboxGroup<String>(
-                  label: 'Features',
-                  items: [
-                    TCheckboxGroupItem.map('Dark Mode'),
-                    TCheckboxGroupItem.map('Notifications'),
-                    TCheckboxGroupItem.map('Auto-save'),
-                  ],
-                  vertical: true,
-                  valueNotifier: ValueNotifier<List<String>>([]),
-                ),
-              ],
-            ),
-            code: '''// Horizontal Layout
-TCheckboxGroup<String>(
-  label: 'Preferences',
-  items: [
-    TCheckboxGroupItem.map('Email'),
-    TCheckboxGroupItem.map('SMS'),
-    TCheckboxGroupItem.map('Push'),
-  ],
-  vertical: false, // Horizontal layout
-)
-
-// Vertical Layout
-TCheckboxGroup<String>(
-  label: 'Features',
-  items: [
-    TCheckboxGroupItem.map('Dark Mode'),
-    TCheckboxGroupItem.map('Notifications'),
-    TCheckboxGroupItem.map('Auto-save'),
-  ],
-  vertical: true, // Vertical layout (default)
-)''',
-            properties: const [
-              PropertyDoc(name: 'vertical', type: 'bool', defaultValue: 'false', description: 'Whether to display checkboxes vertically'),
-              PropertyDoc(name: 'block', type: 'bool', defaultValue: 'true', description: 'Whether checkboxes should take full width'),
-            ],
-          ),
-
-          // Checkbox Group with Validation
-          WidgetDocCard(
-            title: 'Checkbox Group with Validation',
-            description: 'Validate minimum/maximum selections',
-            icon: Icons.rule,
-            preview: TCheckboxGroup<String>(
-              label: 'Select Skills (min 2, max 4)',
-              isRequired: true,
-              items: [
-                TCheckboxGroupItem.map('Flutter'),
-                TCheckboxGroupItem.map('React'),
-                TCheckboxGroupItem.map('Vue'),
-                TCheckboxGroupItem.map('Angular'),
-                TCheckboxGroupItem.map('Node.js'),
-              ],
-              valueNotifier: ValueNotifier<List<String>>([]),
-              rules: [
-                (selected) {
-                  if (selected == null || selected.isEmpty) {
-                    return 'Please select at least 2 skills';
-                  }
-                  if (selected.length < 2) {
-                    return 'Please select at least 2 skills';
-                  }
-                  if (selected.length > 4) {
-                    return 'Please select at most 4 skills';
-                  }
-                  return null;
-                },
-              ],
-            ),
-            code: '''TCheckboxGroup<String>(
-  label: 'Select Skills (min 2, max 4)',
-  isRequired: true,
-  items: [
-    TCheckboxGroupItem.map('Flutter'),
-    TCheckboxGroupItem.map('React'),
-    TCheckboxGroupItem.map('Vue'),
-    TCheckboxGroupItem.map('Angular'),
-    TCheckboxGroupItem.map('Node.js'),
-  ],
-  rules: [
-    (selected) {
-      if (selected == null || selected.isEmpty) {
-        return 'Please select at least 2 skills';
-      }
-      if (selected.length < 2) {
-        return 'Please select at least 2 skills';
-      }
-      if (selected.length > 4) {
-        return 'Please select at most 4 skills';
-      }
-      return null;
-    },
-  ],
-)''',
-            properties: const [
-              PropertyDoc(name: 'rules', type: 'List<String? Function(List<T>?)>?', description: 'Validation rules for the checkbox group'),
-            ],
-          ),
-
-          // Checkbox Group with Clear Button
-          WidgetDocCard(
-            title: 'Checkbox Group with Clear Button',
-            description: 'Checkbox group with clearable option to deselect all',
-            icon: Icons.clear_all,
-            preview: TCheckboxGroup<String>(
-              label: 'Notifications',
-              clearable: true,
-              items: [
-                TCheckboxGroupItem.map('Email Updates'),
-                TCheckboxGroupItem.map('SMS Alerts'),
-                TCheckboxGroupItem.map('Push Notifications'),
-                TCheckboxGroupItem.map('Newsletter'),
-              ],
-              valueNotifier: ValueNotifier<List<String>>(['Email Updates', 'Push Notifications']),
-            ),
-            code: '''TCheckboxGroup<String>(
-  label: 'Notifications',
-  clearable: true, // Show clear button when items are selected
-  items: [
-    TCheckboxGroupItem.map('Email Updates'),
-    TCheckboxGroupItem.map('SMS Alerts'),
-    TCheckboxGroupItem.map('Push Notifications'),
-    TCheckboxGroupItem.map('Newsletter'),
-  ],
-  value: ['Email Updates', 'Push Notifications'],
-  onValueChanged: (selected) {
-    print('Selected: \$selected');
-  },
-)''',
-            properties: const [
-              PropertyDoc(
-                name: 'clearable',
-                type: 'bool',
-                defaultValue: 'false',
-                description: 'Whether to show a clear button to deselect all items',
-              ),
-            ],
-          ),
-
-          // ==================== RADIO GROUP ====================
-
-          // Basic Radio Group
-          WidgetDocCard(
-            title: 'Radio Group',
-            description: 'Single selection from a set of options',
-            icon: Icons.radio_button_checked,
-            preview: TRadioGroup<String>(
-              label: 'Preferred Contact Method',
-              items: const [
-                TRadioGroupItem(value: 'email', label: 'Email'),
-                TRadioGroupItem(value: 'phone', label: 'Phone'),
-                TRadioGroupItem(value: 'mail', label: 'Mail'),
-              ],
-              onValueChanged: (value) => debugPrint('Selected: $value'),
-            ),
-            code: '''TRadioGroup<String>(
-  label: 'Preferred Contact Method',
-  items: [
-    TRadioGroupItem(value: 'email', label: 'Email'),
-    TRadioGroupItem(value: 'phone', label: 'Phone'),
-    TRadioGroupItem(value: 'mail', label: 'Mail'),
-  ],
-  onValueChanged: (value) => print('Selected: \$value'),
-)''',
-            properties: const [
-              PropertyDoc(name: 'items', type: 'List<TRadioGroupItem<T>>', description: 'List of radio items to display'),
-              PropertyDoc(name: 'value', type: 'T?', description: 'Currently selected value'),
-              PropertyDoc(name: 'vertical', type: 'bool', defaultValue: 'false', description: 'Whether to display items vertically'),
-            ],
-          ),
-
-          // Radio Group Layouts
-          WidgetDocCard(
-            title: 'Radio Group Layouts',
-            description: 'Vertical and horizontal layouts for radio groups',
-            icon: Icons.view_headline,
-            preview: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TRadioGroup<String>(
-                  label: 'Vertical Layout',
-                  vertical: true,
-                  items: const [
-                    TRadioGroupItem(value: 'option1', label: 'Option 1'),
-                    TRadioGroupItem(value: 'option2', label: 'Option 2'),
-                    TRadioGroupItem(value: 'option3', label: 'Option 3'),
-                  ],
-                  onValueChanged: (value) => debugPrint('Selected: $value'),
-                ),
-              ],
-            ),
-            code: '''TRadioGroup<String>(
-  label: 'Layout',
-  vertical: true, // Display items in a column
-  items: [
-    TRadioGroupItem(value: 'option1', label: 'Option 1'),
-    TRadioGroupItem(value: 'option2', label: 'Option 2'),
-    TRadioGroupItem(value: 'option3', label: 'Option 3'),
-  ],
-)''',
-            properties: const [
-              PropertyDoc(name: 'vertical', type: 'bool', defaultValue: 'false', description: 'Whether to display items vertically'),
-              PropertyDoc(name: 'spacing', type: 'double', defaultValue: '16', description: 'Horizontal spacing between items'),
-              PropertyDoc(name: 'runSpacing', type: 'double', defaultValue: '8', description: 'Vertical spacing between items/rows'),
-            ],
-          ),
-
-          // ==================== SWITCH ====================
-
-          // Basic Switch
-          WidgetDocCard(
-            title: 'Switch (Toggle)',
-            description: 'Toggle switch for boolean settings',
-            icon: Icons.toggle_on,
-            preview: TSwitch(label: 'Enable Notifications', valueNotifier: _notificationsNotifier),
-            code: '''TSwitch(
-  label: 'Enable Notifications',
-  onValueChanged: (value) {
-    print('Notifications: \$value');
-  },
-)''',
-            properties: const [
-              PropertyDoc(name: 'label', type: 'String?', description: 'Label text displayed next to the switch'),
-              PropertyDoc(name: 'value', type: 'bool', defaultValue: 'false', description: 'Current switch state'),
-              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<bool?>?', description: 'Callback fired when switch state changes'),
-            ],
-          ),
-
-          // Switch States
-          WidgetDocCard(
-            title: 'Switch States, Sizes, and Colors',
-            description: 'Different switch states, sizes, and custom active/inactive colors',
-            icon: Icons.settings,
-            preview: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TSwitch(label: 'Enabled (On)', value: true, onValueChanged: (_) {}),
-                const SizedBox(height: 12),
-                TSwitch(label: 'Enabled (Off)', value: false, onValueChanged: (_) {}),
-                const SizedBox(height: 12),
-                TSwitch(
-                  label: 'Custom Active & Inactive Color',
-                  valueNotifier: ValueNotifier<bool>(false),
-                  color: Colors.teal,
-                  inactiveColor: Colors.amber.withAlpha(100),
-                ),
-                const SizedBox(height: 12),
-                TSwitch(label: 'Disabled (On)', value: true, disabled: true, onValueChanged: (_) {}),
-                const SizedBox(height: 12),
-                TSwitch(label: 'Disabled (Off)', value: false, disabled: true, onValueChanged: (_) {}),
-                const SizedBox(height: 12),
-                TSwitch(label: 'Extra Small Size', value: true, size: TInputSize.xs, onValueChanged: (_) {}),
-                const SizedBox(height: 12),
-                TSwitch(label: 'Small Size', value: true, size: TInputSize.sm, onValueChanged: (_) {}),
-                const SizedBox(height: 12),
-                TSwitch(label: 'Large Size', value: true, size: TInputSize.lg, onValueChanged: (_) {}),
-              ],
-            ),
-            code: '''// On state
-TSwitch(
-  label: 'Enabled (On)',
-  value: true,
-)
-
-// Off state
-TSwitch(
-  label: 'Enabled (Off)',
-  value: false,
-)
-
-// Custom Active & Inactive Colors
-TSwitch(
-  label: 'Custom Colors',
-  color: Colors.teal, // Active/On state color
-  inactiveColor: Colors.amber, // Optional Inactive/Off state track color
-  onValueChanged: (value) => print(value),
-)
-
-// Disabled
-TSwitch(
-  label: 'Disabled',
-  value: true,
-  disabled: true,
-)
-
-// Different sizes
-TSwitch(
-  label: 'Small',
-  value: true,
-  size: TInputSize.sm,
-)
-
-TSwitch(
-  label: 'Large',
-  value: true,
-  size: TInputSize.lg,
-)''',
-            properties: const [
-              PropertyDoc(name: 'disabled', type: 'bool', defaultValue: 'false', description: 'Whether the switch is disabled'),
-              PropertyDoc(name: 'size', type: 'TInputSize?', description: 'Size of the switch (xs, sm, md, lg)'),
-              PropertyDoc(name: 'color', type: 'Color?', description: 'Custom color for the switch when active/on'),
-              PropertyDoc(
-                name: 'inactiveColor',
-                type: 'Color?',
-                description: 'Optional custom color for the switch track when inactive/off',
-              ),
-            ],
-          ),
-
-          // Switch with Validation
-          WidgetDocCard(
-            title: 'Switch with Validation',
-            description: 'Required switch with validation rules',
-            icon: Icons.verified,
-            preview: TSwitch(
-              label: 'I confirm I am 18 years or older',
-              isRequired: true,
-              valueNotifier: ValueNotifier<bool>(false),
-              rules: [
-                (value) {
-                  if (value != true) return 'You must confirm you are 18 or older';
-                  return null;
-                },
-              ],
-            ),
-            code: '''TSwitch(
-  label: 'I confirm I am 18 years or older',
-  isRequired: true,
-  rules: [
-    (value) {
-      if (value != true) return 'You must confirm you are 18 or older';
-      return null;
-    },
-  ],
-  onValueChanged: (value) => print(value),
-)''',
-            properties: const [
-              PropertyDoc(name: 'isRequired', type: 'bool', defaultValue: 'false', description: 'Whether the switch is required'),
-              PropertyDoc(name: 'rules', type: 'List<String? Function(bool?)>?', description: 'Validation rules for the switch'),
-            ],
-          ),
-
-          // Switch with Label Position Above
-          WidgetDocCard(
-            title: 'Switch with Label Above',
-            description: 'TSwitch configured with TLabelPosition.aboveField inside a custom input field theme',
-            icon: Icons.vertical_align_top,
-            preview: TSwitch(
-              label: 'Automatic Backups',
-              tag: 'Recommended',
-              info: 'Backs up data to the cloud every night',
-              helperText: 'Requires an active internet connection.',
-              isRequired: true,
-              valueNotifier: ValueNotifier<bool>(true),
-              theme: context.theme.inputFieldTheme.copyWith(labelPosition: TLabelPosition.aboveField),
-            ),
-            code: '''TSwitch(
-  label: 'Automatic Backups',
-  tag: 'Recommended',
-  info: 'Backs up data to the cloud every night',
-  helperText: 'Requires an active internet connection.',
-  isRequired: true,
-  theme: context.theme.inputFieldTheme.copyWith(
-    labelPosition: TLabelPosition.aboveField,
-  ),
-  onValueChanged: (value) => print(value),
-)''',
-          ),
-
           // ==================== FILE PICKER ====================
 
           // Basic File Picker
@@ -1128,6 +678,62 @@ TSwitch(
             ],
           ),
 
+          // File Picker with onAdd and onRemove Events
+          WidgetDocCard(
+            title: 'File Picker with onAdd & onRemove Events',
+            description: 'Receive real-time callbacks with List<TFile> whenever files are added or removed (individually or cleared).',
+            icon: Icons.playlist_add_check_rounded,
+            preview: TFilePicker(
+              label: 'Upload Attachments',
+              placeholder: 'Choose files to observe events',
+              allowMultiple: true,
+              clearable: true,
+              valueNotifier: ValueNotifier<List<TFile>>([]),
+              onAdd: (addedFiles) {
+                TToastService.success(context, 'Added ${addedFiles.length} file(s): ${addedFiles.map((f) => f.name).join(', ')}');
+              },
+              onRemove: (removedFiles) {
+                TToastService.warning(context, 'Removed ${removedFiles.length} file(s): ${removedFiles.map((f) => f.name).join(', ')}');
+              },
+            ),
+            code: '''TFilePicker(
+  label: 'Upload Attachments',
+  placeholder: 'Choose files',
+  allowMultiple: true,
+  clearable: true,
+  onAdd: (addedFiles) {
+    // List<TFile> of newly added files
+    print('Added \${addedFiles.length} files: \${addedFiles.map((f) => f.name)}');
+  },
+  onRemove: (removedFiles) {
+    // List<TFile> of removed files (via individual delete or clear all)
+    print('Removed \${removedFiles.length} files: \${removedFiles.map((f) => f.name)}');
+  },
+  onValueChanged: (allFiles) {
+    // Current total list of files
+    print('Total files: \${allFiles?.length}');
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'onAdd',
+                type: 'ValueChanged<List<TFile>>?',
+                description: 'Callback fired when new files are selected and added, passing the list of newly added files.',
+              ),
+              PropertyDoc(
+                name: 'onRemove',
+                type: 'ValueChanged<List<TFile>>?',
+                description:
+                    'Callback fired when files are removed (either individually or all at once), passing the list of removed files.',
+              ),
+              PropertyDoc(
+                name: 'onValueChanged',
+                type: 'ValueChanged<List<TFile>?>?',
+                description: 'Callback fired whenever the file list changes, passing the full current list of files.',
+              ),
+            ],
+          ),
+
           // File Picker Gallery Mode
           WidgetDocCard(
             title: 'File Picker Gallery Mode',
@@ -1163,6 +769,133 @@ TSwitch(
                 type: 'bool',
                 defaultValue: 'false',
                 description: 'TImage property to render title and subtitle as a gradient overlay on mouse hover',
+              ),
+            ],
+          ),
+
+          // File Picker Camera Source
+          WidgetDocCard(
+            title: 'Camera File Picker (Direct Photo Capture)',
+            description: 'Directly launches device camera to capture proof photos or damage evidence, with automatic image downscaling.',
+            icon: Icons.photo_camera_rounded,
+            preview: TFilePicker(
+              label: 'Proof of Delivery Photo',
+              placeholder: 'Take photo with camera',
+              source: TFilePickerSource.camera,
+              fileType: TFileType.image,
+              maxImageDimension: 1600,
+              imageQuality: 85,
+              clearable: true,
+            ),
+            code: '''TFilePicker(
+  label: 'Proof of Delivery Photo',
+  placeholder: 'Take photo with camera',
+  source: TFilePickerSource.camera, // Direct camera capture
+  fileType: TFileType.image,
+  maxImageDimension: 1600, // Downscales photo longest side to 1600px
+  imageQuality: 85,
+  onValueChanged: (files) {
+    print('Captured photo: \${files?.first.name}');
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'source',
+                type: 'TFilePickerSource',
+                defaultValue: 'TFilePickerSource.files',
+                description: 'Source for files: files (browser), camera (direct photo), or filesOrCamera (picker option)',
+              ),
+              PropertyDoc(
+                name: 'maxImageDimension',
+                type: 'double',
+                defaultValue: '1600',
+                description: 'Longest side dimension (px) captured photos are downscaled to',
+              ),
+              PropertyDoc(
+                name: 'imageQuality',
+                type: 'int',
+                defaultValue: '85',
+                description: 'JPEG compression quality (1-100) for captured photos',
+              ),
+            ],
+          ),
+
+          // File Picker Files or Camera Source
+          WidgetDocCard(
+            title: 'Files or Camera Picker (Dual Source)',
+            description: 'Prompts user to choose between capturing a photo with the camera or selecting an existing file from the gallery / device.',
+            icon: Icons.add_a_photo_rounded,
+            preview: TFilePicker(
+              label: 'Damage Evidence Photo / Document',
+              placeholder: 'Capture photo or choose file',
+              source: TFilePickerSource.filesOrCamera,
+              allowMultiple: true,
+              clearable: true,
+            ),
+            code: '''TFilePicker(
+  label: 'Damage Evidence Photo / Document',
+  placeholder: 'Capture photo or choose file',
+  source: TFilePickerSource.filesOrCamera, // Shows selection modal: Camera or File Browser
+  allowMultiple: true,
+  clearable: true,
+  onValueChanged: (files) {
+    print('Selected \${files?.length} files from camera/gallery');
+  },
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'source',
+                type: 'TFilePickerSource',
+                defaultValue: 'TFilePickerSource.files',
+                description: 'Source mode: filesOrCamera prompts user to select between Camera or File Manager',
+              ),
+              PropertyDoc(
+                name: 'allowMultiple',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Allows picking multiple files or capturing multiple photos sequentially',
+              ),
+            ],
+          ),
+
+          // Signature Pad
+          WidgetDocCard(
+            title: 'Signature Pad (TSignaturePad)',
+            description: 'Touch / stylus canvas for proof-of-delivery, sign-offs, and agreement approvals.',
+            icon: Icons.draw_rounded,
+            preview: SizedBox(
+              width: 400,
+              child: TSignaturePad(
+                hint: 'Sign here',
+                onChanged: (hasInk) => debugPrint('Signature changed: $hasInk'),
+              ),
+            ),
+            code: '''final controller = TSignaturePadController();
+
+TSignaturePad(
+  controller: controller,
+  height: 200,
+  hint: 'Sign here',
+  onChanged: (hasInk) => print('Signed: \$hasInk'),
+)
+
+// Later export to PNG bytes
+final pngBytes = await controller.toPngBytes();''',
+            properties: const [
+              PropertyDoc(
+                name: 'controller',
+                type: 'TSignaturePadController?',
+                description: 'Controller to clear, undo, or export signature PNG bytes',
+              ),
+              PropertyDoc(name: 'height', type: 'double', defaultValue: '200', description: 'Canvas height in logical pixels'),
+              PropertyDoc(name: 'penColor', type: 'Color?', description: 'Ink color (defaults to theme onSurface)'),
+              PropertyDoc(name: 'penWidth', type: 'double', defaultValue: '3', description: 'Thickness of the drawn stroke'),
+              PropertyDoc(name: 'hint', type: 'String', defaultValue: '\'Sign here\'', description: 'Hint text displayed when canvas is empty'),
+              PropertyDoc(name: 'showClear', type: 'bool', defaultValue: 'true', description: 'Whether to show the Clear action button when signed'),
+              PropertyDoc(
+                name: 'onChanged',
+                type: 'ValueChanged<bool>?',
+                description: 'Callback fired when signature state changes between empty and signed',
               ),
             ],
           ),

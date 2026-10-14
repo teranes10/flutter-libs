@@ -121,64 +121,62 @@ class TAlert extends StatelessWidget {
     final colors = context.colors;
     final wTheme = theme ?? context.theme.alertTheme;
 
-    return IntrinsicHeight(
-      child: AlertDialog(
-        backgroundColor: colors.surface,
-        insetPadding: wTheme.insetPadding,
-        contentPadding: wTheme.contentPadding,
-        actionsPadding: wTheme.actionsPadding,
-        actionsAlignment: wTheme.actionsAlignment,
-        icon: icon != null ? Icon(icon, size: wTheme.iconSize, color: color) : null,
-        title: title != null ? Text(title!, style: wTheme.titleStyle) : null,
-        content: text is String
-            ? (progress
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(color: color, strokeWidth: 2.5),
-                      ),
-                      SizedBox(width: 16),
-                      progressStream != null
-                          ? StreamBuilder<String>(
-                              stream: progressStream,
-                              initialData: text,
-                              builder: (context, snapshot) {
-                                return Text(
-                                  snapshot.data ?? text,
-                                  textAlign: wTheme.contentTextAlign,
-                                  style: wTheme.contentStyle,
-                                );
-                              },
-                            )
-                          : Text(text, textAlign: wTheme.contentTextAlign, style: wTheme.contentStyle),
-                    ],
-                  )
-                : Text(text, textAlign: wTheme.contentTextAlign, style: wTheme.contentStyle))
-            : (text is Widget ? text : null),
-        actions: [
-          if (closeButton != null)
-            TButton(
-              size: TButtonSize.md.copyWith(minW: wTheme.closeButtonWidth),
-              type: wTheme.closeButtonType,
-              color: confirmButton != null ? wTheme.closeButtonColor : color,
-              icon: closeButton!.icon,
-              text: closeButton!.text,
-              onPressed: (_) => closeButton!.onClick?.call(),
-            ),
-          if (confirmButton != null)
-            TButton(
-              size: TButtonSize.md.copyWith(minW: wTheme.confirmButtonWidth),
-              type: wTheme.confirmButtonType,
-              color: color,
-              icon: confirmButton!.icon,
-              text: confirmButton!.text,
-              onPressed: (_) => confirmButton!.onClick?.call(),
-            ),
-        ],
-      ),
+    return AlertDialog(
+      backgroundColor: colors.surface,
+      insetPadding: wTheme.insetPadding,
+      contentPadding: wTheme.contentPadding,
+      actionsPadding: wTheme.actionsPadding,
+      actionsAlignment: wTheme.actionsAlignment,
+      icon: icon != null ? Icon(icon, size: wTheme.iconSize, color: color) : null,
+      title: title != null ? Text(title!, style: wTheme.titleStyle) : null,
+      content: text is String
+          ? (progress
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(color: color, strokeWidth: 2.5),
+                    ),
+                    SizedBox(width: 16),
+                    progressStream != null
+                        ? StreamBuilder<String>(
+                            stream: progressStream,
+                            initialData: text,
+                            builder: (context, snapshot) {
+                              return Text(
+                                snapshot.data ?? text,
+                                textAlign: wTheme.contentTextAlign,
+                                style: wTheme.contentStyle,
+                              );
+                            },
+                          )
+                        : Text(text, textAlign: wTheme.contentTextAlign, style: wTheme.contentStyle),
+                  ],
+                )
+              : Text(text, textAlign: wTheme.contentTextAlign, style: wTheme.contentStyle))
+          : (text is Widget ? text : null),
+      actions: [
+        if (closeButton != null)
+          TButton(
+            size: TButtonSize.md.copyWith(minW: wTheme.closeButtonWidth),
+            type: wTheme.closeButtonType,
+            color: confirmButton != null ? wTheme.closeButtonColor : color,
+            icon: closeButton!.icon,
+            text: closeButton!.text,
+            onPressed: (_) => closeButton!.onClick?.call(),
+          ),
+        if (confirmButton != null)
+          TButton(
+            size: TButtonSize.md.copyWith(minW: wTheme.confirmButtonWidth),
+            type: wTheme.confirmButtonType,
+            color: color,
+            icon: confirmButton!.icon,
+            text: confirmButton!.text,
+            onPressed: (_) => confirmButton!.onClick?.call(),
+          ),
+      ],
     );
   }
 }

@@ -254,32 +254,37 @@ class TChip extends StatelessWidget {
       borderRadius: effectiveBorderRadius,
       child: Container(
         padding: effectivePadding,
+        constraints: BoxConstraints(minHeight: size.minH),
         decoration: BoxDecoration(
           color: mBackgroundColor,
           borderRadius: effectiveBorderRadius,
           border: Border.all(color: wTheme.outline ?? Colors.transparent, width: 1),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              TIcon.raw(icon, size: effectiveIconSize, color: mTextColor),
-              if (text != null) SizedBox(width: effectiveSpacing),
-            ],
-            if (text != null)
-              Text(
-                text!,
-                style: TextStyle(
-                  color: mTextColor,
-                  fontSize: effectiveFontSize,
-                  fontWeight: FontWeight.w400,
+        child: Align(
+          widthFactor: 1,
+          heightFactor: size.minH > 0 ? null : 1,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                TIcon.raw(icon, size: effectiveIconSize, color: mTextColor),
+                if (text != null) SizedBox(width: effectiveSpacing),
+              ],
+              if (text != null)
+                Text(
+                  text!,
+                  style: TextStyle(
+                    color: mTextColor,
+                    fontSize: effectiveFontSize,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-              ),
-            if (trailing != null) ...[
-              SizedBox(width: effectiveSpacing),
-              trailing!,
+              if (trailing != null) ...[
+                SizedBox(width: effectiveSpacing),
+                trailing!,
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

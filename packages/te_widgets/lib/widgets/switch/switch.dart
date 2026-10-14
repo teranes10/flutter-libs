@@ -94,6 +94,13 @@ class TSwitch extends StatefulWidget with TInputFieldMixin, TInputValueMixin<boo
   /// The size of the switch.
   final TInputSize? size;
 
+  /// Renders the switch as a full-width, 56dp [TOptionTile] with the [label]
+  /// (and optional [description]) on the left. Use on touch / handheld screens.
+  final bool tile;
+
+  /// Secondary text shown under the label in [tile] mode.
+  final String? description;
+
   @override
   final bool clearable = false;
 
@@ -121,6 +128,8 @@ class TSwitch extends StatefulWidget with TInputFieldMixin, TInputValueMixin<boo
     this.color,
     this.inactiveColor,
     this.size = TInputSize.md,
+    this.tile = false,
+    this.description,
     this.theme,
   });
 
@@ -173,6 +182,22 @@ class _TSwitchState<T> extends State<TSwitch>
     final colors = context.colors;
     final theme = context.theme;
     final mColor = widget.color ?? theme.primary;
+
+    if (widget.tile) {
+      return buildWrapper(
+        child: TOptionTile(
+          focusNode: focusNode,
+          label: widget.label ?? '',
+          description: widget.description,
+          color: mColor,
+          disabled: widget.disabled,
+          indicator: TOptionIndicator.toggle,
+          selected: currentValue ?? false,
+          onTap: () => _onSwitchChanged(null),
+        ),
+      );
+    }
+
     final widgetTheme = context.getWidgetTheme(TVariant.solid, mColor);
     final (width, height, scale) = _getSwitchSize();
 

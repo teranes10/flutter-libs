@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class TMobileDeviceFrame extends StatelessWidget {
-  final String title;
+  /// Header title. When null the header is omitted (e.g. the child supplies its own).
+  final String? title;
   final Widget child;
   final List<TBottomBarItem> bottomBarItems;
   final int currentBottomIndex;
@@ -14,7 +15,7 @@ class TMobileDeviceFrame extends StatelessWidget {
 
   const TMobileDeviceFrame({
     super.key,
-    required this.title,
+    this.title,
     required this.child,
     this.bottomBarItems = const [],
     this.currentBottomIndex = 0,
@@ -35,7 +36,7 @@ class TMobileDeviceFrame extends StatelessWidget {
         // Status Bar Mock
         _buildMockStatusBar(),
         // Custom Header
-        _buildCustomHeader(context),
+        if (title != null) _buildCustomHeader(context),
         // Content
         if (height != null) Expanded(child: child) else child,
         // TBottomBar navigation
@@ -99,7 +100,7 @@ class TMobileDeviceFrame extends StatelessWidget {
           IconButton(icon: const Icon(Icons.arrow_back_ios, size: 16), onPressed: onBackPressed),
           Expanded(
             child: Center(
-              child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+              child: Text(title!, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
             ),
           ),
           const SizedBox(width: 32), // spacer to match back button

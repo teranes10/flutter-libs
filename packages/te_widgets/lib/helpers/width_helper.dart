@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class WidthHelper {
@@ -18,6 +18,8 @@ class WidthHelper {
       TChip c => c.estimateWidth(ctx),
       TImage i => i.estimateWidth(ctx),
       TTabs t => t.estimateWidth(ctx),
+      TMetricTile m => m.estimateWidth(ctx),
+      TTile t => t.estimateWidth(ctx),
       TTextField tf => tf.estimateWidth(ctx),
       TButtonGroup bg => bg.estimateWidth(ctx),
       TDropdown d => resolveWidth(ctx, d.child),
@@ -28,7 +30,8 @@ class WidthHelper {
   /// Measures the width of a string with the given style and context.
   static double measureText(BuildContext context, String text, TextStyle style) {
     final textPainter = TextPainter(
-      text: TextSpan(text: text, style: style),
+      // Merge with the ambient style so font family (Lexend), etc. match what `Text` renders.
+      text: TextSpan(text: text, style: DefaultTextStyle.of(context).style.merge(style)),
       maxLines: 1,
       textDirection: TextDirection.ltr,
       textScaler: MediaQuery.textScalerOf(context),
@@ -40,11 +43,16 @@ class WidthHelper {
 extension TButtonWidthX on TButton {
   /// Estimates the width of the button based on its content and size settings.
   double estimateWidth(BuildContext ctx) {
-    final defaultTheme = ctx.theme.buttonTheme;
-    final sizeData = size ?? theme?.size ?? defaultTheme.size;
-    final shapeData = shape ?? theme?.shape ?? defaultTheme.shape;
-    final baseTheme =
-        theme?.baseTheme ?? defaultTheme.baseTheme.rebuild(color: active ? (activeColor ?? color) : color, type: type?.colorType);
+    final defaultTheme = ctx.themeOrNull?.buttonTheme;
+    final sizeData = size ?? theme?.size ?? defaultTheme?.size ?? TSize.md;
+    final shapeData = shape ?? theme?.shape ?? defaultTheme?.shape ?? TButtonShape.normal;
+    final baseTheme = theme?.baseTheme ??
+        defaultTheme?.baseTheme.rebuild(color: active ? (activeColor ?? color) : color, type: type?.colorType) ??
+        TWidgetTheme.from(
+          ctx.isDarkMode,
+          color ?? const Color(0xFF1E88E5),
+          type?.colorType ?? TVariant.solid,
+        );
 
     // If it's a block button, it takes full width normally
     if (sizeData.minW.isInfinite && size == TButtonSize.block) return double.infinity;

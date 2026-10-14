@@ -211,15 +211,6 @@ class TTableRowCard<T, K> extends StatelessWidget {
                               ),
                             );
 
-                            if (isAutoMode) {
-                              iconWidget = TTooltip(
-                                message: isTreeExpanded
-                                    ? 'Click to collapse, double-click to collapse all'
-                                    : 'Click to expand, double-click to expand all',
-                                child: iconWidget,
-                              );
-                            }
-
                             return iconWidget;
                           }),
                           const SizedBox(width: 6),

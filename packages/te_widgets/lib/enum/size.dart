@@ -75,7 +75,7 @@ class TSize {
   static const TSize xxs = TSize(
     minW: 22,
     minH: 22,
-    hPad: 2,
+    hPad: 4,
     vPad: 2,
     font: 10,
     icon: 12,
@@ -131,6 +131,20 @@ class TSize {
     spacing: 8,
   );
 
+  /// Handheld / gloved-hand size (minH: 56, font: 18, icon: 26).
+  ///
+  /// Use for the single primary action of a mobile task screen.
+  static const TSize xl = TSize(
+    minW: 56,
+    minH: 56,
+    hPad: 20,
+    vPad: 10,
+    font: 18,
+    icon: 26,
+    radius: 12,
+    spacing: 10,
+  );
+
   /// Full-width block size with medium height.
   static const TSize block = TSize(
     minW: double.infinity,
@@ -155,6 +169,23 @@ class TSize {
       spacing: size.padding.right,
     );
   }
+
+  /// Scales all metrics by the given factor.
+  TSize scale(double factor) {
+    return TSize(
+      minW: minW * factor,
+      minH: minH * factor,
+      hPad: hPad * factor,
+      vPad: vPad * factor,
+      font: font * factor,
+      icon: icon * factor,
+      radius: radius * factor,
+      spacing: spacing * factor,
+    );
+  }
+
+  /// Multiplies all size metrics by [factor].
+  TSize operator *(double factor) => scale(factor);
 
   /// Creates a copy with updated metrics.
   TSize copyWith({

@@ -4,11 +4,11 @@ import 'package:te_widgets/te_widgets.dart';
 abstract final class TChipSize {
   /// Small compact chip size (fontSize: 10.5, icon: 11, radius: 4, hPad: 6, vPad: 2).
   static const TSize sm = TSize(
-    hPad: 5.0,
+    hPad: 6.0,
     vPad: 1.0,
     font: 11,
     icon: 11.0,
-    radius: 4.0,
+    radius: 8.0,
     spacing: 3.5,
   );
 
@@ -18,7 +18,7 @@ abstract final class TChipSize {
     vPad: 3.0,
     font: 12.0,
     icon: 13.0,
-    radius: 6.0,
+    radius: 12.0,
     spacing: 4.0,
   );
 
@@ -28,7 +28,18 @@ abstract final class TChipSize {
     vPad: 4.0,
     font: 13.5,
     icon: 15.0,
-    radius: 8.0,
+    radius: 16.0,
     spacing: 5.0,
+  );
+
+  /// Touch-friendly chip size for handheld filter/reason chips (48dp tall, fontSize: 15, icon: 18).
+  static const TSize xl = TSize(
+    minH: 48,
+    hPad: 16.0,
+    vPad: 8.0,
+    font: 15.0,
+    icon: 18.0,
+    radius: 24.0,
+    spacing: 8.0,
   );
 }
