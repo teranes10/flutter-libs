@@ -3,6 +3,15 @@ import 'package:te_widgets/te_widgets.dart';
 
 enum TSheetAnimationType { sliding, drawing }
 
+/// Controls how a [TSideSheet] sizes itself vertically.
+enum TSheetHeightMode {
+  /// Sheet always fills the full screen height (default, legacy behavior).
+  full,
+
+  /// Sheet height hugs its content and is pinned to the top of the screen.
+  shrinkWrap,
+}
+
 class TSheetService {
   static Future<T?> showBottomSheet<T>(
     BuildContext context,
@@ -83,6 +92,7 @@ class TSheetService {
     Widget Function(BuildContext context, Widget child)? layoutBuilder,
     Duration transitionDuration = const Duration(milliseconds: 250),
     Color barrierColor = Colors.black54,
+    TSheetHeightMode heightMode = TSheetHeightMode.full,
   }) {
     return showGeneralDialog<T>(
       context: context,
@@ -93,7 +103,9 @@ class TSheetService {
       pageBuilder: (context, animation, secondaryAnimation) {
         final mContext = TModalContext<T>(context);
         return Align(
-          alignment: fromLeft ? Alignment.centerLeft : Alignment.centerRight,
+          alignment: fromLeft
+              ? (heightMode == TSheetHeightMode.shrinkWrap ? Alignment.topLeft : Alignment.centerLeft)
+              : (heightMode == TSheetHeightMode.shrinkWrap ? Alignment.topRight : Alignment.centerRight),
           child: Material(
             color: Colors.transparent,
             child: TSideSheet(
@@ -113,6 +125,7 @@ class TSheetService {
               backgroundColor: backgroundColor,
               borderRadius: borderRadius,
               layoutBuilder: layoutBuilder,
+              heightMode: heightMode,
             ),
           ),
         );

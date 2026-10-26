@@ -205,71 +205,20 @@ class TCard extends StatelessWidget {
       return null;
     }
 
-    final colors = context.colors;
-    final effectiveIconColor = iconColor ?? colors.primary;
-
-    Widget? leadingNode;
-    if (iconWidget != null) {
-      leadingNode = iconWidget;
-    } else if (icon != null) {
-      leadingNode = Icon(icon, size: 18, color: effectiveIconColor);
-    }
-
-    Widget? titleNode;
-    if (titleWidget != null) {
-      titleNode = titleWidget;
-    } else if (title != null) {
-      titleNode = Text(
-        title!,
-        style: titleStyle ??
-            TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
-            ),
-      );
-    }
-
-    Widget? subtitleNode;
-    if (subtitleWidget != null) {
-      subtitleNode = subtitleWidget;
-    } else if (subtitle != null) {
-      subtitleNode = Text(
-        subtitle!,
-        style: subtitleStyle ??
-            TextStyle(
-              fontSize: 12,
-              color: colors.onSurfaceVariant,
-            ),
-      );
-    }
-
-    final titleColumn = (hasTitle || hasSubtitle)
-        ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (titleNode != null) titleNode,
-              if (subtitleNode != null) ...[
-                const SizedBox(height: 2),
-                subtitleNode,
-              ],
-            ],
-          )
-        : null;
-
     return Padding(
       padding: EdgeInsets.only(bottom: headerGap),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (leadingNode != null) ...[
-            leadingNode,
-            const SizedBox(width: 8),
-          ],
-          if (titleColumn != null) Expanded(child: titleColumn),
-          if (trailing != null) trailing!,
-        ],
+      child: TTile.h5(
+        title: title,
+        titleWidget: titleWidget,
+        subtitle: subtitle,
+        subtitleWidget: subtitleWidget,
+        icon: icon,
+        leading: iconWidget,
+        iconColor: iconColor ?? context.colors.primary,
+        titleStyle: titleStyle,
+        subtitleStyle: subtitleStyle,
+        trailing: trailing,
+        padding: EdgeInsets.zero,
       ),
     );
   }

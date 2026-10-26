@@ -62,12 +62,13 @@ class StocktakeV2Page extends StatefulWidget {
 }
 
 class _StocktakeV2PageState extends State<StocktakeV2Page> {
-  String _listFilter = 'pending';
+  String _listFilter = 'all';
   String _summaryTab = 'all';
   int _count = 12;
   int _varCount = 9;
   String? _reason = 'Miscount';
   DateTime? _expiry;
+  final _currentWarehouse = ValueNotifier<String?>('Main Warehouse');
   final _locationType = ValueNotifier<String?>('Rack');
 
   @override
@@ -110,7 +111,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
       title: item.code,
       subTitle: item.name,
       imageUrl: _productImage,
-      itemInfo: [TKeyValue('Location', value: item.location)],
+      itemInfo: [TKeyValue(icon: HugeIcons.strokeRoundedLocation01, '', value: item.location)],
       actions: actions,
       footer: footer,
       child: child,
@@ -189,6 +190,10 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          TImage.profile(name: 'Teranes Ranjith', role: 'Warehouse Operator'),
+          const SizedBox(height: 15),
+          TSelect<String, String, String>(label: 'Warehouse', items: ['Main Warehouse'], valueNotifier: _currentWarehouse),
+          const SizedBox(height: 10),
           TGrid(
             columns: 2,
             children: [
@@ -221,6 +226,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
   Widget _list() {
     return _page(
       title: 'Stocktake',
+      subTitle: _currentWarehouse.value,
       actions: [_addAction()],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -231,8 +237,9 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
             selectedValue: _listFilter,
             onTabChanged: (v) => setState(() => _listFilter = v),
             tabs: const [
-              TTab(value: 'pending', text: 'Pending', count: 3),
+              TTab(value: 'all', text: 'All', count: 12),
               TTab(value: 'progress', text: 'In Progress', count: 1),
+              TTab(value: 'pending', text: 'Pending', count: 3),
               TTab(value: 'done', text: 'Completed', count: 8),
             ],
           ),
@@ -260,7 +267,6 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
   Widget _stocktakeTile(String no, String date, String status, Color color, {int? done, int? total}) {
     return TTile.task(
       title: no,
-      subtitle: 'Main Warehouse',
       meta: date,
       status: status,
       statusColor: color,
@@ -275,11 +281,19 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
   Widget _create() {
     return _page(
       title: 'Create Stocktake',
+      subTitle: _currentWarehouse.value,
       footer: TActionBar(primaryText: 'Save', onPrimary: () {}, secondaryText: 'Cancel', onSecondary: () {}),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TTextField.scan(label: 'Stocktake No.', placeholder: 'Scan or enter stocktake no.', onScan: (_) {}, onCameraTap: () {}),
+          TTextField.scan(
+            label: 'Stocktake No.',
+            helperText: 'Auto generated: STK-< Warehouse Code >-< Datetime >',
+            value: 'STK-MW-2610101230',
+            readOnly: true,
+            onScan: (_) {},
+            onCameraTap: () {},
+          ),
           const SizedBox(height: 16),
           const TTextField(label: 'Notes (optional)', placeholder: 'Add any notes...', rows: 5),
         ],
@@ -293,6 +307,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
 
     return _page(
       title: 'Select Location',
+      subTitle: _currentWarehouse.value,
       actions: [_addAction()],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -352,7 +367,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
   Widget _createLocation() {
     return _page(
       title: 'Create Location',
-      subTitle: 'Zone A › Aisle A1',
+      subTitle: '${_currentWarehouse.value ?? ''} › Zone A › Aisle A1',
       footer: TActionBar(primaryText: 'Save', onPrimary: () {}, secondaryText: 'Cancel', onSecondary: () {}),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -364,11 +379,11 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
             valueNotifier: _locationType,
           ),
           const SizedBox(height: 16),
-          TTextField.scan(label: 'Barcode', placeholder: 'Scan or enter barcode', onScan: (_) {}, onCameraTap: () {}),
+          TTextField.scan(label: 'Code', placeholder: 'e.g. A1-R3', onScan: (_) {}, onCameraTap: () {}),
           const SizedBox(height: 16),
           const TTextField(label: 'Name', placeholder: 'e.g. Rack R3'),
           const SizedBox(height: 16),
-          const TTextField(label: 'Code', placeholder: 'e.g. A1-R3'),
+          TTextField.scan(label: 'Barcode (optional)', placeholder: 'Scan or enter barcode', onScan: (_) {}, onCameraTap: () {}),
           const SizedBox(height: 16),
           const TTextField(label: 'Description (optional)', placeholder: 'Add a description...', rows: 4),
         ],
@@ -456,7 +471,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
           const SizedBox(height: 16),
           TNumberField<int>(
             variant: TNumberFieldVariant.quantity,
-            label: 'Count',
+            label: 'Actual Count',
             value: _count,
             min: 0,
             onValueChanged: (v) => setState(() => _count = v ?? 0),
@@ -465,7 +480,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
           if (variance == 0)
             const TBanner.success(title: 'No variance', message: 'System and actual count match.')
           else
-            TBanner.warning(title: 'Variance $variance', message: 'System and actual count differ.'),
+            TBanner.warning(title: 'Variance $variance', message: 'System: 12, counted: 9.'),
         ],
       ),
     );
@@ -487,7 +502,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
           const SizedBox(height: 16),
           TNumberField<int>(
             variant: TNumberFieldVariant.quantity,
-            label: 'Count',
+            label: 'Actual Count',
             value: _varCount,
             min: 0,
             onValueChanged: (v) => setState(() => _varCount = v ?? 0),
@@ -496,7 +511,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
           if (variance == 0)
             const TBanner.success(title: 'No variance', message: 'System and actual count match.')
           else ...[
-            TBanner.warning(title: 'Variance $variance', message: 'System and actual count differ.'),
+            TBanner.warning(title: 'Variance $variance', message: 'System: 12, counted: 9.'),
             const SizedBox(height: 16),
             Text(
               'Reason',
@@ -564,12 +579,14 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const TGrid(
+          TGrid(
             columns: 3,
             children: [
-              TMetricTile(label: 'Locations', value: '4', compact: true),
-              TMetricTile(label: 'Counted', value: '62', compact: true),
-              TMetricTile(label: 'Variance', value: '8', compact: true),
+              _summaryMetric('Locations', '4', context.theme.success),
+              _summaryMetric('Items Counted', '62', context.theme.success),
+              _summaryMetric('Units Counted', '357', context.theme.success),
+              _summaryMetric('Variances', '8', context.theme.warning),
+              _summaryMetric('Exceptions', '5', context.theme.danger),
             ],
           ),
           const SizedBox(height: 12),
@@ -604,6 +621,10 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
         ],
       ),
     );
+  }
+
+  Widget _summaryMetric(String label, String value, Color color) {
+    return TMetricTile(label: label, value: value, compact: true, color: color, type: TVariant.tonal);
   }
 
   Widget _countText(int n) {

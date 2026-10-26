@@ -71,6 +71,9 @@ class TButtonGroupItem {
   /// Whether this action should always render flat (inline) even in hybrid menu mode.
   final bool showFlat;
 
+  /// Stable identifier exposed as `flt-semantics-identifier` on Flutter web for e2e tests.
+  final String? semanticIdentifier;
+
   /// Creates a button group item.
   TButtonGroupItem({
     this.icon,
@@ -91,6 +94,7 @@ class TButtonGroupItem {
     this.badgeColor,
     this.badgeTextColor,
     this.showFlat = false,
+    this.semanticIdentifier,
     this.onTap,
     this.onPressed,
   });
@@ -132,6 +136,8 @@ extension TButtonExtension on TButton {
     Gradient? gradient,
     double? elevation,
     Color? shadowColor,
+    String? semanticLabel,
+    String? semanticIdentifier,
   }) {
     return TButton(
       theme: theme ?? this.theme,
@@ -165,6 +171,8 @@ extension TButtonExtension on TButton {
       gradient: gradient ?? this.gradient,
       elevation: elevation ?? this.elevation,
       shadowColor: shadowColor ?? this.shadowColor,
+      semanticLabel: semanticLabel ?? this.semanticLabel,
+      semanticIdentifier: semanticIdentifier ?? this.semanticIdentifier,
       child: child ?? this.child,
     );
   }

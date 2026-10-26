@@ -17,19 +17,12 @@ class CopyButtonPage extends StatelessWidget {
           // Header
           Text(
             'Copy Button & Copyable',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'One-click clipboard copy utility with animated state transitions, toast alerts, and monospace code pills.',
-            style: TextStyle(
-              fontSize: 16,
-              color: colors.onSurfaceVariant,
-            ),
+            style: TextStyle(fontSize: 16, color: colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 
@@ -43,20 +36,9 @@ class CopyButtonPage extends StatelessWidget {
               runSpacing: 12,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                TCopyButton(
-                  text: 'https://api.myapp.com/v1/orders',
-                  size: TButtonSize.xs,
-                ),
-                TCopyButton(
-                  text: 'npm install te_widgets',
-                  type: TButtonType.tonal,
-                  size: TButtonSize.sm,
-                ),
-                TCopyButton(
-                  text: '9f8231ab-8321-4f10-b992',
-                  type: TButtonType.solid,
-                  size: TButtonSize.sm,
-                ),
+                TCopyButton(text: 'https://api.myapp.com/v1/orders', size: TButtonSize.xs),
+                TCopyButton(text: 'npm install te_widgets', type: TButtonType.tonal, size: TButtonSize.sm),
+                TCopyButton(text: '9f8231ab-8321-4f10-b992', type: TButtonType.solid, size: TButtonSize.sm),
               ],
             ),
             code: '''// Soft-text minimal copy button
@@ -116,29 +98,16 @@ TCopyButton(
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Hover over the codes below to reveal copy button:',
-                  style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
-                ),
+                Text('Hover over the codes below to reveal copy button:', style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
                 const SizedBox(height: 12),
                 const Wrap(
                   spacing: 16,
                   runSpacing: 12,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    TCopyable.text(
-                      'pk_live_51M0abcdef1234567890',
-                      monospace: true,
-                    ),
-                    TCopyable.text(
-                      'webhook_secret_9941',
-                      monospace: true,
-                      showButtonAlways: true,
-                    ),
-                    TCopyable.text(
-                      'c41b89ef-5079-4d24-81d3-a4175b5b93d4',
-                      monospace: true,
-                    ),
+                    TCopyable.text('pk_live_51M0abcdef1234567890', monospace: true),
+                    TCopyable.text('webhook_secret_9941', monospace: true, showButtonAlways: true),
+                    TCopyable.text('c41b89ef-5079-4d24-81d3-a4175b5b93d4', monospace: true),
                   ],
                 ),
               ],
@@ -186,11 +155,7 @@ TCopyable.text(
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const TCopyable.text(
-                    'https://api.company.com/v2/analytics/stream',
-                    monospace: true,
-                    showButtonAlways: true,
-                  ),
+                  const TCopyable.text('https://api.company.com/v2/analytics/stream', monospace: true, showButtonAlways: true),
                   const SizedBox(height: 12),
                   const Row(
                     children: [

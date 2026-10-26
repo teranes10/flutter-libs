@@ -66,7 +66,9 @@ class TabRenderer<T> {
           child: Container(
               // Touch-friendly: horizontal tabs are at least 48dp tall on mobile.
               constraints: BoxConstraints(minHeight: axis == Axis.horizontal && isMobile ? 48 : 0),
-              alignment: axis == Axis.vertical || isMobile ? Alignment.center : null,
+              alignment: axis == Axis.vertical
+                  ? (showTextInVertical ? Alignment.centerLeft : Alignment.center)
+                  : (isMobile ? Alignment.center : null),
               padding: tabPadding ??
                   (axis == Axis.horizontal
                       ? const EdgeInsets.symmetric(vertical: 6, horizontal: 8)
@@ -142,6 +144,7 @@ class TabRenderer<T> {
     required bool showText,
   }) {
     return Column(
+      crossAxisAlignment: showText ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         if (tab.icon != null) ...[
           TIcon.raw(tab.icon, size: 16, color: color),

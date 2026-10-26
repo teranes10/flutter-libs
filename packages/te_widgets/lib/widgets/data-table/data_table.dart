@@ -167,6 +167,9 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
+  /// Overrides the card rendered in card view. See [TTable.mobileCardBuilder].
+  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index, VoidCallback? onTap)? mobileCardBuilder;
+
   /// Whether text within the table is selectable. Defaults to true.
   final bool selectableText;
 
@@ -202,6 +205,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.footerSticky,
     this.rowBuilder,
     this.rowColorBuilder,
+    this.mobileCardBuilder,
     this.dense,
     this.optionalPaginationBar,
   }) : assert(
@@ -285,6 +289,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
         details: widget.details,
         rowBuilder: widget.rowBuilder,
         rowColorBuilder: widget.rowColorBuilder,
+        mobileCardBuilder: widget.mobileCardBuilder,
         beforeItemsBuilder: widget.beforeItemsBuilder,
         selectableText: widget.selectableText,
       );

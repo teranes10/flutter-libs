@@ -7,12 +7,7 @@ class _PermissionItem {
   final String scope;
   final bool isSensitive;
 
-  const _PermissionItem({
-    required this.id,
-    required this.label,
-    required this.scope,
-    this.isSensitive = false,
-  });
+  const _PermissionItem({required this.id, required this.label, required this.scope, this.isSensitive = false});
 
   @override
   bool operator ==(Object other) => identical(this, other) || other is _PermissionItem && other.id == id;
@@ -77,10 +72,7 @@ class _TransferListPageState extends State<TransferListPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Text(
-            'TTransferList Showcase',
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('TTransferList Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
             'Enterprise dual-list shuttle component for batch multi-item transfers, role-based access control (RBAC), '
@@ -119,42 +111,27 @@ class _TransferListPageState extends State<TransferListPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _showSearch,
-                      onChanged: (val) => setState(() => _showSearch = val ?? true),
-                    ),
+                    Checkbox(value: _showSearch, onChanged: (val) => setState(() => _showSearch = val ?? true)),
                     const Text('Search Filters', style: TextStyle(fontSize: 13)),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _showSelectAll,
-                      onChanged: (val) => setState(() => _showSelectAll = val ?? true),
-                    ),
+                    Checkbox(value: _showSelectAll, onChanged: (val) => setState(() => _showSelectAll = val ?? true)),
                     const Text('Select All Checkbox', style: TextStyle(fontSize: 13)),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _allowReordering,
-                      onChanged: (val) => setState(() => _allowReordering = val ?? true),
-                    ),
+                    Checkbox(value: _allowReordering, onChanged: (val) => setState(() => _allowReordering = val ?? true)),
                     const Text('Allow Up/Down Reordering', style: TextStyle(fontSize: 13)),
                   ],
                 ),
 
                 // Reset Button
-                TButton(
-                  text: 'Reset Defaults',
-                  icon: Icons.refresh_rounded,
-                  size: TSize.sm,
-                  type: TButtonType.outline,
-                  onTap: _resetData,
-                ),
+                TButton(text: 'Reset Defaults', icon: Icons.refresh_rounded, size: TSize.sm, type: TButtonType.outline, onTap: _resetData),
               ],
             ),
           ),
@@ -194,7 +171,10 @@ class _TransferListPageState extends State<TransferListPage> {
                 const SizedBox(height: 12),
 
                 // Summary Chips
-                Text('Active Assigned Permissions (${_assigned.length}):', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                Text(
+                  'Active Assigned Permissions (${_assigned.length}):',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,

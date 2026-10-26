@@ -18,6 +18,7 @@ class TSideSheet extends StatelessWidget {
   final Color? backgroundColor;
   final BorderRadius? borderRadius;
   final Widget Function(BuildContext context, Widget child)? layoutBuilder;
+  final TSheetHeightMode heightMode;
 
   const TSideSheet(
     this.child, {
@@ -37,6 +38,7 @@ class TSideSheet extends StatelessWidget {
     this.backgroundColor,
     this.borderRadius,
     this.layoutBuilder,
+    this.heightMode = TSheetHeightMode.full,
   });
 
   @override
@@ -57,7 +59,8 @@ class TSideSheet extends StatelessWidget {
 
     return Container(
       width: sheetWidth,
-      height: double.infinity,
+      height: heightMode == TSheetHeightMode.shrinkWrap ? null : double.infinity,
+      constraints: heightMode == TSheetHeightMode.shrinkWrap ? BoxConstraints(maxHeight: screenSize.height) : null,
       decoration: BoxDecoration(
         color: effectiveBg,
         borderRadius: defaultBorderRadius,
@@ -84,13 +87,15 @@ class TSideSheet extends StatelessWidget {
   }
 
   Widget _layout(BuildContext context, ColorScheme colors) {
+    final isShrinkWrap = heightMode == TSheetHeightMode.shrinkWrap;
     return Column(
+      mainAxisSize: isShrinkWrap ? MainAxisSize.min : MainAxisSize.max,
       children: [
         if (header != null) header!,
         if (header == null && (title != null || showCloseButton == true)) _buildHeader(context, colors),
-        Expanded(
-          child: child,
-        ),
+        isShrinkWrap
+            ? Flexible(child: SingleChildScrollView(child: child))
+            : Expanded(child: child),
         if (footer != null) footer!,
       ],
     );

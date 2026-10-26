@@ -87,8 +87,9 @@ class TMetricTile extends StatelessWidget {
   /// Custom text style for the [subtitle].
   final TextStyle? subtitleStyle;
 
-  /// Visual variant type (e.g. [TVariant.tonal], [TVariant.outline], [TVariant.solid]).
-  final TVariant type;
+  /// Visual variant (e.g. [TVariant.tonal], [TVariant.outline], [TVariant.solid]).
+  /// When null (default) the tile keeps the neutral surface style and [color] only accents the icon.
+  final TVariant? type;
 
   /// If true, renders a more compact horizontal layout.
   final bool compact;
@@ -116,19 +117,26 @@ class TMetricTile extends StatelessWidget {
     this.labelStyle,
     this.valueStyle,
     this.subtitleStyle,
-    this.type = TVariant.tonal,
+    this.type,
     this.compact = false,
     this.tooltip,
   });
 
-  TextStyle _labelStyle(ColorScheme colors) =>
-      labelStyle ?? TextStyle(fontSize: compact ? 10 : 11, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant);
+  /// Variant theme derived from [color] and [type]; null when no [type] is given
+  /// (neutral surface look).
+  TWidgetTheme? _variantTheme(ColorScheme colors) =>
+      type == null ? null : TWidgetTheme.from(colors.isDarkMode, color ?? colors.primary, type!);
 
-  TextStyle _valueStyle(ColorScheme colors) =>
-      valueStyle ?? TextStyle(fontSize: compact ? 13 : 15, fontWeight: FontWeight.bold, color: colors.onSurface);
+  TextStyle _labelStyle(ColorScheme colors, [TWidgetTheme? theme]) =>
+      labelStyle ??
+      TextStyle(fontSize: compact ? 10 : 11, fontWeight: FontWeight.w500, color: theme?.onContainerVariant ?? colors.onSurfaceVariant);
 
-  TextStyle _subtitleStyle(ColorScheme colors) =>
-      subtitleStyle ?? TextStyle(fontSize: compact ? 9 : 10, color: colors.onSurfaceVariant.withAlpha(180));
+  TextStyle _valueStyle(ColorScheme colors, [TWidgetTheme? theme]) =>
+      valueStyle ?? TextStyle(fontSize: compact ? 13 : 15, fontWeight: FontWeight.bold, color: theme?.onContainer ?? colors.onSurface);
+
+  TextStyle _subtitleStyle(ColorScheme colors, [TWidgetTheme? theme]) =>
+      subtitleStyle ??
+      TextStyle(fontSize: compact ? 9 : 10, color: (theme?.onContainerVariant ?? colors.onSurfaceVariant).withAlpha(180));
 
   /// Estimates the natural single-line width of this tile: [label], [value]
   /// (plus [trend]) and [subtitle] measured with their resolved styles, plus
@@ -156,13 +164,16 @@ class TMetricTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final accentColor = color ?? colors.primary;
+    final theme = _variantTheme(colors);
+    final accentColor = theme?.onContainer ?? color ?? colors.primary;
     final radius = borderRadius ?? BorderRadius.circular(10);
     final effectivePadding = padding ??
         (compact ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8) : const EdgeInsets.symmetric(horizontal: 14, vertical: 12));
 
-    final effectiveBgColor = backgroundColor ?? colors.surfaceContainerLow;
-    final effectiveBorderColor = borderColor ?? colors.outlineVariant.withAlpha(60);
+    final effectiveBgColor = backgroundColor ?? theme?.container ?? colors.surfaceContainerLow;
+    final effectiveBorderColor = borderColor ?? theme?.outline ?? (theme != null ? Colors.transparent : colors.outlineVariant.withAlpha(60));
+
+    final iconPadding = EdgeInsets.all(compact ? 6 : 8);
 
     Widget content = Container(
       padding: effectivePadding,
@@ -171,85 +182,55 @@ class TMetricTile extends StatelessWidget {
         borderRadius: radius,
         border: Border.all(color: effectiveBorderColor),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Icon Container
-          if (iconWidget != null || icon != null) ...[
-            Container(
-              padding: EdgeInsets.all(compact ? 6 : 8),
-              decoration: BoxDecoration(
-                color: accentColor.withAlpha(25),
-                borderRadius: BorderRadius.circular(8),
+      child: TTile(
+        size: TTileSize.h7,
+        spacing: compact ? 8 : 12,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        icon: icon,
+        leading: iconWidget == null
+            ? null
+            : Container(
+                padding: iconPadding,
+                decoration: BoxDecoration(color: accentColor.withAlpha(25), borderRadius: BorderRadius.circular(8)),
+                child: iconWidget,
               ),
-              child: iconWidget ??
-                  Icon(
-                    icon,
-                    color: accentColor,
-                    size: compact ? 16 : 20,
-                  ),
+        iconColor: accentColor,
+        iconBackgroundColor: accentColor.withAlpha(25),
+        iconPadding: iconPadding,
+        iconSize: compact ? 16 : 20,
+        iconBorderRadius: BorderRadius.circular(8),
+        // Badge sits at the end of the label row, dropping below (right-aligned) when it doesn't fit.
+        titleWidget: TAlignedRow(
+          spacing: 4,
+          rowSpacing: 2,
+          left: [Text(label, style: _labelStyle(colors, theme))],
+          right: [if (badge != null) badge!],
+        ),
+        subtitleWidget: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Trend drops to its own right-aligned row when it doesn't fit beside the value.
+            TAlignedRow(
+              spacing: 6,
+              rowSpacing: 2,
+              left: [Text(value, style: _valueStyle(colors, theme))],
+              right: [if (trend != null) _buildTrendBadge(context)],
             ),
-            SizedBox(width: compact ? 8 : 12),
+            if (subtitle != null && subtitle!.isNotEmpty) ...[
+              const SizedBox(height: 1),
+              Text(subtitle!, style: _subtitleStyle(colors, theme)),
+            ],
           ],
-
-          // Label, Value & Subtitle
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Wrap so the badge drops below the label instead of squeezing it.
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 4,
-                  runSpacing: 2,
-                  children: [
-                    Text(
-                      label,
-                      style: _labelStyle(colors),
-                    ),
-                    if (badge != null) badge!,
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        value,
-                        style: _valueStyle(colors),
-                      ),
-                    ),
-                    if (trend != null) ...[
-                      const SizedBox(width: 6),
-                      _buildTrendBadge(context),
-                    ],
-                  ],
-                ),
-                if (subtitle != null && subtitle!.isNotEmpty) ...[
-                  const SizedBox(height: 1),
-                  Text(
-                    subtitle!,
-                    style: _subtitleStyle(colors),
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          // Trailing Action / Chevron
-          if (trailing != null) ...[
-            const SizedBox(width: 8),
-            trailing!,
-          ] else if (onTap != null) ...[
-            const SizedBox(width: 4),
-            Icon(
-              Icons.chevron_right_rounded,
-              size: compact ? 16 : 18,
-              color: colors.onSurfaceVariant.withAlpha(140),
-            ),
-          ],
-        ],
+        ),
+        trailing: trailing ??
+            (onTap != null
+                ? Icon(
+                    Icons.chevron_right_rounded,
+                    size: compact ? 16 : 18,
+                    color: colors.onSurfaceVariant.withAlpha(140),
+                  )
+                : null),
       ),
     );
 

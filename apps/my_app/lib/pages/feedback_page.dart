@@ -191,12 +191,7 @@ TBadge(
                     TBadge(
                       count: 8,
                       alignment: Alignment.topRight,
-                      child: TButton(
-                        text: 'Pending Orders',
-                        icon: Icons.shopping_cart_outlined,
-                        size: TButtonSize.sm,
-                        onTap: () {},
-                      ),
+                      child: TButton(text: 'Pending Orders', icon: Icons.shopping_cart_outlined, size: TButtonSize.sm, onTap: () {}),
                     ),
                   ],
                 ),
@@ -806,9 +801,7 @@ TCircularProgress(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: context.colors.outlineVariant.withValues(alpha: 0.5)),
             ),
-            child: Center(
-              child: Icon(icon, size: 28, color: context.colors.onSurfaceVariant),
-            ),
+            child: Center(child: Icon(icon, size: 28, color: context.colors.onSurfaceVariant)),
           ),
         ),
         const SizedBox(height: 10),
@@ -817,10 +810,7 @@ TCircularProgress(
           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: context.colors.onSurface),
         ),
         const SizedBox(height: 2),
-        Text(
-          code,
-          style: TextStyle(fontSize: 10, color: context.colors.onSurfaceVariant),
-        ),
+        Text(code, style: TextStyle(fontSize: 10, color: context.colors.onSurfaceVariant)),
       ],
     );
   }

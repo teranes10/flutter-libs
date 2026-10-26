@@ -62,7 +62,14 @@ class TMobileDeviceFrame extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
-        child: Material(color: colors.surface, child: bodyContent),
+        // Fake a phone-sized viewport so descendants' context.isMobile is true.
+        child: MediaQuery(
+          data: MediaQuery.of(context).copyWith(size: Size(width ?? 375, height ?? MediaQuery.sizeOf(context).height)),
+          child: Theme(
+            data: Theme.of(context).copyWith(platform: TargetPlatform.iOS),
+            child: Material(color: colors.surface, child: bodyContent),
+          ),
+        ),
       ),
     );
   }

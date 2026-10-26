@@ -91,6 +91,9 @@ class TFormBuilder extends StatefulWidget {
   /// Whether tabs wrap onto multiple lines in inline mode.
   final bool tabWrap;
 
+  /// On mobile, horizontal tabs fit as many per row as possible and stretch to fill each row.
+  final bool tabFlowOnMobile;
+
   /// Padding for each tab item.
   final EdgeInsets? tabPadding;
 
@@ -153,6 +156,7 @@ class TFormBuilder extends StatefulWidget {
     this.showTabNavigationButtons = true,
     this.tabInline = false,
     this.tabWrap = false,
+    this.tabFlowOnMobile = true,
     this.tabPadding,
     this.tabSpacing = 2,
     this.tabIndicatorWidth,
@@ -188,6 +192,7 @@ class TFormBuilder extends StatefulWidget {
     this.showTabNavigationButtons = true,
     this.tabInline = false,
     this.tabWrap = false,
+    this.tabFlowOnMobile = true,
     this.tabPadding,
     this.tabSpacing = 2,
     this.tabIndicatorWidth,
@@ -219,6 +224,7 @@ class TFormBuilder extends StatefulWidget {
     this.showTabNavigationButtons = true,
     this.tabInline = false,
     this.tabWrap = false,
+    this.tabFlowOnMobile = true,
     this.tabPadding,
     this.tabSpacing = 2,
     this.tabIndicatorWidth,
@@ -271,7 +277,8 @@ class TFormBuilder extends StatefulWidget {
         fields = null,
         tabAxis = Axis.vertical,
         tabInline = false,
-        tabWrap = false;
+        tabWrap = false,
+        tabFlowOnMobile = true;
 
   @override
   State<TFormBuilder> createState() => _TFormBuilderState();
@@ -480,6 +487,7 @@ class _TFormBuilderState extends State<TFormBuilder> {
       scrollable: widget.scrollableTabs,
       showNavigationButtons: widget.showTabNavigationButtons,
       wrap: widget.tabWrap,
+      flowOnMobile: widget.tabFlowOnMobile,
       tabBuilder: widget.tabBuilder,
       onTabChanged: (val) {
         widget.onTabChanged?.call(val);
@@ -529,7 +537,7 @@ class _TFormBuilderState extends State<TFormBuilder> {
     Widget formContent;
 
     final effectiveTabs = widget.tabs ?? widget.input?.tabs;
-    final effectiveFormType = widget.formType ?? TFormTypeScope.maybeOf(context);
+    final effectiveFormType = widget.formType ?? TFormTypeScope.maybeOf(context) ?? widget.input?.defaultFormType;
 
     if (effectiveTabs != null && effectiveTabs.isNotEmpty) {
       if (effectiveFormType == TFormType.accordion) {

@@ -10,13 +10,7 @@ class BannersPage extends StatefulWidget {
   State<BannersPage> createState() => _BannersPageState();
 }
 
-enum _OfflineDemoState {
-  offline,
-  syncing,
-  pendingChanges,
-  error,
-  fullySynced,
-}
+enum _OfflineDemoState { offline, syncing, pendingChanges, error, fullySynced }
 
 class _BannersPageState extends State<BannersPage> {
   bool _showDismissibleBanner = true;
@@ -39,28 +33,17 @@ class _BannersPageState extends State<BannersPage> {
           // Header
           Text(
             'Alert Banners & Callouts',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'In-page contextual notices, callouts, and connectivity banners with semantic themes, custom icon sizing, aligned geometry, and offline sync support.',
-            style: TextStyle(
-              fontSize: 16,
-              color: colors.onSurfaceVariant,
-            ),
+            style: TextStyle(fontSize: 16, color: colors.onSurfaceVariant),
           ),
           const SizedBox(height: 20),
 
           // Feedback Banner
-          TBanner.info(
-            variant: TVariant.tonal,
-            title: 'Action Triggered',
-            message: _lastActionStatus,
-          ),
+          TBanner.info(variant: TVariant.tonal, title: 'Action Triggered', message: _lastActionStatus),
           const SizedBox(height: 24),
 
           // 1. Semantic Intent Types
@@ -70,22 +53,13 @@ class _BannersPageState extends State<BannersPage> {
             icon: Icons.campaign_rounded,
             preview: Column(
               children: [
-                const TBanner.info(
-                  title: 'System Information',
-                  message: 'Scheduled maintenance is planned for Sunday at 02:00 UTC.',
-                ),
-                const TBanner.success(
-                  title: 'Payment Processed',
-                  message: 'Invoice #1042 was successfully paid via Stripe Checkout.',
-                ),
+                const TBanner.info(title: 'System Information', message: 'Scheduled maintenance is planned for Sunday at 02:00 UTC.'),
+                const TBanner.success(title: 'Payment Processed', message: 'Invoice #1042 was successfully paid via Stripe Checkout.'),
                 const TBanner.warning(
                   title: 'High API Latency',
                   message: 'European edge regions are currently experiencing elevated latency.',
                 ),
-                const TBanner.error(
-                  title: 'Sync Failed',
-                  message: 'Could not sync inventory items with Shopify. Please re-authenticate.',
-                ),
+                const TBanner.error(title: 'Sync Failed', message: 'Could not sync inventory items with Shopify. Please re-authenticate.'),
                 const TBanner.neutral(
                   title: 'Tip of the Day',
                   message: 'Use keyboard shortcut Cmd+K to quickly search and jump between pages.',
@@ -218,7 +192,8 @@ TBanner.info(variant: TVariant.solid, message: 'Solid variant')''',
           // 4. Offline Connectivity Banner (TBanner.offline)
           WidgetDocCard(
             title: 'Offline & Sync Status Banner (TBanner.offline)',
-            description: 'Connectivity notice designed for offline-first field apps. Automatically handles offline, syncing, changes pending, error states with Retry, and disappears when fully synced.',
+            description:
+                'Connectivity notice designed for offline-first field apps. Automatically handles offline, syncing, changes pending, error states with Retry, and disappears when fully synced.',
             icon: Icons.wifi_off_rounded,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,15 +217,9 @@ TBanner.info(variant: TVariant.solid, message: 'Solid variant')''',
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TSwitch(
-                      value: _stickyOffline,
-                      onValueChanged: (v) => setState(() => _stickyOffline = v ?? false),
-                    ),
+                    TSwitch(value: _stickyOffline, onValueChanged: (v) => setState(() => _stickyOffline = v ?? false)),
                     const SizedBox(width: 8),
-                    Text(
-                      'sticky: $_stickyOffline (flush edge-to-edge docking)',
-                      style: TextStyle(fontSize: 13, color: colors.onSurface),
-                    ),
+                    Text('sticky: $_stickyOffline (flush edge-to-edge docking)', style: TextStyle(fontSize: 13, color: colors.onSurface)),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -385,38 +354,28 @@ TBanner.neutral(
   Widget _buildActiveOfflineBanner() {
     return switch (_offlineState) {
       _OfflineDemoState.offline => TBanner.offline(
-          online: false,
-          pendingCount: 14,
-          lastSync: DateTime.now().subtract(const Duration(minutes: 24)),
-          sticky: _stickyOffline,
-          onViewPending: () => _setAction('Clicked: View pending (14 items)'),
-        ),
-      _OfflineDemoState.syncing => TBanner.offline(
-          online: true,
-          syncing: true,
-          pendingCount: 6,
-          sticky: _stickyOffline,
-        ),
+        online: false,
+        pendingCount: 14,
+        lastSync: DateTime.now().subtract(const Duration(minutes: 24)),
+        sticky: _stickyOffline,
+        onViewPending: () => _setAction('Clicked: View pending (14 items)'),
+      ),
+      _OfflineDemoState.syncing => TBanner.offline(online: true, syncing: true, pendingCount: 6, sticky: _stickyOffline),
       _OfflineDemoState.pendingChanges => TBanner.offline(
-          online: true,
-          syncing: false,
-          pendingCount: 5,
-          lastSync: DateTime.now().subtract(const Duration(minutes: 6)),
-          sticky: _stickyOffline,
-          onRetry: () => _setAction('Clicked: Sync now'),
-        ),
+        online: true,
+        syncing: false,
+        pendingCount: 5,
+        lastSync: DateTime.now().subtract(const Duration(minutes: 6)),
+        sticky: _stickyOffline,
+        onRetry: () => _setAction('Clicked: Sync now'),
+      ),
       _OfflineDemoState.error => TBanner.offline(
-          online: false,
-          error: 'Connection timed out while reaching warehouse API',
-          sticky: _stickyOffline,
-          onRetry: () => _setAction('Clicked: Retry failed sync'),
-        ),
-      _OfflineDemoState.fullySynced => TBanner.offline(
-          online: true,
-          syncing: false,
-          pendingCount: 0,
-          sticky: _stickyOffline,
-        ),
+        online: false,
+        error: 'Connection timed out while reaching warehouse API',
+        sticky: _stickyOffline,
+        onRetry: () => _setAction('Clicked: Retry failed sync'),
+      ),
+      _OfflineDemoState.fullySynced => TBanner.offline(online: true, syncing: false, pendingCount: 0, sticky: _stickyOffline),
     };
   }
 }

@@ -11,6 +11,8 @@ class PlaceholderPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          const Text('Coming soon', style: TextStyle(fontSize: 14, color: Colors.grey)),
           const SizedBox(height: 16),
         ],
       ),

@@ -30,6 +30,9 @@ class TTableRowCard<T, K> extends StatelessWidget {
   /// Whether the row is expandable.
   final bool expandable;
 
+  /// Whether to render the leading expand/collapse icon.
+  final bool showExpandIcon;
+
   /// Whether the row is currently expanded.
   final bool isExpanded;
   final bool isDetailExpanded;
@@ -80,6 +83,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
 
     //expandable
     this.expandable = false,
+    this.showExpandIcon = true,
     this.isExpanded = false,
     this.isDetailExpanded = false,
     this.onExpansionChanged,
@@ -146,7 +150,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             children: [
               TableRow(children: [
-                if (expandable)
+                if (expandable && showExpandIcon)
                   Builder(builder: (context) {
                     return Align(
                       alignment: Alignment.centerLeft,

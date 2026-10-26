@@ -68,4 +68,10 @@ abstract final class TBadgeSize {
     radius: 12.0,
     spacing: 4.0,
   );
+
+  /// The preset whose font size is closest to [font] (xs, sm, md or lg).
+  static TSize forFont(double font) {
+    const presets = [xs, sm, md, lg];
+    return presets.reduce((a, b) => (a.font - font).abs() <= (b.font - font).abs() ? a : b);
+  }
 }

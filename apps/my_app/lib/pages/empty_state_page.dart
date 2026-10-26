@@ -24,19 +24,12 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
           // Header
           Text(
             'Empty States',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: colors.onSurface),
           ),
           const SizedBox(height: 8),
           Text(
             'Standardized placeholders for zero-data views, search misses, 404s, and empty tables.',
-            style: TextStyle(
-              fontSize: 16,
-              color: colors.onSurfaceVariant,
-            ),
+            style: TextStyle(fontSize: 16, color: colors.onSurfaceVariant),
           ),
           const SizedBox(height: 32),
 
@@ -55,13 +48,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
               child: TEmptyState.noData(
                 title: 'No Customers Yet',
                 description: 'You have not added any customer records yet. Add your first customer to get started.',
-                action: TButton(
-                  text: 'Add Customer',
-                  icon: Icons.add,
-                  type: TButtonType.solid,
-                  size: TButtonSize.sm,
-                  onTap: () {},
-                ),
+                action: TButton(text: 'Add Customer', icon: Icons.add, type: TButtonType.solid, size: TButtonSize.sm, onTap: () {}),
                 secondaryAction: TButton(
                   text: 'Import CSV',
                   icon: Icons.upload_file_rounded,
@@ -196,12 +183,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
               child: TEmptyState.compact(
                 icon: Icons.filter_list_off_rounded,
                 message: 'No active filters applied',
-                action: TButton(
-                  text: 'Reset',
-                  type: TButtonType.softText,
-                  size: TButtonSize.xxs,
-                  onTap: () {},
-                ),
+                action: TButton(text: 'Reset', type: TButtonType.softText, size: TButtonSize.xxs, onTap: () {}),
               ),
             ),
             code: '''TEmptyState.compact(

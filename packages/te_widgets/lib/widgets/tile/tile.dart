@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 export 'tile_size.dart';
@@ -40,7 +41,7 @@ class TTile extends StatelessWidget {
   /// Leading icon. Supports [IconData], HugeIcon, or [Widget].
   final dynamic icon;
 
-  /// Leading icon. Alias for [icon].
+  /// Custom leading widget/icon. Overrides [icon] and [imageUrl] when provided.
   final dynamic leading;
 
   /// Color of the leading icon.
@@ -98,6 +99,12 @@ class TTile extends StatelessWidget {
   /// it to the end. Without one the tile shrinks to fit its content.
   final Widget? trailing;
 
+  /// Where [trailing] goes when it doesn't fit beside the title.
+  ///
+  /// `false` (default) tries the end of the subtitle, then below the subtitle.
+  /// `true` skips the subtitle and puts it above the title, right-aligned.
+  final bool trailingAboveOnOverflow;
+
   /// Callback when the tile is tapped.
   final VoidCallback? onTap;
 
@@ -120,8 +127,16 @@ class TTile extends StatelessWidget {
   /// (defaults to [CrossAxisAlignment.start]).
   final bool iconOnTop;
 
-  /// Optional image URL for entity/product thumbnail. Used when [icon] and [leading] are null.
+  /// Optional image URL for entity/product thumbnail. Used when [leading] is null; takes precedence over [icon].
   final String? imageUrl;
+
+  /// Whether [imageUrl] is persistently cached via [TImageStorage] instead of
+  /// just Flutter's in-memory [ImageCache]. See [TImage.forceCache]. Defaults to `true`.
+  final bool forceCache;
+
+  /// Optional status/attribute chips ([TChip], [TBadge]) shown below the
+  /// subtitle. Leave their `size` null so they follow the subtitle font size.
+  final List<Widget>? highlights;
 
   /// Optional key-value items to display below the tile content.
   final List<TKeyValue>? values;
@@ -147,6 +162,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -164,6 +181,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -232,6 +250,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -249,6 +269,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -270,6 +291,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -287,6 +310,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -308,6 +332,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -325,6 +351,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -346,6 +373,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -363,6 +392,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -384,6 +414,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -401,6 +433,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -422,6 +455,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -439,6 +474,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -460,6 +496,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -477,6 +515,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -498,6 +537,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -515,6 +556,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -536,6 +578,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -553,6 +597,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -574,6 +619,8 @@ class TTile extends StatelessWidget {
     this.icon,
     this.leading,
     this.imageUrl,
+    this.forceCache = true,
+    this.highlights,
     this.values,
     this.valuesMode,
     this.valuesSpacing,
@@ -591,6 +638,7 @@ class TTile extends StatelessWidget {
     this.spacing,
     this.crossAxisAlignment,
     this.trailing,
+    this.trailingAboveOnOverflow = false,
     this.onTap,
     this.padding,
     this.borderRadius,
@@ -647,10 +695,9 @@ class TTile extends StatelessWidget {
   }
 
   TextStyle _resolveTitleStyle(ColorScheme colors) {
-    final titleFontWeight = size.font >= 22.0 ? FontWeight.w700 : (size.font >= 16.0 ? FontWeight.w600 : FontWeight.w500);
     final defaultTitleStyle = TextStyle(
       fontSize: size.font,
-      fontWeight: titleFontWeight,
+      fontWeight: size.resolveFontWeight(),
       color: colors.onSurface,
     );
     return titleStyle != null ? defaultTitleStyle.merge(titleStyle) : defaultTitleStyle;
@@ -663,14 +710,14 @@ class TTile extends StatelessWidget {
   /// ignored since they reflow to the available width.
   double estimateWidth(BuildContext context) {
     final colors = context.colors;
-    final effectiveIcon = icon ?? leading;
+    final effectiveIcon = leading ?? ((imageUrl != null && imageUrl!.isNotEmpty) ? null : icon);
     final effectiveIconSize = iconSize ?? size.icon;
     final effectiveIconPadding = iconPadding ?? (size.hPad > 0 || size.vPad > 0 ? size.padding : const EdgeInsets.all(8));
     final effectiveSpacing = spacing ?? size.spacing;
 
     final subtitleStyle = TextStyle(
       fontSize: size.resolveSubtitleFontSize(),
-      fontWeight: FontWeight.w400,
+      fontWeight: size.resolveSubtitleFontWeight(),
       color: colors.onSurfaceVariant,
     ).merge(this.subtitleStyle);
 
@@ -698,7 +745,7 @@ class TTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final effectiveCrossAxisAlignment = crossAxisAlignment ?? CrossAxisAlignment.center;
-    final effectiveIcon = icon ?? leading;
+    final effectiveIcon = leading ?? ((imageUrl != null && imageUrl!.isNotEmpty) ? null : icon);
 
     final effectiveIconSize = iconSize ?? size.icon;
     final effectiveIconPadding = iconPadding ?? (size.hPad > 0 || size.vPad > 0 ? size.padding : const EdgeInsets.all(8));
@@ -757,7 +804,7 @@ class TTile extends StatelessWidget {
           url: imageUrl,
           size: effectiveIconSize,
           disabled: true,
-          forceCache: true,
+          forceCache: forceCache,
         ),
       );
     }
@@ -777,7 +824,7 @@ class TTile extends StatelessWidget {
 
     final defaultSubtitleStyle = TextStyle(
       fontSize: subtitleFontSize,
-      fontWeight: FontWeight.w400,
+      fontWeight: size.resolveSubtitleFontWeight(),
       color: colors.onSurfaceVariant,
     );
 
@@ -796,7 +843,7 @@ class TTile extends StatelessWidget {
 
     final defaultDescStyle = TextStyle(
       fontSize: descFontSize,
-      fontWeight: FontWeight.w400,
+      fontWeight: FontWeight.w300,
       color: colors.onSurfaceVariant,
     );
 
@@ -810,159 +857,447 @@ class TTile extends StatelessWidget {
               )
             : null);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final availableWidth = constraints.maxWidth;
-        final hasLeading = leadingWidget != null;
-        final (leadingWidth, leadingHeight) = _resolveLeadingDimensions(
-          leading: effectiveIcon ?? (imageUrl != null && imageUrl!.isNotEmpty ? imageUrl : null),
-          defaultSize: effectiveIconSize,
-          iconPadding: effectiveIconPadding,
-        );
+    return _HeadCenterHost(
+      builder: (headCenter) => LayoutBuilder(
+        builder: (context, constraints) {
+          final availableWidth = constraints.maxWidth;
+          final hasLeading = leadingWidget != null;
+          final (leadingWidth, leadingHeight) = _resolveLeadingDimensions(
+            leading: effectiveIcon ?? (imageUrl != null && imageUrl!.isNotEmpty ? imageUrl : null),
+            defaultSize: effectiveIconSize,
+            iconPadding: effectiveIconPadding,
+          );
 
-        bool descInColumn = false;
-        if (descChild != null) {
-          if (!hasLeading || leadingHeight <= 0) {
-            descInColumn = true;
-          } else {
-            final direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
-            final textScaler = MediaQuery.maybeTextScalerOf(context) ?? TextScaler.noScaling;
+          bool descInColumn = false;
+          if (descChild != null) {
+            if (!hasLeading || leadingHeight <= 0) {
+              descInColumn = true;
+            } else {
+              final direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
+              final textScaler = MediaQuery.maybeTextScalerOf(context) ?? TextScaler.noScaling;
 
-            final trailingReserve = trailing != null ? 48.0 : 0.0;
-            final paddingReserve = padding?.horizontal ?? 0.0;
-            final leadingReserve = hasLeading ? leadingWidth + effectiveSpacing : 0.0;
+              final trailingReserve = trailing != null ? 48.0 : 0.0;
+              final paddingReserve = padding?.horizontal ?? 0.0;
+              final leadingReserve = hasLeading ? leadingWidth + effectiveSpacing : 0.0;
 
-            final maxTextWidth = availableWidth.isFinite
-                ? math.max(0.0, availableWidth - leadingReserve - trailingReserve - paddingReserve)
-                : double.infinity;
+              final maxTextWidth = availableWidth.isFinite
+                  ? math.max(0.0, availableWidth - leadingReserve - trailingReserve - paddingReserve)
+                  : double.infinity;
 
-            double measureHeight(String? text, TextStyle style) {
-              if (text == null || text.isEmpty || maxTextWidth <= 0) return 0.0;
-              final painter = TextPainter(
-                text: TextSpan(text: text, style: style),
-                textDirection: direction,
-                textScaler: textScaler,
-              );
-              painter.layout(maxWidth: maxTextWidth);
-              final h = painter.height;
-              painter.dispose();
-              return h;
+              // Desc spans under the trailing widget, so it only loses the leading/padding width.
+              final descTextWidth =
+                  availableWidth.isFinite ? math.max(0.0, availableWidth - leadingReserve - paddingReserve) : double.infinity;
+
+              double measureHeight(String? text, TextStyle style, [double? width]) {
+                final maxWidth = width ?? maxTextWidth;
+                if (text == null || text.isEmpty || maxWidth <= 0) return 0.0;
+                final painter = TextPainter(
+                  text: TextSpan(text: text, style: style),
+                  textDirection: direction,
+                  textScaler: textScaler,
+                );
+                painter.layout(maxWidth: maxWidth);
+                final h = painter.height;
+                painter.dispose();
+                return h;
+              }
+
+              final titleH = title != null ? measureHeight(title, effectiveTitleStyle) : (titleWidget != null ? size.font * 1.3 : 0.0);
+
+              final subH = subtitle != null
+                  ? measureHeight(subtitle, effectiveSubtitleStyle)
+                  : (subtitleWidget != null ? subtitleFontSize * 1.3 : 0.0);
+
+              final descH =
+                  desc != null ? measureHeight(desc, effectiveDescStyle, descTextWidth) : (descWidget != null ? descFontSize * 1.3 : 0.0);
+
+              double requiredTextHeight = titleH;
+              if (subtitleChild != null) {
+                requiredTextHeight += subtitleGap + subH;
+              }
+              requiredTextHeight += descGap + descH;
+
+              // If in image height then below subtitle else go below image
+              descInColumn = requiredTextHeight <= leadingHeight;
             }
-
-            final titleH = title != null ? measureHeight(title, effectiveTitleStyle) : (titleWidget != null ? size.font * 1.3 : 0.0);
-
-            final subH = subtitle != null
-                ? measureHeight(subtitle, effectiveSubtitleStyle)
-                : (subtitleWidget != null ? subtitleFontSize * 1.3 : 0.0);
-
-            final descH = desc != null ? measureHeight(desc, effectiveDescStyle) : (descWidget != null ? descFontSize * 1.3 : 0.0);
-
-            double requiredTextHeight = titleH;
-            if (subtitleChild != null) {
-              requiredTextHeight += subtitleGap + subH;
-            }
-            requiredTextHeight += descGap + descH;
-
-            // If in image height then below subtitle else go below image
-            descInColumn = requiredTextHeight <= leadingHeight;
           }
-        }
 
-        final columnChildren = <Widget>[
-          titleChild,
-          if (subtitleChild != null) ...[
-            SizedBox(height: subtitleGap),
-            subtitleChild,
-          ],
-          if (descChild != null && descInColumn) ...[
-            SizedBox(height: descGap),
-            descChild,
-          ],
-        ];
-
-        final textColumn = Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: iconOnTop ? (crossAxisAlignment ?? CrossAxisAlignment.start) : CrossAxisAlignment.start,
-          children: columnChildren,
-        );
-
-        final Widget topRow;
-        if (iconOnTop && leadingWidget != null) {
-          topRow = Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.start,
-            children: [
-              if (trailing != null)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [leadingWidget, const Spacer(), trailing!],
-                )
-              else
-                leadingWidget,
-              SizedBox(height: effectiveSpacing),
-              textColumn,
+          final headChildren = <Widget>[
+            titleChild,
+            if (subtitleChild != null) ...[
+              SizedBox(height: subtitleGap),
+              subtitleChild,
             ],
-          );
-        } else {
-          topRow = Row(
-            mainAxisSize: trailing != null ? MainAxisSize.max : MainAxisSize.min,
-            crossAxisAlignment: effectiveCrossAxisAlignment,
-            children: [
-              if (leadingWidget != null) ...[
-                leadingWidget,
-                SizedBox(width: effectiveSpacing),
-              ],
-              if (trailing != null) Expanded(child: textColumn) else Flexible(child: textColumn),
-              if (trailing != null) trailing!,
-            ],
-          );
-        }
+          ];
 
-        Widget content;
-        if (descChild != null && !descInColumn) {
-          content = Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              topRow,
+          // Trailing sits beside title/subtitle only, so desc gets the full text width.
+          final trailingBesideHead = trailing != null && !iconOnTop;
+
+          final columnChildren = <Widget>[
+            if (trailingBesideHead)
+              _TileHead(
+                title: titleChild,
+                subtitle: subtitleChild,
+                trailing: trailing!,
+                subtitleGap: subtitleGap,
+                gap: 8,
+                rowGap: 3,
+                trailingAbove: trailingAboveOnOverflow,
+                textCenter: crossAxisAlignment == null ? headCenter : null,
+              )
+            else
+              ...headChildren,
+            if (highlights != null && highlights!.isNotEmpty) ...[
+              SizedBox(height: subtitleGap + 4),
+              THighlights(items: highlights!, fontSize: subtitleFontSize),
+            ],
+            if (descChild != null && descInColumn) ...[
               SizedBox(height: descGap),
               descChild,
             ],
-          );
-        } else {
-          content = topRow;
-        }
+          ];
 
-        if (values != null && values!.isNotEmpty) {
-          content = Column(
+          final textColumn = Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              content,
-              SizedBox(height: valuesSpacing ?? 24.0),
-              TKeyValueSection(
-                values: values!,
-                mode: valuesMode ?? TKeyValueMode.inlineFlow,
-              ),
-            ],
+            crossAxisAlignment: iconOnTop ? (crossAxisAlignment ?? CrossAxisAlignment.start) : CrossAxisAlignment.start,
+            children: columnChildren,
           );
-        }
 
-        if (padding != null) {
-          content = Padding(padding: padding!, child: content);
-        }
+          final Widget topRow;
+          if (iconOnTop && leadingWidget != null) {
+            topRow = Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.start,
+              children: [
+                if (trailing != null)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [leadingWidget, const Spacer(), trailing!],
+                  )
+                else
+                  leadingWidget,
+                SizedBox(height: effectiveSpacing),
+                textColumn,
+              ],
+            );
+          } else {
+            topRow = Row(
+              mainAxisSize: trailing != null ? MainAxisSize.max : MainAxisSize.min,
+              crossAxisAlignment:
+                  (trailingBesideHead && crossAxisAlignment == null) ? CrossAxisAlignment.start : effectiveCrossAxisAlignment,
+              children: [
+                if (leadingWidget != null) ...[
+                  if (trailingBesideHead && crossAxisAlignment == null)
+                    ValueListenableBuilder<double?>(
+                      valueListenable: headCenter,
+                      child: leadingWidget,
+                      builder: (_, c, child) => c == null
+                          ? child!
+                          : Transform.translate(
+                              offset: Offset(0, c),
+                              child: FractionalTranslation(translation: const Offset(0, -0.5), child: child),
+                            ),
+                    )
+                  else
+                    leadingWidget,
+                  SizedBox(width: effectiveSpacing),
+                ],
+                if (trailing != null) Expanded(child: textColumn) else Flexible(child: textColumn),
+                if (trailing != null && iconOnTop) trailing!,
+              ],
+            );
+          }
 
-        if (onTap != null) {
-          return InkWell(
-            onTap: onTap,
-            borderRadius: borderRadius ?? BorderRadius.circular(8),
-            child: content,
-          );
-        }
+          Widget content;
+          if (descChild != null && !descInColumn) {
+            content = Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                topRow,
+                SizedBox(height: descGap),
+                descChild,
+              ],
+            );
+          } else {
+            content = topRow;
+          }
 
-        return content;
-      },
+          if (values != null && values!.isNotEmpty) {
+            content = Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                content,
+                SizedBox(height: valuesSpacing ?? 16.0),
+                TKeyValueSection(
+                  values: values!,
+                  mode: valuesMode ?? TKeyValueMode.inlineFlow,
+                ),
+              ],
+            );
+          }
+
+          if (padding != null) {
+            content = Padding(padding: padding!, child: content);
+          }
+
+          if (onTap != null) {
+            return InkWell(
+              onTap: onTap,
+              borderRadius: borderRadius ?? BorderRadius.circular(8),
+              child: content,
+            );
+          }
+
+          return content;
+        },
+      ),
     );
+  }
+}
+
+/// Owns the notifier through which [_TileHead] reports the center of its text block.
+class _HeadCenterHost extends StatefulWidget {
+  final Widget Function(ValueNotifier<double?> center) builder;
+
+  const _HeadCenterHost({required this.builder});
+
+  @override
+  State<_HeadCenterHost> createState() => _HeadCenterHostState();
+}
+
+class _HeadCenterHostState extends State<_HeadCenterHost> {
+  final _center = ValueNotifier<double?>(null);
+
+  @override
+  void dispose() {
+    _center.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(_center);
+}
+
+enum _HeadSlot { title, subtitle, trailing }
+
+/// Places [trailing] at the end of the title row when it fits beside the
+/// title, else at the end of the subtitle row, else below the subtitle.
+class _TileHead extends SlottedMultiChildRenderObjectWidget<_HeadSlot, RenderBox> {
+  final Widget title;
+  final Widget? subtitle;
+  final Widget trailing;
+  final double subtitleGap;
+  final double gap;
+  final double rowGap;
+  final bool trailingAbove;
+  final ValueNotifier<double?>? textCenter;
+
+  const _TileHead({
+    required this.title,
+    this.subtitle,
+    required this.trailing,
+    required this.subtitleGap,
+    this.gap = 8,
+    this.rowGap = 3,
+    this.trailingAbove = false,
+    this.textCenter,
+  });
+
+  @override
+  Iterable<_HeadSlot> get slots => _HeadSlot.values;
+
+  @override
+  Widget? childForSlot(_HeadSlot slot) => switch (slot) {
+        _HeadSlot.title => title,
+        _HeadSlot.subtitle => subtitle,
+        _HeadSlot.trailing => trailing,
+      };
+
+  @override
+  SlottedContainerRenderObjectMixin<_HeadSlot, RenderBox> createRenderObject(BuildContext context) =>
+      _RenderTileHead(subtitleGap, gap, rowGap, trailingAbove)..textCenter = textCenter;
+
+  @override
+  void updateRenderObject(BuildContext context, covariant _RenderTileHead renderObject) {
+    renderObject
+      ..subtitleGap = subtitleGap
+      ..gap = gap
+      ..rowGap = rowGap
+      ..trailingAbove = trailingAbove
+      ..textCenter = textCenter;
+  }
+}
+
+class _RenderTileHead extends RenderBox with SlottedContainerRenderObjectMixin<_HeadSlot, RenderBox> {
+  double _subtitleGap;
+  double _gap;
+  double _rowGap;
+  bool _trailingAbove;
+
+  _RenderTileHead(this._subtitleGap, this._gap, this._rowGap, this._trailingAbove);
+
+  /// Receives the vertical center of the title/subtitle block after each layout.
+  ValueNotifier<double?>? textCenter;
+
+  set trailingAbove(bool v) {
+    if (_trailingAbove == v) return;
+    _trailingAbove = v;
+    markNeedsLayout();
+  }
+
+  set subtitleGap(double v) {
+    if (_subtitleGap == v) return;
+    _subtitleGap = v;
+    markNeedsLayout();
+  }
+
+  set gap(double v) {
+    if (_gap == v) return;
+    _gap = v;
+    markNeedsLayout();
+  }
+
+  set rowGap(double v) {
+    if (_rowGap == v) return;
+    _rowGap = v;
+    markNeedsLayout();
+  }
+
+  RenderBox get _title => childForSlot(_HeadSlot.title)!;
+  RenderBox? get _subtitle => childForSlot(_HeadSlot.subtitle);
+  RenderBox get _trailing => childForSlot(_HeadSlot.trailing)!;
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! BoxParentData) child.parentData = BoxParentData();
+  }
+
+  Size _compute(
+    BoxConstraints constraints,
+    Size Function(RenderBox, BoxConstraints) layout, {
+    void Function(RenderBox, Offset)? place,
+  }) {
+    final title = _title;
+    final subtitle = _subtitle;
+    final trailing = _trailing;
+
+    final trailSize = layout(trailing, BoxConstraints(maxWidth: constraints.maxWidth));
+    final titleNatural = title.getMaxIntrinsicWidth(double.infinity);
+    final subNatural = subtitle?.getMaxIntrinsicWidth(double.infinity) ?? 0.0;
+    final width = constraints.maxWidth.isFinite ? constraints.maxWidth : math.max(titleNatural, subNatural) + _gap + trailSize.width;
+    final beside = math.max(0.0, width - _gap - trailSize.width);
+    final trailX = width - trailSize.width;
+    final subGap = subtitle != null ? _subtitleGap : 0.0;
+
+    double centered(double rowH, double h) => (rowH - h) / 2;
+
+    if (titleNatural <= beside) {
+      // Trailing at the end of the title row.
+      final titleSize = layout(title, BoxConstraints(maxWidth: beside));
+      final rowH = math.max(titleSize.height, trailSize.height);
+      place?.call(title, Offset(0, centered(rowH, titleSize.height)));
+      place?.call(trailing, Offset(trailX, centered(rowH, trailSize.height)));
+      var height = rowH;
+      if (subtitle != null) {
+        final subSize = layout(subtitle, BoxConstraints(maxWidth: width));
+        place?.call(subtitle, Offset(0, height + subGap));
+        height += subGap + subSize.height;
+      }
+      return constraints.constrain(Size(width, height));
+    }
+
+    final titleSize = layout(title, BoxConstraints(maxWidth: width));
+    if (!_trailingAbove && subtitle != null && subNatural <= beside) {
+      // Trailing at the end of the subtitle row.
+      final subSize = layout(subtitle, BoxConstraints(maxWidth: beside));
+      final rowH = math.max(subSize.height, trailSize.height);
+      final y = titleSize.height + subGap;
+      place?.call(title, Offset.zero);
+      place?.call(subtitle, Offset(0, y + centered(rowH, subSize.height)));
+      place?.call(trailing, Offset(trailX, y + centered(rowH, trailSize.height)));
+      return constraints.constrain(Size(width, y + rowH));
+    }
+
+    // No room beside either: below the subtitle (or title), or above the title.
+    final top = _trailingAbove ? trailSize.height + _rowGap : 0.0;
+    place?.call(title, Offset(0, top));
+    var height = top + titleSize.height;
+    if (subtitle != null) {
+      final subSize = layout(subtitle, BoxConstraints(maxWidth: width));
+      place?.call(subtitle, Offset(0, height + subGap));
+      height += subGap + subSize.height;
+    }
+    if (_trailingAbove) {
+      place?.call(trailing, Offset(trailX, 0));
+      return constraints.constrain(Size(width, height));
+    }
+    place?.call(trailing, Offset(trailX, height + _rowGap));
+    return constraints.constrain(Size(width, height + _rowGap + trailSize.height));
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) => _compute(constraints, (c, cons) => c.getDryLayout(cons));
+
+  @override
+  void performLayout() {
+    size = _compute(
+      constraints,
+      (c, cons) {
+        c.layout(cons, parentUsesSize: true);
+        return c.size;
+      },
+      place: (c, o) => (c.parentData! as BoxParentData).offset = o,
+    );
+    final notifier = textCenter;
+    if (notifier != null) {
+      final last = _subtitle ?? _title;
+      final top = _trailingAbove ? _trailing.size.height + _rowGap : 0.0;
+      final bottom = (last.parentData! as BoxParentData).offset.dy + last.size.height;
+      final center = (top + bottom) / 2;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (notifier.value != center) notifier.value = center;
+      });
+    }
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) => children.fold(0.0, (m, c) => math.max(m, c.getMinIntrinsicWidth(height)));
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    final text = math.max(
+      _title.getMaxIntrinsicWidth(height),
+      _subtitle?.getMaxIntrinsicWidth(height) ?? 0.0,
+    );
+    return text + _gap + _trailing.getMaxIntrinsicWidth(height);
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) => getDryLayout(BoxConstraints(maxWidth: width)).height;
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => computeMinIntrinsicHeight(width);
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    for (final c in children) {
+      context.paintChild(c, (c.parentData! as BoxParentData).offset + offset);
+    }
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    for (final c in children) {
+      final hit = result.addWithPaintOffset(
+        offset: (c.parentData! as BoxParentData).offset,
+        position: position,
+        hitTest: (r, p) => c.hitTest(r, position: p),
+      );
+      if (hit) return true;
+    }
+    return false;
   }
 }
 

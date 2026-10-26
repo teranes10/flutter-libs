@@ -67,6 +67,81 @@ class _TRichTextFieldState extends State<TRichTextField>
         TInputValueStateMixin<String, TRichTextField>,
         TRichTextFieldStateMixin<TRichTextField>,
         TInputValidationStateMixin<String, TRichTextField> {
+  static const _tabs = ['Text', 'Paragraph', 'Insert'];
+  static const _iconSize = 15.0;
+  static const _minEditorHeight = 72.0; // ~3 lines
+
+  int _tab = 0;
+
+  QuillSimpleToolbarConfig _toolbarConfig() {
+    final text = _tab == 0;
+    final paragraph = _tab == 1;
+    final insert = _tab == 2;
+    return QuillSimpleToolbarConfig(
+      multiRowsDisplay: false,
+      toolbarRunSpacing: 0,
+      toolbarSectionSpacing: 0,
+      toolbarIconAlignment: WrapAlignment.start,
+      buttonOptions: const QuillSimpleToolbarButtonOptions(
+        base: QuillToolbarBaseButtonOptions(iconSize: _iconSize, iconButtonFactor: 1.5),
+      ),
+      showDividers: false,
+      showFontFamily: false,
+      showFontSize: false,
+      showColorButton: false,
+      showBackgroundColorButton: false,
+      showUndo: text,
+      showRedo: text,
+      showBoldButton: text,
+      showItalicButton: text,
+      showUnderLineButton: text,
+      showStrikeThrough: text,
+      showClearFormat: text,
+      showHeaderStyle: paragraph,
+      showListNumbers: paragraph,
+      showListBullets: paragraph,
+      showListCheck: paragraph,
+      showQuote: paragraph,
+      showIndent: paragraph,
+      showInlineCode: insert,
+      showCodeBlock: insert,
+      showSubscript: insert,
+      showSuperscript: insert,
+      showLink: insert,
+      showSearchButton: insert,
+      embedButtons: insert ? FlutterQuillEmbeds.toolbarButtons() : const [],
+    );
+  }
+
+  Widget _buildTabs(BuildContext context) {
+    final colors = context.colors;
+    return Row(
+      children: [
+        for (var i = 0; i < _tabs.length; i++)
+          InkWell(
+            borderRadius: BorderRadius.circular(4),
+            onTap: () => setState(() => _tab = i),
+            child: Container(
+              margin: const EdgeInsets.only(right: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: i == _tab ? colors.primary.withValues(alpha: 0.12) : Colors.transparent,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                _tabs[i],
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: i == _tab ? FontWeight.w600 : FontWeight.w400,
+                  color: i == _tab ? colors.primary : colors.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return buildContainer(
@@ -79,25 +154,25 @@ class _TRichTextFieldState extends State<TRichTextField>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!widget.disabled && !widget.readOnly)
-            QuillSimpleToolbar(
-              controller: quillController,
-              config: QuillSimpleToolbarConfig(
-                showFontFamily: false,
-                showFontSize: false,
-                showColorButton: false,
-                showBackgroundColorButton: false,
-                embedButtons: FlutterQuillEmbeds.toolbarButtons(),
-              ),
+          if (!widget.disabled && !widget.readOnly) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
+              child: Align(alignment: Alignment.centerLeft, child: _buildTabs(context)),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: QuillSimpleToolbar(controller: quillController, config: _toolbarConfig()),
+            ),
+          ],
           const Divider(height: 1),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: QuillEditor.basic(
               controller: quillController,
               focusNode: focusNode,
               config: QuillEditorConfig(
                 padding: EdgeInsets.zero,
+                minHeight: _minEditorHeight,
                 placeholder: widget.placeholder,
                 embedBuilders: kIsWeb ? FlutterQuillEmbeds.editorWebBuilders() : FlutterQuillEmbeds.editorBuilders(),
               ),

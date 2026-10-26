@@ -15,7 +15,10 @@ class _CarouselPageState extends State<CarouselPage> {
     return Container(
       color: color,
       alignment: Alignment.center,
-      child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+      ),
     );
   }
 

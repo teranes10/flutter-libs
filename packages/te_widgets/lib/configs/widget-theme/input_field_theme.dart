@@ -376,6 +376,8 @@ class TInputFieldTheme {
         _buildPaddedWidget(
             TIcon.close(
               onTap: onClear,
+              semanticLabel: 'Clear',
+              semanticIdentifier: 'field-clear',
               size: fieldFontSize + 3,
               padding: EdgeInsets.fromLTRB(6, 6, 2, 6),
             ),

@@ -72,10 +72,7 @@ class _TourPageState extends State<TourPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Text(
-              'TTour Showcase',
-              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
+            Text('TTour Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
               'Interactive guided tour and spotlight onboarding guide. Automatically highlights screen elements '
@@ -105,10 +102,7 @@ class _TourPageState extends State<TourPage> {
                         color: colors.surfaceContainerHighest.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Text(
-                        _tourStatus,
-                        style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
-                      ),
+                      child: Text(_tourStatus, style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
                     ),
                   ),
                 ],
@@ -163,10 +157,7 @@ class _TourPageState extends State<TourPage> {
                         key: _profileKey,
                         width: 38,
                         height: 38,
-                        decoration: BoxDecoration(
-                          color: colors.primaryContainer,
-                          shape: BoxShape.circle,
-                        ),
+                        decoration: BoxDecoration(color: colors.primaryContainer, shape: BoxShape.circle),
                         child: const Icon(Icons.person, size: 20),
                       ),
                     ],

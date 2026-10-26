@@ -135,6 +135,9 @@ class TBadge extends StatelessWidget {
   ///
   /// Supports [TSize] presets (e.g. [TBadgeSize.sm], [TBadgeSize.xs], [TBadgeSize.xxs],
   /// [TBadgeSize.md], [TBadgeSize.lg], or standard [TSize] instances).
+  ///
+  /// When null, a standalone badge inside a [THighlightScope] (e.g.
+  /// `TPageWrapper.highlights`) matches the scope's font size.
   final TSize? size;
 
   /// Padding applied inside count or label badges.
@@ -318,6 +321,30 @@ class TBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scope = THighlightScope.maybeOf(context);
+    if (size == null && child == null && scope != null) {
+      return TBadge.standalone(
+        badge: badge,
+        count: count,
+        label: label,
+        dot: dot,
+        badgeWidget: badgeWidget,
+        color: color,
+        textColor: textColor,
+        textStyle: textStyle,
+        borderColor: borderColor,
+        borderWidth: borderWidth,
+        showBorder: showBorder,
+        maxCount: maxCount,
+        hideZero: hideZero,
+        hidden: hidden,
+        size: TBadgeSize.forFont(scope.fontSize),
+        padding: padding,
+        borderRadius: borderRadius,
+        shape: shape,
+      );
+    }
+
     final badgeContent = _buildBadgeWidget(context);
 
     if (child == null) {

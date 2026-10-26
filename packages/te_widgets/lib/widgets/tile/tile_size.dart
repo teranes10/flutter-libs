@@ -1,3 +1,4 @@
+import 'package:flutter/painting.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// Defines tile-specific size metrics and typography configurations, extending [TSize].
@@ -5,6 +6,12 @@ import 'package:te_widgets/te_widgets.dart';
 /// Predefined presets are modeled after heading levels ([TTileSize.h1] to [TTileSize.h7])
 /// and product/image dimensions ([TTileSize.sm], [TTileSize.md], [TTileSize.lg]).
 class TTileSize extends TSize {
+  /// Font weight for the title. If null, derived from [font].
+  final FontWeight? fontWeight;
+
+  /// Font weight for the subtitle. If null, defaults to [FontWeight.w400].
+  final FontWeight? subtitleFontWeight;
+
   /// Font size for the subtitle. If null, falls back to switch/formula resolution.
   final double? subtitleFont;
 
@@ -26,6 +33,8 @@ class TTileSize extends TSize {
     super.icon = 20,
     super.radius = 6,
     super.spacing = 4,
+    this.fontWeight,
+    this.subtitleFontWeight,
     this.subtitleFont,
     this.subtitleGap,
     this.descFont,
@@ -42,6 +51,8 @@ class TTileSize extends TSize {
     double? icon,
     double? radius,
     double? spacing,
+    FontWeight? fontWeight,
+    FontWeight? subtitleFontWeight,
     double? subtitleFont,
     double? subtitleGap,
     double? descFont,
@@ -56,6 +67,8 @@ class TTileSize extends TSize {
       icon: icon ?? this.icon,
       radius: radius ?? this.radius,
       spacing: spacing ?? this.spacing,
+      fontWeight: fontWeight ?? this.fontWeight,
+      subtitleFontWeight: subtitleFontWeight ?? this.subtitleFontWeight,
       subtitleFont: subtitleFont ?? this.subtitleFont,
       subtitleGap: subtitleGap ?? this.subtitleGap,
       descFont: descFont ?? this.descFont,
@@ -69,6 +82,8 @@ class TTileSize extends TSize {
       super == other &&
           other is TTileSize &&
           runtimeType == other.runtimeType &&
+          fontWeight == other.fontWeight &&
+          subtitleFontWeight == other.subtitleFontWeight &&
           subtitleFont == other.subtitleFont &&
           subtitleGap == other.subtitleGap &&
           descFont == other.descFont &&
@@ -77,6 +92,8 @@ class TTileSize extends TSize {
   @override
   int get hashCode => Object.hash(
         super.hashCode,
+        fontWeight,
+        subtitleFontWeight,
         subtitleFont,
         subtitleGap,
         descFont,
@@ -195,35 +212,39 @@ class TTileSize extends TSize {
   /// Small product/image tile focusing on image dimensions (50px) with balanced typography.
   /// (font: 14.0, icon: 50.0, radius: 8.0, hPad/vPad: 8.0, spacing: 12.0, subtitle: 12.0, subGap: 2.0, desc: 11.5, descGap: 4.0).
   static const TTileSize sm = TTileSize(
-    minW: 50.0,
-    minH: 50.0,
+    minW: 55.0,
+    minH: 55.0,
     hPad: 8.0,
     vPad: 8.0,
-    font: 14.0,
-    icon: 50.0,
+    icon: 55.0,
     radius: 8.0,
     spacing: 12.0,
-    subtitleFont: 12.0,
-    subtitleGap: 2.0,
-    descFont: 11.5,
-    descGap: 4.0,
+    font: 14.0,
+    subtitleFont: 11.5,
+    descFont: 11.0,
+    fontWeight: FontWeight.w400,
+    subtitleFontWeight: FontWeight.w300,
+    subtitleGap: 0.0,
+    descGap: 6.0,
   );
 
   /// Medium product/image tile focusing on image dimensions (75px) with balanced typography.
   /// (font: 16.0, icon: 75.0, radius: 10.0, hPad/vPad: 8.0, spacing: 14.0, subtitle: 13.0, subGap: 2.5, desc: 12.0, descGap: 5.0).
   static const TTileSize md = TTileSize(
-    minW: 75.0,
-    minH: 75.0,
+    minW: 80.0,
+    minH: 80.0,
     hPad: 8.0,
     vPad: 8.0,
-    font: 16.0,
-    icon: 75.0,
+    icon: 80.0,
     radius: 10.0,
     spacing: 14.0,
-    subtitleFont: 13.0,
-    subtitleGap: 2.0,
-    descFont: 12.0,
-    descGap: 6.0,
+    font: 16.0,
+    subtitleFont: 11.5,
+    descFont: 11.0,
+    fontWeight: FontWeight.w500,
+    subtitleFontWeight: FontWeight.w300,
+    subtitleGap: 0.0,
+    descGap: 7.5,
   );
 
   /// Large product/image tile focusing on image dimensions (100px) with balanced typography.
@@ -233,13 +254,15 @@ class TTileSize extends TSize {
     minH: 100.0,
     hPad: 8.0,
     vPad: 8.0,
-    font: 18.0,
     icon: 100.0,
     radius: 12.0,
     spacing: 16.0,
-    subtitleFont: 14.0,
+    font: 18.0,
+    subtitleFont: 12,
+    descFont: 11.0,
+    fontWeight: FontWeight.w500,
+    subtitleFontWeight: FontWeight.w300,
     subtitleGap: 3.0,
-    descFont: 13.0,
     descGap: 7.5,
   );
 }
@@ -249,6 +272,22 @@ class TTileSize extends TSize {
 /// If the size is an instance of [TTileSize], its configured values are used directly.
 /// Otherwise, falls back to switch expressions based on presets and font/spacing metrics.
 extension TTileSizeExtension on TSize {
+  /// Resolves the title font weight.
+  FontWeight resolveFontWeight() {
+    if (this is TTileSize && (this as TTileSize).fontWeight != null) {
+      return (this as TTileSize).fontWeight!;
+    }
+    return font >= 22.0 ? FontWeight.w700 : (font >= 16.0 ? FontWeight.w600 : FontWeight.w500);
+  }
+
+  /// Resolves the subtitle font weight.
+  FontWeight resolveSubtitleFontWeight() {
+    if (this is TTileSize && (this as TTileSize).subtitleFontWeight != null) {
+      return (this as TTileSize).subtitleFontWeight!;
+    }
+    return FontWeight.w400;
+  }
+
   /// Resolves the subtitle font size.
   double resolveSubtitleFontSize() {
     if (this is TTileSize && (this as TTileSize).subtitleFont != null) {

@@ -28,10 +28,7 @@ class _SpeedDialPageState extends State<SpeedDialPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Text(
-            'TSpeedDial Showcase',
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('TSpeedDial Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
             'Multi-action expandable floating action button menu with animated icon rotation, '
@@ -76,10 +73,7 @@ class _SpeedDialPageState extends State<SpeedDialPage> {
                       children: [
                         Icon(Icons.dashboard_customize_outlined, size: 48, color: theme.disabledColor),
                         const SizedBox(height: 12),
-                        Text(
-                          'Click the "+" button in the bottom right corner',
-                          style: TextStyle(fontSize: 14, color: theme.hintColor),
-                        ),
+                        Text('Click the "+" button in the bottom right corner', style: TextStyle(fontSize: 14, color: theme.hintColor)),
                       ],
                     ),
                   ),

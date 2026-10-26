@@ -18,6 +18,9 @@ class TTableRowHeader<T, K> extends StatelessWidget {
   /// Width configuration for columns.
   final Map<int, TableColumnWidth>? columnWidths;
 
+  /// Whether to reserve the leading expand-icon column.
+  final bool showExpandIcon;
+
   /// Creates a table header row.
   const TTableRowHeader({
     super.key,
@@ -25,6 +28,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
     required this.headers,
     this.columnWidths,
     this.theme,
+    this.showExpandIcon = true,
   });
 
   @override
@@ -66,7 +70,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
         columnWidths: columnWidths,
         children: [
           TableRow(children: [
-            if (controller.expandable) SizedBox(width: 20),
+            if (controller.expandable && showExpandIcon) SizedBox(width: 20),
             if (controller.selectable)
               Align(
                 alignment: Alignment.centerLeft,

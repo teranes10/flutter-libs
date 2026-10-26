@@ -89,7 +89,10 @@ class _MentionsMenubarPageState extends State<MentionsMenubarPage> {
                   onChanged: (v) => setState(() => _comment = v),
                 ),
                 const SizedBox(height: 10),
-                Text('Raw text: ${_comment.isEmpty ? '(empty)' : _comment}', style: TextStyle(color: colors.onSurfaceVariant, fontSize: 13)),
+                Text(
+                  'Raw text: ${_comment.isEmpty ? '(empty)' : _comment}',
+                  style: TextStyle(color: colors.onSurfaceVariant, fontSize: 13),
+                ),
               ],
             ),
           ),

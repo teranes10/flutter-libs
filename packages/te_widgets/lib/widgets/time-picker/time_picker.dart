@@ -147,7 +147,12 @@ class _TTimePickerState extends State<TTimePicker>
     return buildWithDropdownTarget(
       child: buildTextField(
         hasValue: currentValue != null,
-        beforePreWidget: TIcon.raw(HugeIcons.strokeRoundedClock01, size: 16, color: colors.onSurfaceVariant),
+        beforePreWidget: TIcon.raw(HugeIcons.strokeRoundedClock01,
+            size: 16,
+            color: colors.onSurfaceVariant,
+            onTap: widget.disabled ? null : () => showPopup(context),
+            semanticLabel: 'Open time picker',
+            semanticIdentifier: 'time-picker-open'),
         onClear: () {
           _onTimeSelected(null);
         },

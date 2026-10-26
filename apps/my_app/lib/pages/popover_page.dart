@@ -31,11 +31,7 @@ class _PopoverPageState extends State<PopoverPage> {
           // Header
           Text(
             'Popover & Popconfirm',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: colors.onSurface),
           ),
           const SizedBox(height: 6),
           Text(
@@ -45,11 +41,7 @@ class _PopoverPageState extends State<PopoverPage> {
           const SizedBox(height: 20),
 
           // Status Banner
-          TBanner.info(
-            variant: TVariant.tonal,
-            title: 'Last Interaction Event',
-            message: _lastActionStatus,
-          ),
+          TBanner.info(variant: TVariant.tonal, title: 'Last Interaction Event', message: _lastActionStatus),
           const SizedBox(height: 24),
 
           // Section 1: Standard & Rich Popovers
@@ -81,7 +73,10 @@ class _PopoverPageState extends State<PopoverPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Sarah Jenkins', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: colors.onSurface)),
+                                Text(
+                                  'Sarah Jenkins',
+                                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: colors.onSurface),
+                                ),
                                 Text('Lead Architect', style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
                               ],
                             ),
@@ -91,9 +86,7 @@ class _PopoverPageState extends State<PopoverPage> {
                       const SizedBox(height: 14),
                       TAlignedRow(
                         wrapperModeThreshold: 1,
-                        left: [
-                          TChip(text: 'Enterprise', type: TVariant.tonal, size: TChipSize.sm),
-                        ],
+                        left: [TChip(text: 'Enterprise', type: TVariant.tonal, size: TChipSize.sm)],
                         right: [
                           TButton(
                             text: 'View Profile',
@@ -105,11 +98,7 @@ class _PopoverPageState extends State<PopoverPage> {
                       ),
                     ],
                   ),
-                  child: TButton(
-                    text: 'User Card (Tap)',
-                    icon: Icons.person_outline,
-                    type: TButtonType.tonal,
-                  ),
+                  child: TButton(text: 'User Card (Tap)', icon: Icons.person_outline, type: TButtonType.tonal),
                 ),
 
                 // 2. Filter Form Popover
@@ -165,11 +154,7 @@ class _PopoverPageState extends State<PopoverPage> {
                       },
                     );
                   },
-                  child: TButton(
-                    text: 'Filter Settings',
-                    icon: Icons.filter_alt_outlined,
-                    type: TButtonType.tonal,
-                  ),
+                  child: TButton(text: 'Filter Settings', icon: Icons.filter_alt_outlined, type: TButtonType.tonal),
                 ),
 
                 // 3. Hover Trigger Popover
@@ -182,11 +167,7 @@ class _PopoverPageState extends State<PopoverPage> {
                     'This popover reveals itself smoothly on mouse hover without needing an explicit tap!',
                     style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
                   ),
-                  child: TButton(
-                    text: 'Hover over me',
-                    icon: Icons.mouse_rounded,
-                    type: TButtonType.softOutline,
-                  ),
+                  child: TButton(text: 'Hover over me', icon: Icons.mouse_rounded, type: TButtonType.softOutline),
                 ),
               ],
             ),
@@ -237,11 +218,7 @@ class _PopoverPageState extends State<PopoverPage> {
                         _setStatus('Project workspace successfully archived');
                       },
                       onCancel: () => _setStatus('Archive cancelled'),
-                      child: TButton(
-                        text: 'Archive Project',
-                        icon: Icons.archive_outlined,
-                        type: TButtonType.tonal,
-                      ),
+                      child: TButton(text: 'Archive Project', icon: Icons.archive_outlined, type: TButtonType.tonal),
                     ),
 
                     // Reset settings confirmation
@@ -256,11 +233,7 @@ class _PopoverPageState extends State<PopoverPage> {
                         await Future.delayed(const Duration(milliseconds: 500));
                         _setStatus('API secret rotated and new tokens issued');
                       },
-                      child: TButton(
-                        text: 'Rotate API Keys',
-                        icon: Icons.refresh_rounded,
-                        type: TButtonType.softOutline,
-                      ),
+                      child: TButton(text: 'Rotate API Keys', icon: Icons.refresh_rounded, type: TButtonType.softOutline),
                     ),
                   ],
                 ),

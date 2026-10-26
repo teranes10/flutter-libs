@@ -182,7 +182,12 @@ class _TDatePickerState extends State<TDatePicker>
     return buildWithDropdownTarget(
       child: buildTextField(
         hasValue: currentValue != null,
-        beforePreWidget: TIcon.raw(HugeIcons.strokeRoundedCalendar04, size: 16, color: colors.onSurfaceVariant),
+        beforePreWidget: TIcon.raw(HugeIcons.strokeRoundedCalendar04,
+            size: 16,
+            color: colors.onSurfaceVariant,
+            onTap: widget.disabled ? null : () => showPopup(context),
+            semanticLabel: 'Open calendar',
+            semanticIdentifier: 'date-picker-open'),
         onClear: () {
           _onDateSelected(null);
         },

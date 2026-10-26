@@ -23,7 +23,11 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       return modalRouteName;
     }
 
+    // GoRouterState.of loops forever when the route was pushed imperatively
+    // (e.g. hierarchy child pages) because it is not a go_router Page.
+    final route = ModalRoute.of(context);
     try {
+      if (route != null && route.settings is! Page<Object?>) return modalRouteName;
       final goState = GoRouterState.of(context);
       final loc = goState.matchedLocation.isNotEmpty ? goState.matchedLocation : goState.uri.toString();
       if (loc.isNotEmpty && loc != '/') return loc;

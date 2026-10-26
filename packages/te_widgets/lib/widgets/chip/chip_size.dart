@@ -42,4 +42,10 @@ abstract final class TChipSize {
     radius: 24.0,
     spacing: 8.0,
   );
+
+  /// The preset whose font size is closest to [font] (sm, md or lg).
+  static TSize forFont(double font) {
+    const presets = [sm, md, lg];
+    return presets.reduce((a, b) => (a.font - font).abs() <= (b.font - font).abs() ? a : b);
+  }
 }

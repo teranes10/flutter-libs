@@ -131,6 +131,11 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
+  /// Overrides the card rendered in card view (small screens / card / grid modes).
+  ///
+  /// [onTap] opens the item's details when the table is expandable, otherwise null.
+  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index, VoidCallback? onTap)? mobileCardBuilder;
+
   /// Custom builder to retrieve a validation error for a given row and column.
   final String? Function(T data, String column)? cellErrorBuilder;
 
@@ -176,6 +181,7 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.dense,
     this.rowBuilder,
     this.rowColorBuilder,
+    this.mobileCardBuilder,
     this.beforeItemsBuilder,
   }) : assert(
           theme == null ||
@@ -284,7 +290,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   TTableColumnMeasurements _getMeasurements() {
     final headers = _effectiveHeaders;
     final selectable = listController.selectable;
-    final expandable = listController.expandable;
+    final expandable = listController.expandable && _showExpandIcon;
     final maxLevel = _getMaxTreeLevel();
     final isHierarchical = listController.isHierarchical;
     final displayItems = listController.value.displayItems;
@@ -359,8 +365,20 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         ),
       );
     }
-    return theme;
+
+    // Vertical spacing between items is rendered by the list separator, not by card margins.
+    final rowMargin = theme.rowCardTheme.margin;
+    final cardMargin = theme.mobileCardTheme.margin;
+    _rowGap = rowMargin.top + rowMargin.bottom;
+    _cardGap = cardMargin.top + cardMargin.bottom;
+    return theme.copyWith(
+      rowCardTheme: theme.rowCardTheme.copyWith(margin: rowMargin.copyWith(top: 0, bottom: 0)),
+      mobileCardTheme: theme.mobileCardTheme.copyWith(margin: cardMargin.copyWith(top: 0, bottom: 0)),
+    );
   }
+
+  double _rowGap = 0;
+  double _cardGap = 0;
 
   late final ValueNotifier<String?>? _activeCellNotifier;
 
@@ -486,9 +504,11 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   Widget _buildListScaffold({
     required Widget Function(BuildContext ctx) headerContent,
     required Widget Function(BuildContext ctx, TListItem<T, K> item, int index) itemBuilder,
+    required double gap,
   }) {
     return TList<T, K>(
       theme: wTheme.copyWith(
+        listSeparatorBuilder: wTheme.listSeparatorBuilder ?? (gap > 0 ? (ctx, index) => SizedBox(height: gap) : null),
         headerBuilder: (ctx) => _wrapWithFocusDimmer(ctx, headerContent(ctx)),
         footerBuilder: wTheme.footerBuilder == null ? null : (ctx) => _wrapWithFocusDimmer(ctx, wTheme.footerBuilder!(ctx)),
       ),
@@ -509,11 +529,12 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     final columnWidths = _getColumnWidths(constraints.maxWidth);
 
     return _buildListScaffold(
+      gap: _rowGap,
       headerContent: (ctx) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx),
-          TTableRowHeader<T, K>(theme: wTheme.headerTheme, headers: widget.headers, controller: listController, columnWidths: columnWidths),
+          TTableRowHeader<T, K>(theme: wTheme.headerTheme, headers: widget.headers, controller: listController, columnWidths: columnWidths, showExpandIcon: _showExpandIcon),
         ],
       ),
       itemBuilder: (ctx, item, index) => _buildRowCard(columnWidths, ctx, item, index),
@@ -522,6 +543,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
 
   Widget _buildCardView(ColorScheme colors, BoxConstraints constraints) {
     return _buildListScaffold(
+      gap: _cardGap,
       headerContent: (ctx) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx)],
@@ -651,6 +673,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return null;
   }
 
+  bool get _showExpandIcon => widget.details?.showExpandIcon ?? true;
+
   bool get _expandOnRowTap =>
       widget.expandOnRowTap ??
       widget.rowTapDetails ??
@@ -672,6 +696,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       width: wTheme.cardWidth,
       columnWidths: columnWidths,
       expandable: listController.expandable,
+      showExpandIcon: _showExpandIcon,
       isExpanded: listController.isExpanded(item.key),
       isDetailExpanded: _isInlineExpanded(item),
       expansionMode: effectiveExpansionMode,
@@ -688,7 +713,15 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     );
   }
 
-  TTableMobileCard<T, K> _buildMobileCard(BuildContext ctx, TListItem<T, K> item, int index) {
+  Widget _buildMobileCard(BuildContext ctx, TListItem<T, K> item, int index) {
+    if (widget.mobileCardBuilder != null) {
+      return widget.mobileCardBuilder!(
+        ctx,
+        item,
+        index,
+        listController.expandable ? () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key) : null,
+      );
+    }
     final onRowTap = (listController.expandable && _expandOnRowTap)
         ? () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key)
         : null;
@@ -700,6 +733,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       theme: wTheme.mobileCardTheme,
       width: wTheme.cardWidth,
       expandable: listController.expandable,
+      showExpandIcon: _showExpandIcon,
       isExpanded: listController.isExpanded(item.key),
       isDetailExpanded: _isInlineExpanded(item),
       expansionMode: effectiveExpansionMode,

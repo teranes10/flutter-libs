@@ -39,10 +39,7 @@ class _SparklinePageState extends State<SparklinePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Text(
-            'TSparkline & TTrendIndicator Showcase',
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('TSparkline & TTrendIndicator Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
             'High-performance inline micro-charts for analytical dashboards and KPI tiles. '
@@ -69,30 +66,21 @@ class _SparklinePageState extends State<SparklinePage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _smooth,
-                      onChanged: (val) => setState(() => _smooth = val ?? true),
-                    ),
+                    Checkbox(value: _smooth, onChanged: (val) => setState(() => _smooth = val ?? true)),
                     const Text('Bezier Curve Smoothing', style: TextStyle(fontSize: 13)),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _showEndDot,
-                      onChanged: (val) => setState(() => _showEndDot = val ?? true),
-                    ),
+                    Checkbox(value: _showEndDot, onChanged: (val) => setState(() => _showEndDot = val ?? true)),
                     const Text('Pulse End Dot', style: TextStyle(fontSize: 13)),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _showMinMaxDots,
-                      onChanged: (val) => setState(() => _showMinMaxDots = val ?? true),
-                    ),
+                    Checkbox(value: _showMinMaxDots, onChanged: (val) => setState(() => _showMinMaxDots = val ?? true)),
                     const Text('Highlight Min/Max Dots', style: TextStyle(fontSize: 13)),
                   ],
                 ),
@@ -145,13 +133,7 @@ class _SparklinePageState extends State<SparklinePage> {
                 value: '450 k/s',
                 delta: 18.2,
                 comparisonLabel: 'vs baseline',
-                chart: TSparkline(
-                  data: _requestsData,
-                  type: TSparklineType.bar,
-                  color: Colors.indigo.shade600,
-                  height: 48,
-                  width: 140,
-                ),
+                chart: TSparkline(data: _requestsData, type: TSparklineType.bar, color: Colors.indigo.shade600, height: 48, width: 140),
               ),
               _buildKpiCard(
                 title: 'Cluster Error Rate',
@@ -218,18 +200,15 @@ class _SparklinePageState extends State<SparklinePage> {
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: theme.dividerColor),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 4, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 12, color: theme.hintColor, fontWeight: FontWeight.w500)),
+          Text(
+            title,
+            style: TextStyle(fontSize: 12, color: theme.hintColor, fontWeight: FontWeight.w500),
+          ),
           const SizedBox(height: 6),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -240,11 +219,7 @@ class _SparklinePageState extends State<SparklinePage> {
                   children: [
                     Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
-                    TTrendIndicator(
-                      delta: delta,
-                      isPositiveGood: isPositiveGood,
-                      comparisonLabel: comparisonLabel,
-                    ),
+                    TTrendIndicator(delta: delta, isPositiveGood: isPositiveGood, comparisonLabel: comparisonLabel),
                   ],
                 ),
               ),

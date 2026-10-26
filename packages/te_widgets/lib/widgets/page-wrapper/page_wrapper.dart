@@ -27,6 +27,12 @@ class TPageWrapper extends StatefulWidget {
   /// Optional actions to display in the header.
   final List<Widget>? actions;
 
+  /// Optional status/attribute chips ([TChip], [TBadge]) shown below the
+  /// subtitle and above [description] / [itemInfo].
+  ///
+  /// Leave their `size` null so they follow the subtitle font size.
+  final List<Widget>? highlights;
+
   /// Optional key-value information to display below the description.
   final List<TKeyValue>? itemInfo;
 
@@ -62,6 +68,7 @@ class TPageWrapper extends StatefulWidget {
     this.description,
     this.onBackPressed,
     this.actions,
+    this.highlights,
     this.itemInfo,
     this.itemInfoMode,
     this.itemInfoGridInline = true,
@@ -121,8 +128,9 @@ class _TPageWrapperState extends State<TPageWrapper> {
 
     final hasDescription = widget.description != null && widget.description!.isNotEmpty;
     final hasItemInfo = widget.itemInfo != null && widget.itemInfo!.isNotEmpty;
+    final hasHighlights = widget.highlights != null && widget.highlights!.isNotEmpty;
 
-    if (!hasMainRow && !hasDescription && !hasItemInfo) {
+    if (!hasMainRow && !hasDescription && !hasItemInfo && !hasHighlights) {
       return const SizedBox.shrink();
     }
 
@@ -154,13 +162,12 @@ class _TPageWrapperState extends State<TPageWrapper> {
     }
 
     final titleFontSize = isDesktop ? 18.0 : 15.0;
+    final titleFontWeight = isDesktop ? FontWeight.w500 : FontWeight.w400;
     final subtitleFontSize = isDesktop ? 12.0 : 11.0;
-    const subtitleGap = 2.0;
-    const descFontSize = 13.0;
-    const descGap = 8.0;
+    final subtitleGap = isDesktop ? 2.0 : 0.0;
+    final descFontSize = isDesktop ? 12.0 : 11.0;
+    final descGap = isDesktop ? 10.0 : 8.0;
     final iconSize = widget.subTitle != null ? 52.0 : 42.0;
-
-    final titleFontWeight = titleFontSize >= 22.0 ? FontWeight.w700 : (titleFontSize >= 16.0 ? FontWeight.w600 : FontWeight.w500);
 
     final hasText = widget.title != null || widget.subTitle != null;
 
@@ -179,7 +186,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
             disabled: true,
             border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: isDesktop ? 12 : 8),
         ],
         if (hasText)
           Flexible(
@@ -194,10 +201,10 @@ class _TPageWrapperState extends State<TPageWrapper> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 if (widget.subTitle != null) ...[
-                  const SizedBox(height: subtitleGap),
+                  SizedBox(height: subtitleGap),
                   Text(
                     widget.subTitle!,
-                    style: TextStyle(fontSize: subtitleFontSize, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
+                    style: TextStyle(fontSize: subtitleFontSize, fontWeight: FontWeight.w300, color: colors.onSurfaceVariant),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -207,7 +214,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
       ],
     );
 
-    final hasDescriptionOrValues = hasDescription || hasItemInfo;
+    final hasDescriptionOrValues = hasDescription || hasItemInfo || hasHighlights;
 
     // Only the title/subtitle line goes beside the trailing actions in
     // TAlignedRow — description/itemInfo are appended below as a separate
@@ -215,27 +222,32 @@ class _TPageWrapperState extends State<TPageWrapper> {
     // off the title row (TAlignedRow wraps based on the whole left item).
     final descriptionAndInfoBlock = !hasDescriptionOrValues
         ? null
-        : Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (hasDescription)
-                Text(
-                  widget.description!,
-                  style: TextStyle(fontSize: descFontSize, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
-                ),
-              if (hasItemInfo) ...[
-                if (hasDescription) const SizedBox(height: 24),
-                Padding(
-                  // Line the info up with the back arrow glyph, not the button's edge.
-                  padding: EdgeInsets.only(left: leadingWidget != null ? 12 : 0),
-                  child: TKeyValueSection(
+        : Padding(
+            // Line the description and info up with the back arrow glyph, not the button's edge.
+            padding: EdgeInsets.only(left: leadingWidget != null ? 12 : 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (hasHighlights) ...[
+                  THighlights(items: widget.highlights!, fontSize: subtitleFontSize),
+                  if (hasDescription || hasItemInfo) const SizedBox(height: 12),
+                ],
+                if (hasDescription)
+                  Text(
+                    widget.description!,
+                    style: TextStyle(fontSize: descFontSize, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
+                  ),
+                if (hasItemInfo) ...[
+                  if (hasDescription) const SizedBox(height: 24),
+                  TKeyValueSection(
                     values: widget.itemInfo!,
                     mode: widget.itemInfoMode ?? (widget.itemInfoGridInline ? TKeyValueMode.inlineFlow : TKeyValueMode.stackedFlow),
+                    vSpacing: isDesktop ? null : (widget.itemInfoGridInline ? 8 : 10),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           );
 
     final trailingActions = Row(
@@ -257,9 +269,11 @@ class _TPageWrapperState extends State<TPageWrapper> {
     final hasTrailingActions = widget.actions != null && widget.actions!.isNotEmpty || (isDesktop && widget.onBackPressed != null);
 
     final effectivePadding = widget.padding ??
-        EdgeInsets.symmetric(
-          horizontal: isDesktop ? 16 : 0,
-          vertical: isDesktop ? 16 : 4,
+        EdgeInsets.only(
+          left: isDesktop ? 16 : 8,
+          right: isDesktop ? 16 : 8,
+          top: isDesktop ? 16 : 12,
+          bottom: isDesktop ? 16 : 4,
         );
 
     final titleRow = hasTrailingActions
@@ -283,7 +297,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 titleRow,
-                const SizedBox(height: descGap),
+                SizedBox(height: descGap),
                 descriptionAndInfoBlock,
               ],
             ),
@@ -293,8 +307,8 @@ class _TPageWrapperState extends State<TPageWrapper> {
   Widget _buildContent(BuildContext context, ColorScheme colors, bool isDark, bool isDesktop, bool shouldShrinkWrap) {
     final effectiveContentPadding = widget.contentPadding ??
         EdgeInsets.symmetric(
-          vertical: isDesktop ? 16 : 0,
-          horizontal: isDesktop ? 16 : 0,
+          vertical: isDesktop ? 16 : 12,
+          horizontal: isDesktop ? 16 : 12,
         );
 
     final scrollView = SingleChildScrollView(
@@ -409,7 +423,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isDesktop = constraints.isDesktop;
+        final isDesktop = context.isDesktop;
         final shouldShrinkWrap = widget.shrinkWrap || !constraints.hasBoundedHeight;
         final headerWidget = _buildHeader(context, colors, isDark, isDesktop);
         final footerWidget = _buildFooter(context, colors, isDark);

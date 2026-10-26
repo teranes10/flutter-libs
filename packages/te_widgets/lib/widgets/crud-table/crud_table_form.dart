@@ -21,11 +21,53 @@ class _TCrudInlineFormState<T, K, F extends TFormBase> extends State<_TCrudInlin
   TError? _serverError;
   final GlobalKey _errorKey = GlobalKey();
   bool _isLoading = false;
+  ValueNotifier<TFormType>? _formType;
+  TTableDetailsActions? _hostActions;
 
   @override
   void initState() {
     super.initState();
     _form = widget.form;
+    if (_form.hasSubForms) {
+      _formType = ValueNotifier(TFormTypePersistence.getInitialType(context, _form));
+      TFormTypePersistence.loadPersistedType(context, _form, _formType!);
+    }
+  }
+
+  Widget? get _toggle => _formType == null
+      ? null
+      : TFormTypeToggleSwitch(
+          notifier: _formType!,
+          onChanged: (type) => TFormTypePersistence.saveType(context, _form, type),
+        );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final host = TTableDetailsActions.maybeOf(context);
+    if (host?.actions == _hostActions?.actions) return;
+    _hostActions?.actions.value = null;
+    _hostActions = host;
+    final toggle = _toggle;
+    if (host != null && toggle != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _hostActions?.actions == host.actions) host.actions.value = toggle;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    final host = _hostActions;
+    if (host != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        try {
+          host.actions.value = null;
+        } catch (_) {}
+      });
+    }
+    _formType?.dispose();
+    super.dispose();
   }
 
   void _scrollToError() {
@@ -104,8 +146,13 @@ class _TCrudInlineFormState<T, K, F extends TFormBase> extends State<_TCrudInlin
               child: TErrorBuilder(error: _serverError!),
             ),
           ),
-        const SizedBox(height: 10),
-        TFormBuilder(input: _form),
+        if (_formType != null) ...[
+          if (_hostActions == null) Align(alignment: Alignment.centerRight, child: _toggle),
+          TFormTypeScope(formTypeNotifier: _formType!, child: TFormBuilder(input: _form)),
+        ] else ...[
+          const SizedBox(height: 10),
+          TFormBuilder(input: _form),
+        ],
         Padding(
           padding: EdgeInsets.only(top: context.isDesktop ? 24 : 16),
           child: Row(

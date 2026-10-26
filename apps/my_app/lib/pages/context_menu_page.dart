@@ -30,11 +30,7 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
           // Header
           Text(
             'Context Menu',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: colors.onSurface,
-            ),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: colors.onSurface),
           ),
           const SizedBox(height: 6),
           Text(
@@ -47,11 +43,7 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
           Row(
             children: [
               Expanded(
-                child: TBanner.info(
-                  variant: TVariant.tonal,
-                  title: 'Context Action Triggered',
-                  message: _lastAction,
-                ),
+                child: TBanner.info(variant: TVariant.tonal, title: 'Context Action Triggered', message: _lastAction),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -102,11 +94,7 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                       shortcut: '⌘A',
                       onTap: () => _trigger('Selected all items in workspace'),
                     ),
-                    TContextMenuItem(
-                      text: 'Canvas Settings',
-                      icon: Icons.tune_rounded,
-                      onTap: () => _trigger('Opened Canvas Settings'),
-                    ),
+                    TContextMenuItem(text: 'Canvas Settings', icon: Icons.tune_rounded, onTap: () => _trigger('Opened Canvas Settings')),
                     const TContextMenuDivider(),
                     TContextMenuItem(
                       text: 'Clear Canvas',
@@ -121,10 +109,7 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                     decoration: BoxDecoration(
                       color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.3) : colors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: colors.primary.withValues(alpha: 0.4),
-                        width: 1.5,
-                      ),
+                      border: Border.all(color: colors.primary.withValues(alpha: 0.4), width: 1.5),
                     ),
                     alignment: Alignment.center,
                     child: Column(
@@ -134,11 +119,7 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                         const SizedBox(height: 8),
                         Text(
                           'Right-Click Anywhere Inside This Area',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: colors.onSurface,
-                          ),
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.onSurface),
                         ),
                         Text(
                           'Coordinates automatically anchor the context menu with boundary safety checks',

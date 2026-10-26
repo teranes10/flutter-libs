@@ -58,14 +58,14 @@ class TListCardTheme {
   }
 
   /// Creates a default theme derived from the context colors.
-  factory TListCardTheme.defaultTheme(ColorScheme colors) {
+  factory TListCardTheme.defaultTheme(ColorScheme colors, {bool forceCache = true}) {
     return TListCardTheme(
       backgroundColor: Colors.transparent,
       selectedBackgroundColor: colors.primaryContainer,
       disabledBackgroundColor: colors.surfaceContainerHighest,
       expansionIndicatorBuilder: defaultExpansionIndicatorBuilder(colors),
       selectionIndicatorBuilder: defaultSelectionIndicatorBuilder(colors),
-      contentBuilder: defaultContentBuilder(colors),
+      contentBuilder: defaultContentBuilder(colors, forceCache: forceCache),
     );
   }
 
@@ -113,7 +113,7 @@ class TListCardTheme {
     String? imageUrl,
     bool isSelected,
     bool isDisabled,
-  ) defaultContentBuilder(ColorScheme colors) {
+  ) defaultContentBuilder(ColorScheme colors, {bool forceCache = true}) {
     return (title, subTitle, imageUrl, isSelected, isDisabled) {
       final titleColor = isDisabled
           ? colors.onSurface.o(0.38)
@@ -142,6 +142,7 @@ class TListCardTheme {
               size: 45,
               color: colors.surfaceContainerHighest,
               disabled: true,
+              forceCache: forceCache,
               border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
             const SizedBox(width: 15),

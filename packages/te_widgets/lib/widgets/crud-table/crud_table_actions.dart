@@ -75,7 +75,8 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
     return false;
   }
 
-  void handleView(T item) {
+  void handleView(T item, TListController<T, K> controller) {
+    if (controller.expandable) controller.expandDetail(controller.itemKey(item));
     if (widget.onView == null) return;
     _performAction(() async {
       await widget.onView!(item);

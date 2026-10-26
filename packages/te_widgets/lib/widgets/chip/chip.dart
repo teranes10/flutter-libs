@@ -27,6 +27,9 @@ export 'chip_size.dart';
 /// TChip(size: TChipSize.lg, text: 'Large Chip')
 /// ```
 ///
+/// Leave `size` null inside `highlights` (`TPageWrapper`, `TTile`) so chips
+/// follow the subtitle font size automatically.
+///
 /// ## With Trailing Action
 ///
 /// ```dart
@@ -89,8 +92,14 @@ class TChip extends StatelessWidget {
   /// Defaults to the theme's default chip type.
   final TVariant? type;
 
-  /// The size configuration of the chip. Defaults to [TChipSize.md].
-  final TSize size;
+  /// The size configuration of the chip.
+  ///
+  /// When null the chip matches the font size of an enclosing [THighlightScope]
+  /// (e.g. inside `TPageWrapper.highlights`), otherwise it falls back to
+  /// [TChipSize.sm] ([TChipSize.md] for the named variant constructors).
+  final TSize? size;
+
+  final TSize _defaultSize;
 
   /// Creates a chip widget.
   const TChip({
@@ -105,8 +114,8 @@ class TChip extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.type,
-    this.size = TChipSize.sm,
-  });
+    this.size,
+  }) : _defaultSize = TChipSize.sm;
 
   /// Creates a solid filled chip.
   const TChip.solid({
@@ -120,8 +129,9 @@ class TChip extends StatelessWidget {
     this.onTap,
     this.padding,
     this.borderRadius,
-    this.size = TChipSize.md,
-  }) : type = TVariant.solid;
+    this.size,
+  }) : _defaultSize = TChipSize.md,
+       type = TVariant.solid;
 
   /// Creates a tonal (tinted background) chip.
   const TChip.tonal({
@@ -135,8 +145,9 @@ class TChip extends StatelessWidget {
     this.onTap,
     this.padding,
     this.borderRadius,
-    this.size = TChipSize.md,
-  }) : type = TVariant.tonal;
+    this.size,
+  }) : _defaultSize = TChipSize.md,
+       type = TVariant.tonal;
 
   /// Creates an outlined chip with transparent background.
   const TChip.outline({
@@ -150,8 +161,9 @@ class TChip extends StatelessWidget {
     this.onTap,
     this.padding,
     this.borderRadius,
-    this.size = TChipSize.md,
-  }) : type = TVariant.outline;
+    this.size,
+  }) : _defaultSize = TChipSize.md,
+       type = TVariant.outline;
 
   /// Creates a soft outline chip with subtle background tint and border.
   const TChip.softOutline({
@@ -165,8 +177,9 @@ class TChip extends StatelessWidget {
     this.onTap,
     this.padding,
     this.borderRadius,
-    this.size = TChipSize.md,
-  }) : type = TVariant.softOutline;
+    this.size,
+  }) : _defaultSize = TChipSize.md,
+       type = TVariant.softOutline;
 
   /// Creates a text-only/ghost variant chip without background or border.
   const TChip.text({
@@ -180,8 +193,9 @@ class TChip extends StatelessWidget {
     this.onTap,
     this.padding,
     this.borderRadius,
-    this.size = TChipSize.md,
-  }) : type = TVariant.text;
+    this.size,
+  }) : _defaultSize = TChipSize.md,
+       type = TVariant.text;
 
   /// Creates a list of [TChip]s from a list of string labels.
   static List<TChip> fromStrings(
@@ -189,7 +203,7 @@ class TChip extends StatelessWidget {
     Color? color,
     dynamic icon,
     TVariant? type,
-    TSize size = TChipSize.sm,
+    TSize? size,
     VoidCallback? onTap,
   }) {
     return strings
@@ -243,18 +257,21 @@ class TChip extends StatelessWidget {
     final mBackgroundColor = background ?? wTheme.container;
     final mTextColor = textColor ?? wTheme.onContainer;
 
-    final effectivePadding = padding ?? size.padding;
-    final effectiveBorderRadius = borderRadius ?? size.borderRadius;
-    final effectiveFontSize = size.fontSize;
-    final effectiveIconSize = size.iconSize;
-    final effectiveSpacing = size.spacing;
+    final scope = THighlightScope.maybeOf(context);
+    final effectiveSize = size ?? (scope != null ? TChipSize.forFont(scope.fontSize) : _defaultSize);
+
+    final effectivePadding = padding ?? effectiveSize.padding;
+    final effectiveBorderRadius = borderRadius ?? effectiveSize.borderRadius;
+    final effectiveFontSize = effectiveSize.fontSize;
+    final effectiveIconSize = effectiveSize.iconSize;
+    final effectiveSpacing = effectiveSize.spacing;
 
     return InkWell(
       onTap: onTap,
       borderRadius: effectiveBorderRadius,
       child: Container(
         padding: effectivePadding,
-        constraints: BoxConstraints(minHeight: size.minH),
+        constraints: BoxConstraints(minHeight: effectiveSize.minH),
         decoration: BoxDecoration(
           color: mBackgroundColor,
           borderRadius: effectiveBorderRadius,
@@ -262,7 +279,7 @@ class TChip extends StatelessWidget {
         ),
         child: Align(
           widthFactor: 1,
-          heightFactor: size.minH > 0 ? null : 1,
+          heightFactor: effectiveSize.minH > 0 ? null : 1,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

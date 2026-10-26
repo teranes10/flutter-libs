@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'tab_flow.dart';
 import 'tab_renderer.dart';
 
 class TTabs<T> extends StatefulWidget {
@@ -17,10 +18,17 @@ class TTabs<T> extends StatefulWidget {
   final double tabRunSpacing;
   final double? indicatorWidth;
   final bool inline;
+
+  /// With [inline] horizontal tabs, share the available width evenly in a single row.
+  final bool fill;
   final Axis axis;
   final bool scrollable;
   final bool showNavigationButtons;
   final bool wrap;
+
+  /// On mobile, horizontal tabs flow into as many tabs per row as fit and each row
+  /// is stretched to full width. Set to false to keep one tab per row.
+  final bool flowOnMobile;
   final Widget Function(BuildContext, TTab<T>, bool, VoidCallback?)? tabBuilder;
   final Color? navigationButtonColor;
   final Color? navigationButtonBackgroundColor;
@@ -41,10 +49,12 @@ class TTabs<T> extends StatefulWidget {
     this.tabRunSpacing = 2,
     this.indicatorWidth = 1,
     this.inline = false,
+    this.fill = false,
     this.axis = Axis.horizontal,
     this.scrollable = false,
     this.showNavigationButtons = true,
     this.wrap = false,
+    this.flowOnMobile = true,
     this.tabBuilder,
     this.navigationButtonColor,
     this.navigationButtonBackgroundColor,
@@ -341,7 +351,14 @@ class _TTabsState<T> extends State<TTabs<T>> {
       );
     } else if (widget.inline) {
       body = widget.axis == Axis.horizontal
-          ? Row(mainAxisSize: MainAxisSize.min, spacing: widget.tabSpacing, children: tabWidgets)
+          // Same structure in both modes so keyed tabs are reparented, not duplicated, when `fill` toggles.
+          ? Row(
+              mainAxisSize: widget.fill ? MainAxisSize.max : MainAxisSize.min,
+              spacing: widget.tabSpacing,
+              children: [
+                for (final t in tabWidgets) Flexible(fit: widget.fill ? FlexFit.tight : FlexFit.loose, child: t),
+              ],
+            )
           : IntrinsicWidth(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -350,6 +367,8 @@ class _TTabsState<T> extends State<TTabs<T>> {
                 children: tabWidgets,
               ),
             );
+    } else if (widget.axis == Axis.horizontal && widget.flowOnMobile && context.isMobile) {
+      body = TTabFlow(spacing: widget.tabSpacing, runSpacing: widget.tabRunSpacing, children: tabWidgets);
     } else {
       // Full-width (or full stretch for vertical)
       body = widget.axis == Axis.horizontal

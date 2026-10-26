@@ -201,6 +201,10 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
   /// Function to extract key-value information from an item.
   final List<TKeyValue>? Function(T x)? itemInfo;
 
+  /// Function to extract status/attribute chips shown under the sub-title in the
+  /// detail header. Leave the chips' `size` null so they follow the subtitle font size.
+  final List<Widget> Function(T x)? itemHighlights;
+
   /// Whether to display key and value inline in grid layout (Key: Value) for itemInfo. Defaults to true.
   final bool itemInfoGridInline;
 
@@ -214,6 +218,12 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
 
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
+
+  /// Overrides the card shown in card view (small screens, card and grid modes).
+  ///
+  /// When omitted, a `TTile` card is built from [itemTitle], [itemSubTitle] and
+  /// [itemImageUrl]. [onTap] opens the item's details.
+  final Widget Function(BuildContext ctx, TListItem<T, K> item, int index, VoidCallback? onTap)? mobileCardBuilder;
 
   /// Explicit filter field definitions for the table.
   /// If omitted for client-side tables, filter fields are automatically inferred from [headers].
@@ -274,10 +284,12 @@ class TCrudTable<T, K, F extends TFormBase> extends StatefulWidget {
     this.itemDescription,
     this.itemImageUrl,
     this.itemInfo,
+    this.itemHighlights,
     this.itemInfoGridInline = true,
     this.theme,
     this.rowBuilder,
     this.rowColorBuilder,
+    this.mobileCardBuilder,
     this.filters,
     this.header,
     this.headerBuilder,
@@ -669,10 +681,12 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   bool get showTabs => hasArchive || widget.config.tabs != null;
   List<TTab> get tabs => widget.config.tabs ?? const [TTab(text: "Active", value: 0), TTab(text: "Archive", value: 1)];
   bool get canCreate => widget.createForm != null && widget.onCreate != null;
+
+  /// Whether the View action is available: an explicit [onView] or expandable details to open.
+  bool get canView => widget.onView != null || widget.expandedBuilder != null || widget.expandedDetails?.builder != null;
   bool get canEdit => widget.editForm != null && widget.onEdit != null;
-  bool get hasActiveActions => widget.onView != null || canEdit || widget.onArchive != null || widget.config.activeActions.isNotEmpty;
-  bool get hasArchiveActions =>
-      widget.onView != null || widget.onRestore != null || widget.onDelete != null || widget.config.archiveActions.isNotEmpty;
+  bool get hasActiveActions => canView || canEdit || widget.onArchive != null || widget.config.activeActions.isNotEmpty;
+  bool get hasArchiveActions => canView || widget.onRestore != null || widget.onDelete != null || widget.config.archiveActions.isNotEmpty;
 
   /// Inferred or explicit filter definitions for the table.
   List<TFilterDef<T>> get effectiveFilterDefs {

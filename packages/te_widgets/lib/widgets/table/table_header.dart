@@ -92,6 +92,11 @@ class TTableHeader<T, K> {
   /// Defaults to `true` for [TTableHeader.keyValues].
   final bool flattenOnMobile;
 
+  /// Whether this column is listed in the default key-value details of [TCrudTable].
+  /// Defaults to false for [TTableHeader.image] and [TTableHeader.actions], which the
+  /// details header already shows; set to false on any other redundant column.
+  final bool showInDetails;
+
   /// Optional prefix or formatting hook when flattened on mobile (e.g. `(header, key) => '$header: $key'`).
   final String Function(String headerText, String childKey)? mobileKeyPrefixBuilder;
 
@@ -113,6 +118,7 @@ class TTableHeader<T, K> {
     this.widthEstimator,
     this.keyValuesBuilder,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
   });
 
@@ -187,6 +193,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     this.widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
   })  : builder = null,
         keyValuesBuilder = null;
@@ -203,6 +210,7 @@ class TTableHeader<T, K> {
     bool forceCache = false,
     double Function(T data)? widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = false,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = null,
@@ -248,6 +256,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     double Function(T data)? widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : widthEstimator = widthEstimator ??
@@ -301,6 +310,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     double Function(T data)? widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = ((data) => builder(data).map((c) => c.text).where((s) => s != null && s.isNotEmpty).join(', ')),
@@ -374,6 +384,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     double Function(T data)? widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = map,
@@ -406,6 +417,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     double Function(T data)? widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = map,
@@ -451,6 +463,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     double Function(T data)? widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = map,
@@ -523,6 +536,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     this.widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = null,
@@ -559,6 +573,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     this.widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = null,
@@ -594,6 +609,7 @@ class TTableHeader<T, K> {
     TextStyle? keyStyle,
     TextStyle? valueStyle,
     this.flattenOnMobile = true,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.key,
     this.filterType,
@@ -709,6 +725,7 @@ class TTableHeader<T, K> {
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.start,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.center,
     this.flattenOnMobile = true,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.key,
     this.filterType,
@@ -860,6 +877,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     double Function(T data)? widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = title,
@@ -938,6 +956,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     this.widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   }) : builder = ((_, item, __) {
@@ -969,6 +988,7 @@ class TTableHeader<T, K> {
     Color? inactiveColor,
     double Function(T data)? widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = get,
@@ -1002,6 +1022,7 @@ class TTableHeader<T, K> {
     int? count,
     double Function(T data)? widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = false,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = null,
@@ -1047,7 +1068,9 @@ class TTableHeader<T, K> {
             }
 
             effectiveItems = <TButtonGroupItem>[...flatButtons];
-            if (menuButtons.isNotEmpty) {
+            if (menuButtons.length == 1) {
+              effectiveItems.add(menuButtons.first);
+            } else if (menuButtons.isNotEmpty) {
               effectiveItems.add(TButtonGroupItem(
                 child: _buildActionDropdownMenu(ctx, menuButtons, isDense),
               ));
@@ -1082,6 +1105,7 @@ class TTableHeader<T, K> {
     this.filterDef,
     this.widthEstimator,
     this.flattenOnMobile = false,
+    this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
   })  : map = get,

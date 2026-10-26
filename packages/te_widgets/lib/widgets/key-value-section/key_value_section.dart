@@ -277,6 +277,17 @@ const double _kIconReservedWidth = 24.0;
 /// Horizontal gap rendered between an icon and the text next to it.
 const double _kIconGap = 6.0;
 
+/// Icon size relative to the key font size.
+const double _kIconSizeFactor = 1.15;
+
+/// Builds a key icon with the key text color and a size derived from the key font size.
+Widget _kvIcon(dynamic icon, TextStyle? style) => TIcon(
+      icon: icon,
+      color: style?.color,
+      size: (style?.fontSize ?? 14) * _kIconSizeFactor,
+      padding: EdgeInsets.zero,
+    );
+
 /// Small safety margin added on top of text-measurement estimates to
 /// absorb rounding and font-metric differences between [TextPainter] and
 /// the actual rendered [Text] widget.
@@ -332,14 +343,12 @@ class _KeyValueLayout extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (values[i].icon != null) ...[
-                  values[i].icon!,
+                  _kvIcon(values[i].icon, theme.keyStyle),
                   const SizedBox(width: 8),
                 ],
                 if (valueAfterKey || theme.gridInline) ...[
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Text(theme.gridInline ? '${values[i].key}:' : values[i].key, style: theme.keyStyle),
-                  ).when(!values[i].key.isNullOrBlank),
+                  // Natural width: a Flexible here would reserve half the row, wrapping the value early.
+                  Text(theme.gridInline ? '${values[i].key}:' : values[i].key, style: theme.keyStyle).when(!values[i].key.isNullOrBlank),
                   const SizedBox(width: 8).when(!values[i].key.isNullOrBlank),
                   Flexible(
                     child: Align(
@@ -421,6 +430,8 @@ class _GridLayout extends StatelessWidget {
         kW = _measureTextWidth(text, labelStyle, dir, scaler).ceilToDouble() +
             (kv.icon != null ? (_kIconReservedWidth + _kIconGap) : 0.0) +
             _kMeasurementBuffer;
+      } else if (kv.icon != null) {
+        kW = _kIconReservedWidth + _kMeasurementBuffer;
       }
       measuredKeys.add(kW);
 
@@ -496,6 +507,8 @@ class _GridLayout extends StatelessWidget {
                 (kv.icon != null ? (_kIconReservedWidth + _kIconGap) : 0.0) +
                 _kMeasurementBuffer;
             maxW = math.max(maxW, w);
+          } else if (kv.icon != null) {
+            maxW = math.max(maxW, _kIconReservedWidth + _kMeasurementBuffer);
           }
         }
         if (theme.inlineKeyWidth != null) {
@@ -569,8 +582,10 @@ class _GridCell extends StatelessWidget {
     final hasKeyMaxWidth = effectiveKeyMaxWidth != null && effectiveKeyMaxWidth > 0;
 
     Widget? keyWidget;
-    if (!kv.key.isNullOrBlank) {
-      final keyText = hasKeyMaxWidth
+    if (!kv.key.isNullOrBlank || kv.icon != null) {
+      final keyText = kv.key.isNullOrBlank
+          ? null
+          : hasKeyMaxWidth
           ? Flexible(
               child: Text(
                 '${kv.key}:',
@@ -594,11 +609,11 @@ class _GridCell extends StatelessWidget {
           if (kv.icon != null) ...[
             Padding(
               padding: const EdgeInsets.only(top: 1),
-              child: kv.icon!,
+              child: _kvIcon(kv.icon, theme.keyStyle),
             ),
-            const SizedBox(width: _kIconGap),
+            if (keyText != null) const SizedBox(width: _kIconGap),
           ],
-          keyText,
+          if (keyText != null) keyText,
         ],
       );
 
@@ -653,16 +668,16 @@ class _GridCell extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (!kv.key.isNullOrBlank)
+        if (!kv.key.isNullOrBlank || kv.icon != null)
           Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (kv.icon != null) ...[kv.icon!, const SizedBox(width: _kIconGap)],
-              Text(kv.key, style: theme.labelStyle),
+              if (kv.icon != null) ...[_kvIcon(kv.icon, theme.labelStyle), if (!kv.key.isNullOrBlank) const SizedBox(width: _kIconGap)],
+              if (!kv.key.isNullOrBlank) Text(kv.key, style: theme.labelStyle),
             ],
           ),
-        if (!kv.key.isNullOrBlank) SizedBox(height: theme.gap + (kv.widget != null ? 2 : 0)),
+        if (!kv.key.isNullOrBlank || kv.icon != null) SizedBox(height: theme.gap + (kv.widget != null ? 2 : 0)),
         Align(
           alignment: Alignment.topLeft,
           child: _CellContent(kv: kv, theme: theme),

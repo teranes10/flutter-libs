@@ -257,6 +257,8 @@ class TSelect<T, V, K> extends StatefulWidget
   /// while [itemsPerPage] controls how many items are fetched per request.
   final int? visibleItemsCount;
 
+  final bool autoSelectFirst;
+
   /// Creates a dropdown select field.
   const TSelect({
     super.key,
@@ -301,6 +303,7 @@ class TSelect<T, V, K> extends StatefulWidget
     this.lazy = false,
     this.loadOnSearchOnly = false,
     this.visibleItemsCount,
+    this.autoSelectFirst = false,
     ItemTextAccessor<T>? itemText,
     ItemKeyAccessor<T, K>? itemKey,
     bool? readOnly,
@@ -381,6 +384,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
       selectionMode: TSelectionMode.single,
       expansionMode: widget.itemChildren != null ? TExpansionMode.single : TExpansionMode.none,
       loadOnSearchOnly: widget.loadOnSearchOnly,
+      autoSelectFirst: widget.autoSelectFirst,
     );
   }
 
@@ -469,7 +473,11 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
         },
         hasValue: currentValue != null,
         beforePostWidget: TIcon.raw(isPopupShowing ? HugeIcons.strokeRoundedArrowUp01 : HugeIcons.strokeRoundedArrowDown01,
-            size: 16, color: colors.onSurfaceVariant),
+            size: 16,
+            color: colors.onSurfaceVariant,
+            onTap: widget.disabled ? null : () => togglePopup(context),
+            semanticLabel: isPopupShowing ? 'Hide options' : 'Show options',
+            semanticIdentifier: 'select-toggle'),
         onClear: () {
           listController.updateSelectionState(LinkedHashSet<K>());
           notifyValueChanged(null);

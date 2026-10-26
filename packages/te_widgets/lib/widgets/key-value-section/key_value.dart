@@ -13,8 +13,8 @@ class TKeyValue {
   /// Custom widget to display instead of text value.
   final Widget? widget;
 
-  /// Optional icon to display before the key.
-  final Widget? icon;
+  /// Optional icon to display before the key (IconData, HugeIcon data or Widget), rendered via [TIcon].
+  final dynamic icon;
 
   /// Optional fixed width for the column.
   final double? width;
@@ -48,7 +48,7 @@ class TKeyValue {
   factory TKeyValue.text(
     String key,
     String? value, {
-    Widget? icon,
+    dynamic icon,
     double? width,
     Alignment? alignment,
     double? minWidth,
@@ -69,7 +69,7 @@ class TKeyValue {
     String key,
     dynamic value, {
     bool utc = true,
-    Widget? icon,
+    dynamic icon,
     double? width,
     Alignment? alignment,
     double? minWidth,
@@ -111,7 +111,7 @@ class TKeyValue {
     BoxFit fit = BoxFit.cover,
     BorderRadius? borderRadius,
     bool forceCache = false,
-    Widget? icon,
+    dynamic icon,
     double? width,
     Alignment? alignment,
     double? minWidth,
@@ -159,7 +159,7 @@ class TKeyValue {
     VoidCallback? onTap,
     Widget? trailing,
     BorderRadius? chipBorderRadius,
-    Widget? icon,
+    dynamic icon,
     double? width,
     Alignment? alignment,
     double? minWidth,
@@ -208,7 +208,7 @@ class TKeyValue {
     WrapCrossAlignment crossAxisAlignment = WrapCrossAlignment.center,
     WrapAlignment wrapAlignment = WrapAlignment.start,
     void Function(String chipText)? onTap,
-    Widget? icon,
+    dynamic icon,
     double? width,
     Alignment? alignment,
     double? minWidth,
@@ -274,7 +274,7 @@ class TKeyValue {
     double spacing = 2.0,
     bool disabled = true,
     ValueChanged<double?>? onValueChanged,
-    Widget? icon,
+    dynamic icon,
     double? width,
     Alignment? alignment,
     double? minWidth,
@@ -314,13 +314,13 @@ class TKeyValue {
     double height = 6.0,
     bool showPercentage = true,
     String? valueText,
-    TProgressValuePosition valuePosition = TProgressValuePosition.topRight,
+    TProgressValuePosition valuePosition = TProgressValuePosition.afterProgress,
     Color? color,
     Color? Function(double value, double percentage)? colorBuilder,
     Color? backgroundColor,
     bool flowing = false,
     TextStyle? valueStyle,
-    Widget? icon,
+    dynamic icon,
     double? width,
     Alignment? alignment,
     double? minWidth,
@@ -365,7 +365,7 @@ class TKeyValue {
     TInputSize size = TInputSize.sm,
     Color? color,
     Color? inactiveColor,
-    Widget? icon,
+    dynamic icon,
     double? width,
     Alignment? alignment,
     double? minWidth,
@@ -398,7 +398,7 @@ class TKeyValue {
   factory TKeyValue.color(
     String key,
     String? hex, {
-    Widget? icon,
+    dynamic icon,
     double? width,
     Alignment? alignment,
     double? minWidth,

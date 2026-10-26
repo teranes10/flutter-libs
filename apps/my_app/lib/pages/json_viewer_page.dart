@@ -39,18 +39,9 @@ class _JsonViewerPageState extends State<JsonViewerPage> {
           'initialDelaySeconds': 15,
         },
       },
-      {
-        'name': 'sidecar-telemetry',
-        'image': 'registry.internal/otel-agent:1.8.2',
-        'cpu': '100m',
-        'memory': '256Mi',
-      },
+      {'name': 'sidecar-telemetry', 'image': 'registry.internal/otel-agent:1.8.2', 'cpu': '100m', 'memory': '256Mi'},
     ],
-    'tags': {
-      'team': 'core-platform',
-      'costCenter': 'CC-4091',
-      'tier': 1,
-    },
+    'tags': {'team': 'core-platform', 'costCenter': 'CC-4091', 'tier': 1},
   };
 
   final Map<String, dynamic> _auditData = {
@@ -96,10 +87,7 @@ class _JsonViewerPageState extends State<JsonViewerPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Text(
-            'TJsonViewer Showcase',
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('TJsonViewer Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
             'Interactive, collapsible JSON and map object tree inspector with search query highlighting, '
@@ -154,20 +142,14 @@ class _JsonViewerPageState extends State<JsonViewerPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _showItemCount,
-                      onChanged: (val) => setState(() => _showItemCount = val ?? true),
-                    ),
+                    Checkbox(value: _showItemCount, onChanged: (val) => setState(() => _showItemCount = val ?? true)),
                     const Text('Show Item Counts', style: TextStyle(fontSize: 13)),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _showCopyButton,
-                      onChanged: (val) => setState(() => _showCopyButton = val ?? true),
-                    ),
+                    Checkbox(value: _showCopyButton, onChanged: (val) => setState(() => _showCopyButton = val ?? true)),
                     const Text('Copy Button', style: TextStyle(fontSize: 13)),
                   ],
                 ),

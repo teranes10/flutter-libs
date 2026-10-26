@@ -29,19 +29,12 @@ class _SkeletonPageState extends State<SkeletonPage> {
                 children: [
                   Text(
                     'Skeleton Loaders',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: colors.onSurface,
-                    ),
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: colors.onSurface),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Animated pulse and shimmer placeholders while content is loading.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: colors.onSurfaceVariant,
-                    ),
+                    style: TextStyle(fontSize: 16, color: colors.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -115,16 +108,8 @@ TSkeleton.circle(size: 44)
 // Rectangular container skeleton
 TSkeleton.rect(width: 100, height: 60)''',
             properties: const [
-              PropertyDoc(
-                name: 'width',
-                type: 'double?',
-                description: 'Width of the skeleton placeholder',
-              ),
-              PropertyDoc(
-                name: 'height',
-                type: 'double?',
-                description: 'Height of the skeleton placeholder',
-              ),
+              PropertyDoc(name: 'width', type: 'double?', description: 'Width of the skeleton placeholder'),
+              PropertyDoc(name: 'height', type: 'double?', description: 'Height of the skeleton placeholder'),
               PropertyDoc(
                 name: 'shape',
                 type: 'BoxShape',
@@ -140,22 +125,14 @@ TSkeleton.rect(width: 100, height: 60)''',
             title: 'Multi-Line Paragraphs (TSkeleton.lines)',
             description: 'Simulates paragraphs of text with naturally varying last-line width factor',
             icon: Icons.format_align_left_rounded,
-            preview: SizedBox(
-              width: 380,
-              child: TSkeleton.lines(count: 4, spacing: 10, lastLineWidthRatio: 0.55),
-            ),
+            preview: SizedBox(width: 380, child: TSkeleton.lines(count: 4, spacing: 10, lastLineWidthRatio: 0.55)),
             code: '''TSkeleton.lines(
   count: 4,
   spacing: 10,
   lastLineWidthRatio: 0.55,
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'count',
-                type: 'int',
-                defaultValue: '3',
-                description: 'Number of simulated text lines',
-              ),
+              PropertyDoc(name: 'count', type: 'int', defaultValue: '3', description: 'Number of simulated text lines'),
               PropertyDoc(
                 name: 'lastLineWidthRatio',
                 type: 'double',
@@ -175,11 +152,7 @@ TSkeleton.rect(width: 100, height: 60)''',
               gapX: 16,
               gapY: 16,
               children: [
-                TGridCol(
-                  sm: 12,
-                  md: 6,
-                  child: TSkeleton.card(lines: 3),
-                ),
+                TGridCol(sm: 12, md: 6, child: TSkeleton.card(lines: 3)),
                 TGridCol(
                   sm: 12,
                   md: 6,
@@ -261,17 +234,10 @@ TSkeleton.tile(size: TTileSize.h4, hasTrailing: true)''',
                             children: [
                               Text(
                                 'Sarah Connor',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                  color: colors.onSurface,
-                                ),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: colors.onSurface),
                               ),
                               const SizedBox(height: 2),
-                              Text(
-                                'Engineering Manager',
-                                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
-                              ),
+                              Text('Engineering Manager', style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
                               const SizedBox(height: 8),
                               const TChip.tonal(text: 'Active Member', color: Colors.green),
                             ],

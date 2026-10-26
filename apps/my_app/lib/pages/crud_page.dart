@@ -126,7 +126,6 @@ class CrudPage extends StatelessWidget {
         TKeyValue.text('Price', '\$${item.price.toStringAsFixed(2)}'),
         TKeyValue.text('Rating', '${item.rating} / 5.0'),
       ],
-      expansionMode: TTableExpansionMode.side,
       expandedBuilder: (ctx, item, index) {
         final data = item.data;
         final mockReviews = const [
@@ -273,7 +272,6 @@ class CrudPage extends StatelessWidget {
           ),
         );
       },
-
       rowColorBuilder: (item, index) {
         if (item.data.stock < 5) return Colors.red.withAlpha(15);
         if (item.data.stock < 10) return Colors.orange.withAlpha(15);

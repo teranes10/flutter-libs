@@ -80,11 +80,7 @@ class _ResultsPageState extends State<ResultsPage> {
           const SizedBox(height: 20),
 
           // Feedback Banner
-          TBanner.info(
-            variant: TVariant.tonal,
-            title: 'Action Triggered',
-            message: _lastActionStatus,
-          ),
+          TBanner.info(variant: TVariant.tonal, title: 'Action Triggered', message: _lastActionStatus),
           const SizedBox(height: 24),
 
           // Status Switcher
@@ -109,12 +105,7 @@ class _ResultsPageState extends State<ResultsPage> {
           // 1. Standard Inline Result (Desktop / Dashboard Embed)
           TCard(
             title: 'Standard Inline Layout (Card / Dialog Embed)',
-            child: _buildResult(
-              colors: colors,
-              status: _activeTab,
-              fullPage: false,
-              docked: false,
-            ),
+            child: _buildResult(colors: colors, status: _activeTab, fullPage: false, docked: false),
           ),
           const SizedBox(height: 24),
 
@@ -147,10 +138,7 @@ class _ResultsPageState extends State<ResultsPage> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          TSwitch(
-                            value: _isDocked,
-                            onValueChanged: (val) => setState(() => _isDocked = val ?? false),
-                          ),
+                          TSwitch(value: _isDocked, onValueChanged: (val) => setState(() => _isDocked = val ?? false)),
                           const SizedBox(width: 10),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,9 +148,7 @@ class _ResultsPageState extends State<ResultsPage> {
                                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: colors.onSurface),
                               ),
                               Text(
-                                _isDocked
-                                    ? 'Actions pinned to bottom navigation bar'
-                                    : 'Actions render inline inside scrollable body',
+                                _isDocked ? 'Actions pinned to bottom navigation bar' : 'Actions render inline inside scrollable body',
                                 style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
                               ),
                             ],
@@ -193,12 +179,7 @@ class _ResultsPageState extends State<ResultsPage> {
                       height: 640,
                       width: 360,
                       onBackPressed: () => _setAction('Back button pressed on mobile frame'),
-                      child: _buildResult(
-                        colors: colors,
-                        status: _activeTab,
-                        fullPage: true,
-                        docked: _isDocked,
-                      ),
+                      child: _buildResult(colors: colors, status: _activeTab, fullPage: true, docked: _isDocked),
                     ),
 
                     // Explanation & Code card
@@ -282,12 +263,7 @@ class _ResultsPageState extends State<ResultsPage> {
                                   padding: const EdgeInsets.all(14),
                                   child: SelectableText(
                                     _sampleCodeSnippet,
-                                    style: TextStyle(
-                                      fontFamily: 'monospace',
-                                      fontSize: 12,
-                                      height: 1.45,
-                                      color: colors.onSurface,
-                                    ),
+                                    style: TextStyle(fontFamily: 'monospace', fontSize: 12, height: 1.45, color: colors.onSurface),
                                   ),
                                 ),
                               ],
@@ -310,13 +286,19 @@ class _ResultsPageState extends State<ResultsPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('• ', style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary)),
+        Text(
+          '• ',
+          style: TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
+        ),
         Expanded(
           child: RichText(
             text: TextSpan(
               style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant, height: 1.4),
               children: [
-                TextSpan(text: '$title: ', style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface)),
+                TextSpan(
+                  text: '$title: ',
+                  style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface),
+                ),
                 TextSpan(text: description),
               ],
             ),
@@ -362,25 +344,42 @@ class _ResultsPageState extends State<ResultsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Order Summary', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: colors.onSurface)),
+                Text(
+                  'Order Summary',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: colors.onSurface),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     Expanded(
-                      child: Text('Enterprise Cloud Pro', style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant), overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        'Enterprise Cloud Pro',
+                        style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    Text('\$2,400.00', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: colors.onSurface)),
+                    Text(
+                      '\$2,400.00',
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: colors.onSurface),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     Expanded(
-                      child: Text('Provisioning Time', style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant), overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        'Provisioning Time',
+                        style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    Text('Under 2m', style: TextStyle(fontSize: 12, color: colors.primary, fontWeight: FontWeight.w500)),
+                    Text(
+                      'Under 2m',
+                      style: TextStyle(fontSize: 12, color: colors.primary, fontWeight: FontWeight.w500),
+                    ),
                   ],
                 ),
               ],

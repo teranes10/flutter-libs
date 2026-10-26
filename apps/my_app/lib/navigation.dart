@@ -14,6 +14,7 @@ import 'package:my_app/pages/colors_page.dart';
 import 'package:my_app/pages/command_palette_page.dart';
 import 'package:my_app/pages/context_menu_page.dart';
 import 'package:my_app/pages/copy_button_page.dart';
+import 'package:my_app/pages/crud_hierarchy_page.dart';
 import 'package:my_app/pages/crud_page.dart';
 import 'package:my_app/pages/crud_riverpod_page.dart';
 import 'package:my_app/pages/csv_editor_page.dart';
@@ -50,6 +51,7 @@ import 'package:my_app/pages/sparkline_page.dart';
 import 'package:my_app/pages/speed_dial_page.dart';
 import 'package:my_app/pages/split_pane_page.dart';
 import 'package:my_app/pages/stepper_page.dart';
+import 'package:my_app/pages/order_picking_page.dart';
 import 'package:my_app/pages/stocktake_v2_page.dart';
 import 'package:my_app/pages/tables_bottom_page.dart';
 import 'package:my_app/pages/tables_create_builder_page.dart';
@@ -141,6 +143,7 @@ final sidebarItems = [
     children: [
       TSidebarItem(icon: Icons.storage, text: 'CRUD', route: 'crud', page: const CrudPage()),
       TSidebarItem(icon: Icons.storage, text: 'CRUD (Riverpod)', route: 'crud-riverpod', page: const CrudRiverpodPage()),
+      TSidebarItem(icon: Icons.account_tree, text: 'CRUD (Hierarchy)', route: 'crud-hierarchy', page: const CrudHierarchyPage()),
       TSidebarItem(icon: Icons.table_view_rounded, text: 'CSV Editor', route: 'csv-editor', page: const CsvEditorPage()),
       TSidebarItem(icon: Icons.navigate_next, text: 'Cursor Pagination', route: 'cursor-pagination', page: const CursorPaginationPage()),
     ],
@@ -232,6 +235,7 @@ final sidebarItems = [
     route: '/samples',
     children: [
       TSidebarItem(icon: Icons.inventory_rounded, text: 'Stock Take Flow', route: 'stocktake-flow', page: const StocktakeV2Page()),
+      TSidebarItem(icon: Icons.shopping_cart_checkout_rounded, text: 'Order Picking', route: 'order-picking', page: const OrderPickingPage()),
       TSidebarItem(icon: Icons.local_shipping_outlined, text: 'Delivery App', route: 'delivery-app', page: const DeliveryPage()),
       TSidebarItem(icon: Icons.map, text: 'Maps', route: 'maps', page: const MapSamplePage()),
       TSidebarItem(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 part 'button_config.dart';
@@ -98,6 +99,10 @@ class TButton extends StatefulWidget {
   ///
   /// Cannot be used together with [icon].
   final String? imageUrl;
+
+  /// Whether [imageUrl] is persistently cached via [TImageStorage] instead of
+  /// just Flutter's in-memory [ImageCache]. See [TImage.forceCache].
+  final bool forceCache;
 
   /// The primary color of the button.
   ///
@@ -222,6 +227,12 @@ class TButton extends StatefulWidget {
   /// Custom shadow color for the button elevation.
   final Color? shadowColor;
 
+  /// Accessible label for icon-only buttons. Falls back to [tooltip], then [text].
+  final String? semanticLabel;
+
+  /// Stable identifier exposed as `flt-semantics-identifier` on Flutter web for e2e tests.
+  final String? semanticIdentifier;
+
   /// Creates a customizable button widget.
   ///
   /// At least one of [onTap], [onPressed], or [onChanged] should be provided
@@ -239,6 +250,7 @@ class TButton extends StatefulWidget {
     this.loadingNotifier,
     this.icon,
     this.imageUrl,
+    this.forceCache = false,
     this.text,
     this.tooltip,
     this.onTap,
@@ -262,6 +274,8 @@ class TButton extends StatefulWidget {
     this.gradient,
     this.elevation,
     this.shadowColor,
+    this.semanticLabel,
+    this.semanticIdentifier,
   })  : assert(
           theme == null || (baseTheme == null && type == null && size == null && shape == null && color == null),
           'If theme is provided, baseTheme, type, shape, color and size must be null.',
@@ -321,6 +335,7 @@ class TButton extends StatefulWidget {
 }
 
 class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
+  final _TightWidthState _tightProbe = _TightWidthState();
   bool _isLoading = false;
   bool _isActive = false;
   DateTime? _lastTapTime;
@@ -505,6 +520,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             url: widget.imageUrl,
             color: theme.baseTheme.onContainerVariant.withAlpha(50),
             disabled: true,
+            forceCache: widget.forceCache,
             border: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
           )
         else
@@ -513,6 +529,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             url: widget.imageUrl,
             color: theme.baseTheme.onContainerVariant.withAlpha(50),
             disabled: true,
+            forceCache: widget.forceCache,
           ),
       if (!text.isNullOrBlank)
         Flexible(
@@ -621,22 +638,34 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
                       gradient: effectiveGradient,
                     )
                   : null,
-              child: Container(
-                width: isExpandedOrBlock ? double.infinity : null,
-                alignment: isExpandedOrBlock ? Alignment.center : null,
-                constraints: BoxConstraints(minWidth: size.minW, minHeight: size.minH),
-                padding: resolvedPadding,
-                child: buttonContent,
+              child: _FillIfTight(
+                probe: _tightProbe,
+                child: Align(
+                  widthFactor: 1,
+                  heightFactor: 1,
+                  child: Container(
+                    width: isExpandedOrBlock ? double.infinity : null,
+                    alignment: isExpandedOrBlock ? Alignment.center : null,
+                    constraints: BoxConstraints(minWidth: size.minW, minHeight: size.minH),
+                    padding: resolvedPadding,
+                    child: buttonContent,
+                  ),
+                ),
               ),
             );
 
       Widget resultButton = ScaleTransition(
         scale: _scaleAnimation,
-        child: ElevatedButton(
-          statesController: _statesController,
-          onPressed: isDisabled ? null : _handlePress,
-          style: effectiveButtonStyle,
-          child: innerWidget,
+        // Fill the width when the parent forces it (e.g. Expanded in a Row), so the
+        // gradient/content isn't left floating inside a wider ElevatedButton.
+        child: _TightWidthProbe(
+          probe: _tightProbe,
+          child: ElevatedButton(
+            statesController: _statesController,
+            onPressed: isDisabled ? null : _handlePress,
+            style: effectiveButtonStyle,
+            child: innerWidget,
+          ),
         ),
       );
 
@@ -645,6 +674,18 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
           triggerMode: TTooltipTriggerMode.hover,
           message: widget.tooltip!,
           color: theme.baseTheme.color,
+          child: resultButton,
+        );
+      }
+
+      final a11yLabel = widget.semanticLabel ?? (text.isNullOrBlank ? widget.tooltip : null);
+      if (a11yLabel != null || widget.semanticIdentifier != null) {
+        resultButton = Semantics(
+          container: true,
+          button: true,
+          enabled: !isDisabled,
+          label: a11yLabel,
+          identifier: widget.semanticIdentifier,
           child: resultButton,
         );
       }
@@ -702,4 +743,74 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
 
     return buildButton();
   }
+}
+
+/// Whether the button was given a tight width by its parent.
+class _TightWidthState {
+  bool tight = false;
+}
+
+/// Records, at layout time, whether the incoming width is tight.
+///
+/// Unlike a `LayoutBuilder` this keeps intrinsic sizing working, so parents that
+/// measure intrinsics (e.g. the key-value grid) can still size the button.
+class _TightWidthProbe extends SingleChildRenderObjectWidget {
+  const _TightWidthProbe({required this.probe, required super.child});
+
+  final _TightWidthState probe;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderTightWidthProbe(probe);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderTightWidthProbe renderObject) => renderObject.probe = probe;
+}
+
+class _RenderTightWidthProbe extends RenderProxyBox {
+  _RenderTightWidthProbe(this.probe);
+
+  _TightWidthState probe;
+
+  @override
+  void performLayout() {
+    probe.tight = constraints.hasTightWidth;
+    super.performLayout();
+  }
+}
+
+/// Forces its child to the available width when [probe] reports a tight width.
+class _FillIfTight extends SingleChildRenderObjectWidget {
+  const _FillIfTight({required this.probe, required super.child});
+
+  final _TightWidthState probe;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderFillIfTight(probe);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderFillIfTight renderObject) => renderObject.probe = probe;
+}
+
+class _RenderFillIfTight extends RenderProxyBox {
+  _RenderFillIfTight(this.probe);
+
+  _TightWidthState probe;
+
+  BoxConstraints _childConstraints(BoxConstraints c) =>
+      probe.tight && c.hasBoundedWidth ? c.tighten(width: c.maxWidth) : c;
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    if (child == null) {
+      size = constraints.smallest;
+      return;
+    }
+    child.layout(_childConstraints(constraints), parentUsesSize: true);
+    size = child.size;
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) =>
+      child?.getDryLayout(_childConstraints(constraints)) ?? constraints.smallest;
 }

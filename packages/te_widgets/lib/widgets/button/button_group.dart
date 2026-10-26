@@ -363,6 +363,7 @@ class _TButtonGroupState extends State<TButtonGroup> {
       loading: item.loading,
       loadingText: item.loadingText,
       tooltip: item.tooltip,
+      semanticIdentifier: item.semanticIdentifier,
       active: isActive,
       showTick: item.showTick ?? widget.showTick ?? false,
       tickAlignment: item.tickAlignment ?? widget.tickAlignment ?? Alignment.topRight,

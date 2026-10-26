@@ -135,11 +135,7 @@ class _CommandPalettePageState extends State<CommandPalettePage> {
             // Header
             Text(
               'Command Palette (⌘K)',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: colors.onSurface,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: colors.onSurface),
             ),
             const SizedBox(height: 6),
             Text(
@@ -149,11 +145,7 @@ class _CommandPalettePageState extends State<CommandPalettePage> {
             const SizedBox(height: 20),
 
             // Execution Feedback Banner
-            TBanner.success(
-              variant: TVariant.tonal,
-              title: 'Last Command Result',
-              message: _lastCommandRun,
-            ),
+            TBanner.success(variant: TVariant.tonal, title: 'Last Command Result', message: _lastCommandRun),
             const SizedBox(height: 24),
 
             // Launcher card
@@ -173,12 +165,7 @@ class _CommandPalettePageState extends State<CommandPalettePage> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       // Trigger Button
-                      TCommandPaletteTrigger(
-                        groups: commands,
-                        width: 320,
-                        placeholder: 'Search pages or actions...',
-                        shortcut: '⌘K',
-                      ),
+                      TCommandPaletteTrigger(groups: commands, width: 320, placeholder: 'Search pages or actions...', shortcut: '⌘K'),
 
                       // Manual Open Button
                       TButton(
@@ -206,12 +193,7 @@ class _CommandPalettePageState extends State<CommandPalettePage> {
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Text(
                           group.heading,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.8,
-                            color: colors.primary,
-                          ),
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.8, color: colors.primary),
                         ),
                       ),
                       ...group.items.map((item) {
@@ -222,9 +204,7 @@ class _CommandPalettePageState extends State<CommandPalettePage> {
                             leading: item.icon != null ? TIcon(icon: item.icon, size: 18) : null,
                             title: item.title,
                             subtitle: item.subtitle,
-                            trailing: item.shortcut != null
-                                ? TCopyable.text(item.shortcut!)
-                                : null,
+                            trailing: item.shortcut != null ? TCopyable.text(item.shortcut!) : null,
                             onTap: () {
                               item.onSelect();
                             },

@@ -207,16 +207,8 @@ TTabs<int>(
                 type: 'int?',
                 description: 'Optional count displayed as a styled pill badge next to the tab label',
               ),
-              PropertyDoc(
-                name: 'text',
-                type: 'String?',
-                description: 'Text label for the tab',
-              ),
-              PropertyDoc(
-                name: 'icon',
-                type: 'dynamic',
-                description: 'Optional icon widget or IconData',
-              ),
+              PropertyDoc(name: 'text', type: 'String?', description: 'Text label for the tab'),
+              PropertyDoc(name: 'icon', type: 'dynamic', description: 'Optional icon widget or IconData'),
             ],
           ),
 

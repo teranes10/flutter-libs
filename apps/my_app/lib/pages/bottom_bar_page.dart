@@ -32,11 +32,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
 
   // Badge sample items
   final List<TBottomBarItem> _badgeItems = const [
-    TBottomBarItem(
-      icon: Icons.home_outlined,
-      activeIcon: Icons.home_rounded,
-      label: 'Home',
-    ),
+    TBottomBarItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
     TBottomBarItem(
       icon: Icons.shopping_bag_outlined,
       activeIcon: Icons.shopping_bag_rounded,
@@ -55,49 +51,25 @@ class _BottomBarPageState extends State<BottomBarPage> {
       label: 'Alerts',
       badge: true, // Dot indicator
     ),
-    TBottomBarItem(
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
-      label: 'Profile',
-    ),
+    TBottomBarItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
   ];
 
   // Emphasized sample items
   final List<TBottomBarItem> _emphasizedItems = const [
-    TBottomBarItem(
-      icon: Icons.home_outlined,
-      activeIcon: Icons.home_rounded,
-      label: 'Home',
-    ),
-    TBottomBarItem(
-      icon: Icons.inventory_2_outlined,
-      activeIcon: Icons.inventory_2_rounded,
-      label: 'Inventory',
-    ),
+    TBottomBarItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
+    TBottomBarItem(icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2_rounded, label: 'Inventory'),
     TBottomBarItem(
       icon: Icons.qr_code_scanner_rounded,
       label: 'Scan',
       emphasized: true, // Raised circular primary button
     ),
-    TBottomBarItem(
-      icon: Icons.history_rounded,
-      activeIcon: Icons.history_rounded,
-      label: 'History',
-    ),
-    TBottomBarItem(
-      icon: Icons.settings_outlined,
-      activeIcon: Icons.settings_rounded,
-      label: 'Settings',
-    ),
+    TBottomBarItem(icon: Icons.history_rounded, activeIcon: Icons.history_rounded, label: 'History'),
+    TBottomBarItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: 'Settings'),
   ];
 
   // Field / Handheld combined workflow items
   final List<TBottomBarItem> _fieldWorkflowItems = const [
-    TBottomBarItem(
-      icon: Icons.dashboard_outlined,
-      activeIcon: Icons.dashboard_rounded,
-      label: 'Overview',
-    ),
+    TBottomBarItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: 'Overview'),
     TBottomBarItem(
       icon: Icons.checklist_rounded,
       label: 'Pick Tasks',
@@ -130,12 +102,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
     TBottomBarItem(icon: Icons.settings_outlined, label: 'Config'),
   ];
 
-  Widget _buildMockContainer({
-    required BuildContext context,
-    required Widget child,
-    required String activeLabel,
-    String? subtitle,
-  }) {
+  Widget _buildMockContainer({required BuildContext context, required Widget child, required String activeLabel, String? subtitle}) {
     final colors = context.colors;
     return Container(
       decoration: BoxDecoration(
@@ -156,31 +123,15 @@ class _BottomBarPageState extends State<BottomBarPage> {
                 const SizedBox(width: 8),
                 Text(
                   'Active: $activeLabel',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: colors.onSurface,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface, fontSize: 13),
                 ),
-                if (subtitle != null) ...[
-                  const Spacer(),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
+                if (subtitle != null) ...[const Spacer(), Text(subtitle, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant))],
               ],
             ),
           ),
           const Divider(height: 1),
           // Pad slightly on top so emphasized button has space to pop upwards
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: child,
-          ),
+          Padding(padding: const EdgeInsets.only(top: 8), child: child),
         ],
       ),
     );
@@ -216,7 +167,10 @@ class _BottomBarPageState extends State<BottomBarPage> {
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Text Position', style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface, fontSize: 13)),
+                Text(
+                  'Text Position',
+                  style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface, fontSize: 13),
+                ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -232,7 +186,10 @@ class _BottomBarPageState extends State<BottomBarPage> {
                   }).toList(),
                 ),
                 const SizedBox(height: 16),
-                Text('Highlight Variant', style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface, fontSize: 13)),
+                Text(
+                  'Highlight Variant',
+                  style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface, fontSize: 13),
+                ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -262,7 +219,8 @@ class _BottomBarPageState extends State<BottomBarPage> {
                 ),
               ],
             ),
-            code: '''TBottomBar(
+            code:
+                '''TBottomBar(
   currentIndex: _currentIndex,
   onTap: (index) => setState(() => _currentIndex = index),
   textPosition: TBottomBarTextPosition.${_textPosition.name},
@@ -276,10 +234,25 @@ class _BottomBarPageState extends State<BottomBarPage> {
 )''',
             properties: const [
               PropertyDoc(name: 'currentIndex', type: 'int', isRequired: true, description: 'Index of the currently selected tab'),
-              PropertyDoc(name: 'items', type: 'List<TBottomBarItem>', isRequired: true, description: 'Items to display in the bottom navigation bar'),
+              PropertyDoc(
+                name: 'items',
+                type: 'List<TBottomBarItem>',
+                isRequired: true,
+                description: 'Items to display in the bottom navigation bar',
+              ),
               PropertyDoc(name: 'onTap', type: 'ValueChanged<int>?', description: 'Callback fired when an item is tapped'),
-              PropertyDoc(name: 'textPosition', type: 'TBottomBarTextPosition', defaultValue: 'rightActive', description: 'Label placement (rightActive, bottomAlways, bottomActive, none)'),
-              PropertyDoc(name: 'variant', type: 'TVariant', defaultValue: 'tonal', description: 'Active item highlight style (tonal, filled, outline, softOutline, text)'),
+              PropertyDoc(
+                name: 'textPosition',
+                type: 'TBottomBarTextPosition',
+                defaultValue: 'rightActive',
+                description: 'Label placement (rightActive, bottomAlways, bottomActive, none)',
+              ),
+              PropertyDoc(
+                name: 'variant',
+                type: 'TVariant',
+                defaultValue: 'tonal',
+                description: 'Active item highlight style (tonal, filled, outline, softOutline, text)',
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -287,7 +260,8 @@ class _BottomBarPageState extends State<BottomBarPage> {
           // 2. Badges Sample
           WidgetDocCard(
             title: 'Badge Sample (Count, Dot, Label)',
-            description: 'TBottomBarItem accepts any badge format: integer count (e.g. 4), boolean status dot (true), '
+            description:
+                'TBottomBarItem accepts any badge format: integer count (e.g. 4), boolean status dot (true), '
                 'or text pill (e.g. "NEW"). Badges wrap the tab icon automatically with consistent alignment.',
             icon: Icons.mark_chat_unread_outlined,
             preview: _buildMockContainer(
@@ -348,7 +322,8 @@ class _BottomBarPageState extends State<BottomBarPage> {
           // 3. Emphasized Action Sample
           WidgetDocCard(
             title: 'Emphasized Action Sample (Scan / Create)',
-            description: 'Setting emphasized: true renders the item as a raised, circular primary action button '
+            description:
+                'Setting emphasized: true renders the item as a raised, circular primary action button '
                 'that floats above the bottom bar with an elevated drop shadow. Ideal for center Scan, Quick Add, '
                 'or POS checkout actions.',
             icon: Icons.center_focus_strong_rounded,
@@ -395,7 +370,8 @@ class _BottomBarPageState extends State<BottomBarPage> {
           // 4. Combined Field App Workflow Sample (Emphasized + Badges)
           WidgetDocCard(
             title: 'Field App Pattern (Emphasized Action + Badges)',
-            description: 'Real-world warehouse & field technician pattern combining pending task counters, '
+            description:
+                'Real-world warehouse & field technician pattern combining pending task counters, '
                 'alert dots, and a center emphasized barcode scanner.',
             icon: Icons.handyman_outlined,
             preview: _buildMockContainer(

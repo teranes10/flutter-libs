@@ -51,9 +51,11 @@ class _TreeViewPageState extends State<TreeViewPage> {
             key: 'te_editor',
             label: 'te_editor',
             children: [
-              TTreeNode(key: 'editor_lib', label: 'lib', children: [
-                TTreeNode(key: 'quill', label: 'quill_editor.dart', icon: Icons.code_rounded),
-              ]),
+              TTreeNode(
+                key: 'editor_lib',
+                label: 'lib',
+                children: [TTreeNode(key: 'quill', label: 'quill_editor.dart', icon: Icons.code_rounded)],
+              ),
             ],
           ),
         ],
@@ -80,11 +82,7 @@ class _TreeViewPageState extends State<TreeViewPage> {
           ),
         ],
       ),
-      const TTreeNode(
-        key: 'cloud_storage',
-        label: 'cloud_storage (Async Fetch)',
-        isLeaf: false,
-      ),
+      const TTreeNode(key: 'cloud_storage', label: 'cloud_storage (Async Fetch)', isLeaf: false),
     ];
   }
 
@@ -154,9 +152,18 @@ class _TreeViewPageState extends State<TreeViewPage> {
                     Text('Selection Mode: ', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
                     SegmentedButton<TTreeSelectionMode>(
                       segments: const [
-                        ButtonSegment(value: TTreeSelectionMode.none, label: Text('None', style: TextStyle(fontSize: 12))),
-                        ButtonSegment(value: TTreeSelectionMode.single, label: Text('Single', style: TextStyle(fontSize: 12))),
-                        ButtonSegment(value: TTreeSelectionMode.multi, label: Text('Multi', style: TextStyle(fontSize: 12))),
+                        ButtonSegment(
+                          value: TTreeSelectionMode.none,
+                          label: Text('None', style: TextStyle(fontSize: 12)),
+                        ),
+                        ButtonSegment(
+                          value: TTreeSelectionMode.single,
+                          label: Text('Single', style: TextStyle(fontSize: 12)),
+                        ),
+                        ButtonSegment(
+                          value: TTreeSelectionMode.multi,
+                          label: Text('Multi', style: TextStyle(fontSize: 12)),
+                        ),
                       ],
                       selected: {_selectionMode},
                       onSelectionChanged: (val) => setState(() => _selectionMode = val.first),
@@ -168,10 +175,7 @@ class _TreeViewPageState extends State<TreeViewPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _showLines,
-                      onChanged: (val) => setState(() => _showLines = val ?? true),
-                    ),
+                    Checkbox(value: _showLines, onChanged: (val) => setState(() => _showLines = val ?? true)),
                     const Text('Show branch lines', style: TextStyle(fontSize: 13)),
                   ],
                 ),

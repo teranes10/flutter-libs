@@ -98,10 +98,7 @@ spec:
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Text(
-            'TDiffViewer Showcase',
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('TDiffViewer Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
             'Line-by-line diff and version comparison component supporting side-by-side split and unified inline modes, '
@@ -155,10 +152,7 @@ spec:
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _showLineNumbers,
-                      onChanged: (val) => setState(() => _showLineNumbers = val ?? true),
-                    ),
+                    Checkbox(value: _showLineNumbers, onChanged: (val) => setState(() => _showLineNumbers = val ?? true)),
                     const Text('Show Line Numbers', style: TextStyle(fontSize: 13)),
                   ],
                 ),

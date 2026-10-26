@@ -28,6 +28,9 @@ class TTableMobileCard<T, K> extends StatelessWidget {
   /// Whether the card is expandable.
   final bool expandable;
 
+  /// Whether to render the leading expand/collapse icon.
+  final bool showExpandIcon;
+
   /// Whether the card is currently expanded.
   final bool isExpanded;
   final bool isDetailExpanded;
@@ -77,6 +80,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
 
     //expandable
     this.expandable = false,
+    this.showExpandIcon = true,
     this.isExpanded = false,
     this.isDetailExpanded = false,
     this.onExpansionChanged,
@@ -207,7 +211,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
                     alignment: Alignment.topLeft,
                   ),
                 ...mappedKeyValues,
-                if (expandable)
+                if (expandable && showExpandIcon)
                   TKeyValue(
                     "",
                     widget: Builder(builder: (context) {

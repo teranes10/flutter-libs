@@ -40,6 +40,49 @@ class TTableDetailsScope extends InheritedWidget {
       mode != oldWidget.mode || isCreating != oldWidget.isCreating || isEditing != oldWidget.isEditing;
 }
 
+/// Lets content inside a details page (e.g. a form) contribute widgets to the
+/// header actions of the surrounding [TPageWrapper].
+class TTableDetailsActions extends InheritedWidget {
+  final ValueNotifier<Widget?> actions;
+
+  const TTableDetailsActions({super.key, required this.actions, required super.child});
+
+  static TTableDetailsActions? maybeOf(BuildContext context) => context.getInheritedWidgetOfExactType<TTableDetailsActions>();
+
+  @override
+  bool updateShouldNotify(TTableDetailsActions oldWidget) => actions != oldWidget.actions;
+}
+
+class _TTableDetailsActionsHost extends StatefulWidget {
+  final Widget Function(BuildContext context, List<Widget> extra) builder;
+
+  const _TTableDetailsActionsHost({required this.builder});
+
+  @override
+  State<_TTableDetailsActionsHost> createState() => _TTableDetailsActionsHostState();
+}
+
+class _TTableDetailsActionsHostState extends State<_TTableDetailsActionsHost> {
+  final ValueNotifier<Widget?> _actions = ValueNotifier(null);
+
+  @override
+  void dispose() {
+    _actions.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TTableDetailsActions(
+      actions: _actions,
+      child: ValueListenableBuilder<Widget?>(
+        valueListenable: _actions,
+        builder: (context, extra, _) => widget.builder(context, [if (extra != null) extra]),
+      ),
+    );
+  }
+}
+
 /// Details and expansion configuration for the table.
 class TTableDetails<T, K> {
   /// Defines how the expanded content is presented.
@@ -61,6 +104,10 @@ class TTableDetails<T, K> {
   final String? Function(T item)? itemImageUrl;
 
   /// Function to extract key-value information from an item (used in dialogs/pages/sheets).
+  /// Status/attribute chips shown under the subtitle in the detail header.
+  /// Leave their `size` null so they follow the subtitle font size.
+  final List<Widget> Function(T item)? itemHighlights;
+
   final List<TKeyValue>? Function(T item)? itemInfo;
 
   /// Layout presentation mode for [itemInfo]. If not specified, defaults to [itemInfoGridInline] (inlineFlow or stackedFlow).
@@ -131,6 +178,10 @@ class TTableDetails<T, K> {
   /// Optional width ratio for the side overlay when creating/editing.
   final double? createSideOverlayWidthRatio;
 
+  /// How the side overlay sizes itself vertically. Defaults to [TSheetHeightMode.shrinkWrap],
+  /// so the panel hugs its content and is pinned to the top instead of stretching full height.
+  final TSheetHeightMode sideOverlayHeightMode;
+
   /// Whether to automatically expand the first item in the list initially.
   final bool autoExpandFirst;
 
@@ -139,6 +190,10 @@ class TTableDetails<T, K> {
 
   /// Whether tapping on a row expands its details. Defaults to true.
   final bool expandOnRowTap;
+
+  /// Whether the leading expand/collapse icon is shown on each row. Defaults to true.
+  /// When false, expansion must be triggered programmatically (e.g. an action button).
+  final bool showExpandIcon;
 
   /// Optional custom icon (HugeIcon, IconData, or Widget) for collapsed state.
   final dynamic expandIcon;
@@ -153,6 +208,7 @@ class TTableDetails<T, K> {
     this.itemSubTitle,
     this.itemDescription,
     this.itemImageUrl,
+    this.itemHighlights,
     this.itemInfo,
     this.itemInfoMode,
     this.actions,
@@ -175,12 +231,14 @@ class TTableDetails<T, K> {
     this.createSideOverlayMinWidth,
     this.createSideOverlayMaxWidth,
     this.createSideOverlayWidthRatio,
+    this.sideOverlayHeightMode = TSheetHeightMode.shrinkWrap,
     this.autoExpandFirst = false,
     this.autoSelectFirst = false,
     this.itemInfoGridInline = true,
     bool? expandOnRowTap,
     this.expandIcon,
     this.collapseIcon,
+    this.showExpandIcon = true,
     bool? rowTapDetails,
     bool? onRowTapDetails,
   }) : expandOnRowTap = expandOnRowTap ?? rowTapDetails ?? onRowTapDetails ?? true;
@@ -212,6 +270,7 @@ class TTableDetails<T, K> {
     String? Function(T item)? itemSubTitle,
     String? Function(T item)? itemDescription,
     String? Function(T item)? itemImageUrl,
+    List<Widget> Function(T item)? itemHighlights,
     List<TKeyValue>? Function(T item)? itemInfo,
     TKeyValueMode? itemInfoMode,
     bool? itemInfoGridInline,
@@ -235,11 +294,13 @@ class TTableDetails<T, K> {
     double? createSideOverlayMinWidth,
     double? createSideOverlayMaxWidth,
     double? createSideOverlayWidthRatio,
+    TSheetHeightMode? sideOverlayHeightMode,
     bool? autoExpandFirst,
     bool? autoSelectFirst,
     bool? expandOnRowTap,
     dynamic expandIcon,
     dynamic collapseIcon,
+    bool? showExpandIcon,
   }) {
     return TTableDetails<T, K>(
       mode: mode ?? this.mode,
@@ -248,6 +309,7 @@ class TTableDetails<T, K> {
       itemSubTitle: itemSubTitle ?? this.itemSubTitle,
       itemDescription: itemDescription ?? this.itemDescription,
       itemImageUrl: itemImageUrl ?? this.itemImageUrl,
+      itemHighlights: itemHighlights ?? this.itemHighlights,
       itemInfo: itemInfo ?? this.itemInfo,
       itemInfoMode: itemInfoMode ?? this.itemInfoMode,
       itemInfoGridInline: itemInfoGridInline ?? this.itemInfoGridInline,
@@ -271,11 +333,13 @@ class TTableDetails<T, K> {
       createSideOverlayMinWidth: createSideOverlayMinWidth ?? this.createSideOverlayMinWidth,
       createSideOverlayMaxWidth: createSideOverlayMaxWidth ?? this.createSideOverlayMaxWidth,
       createSideOverlayWidthRatio: createSideOverlayWidthRatio ?? this.createSideOverlayWidthRatio,
+      sideOverlayHeightMode: sideOverlayHeightMode ?? this.sideOverlayHeightMode,
       autoExpandFirst: autoExpandFirst ?? this.autoExpandFirst,
       autoSelectFirst: autoSelectFirst ?? this.autoSelectFirst,
       expandOnRowTap: expandOnRowTap ?? this.expandOnRowTap,
       expandIcon: expandIcon ?? this.expandIcon,
       collapseIcon: collapseIcon ?? this.collapseIcon,
+      showExpandIcon: showExpandIcon ?? this.showExpandIcon,
     );
   }
 }
@@ -416,21 +480,25 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final description = (isCreating || itemData == null) ? null : details.itemDescription?.call(itemData);
     final imageUrl = (isCreating || itemData == null) ? null : details.itemImageUrl?.call(itemData);
     final itemInfo = (isCreating || itemData == null) ? null : details.itemInfo?.call(itemData);
+    final highlights = (isCreating || itemData == null) ? null : details.itemHighlights?.call(itemData);
     final actions = (!isCreating && !isEditing && itemData != null) ? details.actions?.call(itemData) : null;
 
-    final pageWrapper = TPageWrapper(
+    Widget buildWrapper(BuildContext context, List<Widget> extra) => TPageWrapper(
       title: title,
       subTitle: subTitle,
       description: description,
       imageUrl: imageUrl,
+      highlights: highlights,
       itemInfo: itemInfo,
       itemInfoMode: details.itemInfoMode,
       itemInfoGridInline: details.itemInfoGridInline,
-      actions: actions,
+      actions: [...?actions, ...extra].isEmpty ? null : [...?actions, ...extra],
       onBackPressed: () => TTableScope.of(context).close(context),
-      shrinkWrap: details.mode != TTableExpansionMode.page && details.mode != TTableExpansionMode.sideOverlay,
+      shrinkWrap: details.mode != TTableExpansionMode.page &&
+          (details.mode != TTableExpansionMode.sideOverlay || details.sideOverlayHeightMode == TSheetHeightMode.shrinkWrap),
       child: child,
     );
+    final pageWrapper = _TTableDetailsActionsHost(builder: buildWrapper);
 
     return details.mode == TTableExpansionMode.side ? getCardWrapper(pageWrapper) : pageWrapper;
   }
@@ -471,7 +539,12 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
 
   void _dismissOverlay(TTableExpansionMode mode, {Object? result}) {
     if (!mounted) return;
-    Navigator.of(context, rootNavigator: mode == TTableExpansionMode.dialog || mode == TTableExpansionMode.sideOverlay).maybePop(result);
+    // `dialog` mode is adaptive: desktop presents via `showDialog` (always inserted into the
+    // root navigator), while mobile pushes a page onto the local navigator — so only the
+    // desktop case needs `rootNavigator: true`. `sideOverlay` always uses `showGeneralDialog`,
+    // which also always targets the root navigator regardless of platform.
+    final useRootNavigator = mode == TTableExpansionMode.sideOverlay || (mode == TTableExpansionMode.dialog && context.isDesktop);
+    Navigator.of(context, rootNavigator: useRootNavigator).maybePop(result);
   }
 
   /// Presents a target as a dialog, page, or side overlay sheet. Used for both view and
@@ -515,6 +588,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
           maxWidth: maxW,
           widthRatio: ratio,
           layoutBuilder: (ctx, child) => child,
+          heightMode: details?.sideOverlayHeightMode ?? TSheetHeightMode.shrinkWrap,
         );
       } else {
         // dialog mode — adaptive: TModal on desktop, page-push on mobile.

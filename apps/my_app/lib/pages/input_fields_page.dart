@@ -823,7 +823,8 @@ ValueListenableBuilder<String?>(
           // File Picker Files or Camera Source
           WidgetDocCard(
             title: 'Files or Camera Picker (Dual Source)',
-            description: 'Prompts user to choose between capturing a photo with the camera or selecting an existing file from the gallery / device.',
+            description:
+                'Prompts user to choose between capturing a photo with the camera or selecting an existing file from the gallery / device.',
             icon: Icons.add_a_photo_rounded,
             preview: TFilePicker(
               label: 'Damage Evidence Photo / Document',
@@ -865,10 +866,7 @@ ValueListenableBuilder<String?>(
             icon: Icons.draw_rounded,
             preview: SizedBox(
               width: 400,
-              child: TSignaturePad(
-                hint: 'Sign here',
-                onChanged: (hasInk) => debugPrint('Signature changed: $hasInk'),
-              ),
+              child: TSignaturePad(hint: 'Sign here', onChanged: (hasInk) => debugPrint('Signature changed: $hasInk')),
             ),
             code: '''final controller = TSignaturePadController();
 
@@ -890,8 +888,18 @@ final pngBytes = await controller.toPngBytes();''',
               PropertyDoc(name: 'height', type: 'double', defaultValue: '200', description: 'Canvas height in logical pixels'),
               PropertyDoc(name: 'penColor', type: 'Color?', description: 'Ink color (defaults to theme onSurface)'),
               PropertyDoc(name: 'penWidth', type: 'double', defaultValue: '3', description: 'Thickness of the drawn stroke'),
-              PropertyDoc(name: 'hint', type: 'String', defaultValue: '\'Sign here\'', description: 'Hint text displayed when canvas is empty'),
-              PropertyDoc(name: 'showClear', type: 'bool', defaultValue: 'true', description: 'Whether to show the Clear action button when signed'),
+              PropertyDoc(
+                name: 'hint',
+                type: 'String',
+                defaultValue: '\'Sign here\'',
+                description: 'Hint text displayed when canvas is empty',
+              ),
+              PropertyDoc(
+                name: 'showClear',
+                type: 'bool',
+                defaultValue: 'true',
+                description: 'Whether to show the Clear action button when signed',
+              ),
               PropertyDoc(
                 name: 'onChanged',
                 type: 'ValueChanged<bool>?',

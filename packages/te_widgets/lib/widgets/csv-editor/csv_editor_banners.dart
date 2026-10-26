@@ -108,7 +108,8 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
       onTap: pickFile,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        height: theme.dropzoneHeight,
+        constraints: BoxConstraints(minHeight: theme.dropzoneHeight),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         decoration: BoxDecoration(
           color: theme.dropzoneColor ?? (isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
           borderRadius: BorderRadius.circular(12),
@@ -138,11 +139,15 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
               const SizedBox(height: 4),
               Text(
                 'Supports CSV (,), Semicolon (;), TSV (Tab), Pipe (|), and JSON (.json) files with auto-detection',
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
               ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              const SizedBox(height: 16),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
                 children: [
                   TButton(
                     text: 'Browse File',
@@ -152,7 +157,6 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
                     onPressed: (_) => pickFile(),
                   ),
                   if (widget.allowPaste) ...[
-                    const SizedBox(width: 8),
                     TButton(
                       text: 'Paste Data',
                       icon: Icons.paste_rounded,
@@ -162,7 +166,6 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
                     ),
                   ],
                   if (widget.allowAddRow) ...[
-                    const SizedBox(width: 8),
                     TButton(
                       text: 'Add Row Manually',
                       icon: Icons.add,

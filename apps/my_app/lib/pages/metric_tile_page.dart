@@ -17,6 +17,23 @@ class _MetricTilePageState extends State<MetricTilePage> {
   double _playgroundGap = 12;
   bool _playgroundUniformHeight = true;
   bool _playgroundCompact = false;
+  final _playgroundVariant = ValueNotifier<String?>(_noVariant);
+
+  static const _noVariant = 'default';
+
+  TVariant? get _variant => _playgroundVariant.value == _noVariant ? null : TVariant.values.byName(_playgroundVariant.value!);
+
+  @override
+  void initState() {
+    super.initState();
+    _playgroundVariant.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _playgroundVariant.dispose();
+    super.dispose();
+  }
 
   // Selected tile for TTile active state demo
   int _selectedTileIndex = 0;
@@ -947,13 +964,8 @@ TTile(
                 _buildTileContainer(
                   context,
                   child: TTile.sm(
-                    leading: TImage(
-                      url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100',
-                      width: 50,
-                      height: 50,
-                      border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    title: 'Nike Air Max (sm • 50px image • 14px font)',
+                    imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100',
+                    title: 'Nike Air Max',
                     subtitle: 'SKU: NK-AIR-90 • In Stock (120 units)',
                     desc: 'Short note fits beside the 50px image below subtitle.',
                     trailing: const TChip(text: '\$129.99', color: Colors.blue),
@@ -963,18 +975,24 @@ TTile(
                 const SizedBox(height: 12),
                 _buildTileContainer(
                   context,
+                  child: TTile(
+                    size: TTileSize.md.copyWith(fontWeight: FontWeight.w800, subtitleFontWeight: FontWeight.w600),
+                    imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=150',
+                    title: 'Custom font weights',
+                    subtitle: 'TTileSize.fontWeight / subtitleFontWeight',
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildTileContainer(
+                  context,
                   child: TTile.md(
-                    leading: TImage(
-                      url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150',
-                      width: 75,
-                      height: 75,
-                      border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    title: 'Minimalist Chrono Watch (md • 75px image • 16px font)',
+                    imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150',
+                    title: 'Minimalist Chrono Watch',
                     subtitle: 'SKU: WT-CHR-01 • Genuine Leather Strap',
                     desc:
                         'Detailed multi-line specification that exceeds image height automatically flows below the image across the full tile width.',
-                    trailing: const TBadge(label: '\$249.00', color: Colors.teal),
+                    trailing: const TChip(text: '\$249.00', color: Colors.teal),
                     crossAxisAlignment: CrossAxisAlignment.start,
                   ),
                 ),
@@ -982,17 +1000,13 @@ TTile(
                 _buildTileContainer(
                   context,
                   child: TTile.lg(
-                    leading: TImage(
-                      url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200',
-                      width: 100,
-                      height: 100,
-                      border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    title: 'Wireless Studio Headphones (lg • 100px image • 18px font)',
-                    subtitle: 'SKU: HP-ST-PRO • Active Noise Cancellation',
+                    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200',
+                    title: 'Wireless Studio Headphones',
+                    subtitle: 'SKU: HP-ST-PRO',
                     desc:
                         'Full specifications: 40mm neodymium drivers, 30-hour battery life, fast charging via USB-C, memory foam cushions.',
-                    trailing: const TBadge(label: '\$349.50', color: Colors.purple),
+                    trailing: const TChip(text: '\$349.50', color: Colors.purple),
+
                     crossAxisAlignment: CrossAxisAlignment.start,
                   ),
                 ),
@@ -1000,12 +1014,7 @@ TTile(
             ),
             code: '''// Small product tile (50px image, 14px title font, start-aligned)
 TTile.sm(
-  leading: TImage(
-    url: 'https://.../shoe.jpg',
-    width: 50,
-    height: 50,
-    border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-  ),
+  imageUrl: 'https://.../shoe.jpg',
   title: 'Nike Air Max',
   subtitle: 'SKU: NK-AIR-90 • In Stock (120 units)',
   desc: 'Short note fits beside the image below subtitle.',
@@ -1014,12 +1023,7 @@ TTile.sm(
 
 // Medium product tile (75px image, 16px title font, start-aligned)
 TTile.md(
-  leading: TImage(
-    url: 'https://.../watch.jpg',
-    width: 75,
-    height: 75,
-    border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-  ),
+  imageUrl: 'https://.../watch.jpg',
   title: 'Minimalist Chrono Watch',
   subtitle: 'SKU: WT-CHR-01 • Genuine Leather Strap',
   desc: 'Detailed specs exceeding image height flow below the image container.',
@@ -1028,12 +1032,7 @@ TTile.md(
 
 // Large product tile (100px image, 18px title font, start-aligned)
 TTile.lg(
-  leading: TImage(
-    url: 'https://.../headphones.jpg',
-    width: 100,
-    height: 100,
-    border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  ),
+  imageUrl: 'https://.../headphones.jpg',
   title: 'Wireless Studio Headphones',
   subtitle: 'SKU: HP-ST-PRO • Active Noise Cancellation',
   desc: 'Full specifications: 40mm neodymium drivers, 30-hour battery life, USB-C fast charging.',
@@ -1058,6 +1057,13 @@ TTile.lg(
                 description:
                     'Smart description: automatically renders beside the image below subtitle if total text height fits within image height, or moves below image across full width if it exceeds image height.',
               ),
+              PropertyDoc(
+                name: 'imageUrl',
+                type: 'String?',
+                description:
+                    'Network image rendered as the leading thumbnail, sized by size.icon. Overridden by leading; takes precedence over icon.',
+              ),
+              PropertyDoc(name: 'leading', type: 'dynamic', description: 'Custom leading widget or icon. Overrides imageUrl and icon.'),
               PropertyDoc(name: 'descWidget', type: 'Widget?', description: 'Custom widget replacing the default description text.'),
               PropertyDoc(name: 'descStyle', type: 'TextStyle?', description: 'Custom text style for the description.'),
             ],
@@ -1269,11 +1275,7 @@ TTile(
               runSpacing: 16,
               children: [
                 for (final level in TCardShadow.values)
-                  TTile.h5(
-                    icon: Icons.layers_outlined,
-                    title: 'TCardShadow.${level.name}',
-                    subtitle: 'Shadow level',
-                  ).card(shadow: level),
+                  TTile.h5(icon: Icons.layers_outlined, title: 'TCardShadow.${level.name}', subtitle: 'Shadow level').card(shadow: level),
               ],
             ),
             code: '''// Tiles shrink to fit when there is no trailing widget,
@@ -1285,9 +1287,24 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Flat', subtitle: 'none')
 TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
     .cardSm();''',
             properties: const [
-              PropertyDoc(name: 'shadow', type: 'TCardShadow', defaultValue: 'TCardShadow.none', description: 'Preset shadow depth: none, sm, md, lg.'),
-              PropertyDoc(name: 'padding', type: 'EdgeInsetsGeometry', defaultValue: 'EdgeInsets.all(12)', description: 'Inner padding of the card.'),
-              PropertyDoc(name: 'margin', type: 'EdgeInsetsGeometry', defaultValue: 'EdgeInsets.zero', description: 'Outer margin of the card.'),
+              PropertyDoc(
+                name: 'shadow',
+                type: 'TCardShadow',
+                defaultValue: 'TCardShadow.none',
+                description: 'Preset shadow depth: none, sm, md, lg.',
+              ),
+              PropertyDoc(
+                name: 'padding',
+                type: 'EdgeInsetsGeometry',
+                defaultValue: 'EdgeInsets.all(12)',
+                description: 'Inner padding of the card.',
+              ),
+              PropertyDoc(
+                name: 'margin',
+                type: 'EdgeInsetsGeometry',
+                defaultValue: 'EdgeInsets.zero',
+                description: 'Outer margin of the card.',
+              ),
             ],
           ),
 
@@ -1334,7 +1351,12 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
   trailing: TBadge(label: '12', color: context.theme.primary),
 ).card(padding: const EdgeInsets.all(16))''',
             properties: const [
-              PropertyDoc(name: 'iconOnTop', type: 'bool', defaultValue: 'false', description: 'Stacks the icon above the title/subtitle/desc instead of beside them.'),
+              PropertyDoc(
+                name: 'iconOnTop',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Stacks the icon above the title/subtitle/desc instead of beside them.',
+              ),
             ],
           ),
 
@@ -1379,7 +1401,12 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
               PropertyDoc(name: 'imageUrl', type: 'String?', description: 'Leading product thumbnail.'),
               PropertyDoc(name: 'size', type: 'TSize', defaultValue: 'TTileSize.h5', description: 'Header tile size (h1-h6, sm, md, lg).'),
               PropertyDoc(name: 'trailing', type: 'Widget?', description: 'Always-visible widget before the expand arrow, e.g. a price.'),
-              PropertyDoc(name: 'iconOnTop', type: 'bool', defaultValue: 'false', description: 'Stack the icon above the title in the header.'),
+              PropertyDoc(
+                name: 'iconOnTop',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Stack the icon above the title in the header.',
+              ),
             ],
           ),
 
@@ -1686,6 +1713,16 @@ TTile.task(
                   ),
                 ),
 
+                // Variant Select
+                SizedBox(
+                  width: 200,
+                  child: TSelect<String, String, String>(
+                    label: 'Variant',
+                    items: [_noVariant, for (final v in TVariant.values) v.name],
+                    valueNotifier: _playgroundVariant,
+                  ),
+                ),
+
                 // Columns Dropdown / Selector
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1747,6 +1784,7 @@ TTile.task(
               children: [
                 TMetricTile(
                   compact: _playgroundCompact,
+                  type: _variant,
                   label: 'Total Revenue',
                   value: '\$148,290.00',
                   subtitle: '+14.2% from prior period',
@@ -1758,6 +1796,7 @@ TTile.task(
                 ),
                 TMetricTile(
                   compact: _playgroundCompact,
+                  type: _variant,
                   label: 'New Customers',
                   value: '1,842',
                   subtitle: '89 acquired via referral program',
@@ -1770,6 +1809,7 @@ TTile.task(
                 ),
                 TMetricTile(
                   compact: _playgroundCompact,
+                  type: _variant,
                   label: 'Server Load',
                   value: '84.2%',
                   subtitle: 'Noticeable CPU spike in cluster node 4',
@@ -1782,6 +1822,7 @@ TTile.task(
                 ),
                 TMetricTile(
                   compact: _playgroundCompact,
+                  type: _variant,
                   label: 'Pending Approvals',
                   value: '19',
                   subtitle: 'Requires supervisor sign-off',
@@ -1792,6 +1833,7 @@ TTile.task(
                 ),
                 TMetricTile(
                   compact: _playgroundCompact,
+                  type: _variant,
                   label: 'Fulfillment Rate',
                   value: '99.4%',
                   subtitle: 'Avg ship duration: 1.2 business days',
@@ -1802,6 +1844,7 @@ TTile.task(
                 ),
                 TMetricTile(
                   compact: _playgroundCompact,
+                  type: _variant,
                   label: 'Customer CSAT',
                   value: '4.9 / 5.0',
                   subtitle: 'Based on 2,420 customer feedback surveys',

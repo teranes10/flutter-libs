@@ -20,7 +20,12 @@ class KeyValuePage extends StatelessWidget {
 
     final specializedValues = [
       TKeyValue.text('Product Name', 'Pro Wireless Headphones', icon: const Icon(Icons.headphones_rounded, size: 14)),
-      TKeyValue.image('Thumbnail', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100', size: 36, borderRadius: BorderRadius.circular(6)),
+      TKeyValue.image(
+        'Thumbnail',
+        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100',
+        size: 36,
+        borderRadius: BorderRadius.circular(6),
+      ),
       TKeyValue.chip('Stock Status', 'In Stock', color: Colors.green),
       TKeyValue.chips('Tags', ['Wireless', 'Noise-Cancelling', 'USB-C'], color: Colors.blue),
       TKeyValue.rating('User Rating', 4.5),
@@ -66,12 +71,7 @@ class KeyValuePage extends StatelessWidget {
             description:
                 'Mirroring TTableHeader, TKeyValue provides dedicated factory constructors for datetime, image, chip, chips, rating, progress, toggle, and color without manual widget boilerplate.',
             icon: Icons.auto_awesome_rounded,
-            preview: TKeyValueSection.columnsInline(
-              values: specializedValues,
-              columns: 2,
-              hSpacing: 24,
-              vSpacing: 14,
-            ),
+            preview: TKeyValueSection.columnsInline(values: specializedValues, columns: 2, hSpacing: 24, vSpacing: 14),
             code: '''final values = [
   TKeyValue.text('Product Name', 'Pro Wireless Headphones', icon: const Icon(Icons.headphones_rounded, size: 14)),
   TKeyValue.image('Thumbnail', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100', size: 36, borderRadius: BorderRadius.circular(6)),
@@ -90,7 +90,11 @@ TKeyValueSection.columnsInline(values: values, columns: 2);''',
               PropertyDoc(name: 'TKeyValue.datetime', type: 'factory', description: 'Formats UTC/ISO dates with TDateTimeText.'),
               PropertyDoc(name: 'TKeyValue.image', type: 'factory', description: 'Renders remote or memory images with TImage.'),
               PropertyDoc(name: 'TKeyValue.chip', type: 'factory', description: 'Displays a single status chip with TChip.'),
-              PropertyDoc(name: 'TKeyValue.chips', type: 'factory', description: 'Displays multiple chips wrapped with custom colors/icons.'),
+              PropertyDoc(
+                name: 'TKeyValue.chips',
+                type: 'factory',
+                description: 'Displays multiple chips wrapped with custom colors/icons.',
+              ),
               PropertyDoc(name: 'TKeyValue.rating', type: 'factory', description: 'Renders star ratings using TRating.'),
               PropertyDoc(name: 'TKeyValue.progress', type: 'factory', description: 'Renders progress bars using TProgressBar.'),
               PropertyDoc(name: 'TKeyValue.toggle', type: 'factory', description: 'Interactive or read-only switch using TSwitch.'),

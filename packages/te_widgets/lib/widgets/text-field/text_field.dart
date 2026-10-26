@@ -206,6 +206,7 @@ class TTextField<T extends String?> extends StatefulWidget
   /// focus ready for the next scan. [onCameraTap] adds a camera scan button.
   factory TTextField.scan({
     Key? key,
+    T? value,
     String? label,
     String? placeholder = 'Scan or type',
     required ValueChanged<String> onScan,
@@ -213,18 +214,21 @@ class TTextField<T extends String?> extends StatefulWidget
     TInputSize? size,
     bool autoFocus = true,
     bool disabled = false,
+    bool readOnly = false,
     String? helperText,
     FocusNode? focusNode,
     TextEditingController? textController,
   }) {
     return TTextField<T>(
       key: key,
+      value: value,
       label: label,
       placeholder: placeholder,
       helperText: helperText,
       size: size,
       autoFocus: autoFocus,
       disabled: disabled,
+      readOnly: readOnly,
       focusNode: focusNode,
       textController: textController,
       textInputAction: TextInputAction.done,

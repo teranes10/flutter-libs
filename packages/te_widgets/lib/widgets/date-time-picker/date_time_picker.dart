@@ -259,7 +259,17 @@ class _TDateTimePickerState extends State<TDateTimePicker>
     return buildWithDropdownTarget(
       child: buildTextField(
         hasValue: currentValue != null,
-        beforePreWidget: TIcon.raw(HugeIcons.strokeRoundedDateTime, size: 16, color: colors.onSurfaceVariant),
+        beforePreWidget: TIcon.raw(HugeIcons.strokeRoundedDateTime,
+            size: 16,
+            color: colors.onSurfaceVariant,
+            onTap: widget.disabled
+                ? null
+                : () {
+                    setState(() => _currentTabIndex = 0);
+                    showPopup(context);
+                  },
+            semanticLabel: 'Open date and time picker',
+            semanticIdentifier: 'date-time-picker-open'),
         onClear: () {
           setState(() {
             _selectedDate = null;

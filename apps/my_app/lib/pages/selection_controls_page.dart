@@ -69,12 +69,16 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
           // Interactive OptionTile Archetypes
           WidgetDocCard(
             title: 'Option Tiles (TOptionTile)',
-            description: 'Full-width touch-friendly rows (min 56dp height) with leading icons, labels, descriptions, and radio/check/toggle indicators.',
+            description:
+                'Full-width touch-friendly rows (min 56dp height) with leading icons, labels, descriptions, and radio/check/toggle indicators.',
             icon: Icons.view_stream_rounded,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Single Choice (Radio Indicator)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface)),
+                Text(
+                  'Single Choice (Radio Indicator)',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface),
+                ),
                 const SizedBox(height: 8),
                 TOptionTile(
                   label: 'Credit / Debit Card',
@@ -94,7 +98,10 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
                   onTap: () => setState(() => _selectedPayment = 'wallet'),
                 ),
                 const SizedBox(height: 20),
-                Text('Multiple Choice (Check Indicator)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface)),
+                Text(
+                  'Multiple Choice (Check Indicator)',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface),
+                ),
                 const SizedBox(height: 8),
                 TOptionTile(
                   label: 'Package Insurance',
@@ -130,7 +137,10 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
                   },
                 ),
                 const SizedBox(height: 20),
-                Text('Toggle Switch Indicator', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface)),
+                Text(
+                  'Toggle Switch Indicator',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface),
+                ),
                 const SizedBox(height: 8),
                 TOptionTile(
                   label: 'Order Status Alerts',
@@ -175,7 +185,12 @@ TOptionTile(
               PropertyDoc(name: 'label', type: 'String', isRequired: true, description: 'Primary text displayed on the tile'),
               PropertyDoc(name: 'description', type: 'String?', description: 'Secondary text displayed underneath the label'),
               PropertyDoc(name: 'leading', type: 'Widget?', description: 'Optional leading widget (e.g. an icon or avatar)'),
-              PropertyDoc(name: 'selected', type: 'bool', isRequired: true, description: 'Whether the option tile is currently active / selected'),
+              PropertyDoc(
+                name: 'selected',
+                type: 'bool',
+                isRequired: true,
+                description: 'Whether the option tile is currently active / selected',
+              ),
               PropertyDoc(
                 name: 'indicator',
                 type: 'TOptionIndicator',
@@ -183,7 +198,12 @@ TOptionTile(
                 description: 'Selection indicator drawn on the right (radio, check, or toggle)',
               ),
               PropertyDoc(name: 'color', type: 'Color?', description: 'Accent color for active background and border'),
-              PropertyDoc(name: 'disabled', type: 'bool', defaultValue: 'false', description: 'Whether the tile is disabled with dimmed opacity'),
+              PropertyDoc(
+                name: 'disabled',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether the tile is disabled with dimmed opacity',
+              ),
               PropertyDoc(name: 'onTap', type: 'VoidCallback?', description: 'Callback fired on tap with haptic feedback'),
             ],
           ),
@@ -214,12 +234,7 @@ TOptionTile(
                   disabled: true,
                 ),
                 const SizedBox(height: 8),
-                TOptionTile(
-                  label: 'Compact Title Only (No Description)',
-                  indicator: TOptionIndicator.radio,
-                  selected: true,
-                  onTap: () {},
-                ),
+                TOptionTile(label: 'Compact Title Only (No Description)', indicator: TOptionIndicator.radio, selected: true, onTap: () {}),
               ],
             ),
             code: '''// Custom Accent Color
@@ -279,8 +294,18 @@ TOptionTile(
                 defaultValue: 'false',
                 description: 'Renders each option as a full-width 56dp selectable TOptionTile (always vertical)',
               ),
-              PropertyDoc(name: 'clearable', type: 'bool', defaultValue: 'false', description: 'Whether to show a clear button when items are selected'),
-              PropertyDoc(name: 'items', type: 'List<TCheckboxGroupItem<T>>', isRequired: true, description: 'List of checkbox group items'),
+              PropertyDoc(
+                name: 'clearable',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Whether to show a clear button when items are selected',
+              ),
+              PropertyDoc(
+                name: 'items',
+                type: 'List<TCheckboxGroupItem<T>>',
+                isRequired: true,
+                description: 'List of checkbox group items',
+              ),
               PropertyDoc(name: 'valueNotifier', type: 'ValueNotifier<List<T>?>?', description: 'Two-way binding notifier'),
             ],
           ),
@@ -758,9 +783,7 @@ TCheckboxGroup<String>(
                 TRadioGroupItem(value: 'pro', label: 'Professional'),
                 TRadioGroupItem(value: 'enterprise', label: 'Enterprise'),
               ],
-              rules: [
-                (val) => (val == null || val.isEmpty) ? 'Please select a membership tier' : null,
-              ],
+              rules: [(val) => (val == null || val.isEmpty) ? 'Please select a membership tier' : null],
             ),
             code: '''TRadioGroup<String>(
   label: 'Membership Tier',

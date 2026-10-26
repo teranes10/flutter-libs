@@ -46,6 +46,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
             itemsPerPageOptions: widget.config.itemsPerPageOptions,
             rowBuilder: widget.rowBuilder,
             rowColorBuilder: widget.rowColorBuilder,
+            mobileCardBuilder: widget.mobileCardBuilder ?? _defaultMobileCard,
             details: (widget.expandedDetails != null)
                 ? widget.expandedDetails!.copyWith(
                     mode: effectiveExpansionMode,
@@ -60,6 +61,8 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
                     createSideOverlayMinWidth: effectiveCreateSideOverlayMinWidth,
                     createSideOverlayMaxWidth: effectiveCreateSideOverlayMaxWidth,
                     createSideOverlayWidthRatio: effectiveCreateSideOverlayWidthRatio,
+                    showExpandIcon: false,
+                    expandOnRowTap: false,
                   )
                 : TTableDetails<T, K>(
                     mode: effectiveExpansionMode,
@@ -74,21 +77,28 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
                     createSideOverlayMinWidth: effectiveCreateSideOverlayMinWidth,
                     createSideOverlayMaxWidth: effectiveCreateSideOverlayMaxWidth,
                     createSideOverlayWidthRatio: effectiveCreateSideOverlayWidthRatio,
-                    builder: widget.expandedBuilder,
+                    showExpandIcon: false,
+                    expandOnRowTap: false,
+                    builder: widget.expandedBuilder ?? (ctx, item, index) => _defaultDetails(ctx, headers, item, index),
                     createBuilder: _buildInlineCreateBuilder(),
                     itemTitle: widget.itemTitle,
                     itemSubTitle: widget.itemSubTitle,
                     itemDescription: widget.itemDescription,
                     itemImageUrl: widget.itemImageUrl,
                     itemInfo: widget.itemInfo,
+                    itemHighlights: widget.itemHighlights,
                     itemInfoGridInline: widget.itemInfoGridInline,
                     actions: (item) {
                       final buttonItems = controller == listController
                           ? _buildActiveActionButtons(theme, item)
                           : (controller == archiveListController ? _buildArchiveActionButtons(theme, item) : <TButtonGroupItem>[]);
                       final isMobile = context.isMobile;
+                      // The details panel is already the view, so its header omits the View action.
                       return buttonItems
-                          .map((b) => IconButton(
+                          .where((b) => b.tooltip != 'View')
+                          .map((b) => Semantics(
+                              identifier: b.semanticIdentifier,
+                              child: IconButton(
                                 icon: Icon(b.icon),
                                 iconSize: 24,
                                 padding: EdgeInsets.all(isMobile ? 4 : 8),
@@ -96,7 +106,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
                                 color: b.color,
                                 tooltip: b.tooltip,
                                 onPressed: b.onPressed != null ? () => b.onPressed!(TButtonPressOptions(stopLoading: () {})) : null,
-                              ))
+                              )))
                           .toList();
                     },
                   ),
@@ -112,6 +122,75 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         (_) => buildTable(headers: _buildArchiveHeaders(theme), controller: archiveListController),
         ...widget.config.tabContents.map((x) => (_) => buildTable(headers: x.headers, controller: x.controller))
       ],
+    );
+  }
+
+  Widget _defaultMobileCard(BuildContext ctx, TListItem<T, K> item, int index, VoidCallback? onTap) {
+    final children = widget.itemChildren?.call(item.data);
+    final hasChildren = children != null && children.isNotEmpty;
+
+    return TTile(
+      title: widget.itemTitle?.call(item.data),
+      subtitle: widget.itemSubTitle?.call(item.data),
+      imageUrl: widget.itemImageUrl?.call(item.data),
+      iconSize: 56,
+      spacing: 12,
+      trailing: hasChildren ? TChip(text: '${children.length}', size: TChipSize.sm, type: TVariant.tonal) : null,
+    ).card(
+      padding: const EdgeInsetsGeometry.all(8),
+      onTap: hasChildren ? () => _openChildrenPage(ctx, item, children) : onTap,
+    );
+  }
+
+  /// Hierarchical items drill down on cards: each level is its own page that
+  /// lists the children of the tapped item with the same table configuration.
+  void _openChildrenPage(BuildContext ctx, TListItem<T, K> item, List<T> children) {
+    final hasTabs = widget.config.tabs != null || widget.config.tabContents.isNotEmpty;
+    Navigator.of(ctx).push(
+      MaterialPageRoute<void>(
+        builder: (_) => Scaffold(
+          appBar: AppBar(title: Text(widget.itemTitle?.call(item.data) ?? '')),
+          body: TCrudTable<T, K, F>(
+            headers: widget.headers,
+            items: children,
+            itemKey: _listController.itemKey,
+            itemChildren: widget.itemChildren,
+            createForm: widget.createForm,
+            editForm: widget.editForm,
+            onCreate: widget.onCreate,
+            onView: widget.onView,
+            onEdit: widget.onEdit,
+            onArchive: widget.onArchive,
+            onRestore: widget.onRestore,
+            onDelete: widget.onDelete,
+            config: hasTabs ? const TCrudConfig() : widget.config,
+            expandedBuilder: widget.expandedBuilder,
+            expandedDetails: widget.expandedDetails,
+            expansionMode: widget.expansionMode,
+            createMode: widget.createMode,
+            itemTitle: widget.itemTitle,
+            itemSubTitle: widget.itemSubTitle,
+            itemDescription: widget.itemDescription,
+            itemImageUrl: widget.itemImageUrl,
+            itemInfo: widget.itemInfo,
+            itemHighlights: widget.itemHighlights,
+            itemInfoGridInline: widget.itemInfoGridInline,
+            theme: widget.theme,
+            rowBuilder: widget.rowBuilder,
+            rowColorBuilder: widget.rowColorBuilder,
+            mobileCardBuilder: widget.mobileCardBuilder,
+            filters: widget.filters,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _defaultDetails(BuildContext ctx, List<TTableHeader<T, K>> headers, TListItem<T, K> item, int index) {
+    return TKeyValueSection(
+      theme: ctx.theme.tableTheme.mobileCardTheme,
+      mode: cardKeyValueMode,
+      values: TKeyValue.mapHeaders(ctx, headers.where((h) => h.showInDetails).toList(), item, index),
     );
   }
 
@@ -134,7 +213,9 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
             final menuButtons = buttons.where((b) => !b.showFlat).toList();
 
             final result = <TButtonGroupItem>[...flatButtons];
-            if (menuButtons.isNotEmpty) {
+            if (menuButtons.length == 1) {
+              result.add(menuButtons.first);
+            } else if (menuButtons.isNotEmpty) {
               result.add(TButtonGroupItem(
                 child: _buildActionMenu(context, theme, menuButtons),
               ));
@@ -169,7 +250,9 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
             final menuButtons = buttons.where((b) => !b.showFlat).toList();
 
             final result = <TButtonGroupItem>[...flatButtons];
-            if (menuButtons.isNotEmpty) {
+            if (menuButtons.length == 1) {
+              result.add(menuButtons.first);
+            } else if (menuButtons.isNotEmpty) {
               result.add(TButtonGroupItem(
                 child: _buildActionMenu(context, theme, menuButtons),
               ));
@@ -212,10 +295,16 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
           ),
-          child: Icon(
-            Icons.more_vert,
-            size: 20,
-            color: context.colors.onSurfaceVariant,
+          child: Semantics(
+            button: true,
+            label: 'More actions',
+            identifier: 'row-action-menu',
+            excludeSemantics: true,
+            child: Icon(
+              Icons.more_vert,
+              size: 20,
+              color: context.colors.onSurfaceVariant,
+            ),
           ),
         ),
       ),
@@ -225,7 +314,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   int _activeActionsCount() {
     int count = 0;
 
-    if (widget.onView != null) {
+    if (canView) {
       count++;
     }
     if (canEdit) {
@@ -244,7 +333,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     int flat = 0;
     int menu = 0;
 
-    if (widget.onView != null) {
+    if (canView) {
       widget.config.canViewFlat ? flat++ : menu++;
     }
     if (canEdit) {
@@ -264,19 +353,21 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   List<TButtonGroupItem> _buildActiveActionButtons(TWidgetThemeExtension theme, T item) {
     final buttons = <TButtonGroupItem>[];
 
-    if (widget.onView != null && canPerformActionSync(item, widget.config.canView)) {
+    if (canView && canPerformActionSync(item, widget.config.canView)) {
       buttons.add(TButtonGroupItem(
         tooltip: 'View',
+        semanticIdentifier: 'row-action-view',
         icon: Icons.visibility,
         color: theme.success,
         showFlat: widget.config.canViewFlat,
-        onPressed: (_) => handleView(item),
+        onPressed: (_) => handleView(item, _listController),
       ));
     }
 
     if (canEdit && canPerformActionSync(item, widget.config.canEdit)) {
       buttons.add(TButtonGroupItem(
         tooltip: 'Edit',
+        semanticIdentifier: 'row-action-edit',
         icon: Icons.edit,
         color: theme.info,
         showFlat: widget.config.canEditFlat,
@@ -287,6 +378,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     if (widget.onArchive != null && canPerformActionSync(item, widget.config.canArchive)) {
       buttons.add(TButtonGroupItem(
         tooltip: 'Archive',
+        semanticIdentifier: 'row-action-archive',
         icon: Icons.archive,
         color: theme.danger,
         showFlat: widget.config.canArchiveFlat,
@@ -298,6 +390,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       if (canPerformActionSync(item, action.canPerform)) {
         buttons.add(TButtonGroupItem(
           tooltip: action.tooltip,
+          semanticIdentifier: 'row-action-${action.tooltip.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')}',
           icon: action.icon,
           color: action.color,
           showFlat: action.showFlat,
@@ -312,7 +405,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   int _archiveActionsCount() {
     int count = 0;
 
-    if (widget.onView != null) {
+    if (canView) {
       count++;
     }
     if (widget.onRestore != null) {
@@ -331,7 +424,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     int flat = 0;
     int menu = 0;
 
-    if (widget.onView != null) {
+    if (canView) {
       widget.config.canViewFlat ? flat++ : menu++;
     }
     if (widget.onRestore != null) {
@@ -352,13 +445,14 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     final buttons = <TButtonGroupItem>[];
 
     // View action
-    if (widget.onView != null && canPerformActionSync(item, widget.config.canView)) {
+    if (canView && canPerformActionSync(item, widget.config.canView)) {
       buttons.add(TButtonGroupItem(
         tooltip: 'View',
+        semanticIdentifier: 'row-action-view',
         icon: Icons.visibility,
         color: theme.success,
         showFlat: widget.config.canViewFlat,
-        onPressed: (_) => handleView(item),
+        onPressed: (_) => handleView(item, _archiveListController),
       ));
     }
 
@@ -366,6 +460,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     if (widget.onRestore != null && canPerformActionSync(item, widget.config.canRestore)) {
       buttons.add(TButtonGroupItem(
         tooltip: 'Restore',
+        semanticIdentifier: 'row-action-restore',
         icon: Icons.restore,
         color: theme.info,
         showFlat: widget.config.canRestoreFlat,
@@ -377,6 +472,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     if (widget.onDelete != null && canPerformActionSync(item, widget.config.canDelete)) {
       buttons.add(TButtonGroupItem(
         tooltip: 'Delete',
+        semanticIdentifier: 'row-action-delete',
         icon: Icons.delete_forever,
         color: theme.danger,
         showFlat: widget.config.canDeleteFlat,
@@ -389,6 +485,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       if (canPerformActionSync(item, action.canPerform)) {
         buttons.add(TButtonGroupItem(
           tooltip: action.tooltip,
+          semanticIdentifier: 'row-action-${action.tooltip.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')}',
           icon: action.icon,
           color: action.color,
           showFlat: action.showFlat,

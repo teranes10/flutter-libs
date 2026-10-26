@@ -11,30 +11,30 @@ class CardPage extends StatelessWidget {
     final t = context.theme;
 
     Widget section(String title, String desc, Widget child) => Padding(
-          padding: const EdgeInsets.only(bottom: 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 4),
-              Text(desc, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant)),
-              const SizedBox(height: 16),
-              child,
-            ],
-          ),
-        );
+      padding: const EdgeInsets.only(bottom: 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 4),
+          Text(desc, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant)),
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
 
     Widget sample(String label, Widget card, {double width = 220}) => SizedBox(
-          width: width,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: theme.textTheme.labelMedium?.copyWith(color: colors.onSurfaceVariant)),
-              const SizedBox(height: 8),
-              card,
-            ],
-          ),
-        );
+      width: width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: theme.textTheme.labelMedium?.copyWith(color: colors.onSurfaceVariant)),
+          const SizedBox(height: 8),
+          card,
+        ],
+      ),
+    );
 
     Widget body(String text) => Text(text, style: theme.textTheme.bodyMedium);
 
@@ -99,19 +99,13 @@ class CardPage extends StatelessWidget {
                 ),
                 sample(
                   'Large radius',
-                  body('Radius 20').card(
-                    shadow: TCardShadow.sm,
-                    borderRadius: BorderRadius.circular(20),
-                    padding: const EdgeInsets.all(20),
-                  ),
+                  body(
+                    'Radius 20',
+                  ).card(shadow: TCardShadow.sm, borderRadius: BorderRadius.circular(20), padding: const EdgeInsets.all(20)),
                 ),
                 sample(
                   'Square',
-                  body('Radius 0').card(
-                    shadow: TCardShadow.sm,
-                    borderRadius: BorderRadius.zero,
-                    padding: const EdgeInsets.all(20),
-                  ),
+                  body('Radius 0').card(shadow: TCardShadow.sm, borderRadius: BorderRadius.zero, padding: const EdgeInsets.all(20)),
                 ),
                 sample(
                   'Dark surface',
@@ -155,8 +149,7 @@ class CardPage extends StatelessWidget {
               children: [
                 sample(
                   'Compact tile',
-                  TTile.h5(icon: Icons.analytics_outlined, iconColor: t.info, title: 'Analytics', subtitle: 'Updated 2m ago')
-                      .card(),
+                  TTile.h5(icon: Icons.analytics_outlined, iconColor: t.info, title: 'Analytics', subtitle: 'Updated 2m ago').card(),
                   width: 260,
                 ),
                 sample(
@@ -194,6 +187,80 @@ class CardPage extends StatelessWidget {
                     total: 6,
                   ).card(padding: EdgeInsets.zero),
                   width: 340,
+                ),
+              ],
+            ),
+          ),
+
+          section(
+            'Entity cards',
+            'Product, customer and order cards composed from TTile, TChip and .card().',
+            Wrap(
+              spacing: 24,
+              runSpacing: 24,
+              children: [
+                sample(
+                  'Product card',
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TTile.h4(
+                        icon: Icons.inventory_2_outlined,
+                        iconColor: t.primary,
+                        title: 'Wireless Headphones',
+                        subtitle: 'Electronics',
+                        trailing: TChip(text: '\$129.00', size: TChipSize.sm, type: TVariant.text, color: t.success),
+                        valuesMode: TKeyValueMode.inlineColumns,
+                        values: [
+                          TKeyValue('SKU', value: 'WH-1000-BLK', icon: Icons.tag_rounded),
+                          TKeyValue('Barcode', value: '4006381333931', icon: Icons.qr_code_2_rounded),
+                        ],
+                      ),
+                    ],
+                  ).card(),
+                  width: 320,
+                ),
+                sample(
+                  'Customer card',
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TTile.h4(
+                        icon: Icons.person_outline_rounded,
+                        iconColor: t.info,
+                        title: 'Jane Doe',
+                        subtitle: 'Customer',
+                        trailing: TChip(text: 'VIP', size: TChipSize.sm, type: TVariant.tonal, color: t.warning),
+                        valuesMode: TKeyValueMode.inlineColumns,
+                        values: [
+                          TKeyValue('Email', value: 'jane.doe@example.com', icon: Icons.email_outlined),
+                          TKeyValue('Phone', value: '+1 555 010 2030', icon: Icons.phone_outlined),
+                        ],
+                      ),
+                    ],
+                  ).card(),
+                  width: 320,
+                ),
+                sample(
+                  'Order card',
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TTile.h4(
+                        icon: Icons.receipt_long_outlined,
+                        iconColor: t.primary,
+                        title: 'SO-10452',
+                        subtitle: 'Oct 24, 2026',
+                        trailing: TChip(text: 'Shipped', size: TChipSize.sm, type: TVariant.tonal, color: t.success),
+                        valuesMode: TKeyValueMode.inlineColumns,
+                        values: [
+                          TKeyValue('Customer', value: 'Jane Doe', icon: Icons.person_outline_rounded),
+                          TKeyValue('Total', value: '\$258.00', icon: Icons.payments_outlined),
+                        ],
+                      ),
+                    ],
+                  ).card(),
+                  width: 320,
                 ),
               ],
             ),

@@ -131,29 +131,11 @@ class _KanbanPageState extends State<KanbanPage> {
           // Reordering inside the same column
           final items = List<TKanbanCardItem<String>>.from(c.items)..remove(item);
           items.insert(insertAt.clamp(0, items.length), item);
-          return TKanbanColumn<String>(
-            id: c.id,
-            title: c.title,
-            color: c.color,
-            maxItems: c.maxItems,
-            items: items,
-          );
+          return TKanbanColumn<String>(id: c.id, title: c.title, color: c.color, maxItems: c.maxItems, items: items);
         } else if (c.id == sourceColId) {
-          return TKanbanColumn<String>(
-            id: c.id,
-            title: c.title,
-            color: c.color,
-            maxItems: c.maxItems,
-            items: newSourceItems,
-          );
+          return TKanbanColumn<String>(id: c.id, title: c.title, color: c.color, maxItems: c.maxItems, items: newSourceItems);
         } else if (c.id == targetColId) {
-          return TKanbanColumn<String>(
-            id: c.id,
-            title: c.title,
-            color: c.color,
-            maxItems: c.maxItems,
-            items: newTargetItems,
-          );
+          return TKanbanColumn<String>(id: c.id, title: c.title, color: c.color, maxItems: c.maxItems, items: newTargetItems);
         }
         return c;
       }).toList();
@@ -177,13 +159,7 @@ class _KanbanPageState extends State<KanbanPage> {
     setState(() {
       _columns = _columns.map((c) {
         if (c.id == colId) {
-          return TKanbanColumn<String>(
-            id: c.id,
-            title: c.title,
-            color: c.color,
-            maxItems: c.maxItems,
-            items: [...c.items, newCard],
-          );
+          return TKanbanColumn<String>(id: c.id, title: c.title, color: c.color, maxItems: c.maxItems, items: [...c.items, newCard]);
         }
         return c;
       }).toList();
@@ -203,10 +179,7 @@ class _KanbanPageState extends State<KanbanPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Text(
-            'TKanbanBoard Showcase',
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('TKanbanBoard Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
             'Drag-and-drop workflow status board for sprint planning, ticketing pipelines, '
@@ -220,13 +193,7 @@ class _KanbanPageState extends State<KanbanPage> {
             title: 'Board Controls',
             child: Row(
               children: [
-                TButton(
-                  text: 'Reset Tasks',
-                  icon: Icons.refresh_rounded,
-                  type: TButtonType.outline,
-                  size: TSize.sm,
-                  onTap: _resetBoard,
-                ),
+                TButton(text: 'Reset Tasks', icon: Icons.refresh_rounded, type: TButtonType.outline, size: TSize.sm, onTap: _resetBoard),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Container(
@@ -235,10 +202,7 @@ class _KanbanPageState extends State<KanbanPage> {
                       color: colors.surfaceContainerHighest.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(
-                      'Live Event: $_lastEvent',
-                      style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
-                    ),
+                    child: Text('Live Event: $_lastEvent', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
                   ),
                 ),
               ],

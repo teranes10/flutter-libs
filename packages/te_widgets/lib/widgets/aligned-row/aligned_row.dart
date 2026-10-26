@@ -275,7 +275,24 @@ class RenderAlignedRow extends RenderBox
 
   // ── helpers ────────────────────────────────────────────────────────────────
 
-  bool get _isLegacyExpanded => _expandBelowWidth != null && constraints.maxWidth < _expandBelowWidth!;
+  // Set only while computing dry layout / intrinsics, where children must not
+  // be laid out for real. Holds the dry sizes in place of `RenderBox.size`.
+  Map<RenderBox, Size>? _sandbox;
+  BoxConstraints? _sandboxConstraints;
+
+  bool get _isLegacyExpanded =>
+      _expandBelowWidth != null && (_sandboxConstraints ?? constraints).maxWidth < _expandBelowWidth!;
+
+  Size _sizeOf(RenderBox box) => _sandbox?[box] ?? box.size;
+
+  void _lay(RenderBox box, BoxConstraints c) {
+    final sandbox = _sandbox;
+    if (sandbox != null) {
+      sandbox[box] = box.getDryLayout(c);
+    } else {
+      box.layout(c, parentUsesSize: true);
+    }
+  }
 
   @override
   void setupParentData(RenderBox child) {
@@ -353,15 +370,16 @@ class RenderAlignedRow extends RenderBox
     RenderBox? child = firstChild;
     while (child != null) {
       final pd = child.parentData as _AlignedRowParentData;
-      child.layout(BoxConstraints(maxWidth: maxWidth), parentUsesSize: true);
+      _lay(child, BoxConstraints(maxWidth: maxWidth));
+      final childSize = _sizeOf(child);
 
       // Try to get a more accurate intrinsic width for Text children.
       final textW = _measureTextWidth(child);
-      final intrinsicWidth = textW ?? child.size.width;
+      final intrinsicWidth = textW ?? childSize.width;
 
       out.add((
         box: child,
-        size: child.size,
+        size: childSize,
         isRight: pd.isRight,
         intrinsicWidth: intrinsicWidth,
       ));
@@ -377,7 +395,7 @@ class RenderAlignedRow extends RenderBox
     return items.fold(0.0, (s, c) => s + c.intrinsicWidth) + _spacing * (items.length - 1);
   }
 
-  double _rowHeight(List<_Child> items) => items.fold(0.0, (m, c) => c.box.size.height > m ? c.box.size.height : m);
+  double _rowHeight(List<_Child> items) => items.fold(0.0, (m, c) => _sizeOf(c.box).height > m ? _sizeOf(c.box).height : m);
 
   double _childY(double rowY, double rowH, double childH) => switch (_crossAxisAlignment) {
         CrossAxisAlignment.center => rowY + (rowH - childH) / 2,
@@ -401,8 +419,8 @@ class RenderAlignedRow extends RenderBox
       final slotW = (maxWidth - _spacing * (items.length - 1)) / items.length;
       double x = 0;
       for (final c in items) {
-        c.box.layout(BoxConstraints.tightFor(width: slotW), parentUsesSize: true);
-        final cy = _childY(y, rowH, c.box.size.height);
+        _lay(c.box, BoxConstraints.tightFor(width: slotW));
+        final cy = _childY(y, rowH, _sizeOf(c.box).height);
         (c.box.parentData as _AlignedRowParentData).offset = Offset(x, cy);
         x += slotW + _spacing;
       }
@@ -625,9 +643,9 @@ class RenderAlignedRow extends RenderBox
       for (int j = 0; j < row.length; j++) {
         final isLast = j == row.length - 1;
         final slotW = isLast ? baseSlot + remainder : baseSlot;
-        row[j].box.layout(
-              BoxConstraints(minWidth: slotW, maxWidth: slotW, minHeight: 0, maxHeight: double.infinity),
-              parentUsesSize: true,
+        _lay(
+               row[j].box,
+               BoxConstraints(minWidth: slotW, maxWidth: slotW, minHeight: 0, maxHeight: double.infinity),
             );
       }
 
@@ -637,7 +655,7 @@ class RenderAlignedRow extends RenderBox
         for (int j = 0; j < row.length; j++) {
           final isLast = j == row.length - 1;
           final slotW = isLast ? baseSlot + remainder : baseSlot;
-          final cy = _childY(y, rh, row[j].box.size.height);
+          final cy = _childY(y, rh, _sizeOf(row[j].box).height);
           (row[j].box.parentData as _AlignedRowParentData).offset = Offset(x, cy);
           x += slotW + _spacing;
         }
@@ -684,14 +702,14 @@ class RenderAlignedRow extends RenderBox
 
         // Re-layout each child with its assigned slot width.
         for (int j = 0; j < row.length; j++) {
-          row[j].box.layout(
-                BoxConstraints(
+          _lay(
+                 row[j].box,
+                 BoxConstraints(
                   minWidth: slotWidths[j],
                   maxWidth: slotWidths[j],
                   minHeight: 0,
                   maxHeight: double.infinity,
                 ),
-                parentUsesSize: true,
               );
         }
 
@@ -699,7 +717,7 @@ class RenderAlignedRow extends RenderBox
         if (!dry) {
           double x = 0;
           for (int j = 0; j < row.length; j++) {
-            final cy = _childY(y, rh, row[j].box.size.height);
+            final cy = _childY(y, rh, _sizeOf(row[j].box).height);
             (row[j].box.parentData as _AlignedRowParentData).offset = Offset(x, cy);
             x += slotWidths[j] + _spacing;
           }
@@ -801,10 +819,45 @@ class RenderAlignedRow extends RenderBox
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) => defaultHitTestChildren(result, position: position);
 
   @override
-  double computeMinIntrinsicHeight(double width) {
-    final children = _measure(width);
-    return _flow(children, width, true);
+  double computeMinIntrinsicWidth(double height) {
+    var w = 0.0;
+    RenderBox? child = firstChild;
+    while (child != null) {
+      w = w > child.getMinIntrinsicWidth(height) ? w : child.getMinIntrinsicWidth(height);
+      child = (child.parentData as _AlignedRowParentData).nextSibling;
+    }
+    return w;
   }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    var w = 0.0;
+    var count = 0;
+    RenderBox? child = firstChild;
+    while (child != null) {
+      w += child.getMaxIntrinsicWidth(height);
+      count++;
+      child = (child.parentData as _AlignedRowParentData).nextSibling;
+    }
+    return count > 1 ? w + _spacing * (count - 1) : w;
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    _sandbox = {};
+    _sandboxConstraints = constraints;
+    try {
+      final maxWidth = constraints.maxWidth;
+      final height = _flow(_measure(maxWidth), maxWidth, true);
+      return constraints.constrain(Size(maxWidth, height));
+    } finally {
+      _sandbox = null;
+      _sandboxConstraints = null;
+    }
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) => computeDryLayout(BoxConstraints(maxWidth: width)).height;
 
   @override
   double computeMaxIntrinsicHeight(double width) => computeMinIntrinsicHeight(width);

@@ -19,11 +19,7 @@ class _WatermarkPageState extends State<WatermarkPage> {
   bool _enabled = true;
   String _interactionFeedback = 'No action clicked yet';
 
-  List<String> get _watermarkLines => [
-        'ACME CORP INTERNAL ONLY',
-        'User: Sarah Connor (ID: #9482)',
-        'Timestamp: 2026-09-26 12:00 UTC',
-      ];
+  List<String> get _watermarkLines => ['ACME CORP INTERNAL ONLY', 'User: Sarah Connor (ID: #9482)', 'Timestamp: 2026-09-26 12:00 UTC'];
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +32,7 @@ class _WatermarkPageState extends State<WatermarkPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Text(
-            'TWatermark Showcase',
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('TWatermark Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
             'High-security confidentiality watermark overlay for admin dashboards, financial records, '
@@ -66,11 +59,7 @@ class _WatermarkPageState extends State<WatermarkPage> {
                         controller: TextEditingController(text: _watermarkText)
                           ..selection = TextSelection.collapsed(offset: _watermarkText.length),
                         onChanged: (val) => setState(() => _watermarkText = val),
-                        decoration: const InputDecoration(
-                          labelText: 'Watermark Text',
-                          isDense: true,
-                          border: OutlineInputBorder(),
-                        ),
+                        decoration: const InputDecoration(labelText: 'Watermark Text', isDense: true, border: OutlineInputBorder()),
                       ),
                     ),
 
@@ -78,10 +67,7 @@ class _WatermarkPageState extends State<WatermarkPage> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Checkbox(
-                          value: _isMultiline,
-                          onChanged: (val) => setState(() => _isMultiline = val ?? false),
-                        ),
+                        Checkbox(value: _isMultiline, onChanged: (val) => setState(() => _isMultiline = val ?? false)),
                         const Text('Multiline Audit Stamp', style: TextStyle(fontSize: 13)),
                       ],
                     ),
@@ -90,10 +76,7 @@ class _WatermarkPageState extends State<WatermarkPage> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Switch(
-                          value: _enabled,
-                          onChanged: (val) => setState(() => _enabled = val),
-                        ),
+                        Switch(value: _enabled, onChanged: (val) => setState(() => _enabled = val)),
                         const SizedBox(width: 4),
                         Text(_enabled ? 'Enabled' : 'Disabled', style: const TextStyle(fontSize: 13)),
                       ],
@@ -116,13 +99,7 @@ class _WatermarkPageState extends State<WatermarkPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Opacity: ${(_opacity * 100).toInt()}%', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                          Slider(
-                            value: _opacity,
-                            min: 0.04,
-                            max: 0.40,
-                            divisions: 18,
-                            onChanged: (val) => setState(() => _opacity = val),
-                          ),
+                          Slider(value: _opacity, min: 0.04, max: 0.40, divisions: 18, onChanged: (val) => setState(() => _opacity = val)),
                         ],
                       ),
                     ),
@@ -152,13 +129,7 @@ class _WatermarkPageState extends State<WatermarkPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Horizontal Gap: ${_gapX.toInt()}px', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                          Slider(
-                            value: _gapX,
-                            min: 80.0,
-                            max: 260.0,
-                            divisions: 9,
-                            onChanged: (val) => setState(() => _gapX = val),
-                          ),
+                          Slider(value: _gapX, min: 80.0, max: 260.0, divisions: 9, onChanged: (val) => setState(() => _gapX = val)),
                         ],
                       ),
                     ),
@@ -216,11 +187,21 @@ class _WatermarkPageState extends State<WatermarkPage> {
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
                         columns: const [
-                          DataColumn(label: Text('Employee ID', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Department', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Salary (USD)', style: TextStyle(fontWeight: FontWeight.bold))),
-                          DataColumn(label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                            label: Text('Employee ID', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          DataColumn(
+                            label: Text('Name', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          DataColumn(
+                            label: Text('Department', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          DataColumn(
+                            label: Text('Salary (USD)', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
+                          DataColumn(
+                            label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+                          ),
                         ],
                         rows: [
                           _buildRow('EMP-1049', 'Sarah Connor', 'Security Operations', '\$145,000', colors),
@@ -244,7 +225,12 @@ class _WatermarkPageState extends State<WatermarkPage> {
   DataRow _buildRow(String id, String name, String dept, String salary, ColorScheme colors) {
     return DataRow(
       cells: [
-        DataCell(Text(id, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w600))),
+        DataCell(
+          Text(
+            id,
+            style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w600),
+          ),
+        ),
         DataCell(Text(name)),
         DataCell(Text(dept)),
         DataCell(Text(salary, style: const TextStyle(fontWeight: FontWeight.bold))),

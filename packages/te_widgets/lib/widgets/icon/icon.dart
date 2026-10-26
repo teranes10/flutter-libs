@@ -85,6 +85,12 @@ class TIcon extends StatelessWidget {
   final TThemeType? themeType;
   final List<BoxShadow>? shadow;
 
+  /// Accessible label announced for a tappable icon (also used by UI test selectors).
+  final String? semanticLabel;
+
+  /// Stable identifier exposed as `flt-semantics-identifier` on Flutter web for e2e tests.
+  final String? semanticIdentifier;
+
   /// Creates an icon.
   const TIcon({
     super.key,
@@ -104,6 +110,8 @@ class TIcon extends StatelessWidget {
     this.borderRadius = const BorderRadius.all(Radius.circular(10)),
     this.themeType,
     this.shadow,
+    this.semanticLabel,
+    this.semanticIdentifier,
   });
 
   /// Creates a close icon with default styling.
@@ -111,10 +119,14 @@ class TIcon extends StatelessWidget {
     VoidCallback? onTap,
     double size = 20,
     EdgeInsets padding = const EdgeInsets.all(8),
+    String semanticLabel = 'Clear',
+    String? semanticIdentifier,
   }) {
     return TIcon(
       icon: HugeIcons.strokeRoundedCancel01,
       onTap: onTap,
+      semanticLabel: semanticLabel,
+      semanticIdentifier: semanticIdentifier,
       size: size,
       padding: padding,
       themeType: TThemeType.error,
@@ -138,9 +150,13 @@ class TIcon extends StatelessWidget {
     int animationMilliseconds = 200,
     VoidCallback? onTap,
     TThemeType? themeType,
+    String? semanticLabel,
+    String? semanticIdentifier,
   }) {
     return TIcon(
       key: key,
+      semanticLabel: semanticLabel,
+      semanticIdentifier: semanticIdentifier,
       icon: icon,
       size: size,
       padding: EdgeInsets.zero,
@@ -208,7 +224,7 @@ class TIcon extends StatelessWidget {
       return effectiveIconWidget;
     }
 
-    return InkWell(
+    final tappable = InkWell(
       onTap: onTap,
       borderRadius: borderRadius,
       hoverColor: Colors.transparent,
@@ -217,6 +233,18 @@ class TIcon extends StatelessWidget {
         padding: padding,
         child: effectiveIconWidget,
       ),
+    );
+
+    if (onTap == null || (semanticLabel == null && semanticIdentifier == null)) return tappable;
+
+    return Semantics(
+      container: true,
+      button: true,
+      label: semanticLabel,
+      identifier: semanticIdentifier,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: tappable,
     );
   }
 }

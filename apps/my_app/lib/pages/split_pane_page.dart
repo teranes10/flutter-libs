@@ -36,10 +36,7 @@ class _SplitPanePageState extends State<SplitPanePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Text(
-            'TSplitPane Showcase',
-            style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          Text('TSplitPane Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
             'Draggable, resizable two-pane container supporting horizontal & vertical splits, '
@@ -107,20 +104,14 @@ class _SplitPanePageState extends State<SplitPanePage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _showCollapseButtons,
-                      onChanged: (val) => setState(() => _showCollapseButtons = val ?? true),
-                    ),
+                    Checkbox(value: _showCollapseButtons, onChanged: (val) => setState(() => _showCollapseButtons = val ?? true)),
                     const Text('Show Collapse Chevrons', style: TextStyle(fontSize: 13)),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Checkbox(
-                      value: _collapsibleLeading,
-                      onChanged: (val) => setState(() => _collapsibleLeading = val ?? true),
-                    ),
+                    Checkbox(value: _collapsibleLeading, onChanged: (val) => setState(() => _collapsibleLeading = val ?? true)),
                     const Text('Snap Collapse Leading', style: TextStyle(fontSize: 13)),
                   ],
                 ),
@@ -220,11 +211,7 @@ class _SplitPanePageState extends State<SplitPanePage> {
                 const SizedBox(width: 8),
                 const Text('split_pane.dart', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const Spacer(),
-                TBadge.standalone(
-                  label: 'Dart 3.5',
-                  color: colors.secondaryContainer,
-                  textColor: colors.onSecondaryContainer,
-                ),
+                TBadge.standalone(label: 'Dart 3.5', color: colors.secondaryContainer, textColor: colors.onSecondaryContainer),
               ],
             ),
           ),
@@ -275,12 +262,7 @@ class _ExplorerItem extends StatelessWidget {
   final bool isFolder;
   final double indent;
 
-  const _ExplorerItem({
-    required this.icon,
-    required this.label,
-    this.isFolder = false,
-    this.indent = 0,
-  });
+  const _ExplorerItem({required this.icon, required this.label, this.isFolder = false, this.indent = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -291,11 +273,7 @@ class _ExplorerItem extends StatelessWidget {
           Icon(icon, size: 16, color: isFolder ? Colors.amber : Colors.blueGrey),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
+            child: Text(label, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
           ),
         ],
       ),
