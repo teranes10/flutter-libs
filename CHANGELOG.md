@@ -3,6 +3,41 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-10-26
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`te_editor` - `v3.3.0`](#te_editor---v330)
+ - [`te_widgets` - `v3.8.0`](#te_widgets---v380)
+ - [`te_map` - `v3.2.3`](#te_map---v323)
+ - [`te_scanner` - `v3.2.3`](#te_scanner---v323)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_map` - `v3.2.3`
+ - `te_scanner` - `v3.2.3`
+
+---
+
+#### `te_editor` - `v3.3.0`
+
+ - **FEAT**(te_widgets): add forceCache support across image-bearing widgets.
+
+#### `te_widgets` - `v3.8.0`
+
+ - **FEAT**(te_widgets): add forceCache support across image-bearing widgets.
+
+
 ## 2026-09-26
 
 ### Changes

@@ -1,3 +1,7 @@
+## 3.8.0
+
+ - **FEAT**(te_widgets): add forceCache support across image-bearing widgets.
+
 ## 3.7.0
 
 - **New Widgets**:
