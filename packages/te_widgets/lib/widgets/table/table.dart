@@ -425,11 +425,20 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
 
   @override
   void dispose() {
+    // A dialog or side sheet opened by this table lives on the root navigator, so it would outlive the page the table is on
+    final open = _currentTarget;
+    final navigator = _overlayNavigator;
+    if (open != null && navigator != null && _isOverlayMode(open.mode) && open.mode != TTableExpansionMode.page) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => navigator.maybePop(_kTransitionResult));
+    }
     _activeCellNotifier?.dispose();
     super.dispose();
   }
 
   _ActiveDetailTarget<K>? _currentTarget;
+
+  /// The root navigator holding the overlay this table presented, kept so the overlay can be closed once the table is gone.
+  NavigatorState? _overlayNavigator;
 
   @override
   void onListStateChanged() {

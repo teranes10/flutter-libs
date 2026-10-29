@@ -53,7 +53,13 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
     final scope = TTableScope.of(ctx);
     final newItem = await widget.onCreate?.call(form);
     if (newItem != null) {
-      _listController.addItem(newItem);
+      // A list bound to a data stream may already hold the new item by the time onCreate returns; update it instead of adding a duplicate
+      final existing = _listController.getItem(_listController.itemKey(newItem));
+      if (existing != null) {
+        _listController.updateItem(existing.data, newItem);
+      } else {
+        _listController.addItem(newItem);
+      }
       if (mounted && ctx.mounted) {
         scope.close(ctx);
       }

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:flutter/foundation.dart';
 
-// bool get kIsMobilePlatform {
-//   final p = defaultTargetPlatform;
-//   return p == TargetPlatform.android || p == TargetPlatform.iOS;
-// }
+bool get kIsMobilePlatform {
+  final p = defaultTargetPlatform;
+  return p == TargetPlatform.android || p == TargetPlatform.iOS;
+}
 
-// bool get kIsDesktopPlatform {
-//   final p = defaultTargetPlatform;
-//   return p == TargetPlatform.macOS || p == TargetPlatform.windows || p == TargetPlatform.linux;
-// }
+bool get kIsDesktopPlatform {
+  final p = defaultTargetPlatform;
+  return p == TargetPlatform.macOS || p == TargetPlatform.windows || p == TargetPlatform.linux;
+}
 
 extension BuildContextX on BuildContext {
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;

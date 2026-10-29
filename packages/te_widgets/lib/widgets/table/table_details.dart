@@ -558,6 +558,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
 
       final details = widget.details;
       final navigator = Navigator.of(context);
+      _overlayNavigator = Navigator.of(context, rootNavigator: true);
 
       final Object? result;
       if (target.mode == TTableExpansionMode.page) {
