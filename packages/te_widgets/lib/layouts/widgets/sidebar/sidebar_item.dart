@@ -68,7 +68,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     final currentRoute = _getCurrentRoute();
     final shouldExpand = widget.item.initiallyExpanded || widget.item.containsRoute(currentRoute);
 
-    if (shouldExpand != _isExpanded && !widget.isMinimized && widget.item.hasVisibleChildren) {
+    if (shouldExpand != _isExpanded && !widget.isMinimized && widget.item.hasVisibleChildrenIn(context)) {
       if (shouldExpand && _shouldShowOverlayBecauseMaxWidth()) return;
       _setExpanded(shouldExpand);
     }
@@ -99,15 +99,15 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     final textStyle = TextStyle(fontSize: widget.theme.fontSize, fontWeight: FontWeight.w300);
     final baseWidth = 56.0 + ((widget.level + 1) * 36.0);
 
-    for (var child in widget.item.visibleChildren) {
-      if (child.isHidden) continue;
+    for (var child in widget.item.visibleChildrenIn(context)) {
+      if (child.isHiddenIn(context)) continue;
       double itemWidth = baseWidth;
       if (child.icon != null) itemWidth += 30.0;
       if (child.text != null) {
         final tp = TextPainter(text: TextSpan(text: child.text, style: textStyle), textDirection: TextDirection.ltr)..layout();
         itemWidth += tp.width;
       }
-      if (child.hasVisibleChildren) itemWidth += 24.0;
+      if (child.hasVisibleChildrenIn(context)) itemWidth += 24.0;
       if (itemWidth > maxItemWidth) maxItemWidth = itemWidth;
     }
 
@@ -117,7 +117,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   bool get _isNavigable => (widget.item.page != null || widget.item.builder != null) && widget.item.route != null;
 
   void _handleTap() {
-    if (widget.item.hasVisibleChildren && !widget.isMinimized) {
+    if (widget.item.hasVisibleChildrenIn(context) && !widget.isMinimized) {
       if (_isNavigable || widget.item.onTap != null) {
         _navigateAndExecute();
       } else if (_shouldShowOverlayBecauseMaxWidth()) {
@@ -158,7 +158,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   void _scheduleOverlayShow() {
     _hoverTimer?.cancel();
     _hoverTimer = Timer(widget.theme.showDelay, () {
-      if (mounted && _isHovered && (widget.item.hasVisibleChildren || widget.item.text != null)) {
+      if (mounted && _isHovered && (widget.item.hasVisibleChildrenIn(context) || widget.item.text != null)) {
         _showPopup();
       }
     });
@@ -171,7 +171,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
 
   @override
   Widget build(BuildContext context) {
-    if (widget.item.isHidden) return const SizedBox.shrink();
+    if (widget.item.isHiddenIn(context)) return const SizedBox.shrink();
 
     final currentRoute = _getCurrentRoute();
     final isCurrentRoute = widget.item.route == currentRoute;
@@ -184,7 +184,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildMainItem(isCurrentRoute, containsCurrentRoute),
-          if (widget.item.hasVisibleChildren && !widget.isMinimized) _buildChildren(),
+          if (widget.item.hasVisibleChildrenIn(context) && !widget.isMinimized) _buildChildren(),
         ],
       ),
     );
@@ -200,9 +200,9 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
       alignment: FractionalOffset.topLeft,
     );
 
-    final content = widget.item.hasVisibleChildren
+    final content = widget.item.hasVisibleChildrenIn(context)
         ? TMenuOverlayPanel<TSidebarItem>(
-            items: widget.item.visibleChildren,
+            items: widget.item.visibleChildrenIn(context),
             level: 1,
             theme: widget.theme,
             isActive: (i) => i.route == currentRoute,
@@ -211,7 +211,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
           )
         : TMenuTooltip(
             text: widget.item.text ?? '',
-            onTap: widget.item.isClickable ? _navigateAndExecute : null,
+            onTap: widget.item.isClickableIn(context) ? _navigateAndExecute : null,
           );
 
     return Stack(
@@ -312,7 +312,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
             ),
           ),
         ],
-        if (widget.item.hasVisibleChildren) ...[
+        if (widget.item.hasVisibleChildrenIn(context)) ...[
           const SizedBox(width: 14),
           _buildExpandIcon(color),
         ],
@@ -333,7 +333,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   }
 
   Widget _buildChildren() {
-    final visibleChildren = widget.item.visibleChildren;
+    final visibleChildren = widget.item.visibleChildrenIn(context);
     if (visibleChildren.isEmpty) return const SizedBox.shrink();
 
     return AnimatedBuilder(

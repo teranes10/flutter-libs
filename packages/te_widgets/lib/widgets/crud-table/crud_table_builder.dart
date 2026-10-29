@@ -276,6 +276,8 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         icon: button.icon,
         text: button.tooltip ?? button.text,
         color: button.color,
+        permission: button.permission,
+        onDenied: button.onDenied,
         onTap: () {
           if (button.onPressed != null) {
             button.onPressed!(TButtonPressOptions(stopLoading: () {}));
@@ -314,13 +316,13 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   int _activeActionsCount() {
     int count = 0;
 
-    if (canView) {
+    if (canView && _crudVisible(_perms?.view)) {
       count++;
     }
-    if (canEdit) {
+    if (canEdit && _crudVisible(_perms?.edit)) {
       count++;
     }
-    if (widget.onArchive != null) {
+    if (widget.onArchive != null && _crudVisible(_perms?.archive)) {
       count++;
     }
 
@@ -333,13 +335,13 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     int flat = 0;
     int menu = 0;
 
-    if (canView) {
+    if (canView && _crudVisible(_perms?.view)) {
       widget.config.canViewFlat ? flat++ : menu++;
     }
-    if (canEdit) {
+    if (canEdit && _crudVisible(_perms?.edit)) {
       widget.config.canEditFlat ? flat++ : menu++;
     }
-    if (widget.onArchive != null) {
+    if (widget.onArchive != null && _crudVisible(_perms?.archive)) {
       widget.config.canArchiveFlat ? flat++ : menu++;
     }
 
@@ -353,47 +355,55 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   List<TButtonGroupItem> _buildActiveActionButtons(TWidgetThemeExtension theme, T item) {
     final buttons = <TButtonGroupItem>[];
 
-    if (canView && canPerformActionSync(item, widget.config.canView)) {
+    if (canView && _crudVisible(_perms?.view) && canPerformActionSync(item, widget.config.canView, key: 'view')) {
       buttons.add(TButtonGroupItem(
         tooltip: 'View',
         semanticIdentifier: 'row-action-view',
         icon: Icons.visibility,
         color: theme.success,
         showFlat: widget.config.canViewFlat,
+        permission: _perms?.view,
+        onDenied: _crudDenied(_perms?.view),
         onPressed: (_) => handleView(item, _listController),
       ));
     }
 
-    if (canEdit && canPerformActionSync(item, widget.config.canEdit)) {
+    if (canEdit && _crudVisible(_perms?.edit) && canPerformActionSync(item, widget.config.canEdit, key: 'edit')) {
       buttons.add(TButtonGroupItem(
         tooltip: 'Edit',
         semanticIdentifier: 'row-action-edit',
         icon: Icons.edit,
         color: theme.info,
         showFlat: widget.config.canEditFlat,
+        permission: _perms?.edit,
+        onDenied: _crudDenied(_perms?.edit),
         onPressed: (_) => handleEdit(item),
       ));
     }
 
-    if (widget.onArchive != null && canPerformActionSync(item, widget.config.canArchive)) {
+    if (widget.onArchive != null && _crudVisible(_perms?.archive) && canPerformActionSync(item, widget.config.canArchive, key: 'archive')) {
       buttons.add(TButtonGroupItem(
         tooltip: 'Archive',
         semanticIdentifier: 'row-action-archive',
         icon: Icons.archive,
         color: theme.danger,
         showFlat: widget.config.canArchiveFlat,
+        permission: _perms?.archive,
+        onDenied: _crudDenied(_perms?.archive),
         onPressed: (_) => handleArchive(item),
       ));
     }
 
     for (final action in widget.config.activeActions) {
-      if (canPerformActionSync(item, action.canPerform)) {
+      if (_crudVisible(action.permission, action.onDenied) && canPerformActionSync(item, action.canPerform, key: 'custom:${action.tooltip}')) {
         buttons.add(TButtonGroupItem(
           tooltip: action.tooltip,
           semanticIdentifier: 'row-action-${action.tooltip.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')}',
           icon: action.icon,
           color: action.color,
           showFlat: action.showFlat,
+          permission: action.permission,
+          onDenied: _crudDenied(action.permission, action.onDenied),
           onPressed: (_) => performAction(() => action.onPressed(item)),
         ));
       }
@@ -405,13 +415,13 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   int _archiveActionsCount() {
     int count = 0;
 
-    if (canView) {
+    if (canView && _crudVisible(_perms?.view)) {
       count++;
     }
-    if (widget.onRestore != null) {
+    if (widget.onRestore != null && _crudVisible(_perms?.restore)) {
       count++;
     }
-    if (widget.onDelete != null) {
+    if (widget.onDelete != null && _crudVisible(_perms?.delete)) {
       count++;
     }
 
@@ -424,13 +434,13 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     int flat = 0;
     int menu = 0;
 
-    if (canView) {
+    if (canView && _crudVisible(_perms?.view)) {
       widget.config.canViewFlat ? flat++ : menu++;
     }
-    if (widget.onRestore != null) {
+    if (widget.onRestore != null && _crudVisible(_perms?.restore)) {
       widget.config.canRestoreFlat ? flat++ : menu++;
     }
-    if (widget.onDelete != null) {
+    if (widget.onDelete != null && _crudVisible(_perms?.delete)) {
       widget.config.canDeleteFlat ? flat++ : menu++;
     }
 
@@ -445,55 +455,77 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     final buttons = <TButtonGroupItem>[];
 
     // View action
-    if (canView && canPerformActionSync(item, widget.config.canView)) {
+    if (canView && _crudVisible(_perms?.view) && canPerformActionSync(item, widget.config.canView, key: 'view')) {
       buttons.add(TButtonGroupItem(
         tooltip: 'View',
         semanticIdentifier: 'row-action-view',
         icon: Icons.visibility,
         color: theme.success,
         showFlat: widget.config.canViewFlat,
+        permission: _perms?.view,
+        onDenied: _crudDenied(_perms?.view),
         onPressed: (_) => handleView(item, _archiveListController),
       ));
     }
 
     // Restore action
-    if (widget.onRestore != null && canPerformActionSync(item, widget.config.canRestore)) {
+    if (widget.onRestore != null && _crudVisible(_perms?.restore) && canPerformActionSync(item, widget.config.canRestore, key: 'restore')) {
       buttons.add(TButtonGroupItem(
         tooltip: 'Restore',
         semanticIdentifier: 'row-action-restore',
         icon: Icons.restore,
         color: theme.info,
         showFlat: widget.config.canRestoreFlat,
+        permission: _perms?.restore,
+        onDenied: _crudDenied(_perms?.restore),
         onPressed: (_) => handleRestore(item),
       ));
     }
 
     // Delete permanently action
-    if (widget.onDelete != null && canPerformActionSync(item, widget.config.canDelete)) {
+    if (widget.onDelete != null && _crudVisible(_perms?.delete) && canPerformActionSync(item, widget.config.canDelete, key: 'delete')) {
       buttons.add(TButtonGroupItem(
         tooltip: 'Delete',
         semanticIdentifier: 'row-action-delete',
         icon: Icons.delete_forever,
         color: theme.danger,
         showFlat: widget.config.canDeleteFlat,
+        permission: _perms?.delete,
+        onDenied: _crudDenied(_perms?.delete),
         onPressed: (_) => handleDelete(item),
       ));
     }
 
     // Custom actions for archive table
     for (final action in widget.config.archiveActions) {
-      if (canPerformActionSync(item, action.canPerform)) {
+      if (_crudVisible(action.permission, action.onDenied) && canPerformActionSync(item, action.canPerform, key: 'custom:${action.tooltip}')) {
         buttons.add(TButtonGroupItem(
           tooltip: action.tooltip,
           semanticIdentifier: 'row-action-${action.tooltip.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')}',
           icon: action.icon,
           color: action.color,
           showFlat: action.showFlat,
+          permission: action.permission,
+          onDenied: _crudDenied(action.permission, action.onDenied),
           onPressed: (_) => performAction(() => action.onPressed(item)),
         ));
       }
     }
 
     return buttons;
+  }
+
+  TCrudPermissions? get _perms => widget.config.permissions;
+
+  TAuthResult _crudAuth(Object? permission, [TAuthMode? onDenied]) =>
+      context.authResolve(permission, target: TAuthTarget.crudAction, onDenied: onDenied ?? _perms?.onDenied);
+
+  /// False when the action is removed by permission (denied + hide).
+  bool _crudVisible(Object? permission, [TAuthMode? onDenied]) => !_crudAuth(permission, onDenied).isHidden;
+
+  /// The explicit denied mode to hand to a widget, or null when allowed.
+  TAuthMode? _crudDenied(Object? permission, [TAuthMode? onDenied]) {
+    final r = _crudAuth(permission, onDenied);
+    return r.isAllowed ? null : r.mode;
   }
 }

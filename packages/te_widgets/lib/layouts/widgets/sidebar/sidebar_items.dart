@@ -23,7 +23,7 @@ class SidebarItems extends StatelessWidget {
         color: Colors.transparent,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _buildAnimatedItems(sidebarTheme),
+          children: _buildAnimatedItems(context, sidebarTheme),
         ),
       ),
     );
@@ -42,8 +42,8 @@ class SidebarItems extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildAnimatedItems(TSidebarTheme sidebarTheme) {
-    final visibleItems = items.where((item) => !item.isHidden).toList();
+  List<Widget> _buildAnimatedItems(BuildContext context, TSidebarTheme sidebarTheme) {
+    final visibleItems = items.where((item) => !item.isHiddenIn(context)).toList();
     return List.generate(visibleItems.length, (index) {
       return TweenAnimationBuilder<Offset>(
         tween: Tween<Offset>(

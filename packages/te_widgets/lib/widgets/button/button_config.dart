@@ -74,6 +74,12 @@ class TButtonGroupItem {
   /// Stable identifier exposed as `flt-semantics-identifier` on Flutter web for e2e tests.
   final String? semanticIdentifier;
 
+  /// Permission (`String` or [TPermission]) required for this item; see [TButton.permission].
+  final Object? permission;
+
+  /// Overrides the denied behaviour for this item; see [TButton.onDenied].
+  final TAuthMode? onDenied;
+
   /// Creates a button group item.
   TButtonGroupItem({
     this.icon,
@@ -95,6 +101,8 @@ class TButtonGroupItem {
     this.badgeTextColor,
     this.showFlat = false,
     this.semanticIdentifier,
+    this.permission,
+    this.onDenied,
     this.onTap,
     this.onPressed,
   });
@@ -138,6 +146,8 @@ extension TButtonExtension on TButton {
     Color? shadowColor,
     String? semanticLabel,
     String? semanticIdentifier,
+    Object? permission,
+    TAuthMode? onDenied,
   }) {
     return TButton(
       theme: theme ?? this.theme,
@@ -173,6 +183,8 @@ extension TButtonExtension on TButton {
       shadowColor: shadowColor ?? this.shadowColor,
       semanticLabel: semanticLabel ?? this.semanticLabel,
       semanticIdentifier: semanticIdentifier ?? this.semanticIdentifier,
+      permission: permission ?? this.permission,
+      onDenied: onDenied ?? this.onDenied,
       child: child ?? this.child,
     );
   }

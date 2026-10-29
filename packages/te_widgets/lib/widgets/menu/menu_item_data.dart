@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/auth/auth_controller.dart';
+import 'package:te_widgets/auth/auth_mode.dart';
 
 /// Generic contract for anything the shared overlay-menu engine
 /// (`TMenuOverlayPanel` / `TMenuOverlayItem` / `TMenuRootTrigger`) can render.
@@ -27,4 +29,31 @@ abstract class TMenuItemData<T extends TMenuItemData<T>> {
   void tap(BuildContext context);
 
   Widget? get customContent => null;
+
+  /// Permission (`String` or `TPermission`) required for this item.
+  Object? get permission => null;
+
+  /// Overrides the denied behaviour for this item.
+  TAuthMode? get onDenied => null;
+
+  /// Which [TAuthTarget] default applies to this kind of item.
+  TAuthTarget get authTarget => TAuthTarget.menuItem;
+
+  /// Whether a route-less group with no visible children should disappear.
+  bool get hidesWhenEmpty => false;
+
+  TAuthResult authResult(BuildContext context) => context.authResolve(permission, target: authTarget, onDenied: onDenied);
+
+  /// Context-aware [isHidden]: also honours permissions, recursively.
+  bool isHiddenIn(BuildContext context) {
+    if (isHidden || authResult(context).isHidden) return true;
+    return hidesWhenEmpty && !hasVisibleChildrenIn(context);
+  }
+
+  List<T> visibleChildrenIn(BuildContext context) => children?.where((c) => !c.isHiddenIn(context)).toList() ?? const [];
+
+  bool hasVisibleChildrenIn(BuildContext context) => visibleChildrenIn(context).isNotEmpty;
+
+  /// Context-aware [isClickable]: false when the item is disabled by permission.
+  bool isClickableIn(BuildContext context) => isClickable && !authResult(context).isDisabled;
 }

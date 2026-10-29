@@ -26,6 +26,12 @@ class TBottomBarItem {
   /// centre "Scan" button) instead of a regular tab.
   final bool emphasized;
 
+  /// Permission (`String` or [TPermission]) required for this item.
+  final Object? permission;
+
+  /// Overrides the denied behaviour; defaults to hidden for bottom bar items.
+  final TAuthMode? onDenied;
+
   /// Creates a bottom bar item.
   const TBottomBarItem({
     required this.icon,
@@ -35,5 +41,7 @@ class TBottomBarItem {
     this.items,
     this.badge,
     this.emphasized = false,
+    this.permission,
+    this.onDenied,
   });
 }

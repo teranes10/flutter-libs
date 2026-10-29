@@ -14,7 +14,7 @@ class LayoutTopNavMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final visibleItems = items.where((item) => !item.isHidden).toList();
+    final visibleItems = items.where((item) => !item.isHiddenIn(context)).toList();
     if (visibleItems.isEmpty) return const SizedBox.shrink();
 
     final menuTheme = (theme ?? TSidebarTheme.defaultTheme(context)).copyWith(
@@ -83,10 +83,10 @@ class _LayoutTopNavMenuItemState extends State<LayoutTopNavMenuItem> {
         isActive: isCurrentRoute,
         containsActive: containsCurrentRoute,
         isHovered: _isHovered,
-        hasChildren: widget.item.hasVisibleChildren,
+        hasChildren: widget.item.hasVisibleChildrenIn(context),
         theme: widget.theme,
         onTap: () {
-          if (!widget.item.hasVisibleChildren || widget.item.isClickable) {
+          if (!widget.item.hasVisibleChildrenIn(context) || widget.item.isClickableIn(context)) {
             widget.item.tap(context);
             TMenuOverlayController.hideAll();
           }
@@ -94,9 +94,9 @@ class _LayoutTopNavMenuItemState extends State<LayoutTopNavMenuItem> {
       ),
     );
 
-    if (widget.item.hasVisibleChildren) {
+    if (widget.item.hasVisibleChildrenIn(context)) {
       return TMenuRootTrigger<TSidebarItem>(
-        items: widget.item.visibleChildren,
+        items: widget.item.visibleChildrenIn(context),
         theme: widget.theme,
         triggerMode: TMenuTriggerMode.hover,
         isActive: (i) => i.route == currentRoute,

@@ -19,7 +19,22 @@ class TabRenderer<T> {
     Color? indicatorColor,
     TTabController<T>? controller,
     VoidCallback? onTab,
+    TTabStyle style = TTabStyle.underline,
   }) {
+    if (style == TTabStyle.segmented) {
+      return _buildSegmentedTab<T>(
+        context: context,
+        tab: tab,
+        isSelected: isSelected,
+        colors: colors,
+        tabKey: tabKey,
+        tabPadding: tabPadding,
+        selectedColor: selectedColor,
+        unselectedColor: unselectedColor,
+        disabledColor: disabledColor,
+        onTab: onTab,
+      );
+    }
     final defaultSelectedColor = selectedColor ?? colors.onPrimaryContainer;
     final defaultUnselectedColor = unselectedColor ?? colors.onSurface;
     final defaultDisabledColor = disabledColor ?? colors.onSurfaceVariant;
@@ -74,6 +89,54 @@ class TabRenderer<T> {
                       ? const EdgeInsets.symmetric(vertical: 6, horizontal: 8)
                       : const EdgeInsets.symmetric(vertical: 4, horizontal: 8)),
               child: content),
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildSegmentedTab<T>({
+    required BuildContext context,
+    required TTab<T> tab,
+    required bool isSelected,
+    required ColorScheme colors,
+    required GlobalKey tabKey,
+    EdgeInsets? tabPadding,
+    Color? selectedColor,
+    Color? unselectedColor,
+    Color? disabledColor,
+    VoidCallback? onTab,
+  }) {
+    final color = !tab.isEnabled
+        ? (disabledColor ?? colors.onSurfaceVariant.o(0.5))
+        : isSelected
+            ? (selectedColor ?? colors.onSurface)
+            : (unselectedColor ?? colors.onSurfaceVariant);
+    final radius = BorderRadius.circular(8);
+
+    return Container(
+      key: tabKey,
+      decoration: BoxDecoration(
+        color: isSelected ? colors.surface : Colors.transparent,
+        borderRadius: radius,
+        boxShadow: isSelected ? [BoxShadow(color: colors.shadow.o(0.12), blurRadius: 3, offset: const Offset(0, 1))] : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTab,
+          borderRadius: radius,
+          child: Container(
+            constraints: BoxConstraints(minHeight: context.isMobile ? 40 : 0),
+            alignment: Alignment.center,
+            padding: tabPadding ?? const EdgeInsets.symmetric(vertical: 7, horizontal: 14),
+            child: _buildHorizontalTabContent(
+              tab: tab,
+              color: color,
+              isSelected: isSelected,
+              defaultIndicatorColor: colors.primary,
+              colors: colors,
+            ),
+          ),
         ),
       ),
     );

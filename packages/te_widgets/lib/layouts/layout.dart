@@ -126,6 +126,7 @@ class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStat
     final isMobile = !context.isDesktop;
 
     final resolved = _resolveLayoutItems(
+      context,
       TSidebarItemsResolver.resolve(widget.items),
       isMobile: isMobile,
       showHamburgerMenu: widget.showHamburgerMenu,
@@ -266,6 +267,7 @@ class _ResolvedLayoutItems {
 }
 
 _ResolvedLayoutItems _resolveLayoutItems(
+  BuildContext context,
   List<TSidebarItem> resolvedItems, {
   required bool isMobile,
   required bool showHamburgerMenu,
@@ -275,17 +277,17 @@ _ResolvedLayoutItems _resolveLayoutItems(
 
   for (final item in resolvedItems) {
     if (item.home) homeItem = item;
-    if (item.bottomBarPosition != null && !item.isHidden) bottomBarCandidates.add(item);
+    if (item.bottomBarPosition != null && !item.isHiddenIn(context)) bottomBarCandidates.add(item);
   }
 
   final bottomBarItems = <TSidebarItem>[];
-  if (homeItem != null && !homeItem.isHidden && (homeItem.children?.isEmpty ?? true)) bottomBarItems.add(homeItem);
+  if (homeItem != null && !homeItem.isHiddenIn(context) && (homeItem.children?.isEmpty ?? true)) bottomBarItems.add(homeItem);
 
   if (bottomBarCandidates.isEmpty && resolvedItems.isNotEmpty) {
     final slotCount = showHamburgerMenu ? 5 : 4;
     bottomBarItems.addAll(
       resolvedItems
-          .where((item) => item != homeItem && !item.isHidden && (item.children?.isEmpty ?? true))
+          .where((item) => item != homeItem && !item.isHiddenIn(context) && (item.children?.isEmpty ?? true))
           .take(slotCount - bottomBarItems.length),
     );
   } else {

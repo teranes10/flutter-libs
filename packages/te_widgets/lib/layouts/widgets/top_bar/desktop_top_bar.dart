@@ -227,7 +227,7 @@ class _LayoutDesktopTopBarState extends ConsumerState<LayoutDesktopTopBar> {
   Widget build(BuildContext context) {
     final sidebarMode = ref.watch(sidebarNotifierProvider);
     final isNoneMode = sidebarMode == TSidebarMode.none || (widget.canShowTopMenu ?? false);
-    final visibleItems = widget.sidebarItems.where((i) => !i.isHidden).toList();
+    final visibleItems = widget.sidebarItems.where((i) => !i.isHiddenIn(context)).toList();
     final effectiveLogo = widget.minifiedLogo ?? widget.logo;
     final menuTheme = (widget.sidebarTheme ?? TSidebarTheme.defaultTheme(context)).copyWith(
       alignment: TPopupAlignment.bottomLeft,

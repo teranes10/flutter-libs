@@ -144,6 +144,11 @@ export 'widgets/form/items_form_builder.dart';
 export 'widgets/grid/grid.dart';
 export 'widgets/guard/guard_config.dart';
 export 'widgets/guard/guard.dart';
+export 'auth/auth_mode.dart';
+export 'auth/permission.dart';
+export 'auth/permission_set.dart';
+export 'auth/auth_controller.dart';
+export 'auth/auth_gate.dart';
 
 export 'widgets/hoverable/hoverable.dart';
 export 'widgets/icon/icon.dart';

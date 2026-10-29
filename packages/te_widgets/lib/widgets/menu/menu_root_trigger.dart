@@ -56,7 +56,7 @@ class _TMenuRootTriggerState<T extends TMenuItemData<T>> extends State<TMenuRoot
 
   bool get _useTapOnly => widget.triggerMode == TMenuTriggerMode.tap;
 
-  List<T> get _visibleItems => widget.items.where((i) => !i.isHidden).toList();
+  List<T> get _visibleItems => widget.items.where((i) => !i.isHiddenIn(context)).toList();
   bool get _hasMenu => _visibleItems.isNotEmpty;
   bool get _hasTooltip => !_hasMenu && (widget.tooltipText?.isNotEmpty ?? false);
   bool get _hasAnything => _hasMenu || _hasTooltip || widget.builder != null;

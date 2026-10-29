@@ -33,13 +33,15 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
                 ...?widget.config.bulkActionsBuilder?.call(ctx, activeController),
               ]
             : [
-                if (canCreate)
+                if (canCreate && _crudVisible(_perms?.create))
                   TButton(
                     key: const ValueKey('crud_table_add_button'),
                     type: TButtonType.tonal,
                     icon: Icons.add,
                     text: widget.config.addButtonText,
                     onPressed: (_) => handleCreate(),
+                    permission: _perms?.create,
+                    onDenied: _crudDenied(_perms?.create),
                   ),
                 ...widget.config.topBarActions,
               ],
@@ -398,11 +400,15 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
         TDropdownItem(
           icon: Icons.picture_as_pdf_rounded,
           text: 'Export as PDF',
+          permission: _perms?.export,
+          onDenied: _crudDenied(_perms?.export),
           onTap: () => handleExportPdf(),
         ),
         TDropdownItem(
           icon: Icons.table_chart_rounded,
           text: 'Export as CSV',
+          permission: _perms?.export,
+          onDenied: _crudDenied(_perms?.export),
           onTap: () => handleExportCsv(),
         ),
       ],

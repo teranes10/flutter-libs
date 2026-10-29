@@ -32,24 +32,39 @@ class TNavItem extends StatelessWidget {
   // The optional popup items
   final List<TDropdownItem>? items;
 
+  /// Permission (`String` or [TPermission]) required for this item.
+  final Object? permission;
+
+  /// Overrides the denied behaviour; defaults to hidden for nav items.
+  final TAuthMode? onDenied;
+
   /// Creates a navigation item.
-  const TNavItem({super.key, this.onTap, this.isActive = false, required this.icon, this.label, this.items});
+  const TNavItem({super.key, this.onTap, this.isActive = false, required this.icon, this.label, this.items, this.permission, this.onDenied});
 
   /// Creates a copy of this item with optional new values.
   TNavItem copyWith({VoidCallback? onTap, bool? isActive, IconData? icon, String? label}) {
-    return TNavItem(onTap: onTap ?? this.onTap, isActive: isActive ?? this.isActive, icon: icon ?? this.icon, label: label ?? this.label);
+    return TNavItem(
+        onTap: onTap ?? this.onTap,
+        isActive: isActive ?? this.isActive,
+        icon: icon ?? this.icon,
+        label: label ?? this.label,
+        items: items,
+        permission: permission,
+        onDenied: onDenied);
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final auth = context.authResolve(permission, target: TAuthTarget.navBar, onDenied: onDenied);
+    if (auth.isHidden) return const SizedBox.shrink();
 
     final child = Material(
       color: isActive ? colors.primaryContainer : colors.surface,
       borderRadius: BorderRadius.circular(25),
       child: InkWell(
         borderRadius: BorderRadius.circular(25),
-        onTap: onTap,
+        onTap: auth.isDisabled ? null : onTap,
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Row(
@@ -65,6 +80,7 @@ class TNavItem extends StatelessWidget {
       ),
     );
 
+    if (auth.isDisabled) return Opacity(opacity: 0.45, child: child);
     return items != null && items!.isNotEmpty ? TDropdown(items: items!, triggerMode: TDropdownTriggerMode.tap, child: child) : child;
   }
 }

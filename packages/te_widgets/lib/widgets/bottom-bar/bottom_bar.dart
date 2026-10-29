@@ -123,33 +123,42 @@ class TBottomBar extends StatelessWidget {
         top: false,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: List.generate(items.length, (index) {
-            final item = items[index];
-            final isActive = index == currentIndex;
-
-            final child = _BottomBarItemWidget(
-              item: item,
-              isActive: isActive,
-              variant: variant,
-              textPosition: textPosition,
-              color: color,
-              borderRadius: mBorderRadius,
-              onTap: () {
-                if (haptic) TFeedback.selection();
-                onTap?.call(index);
-              },
-              textStyle: textStyle,
-              iconSize: iconSize,
-              padding: itemPadding,
-            );
-
-            return item.items != null && item.items!.isNotEmpty
-                ? TDropdown(items: item.items ?? [], triggerMode: TDropdownTriggerMode.tap, child: child)
-                : child;
-          }),
+          children: [
+            for (int index = 0; index < items.length; index++)
+              if (!context.authResolve(items[index].permission, target: TAuthTarget.bottomBar, onDenied: items[index].onDenied).isHidden)
+                _buildItem(context, index, mBorderRadius),
+          ],
         ),
       ),
     );
+  }
+
+  Widget _buildItem(BuildContext context, int index, double mBorderRadius) {
+    final item = items[index];
+    final disabled = context.authResolve(item.permission, target: TAuthTarget.bottomBar, onDenied: item.onDenied).isDisabled;
+    final isActive = index == currentIndex;
+
+    final child = _BottomBarItemWidget(
+      item: item,
+      isActive: isActive,
+      variant: variant,
+      textPosition: textPosition,
+      color: color,
+      borderRadius: mBorderRadius,
+      onTap: () {
+        if (haptic) TFeedback.selection();
+        onTap?.call(index);
+      },
+      textStyle: textStyle,
+      iconSize: iconSize,
+      padding: itemPadding,
+    );
+
+    if (disabled) return IgnorePointer(child: Opacity(opacity: 0.45, child: child));
+
+    return item.items != null && item.items!.isNotEmpty
+        ? TDropdown(items: item.items ?? [], triggerMode: TDropdownTriggerMode.tap, child: child)
+        : child;
   }
 }
 

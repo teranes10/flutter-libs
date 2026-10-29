@@ -11,7 +11,10 @@ enum TButtonGroupType {
   softText,
   filledText,
   icon,
-  boxed;
+  boxed,
+
+  /// Segmented control: a filled track with a raised pill under the active item.
+  segmented;
 
   /// Maps the group type to an individual [TButtonType].
   TButtonType get buttonType {
@@ -25,6 +28,7 @@ enum TButtonGroupType {
       TButtonGroupType.filledText || TButtonGroupType.boxed => TButtonType.filledText,
       TButtonGroupType.text => TButtonType.text,
       TButtonGroupType.icon => TButtonType.icon,
+      TButtonGroupType.segmented => TButtonType.text,
     };
   }
 }
@@ -83,12 +87,14 @@ class TButtonGroupTheme {
       color: color,
       spacing: spacing,
       borderRadius: borderRadius,
-      enableBoxedMode: enableBoxedMode || type == TButtonGroupType.boxed,
-      boxedPadding: const EdgeInsets.all(2),
-      boxedDecoration: BoxDecoration(
-        border: Border.all(color: colors.outline),
-        borderRadius: BorderRadius.circular(borderRadius + 2),
-      ),
+      enableBoxedMode: enableBoxedMode || type == TButtonGroupType.boxed || type == TButtonGroupType.segmented,
+      boxedPadding: EdgeInsets.all(type == TButtonGroupType.segmented ? 3 : 2),
+      boxedDecoration: type == TButtonGroupType.segmented
+          ? BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(borderRadius + 3))
+          : BoxDecoration(
+              border: Border.all(color: colors.outline),
+              borderRadius: BorderRadius.circular(borderRadius + 2),
+            ),
       separatorWidth: 0.25,
       separatorColor: colors.outline,
     );

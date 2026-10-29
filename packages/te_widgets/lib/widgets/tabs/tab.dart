@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Visual style of [TTabs].
+enum TTabStyle {
+  /// Classic tabs with an underline (or side) indicator.
+  underline,
+
+  /// Segmented control: a filled track with a raised pill under the selected tab.
+  segmented,
+}
+
 /// A tab item for use with TTabs.
 ///
 /// Type parameter:
@@ -45,6 +54,12 @@ class TTab<T> {
   /// ```
   final Map<String, dynamic>? data;
 
+  /// Permission (`String` or [TPermission]) required to see/use this tab.
+  final Object? permission;
+
+  /// Overrides the denied behaviour; defaults to hidden for tabs.
+  final TAuthMode? onDenied;
+
   /// Creates a tab item.
   const TTab({
     required this.value,
@@ -55,5 +70,34 @@ class TTab<T> {
     this.count,
     this.content,
     this.data,
+    this.permission,
+    this.onDenied,
   }) : assert(icon != null || text != null, 'Either icon or text must be provided');
+
+  /// Copy of this tab with [isEnabled] forced to false.
+  TTab<T> asDisabled() => TTab<T>(
+        value: value,
+        text: text,
+        icon: icon,
+        isEnabled: false,
+        isActive: isActive,
+        count: count,
+        content: content,
+        data: data,
+        permission: permission,
+        onDenied: onDenied,
+      );
+}
+
+extension TTabAuthX<T> on List<TTab<T>> {
+  /// Tabs that are not hidden by permission, with denied-disabled ones switched off.
+  List<TTab<T>> authorized(BuildContext context) {
+    final result = <TTab<T>>[];
+    for (final tab in this) {
+      final r = context.authResolve(tab.permission, target: TAuthTarget.tab, onDenied: tab.onDenied);
+      if (r.isHidden) continue;
+      result.add(r.isDisabled ? tab.asDisabled() : tab);
+    }
+    return result;
+  }
 }

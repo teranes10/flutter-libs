@@ -105,7 +105,7 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
   }
 
   List<Widget> _buildRows(Object? effectiveRootId) {
-    final visible = widget.items.where((i) => !i.isHidden).toList();
+    final visible = widget.items.where((i) => !i.isHiddenIn(context)).toList();
 
     return List.generate(visible.length, (index) {
       final item = visible[index];

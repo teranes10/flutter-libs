@@ -262,31 +262,39 @@ class _TButtonGroupState extends State<TButtonGroup> {
         groupTheme: groupTheme,
         item: item,
         index: index,
+        position: 0,
         total: 1,
       );
       return button;
     }
 
-    final children = <Widget>[];
-    final total = widget.items.length;
+    // Items hidden by permission are dropped up front so separators and the
+    // first/last rounding only consider what is actually shown.
+    final visible = [
+      for (int i = 0; i < widget.items.length; i++)
+        if (!context.authResolve(widget.items[i].permission, target: TAuthTarget.button, onDenied: widget.items[i].onDenied).isHidden) i,
+    ];
+    if (visible.isEmpty) return const SizedBox.shrink();
 
-    for (int i = 0; i < widget.items.length; i++) {
-      final item = widget.items[i];
-      final button = _buildButton(context, groupTheme: groupTheme, item: item, index: i, total: total);
+    final children = <Widget>[];
+    final total = visible.length;
+
+    for (int p = 0; p < total; p++) {
+      final i = visible[p];
+      final button = _buildButton(context, groupTheme: groupTheme, item: widget.items[i], index: i, position: p, total: total);
 
       children.add(button);
 
-      if (!widget.separated && i < total - 1 && groupTheme.needsSeparator()) {
+      if (!widget.separated && p < total - 1 && groupTheme.needsSeparator()) {
         children.add(groupTheme.buildSeparator());
       }
     }
 
     if (widget.expanded) {
-      final total = widget.items.length;
       final rowChildren = <Widget>[];
-      for (int i = 0; i < children.length; i++) {
-        rowChildren.add(Expanded(flex: widget.items[i].text?.length ?? 1, child: children[i]));
-        if (widget.separated && i < total - 1) {
+      for (int p = 0; p < children.length; p++) {
+        rowChildren.add(Expanded(flex: groupTheme.type == TButtonGroupType.segmented ? 1 : widget.items[visible[p]].text?.length ?? 1, child: children[p]));
+        if (widget.separated && p < total - 1) {
           rowChildren.add(SizedBox(width: widget.spacing ?? 8));
         }
       }
@@ -313,6 +321,7 @@ class _TButtonGroupState extends State<TButtonGroup> {
     required TButtonGroupTheme groupTheme,
     required TButtonGroupItem item,
     required int index,
+    required int position,
     required int total,
   }) {
     VoidCallback? onTap;
@@ -374,6 +383,8 @@ class _TButtonGroupState extends State<TButtonGroup> {
       badgeTextColor: item.badgeTextColor,
       onTap: onTap,
       onPressed: onPressed,
+      permission: item.permission,
+      onDenied: item.onDenied,
       child: item.child,
     );
 
@@ -387,13 +398,35 @@ class _TButtonGroupState extends State<TButtonGroup> {
       shape: groupTheme.shape,
     );
 
+    if (groupTheme.type == TButtonGroupType.segmented) {
+      final colors = context.colors;
+      final activeBase = TWidgetTheme(
+        isDarkMode: colors.isDarkMode,
+        type: TVariant.tonal,
+        color: colors.onSurface.toMaterial(),
+        container: colors.surface,
+        containerVariant: colors.surface,
+        onContainer: colors.onSurface,
+        onContainerVariant: colors.onSurface,
+        shadow: colors.shadow,
+      );
+      final segTheme = defaultTheme.copyWith(
+        baseTheme: isActive ? activeBase : TWidgetTheme.surfaceTheme(colors, variant: TVariant.text),
+        size: widget.size,
+        shape: groupTheme.shape,
+        elevation: isActive ? 1 : 0,
+      );
+      final pill = RoundedRectangleBorder(borderRadius: BorderRadius.circular(groupTheme.borderRadius));
+      return button.copyWith(theme: segTheme.copyWith(buttonStyle: segTheme.buttonStyle.copyWith(shape: WidgetStateProperty.all(pill))));
+    }
+
     final isSingle = total == 1 || widget.separated;
     if (isSingle) {
       return button.copyWith(theme: buttonTheme);
     }
 
-    final isFirst = index == 0;
-    final isLast = index == total - 1;
+    final isFirst = position == 0;
+    final isLast = position == total - 1;
     final borderRadius = groupTheme.borderRadius;
 
     final shape = RoundedRectangleBorder(

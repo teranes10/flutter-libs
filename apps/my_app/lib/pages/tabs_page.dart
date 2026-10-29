@@ -14,6 +14,7 @@ class _TabsPageState extends State<TabsPage> {
   // Controllers for new examples
   late final TTabController<int> _verticalController;
   late final TTabController<int> _separatedController;
+  int _segmentedTab = 1;
 
   @override
   void initState() {
@@ -997,6 +998,72 @@ TTabContent(
                 description: 'Shared controller for synchronizing tabs and content',
               ),
               PropertyDoc(name: 'tabs', type: 'List<TTab<T>>', description: 'List of tabs with content builders'),
+            ],
+          ),
+
+          // Segmented Tabs
+          WidgetDocCard(
+            title: 'Segmented Tabs',
+            description: 'Pill-in-a-track control for switching between a few views (e.g. Global / Node settings)',
+            icon: Icons.view_agenda_outlined,
+            preview: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TTabs<int>(
+                  style: TTabStyle.segmented,
+                  inline: true,
+                  fill: true,
+                  selectedValue: _segmentedTab,
+                  onTabChanged: (v) => setState(() => _segmentedTab = v),
+                  tabs: const [
+                    TTab(value: 1, text: 'Global settings'),
+                    TTab(value: 2, text: 'Node settings'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Content-sized, with icons and a count.
+                TTabs<int>(
+                  style: TTabStyle.segmented,
+                  inline: true,
+                  selectedValue: _segmentedTab,
+                  onTabChanged: (v) => setState(() => _segmentedTab = v),
+                  tabs: const [
+                    TTab(value: 1, text: 'Global', icon: Icons.public),
+                    TTab(value: 2, text: 'Node', icon: Icons.hub_outlined, count: 4),
+                    TTab(value: 3, text: 'Archived', isEnabled: false),
+                  ],
+                ),
+              ],
+            ),
+            code: '''int _tab = 1;
+
+// Equal-width halves
+TTabs<int>(
+  style: TTabStyle.segmented,
+  inline: true,
+  fill: true,
+  selectedValue: _tab,
+  onTabChanged: (v) => setState(() => _tab = v),
+  tabs: const [
+    TTab(value: 1, text: 'Global settings'),
+    TTab(value: 2, text: 'Node settings'),
+  ],
+)
+
+// Content-sized (omit fill), with icons / counts
+TTabs<int>(
+  style: TTabStyle.segmented,
+  inline: true,
+  selectedValue: _tab,
+  tabs: const [
+    TTab(value: 1, text: 'Global', icon: Icons.public),
+    TTab(value: 2, text: 'Node', icon: Icons.hub_outlined, count: 4),
+  ],
+)''',
+            properties: const [
+              PropertyDoc(name: 'style', type: 'TTabStyle', defaultValue: 'TTabStyle.underline', description: 'Use TTabStyle.segmented for the pill-in-a-track look (horizontal only)'),
+              PropertyDoc(name: 'inline', type: 'bool', defaultValue: 'false', description: 'Required for segmented so the track hugs the tabs'),
+              PropertyDoc(name: 'fill', type: 'bool', defaultValue: 'false', description: 'Share the width evenly between segments'),
             ],
           ),
 

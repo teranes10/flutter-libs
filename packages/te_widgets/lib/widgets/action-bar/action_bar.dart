@@ -66,6 +66,14 @@ class TActionBar extends StatelessWidget {
   /// Tap handler of the third action.
   final VoidCallback? onTertiary;
 
+  /// Permissions (`String` or [TPermission]) for the three actions; see [TButton.permission].
+  final Object? primaryPermission;
+  final Object? secondaryPermission;
+  final Object? tertiaryPermission;
+
+  /// Overrides the denied behaviour for all three actions (default: disabled).
+  final TAuthMode? onDenied;
+
   /// Optional content above the buttons (e.g. a progress line or hint).
   final Widget? leading;
 
@@ -87,6 +95,10 @@ class TActionBar extends StatelessWidget {
     this.tertiaryText,
     this.tertiaryIcon,
     this.onTertiary,
+    this.primaryPermission,
+    this.secondaryPermission,
+    this.tertiaryPermission,
+    this.onDenied,
     this.leading,
     this.safeArea = true,
   });
@@ -107,6 +119,8 @@ class TActionBar extends StatelessWidget {
           loading: primaryLoading,
           onTap: hasPrimaryAction ? onPrimary : null,
           onPressed: onPrimaryPressed,
+          permission: primaryPermission,
+          onDenied: onDenied,
         );
 
     TButton buildSecondary(TSize size) => TButton(
@@ -116,6 +130,8 @@ class TActionBar extends StatelessWidget {
           text: secondaryText,
           icon: secondaryIcon,
           onTap: onSecondary,
+          permission: secondaryPermission,
+          onDenied: onDenied,
         );
 
     final Widget buttons;
@@ -203,6 +219,8 @@ class TActionBar extends StatelessWidget {
                   text: tertiaryText,
                   icon: tertiaryIcon,
                   onTap: onTertiary,
+                  permission: tertiaryPermission,
+                  onDenied: onDenied,
                 ),
               ],
             ],

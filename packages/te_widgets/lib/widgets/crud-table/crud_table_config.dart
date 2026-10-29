@@ -1,11 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+/// Permission strings guarding the built-in CRUD actions.
+///
+/// Each value is a `String` or [TPermission] checked against the nearest
+/// [TAuthScope]. Denied actions are disabled by default; set [onDenied] to
+/// [TAuthMode.hide] to remove them instead. These combine (AND) with the
+/// per-row `canView`/`canEdit`/... checks in [TCrudConfig].
+class TCrudPermissions {
+  final Object? view;
+  final Object? create;
+  final Object? edit;
+  final Object? delete;
+  final Object? archive;
+  final Object? restore;
+  final Object? export;
+
+  /// Overrides the denied behaviour for all built-in actions.
+  final TAuthMode? onDenied;
+
+  const TCrudPermissions({this.view, this.create, this.edit, this.delete, this.archive, this.restore, this.export, this.onDenied});
+
+  /// Convenience: `orders.view`, `orders.create`, ... from a prefix.
+  factory TCrudPermissions.prefix(String prefix, {TAuthMode? onDenied}) => TCrudPermissions(
+        view: '$prefix.view',
+        create: '$prefix.create',
+        edit: '$prefix.edit',
+        delete: '$prefix.delete',
+        archive: '$prefix.archive',
+        restore: '$prefix.restore',
+        export: '$prefix.export',
+        onDenied: onDenied,
+      );
+}
+
 /// Configuration for [TCrudTable].
 ///
 /// `TCrudConfig` defines permission checks, UI labels, tabs, and actions
 /// available in the CRUD interface.
 class TCrudConfig<T, K> {
+  /// Permission strings for the built-in actions (see [TCrudPermissions]).
+  final TCrudPermissions? permissions;
+
   /// Check if viewing details is allowed.
   final Future<bool> Function(T)? canView;
 
@@ -120,6 +156,7 @@ class TCrudConfig<T, K> {
 
   /// Creates a CRUD configuration.
   const TCrudConfig({
+    this.permissions,
     this.canView,
     this.canEdit,
     this.canDelete,
@@ -175,6 +212,12 @@ class TCrudCustomAction<T> {
   /// Whether this action should render flat (inline) when [TCrudConfig.flatActions] is false.
   final bool showFlat;
 
+  /// Permission (`String` or [TPermission]) required for this action.
+  final Object? permission;
+
+  /// Overrides the denied behaviour (default: disabled).
+  final TAuthMode? onDenied;
+
   /// Creates a custom CRUD action.
   const TCrudCustomAction({
     required this.tooltip,
@@ -183,5 +226,7 @@ class TCrudCustomAction<T> {
     required this.onPressed,
     this.canPerform,
     this.showFlat = false,
+    this.permission,
+    this.onDenied,
   });
 }

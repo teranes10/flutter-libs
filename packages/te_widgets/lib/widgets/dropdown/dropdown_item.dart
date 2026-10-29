@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/auth/auth_mode.dart';
 import 'package:te_widgets/widgets/menu/menu_item_data.dart';
 
 class TDropdownItem extends TMenuItemData<TDropdownItem> {
@@ -17,6 +18,10 @@ class TDropdownItem extends TMenuItemData<TDropdownItem> {
   final Color? color;
   @override
   final Widget? customContent;
+  @override
+  final Object? permission;
+  @override
+  final TAuthMode? onDenied;
 
   const TDropdownItem({
     this.icon,
@@ -28,6 +33,8 @@ class TDropdownItem extends TMenuItemData<TDropdownItem> {
     this.hidden = false,
     this.color,
     this.customContent,
+    this.permission,
+    this.onDenied,
   });
 
   @override

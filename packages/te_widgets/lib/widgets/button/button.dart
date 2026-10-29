@@ -172,6 +172,14 @@ class TButton extends StatefulWidget {
   /// The size configuration for the badge. Defaults to null (uses standard badge size).
   final TSize? badgeSize;
 
+  /// Permission required to use this button (a `String` or [TPermission]),
+  /// checked against the nearest [TAuthScope]. Null means no restriction.
+  final Object? permission;
+
+  /// What to do when [permission] is denied. Null uses the [TAuthConfig] default
+  /// (disabled for buttons).
+  final TAuthMode? onDenied;
+
   /// The alignment of the badge overlay. Defaults to [Alignment.topRight].
   final Alignment badgeAlignment;
 
@@ -276,6 +284,8 @@ class TButton extends StatefulWidget {
     this.shadowColor,
     this.semanticLabel,
     this.semanticIdentifier,
+    this.permission,
+    this.onDenied,
   })  : assert(
           theme == null || (baseTheme == null && type == null && size == null && shape == null && color == null),
           'If theme is provided, baseTheme, type, shape, color and size must be null.',
@@ -339,6 +349,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool _isActive = false;
   DateTime? _lastTapTime;
+  bool _authDisabled = false;
 
   late final WidgetStatesController _statesController;
 
@@ -395,7 +406,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       _lastTapTime = now;
     }
 
-    if (_isLoading || (widget.onPressed == null && widget.onTap == null && widget.onChanged == null)) return;
+    if (_isLoading || _authDisabled || (widget.onPressed == null && widget.onTap == null && widget.onChanged == null)) return;
 
     _pressController.forward().then((_) {
       if (mounted) _pressController.reverse();
@@ -458,6 +469,9 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.authResolve(widget.permission, target: TAuthTarget.button, onDenied: widget.onDenied);
+    if (auth.isHidden) return const SizedBox.shrink();
+    _authDisabled = auth.isDisabled;
     final defaultTheme = context.theme.buttonTheme;
     final size = widget.size ?? widget.theme?.size ?? defaultTheme.size;
     final activeColor = _isActive ? (widget.activeColor ?? widget.color) : widget.color;
@@ -578,7 +592,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
               baseTheme.type != TVariant.outline &&
               baseTheme.type != TVariant.text);
 
-      final isDisabled = widget.onPressed == null && widget.onTap == null && widget.onChanged == null;
+      final isDisabled = _authDisabled || (widget.onPressed == null && widget.onTap == null && widget.onChanged == null);
       final states = _statesController.value;
       final effectiveElevation = widget.elevation ??
           theme.elevation ??

@@ -19,6 +19,9 @@ class TTabs<T> extends StatefulWidget {
   final double? indicatorWidth;
   final bool inline;
 
+  /// Visual style. [TTabStyle.segmented] renders a pill-in-a-track control (horizontal only).
+  final TTabStyle style;
+
   /// With [inline] horizontal tabs, share the available width evenly in a single row.
   final bool fill;
   final Axis axis;
@@ -49,6 +52,7 @@ class TTabs<T> extends StatefulWidget {
     this.tabRunSpacing = 2,
     this.indicatorWidth = 1,
     this.inline = false,
+    this.style = TTabStyle.underline,
     this.fill = false,
     this.axis = Axis.horizontal,
     this.scrollable = false,
@@ -212,6 +216,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
       indicatorColor: widget.indicatorColor,
       controller: widget.controller,
       onTab: onTap,
+      style: widget.style,
     );
 
     // Horizontal full-width mode uses TAlignedRow, which handles child expansion internally.
@@ -227,8 +232,22 @@ class _TTabsState<T> extends State<TTabs<T>> {
     final navBg = widget.navigationButtonBackgroundColor ?? colors.surfaceContainer;
 
     final tabWidgets = [
-      for (final tab in widget.tabs) _buildTab(context, tab, colors),
+      for (final tab in widget.tabs.authorized(context)) _buildTab(context, tab, colors),
     ];
+
+    if (widget.style == TTabStyle.segmented && widget.axis == Axis.horizontal) {
+      return Container(
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(11)),
+        child: Row(
+          mainAxisSize: widget.fill ? MainAxisSize.max : MainAxisSize.min,
+          spacing: 2,
+          children: [
+            for (final t in tabWidgets) Flexible(fit: widget.fill ? FlexFit.tight : FlexFit.loose, child: t),
+          ],
+        ),
+      );
+    }
 
     Widget body;
 

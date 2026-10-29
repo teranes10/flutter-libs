@@ -4,6 +4,7 @@ import 'package:my_app/pages/affix_page.dart';
 import 'package:my_app/pages/card_page.dart';
 import 'package:my_app/pages/avatars_page.dart';
 import 'package:my_app/pages/banners_page.dart';
+import 'package:my_app/pages/authorization_page.dart';
 import 'package:my_app/pages/bottom_bar_page.dart';
 import 'package:my_app/pages/breadcrumbs_page.dart';
 import 'package:my_app/pages/buttons_page.dart';
@@ -200,6 +201,7 @@ final sidebarItems = [
       TSidebarItem(icon: Icons.vertical_align_bottom, text: 'Bottom Bar', route: 'bottom-bar', page: const BottomBarPage()),
       TSidebarItem(icon: Icons.terminal_rounded, text: 'Command Palette', route: 'command-palette', page: const CommandPalettePage()),
       TSidebarItem(icon: Icons.mouse_rounded, text: 'Context Menu', route: 'context-menu', page: const ContextMenuPage()),
+      TSidebarItem(icon: Icons.lock_outline, text: 'Authorization', route: 'authorization', page: const AuthorizationPage()),
       TSidebarItem(icon: Icons.tour_outlined, text: 'Guided Tour', route: 'tour', page: const TourPage()),
     ],
   ),

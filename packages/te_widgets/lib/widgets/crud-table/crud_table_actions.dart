@@ -2,10 +2,11 @@ part of 'crud_table.dart';
 
 extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F> {
   // Permission methods
-  bool canPerformActionSync(T item, Future<bool> Function(T)? permission) {
+  bool canPerformActionSync(T item, Future<bool> Function(T)? permission, {String? key}) {
     if (permission == null) return true;
 
-    final cacheKey = permission.toString();
+    // Closure toString() is not unique per permission; callers pass a stable action key.
+    final cacheKey = key ?? permission.toString();
     final itemCache = _permissionCache[item] ??= <String, bool>{};
 
     if (itemCache.containsKey(cacheKey)) {
@@ -38,14 +39,17 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
 
   // Action handlers
   void handleCreate() {
+    if (!_crudAuth(_perms?.create).isAllowed) return;
     _listController.beginCreateItem();
   }
 
   void handleEdit(T item) {
+    if (!_crudAuth(_perms?.edit).isAllowed) return;
     _listController.beginEditItem(item);
   }
 
   Future<bool> handleCreateInline(BuildContext ctx, F form) async {
+    if (!_crudAuth(_perms?.create).isAllowed) return false;
     final scope = TTableScope.of(ctx);
     final newItem = await widget.onCreate?.call(form);
     if (newItem != null) {

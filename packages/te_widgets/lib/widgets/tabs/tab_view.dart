@@ -63,6 +63,12 @@ class TTabView<T> extends StatefulWidget {
   /// Whether to use inline layout instead of full-width.
   final bool inline;
 
+  /// Visual style of the tab bar; see [TTabStyle].
+  final TTabStyle style;
+
+  /// With [inline], share the width evenly between tabs (see [TTabs.fill]).
+  final bool fill;
+
   /// The axis along which the tabs are laid out.
   final Axis axis;
 
@@ -98,6 +104,8 @@ class TTabView<T> extends StatefulWidget {
     this.tabPadding,
     this.indicatorWidth,
     this.inline = false,
+    this.style = TTabStyle.underline,
+    this.fill = false,
     this.axis = Axis.horizontal,
     this.scrollable = false,
     this.showNavigationButtons = true,
@@ -169,6 +177,8 @@ class _TTabViewState<T> extends State<TTabView<T>> {
           tabPadding: widget.tabPadding,
           indicatorWidth: widget.indicatorWidth,
           inline: widget.inline,
+          style: widget.style,
+          fill: widget.fill,
           axis: widget.axis,
           scrollable: widget.scrollable,
           showNavigationButtons: widget.showNavigationButtons,

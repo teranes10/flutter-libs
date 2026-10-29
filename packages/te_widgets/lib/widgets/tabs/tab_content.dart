@@ -43,6 +43,7 @@ class TTabContent<T> extends StatelessWidget {
     return ValueListenableBuilder<T?>(
       valueListenable: controller,
       builder: (context, selectedValue, _) {
+        final tabs = this.tabs.authorized(context);
         final index = tabs.indexWhere((tab) => tab.value == selectedValue);
         final validIndex = index >= 0 ? index : 0;
 

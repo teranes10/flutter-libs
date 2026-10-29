@@ -704,6 +704,65 @@ TButton(
 )''',
           ),
 
+          // Segmented Button Group
+          WidgetDocCard(
+            title: 'Segmented Button Group',
+            description: 'Pill-in-a-track selector; the active item is raised',
+            icon: Icons.view_agenda_outlined,
+            preview: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TButtonGroup(
+                  type: TButtonGroupType.segmented,
+                  expanded: true,
+                  initialIndex: 0,
+                  items: [
+                    TButtonGroupItem(text: 'Global settings'),
+                    TButtonGroupItem(text: 'Node settings'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TButtonGroup(
+                  type: TButtonGroupType.segmented,
+                  initialIndex: 1,
+                  items: [
+                    TButtonGroupItem(icon: Icons.view_list, text: 'List'),
+                    TButtonGroupItem(icon: Icons.grid_view, text: 'Grid'),
+                    TButtonGroupItem(icon: Icons.map_outlined, text: 'Map'),
+                  ],
+                ),
+              ],
+            ),
+            code: '''// Full width, equal segments
+TButtonGroup(
+  type: TButtonGroupType.segmented,
+  expanded: true,
+  initialIndex: 0,
+  onIndexChanged: (i) => setState(() => _view = i),
+  items: [
+    TButtonGroupItem(text: 'Global settings'),
+    TButtonGroupItem(text: 'Node settings'),
+  ],
+)
+
+// Content-sized with icons
+TButtonGroup(
+  type: TButtonGroupType.segmented,
+  initialIndex: 1,
+  items: [
+    TButtonGroupItem(icon: Icons.view_list, text: 'List'),
+    TButtonGroupItem(icon: Icons.grid_view, text: 'Grid'),
+    TButtonGroupItem(icon: Icons.map_outlined, text: 'Map'),
+  ],
+)''',
+            properties: const [
+              PropertyDoc(name: 'type', type: 'TButtonGroupType', description: 'Use TButtonGroupType.segmented'),
+              PropertyDoc(name: 'expanded', type: 'bool', defaultValue: 'false', description: 'Stretch to full width with equal-width segments'),
+              PropertyDoc(name: 'initialIndex', type: 'int?', description: 'Initially selected segment; enables stateful selection'),
+              PropertyDoc(name: 'onIndexChanged', type: 'ValueChanged<int>?', description: 'Called when the selected segment changes'),
+            ],
+          ),
+
           const SizedBox(height: 40),
         ],
       ),

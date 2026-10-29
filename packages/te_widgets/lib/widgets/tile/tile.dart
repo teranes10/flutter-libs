@@ -108,6 +108,12 @@ class TTile extends StatelessWidget {
   /// Callback when the tile is tapped.
   final VoidCallback? onTap;
 
+  /// Permission (`String` or [TPermission]) required to use this tile.
+  final Object? permission;
+
+  /// Overrides the denied behaviour; defaults to disabled (non-tappable) for tiles.
+  final TAuthMode? onDenied;
+
   /// Internal padding around the tile.
   final EdgeInsetsGeometry? padding;
 
@@ -183,6 +189,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -222,6 +230,8 @@ class TTile extends StatelessWidget {
     dynamic icon,
     bool selected = false,
     VoidCallback? onTap,
+    Object? permission,
+    TAuthMode? onDenied,
   }) {
     return _TTaskTile(
       key: key,
@@ -235,6 +245,8 @@ class TTile extends StatelessWidget {
       icon: icon,
       selected: selected,
       onTap: onTap,
+      permission: permission,
+      onDenied: onDenied,
     );
   }
 
@@ -271,6 +283,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -312,6 +326,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -353,6 +369,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -394,6 +412,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -435,6 +455,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -476,6 +498,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -517,6 +541,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -558,6 +584,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -599,6 +627,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -640,6 +670,8 @@ class TTile extends StatelessWidget {
     this.trailing,
     this.trailingAboveOnOverflow = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
     this.padding,
     this.borderRadius,
     this.isHovered = false,
@@ -743,6 +775,9 @@ class TTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.authResolve(permission, target: TAuthTarget.tile, onDenied: onDenied);
+    if (auth.isHidden) return const SizedBox.shrink();
+    final onTap = auth.isDisabled ? null : this.onTap;
     final colors = context.colors;
     final effectiveCrossAxisAlignment = crossAxisAlignment ?? CrossAxisAlignment.center;
     final effectiveIcon = leading ?? ((imageUrl != null && imageUrl!.isNotEmpty) ? null : icon);
@@ -1316,6 +1351,8 @@ class _TTaskTile extends StatelessWidget {
   final dynamic icon;
   final bool selected;
   final VoidCallback? onTap;
+  final Object? permission;
+  final TAuthMode? onDenied;
 
   const _TTaskTile({
     super.key,
@@ -1329,10 +1366,15 @@ class _TTaskTile extends StatelessWidget {
     this.icon,
     this.selected = false,
     this.onTap,
+    this.permission,
+    this.onDenied,
   });
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.authResolve(permission, target: TAuthTarget.tile, onDenied: onDenied);
+    if (auth.isHidden) return const SizedBox.shrink();
+    final onTap = auth.isDisabled ? null : this.onTap;
     final colors = context.colors;
     final accent = statusColor ?? colors.primary;
     final hasProgress = total != null && total! > 0;

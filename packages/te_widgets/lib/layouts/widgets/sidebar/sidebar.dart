@@ -52,7 +52,7 @@ class Sidebar extends StatelessWidget {
           const baseWidth = 56.0;
 
           for (var item in items!) {
-            if (item.isHidden) continue;
+            if (item.isHiddenIn(context)) continue;
             double itemWidth = baseWidth;
             if (item.icon != null) itemWidth += 30.0;
             if (item.text != null) {
@@ -62,7 +62,7 @@ class Sidebar extends StatelessWidget {
               )..layout();
               itemWidth += tp.width;
             }
-            if (item.hasVisibleChildren) itemWidth += 24.0;
+            if (item.hasVisibleChildrenIn(context)) itemWidth += 24.0;
             if (itemWidth > maxItemWidth) maxItemWidth = itemWidth;
           }
 

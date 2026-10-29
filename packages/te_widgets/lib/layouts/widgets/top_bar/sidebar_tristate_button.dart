@@ -88,7 +88,7 @@ class SidebarTristateButton extends ConsumerWidget {
       );
 
       return TMenuRootTrigger<TSidebarItem>(
-        items: currentItems.where((i) => !i.isHidden).toList(),
+        items: currentItems.where((i) => !i.isHiddenIn(context)).toList(),
         theme: menuTheme,
         triggerMode: TMenuTriggerMode.hover,
         isActive: (i) => i.route == currentRoute,

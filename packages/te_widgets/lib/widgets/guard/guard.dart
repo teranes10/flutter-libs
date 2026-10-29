@@ -49,6 +49,16 @@ class TGuard extends StatelessWidget {
     required this.child,
   });
 
+  /// Guards [child] by a permission string (or [TPermission]) checked against
+  /// the nearest [TAuthScope]. Prefer [TAuthGate] directly for new code.
+  static Widget permission({
+    Key? key,
+    required Object permission,
+    TAuthMode? onDenied,
+    required Widget child,
+  }) =>
+      TAuthGate(key: key, permission: permission, onDenied: onDenied, child: child);
+
   @override
   Widget build(BuildContext context) {
     if (condition) return child;

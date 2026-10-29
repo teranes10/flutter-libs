@@ -19,6 +19,10 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
   final bool hidden;
   final bool home;
   final int? bottomBarPosition;
+  @override
+  final Object? permission;
+  @override
+  final TAuthMode? onDenied;
 
   const TSidebarItem({
     this.page,
@@ -33,6 +37,8 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
     this.hidden = false,
     this.home = false,
     this.bottomBarPosition,
+    this.permission,
+    this.onDenied,
   });
 
   TSidebarItem copyWith({
@@ -48,6 +54,8 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
     bool? hidden,
     bool? home,
     int? bottomBarPosition,
+    Object? permission,
+    TAuthMode? onDenied,
   }) {
     return TSidebarItem(
       page: page ?? this.page,
@@ -62,6 +70,8 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
       hidden: hidden ?? this.hidden,
       home: home ?? this.home,
       bottomBarPosition: bottomBarPosition ?? this.bottomBarPosition,
+      permission: permission ?? this.permission,
+      onDenied: onDenied ?? this.onDenied,
     );
   }
 
@@ -82,6 +92,12 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
 
   @override
   bool get isClickable => route != null || onTap != null;
+
+  @override
+  TAuthTarget get authTarget => TAuthTarget.sidebarItem;
+
+  @override
+  bool get hidesWhenEmpty => route == null;
 
   @override
   void tap(BuildContext context) {

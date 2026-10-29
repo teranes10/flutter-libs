@@ -71,7 +71,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
   }
 
   void _handleTap() {
-    if (widget.item.hasVisibleChildren) {
+    if (widget.item.hasVisibleChildrenIn(context)) {
       if (_overlayController.isShowing) {
         _overlayController.hide();
       } else {
@@ -79,7 +79,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
       }
       return;
     }
-    if (!widget.item.isClickable) return;
+    if (!widget.item.isClickableIn(context)) return;
     widget.item.tap(context);
     TMenuOverlayController.hideRoot(widget.rootId);
     widget.onTap?.call(widget.item);
@@ -90,7 +90,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
     setState(() => _isHovered = true);
     _exitTimer?.cancel();
 
-    if (widget.item.hasVisibleChildren) {
+    if (widget.item.hasVisibleChildrenIn(context)) {
       _scheduleSubOverlay();
     } else {
       _hoverTimer?.cancel();
@@ -175,7 +175,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
                 offset: widget.theme.secondaryOffset,
               ),
               child: TMenuOverlayPanel<T>(
-                items: widget.item.visibleChildren,
+                items: widget.item.visibleChildrenIn(context),
                 level: widget.level + 1,
                 rootId: widget.rootId,
                 theme: childTheme,
@@ -204,7 +204,10 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
               color: widget.isActive ? widget.theme.activeBackgroundColor : null,
               borderRadius: widget.theme.itemBorderRadius,
             ),
-            child: _buildContent(color),
+            child: Opacity(
+              opacity: widget.item.authResult(context).isDisabled ? 0.45 : 1,
+              child: _buildContent(color),
+            ),
           ),
         ),
       ),
@@ -228,7 +231,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
               softWrap: true,
             ),
           ),
-        if (widget.item.hasVisibleChildren)
+        if (widget.item.hasVisibleChildrenIn(context))
           Padding(
             padding: EdgeInsets.only(left: widget.theme.gap),
             child: Icon(

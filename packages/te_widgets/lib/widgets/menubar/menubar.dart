@@ -12,7 +12,13 @@ class TMenubarMenu {
   /// (via `children`) work the same way here too.
   final List<TDropdownItem> items;
 
-  const TMenubarMenu({required this.label, required this.items});
+  /// Permission (`String` or [TPermission]) required to use this menu.
+  final Object? permission;
+
+  /// Overrides the denied behaviour (default: the menu stays but cannot open).
+  final TAuthMode? onDenied;
+
+  const TMenubarMenu({required this.label, required this.items, this.permission, this.onDenied});
 }
 
 /// A desktop-application-style horizontal menu bar with nested dropdown
@@ -58,20 +64,26 @@ class TMenubar extends StatelessWidget {
       child: Row(
         children: [
           for (final menu in menus)
-            TMenuRootTrigger<TDropdownItem>(
-              items: menu.items,
-              theme: menuTheme,
-              triggerMode: TMenuTriggerMode.hover,
-              child: Container(
-                height: 36,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                alignment: Alignment.center,
-                child: Text(
-                  menu.label,
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurface),
+            if (!context.authResolve(menu.permission, target: TAuthTarget.menuItem, onDenied: menu.onDenied).isHidden)
+              Opacity(
+                opacity: context.authResolve(menu.permission, target: TAuthTarget.menuItem, onDenied: menu.onDenied).isDisabled ? 0.45 : 1,
+                child: TMenuRootTrigger<TDropdownItem>(
+                  items: context.authResolve(menu.permission, target: TAuthTarget.menuItem, onDenied: menu.onDenied).isDisabled
+                      ? const []
+                      : menu.items,
+                  theme: menuTheme,
+                  triggerMode: TMenuTriggerMode.hover,
+                  child: Container(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    alignment: Alignment.center,
+                    child: Text(
+                      menu.label,
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurface),
+                    ),
+                  ),
                 ),
               ),
-            ),
         ],
       ),
     );
