@@ -253,6 +253,7 @@ export 'widgets/table/row-header/table_row_header_theme.dart';
 export 'widgets/table/row-header/table_row_header.dart';
 
 export 'widgets/table/table_header.dart';
+export 'widgets/table/sub_rows.dart';
 export 'widgets/table/table_scope.dart';
 export 'widgets/table/table_cell_scope.dart';
 export 'widgets/table/table_theme.dart';

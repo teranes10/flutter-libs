@@ -23,6 +23,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// - [TTableHeader.progress]: Renders a [TProgressBar]
 /// - [TTableHeader.row]: Renders multiple widgets in a [Wrap]
 /// - [TTableHeader.column]: Renders multiple widgets vertically in a [Column]
+/// - [TTableHeader.stacked]: Renders fixed-height sub-rows via [TSubRows], aligned across columns
 /// - [TTableHeader.keyValues]: Renders a list of [TKeyValue] pairs
 /// - [TTableHeader.values]: Renders a hierarchical list of values (cascading font size & contrast)
 /// - [TTableHeader.image]: Renders an image from URL
@@ -121,6 +122,11 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
   });
+
+  /// Whether the cell skips the table's default horizontal cell padding and fills its full column width.
+  ///
+  /// Used by [TTableHeader.stacked] so dividers of adjacent columns connect.
+  bool get fullBleedCell => false;
 
   /// Gets the string display value for an item.
   String getValue(T item) {
@@ -595,6 +601,54 @@ class TTableHeader<T, K> {
             ],
           );
         });
+
+  /// Creates a header that stacks several fixed-height sub-rows inside one table row.
+  ///
+  /// Use it for grouped rows (one item = one card holding several sub-rows).
+  /// Columns built with the same [rowHeight] line up sub-row by sub-row, so no
+  /// colspan/rowspan is needed. Use a plain column (e.g. [TTableHeader.new]) for the
+  /// group label cell; it stays vertically centered across the whole stack.
+  ///
+  /// The cell is rendered edge to edge ([fullBleedCell]) and each sub-row pads its
+  /// own content by [contentPadding], so dividers of neighboring stacked columns join
+  /// into one continuous line.
+  ///
+  /// [builder] must return the same number of widgets for every stacked column
+  /// of the table.
+  factory TTableHeader.stacked(
+    String text,
+    List<Widget> Function(T) builder, {
+    int? flex,
+    double? minWidth,
+    double? maxWidth,
+    Alignment? alignment,
+    double rowHeight = 40,
+    bool showDividers = true,
+    Color? dividerColor,
+    EdgeInsetsGeometry contentPadding = const EdgeInsets.symmetric(horizontal: 5),
+    String? key,
+    double Function(T data)? widthEstimator,
+    bool flattenOnMobile = false,
+    bool showInDetails = true,
+    String Function(String headerText, String childKey)? mobileKeyPrefixBuilder,
+  }) =>
+      _TStackedTableHeader<T, K>(
+        text,
+        builder,
+        flex: flex,
+        minWidth: minWidth,
+        maxWidth: maxWidth,
+        alignment: alignment,
+        rowHeight: rowHeight,
+        showDividers: showDividers,
+        dividerColor: dividerColor,
+        contentPadding: contentPadding,
+        key: key,
+        widthEstimator: widthEstimator,
+        flattenOnMobile: flattenOnMobile,
+        showInDetails: showInDetails,
+        mobileKeyPrefixBuilder: mobileKeyPrefixBuilder,
+      );
 
   /// Creates a header for displaying key-value pairs in table cells.
   TTableHeader.keyValues(
@@ -1533,4 +1587,40 @@ class TTableHeader<T, K> {
       ),
     );
   }
+}
+
+class _TStackedTableHeader<T, K> extends TTableHeader<T, K> {
+  @override
+  bool get fullBleedCell => true;
+
+  _TStackedTableHeader(
+    super.text,
+    List<Widget> Function(T) rows, {
+    super.flex,
+    super.minWidth,
+    super.maxWidth,
+    super.alignment,
+    required double rowHeight,
+    required bool showDividers,
+    Color? dividerColor,
+    required EdgeInsetsGeometry contentPadding,
+    super.key,
+    super.widthEstimator,
+    super.flattenOnMobile,
+    super.showInDetails,
+    super.mobileKeyPrefixBuilder,
+  }) : super(
+          filterable: false,
+          builder: (ctx, item, _) {
+            final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
+            return TSubRows(
+              rowHeight: isDense ? rowHeight * 0.85 : rowHeight,
+              showDividers: showDividers,
+              dividerColor: dividerColor,
+              padding: contentPadding,
+              alignment: alignment ?? Alignment.centerLeft,
+              children: rows(item.data),
+            );
+          },
+        );
 }

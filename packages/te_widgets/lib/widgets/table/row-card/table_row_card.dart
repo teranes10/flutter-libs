@@ -175,7 +175,12 @@ class TTableRowCard<T, K> extends StatelessWidget {
                   final header = entry.value;
 
                   Widget cellWidget = header.builder != null
-                      ? Builder(builder: (context) => header.builder!(context, item, index))
+                      ? Builder(
+                          builder: (context) => DefaultTextStyle.merge(
+                            style: wTheme.contentTextStyle,
+                            child: header.builder!(context, item, index),
+                          ),
+                        )
                       : Text(header.getValue(item.data), style: wTheme.contentTextStyle);
 
                   if (headerIndex == 0) {
@@ -239,7 +244,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
 
                   final cellContainer = Container(
                     constraints: BoxConstraints(minWidth: cellMinWidth, maxWidth: cellMaxWidth),
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    padding: header.fullBleedCell ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 5),
                     alignment: header.alignment ?? Alignment.centerLeft,
                     child: cellWidget,
                   );

@@ -58,7 +58,9 @@ import 'package:my_app/pages/tables_bottom_page.dart';
 import 'package:my_app/pages/tables_create_builder_page.dart';
 import 'package:my_app/pages/tables_dialog_page.dart';
 import 'package:my_app/pages/tables_page.dart';
+import 'package:my_app/pages/tables_matrix_page.dart';
 import 'package:my_app/pages/tables_page_mode_page.dart';
+import 'package:my_app/pages/tables_permission_matrix_page.dart';
 import 'package:my_app/pages/tables_side_page.dart';
 import 'package:my_app/pages/tables_sub_item_page.dart';
 import 'package:my_app/pages/tables_tree_children_page.dart';
@@ -126,6 +128,7 @@ final sidebarItems = [
       TSidebarItem(icon: Icons.web_asset, text: 'Dialog Expansion', route: 'dialog', page: const TablesDialogPage()),
       TSidebarItem(icon: Icons.article, text: 'Page Expansion', route: 'page', page: const TablesPageModePage()),
       TSidebarItem(icon: Icons.filter_none_outlined, text: 'Sub-Items Table', route: 'sub-item', page: const TablesSubItemPage()),
+      TSidebarItem(icon: Icons.grid_on_rounded, text: 'Matrix Table', route: 'matrix', page: const TablesMatrixPage()),
       TSidebarItem(
         icon: Icons.add_box_outlined,
         text: 'Create Builder Table',
@@ -237,8 +240,19 @@ final sidebarItems = [
     route: '/samples',
     children: [
       TSidebarItem(icon: Icons.inventory_rounded, text: 'Stock Take Flow', route: 'stocktake-flow', page: const StocktakeV2Page()),
-      TSidebarItem(icon: Icons.shopping_cart_checkout_rounded, text: 'Order Picking', route: 'order-picking', page: const OrderPickingPage()),
+      TSidebarItem(
+        icon: Icons.shopping_cart_checkout_rounded,
+        text: 'Order Picking',
+        route: 'order-picking',
+        page: const OrderPickingPage(),
+      ),
       TSidebarItem(icon: Icons.local_shipping_outlined, text: 'Delivery App', route: 'delivery-app', page: const DeliveryPage()),
+      TSidebarItem(
+        icon: Icons.grid_on_rounded,
+        text: 'Permission Matrix',
+        route: 'permission-matrix',
+        page: const TablesPermissionMatrixPage(),
+      ),
       TSidebarItem(icon: Icons.map, text: 'Maps', route: 'maps', page: const MapSamplePage()),
       TSidebarItem(
         icon: Icons.schema,
