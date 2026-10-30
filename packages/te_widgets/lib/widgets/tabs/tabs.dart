@@ -280,6 +280,31 @@ class _TTabsState<T> extends State<TTabs<T>> {
         ),
       );
 
+      if (_showArrows) {
+        scrollView = ShaderMask(
+          shaderCallback: (bounds) {
+            final isHorizontal = widget.axis == Axis.horizontal;
+            // Fade extent as a fraction of the viewport, step-reduced opacity toward the edge.
+            const fadeFraction = 0.08;
+            final startStop = _canScrollStart ? fadeFraction : 0.0;
+            final endStop = _canScrollEnd ? 1.0 - fadeFraction : 1.0;
+            return LinearGradient(
+              begin: isHorizontal ? Alignment.centerLeft : Alignment.topCenter,
+              end: isHorizontal ? Alignment.centerRight : Alignment.bottomCenter,
+              colors: const [
+                Colors.transparent,
+                Colors.black,
+                Colors.black,
+                Colors.transparent,
+              ],
+              stops: [0.0, startStop, endStop, 1.0],
+            ).createShader(bounds);
+          },
+          blendMode: BlendMode.dstIn,
+          child: scrollView,
+        );
+      }
+
       if (showButtons) {
         body = Stack(
           clipBehavior: Clip.none,
@@ -386,7 +411,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
                 children: tabWidgets,
               ),
             );
-    } else if (widget.axis == Axis.horizontal && widget.flowOnMobile && context.isMobile) {
+    } else if (widget.axis == Axis.horizontal && (widget.wrap || (widget.flowOnMobile && context.isMobile))) {
       body = TTabFlow(spacing: widget.tabSpacing, runSpacing: widget.tabRunSpacing, children: tabWidgets);
     } else {
       // Full-width (or full stretch for vertical)

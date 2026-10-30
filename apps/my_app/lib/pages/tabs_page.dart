@@ -424,9 +424,7 @@ TTabs<int>(
             title: 'Wrap Mode',
             description: 'Tabs that wrap to multiple lines when space is limited',
             icon: HugeIcons.strokeRoundedTextWrap,
-            preview: SizedBox(
-              height: 150,
-              child: TTabView<String>(
+            preview: TTabView<String>(
                 tabs: [
                   TTab(
                     value: 'all',
@@ -505,7 +503,6 @@ TTabs<int>(
                 inline: true,
                 wrap: true,
               ),
-            ),
             code: '''TTabs<String>(
   tabs: [
     TTab(value: 'all', text: 'All Items'),

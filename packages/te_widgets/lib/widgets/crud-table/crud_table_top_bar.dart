@@ -50,15 +50,17 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             // When the row wraps, the slot gives tabs a tight width: stretch them to fill it
             // like the other top bar items instead of staying at their intrinsic width.
             LayoutBuilder(
-              builder: (_, box) => TTabs(
-                inline: true,
-                fill: box.hasTightWidth,
-                selectedValue: currentTab,
-                onTabChanged: (i) {
-                  currentTab = i;
-                  widget.config.onTabChange?.call(i);
-                },
-                tabs: tabs,
+              builder: (_, box) => ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: box.hasTightWidth ? box.maxWidth : double.infinity),
+                child: TTabs(
+                  wrap: true,
+                  selectedValue: currentTab,
+                  onTabChanged: (i) {
+                    currentTab = i;
+                    widget.config.onTabChange?.call(i);
+                  },
+                  tabs: tabs,
+                ),
               ),
             ),
           if (shouldShowFilterButton) _buildFilterButton(ctx),
