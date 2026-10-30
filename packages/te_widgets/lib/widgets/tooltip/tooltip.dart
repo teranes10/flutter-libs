@@ -21,7 +21,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// TTooltip(
 ///   message: 'Click to edit',
 ///   child: IconButton(
-///     icon: Icon(Icons.edit),
+///     icon: TIcon.raw(HugeIcons.strokeRoundedEdit02),
 ///     onPressed: () {},
 ///   ),
 /// )
@@ -33,7 +33,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// TTooltip(
 ///   message: 'This is a tooltip',
 ///   position: TTooltipPosition.right,
-///   icon: Icons.info,
+///   icon: HugeIcons.strokeRoundedInformationCircle,
 ///   child: Text('Hover me'),
 /// )
 /// ```
@@ -74,7 +74,7 @@ class TTooltip extends StatefulWidget with TPopupMixin {
   final Color? color;
 
   /// Optional icon to display in the tooltip.
-  final IconData? icon;
+  final dynamic icon;
 
   /// The size of the tooltip.
   final TTooltipSize size;
@@ -396,7 +396,7 @@ class _TooltipContent extends StatelessWidget {
   final bool showArrow;
   final double maxWidth;
   final Animation<double> animation;
-  final IconData? icon;
+  final dynamic icon;
   final VoidCallback? onTap;
   final TTooltipResolvedPosition resolvedPosition;
   final void Function(PointerEnterEvent)? onPointerEnter;
@@ -491,7 +491,7 @@ class _TooltipContent extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               if (icon != null) ...[
-                                Icon(icon, size: fontSize + 2, color: wTheme.onContainer),
+                                TIcon.raw(icon, size: fontSize + 2, color: wTheme.onContainer),
                                 const SizedBox(width: 8),
                               ],
                               Flexible(

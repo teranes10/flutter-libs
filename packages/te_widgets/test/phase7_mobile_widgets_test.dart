@@ -59,8 +59,8 @@ void main() {
         ),
       );
 
-      final plus = find.byIcon(Icons.add_rounded);
-      final minus = find.byIcon(Icons.remove_rounded);
+      final plus = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedAdd01);
+      final minus = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedRemove01);
       expect(tester.getSize(find.ancestor(of: plus, matching: find.byType(Container)).first).shortestSide, greaterThanOrEqualTo(48));
 
       await tester.tap(plus);
@@ -116,7 +116,7 @@ void main() {
         ),
       );
 
-      final plusIcon = find.byIcon(Icons.add_rounded);
+      final plusIcon = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedAdd01);
       final buttonContainer = find.ancestor(of: plusIcon, matching: find.byType(Container)).first;
       final btnSize = tester.getSize(buttonContainer);
       expect(btnSize.width, 56.0);
@@ -245,7 +245,7 @@ void main() {
         SizedBox(width: 320, child: TTextField.scan(onScan: (_) {}, onCameraTap: () => cameraTaps++)),
       );
 
-      final button = find.byIcon(Icons.qr_code_scanner_rounded);
+      final button = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedScan);
       expect(tester.getSize(find.ancestor(of: button, matching: find.byType(IconButton))).shortestSide, greaterThanOrEqualTo(48));
       await tester.tap(button);
       expect(cameraTaps, 1);
@@ -450,10 +450,10 @@ void main() {
             textPosition: TBottomBarTextPosition.bottomAlways,
             onTap: (i) => selected = i,
             items: const [
-              TBottomBarItem(icon: Icons.home_rounded, label: 'Home'),
-              TBottomBarItem(icon: Icons.checklist_rounded, label: 'Tasks', badge: 4),
-              TBottomBarItem(icon: Icons.qr_code_scanner_rounded, label: 'Scan', emphasized: true),
-              TBottomBarItem(icon: Icons.more_horiz_rounded, label: 'More'),
+              TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, label: 'Home'),
+              TBottomBarItem(icon: HugeIcons.strokeRoundedCheckList, label: 'Tasks', badge: 4),
+              TBottomBarItem(icon: HugeIcons.strokeRoundedScan, label: 'Scan', emphasized: true),
+              TBottomBarItem(icon: HugeIcons.strokeRoundedMoreHorizontal, label: 'More'),
             ],
           ),
         ),
@@ -666,7 +666,7 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byIcon(Icons.photo_camera_outlined));
+      await tester.tap(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedCamera01));
       await tester.pumpAndSettle();
 
       expect(usedDimension, 1280);

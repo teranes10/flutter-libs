@@ -30,25 +30,25 @@ class _TourPageState extends State<TourPage> {
         targetKey: _searchKey,
         title: 'Global Search',
         description: 'Press ⌘K or click here to instantly jump to any customer, order, or setting across the console.',
-        icon: Icons.search_rounded,
+        icon: HugeIcons.strokeRoundedSearch01,
       ),
       TTourStep(
         targetKey: _metricKey,
         title: 'Live Telemetry & KPIs',
         description: 'Monitor real-time cluster health, transaction throughput, and resource utilization at a glance.',
-        icon: Icons.speed_rounded,
+        icon: HugeIcons.strokeRoundedDashboardSpeed01,
       ),
       TTourStep(
         targetKey: _actionKey,
         title: 'Primary Action Hub',
         description: 'Deploy new microservices, create API keys, or trigger canary rollouts with one click.',
-        icon: Icons.add_circle_outline_rounded,
+        icon: HugeIcons.strokeRoundedAddCircle,
       ),
       TTourStep(
         targetKey: _profileKey,
         title: 'Account & Security Settings',
         description: 'Manage MFA enforcement, rotate API tokens, and switch between developer workspaces here.',
-        icon: Icons.security_rounded,
+        icon: HugeIcons.strokeRoundedShield01,
       ),
     ]);
 
@@ -88,7 +88,7 @@ class _TourPageState extends State<TourPage> {
                 children: [
                   TButton(
                     text: 'Start Feature Tour',
-                    icon: Icons.play_arrow_rounded,
+                    icon: HugeIcons.strokeRoundedPlay,
                     type: TButtonType.solid,
                     color: colors.primary,
                     size: TSize.md,
@@ -130,11 +130,11 @@ class _TourPageState extends State<TourPage> {
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: theme.dividerColor),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.search, size: 18, color: Colors.grey),
-                              SizedBox(width: 8),
-                              Text('Search resources, logs, and users (⌘K)...', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                              TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: Colors.grey),
+                              const SizedBox(width: 8),
+                              const Text('Search resources, logs, and users (⌘K)...', style: TextStyle(fontSize: 13, color: Colors.grey)),
                             ],
                           ),
                         ),
@@ -145,7 +145,7 @@ class _TourPageState extends State<TourPage> {
                       TButton(
                         key: _actionKey,
                         text: 'Deploy Microservice',
-                        icon: Icons.rocket_launch_rounded,
+                        icon: HugeIcons.strokeRoundedRocket,
                         type: TButtonType.solid,
                         size: TSize.sm,
                         onTap: () {},
@@ -158,7 +158,7 @@ class _TourPageState extends State<TourPage> {
                         width: 38,
                         height: 38,
                         decoration: BoxDecoration(color: colors.primaryContainer, shape: BoxShape.circle),
-                        child: const Icon(Icons.person, size: 20),
+                        child: TIcon.raw(HugeIcons.strokeRoundedUser, size: 20),
                       ),
                     ],
                   ),
@@ -176,11 +176,11 @@ class _TourPageState extends State<TourPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildMetricCol('Active Pods', '48 / 50', Icons.cloud_done_rounded, Colors.green),
+                        _buildMetricCol('Active Pods', '48 / 50', HugeIcons.strokeRoundedCloudCheck, Colors.green),
                         Container(width: 1, height: 40, color: theme.dividerColor),
-                        _buildMetricCol('Throughput', '14.2k req/s', Icons.speed_rounded, Colors.blue),
+                        _buildMetricCol('Throughput', '14.2k req/s', HugeIcons.strokeRoundedDashboardSpeed01, Colors.blue),
                         Container(width: 1, height: 40, color: theme.dividerColor),
-                        _buildMetricCol('Error Rate', '0.01%', Icons.check_circle_outline, Colors.teal),
+                        _buildMetricCol('Error Rate', '0.01%', HugeIcons.strokeRoundedCheckmarkCircle01, Colors.teal),
                       ],
                     ),
                   ),
@@ -210,10 +210,10 @@ class _TourPageState extends State<TourPage> {
     );
   }
 
-  Widget _buildMetricCol(String label, String value, IconData icon, Color color) {
+  Widget _buildMetricCol(String label, String value, dynamic icon, Color color) {
     return Row(
       children: [
-        Icon(icon, color: color, size: 28),
+        TIcon.raw(icon, color: color, size: 28),
         const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

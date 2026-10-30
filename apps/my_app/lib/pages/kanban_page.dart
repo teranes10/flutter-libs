@@ -193,7 +193,7 @@ class _KanbanPageState extends State<KanbanPage> {
             title: 'Board Controls',
             child: Row(
               children: [
-                TButton(text: 'Reset Tasks', icon: Icons.refresh_rounded, type: TButtonType.outline, size: TSize.sm, onTap: _resetBoard),
+                TButton(text: 'Reset Tasks', icon: HugeIcons.strokeRoundedRefresh, type: TButtonType.outline, size: TSize.sm, onTap: _resetBoard),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Container(

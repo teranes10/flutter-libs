@@ -63,7 +63,7 @@ class TCsvEditor extends StatefulWidget {
   final String saveButtonText;
 
   /// Icon for the primary save/upload button.
-  final IconData saveButtonIcon;
+  final dynamic saveButtonIcon;
 
   /// Whether to show the Download Template button.
   final bool showDownloadTemplate;
@@ -107,7 +107,7 @@ class TCsvEditor extends StatefulWidget {
     this.title = 'Data Editor',
     this.subtitle = 'Upload a CSV, TSV, or JSON file, or add rows manually to review and edit data.',
     this.saveButtonText = 'Upload Data',
-    this.saveButtonIcon = Icons.cloud_upload_outlined,
+    this.saveButtonIcon = HugeIcons.strokeRoundedCloudUpload,
     this.showDownloadTemplate = true,
     this.showExport = true,
     this.allowAddRow = true,
@@ -219,7 +219,7 @@ class _TCsvEditorState extends _TCsvEditorStateContract
     return TCard(
       title: widget.title,
       subtitle: widget.subtitle,
-      icon: Icons.table_chart_outlined,
+      icon: HugeIcons.strokeRoundedTable,
       padding: theme.padding,
       trailing: buildHeaderActions(),
       child: Column(

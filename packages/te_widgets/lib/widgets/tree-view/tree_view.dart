@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:te_widgets/extensions/build_context_x.dart';
-import 'package:te_widgets/widgets/icon/icon.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 /// Selection mode for [TTreeView].
 enum TTreeSelectionMode {
@@ -313,10 +312,7 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
-      children: widget.nodes
-          .where((node) => _nodeMatchesSearch(node, query))
-          .map((node) => _buildNode(node, 0, query))
-          .toList(),
+      children: widget.nodes.where((node) => _nodeMatchesSearch(node, query)).map((node) => _buildNode(node, 0, query)).toList(),
     );
   }
 
@@ -333,9 +329,7 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
     final isSelected = _selectedKeys.contains(node.key);
     final checkboxState = _getCheckboxState(node);
 
-    final defaultIcon = hasChildren
-        ? (isExpanded ? Icons.folder_open_rounded : Icons.folder_rounded)
-        : Icons.insert_drive_file_outlined;
+    final defaultIcon = hasChildren ? (isExpanded ? HugeIcons.strokeRoundedFolderOpen : HugeIcons.strokeRoundedFolder01) : HugeIcons.strokeRoundedFile01;
 
     final effectiveIcon = (isExpanded ? (node.expandedIcon ?? node.icon) : node.icon) ?? defaultIcon;
 
@@ -358,9 +352,7 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
           child: Container(
             padding: EdgeInsets.only(left: depth * widget.indentWidth, right: 8.0, top: 4.0, bottom: 4.0),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? (colors.primaryContainer.withValues(alpha: isDark ? 0.35 : 0.5))
-                  : Colors.transparent,
+              color: isSelected ? (colors.primaryContainer.withValues(alpha: isDark ? 0.35 : 0.5)) : Colors.transparent,
               borderRadius: BorderRadius.circular(6.0),
             ),
             child: Row(
@@ -381,7 +373,7 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
                           : AnimatedRotation(
                               turns: isExpanded ? 0.25 : 0.0,
                               duration: const Duration(milliseconds: 150),
-                              child: Icon(Icons.chevron_right_rounded, size: 16, color: colors.onSurfaceVariant),
+                              child: TIcon.raw(HugeIcons.strokeRoundedChevronRight, size: 16, color: colors.onSurfaceVariant),
                             ),
                     ),
                   )
@@ -409,10 +401,8 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
                           ),
                         ),
                         child: checkboxState == true
-                            ? Icon(Icons.check, size: 12, color: colors.onPrimary)
-                            : (checkboxState == null
-                                ? Icon(Icons.remove, size: 12, color: colors.primary)
-                                : null),
+                            ? TIcon.raw(HugeIcons.strokeRoundedCheck, size: 12, color: colors.onPrimary)
+                            : (checkboxState == null ? TIcon.raw(HugeIcons.strokeRoundedRemove01, size: 12, color: colors.primary) : null),
                       ),
                     ),
                   ),
@@ -423,9 +413,7 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
                 TIcon(
                   icon: effectiveIcon,
                   size: 16,
-                  color: isSelected
-                      ? colors.primary
-                      : (node.isDisabled ? colors.onSurfaceVariant.withValues(alpha: 0.4) : colors.primary),
+                  color: isSelected ? colors.primary : (node.isDisabled ? colors.onSurfaceVariant.withValues(alpha: 0.4) : colors.primary),
                 ),
                 const SizedBox(width: 8),
 

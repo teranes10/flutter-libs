@@ -100,7 +100,7 @@ class _TablesTreeChildrenPageState extends State<TablesTreeChildrenPage> {
       TTableHeader<CategoryTreeItem, String>.actions(
         (item) => [
           TButtonGroupItem(
-            icon: Icons.edit_outlined,
+            icon: HugeIcons.strokeRoundedEdit02,
             onPressed: (_) {
               if (_controller.editingItemKey == item.key) {
                 _controller.cancelEditItem();
@@ -195,7 +195,7 @@ class _TablesTreeChildrenPageState extends State<TablesTreeChildrenPage> {
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.folder_outlined, size: 18, color: colors.primary),
+                                      TIcon.raw(HugeIcons.strokeRoundedFolder01, size: 18, color: colors.primary),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(c.name, style: const TextStyle(fontWeight: FontWeight.bold)),

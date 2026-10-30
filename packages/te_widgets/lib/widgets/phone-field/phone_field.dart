@@ -124,7 +124,7 @@ class _TPhoneFieldState extends State<TPhoneField> {
               Text(_selectedCountry.flag, style: const TextStyle(fontSize: 18)),
               const SizedBox(width: 4),
               Text(_selectedCountry.dialCode, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-              const Icon(Icons.arrow_drop_down, size: 20),
+              TIcon.raw(HugeIcons.strokeRoundedArrowDown01, size: 20),
             ],
           ),
         ),

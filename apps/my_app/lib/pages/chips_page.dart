@@ -28,7 +28,7 @@ class ChipsPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Chip Sizing (sm, md, lg)',
             description: 'Three standardized sizes with auto-resolved padding, radius, and font sizes',
-            icon: Icons.photo_size_select_small,
+            icon: HugeIcons.strokeRoundedTextSelect,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -37,28 +37,28 @@ class ChipsPage extends StatelessWidget {
                 TChip(
                   size: TChipSize.sm,
                   type: TVariant.tonal,
-                  icon: Icons.filter_alt,
+                  icon: HugeIcons.strokeRoundedFilter,
                   text: 'Small Chip (sm)',
                   trailing: TIcon.close(size: 11, padding: EdgeInsets.zero, onTap: () {}),
                 ),
                 TChip(
                   size: TChipSize.md,
                   type: TVariant.tonal,
-                  icon: Icons.filter_alt,
+                  icon: HugeIcons.strokeRoundedFilter,
                   text: 'Medium Chip (md - Default)',
                   trailing: TIcon.close(size: 12, padding: EdgeInsets.zero, onTap: () {}),
                 ),
                 TChip(
                   size: TChipSize.lg,
                   type: TVariant.tonal,
-                  icon: Icons.filter_alt,
+                  icon: HugeIcons.strokeRoundedFilter,
                   text: 'Large Chip (lg)',
                   trailing: TIcon.close(size: 14, padding: EdgeInsets.zero, onTap: () {}),
                 ),
                 TChip(
                   size: TChipSize.xl,
                   type: TVariant.tonal,
-                  icon: Icons.filter_alt,
+                  icon: HugeIcons.strokeRoundedFilter,
                   text: 'Extra Large Chip (xl)',
                   trailing: TIcon.close(size: 14, padding: EdgeInsets.zero, onTap: () {}),
                 ),
@@ -93,7 +93,7 @@ TChip(
           WidgetDocCard(
             title: 'Chip Variants (TVariant)',
             description: 'All visual variants supported by TChip (solid, tonal, outline, softOutline, text)',
-            icon: Icons.style,
+            icon: HugeIcons.strokeRoundedLineStyle,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -116,10 +116,10 @@ TChip(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    const TChip.tonal(icon: Icons.face, text: 'User'),
-                    TChip.tonal(icon: Icons.settings, text: 'Settings', color: context.theme.secondary),
-                    TChip.tonal(icon: Icons.check_circle, text: 'Active', color: context.theme.success),
-                    TChip.tonal(icon: Icons.warning, text: 'Warning', color: context.theme.warning),
+                    const TChip.tonal(icon: HugeIcons.strokeRoundedFaceId, text: 'User'),
+                    TChip.tonal(icon: HugeIcons.strokeRoundedSettings01, text: 'Settings', color: context.theme.secondary),
+                    TChip.tonal(icon: HugeIcons.strokeRoundedCheckmarkCircle01, text: 'Active', color: context.theme.success),
+                    TChip.tonal(icon: HugeIcons.strokeRoundedAlert02, text: 'Warning', color: context.theme.warning),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -154,9 +154,9 @@ TChip(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    const TChip.text(icon: Icons.tag, text: 'Tag'),
-                    TChip.text(icon: Icons.bolt, text: 'Action', color: context.theme.warning),
-                    TChip.text(icon: Icons.favorite, text: 'Favorite', color: context.theme.danger),
+                    const TChip.text(icon: HugeIcons.strokeRoundedTag01, text: 'Tag'),
+                    TChip.text(icon: HugeIcons.strokeRoundedBolt, text: 'Action', color: context.theme.warning),
+                    TChip.text(icon: HugeIcons.strokeRoundedFavourite, text: 'Favorite', color: context.theme.danger),
                   ],
                 ),
               ],
@@ -194,7 +194,7 @@ TChip(variant: TVariant.text, text: 'Text')''',
           WidgetDocCard(
             title: 'Custom Chips',
             description: 'Fully customizable appearance with custom backgrounds, text colors, and tap callbacks',
-            icon: Icons.palette,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -203,7 +203,7 @@ TChip(variant: TVariant.text, text: 'Text')''',
                   text: 'Custom Gradient',
                   background: Colors.purple.shade50,
                   textColor: Colors.purple,
-                  icon: Icons.star,
+                  icon: HugeIcons.strokeRoundedStar,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 TChip.tonal(text: 'Click Me', color: context.theme.info, onTap: () {}),
@@ -213,7 +213,7 @@ TChip(variant: TVariant.text, text: 'Text')''',
   text: 'Custom',
   background: Colors.purple.shade50,
   textColor: Colors.purple,
-  icon: Icons.star,
+  icon: HugeIcons.strokeRoundedStar,
   borderRadius: BorderRadius.circular(20),
 )''',
             properties: const [
@@ -228,20 +228,20 @@ TChip(variant: TVariant.text, text: 'Text')''',
           WidgetDocCard(
             title: 'Chips with Icons & Text Variants',
             description: 'Chips with leading icons, customizable accent colors, and TVariant styles',
-            icon: Icons.stars,
+            icon: HugeIcons.strokeRoundedStars,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                TChip(icon: Icons.star_rounded, text: 'Pro Member', color: Colors.amber.shade700, type: TVariant.solid),
-                TChip(icon: Icons.verified_rounded, text: 'Verified', color: Colors.blue, type: TVariant.tonal),
-                TChip(icon: Icons.local_shipping_rounded, text: 'Fast Delivery', color: Colors.green, type: TVariant.outline),
-                TChip(icon: Icons.admin_panel_settings_rounded, text: 'Superadmin', color: Colors.red, type: TVariant.softOutline),
+                TChip(icon: HugeIcons.strokeRoundedStar, text: 'Pro Member', color: Colors.amber.shade700, type: TVariant.solid),
+                TChip(icon: HugeIcons.strokeRoundedCheckmarkBadge01, text: 'Verified', color: Colors.blue, type: TVariant.tonal),
+                TChip(icon: HugeIcons.strokeRoundedDeliveryTruck01, text: 'Fast Delivery', color: Colors.green, type: TVariant.outline),
+                TChip(icon: HugeIcons.strokeRoundedPanelLeft, text: 'Superadmin', color: Colors.red, type: TVariant.softOutline),
               ],
             ),
             code: '''// Solid with icon:
 TChip(
-  icon: Icons.star_rounded,
+  icon: HugeIcons.strokeRoundedStar,
   text: 'Pro Member',
   color: Colors.amber,
   type: TVariant.solid,
@@ -249,7 +249,7 @@ TChip(
 
 // Tonal with icon:
 TChip(
-  icon: Icons.verified_rounded,
+  icon: HugeIcons.strokeRoundedCheckmarkBadge01,
   text: 'Verified',
   color: Colors.blue,
   type: TVariant.tonal,
@@ -257,7 +257,7 @@ TChip(
 
 // Outline with icon:
 TChip(
-  icon: Icons.local_shipping_rounded,
+  icon: HugeIcons.strokeRoundedDeliveryTruck01,
   text: 'Fast Delivery',
   color: Colors.green,
   type: TVariant.outline,
@@ -267,8 +267,8 @@ TChip(
 TTableHeader.chips(
   'Features',
   (x) => [
-    if (x.isPro) const TChip.solid(text: 'Pro', icon: Icons.star_rounded, color: Colors.amber),
-    if (x.isVerified) const TChip.tonal(text: 'Verified', icon: Icons.verified_rounded, color: Colors.blue),
+    if (x.isPro) const TChip.solid(text: 'Pro', icon: HugeIcons.strokeRoundedStar, color: Colors.amber),
+    if (x.isVerified) const TChip.tonal(text: 'Verified', icon: HugeIcons.strokeRoundedCheckmarkBadge01, color: Colors.blue),
     if (x.isFastShip) const TChip(text: 'Fast Delivery'), // inherits header fallback type & color
   ],
   type: TVariant.outline,

@@ -213,9 +213,9 @@ class _TKanbanBoardState<T> extends State<TKanbanBoard<T>> {
                       InkWell(
                         onTap: () => widget.onAddCard!(column.id),
                         borderRadius: BorderRadius.circular(4),
-                        child: const Padding(
-                          padding: EdgeInsets.all(2.0),
-                          child: Icon(Icons.add, size: 18),
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: TIcon.raw(HugeIcons.strokeRoundedAdd01, size: 18),
                         ),
                       ),
                     ],
@@ -418,7 +418,7 @@ class _TKanbanBoardState<T> extends State<TKanbanBoard<T>> {
                 ],
                 const Spacer(),
                 if (item.dueDate != null) ...[
-                  Icon(Icons.calendar_today_outlined, size: 12, color: theme.hintColor),
+                  TIcon.raw(HugeIcons.strokeRoundedCalendar01, size: 12, color: theme.hintColor),
                   const SizedBox(width: 4),
                   Text(
                     '${item.dueDate!.month}/${item.dueDate!.day}',

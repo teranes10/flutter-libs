@@ -164,7 +164,7 @@ class _TBarcodeScannerState extends State<TBarcodeScanner> with TPopupStateMixin
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                                  TIcon.raw(HugeIcons.strokeRoundedAlertCircle, color: Colors.red, size: 48),
                                   const SizedBox(height: 12),
                                   Text(error.errorCode.name, style: context.textTheme.bodyMedium, textAlign: TextAlign.center),
                                 ],
@@ -181,7 +181,7 @@ class _TBarcodeScannerState extends State<TBarcodeScanner> with TPopupStateMixin
                             child: Row(
                               children: [
                                 TIcon(
-                                  icon: _zoomScale > 0 ? Icons.zoom_out : Icons.zoom_in,
+                                  icon: _zoomScale > 0 ? HugeIcons.strokeRoundedZoomOutArea : HugeIcons.strokeRoundedZoomInArea,
                                   onTap: () {
                                     setState(() {
                                       _zoomScale = _zoomScale > 0 ? 0.0 : 0.5;
@@ -194,7 +194,7 @@ class _TBarcodeScannerState extends State<TBarcodeScanner> with TPopupStateMixin
                                 ),
                                 const SizedBox(width: 8),
                                 TIcon(
-                                  icon: _isTorchOn ? Icons.flash_on : Icons.flash_off,
+                                  icon: _isTorchOn ? HugeIcons.strokeRoundedFlash : HugeIcons.strokeRoundedFlashOff,
                                   onTap: () {
                                     setState(() {
                                       _isTorchOn = !_isTorchOn;
@@ -207,7 +207,7 @@ class _TBarcodeScannerState extends State<TBarcodeScanner> with TPopupStateMixin
                                 ),
                                 const SizedBox(width: 8),
                                 TIcon(
-                                  icon: Icons.flip_camera_ios,
+                                  icon: HugeIcons.strokeRoundedCamera02,
                                   onTap: () => _controller.switchCamera(),
                                   background: Colors.black.withValues(alpha: 0.5),
                                   color: Colors.white,

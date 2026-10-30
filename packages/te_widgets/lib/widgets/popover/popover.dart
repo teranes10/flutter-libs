@@ -8,7 +8,7 @@ import 'package:te_widgets/helpers/popup_position.dart';
 import 'package:te_widgets/widgets/button/button.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
 import 'package:te_widgets/widgets/menu/menu_root_trigger.dart';
-
+import 'package:hugeicons/hugeicons.dart';
 /// Controller to programmatically show, hide, or toggle a [TPopover].
 class TPopoverController extends ChangeNotifier {
   final OverlayPortalController _portalController = OverlayPortalController();
@@ -346,7 +346,7 @@ class _TPopoverState extends State<TPopover> {
                                         borderRadius: BorderRadius.circular(4),
                                         child: Padding(
                                           padding: const EdgeInsets.all(4.0),
-                                          child: Icon(Icons.close_rounded, size: 16, color: colors.onSurfaceVariant),
+                                          child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 16, color: colors.onSurfaceVariant),
                                         ),
                                       ),
                                   ],
@@ -439,7 +439,7 @@ class TPopconfirm extends StatefulWidget {
     this.cancelText = 'Cancel',
     this.confirmType = TButtonType.solid,
     this.confirmColor,
-    this.icon = Icons.help_outline_rounded,
+    this.icon = HugeIcons.strokeRoundedHelpCircle,
     this.iconColor,
     this.alignment = TPopupAlignment.topCenter,
     this.width = 260.0,
@@ -457,7 +457,7 @@ class TPopconfirm extends StatefulWidget {
     this.cancelText = 'Cancel',
     this.confirmType = TButtonType.solid,
     this.confirmColor = AppColors.danger,
-    this.icon = Icons.warning_amber_rounded,
+    this.icon = HugeIcons.strokeRoundedAlert02,
     this.iconColor = AppColors.danger,
     this.alignment = TPopupAlignment.topCenter,
     this.width = 260.0,

@@ -65,10 +65,10 @@ class _MetricTilePageState extends State<MetricTilePage> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              TChip.tonal(text: 'TMetricGrid', icon: Icons.grid_view_rounded, color: theme.primary),
-              TChip.tonal(text: 'TMetricTile', icon: Icons.speed_rounded, color: theme.info),
-              TChip.tonal(text: 'TTile', icon: Icons.splitscreen_rounded, color: theme.success),
-              TChip.tonal(text: 'TTile.task', icon: Icons.task_alt_rounded, color: theme.warning),
+              TChip.tonal(text: 'TMetricGrid', icon: HugeIcons.strokeRoundedGrid, color: theme.primary),
+              TChip.tonal(text: 'TMetricTile', icon: HugeIcons.strokeRoundedDashboardSpeed01, color: theme.info),
+              TChip.tonal(text: 'TTile', icon: HugeIcons.strokeRoundedLayoutLeft, color: theme.success),
+              TChip.tonal(text: 'TTile.task', icon: HugeIcons.strokeRoundedTask01, color: theme.warning),
             ],
           ),
           const SizedBox(height: 32),
@@ -83,7 +83,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
             title: '1. TMetricGrid',
             subtitle:
                 'Responsive grid purpose-built for KPI tiles. Automatically computes column count based on available width and minTileWidth, guaranteeing uniform height across all tiles.',
-            icon: Icons.grid_view_rounded,
+            icon: HugeIcons.strokeRoundedGrid,
           ),
           const SizedBox(height: 16),
 
@@ -92,7 +92,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
             title: 'Auto-Responsive Columns (minTileWidth)',
             description:
                 'Derives optimal column count dynamically from available container width and minTileWidth without hardcoded breakpoint spans.',
-            icon: Icons.auto_awesome_mosaic_rounded,
+            icon: HugeIcons.strokeRoundedAutoConversations,
             preview: TMetricGrid(
               minTileWidth: 210,
               gapX: 12,
@@ -102,7 +102,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Gross Sales',
                   value: '\$84,230.00',
                   subtitle: '+18.2% vs last month',
-                  icon: Icons.payments_rounded,
+                  icon: HugeIcons.strokeRoundedPayment02,
                   color: theme.success,
                   trend: '+18.2%',
                   trendUp: true,
@@ -111,7 +111,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Net Profit',
                   value: '\$29,450.00',
                   subtitle: 'Margin: 34.9%',
-                  icon: Icons.account_balance_wallet_rounded,
+                  icon: HugeIcons.strokeRoundedWallet01,
                   color: theme.primary,
                   trend: '+4.5%',
                   trendUp: true,
@@ -120,7 +120,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Refunds & Returns',
                   value: '\$1,120.00',
                   subtitle: '14 return requests',
-                  icon: Icons.assignment_return_rounded,
+                  icon: HugeIcons.strokeRoundedTaskEdit02,
                   color: theme.danger,
                   trend: '-1.8%',
                   trendUp: false,
@@ -129,7 +129,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Pending Shipments',
                   value: '48 orders',
                   subtitle: 'All in packaging queue',
-                  icon: Icons.local_shipping_rounded,
+                  icon: HugeIcons.strokeRoundedDeliveryTruck01,
                   color: theme.warning,
                   badge: const TBadge(label: 'Queue', color: Colors.orange),
                 ),
@@ -144,7 +144,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
       label: 'Gross Sales',
       value: '\$84,230.00',
       subtitle: '+18.2% vs last month',
-      icon: Icons.payments_rounded,
+      icon: HugeIcons.strokeRoundedPayment02,
       color: context.theme.success,
       trend: '+18.2%',
       trendUp: true,
@@ -153,7 +153,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
       label: 'Net Profit',
       value: '\$29,450.00',
       subtitle: 'Margin: 34.9%',
-      icon: Icons.account_balance_wallet_rounded,
+      icon: HugeIcons.strokeRoundedWallet01,
       color: context.theme.primary,
       trend: '+4.5%',
       trendUp: true,
@@ -162,7 +162,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
       label: 'Refunds & Returns',
       value: '\$1,120.00',
       subtitle: '14 return requests',
-      icon: Icons.assignment_return_rounded,
+      icon: HugeIcons.strokeRoundedTaskEdit02,
       color: context.theme.danger,
       trend: '-1.8%',
       trendUp: false,
@@ -171,7 +171,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
       label: 'Pending Shipments',
       value: '48 orders',
       subtitle: 'All in packaging queue',
-      icon: Icons.local_shipping_rounded,
+      icon: HugeIcons.strokeRoundedDeliveryTruck01,
       color: context.theme.warning,
       badge: TBadge(label: 'Queue', color: Colors.orange),
     ),
@@ -205,17 +205,17 @@ class _MetricTilePageState extends State<MetricTilePage> {
             title: 'Uniform Height Guarantee',
             description:
                 'TMetricGrid measures natural unconstrained child heights and synchronizes all tiles to the tallest child, preventing awkward layout misalignment.',
-            icon: Icons.align_vertical_bottom_rounded,
+            icon: HugeIcons.strokeRoundedAlignBottom,
             preview: TMetricGrid(
               minTileWidth: 220,
               uniformHeight: true,
               children: [
-                TMetricTile(label: 'Single-line Content', value: '1,240', icon: Icons.filter_1_rounded, color: theme.primary),
+                TMetricTile(label: 'Single-line Content', value: '1,240', icon: HugeIcons.strokeRoundedFilter, color: theme.primary),
                 TMetricTile(
                   label: 'One-line Subtitle',
                   value: '4,890',
                   subtitle: 'Target: 5,000 units',
-                  icon: Icons.filter_2_rounded,
+                  icon: HugeIcons.strokeRoundedFilter,
                   color: theme.info,
                   trend: '+3.1%',
                   trendUp: true,
@@ -224,7 +224,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Multi-line Subtitle',
                   value: '99.9%',
                   subtitle: 'Aggregated SLA across US-East, EU-Central, and AP-South regions',
-                  icon: Icons.filter_3_rounded,
+                  icon: HugeIcons.strokeRoundedFilter,
                   color: theme.success,
                   badge: const TBadge(label: 'SLA', color: Colors.green),
                 ),
@@ -237,19 +237,19 @@ class _MetricTilePageState extends State<MetricTilePage> {
     TMetricTile(
       label: 'Single-line Content',
       value: '1,240',
-      icon: Icons.filter_1_rounded,
+      icon: HugeIcons.strokeRoundedFilter,
     ),
     TMetricTile(
       label: 'One-line Subtitle',
       value: '4,890',
       subtitle: 'Target: 5,000 units',
-      icon: Icons.filter_2_rounded,
+      icon: HugeIcons.strokeRoundedFilter,
     ),
     TMetricTile(
       label: 'Multi-line Subtitle',
       value: '99.9%',
       subtitle: 'Aggregated SLA across US-East, EU-Central, and AP-South regions',
-      icon: Icons.filter_3_rounded,
+      icon: HugeIcons.strokeRoundedFilter,
     ),
   ],
 )''',
@@ -261,7 +261,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
           WidgetDocCard(
             title: 'Pinned Column Count (columns: 2 / 4)',
             description: 'Override the automatic width calculation to enforce a precise column count across all container widths.',
-            icon: Icons.view_column_rounded,
+            icon: HugeIcons.strokeRoundedViewOff,
             preview: TMetricGrid(
               columns: 2,
               gapX: 12,
@@ -271,7 +271,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'API Request Rate',
                   value: '4,280 req/s',
                   subtitle: 'Peak throughput: 6,100 req/s',
-                  icon: Icons.speed_rounded,
+                  icon: HugeIcons.strokeRoundedDashboardSpeed01,
                   color: theme.info,
                   trend: '+12.4%',
                   trendUp: true,
@@ -280,7 +280,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Error Rate',
                   value: '0.04%',
                   subtitle: 'Threshold budget: < 0.10%',
-                  icon: Icons.error_outline_rounded,
+                  icon: HugeIcons.strokeRoundedAlertCircle,
                   color: theme.success,
                   trend: '-0.02%',
                   trendUp: true, // Trend down on errors is positive!
@@ -294,7 +294,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
       label: 'API Request Rate',
       value: '4,280 req/s',
       subtitle: 'Peak throughput: 6,100 req/s',
-      icon: Icons.speed_rounded,
+      icon: HugeIcons.strokeRoundedDashboardSpeed01,
       color: context.theme.info,
       trend: '+12.4%',
       trendUp: true,
@@ -303,7 +303,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
       label: 'Error Rate',
       value: '0.04%',
       subtitle: 'Threshold budget: < 0.10%',
-      icon: Icons.error_outline_rounded,
+      icon: HugeIcons.strokeRoundedAlertCircle,
       color: context.theme.success,
       trend: '-0.02%',
       trendUp: true,
@@ -319,7 +319,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
             title: '2. TMetricTile',
             subtitle:
                 'Versatile KPI summary card with numerical values, guidance subtitles, trend badges, custom icons, interactive ripples, and compact modes.',
-            icon: Icons.speed_rounded,
+            icon: HugeIcons.strokeRoundedDashboardSpeed01,
           ),
           const SizedBox(height: 16),
 
@@ -327,7 +327,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
           WidgetDocCard(
             title: 'Trend Indicators & Color Themes',
             description: 'Directional percentage badges with trendUp (green positive arrow) or trendDown (red negative arrow).',
-            icon: Icons.trending_up_rounded,
+            icon: HugeIcons.strokeRoundedChartAverage,
             preview: TMetricGrid(
               minTileWidth: 200,
               children: [
@@ -335,7 +335,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Annual Recurring Revenue',
                   value: '\$1.42M',
                   subtitle: 'Target: \$1.50M by Q4',
-                  icon: Icons.trending_up_rounded,
+                  icon: HugeIcons.strokeRoundedChartAverage,
                   color: theme.success,
                   trend: '+24.8%',
                   trendUp: true,
@@ -344,7 +344,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Customer Churn Rate',
                   value: '3.4%',
                   subtitle: '+0.6% vs benchmark',
-                  icon: Icons.person_remove_rounded,
+                  icon: HugeIcons.strokeRoundedUserRemove01,
                   color: theme.danger,
                   trend: '+0.6%',
                   trendUp: false,
@@ -353,7 +353,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Average Resolution Time',
                   value: '18m 42s',
                   subtitle: '-4m 12s reduction',
-                  icon: Icons.timelapse_rounded,
+                  icon: HugeIcons.strokeRoundedTimeline,
                   color: theme.info,
                   trend: '-18.5%',
                   trendUp: true, // Improvement!
@@ -362,7 +362,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
                   label: 'Active System Nodes',
                   value: '32 / 32',
                   subtitle: 'All health checks passing',
-                  icon: Icons.dns_rounded,
+                  icon: HugeIcons.strokeRoundedDna,
                   color: theme.primary,
                   trend: '100%',
                   trendUp: true,
@@ -373,7 +373,7 @@ class _MetricTilePageState extends State<MetricTilePage> {
   label: 'Annual Recurring Revenue',
   value: '\$1.42M',
   subtitle: 'Target: \$1.50M by Q4',
-  icon: Icons.trending_up_rounded,
+  icon: HugeIcons.strokeRoundedChartAverage,
   color: context.theme.success,
   trend: '+24.8%',
   trendUp: true, // Displays green trending_up badge
@@ -383,7 +383,7 @@ TMetricTile(
   label: 'Customer Churn Rate',
   value: '3.4%',
   subtitle: '+0.6% vs benchmark',
-  icon: Icons.person_remove_rounded,
+  icon: HugeIcons.strokeRoundedUserRemove01,
   color: context.theme.danger,
   trend: '+0.6%',
   trendUp: false, // Displays red trending_down badge
@@ -411,7 +411,7 @@ TMetricTile(
             title: 'Interactive Tap, Tooltips & Status Badges',
             description:
                 'Tap callback with InkWell ripple, automatic trailing chevron, hover tooltips via TTooltip, and status badges next to label.',
-            icon: Icons.touch_app_rounded,
+            icon: HugeIcons.strokeRoundedTouch10,
             preview: TMetricGrid(
               minTileWidth: 220,
               children: [
@@ -419,7 +419,7 @@ TMetricTile(
                   label: 'Pending Invoices',
                   value: '14 unpaid',
                   subtitle: 'Tap to view overdue list',
-                  icon: Icons.receipt_long_rounded,
+                  icon: HugeIcons.strokeRoundedInvoice,
                   color: theme.warning,
                   badge: const TBadge(label: 'Action Needed', color: Colors.amber),
                   tooltip: 'Invoices outstanding past standard 30-day net terms',
@@ -429,7 +429,7 @@ TMetricTile(
                   label: 'Security Audit',
                   value: 'Passed',
                   subtitle: 'Checked 5 mins ago',
-                  icon: Icons.verified_user_rounded,
+                  icon: HugeIcons.strokeRoundedUserShield01,
                   color: theme.success,
                   badge: const TBadge(label: 'SOC 2', color: Colors.green),
                   tooltip: 'Automated compliance scan verified across infrastructure',
@@ -439,10 +439,10 @@ TMetricTile(
                   label: 'Custom Trailing Widget',
                   value: '3 Reports',
                   subtitle: 'Generated today',
-                  icon: Icons.analytics_rounded,
+                  icon: HugeIcons.strokeRoundedAnalytics01,
                   color: theme.primary,
                   trailing: TButton(
-                    icon: Icons.download_rounded,
+                    icon: HugeIcons.strokeRoundedDownload01,
                     size: TButtonSize.xs,
                     type: TButtonType.tonal,
                     onTap: () => TToastService.info(context, 'Downloading reports...'),
@@ -454,7 +454,7 @@ TMetricTile(
   label: 'Pending Invoices',
   value: '14 unpaid',
   subtitle: 'Tap to view overdue list',
-  icon: Icons.receipt_long_rounded,
+  icon: HugeIcons.strokeRoundedInvoice,
   color: context.theme.warning,
   badge: TBadge(label: 'Action Needed', color: Colors.amber),
   tooltip: 'Invoices outstanding past standard 30-day net terms',
@@ -465,10 +465,10 @@ TMetricTile(
   label: 'Custom Trailing Widget',
   value: '3 Reports',
   subtitle: 'Generated today',
-  icon: Icons.analytics_rounded,
+  icon: HugeIcons.strokeRoundedAnalytics01,
   color: context.theme.primary,
   trailing: TButton(
-    icon: Icons.download_rounded,
+    icon: HugeIcons.strokeRoundedDownload01,
     size: TButtonSize.xs,
     type: TButtonType.tonal,
     onTap: () => handleDownload(),
@@ -493,7 +493,7 @@ TMetricTile(
             title: 'Compact Mode (compact: true)',
             description:
                 'Dense horizontal representation with smaller icons and tight padding, ideal for toolbars, side panels, and table headers.',
-            icon: Icons.compress_rounded,
+            icon: HugeIcons.strokeRoundedCompass,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -506,7 +506,7 @@ TMetricTile(
                       compact: true,
                       label: 'CPU Usage',
                       value: '42.8%',
-                      icon: Icons.memory_rounded,
+                      icon: HugeIcons.strokeRoundedRamMemory,
                       color: theme.primary,
                       trend: '+1.2%',
                       trendUp: false,
@@ -516,14 +516,14 @@ TMetricTile(
                       label: 'RAM Load',
                       value: '12.4 GB',
                       subtitle: '16 GB allocated',
-                      icon: Icons.developer_board_rounded,
+                      icon: HugeIcons.strokeRoundedDeveloper,
                       color: theme.info,
                     ),
                     TMetricTile(
                       compact: true,
                       label: 'Network I/O',
                       value: '840 MB/s',
-                      icon: Icons.swap_vert_rounded,
+                      icon: HugeIcons.strokeRoundedArrowUpDown,
                       color: theme.success,
                       trend: '+8%',
                       trendUp: true,
@@ -533,7 +533,7 @@ TMetricTile(
                       label: 'Disk Free',
                       value: '384 GB',
                       subtitle: 'SSD NVMe',
-                      icon: Icons.storage_rounded,
+                      icon: HugeIcons.strokeRoundedDatabase,
                       color: theme.warning,
                       onTap: () => TToastService.info(context, 'Storage stats opened'),
                     ),
@@ -545,7 +545,7 @@ TMetricTile(
   compact: true, // Dense mode with compact fonts and padding
   label: 'CPU Usage',
   value: '42.8%',
-  icon: Icons.memory_rounded,
+  icon: HugeIcons.strokeRoundedRamMemory,
   color: context.theme.primary,
   trend: '+1.2%',
   trendUp: false,
@@ -567,7 +567,7 @@ TMetricTile(
             title: '3. TTile',
             subtitle:
                 'Multi-purpose tile widget containing a leading icon/image container, title, subtitle, and optional trailing widget. Used standalone, in cards, lists, and tables.',
-            icon: Icons.splitscreen_rounded,
+            icon: HugeIcons.strokeRoundedLayoutLeft,
           ),
           const SizedBox(height: 16),
 
@@ -576,13 +576,13 @@ TMetricTile(
             title: 'Heading Sizes (TTile.h1 to TTile.h6)',
             description:
                 'Standardized heading scale matching typography hierarchies from h1 (page/hero headers) down to h6 (compact/dense rows). Named constructors or size: TTileSize.* are supported.',
-            icon: Icons.format_size_rounded,
+            icon: HugeIcons.strokeRoundedImageActualSize,
             preview: Column(
               children: [
                 _buildTileContainer(
                   context,
                   child: TTile.h1(
-                    icon: Icons.looks_one_rounded,
+                    icon: HugeIcons.strokeRoundedOneSquare,
                     iconBackgroundColor: theme.primary.withAlpha(25),
                     iconColor: theme.primary,
                     title: 'Heading 1 (h1 • 24px/w700)',
@@ -594,7 +594,7 @@ TMetricTile(
                 _buildTileContainer(
                   context,
                   child: TTile.h2(
-                    icon: Icons.looks_two_rounded,
+                    icon: HugeIcons.strokeRoundedTwoSquare,
                     iconBackgroundColor: theme.info.withAlpha(25),
                     iconColor: theme.info,
                     title: 'Heading 2 (h2 • 20px/w600)',
@@ -606,7 +606,7 @@ TMetricTile(
                 _buildTileContainer(
                   context,
                   child: TTile.h3(
-                    icon: Icons.looks_3_rounded,
+                    icon: HugeIcons.strokeRoundedBook03,
                     iconBackgroundColor: theme.success.withAlpha(25),
                     iconColor: theme.success,
                     title: 'Heading 3 (h3 • 18px/w600)',
@@ -618,7 +618,7 @@ TMetricTile(
                 _buildTileContainer(
                   context,
                   child: TTile.h4(
-                    icon: Icons.looks_4_rounded,
+                    icon: HugeIcons.strokeRoundedBook04,
                     iconBackgroundColor: theme.warning.withAlpha(25),
                     iconColor: theme.warning,
                     title: 'Heading 4 (h4 • 16px/w600)',
@@ -630,7 +630,7 @@ TMetricTile(
                 _buildTileContainer(
                   context,
                   child: TTile.h5(
-                    icon: Icons.looks_5_rounded,
+                    icon: HugeIcons.strokeRoundedBlocks,
                     iconBackgroundColor: theme.primary.withAlpha(25),
                     iconColor: theme.primary,
                     title: 'Heading 5 (h5 • 14px/w500 • Default)',
@@ -642,7 +642,7 @@ TMetricTile(
                 _buildTileContainer(
                   context,
                   child: TTile.h6(
-                    icon: Icons.looks_6_rounded,
+                    icon: HugeIcons.strokeRoundedBlocks,
                     iconBackgroundColor: colors.onSurface.withAlpha(15),
                     iconColor: colors.onSurfaceVariant,
                     title: 'Heading 6 (h6 • 12.5px/w500)',
@@ -656,26 +656,26 @@ TMetricTile(
 TTile.h1(
   title: 'Page Title (h1)',
   subtitle: 'Hero description text',
-  icon: Icons.dashboard_rounded,
+  icon: HugeIcons.strokeRoundedDashboardSquare01,
 )
 
 TTile.h2(
   title: 'Section Header (h2)',
   subtitle: 'Major subsection text',
-  icon: Icons.folder_rounded,
+  icon: HugeIcons.strokeRoundedFolder01,
 )
 
-TTile.h3(title: 'Card Title (h3)', subtitle: 'Card info', icon: Icons.feed)
-TTile.h4(title: 'Prominent Item (h4)', subtitle: 'Item details', icon: Icons.star)
-TTile.h5(title: 'Standard Default (h5)', subtitle: 'List item', icon: Icons.list)
-TTile.h6(title: 'Compact Row (h6)', subtitle: 'Dense item', icon: Icons.tune)
+TTile.h3(title: 'Card Title (h3)', subtitle: 'Card info', icon: HugeIcons.strokeRoundedFence)
+TTile.h4(title: 'Prominent Item (h4)', subtitle: 'Item details', icon: HugeIcons.strokeRoundedStar)
+TTile.h5(title: 'Standard Default (h5)', subtitle: 'List item', icon: HugeIcons.strokeRoundedList)
+TTile.h6(title: 'Compact Row (h6)', subtitle: 'Dense item', icon: HugeIcons.strokeRoundedFilterEdit)
 
 // 2. Or using the size property:
 TTile(
   size: TTileSize.h2,
   title: 'Configurable Tile Size',
   subtitle: 'Scales title, subtitle, icon, padding, and spacing uniformly',
-  icon: Icons.auto_awesome,
+  icon: HugeIcons.strokeRoundedAiAutoRotate,
 )''',
             properties: const [
               PropertyDoc(
@@ -694,13 +694,13 @@ TTile(
           WidgetDocCard(
             title: 'Basic & Themed Leading Icon Tiles',
             description: 'Configurable icon containers with custom padding, border radius, background colors, and typography.',
-            icon: Icons.palette_outlined,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: Column(
               children: [
                 _buildTileContainer(
                   context,
                   child: TTile(
-                    icon: Icons.cloud_done_rounded,
+                    icon: HugeIcons.strokeRoundedCloudCheck,
                     iconBackgroundColor: theme.success.withAlpha(25),
                     iconColor: theme.success,
                     title: 'Cloud Backup Complete',
@@ -712,7 +712,7 @@ TTile(
                 _buildTileContainer(
                   context,
                   child: TTile(
-                    icon: Icons.security_update_warning_rounded,
+                    icon: HugeIcons.strokeRoundedSecurityWarning,
                     iconBackgroundColor: theme.warning.withAlpha(25),
                     iconColor: theme.warning,
                     title: 'SSL Certificate Expiring Soon',
@@ -724,19 +724,19 @@ TTile(
                 _buildTileContainer(
                   context,
                   child: TTile(
-                    icon: Icons.insights_rounded,
+                    icon: HugeIcons.strokeRoundedSingRight,
                     iconBackgroundColor: theme.primary.withAlpha(25),
                     iconColor: theme.primary,
                     iconBorderRadius: BorderRadius.circular(24), // Circular icon badge
                     title: 'Traffic Surge Detected',
                     subtitle: '+140% incoming sessions from direct campaign',
-                    trailing: Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant),
+                    trailing: TIcon.raw(HugeIcons.strokeRoundedArrowRight01, color: colors.onSurfaceVariant),
                   ),
                 ),
               ],
             ),
             code: '''TTile(
-  icon: Icons.cloud_done_rounded,
+  icon: HugeIcons.strokeRoundedCloudCheck,
   iconBackgroundColor: context.theme.success.withAlpha(25),
   iconColor: context.theme.success,
   title: 'Cloud Backup Complete',
@@ -746,13 +746,13 @@ TTile(
 
 // Circular icon container:
 TTile(
-  icon: Icons.insights_rounded,
+  icon: HugeIcons.strokeRoundedSingRight,
   iconBackgroundColor: context.theme.primary.withAlpha(25),
   iconColor: context.theme.primary,
   iconBorderRadius: BorderRadius.circular(24),
   title: 'Traffic Surge Detected',
   subtitle: '+140% incoming sessions',
-  trailing: Icon(Icons.chevron_right_rounded),
+  trailing: HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01),
 )''',
             properties: const [
               PropertyDoc(
@@ -789,13 +789,13 @@ TTile(
             title: 'Rich Content & Trailing Controls',
             description:
                 'Use titleWidget and subtitleWidget for custom layouts, inline badges, and switches or actions as trailing widgets.',
-            icon: Icons.widgets_rounded,
+            icon: HugeIcons.strokeRoundedImages,
             preview: Column(
               children: [
                 _buildTileContainer(
                   context,
                   child: TTile(
-                    icon: Icons.notifications_active_rounded,
+                    icon: HugeIcons.strokeRoundedNotification02,
                     iconColor: theme.info,
                     iconBackgroundColor: theme.info.withAlpha(25),
                     titleWidget: Row(
@@ -817,7 +817,7 @@ TTile(
                     title: 'Sarah Jenkins',
                     subtitleWidget: Row(
                       children: [
-                        Icon(Icons.shield_outlined, size: 13, color: colors.onSurfaceVariant),
+                        TIcon.raw(HugeIcons.strokeRoundedShield01, size: 13, color: colors.onSurfaceVariant),
                         const SizedBox(width: 4),
                         Text('Lead Security Engineer • Active now', style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
                       ],
@@ -826,7 +826,7 @@ TTile(
                       size: TButtonSize.xs,
                       type: TButtonType.outline,
                       text: 'Message',
-                      icon: Icons.chat_bubble_outline_rounded,
+                      icon: HugeIcons.strokeRoundedBubbleChat,
                       onTap: () => TToastService.info(context, 'Opening chat with Sarah...'),
                     ),
                   ),
@@ -834,7 +834,7 @@ TTile(
               ],
             ),
             code: '''TTile(
-  icon: Icons.notifications_active_rounded,
+  icon: HugeIcons.strokeRoundedNotification02,
   iconColor: context.theme.info,
   iconBackgroundColor: context.theme.info.withAlpha(25),
   titleWidget: Row(
@@ -878,7 +878,7 @@ TTile(
             title: 'Interactive States: Active & Expanded',
             description:
                 'TTile includes built-in hover and expanded/active styling via isExpanded, expandedIconBackgroundColor, and expandedIconColor.',
-            icon: Icons.toggle_on_rounded,
+            icon: HugeIcons.strokeRoundedToggleOn,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -903,7 +903,7 @@ TTile(
                         isExpanded: _selectedTileIndex == i,
                         expandedIconBackgroundColor: theme.primary,
                         expandedIconColor: Colors.white,
-                        icon: [Icons.inventory_2_rounded, Icons.analytics_rounded, Icons.settings_suggest_rounded][i],
+                        icon: [HugeIcons.strokeRoundedPackage, HugeIcons.strokeRoundedAnalytics01, HugeIcons.strokeRoundedSettings02][i],
                         title: ['Product Catalog', 'Analytics Dashboard', 'System Preferences'][i],
                         subtitle: [
                           '1,420 SKU records active',
@@ -912,7 +912,7 @@ TTile(
                         ][i],
                         trailing: _selectedTileIndex == i
                             ? TBadge(label: 'Active', color: theme.primary)
-                            : const Icon(Icons.radio_button_off, size: 18),
+                            : TIcon.raw(HugeIcons.strokeRoundedRadioButton, size: 18),
                       ),
                     ),
                   ),
@@ -923,12 +923,12 @@ TTile(
   isExpanded: isSelected, // Active state
   expandedIconBackgroundColor: context.theme.primary,
   expandedIconColor: Colors.white,
-  icon: Icons.inventory_2_rounded,
+  icon: HugeIcons.strokeRoundedPackage,
   title: 'Product Catalog',
   subtitle: '1,420 SKU records active',
   trailing: isSelected
       ? TBadge(label: 'Active', color: context.theme.primary)
-      : Icon(Icons.radio_button_off),
+      : HugeIcon(icon: HugeIcons.strokeRoundedRadioButton),
 )''',
             properties: const [
               PropertyDoc(
@@ -958,7 +958,7 @@ TTile(
             title: 'Product Tiles & Smart Descriptions (TTile.sm, md, lg & desc)',
             description:
                 'Product-focused image scale (sm: 50px, md: 75px, lg: 100px) with start alignment. Smart desc positioning automatically places description beside the image below subtitle if it fits within image height, or spans below the image across full width if it exceeds image height.',
-            icon: Icons.inventory_2_outlined,
+            icon: HugeIcons.strokeRoundedPackage,
             preview: Column(
               children: [
                 _buildTileContainer(
@@ -1076,7 +1076,7 @@ TTile.lg(
             title: 'Embedded Key-Value Data (values & valuesMode)',
             description:
                 'TTile supports structured key-value metadata embedded directly below the tile header using the values property and TKeyValueSection. The valuesMode property controls layout across 5 presentation styles: inlineFlow, stackedFlow, inlineColumns, stackedColumns, and split.',
-            icon: Icons.data_array_rounded,
+            icon: HugeIcons.strokeRoundedDataRecovery,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1122,7 +1122,7 @@ TTile.lg(
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline_rounded, size: 16, color: theme.primary),
+                      TIcon.raw(HugeIcons.strokeRoundedInformationCircle, size: 16, color: theme.primary),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(switch (_selectedValuesMode) {
@@ -1141,7 +1141,7 @@ TTile.lg(
                 _buildTileContainer(
                   context,
                   child: TTile(
-                    icon: Icons.receipt_long_rounded,
+                    icon: HugeIcons.strokeRoundedInvoice,
                     iconBackgroundColor: theme.primary.withAlpha(25),
                     iconColor: theme.primary,
                     title: 'Purchase Order #PO-94021',
@@ -1164,7 +1164,7 @@ TTile.lg(
                 _buildTileContainer(
                   context,
                   child: TTile(
-                    icon: Icons.account_balance_wallet_rounded,
+                    icon: HugeIcons.strokeRoundedWallet01,
                     iconBackgroundColor: theme.success.withAlpha(25),
                     iconColor: theme.success,
                     title: 'Settlement Breakdown (valuesMode: TKeyValueMode.split)',
@@ -1182,7 +1182,7 @@ TTile.lg(
                 _buildTileContainer(
                   context,
                   child: TTile(
-                    icon: Icons.dns_rounded,
+                    icon: HugeIcons.strokeRoundedDna,
                     iconBackgroundColor: theme.info.withAlpha(25),
                     iconColor: theme.info,
                     title: 'Kubernetes Cluster Node (valuesMode: TKeyValueMode.stackedColumns)',
@@ -1200,7 +1200,7 @@ TTile.lg(
             ),
             code: '''// 1. Default inlineFlow mode (Key: Value wrapped dynamically)
 TTile(
-  icon: Icons.receipt_long_rounded,
+  icon: HugeIcons.strokeRoundedInvoice,
   title: 'Purchase Order #PO-94021',
   subtitle: 'Vendor: Global Logistics Ltd',
   trailing: TBadge(label: 'Approved', color: Colors.green),
@@ -1216,7 +1216,7 @@ TTile(
 
 // 2. stackedColumns mode (Uniform grid columns with keys stacked above values)
 TTile(
-  icon: Icons.dns_rounded,
+  icon: HugeIcons.strokeRoundedDna,
   title: 'Kubernetes Cluster Node',
   subtitle: 'Pod Fleet: us-east-prod-01',
   valuesMode: TKeyValueMode.stackedColumns,
@@ -1230,7 +1230,7 @@ TTile(
 
 // 3. split mode (Single column with keys on left and values on right)
 TTile(
-  icon: Icons.account_balance_wallet_rounded,
+  icon: HugeIcons.strokeRoundedWallet01,
   title: 'Settlement Breakdown',
   subtitle: 'Invoice #INV-2024-009',
   valuesMode: TKeyValueMode.split,
@@ -1269,22 +1269,26 @@ TTile(
             title: 'Card Wrapper & Shadow Levels (.card / TCardShadow)',
             description:
                 'TTile never draws its own card. Wrap any widget with .card() for a flat TCard surface. Prefer no shadow; add TCardShadow.sm only when elevation is genuinely needed.',
-            icon: Icons.layers_rounded,
+            icon: HugeIcons.strokeRoundedLayers01,
             preview: Wrap(
               spacing: 16,
               runSpacing: 16,
               children: [
                 for (final level in TCardShadow.values)
-                  TTile.h5(icon: Icons.layers_outlined, title: 'TCardShadow.${level.name}', subtitle: 'Shadow level').card(shadow: level),
+                  TTile.h5(
+                    icon: HugeIcons.strokeRoundedLayers01,
+                    title: 'TCardShadow.${level.name}',
+                    subtitle: 'Shadow level',
+                  ).card(shadow: level),
               ],
             ),
             code: '''// Tiles shrink to fit when there is no trailing widget,
 // so they can be dropped straight into a Wrap or Row.
-TTile.h5(icon: Icons.layers_outlined, title: 'Flat', subtitle: 'none')
+TTile.h5(icon: HugeIcons.strokeRoundedLayers01, title: 'Flat', subtitle: 'none')
     .card();
 
 // Only when elevation is needed (keep it sm):
-TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
+TTile.h5(icon: HugeIcons.strokeRoundedLayers01, title: 'Raised', subtitle: 'sm')
     .cardSm();''',
             properties: const [
               PropertyDoc(
@@ -1315,7 +1319,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
             title: 'Icon On Top (iconOnTop)',
             description:
                 'Set iconOnTop to stack the icon above the title block, ideal for hub/launcher tiles. A trailing widget moves to the far end of the icon row.',
-            icon: Icons.dashboard_customize_rounded,
+            icon: HugeIcons.strokeRoundedDashboardSquare01,
             preview: Wrap(
               spacing: 16,
               runSpacing: 16,
@@ -1324,7 +1328,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
                   width: 200,
                   child: TTile.h4(
                     iconOnTop: true,
-                    icon: Icons.inventory_2_outlined,
+                    icon: HugeIcons.strokeRoundedPackage,
                     iconColor: theme.primary,
                     title: 'Stocktake',
                     subtitle: '12 open counts',
@@ -1335,7 +1339,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
                   width: 200,
                   child: TTile.h4(
                     iconOnTop: true,
-                    icon: Icons.local_shipping_outlined,
+                    icon: HugeIcons.strokeRoundedDeliveryTruck01,
                     iconColor: theme.warning,
                     title: 'Dispatch',
                     subtitle: '3 pending',
@@ -1345,7 +1349,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
             ),
             code: '''TTile.h4(
   iconOnTop: true,
-  icon: Icons.inventory_2_outlined,
+  icon: HugeIcons.strokeRoundedPackage,
   title: 'Stocktake',
   subtitle: '12 open counts',
   trailing: TBadge(label: '12', color: context.theme.primary),
@@ -1367,7 +1371,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
             title: 'Product Accordion (TAccordion + TTile header)',
             description:
                 'TAccordion accepts the same image, size, subtitle, desc and trailing options as TTile. The header shows image, title, SKU and price; expanding reveals the details.',
-            icon: Icons.shopping_bag_outlined,
+            icon: HugeIcons.strokeRoundedShoppingBag01,
             preview: Column(
               children: [
                 TAccordion(
@@ -1417,7 +1421,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
             title: 'Task Cards (TTile.task)',
             description:
                 'Touch-friendly task rows for mobile and handheld field apps (warehouse picking, dispatch, delivery, and audits). Features an accent status strip, status chip, fine-print metadata, and a built-in done/total progress bar. Like every TTile it has no card chrome; wrap it with .card() for a surface and shadow.',
-            icon: Icons.task_alt_rounded,
+            icon: HugeIcons.strokeRoundedTask01,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1427,7 +1431,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
                 ),
                 const SizedBox(height: 12),
                 TTile.task(
-                  icon: Icons.inventory_2_outlined,
+                  icon: HugeIcons.strokeRoundedPackage,
                   title: 'SO-10452 · Order Picking',
                   subtitle: 'Zone A · Electronics · Aisle 3, Shelf B',
                   meta: 'Due today at 3:30 PM • 12 lines remaining',
@@ -1443,7 +1447,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
                 ).card(padding: EdgeInsets.zero),
                 const SizedBox(height: 10),
                 TTile.task(
-                  icon: Icons.local_shipping_outlined,
+                  icon: HugeIcons.strokeRoundedDeliveryTruck01,
                   title: 'DO-90312 · Express Dispatch',
                   subtitle: 'Dock 4 · Carrier: FreightWay Express',
                   meta: 'Urgent departure in 20 min • Awaiting supervisor scan',
@@ -1459,7 +1463,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
                 ).card(padding: EdgeInsets.zero),
                 const SizedBox(height: 10),
                 TTile.task(
-                  icon: Icons.check_circle_outline_rounded,
+                  icon: HugeIcons.strokeRoundedCheckmarkCircle01,
                   title: 'WO-88201 · Assembly & Packaging',
                   subtitle: 'Station 2 · 24 finished units packaged',
                   meta: 'Completed by Alex Miller at 2:15 PM',
@@ -1475,7 +1479,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
                 ).card(padding: EdgeInsets.zero),
                 const SizedBox(height: 10),
                 TTile.task(
-                  icon: Icons.pending_actions_outlined,
+                  icon: HugeIcons.strokeRoundedNavigation,
                   title: 'PO-30119 · Inbound Receiving Audit',
                   subtitle: 'Receiving Bay 1 • 50 cartons expected',
                   meta: 'Scheduled for tomorrow 09:00 AM',
@@ -1491,7 +1495,7 @@ TTile.h5(icon: Icons.layers_outlined, title: 'Raised', subtitle: 'sm')
             ),
             code: '''// 1. In-progress task with progress bar & status chip:
 TTile.task(
-  icon: Icons.inventory_2_outlined,
+  icon: HugeIcons.strokeRoundedPackage,
   title: 'SO-10452 · Order Picking',
   subtitle: 'Zone A · Electronics · Aisle 3, Shelf B',
   meta: 'Due today at 3:30 PM • 12 lines remaining',
@@ -1505,7 +1509,7 @@ TTile.task(
 
 // 2. Urgent task with high-priority status color:
 TTile.task(
-  icon: Icons.local_shipping_outlined,
+  icon: HugeIcons.strokeRoundedDeliveryTruck01,
   title: 'DO-90312 · Express Dispatch',
   subtitle: 'Dock 4 · Carrier: FreightWay Express',
   meta: 'Urgent departure in 20 min',
@@ -1518,7 +1522,7 @@ TTile.task(
 
 // 3. Completed task:
 TTile.task(
-  icon: Icons.check_circle_outline_rounded,
+  icon: HugeIcons.strokeRoundedCheckmarkCircle01,
   title: 'WO-88201 · Assembly & Packaging',
   subtitle: 'Station 2 · 24 finished units packaged',
   meta: 'Completed by Alex at 2:15 PM',
@@ -1531,7 +1535,7 @@ TTile.task(
 
 // 4. Milestone / pending task without progress bar:
 TTile.task(
-  icon: Icons.pending_actions_outlined,
+  icon: HugeIcons.strokeRoundedNavigation,
   title: 'PO-30119 · Inbound Receiving Audit',
   subtitle: 'Receiving Bay 1 • 50 cartons expected',
   meta: 'Scheduled for tomorrow 09:00 AM',
@@ -1593,7 +1597,7 @@ TTile.task(
           _buildSectionHeader(
             title: '4. Executive Dashboard Example',
             subtitle: 'A complete production-ready KPI dashboard header powered by TMetricGrid and TMetricTile widgets.',
-            icon: Icons.dashboard_customize_rounded,
+            icon: HugeIcons.strokeRoundedDashboardSquare01,
           ),
           const SizedBox(height: 16),
 
@@ -1627,7 +1631,7 @@ TTile.task(
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(color: theme.primary.withAlpha(25), borderRadius: BorderRadius.circular(8)),
-                  child: Icon(Icons.tune_rounded, color: theme.primary, size: 20),
+                  child: TIcon.raw(HugeIcons.strokeRoundedFilterEdit, color: theme.primary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1788,7 +1792,7 @@ TTile.task(
                   label: 'Total Revenue',
                   value: '\$148,290.00',
                   subtitle: '+14.2% from prior period',
-                  icon: Icons.monetization_on_rounded,
+                  icon: HugeIcons.strokeRoundedInvestigation,
                   color: theme.success,
                   trend: '+14.2%',
                   trendUp: true,
@@ -1800,7 +1804,7 @@ TTile.task(
                   label: 'New Customers',
                   value: '1,842',
                   subtitle: '89 acquired via referral program',
-                  icon: Icons.people_alt_rounded,
+                  icon: HugeIcons.strokeRoundedUserGroup,
                   color: theme.primary,
                   trend: '+6.1%',
                   trendUp: true,
@@ -1813,7 +1817,7 @@ TTile.task(
                   label: 'Server Load',
                   value: '84.2%',
                   subtitle: 'Noticeable CPU spike in cluster node 4',
-                  icon: Icons.dns_rounded,
+                  icon: HugeIcons.strokeRoundedDna,
                   color: theme.warning,
                   trend: '+12.0%',
                   trendUp: false,
@@ -1826,7 +1830,7 @@ TTile.task(
                   label: 'Pending Approvals',
                   value: '19',
                   subtitle: 'Requires supervisor sign-off',
-                  icon: Icons.pending_actions_rounded,
+                  icon: HugeIcons.strokeRoundedNavigation,
                   color: theme.danger,
                   badge: const TBadge(label: 'Urgent', color: Colors.red),
                   onTap: () => TToastService.error(context, '19 Approvals pending'),
@@ -1837,7 +1841,7 @@ TTile.task(
                   label: 'Fulfillment Rate',
                   value: '99.4%',
                   subtitle: 'Avg ship duration: 1.2 business days',
-                  icon: Icons.local_shipping_rounded,
+                  icon: HugeIcons.strokeRoundedDeliveryTruck01,
                   color: theme.info,
                   trend: '+0.4%',
                   trendUp: true,
@@ -1848,7 +1852,7 @@ TTile.task(
                   label: 'Customer CSAT',
                   value: '4.9 / 5.0',
                   subtitle: 'Based on 2,420 customer feedback surveys',
-                  icon: Icons.star_rate_rounded,
+                  icon: HugeIcons.strokeRoundedStarCircle,
                   color: Colors.amber,
                   badge: const TBadge(label: 'Top 1%', color: Colors.amber),
                 ),
@@ -1891,13 +1895,13 @@ TTile.task(
               TButton(
                 type: TButtonType.outline,
                 size: TButtonSize.sm,
-                icon: Icons.file_download_outlined,
+                icon: HugeIcons.strokeRoundedDownload01,
                 text: 'Export CSV',
                 onTap: () => TToastService.info(context, 'Exporting analytical report...'),
               ),
               TButton(
                 size: TButtonSize.sm,
-                icon: Icons.refresh_rounded,
+                icon: HugeIcons.strokeRoundedRefresh,
                 text: 'Refresh',
                 onTap: () => TToastService.success(context, 'Metrics reloaded'),
               ),
@@ -1913,7 +1917,7 @@ TTile.task(
                 label: 'Gross Volume',
                 value: '\$248,920.00',
                 subtitle: 'Target: \$220,000 (+13.1%)',
-                icon: Icons.account_balance_rounded,
+                icon: HugeIcons.strokeRoundedBank,
                 color: theme.success,
                 trend: '+14.8%',
                 trendUp: true,
@@ -1923,7 +1927,7 @@ TTile.task(
                 label: 'Active Subscriptions',
                 value: '3,420',
                 subtitle: '312 new subscriptions this month',
-                icon: Icons.autorenew_rounded,
+                icon: HugeIcons.strokeRoundedRefresh,
                 color: theme.primary,
                 trend: '+8.2%',
                 trendUp: true,
@@ -1933,7 +1937,7 @@ TTile.task(
                 label: 'Processing Orders',
                 value: '184 orders',
                 subtitle: 'Avg dispatch time: 1.4 hrs',
-                icon: Icons.local_mall_rounded,
+                icon: HugeIcons.strokeRoundedShoppingBag01,
                 color: theme.warning,
                 badge: const TBadge(label: 'Live', color: Colors.orange),
               ),
@@ -1941,7 +1945,7 @@ TTile.task(
                 label: 'Global Uptime',
                 value: '99.98%',
                 subtitle: 'Zero critical disruptions recorded',
-                icon: Icons.cloud_done_rounded,
+                icon: HugeIcons.strokeRoundedCloudCheck,
                 color: theme.info,
                 trend: '+0.04%',
                 trendUp: true,
@@ -1950,7 +1954,7 @@ TTile.task(
                 label: 'Customer Rating',
                 value: '4.92 / 5.0',
                 subtitle: 'From 1,840 verified customer reviews',
-                icon: Icons.star_rounded,
+                icon: HugeIcons.strokeRoundedStar,
                 color: Colors.amber,
                 badge: const TBadge(label: 'Top Tier', color: Colors.amber),
               ),
@@ -1958,7 +1962,7 @@ TTile.task(
                 label: 'Avg Order Value',
                 value: '\$72.78',
                 subtitle: 'Cross-sell conversion at 18.2%',
-                icon: Icons.shopping_cart_checkout_rounded,
+                icon: HugeIcons.strokeRoundedShoppingCart01,
                 color: Colors.purple,
                 trend: '+5.4%',
                 trendUp: true,
@@ -1971,7 +1975,7 @@ TTile.task(
   }
 
   // ==================== HELPER WIDGETS ====================
-  Widget _buildSectionHeader({required String title, required String subtitle, required IconData icon}) {
+  Widget _buildSectionHeader({required String title, required String subtitle, required dynamic icon}) {
     final colors = context.colors;
     final theme = context.theme;
 
@@ -1981,7 +1985,7 @@ TTile.task(
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(color: theme.primary.withAlpha(25), borderRadius: BorderRadius.circular(8)),
-          child: Icon(icon, color: theme.primary, size: 22),
+          child: TIcon.raw(icon, color: theme.primary, size: 22),
         ),
         const SizedBox(width: 14),
         Expanded(

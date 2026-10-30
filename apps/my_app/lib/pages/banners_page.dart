@@ -50,7 +50,7 @@ class _BannersPageState extends State<BannersPage> {
           WidgetDocCard(
             title: 'Semantic Types (Info, Success, Warning, Error, Neutral)',
             description: 'Standardized intent callouts with auto-resolved theme colors and indicator icons',
-            icon: Icons.campaign_rounded,
+            icon: HugeIcons.strokeRoundedChampion,
             preview: Column(
               children: [
                 const TBanner.info(title: 'System Information', message: 'Scheduled maintenance is planned for Sunday at 02:00 UTC.'),
@@ -92,7 +92,7 @@ TBanner.error(
           WidgetDocCard(
             title: 'Visual Variants (tonal, softOutline, outline, solid)',
             description: 'Consistent with TVariant token system across buttons and chips',
-            icon: Icons.palette_outlined,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: Column(
               children: [
                 const TBanner.info(
@@ -128,7 +128,7 @@ TBanner.info(variant: TVariant.solid, message: 'Solid variant')''',
           WidgetDocCard(
             title: 'Action Button & Dismiss Action',
             description: 'Interactive callouts featuring primary buttons and onDismiss callbacks aligned with text',
-            icon: Icons.touch_app_rounded,
+            icon: HugeIcons.strokeRoundedTouch10,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -155,7 +155,7 @@ TBanner.info(variant: TVariant.solid, message: 'Solid variant')''',
                       text: 'Restore Dismissed Banner',
                       type: TButtonType.tonal,
                       size: TButtonSize.xs,
-                      icon: Icons.replay_rounded,
+                      icon: HugeIcons.strokeRoundedReplay,
                       onTap: () {
                         setState(() => _showDismissibleBanner = true);
                         _setAction('Restored Dismissed Banner');
@@ -167,7 +167,7 @@ TBanner.info(variant: TVariant.solid, message: 'Solid variant')''',
                   message: 'Events from endpoint /api/webhooks/github could not be validated.',
                   action: TButton(
                     text: 'View Logs',
-                    icon: Icons.receipt_long_rounded,
+                    icon: HugeIcons.strokeRoundedInvoice,
                     type: TButtonType.tonal,
                     size: TButtonSize.xs,
                     onTap: () => _setAction('Clicked: View Webhook Logs'),
@@ -194,7 +194,7 @@ TBanner.info(variant: TVariant.solid, message: 'Solid variant')''',
             title: 'Offline & Sync Status Banner (TBanner.offline)',
             description:
                 'Connectivity notice designed for offline-first field apps. Automatically handles offline, syncing, changes pending, error states with Retry, and disappears when fully synced.',
-            icon: Icons.wifi_off_rounded,
+            icon: HugeIcons.strokeRoundedWifiOff01,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -204,11 +204,11 @@ TBanner.info(variant: TVariant.solid, message: 'Solid variant')''',
                   runSpacing: 8,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    _buildOfflineChip(_OfflineDemoState.offline, 'Offline Notice', Icons.cloud_off_rounded),
-                    _buildOfflineChip(_OfflineDemoState.syncing, 'Actively Syncing', Icons.sync_rounded),
-                    _buildOfflineChip(_OfflineDemoState.pendingChanges, 'Pending Sync', Icons.cloud_upload_outlined),
-                    _buildOfflineChip(_OfflineDemoState.error, 'Sync Error', Icons.error_outline_rounded),
-                    _buildOfflineChip(_OfflineDemoState.fullySynced, 'Fully Synced (Hidden)', Icons.check_circle_outline_rounded),
+                    _buildOfflineChip(_OfflineDemoState.offline, 'Offline Notice', HugeIcons.strokeRoundedCloudOff),
+                    _buildOfflineChip(_OfflineDemoState.syncing, 'Actively Syncing', HugeIcons.strokeRoundedRefresh),
+                    _buildOfflineChip(_OfflineDemoState.pendingChanges, 'Pending Sync', HugeIcons.strokeRoundedCloudUpload),
+                    _buildOfflineChip(_OfflineDemoState.error, 'Sync Error', HugeIcons.strokeRoundedAlertCircle),
+                    _buildOfflineChip(_OfflineDemoState.fullySynced, 'Fully Synced (Hidden)', HugeIcons.strokeRoundedCheckmarkCircle01),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -242,7 +242,7 @@ TBanner.info(variant: TVariant.solid, message: 'Solid variant')''',
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.check_circle_rounded, size: 18, color: colors.primary),
+                              TIcon.raw(HugeIcons.strokeRoundedCheckmarkCircle01, size: 18, color: colors.primary),
                               const SizedBox(width: 8),
                               Text(
                                 'TBanner.offline returns SizedBox.shrink() when fully synced.',
@@ -292,7 +292,7 @@ TBanner.offline(
           WidgetDocCard(
             title: 'Icon Sizing & Vertical Centering Alignment',
             description: 'Custom iconSize property with pixel-perfect vertical centering aligned to the first line of text',
-            icon: Icons.format_size_rounded,
+            icon: HugeIcons.strokeRoundedImageActualSize,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -340,7 +340,7 @@ TBanner.neutral(
     );
   }
 
-  Widget _buildOfflineChip(_OfflineDemoState state, String label, IconData icon) {
+  Widget _buildOfflineChip(_OfflineDemoState state, String label, dynamic icon) {
     final isSelected = _offlineState == state;
     return TButton(
       text: label,

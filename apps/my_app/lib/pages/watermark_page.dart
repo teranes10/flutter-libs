@@ -156,7 +156,7 @@ class _WatermarkPageState extends State<WatermarkPage> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, size: 16, color: colors.primary),
+                      TIcon.raw(HugeIcons.strokeRoundedInformationCircle, size: 16, color: colors.primary),
                       const SizedBox(width: 8),
                       Text(
                         'Pointer Test: $_interactionFeedback',

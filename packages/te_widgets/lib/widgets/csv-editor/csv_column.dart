@@ -1,6 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-
+import 'package:hugeicons/hugeicons.dart';
 /// Supported data types for columns in [TCsvEditor].
 enum TCsvColumnType {
   /// String text field.
@@ -28,12 +28,12 @@ enum TCsvColumnType {
       };
 
   /// Icon representing the type.
-  IconData get icon => switch (this) {
-        TCsvColumnType.text => Icons.text_fields_rounded,
-        TCsvColumnType.number => Icons.pin_outlined,
-        TCsvColumnType.integer => Icons.tag_rounded,
-        TCsvColumnType.boolean => Icons.toggle_on_outlined,
-        TCsvColumnType.image => Icons.image_rounded,
+  dynamic get icon => switch (this) {
+        TCsvColumnType.text => HugeIcons.strokeRoundedText,
+        TCsvColumnType.number => HugeIcons.strokeRoundedDialpadCircle01,
+        TCsvColumnType.integer => HugeIcons.strokeRoundedTag01,
+        TCsvColumnType.boolean => HugeIcons.strokeRoundedToggleOn,
+        TCsvColumnType.image => HugeIcons.strokeRoundedImage01,
       };
 }
 

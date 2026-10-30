@@ -120,7 +120,7 @@ class TSavedLocationsListState extends State<TSavedLocationsList> {
               },
               child: Row(
                 children: [
-                  Icon(Icons.pin_drop_outlined, color: colors.primary),
+                  TIcon.raw(HugeIcons.strokeRoundedMapPin, color: colors.primary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -152,7 +152,7 @@ class TSavedLocationsListState extends State<TSavedLocationsList> {
                   ),
                   const SizedBox(width: 8),
                   TButton(
-                    icon: Icons.bookmark_remove_outlined,
+                    icon: HugeIcons.strokeRoundedBookmarkRemove01,
                     type: TButtonType.outline,
                     color: colors.error,
                     onTap: () {
@@ -160,7 +160,7 @@ class TSavedLocationsListState extends State<TSavedLocationsList> {
                         context,
                         title: 'Remove Saved Location',
                         text: 'Are you sure you want to remove "$displayName"?',
-                        icon: Icons.delete_forever_rounded,
+                        icon: HugeIcons.strokeRoundedDelete02,
                         color: colors.error,
                         confirmButton: AlertButton(text: 'Remove', onClick: () => deleteSavedLocation(index)),
                       );

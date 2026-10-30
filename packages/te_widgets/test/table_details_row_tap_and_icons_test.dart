@@ -146,8 +146,8 @@ void main() {
               headers: headers,
               details: TTableDetails(
                 mode: TTableExpansionMode.bottom,
-                expandIcon: Icons.add_circle_outline,
-                collapseIcon: Icons.remove_circle_outline,
+                expandIcon: HugeIcons.strokeRoundedAddCircle,
+                collapseIcon: HugeIcons.strokeRoundedRemoveCircle,
                 builder: (ctx, item, index) => Text('Details Content for ${item.data.title}'),
               ),
             ),
@@ -157,15 +157,15 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should display custom add icon when collapsed
-      expect(find.byIcon(Icons.add_circle_outline), findsWidgets);
-      expect(find.byIcon(Icons.remove_circle_outline), findsNothing);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedAddCircle), findsWidgets);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedRemoveCircle), findsNothing);
 
       // Tap to expand
       await tester.tap(find.text('Alpha Item'));
       await tester.pumpAndSettle();
 
       // Should display custom remove icon when expanded
-      expect(find.byIcon(Icons.remove_circle_outline), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedRemoveCircle), findsOneWidget);
     });
 
     testWidgets('TTable mobile card view supports row tap to expand details', (tester) async {

@@ -29,7 +29,7 @@ class BreadcrumbsPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Basic Breadcrumbs',
             description: 'Automatically generated from sidebar items and current route',
-            icon: Icons.linear_scale,
+            icon: HugeIcons.strokeRoundedScale,
             preview: TBreadcrumbs(items: sidebarItems),
             code: '''TBreadcrumbs(
   items: sidebarItems,
@@ -45,7 +45,7 @@ class BreadcrumbsPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Custom Style',
             description: 'Customized colors and separators',
-            icon: Icons.palette,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: context.colors.surfaceContainerLow, borderRadius: BorderRadius.circular(8)),
@@ -72,7 +72,7 @@ class BreadcrumbsPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Dynamic Paths',
             description: 'Use tGo extension to provide labels for multi-segment paths',
-            icon: Icons.account_tree,
+            icon: HugeIcons.strokeRoundedFolderTree,
             preview: Wrap(
               spacing: 8,
               children: [

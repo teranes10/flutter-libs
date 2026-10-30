@@ -58,9 +58,9 @@ void main() {
             body: Center(
               child: Column(
                 children: [
-                  const TChip(size: TChipSize.sm, text: 'Small', icon: Icons.star),
-                  const TChip(size: TChipSize.md, text: 'Medium', icon: Icons.star),
-                  const TChip(size: TChipSize.lg, text: 'Large', icon: Icons.star),
+                  const TChip(size: TChipSize.sm, text: 'Small', icon: HugeIcons.strokeRoundedStar),
+                  const TChip(size: TChipSize.md, text: 'Medium', icon: HugeIcons.strokeRoundedStar),
+                  const TChip(size: TChipSize.lg, text: 'Large', icon: HugeIcons.strokeRoundedStar),
                   TChip(
                     size: TChipSize.sm.copyWith(radius: 16),
                     text: 'Custom Sized',
@@ -76,7 +76,7 @@ void main() {
       expect(find.text('Medium'), findsOneWidget);
       expect(find.text('Large'), findsOneWidget);
       expect(find.text('Custom Sized'), findsOneWidget);
-      expect(find.byIcon(Icons.star), findsNWidgets(3));
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedStar), findsNWidgets(3));
     });
 
     testWidgets('TChip renders trailing TIcon.close and handles callback', (WidgetTester tester) async {

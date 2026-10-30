@@ -216,7 +216,7 @@ class _TSignaturePadState extends State<TSignaturePad> {
                   right: 4,
                   child: TButton(
                     text: 'Clear',
-                    icon: Icons.refresh_rounded,
+                    icon: HugeIcons.strokeRoundedRefresh,
                     type: TButtonType.text,
                     color: context.theme.danger,
                     onTap: _controller.clear,

@@ -356,7 +356,7 @@ class _TTransferListState<T> extends State<TTransferList<T>> {
                   decoration: InputDecoration(
                     hintText: 'Search items...',
                     hintStyle: TextStyle(fontSize: 12, color: theme.hintColor),
-                    prefixIcon: const Icon(Icons.search, size: 16),
+                    prefixIcon: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 16),
                     prefixIconConstraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                     suffixIcon: searchController.text.isNotEmpty
                         ? InkWell(
@@ -364,7 +364,7 @@ class _TTransferListState<T> extends State<TTransferList<T>> {
                               searchController.clear();
                               onSearchChanged('');
                             },
-                            child: const Icon(Icons.clear, size: 14),
+                            child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 14),
                           )
                         : null,
                     suffixIconConstraints: const BoxConstraints(minWidth: 24, minHeight: 24),
@@ -505,28 +505,28 @@ class _TTransferListState<T> extends State<TTransferList<T>> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildTransferBtn(
-          icon: Icons.chevron_right,
+          icon: HugeIcons.strokeRoundedArrowRight01,
           tooltip: 'Transfer Selected to Right',
           enabled: canMoveRight,
           onPressed: _transferToTarget,
         ),
         const SizedBox(height: 6),
         _buildTransferBtn(
-          icon: Icons.keyboard_double_arrow_right,
+          icon: HugeIcons.strokeRoundedSquareArrowRightDouble,
           tooltip: 'Transfer All to Right',
           enabled: canMoveAllRight,
           onPressed: _transferAllToTarget,
         ),
         const SizedBox(height: 12),
         _buildTransferBtn(
-          icon: Icons.chevron_left,
+          icon: HugeIcons.strokeRoundedArrowLeft01,
           tooltip: 'Transfer Selected to Left',
           enabled: canMoveLeft,
           onPressed: _transferToSource,
         ),
         const SizedBox(height: 6),
         _buildTransferBtn(
-          icon: Icons.keyboard_double_arrow_left,
+          icon: HugeIcons.strokeRoundedSquareArrowUpLeft,
           tooltip: 'Transfer All to Left',
           enabled: canMoveAllLeft,
           onPressed: _transferAllToSource,
@@ -542,14 +542,14 @@ class _TTransferListState<T> extends State<TTransferList<T>> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _buildTransferBtn(
-          icon: Icons.arrow_upward,
+          icon: HugeIcons.strokeRoundedArrowUp01,
           tooltip: 'Move Up',
           enabled: canReorder,
           onPressed: _moveTargetItemUp,
         ),
         const SizedBox(height: 6),
         _buildTransferBtn(
-          icon: Icons.arrow_downward,
+          icon: HugeIcons.strokeRoundedArrowDown01,
           tooltip: 'Move Down',
           enabled: canReorder,
           onPressed: _moveTargetItemDown,
@@ -559,7 +559,7 @@ class _TTransferListState<T> extends State<TTransferList<T>> {
   }
 
   Widget _buildTransferBtn({
-    required IconData icon,
+    required dynamic icon,
     required String tooltip,
     required bool enabled,
     required VoidCallback onPressed,

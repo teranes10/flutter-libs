@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:te_widgets/extensions/build_context_x.dart';
-import 'package:te_widgets/widgets/error/error.dart';
-
+import 'package:te_widgets/te_widgets.dart';
 /// A banner displaying error messages
 class TErrorBuilder extends StatelessWidget {
   final TError error;
@@ -30,7 +28,7 @@ class TErrorBuilder extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (showIcon) Icon(Icons.error_outline, color: rColor, size: 20),
+            if (showIcon) TIcon.raw(HugeIcons.strokeRoundedAlertCircle, color: rColor, size: 20),
             if (showIcon) const SizedBox(width: 8),
             Expanded(
               child: Column(

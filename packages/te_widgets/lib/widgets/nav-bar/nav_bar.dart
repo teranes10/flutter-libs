@@ -14,13 +14,13 @@ part 'nav_bar_item.dart';
 /// TNavbar(
 ///   items: [
 ///     TNavItem(
-///       icon: Icons.home,
+///       icon: HugeIcons.strokeRoundedHome01,
 ///       label: 'Home',
 ///       isActive: currentIndex == 0,
 ///       onTap: () => setIndex(0),
 ///     ),
 ///     TNavItem(
-///       icon: Icons.person,
+///       icon: HugeIcons.strokeRoundedUser,
 ///       label: 'Profile',
 ///       isActive: currentIndex == 1,
 ///       onTap: () => setIndex(1),

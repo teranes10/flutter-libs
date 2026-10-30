@@ -29,7 +29,7 @@ class LayoutMobileTopBar extends StatelessWidget {
                 if (Navigator.canPop(context))
                   TButton(
                     type: TButtonType.icon,
-                    icon: Icons.arrow_back_ios_new,
+                    icon: HugeIcons.strokeRoundedArrowLeft01,
                     onTap: () => Navigator.of(context).pop(),
                   ),
                 Expanded(
@@ -50,7 +50,7 @@ class LayoutMobileTopBar extends StatelessWidget {
               child: TButton(
                 key: ValueKey(isSidebarOpen),
                 type: TButtonType.icon,
-                icon: isSidebarOpen ? Icons.close_rounded : Icons.menu_rounded,
+                icon: isSidebarOpen ? HugeIcons.strokeRoundedCancel01 : HugeIcons.strokeRoundedMenu01,
                 size: TButtonSize.md.copyWith(icon: 20),
                 color: colors.onSurface,
                 onTap: onToggleSidebar,

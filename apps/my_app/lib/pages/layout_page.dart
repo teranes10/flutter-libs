@@ -50,23 +50,23 @@ class LayoutPage extends StatelessWidget {
                       TAlignedRow(
                         wrapperModeThreshold: 1,
                         left: [
-                          Icon(Icons.info_outline),
+                          TIcon.raw(HugeIcons.strokeRoundedInformationCircle),
                           Text('Basic Left Aligned', style: TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
                       const Divider(),
                       TAlignedRow(
                         wrapperModeThreshold: 1,
-                        right: [Text('Basic Right Aligned'), Icon(Icons.arrow_forward)],
+                        right: [Text('Basic Right Aligned'), TIcon.raw(HugeIcons.strokeRoundedArrowRight01)],
                         mainAxisAlignment: MainAxisAlignment.end,
                       ),
                       const Divider(),
                       TAlignedRow(
                         wrapperModeThreshold: 1,
-                        left: [TButton(type: TButtonType.softText, text: 'Back', icon: Icons.chevron_left, onTap: () {})],
+                        left: [TButton(type: TButtonType.softText, text: 'Back', icon: HugeIcons.strokeRoundedArrowLeft01, onTap: () {})],
                         right: [
-                          TButton(text: 'Save Changes', icon: Icons.save, onTap: () {}),
-                          TButton(type: TButtonType.tonal, text: 'Publish', icon: Icons.publish, onTap: () {}),
+                          TButton(text: 'Save Changes', icon: HugeIcons.strokeRoundedFloppyDisk, onTap: () {}),
+                          TButton(type: TButtonType.tonal, text: 'Publish', icon: HugeIcons.strokeRoundedBlinds, onTap: () {}),
                         ],
                       ),
                     ],

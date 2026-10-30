@@ -40,8 +40,8 @@ void main() {
       final header = TTableHeader<SampleProduct, int>.chips(
         'Badges',
         (p) => [
-          const TChip.solid(text: 'Pro', icon: Icons.star_rounded, color: Colors.amber),
-          const TChip.tonal(text: 'Verified', icon: Icons.verified_rounded, color: Colors.blue),
+          const TChip.solid(text: 'Pro', icon: HugeIcons.strokeRoundedStar, color: Colors.amber),
+          const TChip.tonal(text: 'Verified', icon: HugeIcons.strokeRoundedCheckmarkBadge01, color: Colors.blue),
           const TChip(text: 'Item'), // no icon on chip, but common fallback can provide one
         ],
         spacing: 4.0,
@@ -69,7 +69,7 @@ void main() {
       final header = TTableHeader<SampleProduct, int>.chips(
         'Badges',
         (p) => [
-          const TChip.solid(text: 'Pro', icon: Icons.star_rounded, color: Colors.amber),
+          const TChip.solid(text: 'Pro', icon: HugeIcons.strokeRoundedStar, color: Colors.amber),
           const TChip.tonal(text: 'Verified', color: Colors.blue),
           const TChip(text: 'Fallback Item'), // inherits header fallback type
         ],
@@ -96,7 +96,7 @@ void main() {
       expect(find.text('Pro'), findsOneWidget);
       expect(find.text('Verified'), findsOneWidget);
       expect(find.text('Fallback Item'), findsOneWidget);
-      expect(find.byIcon(Icons.star_rounded), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedStar), findsOneWidget);
     });
   });
 }

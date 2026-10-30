@@ -48,24 +48,24 @@ class _MentionsMenubarPageState extends State<MentionsMenubarPage> {
                     TMenubarMenu(
                       label: 'File',
                       items: [
-                        TDropdownItem(icon: Icons.note_add_outlined, text: 'New', onTap: () => _act('File > New')),
-                        TDropdownItem(icon: Icons.folder_open_outlined, text: 'Open', onTap: () => _act('File > Open')),
+                        TDropdownItem(icon: HugeIcons.strokeRoundedNoteAdd, text: 'New', onTap: () => _act('File > New')),
+                        TDropdownItem(icon: HugeIcons.strokeRoundedFolderOpen, text: 'Open', onTap: () => _act('File > Open')),
                         const TDropdownItem(customContent: Divider(height: 1)),
-                        TDropdownItem(icon: Icons.logout_rounded, text: 'Exit', onTap: () => _act('File > Exit')),
+                        TDropdownItem(icon: HugeIcons.strokeRoundedLogout01, text: 'Exit', onTap: () => _act('File > Exit')),
                       ],
                     ),
                     TMenubarMenu(
                       label: 'Edit',
                       items: [
-                        TDropdownItem(icon: Icons.undo_rounded, text: 'Undo', onTap: () => _act('Edit > Undo')),
-                        TDropdownItem(icon: Icons.redo_rounded, text: 'Redo', onTap: () => _act('Edit > Redo')),
+                        TDropdownItem(icon: HugeIcons.strokeRoundedUndo, text: 'Undo', onTap: () => _act('Edit > Undo')),
+                        TDropdownItem(icon: HugeIcons.strokeRoundedRedo, text: 'Redo', onTap: () => _act('Edit > Redo')),
                       ],
                     ),
                     TMenubarMenu(
                       label: 'View',
                       items: [
-                        TDropdownItem(icon: Icons.zoom_in_rounded, text: 'Zoom In', onTap: () => _act('View > Zoom In')),
-                        TDropdownItem(icon: Icons.zoom_out_rounded, text: 'Zoom Out', onTap: () => _act('View > Zoom Out')),
+                        TDropdownItem(icon: HugeIcons.strokeRoundedZoomIn, text: 'Zoom In', onTap: () => _act('View > Zoom In')),
+                        TDropdownItem(icon: HugeIcons.strokeRoundedZoomOut, text: 'Zoom Out', onTap: () => _act('View > Zoom Out')),
                       ],
                     ),
                   ],

@@ -8,7 +8,7 @@ class KeyValuePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sampleValues = [
-      TKeyValue.text('Order ID', 'ORD-2024-8910', icon: const Icon(Icons.receipt_long, size: 14)),
+      TKeyValue.text('Order ID', 'ORD-2024-8910', icon: TIcon.raw(HugeIcons.strokeRoundedInvoice, size: 14)),
       TKeyValue.text('Customer Name', 'Jane Doe'),
       TKeyValue.text('Contact Email', 'jane.doe@example.com'),
       TKeyValue.chip('Status', 'Shipped', color: Colors.green),
@@ -19,7 +19,7 @@ class KeyValuePage extends StatelessWidget {
     ];
 
     final specializedValues = [
-      TKeyValue.text('Product Name', 'Pro Wireless Headphones', icon: const Icon(Icons.headphones_rounded, size: 14)),
+      TKeyValue.text('Product Name', 'Pro Wireless Headphones', icon: TIcon.raw(HugeIcons.strokeRoundedHeadphones, size: 14)),
       TKeyValue.image(
         'Thumbnail',
         'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100',
@@ -70,10 +70,10 @@ class KeyValuePage extends StatelessWidget {
             title: 'Specialized Value Factories (TKeyValue.*)',
             description:
                 'Mirroring TTableHeader, TKeyValue provides dedicated factory constructors for datetime, image, chip, chips, rating, progress, toggle, and color without manual widget boilerplate.',
-            icon: Icons.auto_awesome_rounded,
+            icon: HugeIcons.strokeRoundedAiAutoRotate,
             preview: TKeyValueSection.columnsInline(values: specializedValues, columns: 2, hSpacing: 24, vSpacing: 14),
             code: '''final values = [
-  TKeyValue.text('Product Name', 'Pro Wireless Headphones', icon: const Icon(Icons.headphones_rounded, size: 14)),
+  TKeyValue.text('Product Name', 'Pro Wireless Headphones', icon: const HugeIcon(icon: HugeIcons.strokeRoundedHeadphones, size: 14)),
   TKeyValue.image('Thumbnail', 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100', size: 36, borderRadius: BorderRadius.circular(6)),
   TKeyValue.chip('Stock Status', 'In Stock', color: Colors.green),
   TKeyValue.chips('Tags', ['Wireless', 'Noise-Cancelling', 'USB-C'], color: Colors.blue),

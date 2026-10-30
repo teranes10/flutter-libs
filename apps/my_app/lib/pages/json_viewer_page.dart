@@ -129,7 +129,7 @@ class _JsonViewerPageState extends State<JsonViewerPage> {
                     onChanged: (val) => setState(() => _searchQuery = val),
                     decoration: InputDecoration(
                       hintText: 'Search keys or values...',
-                      prefixIcon: const Icon(Icons.search, size: 16),
+                      prefixIcon: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 16),
                       contentPadding: EdgeInsets.zero,
                       isDense: true,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),

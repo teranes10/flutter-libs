@@ -31,7 +31,7 @@ import 'package:toastification/toastification.dart';
 ///   context,
 ///   'Custom message',
 ///   title: 'Custom Title',
-///   icon: Icons.star,
+///   icon: HugeIcons.strokeRoundedStar,
 ///   color: Colors.purple,
 ///   duration: Duration(seconds: 5),
 /// )

@@ -17,8 +17,8 @@ class DropdownSamplePage extends StatelessWidget {
             const SizedBox(height: 10),
             TDropdown(
               items: [
-                TDropdownItem(text: 'Edit', icon: Icons.edit, onTap: () => debugPrint('Edit tapped')),
-                TDropdownItem(text: 'Delete', icon: Icons.delete, onTap: () => debugPrint('Delete tapped')),
+                TDropdownItem(text: 'Edit', icon: HugeIcons.strokeRoundedEdit02, onTap: () => debugPrint('Edit tapped')),
+                TDropdownItem(text: 'Delete', icon: HugeIcons.strokeRoundedDelete01, onTap: () => debugPrint('Delete tapped')),
               ],
               child: TButton(text: 'Actions'),
             ),
@@ -27,10 +27,10 @@ class DropdownSamplePage extends StatelessWidget {
             const SizedBox(height: 10),
             TDropdown(
               items: [
-                TDropdownItem(text: 'Account', icon: Icons.person),
+                TDropdownItem(text: 'Account', icon: HugeIcons.strokeRoundedUser),
                 TDropdownItem(
                   text: 'Appearance',
-                  icon: Icons.palette,
+                  icon: HugeIcons.strokeRoundedPaintBoard,
                   children: [
                     TDropdownItem(text: 'Light Mode', onTap: () => debugPrint('Light')),
                     TDropdownItem(text: 'Dark Mode', onTap: () => debugPrint('Dark')),

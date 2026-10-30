@@ -118,7 +118,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
     );
   }
 
-  Widget _addAction() => TButton(type: TButtonType.text, icon: Icons.add, onTap: () {});
+  Widget _addAction() => TButton(type: TButtonType.text, icon: HugeIcons.strokeRoundedAdd01, onTap: () {});
 
   @override
   Widget build(BuildContext context) {
@@ -165,13 +165,13 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
   }
 
   List<TBottomBarItem> _bar() => const [
-    TBottomBarItem(icon: Icons.home_outlined, label: 'Home'),
-    TBottomBarItem(icon: Icons.inventory_2_outlined, label: 'Inventory'),
-    TBottomBarItem(icon: Icons.swap_horiz_rounded, label: 'Transfers'),
-    TBottomBarItem(icon: Icons.bar_chart_rounded, label: 'Reports'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, label: 'Home'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedPackage, label: 'Inventory'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedArrowLeftRight, label: 'Transfers'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedChartBarLine, label: 'Reports'),
   ];
 
-  Widget _hubTile(String title, IconData icon, {bool primary = false}) {
+  Widget _hubTile(String title, dynamic icon, {bool primary = false}) {
     return TTile(
       title: title,
       icon: icon,
@@ -197,11 +197,11 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
           TGrid(
             columns: 2,
             children: [
-              _hubTile('Stocktake', Icons.inventory_rounded, primary: true),
-              _hubTile('Orders', Icons.shopping_bag_outlined),
-              _hubTile('Transfers', Icons.swap_horiz_rounded),
-              _hubTile('Reports', Icons.assessment_outlined),
-              _hubTile('Settings', Icons.settings_outlined),
+              _hubTile('Stocktake', HugeIcons.strokeRoundedPackage, primary: true),
+              _hubTile('Orders', HugeIcons.strokeRoundedShoppingBag01),
+              _hubTile('Transfers', HugeIcons.strokeRoundedArrowLeftRight),
+              _hubTile('Reports', HugeIcons.strokeRoundedAnalytics02),
+              _hubTile('Settings', HugeIcons.strokeRoundedSettings01),
             ],
           ),
           const SizedBox(height: 20),
@@ -272,7 +272,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
       statusColor: color,
       done: done,
       total: total,
-      icon: Icons.location_on_outlined,
+      icon: HugeIcons.strokeRoundedLocation01,
       onTap: () {},
     );
   }
@@ -303,7 +303,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
 
   // 4. Select location
   Widget _selectLocation() {
-    Widget addChild() => TButton(type: TButtonType.text, size: TSize.sm, icon: Icons.add, onTap: () {});
+    Widget addChild() => TButton(type: TButtonType.text, size: TSize.sm, icon: HugeIcons.strokeRoundedAdd01, onTap: () {});
 
     return _page(
       title: 'Select Location',
@@ -322,40 +322,52 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
               TTreeNode(
                 key: 'zone-a',
                 label: 'Zone A',
-                icon: Icons.hexagon_outlined,
+                icon: HugeIcons.strokeRoundedHexagon,
                 trailing: addChild(),
                 children: [
                   TTreeNode(
                     key: 'aisle-a1',
                     label: 'Aisle A1',
-                    icon: Icons.location_on_outlined,
+                    icon: HugeIcons.strokeRoundedLocation01,
                     trailing: addChild(),
                     children: [
                       TTreeNode(
                         key: 'rack-r1',
                         label: 'Rack R1',
-                        icon: Icons.location_on_outlined,
+                        icon: HugeIcons.strokeRoundedLocation01,
                         trailing: addChild(),
                         children: [
-                          TTreeNode(key: 'bin-b1', label: 'Bin B1', icon: Icons.circle_outlined, isLeaf: true),
-                          TTreeNode(key: 'bin-b2', label: 'Bin B2', icon: Icons.circle_outlined, isLeaf: true),
+                          TTreeNode(key: 'bin-b1', label: 'Bin B1', icon: HugeIcons.strokeRoundedCircle, isLeaf: true),
+                          TTreeNode(key: 'bin-b2', label: 'Bin B2', icon: HugeIcons.strokeRoundedCircle, isLeaf: true),
                         ],
                       ),
                       TTreeNode(
                         key: 'rack-r2',
                         label: 'Rack R2',
-                        icon: Icons.location_on_outlined,
+                        icon: HugeIcons.strokeRoundedLocation01,
                         trailing: addChild(),
                         children: const [],
                       ),
                     ],
                   ),
-                  TTreeNode(key: 'rack-a2', label: 'Rack A2', icon: Icons.location_on_outlined, trailing: addChild(), children: const []),
-                  TTreeNode(key: 'aisle-a3', label: 'Aisle A3', icon: Icons.location_on_outlined, trailing: addChild(), children: const []),
+                  TTreeNode(
+                    key: 'rack-a2',
+                    label: 'Rack A2',
+                    icon: HugeIcons.strokeRoundedLocation01,
+                    trailing: addChild(),
+                    children: const [],
+                  ),
+                  TTreeNode(
+                    key: 'aisle-a3',
+                    label: 'Aisle A3',
+                    icon: HugeIcons.strokeRoundedLocation01,
+                    trailing: addChild(),
+                    children: const [],
+                  ),
                 ],
               ),
-              TTreeNode(key: 'zone-b', label: 'Zone B', icon: Icons.hexagon_outlined, trailing: addChild(), children: const []),
-              TTreeNode(key: 'zone-c', label: 'Zone C', icon: Icons.hexagon_outlined, trailing: addChild(), children: const []),
+              TTreeNode(key: 'zone-b', label: 'Zone B', icon: HugeIcons.strokeRoundedHexagon, trailing: addChild(), children: const []),
+              TTreeNode(key: 'zone-c', label: 'Zone C', icon: HugeIcons.strokeRoundedHexagon, trailing: addChild(), children: const []),
             ],
           ),
         ],
@@ -410,7 +422,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
               return TTile(
                 title: item.code,
                 subtitle: item.name,
-                icon: Icons.inventory_2_outlined,
+                icon: HugeIcons.strokeRoundedPackage,
                 trailing: TChip(text: '${item.counted}'),
               ).card(onTap: () {});
             },
@@ -436,7 +448,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
           return TTile(
             title: b.batch,
             subtitle: 'Mfg: ${b.mfg} · Exp: ${b.exp}',
-            icon: Icons.inventory_2_outlined,
+            icon: HugeIcons.strokeRoundedPackage,
             trailing: TChip(text: '${b.qty}'),
           ).card(onTap: () {});
         },
@@ -612,7 +624,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
                   tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   contentPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
                   subtitle: '${e.value.length} items',
-                  icon: Icons.location_on_outlined,
+                  icon: HugeIcons.strokeRoundedLocation01,
                   trailing: _countText(e.value.fold(0, (s, i) => s + i.counted)),
                   content: TAccordionGroup(spacing: 4, children: [for (final item in e.value) _summaryItem(item, exceptionsOnly)]),
                 ),
@@ -643,7 +655,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
       size: TTileSize.h5,
       tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       contentPadding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
-      icon: Icons.inventory_2_outlined,
+      icon: HugeIcons.strokeRoundedPackage,
       iconColor: ok ? null : kind.color(context),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -651,8 +663,8 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
           if (exceptionsOnly) ...[TChip(text: kind.label, color: kind.color(context)), const SizedBox(width: 8)],
           _countText(item.counted),
           const SizedBox(width: 8),
-          HugeIcon(
-            icon: ok ? HugeIcons.strokeRoundedCheckmarkCircle02 : HugeIcons.strokeRoundedAlert02,
+          TIcon.raw(
+            ok ? HugeIcons.strokeRoundedCheckmarkCircle02 : HugeIcons.strokeRoundedAlert02,
             color: ok ? context.theme.success : context.theme.danger,
             size: 22,
           ),

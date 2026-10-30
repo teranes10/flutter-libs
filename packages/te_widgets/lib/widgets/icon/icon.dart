@@ -14,7 +14,7 @@ import 'package:te_widgets/te_widgets.dart';
 ///
 /// ```dart
 /// TIcon(
-///   icon: Icons.favorite,
+///   icon: HugeIcons.strokeRoundedFavourite,
 ///   onTap: () => print('Tapped'),
 /// )
 /// ```
@@ -23,8 +23,8 @@ import 'package:te_widgets/te_widgets.dart';
 ///
 /// ```dart
 /// TIcon(
-///   icon: Icons.favorite_border,
-///   activeIcon: Icons.favorite,
+///   icon: HugeIcons.strokeRoundedFavouriteCircle,
+///   activeIcon: HugeIcons.strokeRoundedFavourite,
 ///   active: isFavorite,
 ///   color: Colors.grey,
 ///   activeColor: Colors.red,
@@ -36,7 +36,7 @@ import 'package:te_widgets/te_widgets.dart';
 ///
 /// ```dart
 /// TIcon(
-///   icon: Icons.refresh,
+///   icon: HugeIcons.strokeRoundedRefresh,
 ///   turns: (0, 1),  // Rotate 360° when active
 ///   active: isRefreshing,
 ///   onTap: () => refresh(),
@@ -201,7 +201,7 @@ class TIcon extends StatelessWidget {
       } else if (effectiveIcon is Widget) {
         iconWidget = effectiveIcon;
       } else {
-        iconWidget = Icon(Icons.help_outline, size: size, color: effectiveColor);
+        iconWidget = TIcon.raw(HugeIcons.strokeRoundedHelpCircle, size: size, color: effectiveColor);
       }
 
       if (turns != null) {

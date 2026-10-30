@@ -17,7 +17,7 @@ export 'badge_size.dart';
 /// ```dart
 /// TBadge(
 ///   count: 5,
-///   child: Icon(Icons.notifications),
+///   child: TIcon(HugeIcons.strokeRoundedNotification01),
 /// )
 ///
 /// TBadge(
@@ -31,7 +31,7 @@ export 'badge_size.dart';
 /// ```dart
 /// TBadge(
 ///   badge: 12, // int count
-///   child: Icon(Icons.mail),
+///   child: TIcon(HugeIcons.strokeRoundedMail01),
 /// )
 ///
 /// TBadge(

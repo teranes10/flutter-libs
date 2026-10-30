@@ -99,7 +99,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
                           .map((b) => Semantics(
                               identifier: b.semanticIdentifier,
                               child: IconButton(
-                                icon: Icon(b.icon),
+                                icon: TIcon.raw(b.icon),
                                 iconSize: 24,
                                 padding: EdgeInsets.all(isMobile ? 4 : 8),
                                 visualDensity: isMobile ? VisualDensity.compact : VisualDensity.standard,
@@ -302,8 +302,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
             label: 'More actions',
             identifier: 'row-action-menu',
             excludeSemantics: true,
-            child: Icon(
-              Icons.more_vert,
+            child: TIcon.raw(HugeIcons.strokeRoundedMoreVertical,
               size: 20,
               color: context.colors.onSurfaceVariant,
             ),
@@ -359,7 +358,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       buttons.add(TButtonGroupItem(
         tooltip: 'View',
         semanticIdentifier: 'row-action-view',
-        icon: Icons.visibility,
+        icon: HugeIcons.strokeRoundedView,
         color: theme.success,
         showFlat: widget.config.canViewFlat,
         permission: _perms?.view,
@@ -372,7 +371,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       buttons.add(TButtonGroupItem(
         tooltip: 'Edit',
         semanticIdentifier: 'row-action-edit',
-        icon: Icons.edit,
+        icon: HugeIcons.strokeRoundedEdit02,
         color: theme.info,
         showFlat: widget.config.canEditFlat,
         permission: _perms?.edit,
@@ -385,7 +384,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       buttons.add(TButtonGroupItem(
         tooltip: 'Archive',
         semanticIdentifier: 'row-action-archive',
-        icon: Icons.archive,
+        icon: HugeIcons.strokeRoundedArchive,
         color: theme.danger,
         showFlat: widget.config.canArchiveFlat,
         permission: _perms?.archive,
@@ -459,7 +458,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       buttons.add(TButtonGroupItem(
         tooltip: 'View',
         semanticIdentifier: 'row-action-view',
-        icon: Icons.visibility,
+        icon: HugeIcons.strokeRoundedView,
         color: theme.success,
         showFlat: widget.config.canViewFlat,
         permission: _perms?.view,
@@ -473,7 +472,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       buttons.add(TButtonGroupItem(
         tooltip: 'Restore',
         semanticIdentifier: 'row-action-restore',
-        icon: Icons.restore,
+        icon: HugeIcons.strokeRoundedRestoreBin,
         color: theme.info,
         showFlat: widget.config.canRestoreFlat,
         permission: _perms?.restore,
@@ -487,7 +486,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       buttons.add(TButtonGroupItem(
         tooltip: 'Delete',
         semanticIdentifier: 'row-action-delete',
-        icon: Icons.delete_forever,
+        icon: HugeIcons.strokeRoundedDelete02,
         color: theme.danger,
         showFlat: widget.config.canDeleteFlat,
         permission: _perms?.delete,

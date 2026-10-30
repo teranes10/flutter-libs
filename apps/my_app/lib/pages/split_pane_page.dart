@@ -60,9 +60,17 @@ class _SplitPanePageState extends State<SplitPanePage> {
                     const Text('Orientation:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                     const SizedBox(width: 8),
                     SegmentedButton<Axis>(
-                      segments: const [
-                        ButtonSegment(value: Axis.horizontal, label: Text('Horizontal'), icon: Icon(Icons.splitscreen_rounded, size: 16)),
-                        ButtonSegment(value: Axis.vertical, label: Text('Vertical'), icon: Icon(Icons.table_rows_rounded, size: 16)),
+                      segments: [
+                        ButtonSegment(
+                          value: Axis.horizontal,
+                          label: const Text('Horizontal'),
+                          icon: TIcon.raw(HugeIcons.strokeRoundedLayoutLeft, size: 16),
+                        ),
+                        ButtonSegment(
+                          value: Axis.vertical,
+                          label: const Text('Vertical'),
+                          icon: TIcon.raw(HugeIcons.strokeRoundedTableColumnsSplit, size: 16),
+                        ),
                       ],
                       selected: {_axis},
                       onSelectionChanged: (val) => setState(() => _axis = val.first),
@@ -76,7 +84,7 @@ class _SplitPanePageState extends State<SplitPanePage> {
                   children: [
                     TButton(
                       text: 'Collapse Left',
-                      icon: Icons.first_page_rounded,
+                      icon: HugeIcons.strokeRoundedArrowLeftDouble,
                       type: TButtonType.outline,
                       size: TSize.sm,
                       onTap: () => _controller.collapseLeading(),
@@ -84,7 +92,7 @@ class _SplitPanePageState extends State<SplitPanePage> {
                     const SizedBox(width: 8),
                     TButton(
                       text: 'Expand / Reset',
-                      icon: Icons.restart_alt_rounded,
+                      icon: HugeIcons.strokeRoundedListRestart,
                       type: TButtonType.outline,
                       size: TSize.sm,
                       onTap: () => _controller.reset(),
@@ -92,7 +100,7 @@ class _SplitPanePageState extends State<SplitPanePage> {
                     const SizedBox(width: 8),
                     TButton(
                       text: 'Collapse Right',
-                      icon: Icons.last_page_rounded,
+                      icon: HugeIcons.strokeRoundedArrowRightDouble,
                       type: TButtonType.outline,
                       size: TSize.sm,
                       onTap: () => _controller.collapseTrailing(),
@@ -167,11 +175,11 @@ class _SplitPanePageState extends State<SplitPanePage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             color: colors.surfaceContainerHighest.withValues(alpha: 0.4),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.folder_open_rounded, size: 18),
-                SizedBox(width: 8),
-                Text('Project Explorer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                TIcon.raw(HugeIcons.strokeRoundedFolderOpen, size: 18),
+                const SizedBox(width: 8),
+                const Text('Project Explorer', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
               ],
             ),
           ),
@@ -179,15 +187,15 @@ class _SplitPanePageState extends State<SplitPanePage> {
             child: ListView(
               padding: const EdgeInsets.all(8),
               children: const [
-                _ExplorerItem(icon: Icons.folder, label: 'src/lib', isFolder: true),
-                _ExplorerItem(icon: Icons.code, label: 'split_pane.dart', indent: 16),
-                _ExplorerItem(icon: Icons.code, label: 'tree_view.dart', indent: 16),
-                _ExplorerItem(icon: Icons.code, label: 'result.dart', indent: 16),
-                _ExplorerItem(icon: Icons.code, label: 'watermark.dart', indent: 16),
-                _ExplorerItem(icon: Icons.folder, label: 'test', isFolder: true),
-                _ExplorerItem(icon: Icons.bug_report, label: 'phase4_widgets_test.dart', indent: 16),
-                _ExplorerItem(icon: Icons.description, label: 'README.md'),
-                _ExplorerItem(icon: Icons.settings, label: 'pubspec.yaml'),
+                _ExplorerItem(icon: HugeIcons.strokeRoundedFolder01, label: 'src/lib', isFolder: true),
+                _ExplorerItem(icon: HugeIcons.strokeRoundedCodeSquare, label: 'split_pane.dart', indent: 16),
+                _ExplorerItem(icon: HugeIcons.strokeRoundedCodeSquare, label: 'tree_view.dart', indent: 16),
+                _ExplorerItem(icon: HugeIcons.strokeRoundedCodeSquare, label: 'result.dart', indent: 16),
+                _ExplorerItem(icon: HugeIcons.strokeRoundedCodeSquare, label: 'watermark.dart', indent: 16),
+                _ExplorerItem(icon: HugeIcons.strokeRoundedFolder01, label: 'test', isFolder: true),
+                _ExplorerItem(icon: HugeIcons.strokeRoundedBug02, label: 'phase4_widgets_test.dart', indent: 16),
+                _ExplorerItem(icon: HugeIcons.strokeRoundedFile01, label: 'README.md'),
+                _ExplorerItem(icon: HugeIcons.strokeRoundedSettings01, label: 'pubspec.yaml'),
               ],
             ),
           ),
@@ -207,7 +215,7 @@ class _SplitPanePageState extends State<SplitPanePage> {
             color: colors.surfaceContainerHighest.withValues(alpha: 0.25),
             child: Row(
               children: [
-                const Icon(Icons.code_rounded, size: 18, color: Colors.blue),
+                TIcon.raw(HugeIcons.strokeRoundedCodeSquare, size: 18, color: Colors.blue),
                 const SizedBox(width: 8),
                 const Text('split_pane.dart', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const Spacer(),
@@ -257,7 +265,7 @@ class _SplitPanePageState extends State<SplitPanePage> {
 }
 
 class _ExplorerItem extends StatelessWidget {
-  final IconData icon;
+  final dynamic icon;
   final String label;
   final bool isFolder;
   final double indent;
@@ -270,7 +278,7 @@ class _ExplorerItem extends StatelessWidget {
       padding: EdgeInsets.only(left: indent, top: 2, bottom: 2),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: isFolder ? Colors.amber : Colors.blueGrey),
+          TIcon.raw(icon, size: 16, color: isFolder ? Colors.amber : Colors.blueGrey),
           const SizedBox(width: 8),
           Expanded(
             child: Text(label, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),

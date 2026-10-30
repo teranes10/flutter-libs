@@ -33,10 +33,10 @@ class TCopyButton extends StatefulWidget {
   /// Optional label text displayed while in the copied state.
   final String? copiedLabel;
 
-  /// Normal icon displayed before copying. Defaults to [Icons.copy_rounded].
+  /// Normal icon displayed before copying. Defaults to [HugeIcons.strokeRoundedCopy01].
   final dynamic icon;
 
-  /// Success icon displayed after copying. Defaults to [Icons.check_rounded].
+  /// Success icon displayed after copying. Defaults to [HugeIcons.strokeRoundedTick01].
   final dynamic copiedIcon;
 
   /// Visual button type. Defaults to [TButtonType.softText].
@@ -131,7 +131,7 @@ class _TCopyButtonState extends State<TCopyButton> {
   @override
   Widget build(BuildContext context) {
     final effectiveCopiedColor = widget.copiedColor ?? context.themeOrNull?.success ?? AppColors.success;
-    final effectiveIcon = _isCopied ? (widget.copiedIcon ?? Icons.check_rounded) : (widget.icon ?? Icons.copy_rounded);
+    final effectiveIcon = _isCopied ? (widget.copiedIcon ?? HugeIcons.strokeRoundedTick01) : (widget.icon ?? HugeIcons.strokeRoundedCopy01);
     final effectiveLabel = _isCopied ? (widget.copiedLabel ?? widget.label) : widget.label;
     final effectiveTooltip = _isCopied ? widget.copiedTooltip : widget.tooltip;
 

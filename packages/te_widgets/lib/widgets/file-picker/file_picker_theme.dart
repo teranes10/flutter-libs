@@ -168,7 +168,7 @@ class TFilePickerTheme extends TInputFieldTheme {
                 const SizedBox(width: 5.0),
                 InkWell(
                   onTap: onRemove,
-                  child: Icon(Icons.close, size: 14, color: colors.onSurfaceVariant),
+                  child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 14, color: colors.onSurfaceVariant),
                 ),
               ],
             ),
@@ -247,7 +247,7 @@ class TFilePickerTheme extends TInputFieldTheme {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        TIcon.raw(
                           _getFileIconData(file.extension),
                           size: 32,
                           color: Colors.white70,
@@ -283,8 +283,7 @@ class TFilePickerTheme extends TInputFieldTheme {
                     color: Colors.black54,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.close,
+                  child: TIcon.raw(HugeIcons.strokeRoundedCancel01,
                     size: 12,
                     color: Colors.white,
                   ),
@@ -303,24 +302,24 @@ class TFilePickerTheme extends TInputFieldTheme {
     return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
-  static IconData _getFileIconData(String extension) {
+  static dynamic _getFileIconData(String extension) {
     return switch (extension.toLowerCase()) {
-      'pdf' => Icons.picture_as_pdf,
-      'doc' || 'docx' => Icons.description,
-      'xls' || 'xlsx' => Icons.table_chart,
-      'ppt' || 'pptx' => Icons.slideshow,
-      'jpg' || 'jpeg' || 'png' || 'gif' || 'bmp' || 'webp' => Icons.image,
-      'mp4' || 'avi' || 'mov' || 'wmv' => Icons.video_file,
-      'mp3' || 'wav' || 'aac' => Icons.audio_file,
-      'zip' || 'rar' || '7z' => Icons.archive,
-      'txt' => Icons.text_snippet,
-      'json' => Icons.code,
-      _ => Icons.insert_drive_file,
+      'pdf' => HugeIcons.strokeRoundedPdf01,
+      'doc' || 'docx' => HugeIcons.strokeRoundedFile01,
+      'xls' || 'xlsx' => HugeIcons.strokeRoundedTable,
+      'ppt' || 'pptx' => HugeIcons.strokeRoundedSlide,
+      'jpg' || 'jpeg' || 'png' || 'gif' || 'bmp' || 'webp' => HugeIcons.strokeRoundedImage01,
+      'mp4' || 'avi' || 'mov' || 'wmv' => HugeIcons.strokeRoundedFile01,
+      'mp3' || 'wav' || 'aac' => HugeIcons.strokeRoundedAiAudio,
+      'zip' || 'rar' || '7z' => HugeIcons.strokeRoundedArchive,
+      'txt' => HugeIcons.strokeRoundedFile01,
+      'json' => HugeIcons.strokeRoundedCodeSquare,
+      _ => HugeIcons.strokeRoundedFile01,
     };
   }
 
   static Widget _getFileIcon(String extension, ColorScheme colors) {
-    return Icon(
+    return TIcon.raw(
       _getFileIconData(extension),
       size: 16.0,
       color: colors.onSurfaceVariant.withAlpha(180),

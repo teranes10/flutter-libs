@@ -140,7 +140,7 @@ class TOptionTile extends StatelessWidget {
             color: selected ? accent : Colors.transparent,
             border: Border.all(color: selected ? accent : colors.outline, width: 2),
           ),
-          child: selected ? Icon(Icons.check_rounded, size: 18, color: colors.onPrimary) : null,
+          child: selected ? TIcon.raw(HugeIcons.strokeRoundedCheck, size: 18, color: colors.onPrimary) : null,
         );
       case TOptionIndicator.toggle:
         return IgnorePointer(

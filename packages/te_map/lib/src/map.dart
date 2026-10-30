@@ -183,11 +183,11 @@ class _TMapState extends State<TMap> {
         child: Image.asset(pin.assetPath!, width: _pinSize, height: _pinSize),
       );
     }
-    return Icon(
-      pin.icon ?? Icons.location_on,
+    return TIcon.raw(
+      pin.icon ?? HugeIcons.strokeRoundedLocation01,
       color: colors.primary,
       size: _pinSize,
-      shadows: [Shadow(color: shadowColor, blurRadius: shadowBlur, offset: shadowOffset)],
+      // shadows: [Shadow(color: shadowColor, blurRadius: shadowBlur, offset: shadowOffset)],
     );
   }
 
@@ -294,7 +294,7 @@ class _TMapState extends State<TMap> {
                 onTap: () => setState(() => _selectedPin = null),
                 child: Padding(
                   padding: const EdgeInsets.all(6),
-                  child: Icon(Icons.close, size: 14, color: colors.onSurfaceVariant),
+                  child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 14, color: colors.onSurfaceVariant),
                 ),
               ),
             ),
@@ -320,14 +320,14 @@ class _TMapState extends State<TMap> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: Icon(Icons.add, size: 16, color: colors.onSurface),
+              icon: TIcon.raw(HugeIcons.strokeRoundedAdd01, size: 16, color: colors.onSurface),
               constraints: const BoxConstraints(),
               padding: const EdgeInsets.all(4),
               onPressed: onAdd,
             ),
             const SizedBox(height: 2),
             IconButton(
-              icon: Icon(Icons.remove, size: 16, color: colors.onSurface),
+              icon: TIcon.raw(HugeIcons.strokeRoundedRemove01, size: 16, color: colors.onSurface),
               constraints: const BoxConstraints(),
               padding: const EdgeInsets.all(4),
               onPressed: onRemove,

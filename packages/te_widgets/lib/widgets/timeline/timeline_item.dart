@@ -30,8 +30,8 @@ class TTimelineItem {
   /// Icon displayed inside the indicator circle.
   final Widget? icon;
 
-  /// Shorthand [IconData] for the indicator icon.
-  final IconData? iconData;
+  /// Shorthand [IconData] or HugeIcon for the indicator icon.
+  final dynamic iconData;
 
   /// Size of the icon.
   final double? iconSize;
@@ -108,7 +108,7 @@ class TTimelineItem {
     String? subtitle,
     String? description,
     String? time,
-    IconData? icon,
+    dynamic icon,
     Color? color,
     Color? ringColor,
     Color? innerColor,

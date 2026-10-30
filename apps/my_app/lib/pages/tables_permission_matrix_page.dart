@@ -21,7 +21,7 @@ class _Role {
 class _Module {
   final String id;
   final String name;
-  final IconData icon;
+  final dynamic icon;
   final Color color;
   final List<String> permissions;
 
@@ -29,11 +29,11 @@ class _Module {
 }
 
 const _modules = [
-  _Module('sales', 'Sales', Icons.shopping_cart_outlined, Colors.blue, ['View Orders', 'Create Orders', 'Cancel Orders']),
-  _Module('products', 'Products', Icons.inventory_2_outlined, Colors.orange, ['View Products', 'Create Products', 'Update Products']),
-  _Module('customers', 'Customers', Icons.groups_outlined, Colors.green, ['View Customers', 'Create Customers']),
-  _Module('reports', 'Reports', Icons.bar_chart_rounded, Colors.purple, ['View Reports', 'Export Reports']),
-  _Module('settings', 'Settings', Icons.settings_outlined, Colors.blueGrey, ['Manage Users', 'Manage Settings']),
+  _Module('sales', 'Sales', HugeIcons.strokeRoundedShoppingCart01, Colors.blue, ['View Orders', 'Create Orders', 'Cancel Orders']),
+  _Module('products', 'Products', HugeIcons.strokeRoundedPackage, Colors.orange, ['View Products', 'Create Products', 'Update Products']),
+  _Module('customers', 'Customers', HugeIcons.strokeRoundedGroup, Colors.green, ['View Customers', 'Create Customers']),
+  _Module('reports', 'Reports', HugeIcons.strokeRoundedChartBarLine, Colors.purple, ['View Reports', 'Export Reports']),
+  _Module('settings', 'Settings', HugeIcons.strokeRoundedSettings01, Colors.blueGrey, ['Manage Users', 'Manage Settings']),
 ];
 
 const _roles = [
@@ -246,7 +246,7 @@ class _ModuleTitle extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(color: module.color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
-          child: Icon(module.icon, size: 18, color: module.color),
+          child: TIcon.raw(module.icon, size: 18, color: module.color),
         ),
         const SizedBox(width: 10),
         Text(module.name),

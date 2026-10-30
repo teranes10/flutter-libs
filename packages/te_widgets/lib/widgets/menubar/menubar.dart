@@ -34,7 +34,7 @@ class TMenubarMenu {
 /// TMenubar(
 ///   menus: [
 ///     TMenubarMenu(label: 'File', items: [
-///       TDropdownItem(text: 'New', icon: Icons.note_add, onTap: _onNew),
+///       TDropdownItem(text: 'New', icon: HugeIcons.strokeRoundedNoteAdd, onTap: _onNew),
 ///       const TDropdownItem(customContent: Divider(height: 1)),
 ///       TDropdownItem(text: 'Exit', onTap: _onExit),
 ///     ]),

@@ -10,7 +10,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// TMetricTile(
 ///   label: 'Attached Products',
 ///   value: '14',
-///   icon: Icons.inventory_2_rounded,
+///   icon: HugeIcons.strokeRoundedPackage,
 ///   color: AppColors.primary,
 ///   subtitle: 'Limit: 7/step',
 /// )
@@ -22,7 +22,7 @@ import 'package:te_widgets/te_widgets.dart';
 /// TMetricTile(
 ///   label: 'Total Revenue',
 ///   value: '\$24,500.00',
-///   icon: Icons.monetization_on_rounded,
+///   icon: HugeIcons.strokeRoundedInvestigation,
 ///   color: AppColors.success,
 ///   trend: '+12.5%',
 ///   trendUp: true,
@@ -40,7 +40,7 @@ class TMetricTile extends StatelessWidget {
   final String? subtitle;
 
   /// Leading icon.
-  final IconData? icon;
+  final dynamic icon;
 
   /// Custom icon widget replacing [icon].
   final Widget? iconWidget;
@@ -225,8 +225,7 @@ class TMetricTile extends StatelessWidget {
         ),
         trailing: trailing ??
             (onTap != null
-                ? Icon(
-                    Icons.chevron_right_rounded,
+                ? TIcon.raw(HugeIcons.strokeRoundedArrowRight01,
                     size: compact ? 16 : 18,
                     color: colors.onSurfaceVariant.withAlpha(140),
                   )
@@ -260,7 +259,7 @@ class TMetricTile extends StatelessWidget {
   Widget _buildTrendBadge(BuildContext context) {
     final isUp = trendUp ?? true;
     final trendColor = isUp ? AppColors.success : AppColors.danger;
-    final trendIcon = isUp ? Icons.trending_up_rounded : Icons.trending_down_rounded;
+    final trendIcon = isUp ? HugeIcons.strokeRoundedChartAverage : HugeIcons.strokeRoundedTrendingDown;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
@@ -271,7 +270,7 @@ class TMetricTile extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(trendIcon, size: 10, color: trendColor),
+          TIcon.raw(trendIcon, size: 10, color: trendColor),
           const SizedBox(width: 2),
           Text(
             trend!,

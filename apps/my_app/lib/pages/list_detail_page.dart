@@ -105,7 +105,7 @@ class _ListDetailPageState extends State<ListDetailPage> {
         actions: (contact) => [
           TButton(
             type: TButtonType.icon,
-            icon: Icons.edit_rounded,
+            icon: HugeIcons.strokeRoundedEdit02,
             onTap: () {
               _controller.beginEditItem(contact);
             },
@@ -113,7 +113,7 @@ class _ListDetailPageState extends State<ListDetailPage> {
           const SizedBox(width: 8),
           TButton(
             type: TButtonType.icon,
-            icon: Icons.delete_outline_rounded,
+            icon: HugeIcons.strokeRoundedDelete01,
             onTap: () {
               setState(() {
                 _contacts.removeWhere((c) => c.id == contact.id);

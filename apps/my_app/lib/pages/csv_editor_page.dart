@@ -308,7 +308,7 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
           TCard(
             title: 'Generic Data & CSV Editor Interactive Showcase',
             subtitle: 'Try CSV, TSV, Semicolon, Pipe, JSON datasets, mismatched headers, validation checking, or upload your own file.',
-            icon: Icons.auto_awesome_rounded,
+            icon: HugeIcons.strokeRoundedAiAutoRotate,
             padding: const EdgeInsets.all(16),
             child: Wrap(
               spacing: 8,
@@ -316,14 +316,14 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
               children: [
                 TButton(
                   text: 'Standard CSV (5 Items)',
-                  icon: Icons.check_circle_outline,
+                  icon: HugeIcons.strokeRoundedCheckmarkCircle01,
                   type: TButtonType.tonal,
                   size: TButtonSize.xs,
                   onPressed: (_) => _loadMatchingPreset(),
                 ),
                 TButton(
                   text: 'JSON Dataset (.json)',
-                  icon: Icons.data_object_rounded,
+                  icon: HugeIcons.strokeRoundedSourceCode,
                   type: TButtonType.tonal,
                   color: colors.primary,
                   size: TButtonSize.xs,
@@ -331,28 +331,28 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
                 ),
                 TButton(
                   text: 'TSV Dataset (Tab \\t)',
-                  icon: Icons.table_rows_rounded,
+                  icon: HugeIcons.strokeRoundedTableColumnsSplit,
                   type: TButtonType.tonal,
                   size: TButtonSize.xs,
                   onPressed: (_) => _loadTsvPreset(),
                 ),
                 TButton(
                   text: 'Semicolon Dataset (;)',
-                  icon: Icons.grid_on_rounded,
+                  icon: HugeIcons.strokeRoundedGrid,
                   type: TButtonType.tonal,
                   size: TButtonSize.xs,
                   onPressed: (_) => _loadSemicolonPreset(),
                 ),
                 TButton(
                   text: 'Pipe Dataset (|)',
-                  icon: Icons.view_column_outlined,
+                  icon: HugeIcons.strokeRoundedViewOff,
                   type: TButtonType.tonal,
                   size: TButtonSize.xs,
                   onPressed: (_) => _loadPipePreset(),
                 ),
                 TButton(
                   text: 'Mismatched Headers',
-                  icon: Icons.alt_route_rounded,
+                  icon: HugeIcons.strokeRoundedRoute03,
                   type: TButtonType.tonal,
                   color: AppColors.warning,
                   size: TButtonSize.xs,
@@ -360,7 +360,7 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
                 ),
                 TButton(
                   text: 'Validation Errors',
-                  icon: Icons.error_outline,
+                  icon: HugeIcons.strokeRoundedAlertCircle,
                   type: TButtonType.tonal,
                   color: AppColors.danger,
                   size: TButtonSize.xs,
@@ -368,7 +368,7 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
                 ),
                 TButton(
                   text: 'Reset / Empty Dropzone',
-                  icon: Icons.refresh_rounded,
+                  icon: HugeIcons.strokeRoundedRefresh,
                   type: TButtonType.softText,
                   size: TButtonSize.xs,
                   onPressed: (_) => _resetEmpty(),
@@ -404,7 +404,7 @@ CABLE-05,Braided Thunderbolt 4 Cable,Accessories,\$29.99,150,true,false''';
             TCard(
               title: 'Uploaded & Processed JSON Output (${_lastUploadedData!.length} records)',
               subtitle: 'Data successfully validated, type-coerced, and submitted.',
-              icon: Icons.data_object_rounded,
+              icon: HugeIcons.strokeRoundedSourceCode,
               padding: const EdgeInsets.all(16),
               trailing: TButton(
                 text: 'Dismiss',

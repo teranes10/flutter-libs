@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/copy-button/copy_button.dart';
-
+import 'package:te_widgets/te_widgets.dart';
 /// Interactive, collapsible JSON and map/object tree inspector for API payloads,
 /// audit events, webhook logs, and database records.
 class TJsonViewer extends StatefulWidget {
@@ -226,8 +225,8 @@ class _TJsonViewerState extends State<TJsonViewer> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
+                TIcon.raw(
+                  isExpanded ? HugeIcons.strokeRoundedArrowDown01 : HugeIcons.strokeRoundedArrowRight01,
                   size: 16,
                   color: Colors.grey,
                 ),
@@ -300,8 +299,8 @@ class _TJsonViewerState extends State<TJsonViewer> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
+                TIcon.raw(
+                  isExpanded ? HugeIcons.strokeRoundedArrowDown01 : HugeIcons.strokeRoundedArrowRight01,
                   size: 16,
                   color: Colors.grey,
                 ),

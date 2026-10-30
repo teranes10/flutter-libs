@@ -28,13 +28,13 @@ class FeedbackPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Badge',
             description: 'Small status or numerical indicator',
-            icon: Icons.notifications,
+            icon: HugeIcons.strokeRoundedNotification01,
             preview: Wrap(
               spacing: 32,
               runSpacing: 16,
               children: [
-                TBadge(count: 5, child: Icon(Icons.mail, size: 30)),
-                TBadge(count: 120, child: Icon(Icons.notifications, size: 30)),
+                TBadge(count: 5, child: TIcon.raw(HugeIcons.strokeRoundedMail01, size: 30)),
+                TBadge(count: 120, child: TIcon.raw(HugeIcons.strokeRoundedNotification01, size: 30)),
                 TBadge(
                   dot: true,
                   child: TAvatar(name: 'John Doe', size: TInputSize.sm),
@@ -48,7 +48,7 @@ class FeedbackPage extends StatelessWidget {
             ),
             code: '''TBadge(
   count: 5,
-  child: Icon(Icons.mail),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedMail01),
 )
 
 TBadge(
@@ -69,7 +69,7 @@ TBadge(
             title: 'Badge Alignments (All 9 Positions)',
             description:
                 'TBadge supports all 9 standard Alignment positions relative to the child widget (top/center/bottom × left/center/right).',
-            icon: Icons.grid_view_rounded,
+            icon: HugeIcons.strokeRoundedGrid,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -84,7 +84,7 @@ TBadge(
                       code: 'Alignment.topLeft',
                       badge: '3',
                       color: context.theme.danger,
-                      icon: Icons.inbox_rounded,
+                      icon: HugeIcons.strokeRoundedInbox,
                     ),
                     _buildAlignmentTile(
                       context,
@@ -93,7 +93,7 @@ TBadge(
                       code: 'Alignment.topCenter',
                       badge: 'HOT',
                       color: context.theme.warning,
-                      icon: Icons.local_fire_department_rounded,
+                      icon: HugeIcons.strokeRoundedFirePit,
                     ),
                     _buildAlignmentTile(
                       context,
@@ -102,7 +102,7 @@ TBadge(
                       code: 'Alignment.topRight',
                       badge: 5,
                       color: context.theme.danger,
-                      icon: Icons.notifications_rounded,
+                      icon: HugeIcons.strokeRoundedNotification01,
                     ),
                     _buildAlignmentTile(
                       context,
@@ -111,7 +111,7 @@ TBadge(
                       code: 'Alignment.centerLeft',
                       badge: 'NEW',
                       color: context.theme.info,
-                      icon: Icons.bookmark_rounded,
+                      icon: HugeIcons.strokeRoundedBookmark01,
                     ),
                     _buildAlignmentTile(
                       context,
@@ -120,7 +120,7 @@ TBadge(
                       code: 'Alignment.center',
                       badge: 'VIP',
                       color: context.theme.primary,
-                      icon: Icons.verified_user_rounded,
+                      icon: HugeIcons.strokeRoundedUserShield01,
                     ),
                     _buildAlignmentTile(
                       context,
@@ -129,7 +129,7 @@ TBadge(
                       code: 'Alignment.centerRight',
                       badge: 12,
                       color: context.theme.secondary,
-                      icon: Icons.mail_rounded,
+                      icon: HugeIcons.strokeRoundedMail01,
                     ),
                     _buildAlignmentTile(
                       context,
@@ -138,7 +138,7 @@ TBadge(
                       code: 'Alignment.bottomLeft',
                       badge: 'OFF',
                       color: context.theme.grey,
-                      icon: Icons.shopping_bag_rounded,
+                      icon: HugeIcons.strokeRoundedShoppingBag01,
                     ),
                     _buildAlignmentTile(
                       context,
@@ -147,7 +147,7 @@ TBadge(
                       code: 'Alignment.bottomCenter',
                       badge: 'SALE',
                       color: context.theme.success,
-                      icon: Icons.sell_rounded,
+                      icon: HugeIcons.strokeRoundedTag01,
                     ),
                     _buildAlignmentTile(
                       context,
@@ -156,7 +156,7 @@ TBadge(
                       code: 'Alignment.bottomRight',
                       badge: '99+',
                       color: context.theme.danger,
-                      icon: Icons.chat_bubble_rounded,
+                      icon: HugeIcons.strokeRoundedBubbleChat,
                     ),
                   ],
                 ),
@@ -191,7 +191,12 @@ TBadge(
                     TBadge(
                       count: 8,
                       alignment: Alignment.topRight,
-                      child: TButton(text: 'Pending Orders', icon: Icons.shopping_cart_outlined, size: TButtonSize.sm, onTap: () {}),
+                      child: TButton(
+                        text: 'Pending Orders',
+                        icon: HugeIcons.strokeRoundedShoppingCart01,
+                        size: TButtonSize.sm,
+                        onTap: () {},
+                      ),
                     ),
                   ],
                 ),
@@ -201,57 +206,57 @@ TBadge(
 TBadge(
   alignment: Alignment.topLeft,
   badge: '3',
-  child: Icon(Icons.inbox),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedInbox),
 )
 
 TBadge(
   alignment: Alignment.topCenter,
   badge: 'HOT',
-  child: Icon(Icons.local_fire_department),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedFirePit),
 )
 
 TBadge(
   alignment: Alignment.topRight, // Default
   count: 5,
-  child: Icon(Icons.notifications),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedNotification01),
 )
 
 // Center Alignments
 TBadge(
   alignment: Alignment.centerLeft,
   badge: 'NEW',
-  child: Icon(Icons.bookmark),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedBookmark01),
 )
 
 TBadge(
   alignment: Alignment.center,
   badge: 'VIP',
-  child: Icon(Icons.verified_user),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedUserShield01),
 )
 
 TBadge(
   alignment: Alignment.centerRight,
   count: 12,
-  child: Icon(Icons.mail),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedMail01),
 )
 
 // Bottom Alignments
 TBadge(
   alignment: Alignment.bottomLeft,
   badge: 'OFF',
-  child: Icon(Icons.shopping_bag),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedShoppingBag01),
 )
 
 TBadge(
   alignment: Alignment.bottomCenter,
   badge: 'SALE',
-  child: Icon(Icons.sell),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedTag01),
 )
 
 TBadge(
   alignment: Alignment.bottomRight,
   badge: '99+',
-  child: Icon(Icons.chat_bubble),
+  child: HugeIcon(icon: HugeIcons.strokeRoundedBubbleChat),
 )
 
 // Avatar Online Status (Bottom-Right Dot)
@@ -291,7 +296,7 @@ TBadge.dot(
           WidgetDocCard(
             title: 'Progress Bar',
             description: 'Displays task completion status with values and percentages',
-            icon: Icons.trending_flat,
+            icon: HugeIcons.strokeRoundedTrendingUp,
             preview: Column(
               children: [
                 TProgressBar(value: 0.7, label: 'Standard Progress'),
@@ -352,7 +357,7 @@ TProgressBar(
           WidgetDocCard(
             title: 'Value & Percentage Positions',
             description: 'Control where percentage/value appears relative to the linear bar using TProgressValuePosition',
-            icon: Icons.dashboard_customize,
+            icon: HugeIcons.strokeRoundedDashboardSquare01,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -513,7 +518,7 @@ TProgressBar(
           WidgetDocCard(
             title: 'Dynamic Color with colorBuilder',
             description: 'Dynamically shifts color based on progress value and percentage using colorBuilder',
-            icon: Icons.palette,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -651,7 +656,7 @@ TProgressBar(
           WidgetDocCard(
             title: 'Animated Progress',
             description: 'Progress bars with flowing and indeterminate animations',
-            icon: Icons.auto_awesome,
+            icon: HugeIcons.strokeRoundedAiAutoRotate,
             preview: Column(
               children: [
                 TProgressBar(indeterminate: true, label: 'Indeterminate (Unknown Progress)', color: context.theme.primary),
@@ -691,7 +696,7 @@ TProgressBar(
           WidgetDocCard(
             title: 'Circular Progress',
             description: 'Circular indicators with percentage and values inside/below the circle',
-            icon: Icons.refresh,
+            icon: HugeIcons.strokeRoundedRefresh,
             preview: Wrap(
               spacing: 36,
               runSpacing: 28,
@@ -784,7 +789,7 @@ TCircularProgress(
     required String code,
     required dynamic badge,
     required Color color,
-    required IconData icon,
+    required dynamic icon,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -801,7 +806,7 @@ TCircularProgress(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: context.colors.outlineVariant.withValues(alpha: 0.5)),
             ),
-            child: Center(child: Icon(icon, size: 28, color: context.colors.onSurfaceVariant)),
+            child: Center(child: TIcon.raw(icon, size: 28, color: context.colors.onSurfaceVariant)),
           ),
         ),
         const SizedBox(height: 10),

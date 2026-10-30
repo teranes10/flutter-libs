@@ -42,7 +42,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
             right: [
               TButton(
                 type: _isLoading ? TButtonType.solid : TButtonType.tonal,
-                icon: _isLoading ? Icons.pause_circle_rounded : Icons.play_circle_rounded,
+                icon: _isLoading ? HugeIcons.strokeRoundedPauseCircle : HugeIcons.strokeRoundedPlayCircle,
                 text: _isLoading ? 'Pause / Show Content' : 'Simulate Loading',
                 onTap: () => setState(() => _isLoading = !_isLoading),
               ),
@@ -54,7 +54,7 @@ class _SkeletonPageState extends State<SkeletonPage> {
           WidgetDocCard(
             title: 'Basic Shapes (Text, Circle, Rect)',
             description: 'Core primitive building blocks for atomic loading placeholders',
-            icon: Icons.interests_outlined,
+            icon: HugeIcons.strokeRoundedPinterest,
             preview: Wrap(
               spacing: 24,
               runSpacing: 16,
@@ -124,7 +124,7 @@ TSkeleton.rect(width: 100, height: 60)''',
           WidgetDocCard(
             title: 'Multi-Line Paragraphs (TSkeleton.lines)',
             description: 'Simulates paragraphs of text with naturally varying last-line width factor',
-            icon: Icons.format_align_left_rounded,
+            icon: HugeIcons.strokeRoundedAlignLeft,
             preview: SizedBox(width: 380, child: TSkeleton.lines(count: 4, spacing: 10, lastLineWidthRatio: 0.55)),
             code: '''TSkeleton.lines(
   count: 4,
@@ -147,7 +147,7 @@ TSkeleton.rect(width: 100, height: 60)''',
           WidgetDocCard(
             title: 'Card & Tile Skeletons (TSkeleton.card & TSkeleton.tile)',
             description: 'Ready-to-use composite placeholders matching TCard and TTile geometries',
-            icon: Icons.view_agenda_outlined,
+            icon: HugeIcons.strokeRoundedViewAgenda,
             preview: TGridRow(
               gapX: 16,
               gapY: 16,
@@ -191,7 +191,7 @@ TSkeleton.tile(size: TTileSize.h4, hasTrailing: true)''',
           WidgetDocCard(
             title: 'Table Data Grid Skeleton (TSkeleton.table)',
             description: 'Instant multi-row, multi-column skeleton for data tables and TCrudTable',
-            icon: Icons.table_chart_outlined,
+            icon: HugeIcons.strokeRoundedTable,
             preview: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -212,7 +212,7 @@ TSkeleton.tile(size: TTileSize.h4, hasTrailing: true)''',
           WidgetDocCard(
             title: 'Conditional Wrapper State Transition',
             description: 'Wraps any widget tree and reveals real data when loading finishes',
-            icon: Icons.swap_horiz_rounded,
+            icon: HugeIcons.strokeRoundedArrowLeftRight,
             preview: Container(
               width: 360,
               padding: const EdgeInsets.all(16),

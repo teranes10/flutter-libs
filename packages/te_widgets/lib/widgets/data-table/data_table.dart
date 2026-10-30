@@ -360,13 +360,13 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
           TButton(
             type: TButtonType.icon,
             size: TButtonSize.md.copyWith(icon: 22),
-            icon: Icons.chevron_left,
+            icon: HugeIcons.strokeRoundedArrowLeft01,
             onTap: listController.canGoToPreviousPage ? () => listController.goToPreviousPage() : null,
           ),
           TButton(
             type: TButtonType.icon,
             size: TButtonSize.md.copyWith(icon: 22),
-            icon: Icons.chevron_right,
+            icon: HugeIcons.strokeRoundedArrowRight01,
             onTap: listController.canGoToNextPage ? () => listController.goToNextPage() : null,
           ),
         ],

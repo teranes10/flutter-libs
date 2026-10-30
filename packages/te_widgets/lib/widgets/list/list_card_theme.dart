@@ -73,8 +73,7 @@ class TListCardTheme {
     return (isExpanded, isDisabled) => AnimatedRotation(
           turns: isExpanded ? 0.25 : 0.0,
           duration: const Duration(milliseconds: 200),
-          child: Icon(
-            Icons.keyboard_arrow_right,
+          child: TIcon.raw(HugeIcons.strokeRoundedArrowRight01,
             size: 18.0,
             color: isDisabled ? colors.onSurface.o(0.38) : colors.onSurfaceVariant,
           ),

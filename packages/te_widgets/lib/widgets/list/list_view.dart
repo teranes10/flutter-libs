@@ -465,7 +465,7 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
             index: index,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Icon(Icons.drag_indicator_rounded, size: 20, color: context.colors.onSurfaceVariant.withAlpha(200)),
+              child: TIcon.raw(HugeIcons.strokeRoundedDragDrop, size: 20, color: context.colors.onSurfaceVariant.withAlpha(200)),
             ),
           ),
           Expanded(child: child)

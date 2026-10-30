@@ -71,7 +71,7 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
             title: 'Option Tiles (TOptionTile)',
             description:
                 'Full-width touch-friendly rows (min 56dp height) with leading icons, labels, descriptions, and radio/check/toggle indicators.',
-            icon: Icons.view_stream_rounded,
+            icon: HugeIcons.strokeRoundedAiView,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -83,7 +83,7 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
                 TOptionTile(
                   label: 'Credit / Debit Card',
                   description: 'Pay securely with Visa, Mastercard, or Amex',
-                  leading: const Icon(Icons.credit_card_rounded),
+                  leading: TIcon.raw(HugeIcons.strokeRoundedCreditCard),
                   indicator: TOptionIndicator.radio,
                   selected: _selectedPayment == 'card',
                   onTap: () => setState(() => _selectedPayment = 'card'),
@@ -92,7 +92,7 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
                 TOptionTile(
                   label: 'Digital Wallet',
                   description: 'Apple Pay, Google Pay, or PayPal',
-                  leading: const Icon(Icons.account_balance_wallet_rounded),
+                  leading: TIcon.raw(HugeIcons.strokeRoundedWallet01),
                   indicator: TOptionIndicator.radio,
                   selected: _selectedPayment == 'wallet',
                   onTap: () => setState(() => _selectedPayment = 'wallet'),
@@ -106,7 +106,7 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
                 TOptionTile(
                   label: 'Package Insurance',
                   description: 'Full coverage for loss or damage during transit',
-                  leading: const Icon(Icons.shield_outlined),
+                  leading: TIcon.raw(HugeIcons.strokeRoundedShield01),
                   indicator: TOptionIndicator.check,
                   selected: _selectedAddons.contains('insurance'),
                   onTap: () {
@@ -123,7 +123,7 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
                 TOptionTile(
                   label: 'Real-time GPS Tracking',
                   description: 'Live courier updates sent via SMS & push',
-                  leading: const Icon(Icons.location_on_outlined),
+                  leading: TIcon.raw(HugeIcons.strokeRoundedLocation01),
                   indicator: TOptionIndicator.check,
                   selected: _selectedAddons.contains('tracking'),
                   onTap: () {
@@ -145,7 +145,7 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
                 TOptionTile(
                   label: 'Order Status Alerts',
                   description: 'Receive SMS updates when package status changes',
-                  leading: const Icon(Icons.notifications_active_outlined),
+                  leading: TIcon.raw(HugeIcons.strokeRoundedNotification02),
                   indicator: TOptionIndicator.toggle,
                   selected: _optInUpdates,
                   onTap: () => setState(() => _optInUpdates = !_optInUpdates),
@@ -156,7 +156,7 @@ class _SelectionControlsPageState extends State<SelectionControlsPage> {
 TOptionTile(
   label: 'Credit / Debit Card',
   description: 'Pay securely with Visa, Mastercard, or Amex',
-  leading: const Icon(Icons.credit_card_rounded),
+  leading: const HugeIcon(icon: HugeIcons.strokeRoundedCreditCard),
   indicator: TOptionIndicator.radio,
   selected: selectedPayment == 'card',
   onTap: () => setState(() => selectedPayment = 'card'),
@@ -166,7 +166,7 @@ TOptionTile(
 TOptionTile(
   label: 'Package Insurance',
   description: 'Full coverage for loss or damage during transit',
-  leading: const Icon(Icons.shield_outlined),
+  leading: const HugeIcon(icon: HugeIcons.strokeRoundedShield01),
   indicator: TOptionIndicator.check,
   selected: selectedAddons.contains('insurance'),
   onTap: () => toggleAddon('insurance'),
@@ -176,7 +176,7 @@ TOptionTile(
 TOptionTile(
   label: 'Order Status Alerts',
   description: 'Receive SMS updates when package status changes',
-  leading: const Icon(Icons.notifications_active_outlined),
+  leading: const HugeIcon(icon: HugeIcons.strokeRoundedNotification02),
   indicator: TOptionIndicator.toggle,
   selected: isEnabled,
   onTap: () => setState(() => isEnabled = !isEnabled),
@@ -212,23 +212,23 @@ TOptionTile(
           WidgetDocCard(
             title: 'Option Tile States & Colors',
             description: 'Custom accent colors, disabled state, and compact vs rich content support.',
-            icon: Icons.palette_outlined,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: Column(
               children: [
                 TOptionTile(
                   label: 'Custom Emerald Accent',
                   description: 'Highlighted with custom emerald green branding',
-                  leading: const Icon(Icons.eco_rounded, color: Colors.teal),
+                  leading: TIcon.raw(HugeIcons.strokeRoundedEcoLab, color: Colors.teal),
                   indicator: TOptionIndicator.check,
                   color: Colors.teal,
                   selected: true,
                   onTap: () {},
                 ),
                 const SizedBox(height: 8),
-                const TOptionTile(
+                TOptionTile(
                   label: 'Disabled Option Tile',
                   description: 'Cannot be interacted with (read-only / unavailable)',
-                  leading: Icon(Icons.lock_outline_rounded),
+                  leading: TIcon.raw(HugeIcons.strokeRoundedLock),
                   indicator: TOptionIndicator.radio,
                   selected: false,
                   disabled: true,
@@ -261,7 +261,7 @@ TOptionTile(
           WidgetDocCard(
             title: 'Checkbox Group in Tile Mode',
             description: 'TCheckboxGroup with tile: true renders each choice as a 56dp TOptionTile, ideal for touch and handheld screens.',
-            icon: Icons.checklist_rtl_rounded,
+            icon: HugeIcons.strokeRoundedCheckList,
             preview: TCheckboxGroup<String>(
               label: 'Dispatch Options',
               tile: true,
@@ -314,7 +314,7 @@ TOptionTile(
           WidgetDocCard(
             title: 'Radio Group in Tile Mode',
             description: 'TRadioGroup with tile: true renders a vertical list of 56dp touch-friendly single-selection tiles.',
-            icon: Icons.radio_button_checked_rounded,
+            icon: HugeIcons.strokeRoundedRadioButton,
             preview: TRadioGroup<String>(
               label: 'Shipping Speed',
               tile: true,
@@ -352,7 +352,7 @@ TOptionTile(
           WidgetDocCard(
             title: 'Switch in Tile Mode',
             description: 'TSwitch with tile: true renders a full-width 56dp tile with label, description, and toggle indicator.',
-            icon: Icons.toggle_on_outlined,
+            icon: HugeIcons.strokeRoundedToggleOn,
             preview: Column(
               children: [
                 TSwitch(
@@ -403,7 +403,7 @@ TSwitch(
           WidgetDocCard(
             title: 'Checkbox',
             description: 'Single checkbox for boolean selection',
-            icon: Icons.check_box,
+            icon: HugeIcons.strokeRoundedCheckmarkSquare01,
             preview: TCheckbox(label: 'I agree to the terms and conditions', valueNotifier: _termsNotifier),
             code: '''TCheckbox(
   label: 'I agree to the terms and conditions',
@@ -422,7 +422,7 @@ TSwitch(
           WidgetDocCard(
             title: 'Checkbox with Info Tooltip',
             description: 'Checkbox with informational tooltip next to label',
-            icon: Icons.info_outline,
+            icon: HugeIcons.strokeRoundedInformationCircle,
             preview: TCheckbox(
               label: 'Subscribe to newsletter',
               info: 'We send weekly updates about new features and releases',
@@ -444,7 +444,7 @@ TSwitch(
           WidgetDocCard(
             title: 'Required Checkbox with Validation',
             description: 'Checkbox with required validation',
-            icon: Icons.verified,
+            icon: HugeIcons.strokeRoundedCheckmarkBadge01,
             preview: TCheckbox(
               label: 'I accept the privacy policy',
               isRequired: true,
@@ -477,7 +477,7 @@ TSwitch(
           WidgetDocCard(
             title: 'Checkbox with Label Above',
             description: 'TCheckbox configured with TLabelPosition.aboveField inside a custom input field theme',
-            icon: Icons.vertical_align_top,
+            icon: HugeIcons.strokeRoundedAlignTop,
             preview: TCheckbox(
               label: 'Receive promotional emails',
               tag: 'New',
@@ -506,7 +506,7 @@ TSwitch(
           WidgetDocCard(
             title: 'Checkbox Group',
             description: 'Multiple checkbox selection with group management',
-            icon: Icons.checklist,
+            icon: HugeIcons.strokeRoundedCheckList,
             preview: TCheckboxGroup<String>(
               label: 'Interests',
               items: [
@@ -540,7 +540,7 @@ TSwitch(
           WidgetDocCard(
             title: 'Checkbox Group Layouts',
             description: 'Vertical and horizontal layouts for checkbox groups',
-            icon: Icons.view_agenda,
+            icon: HugeIcons.strokeRoundedViewAgenda,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -604,7 +604,7 @@ TCheckboxGroup<String>(
           WidgetDocCard(
             title: 'Checkbox Group with Validation',
             description: 'Validate minimum/maximum selections',
-            icon: Icons.rule,
+            icon: HugeIcons.strokeRoundedRuler,
             preview: TCheckboxGroup<String>(
               label: 'Select Skills (min 2, max 4)',
               isRequired: true,
@@ -665,7 +665,7 @@ TCheckboxGroup<String>(
           WidgetDocCard(
             title: 'Checkbox Group with Clear Button',
             description: 'Checkbox group with clearable option to deselect all',
-            icon: Icons.clear_all,
+            icon: HugeIcons.strokeRoundedCancel02,
             preview: TCheckboxGroup<String>(
               label: 'Notifications',
               clearable: true,
@@ -707,7 +707,7 @@ TCheckboxGroup<String>(
           WidgetDocCard(
             title: 'Radio Group',
             description: 'Single selection from a set of options',
-            icon: Icons.radio_button_checked,
+            icon: HugeIcons.strokeRoundedRadioButton,
             preview: TRadioGroup<String>(
               label: 'Preferred Contact Method',
               valueNotifier: _contactMethodNotifier,
@@ -738,7 +738,7 @@ TCheckboxGroup<String>(
           WidgetDocCard(
             title: 'Radio Group Layouts',
             description: 'Vertical and horizontal layouts for radio groups',
-            icon: Icons.view_headline,
+            icon: HugeIcons.strokeRoundedViewAgenda,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -774,7 +774,7 @@ TCheckboxGroup<String>(
           WidgetDocCard(
             title: 'Radio Group with Validation',
             description: 'Required radio selection with custom validation',
-            icon: Icons.verified_user_outlined,
+            icon: HugeIcons.strokeRoundedUserShield01,
             preview: TRadioGroup<String>(
               label: 'Membership Tier',
               isRequired: true,
@@ -805,7 +805,7 @@ TCheckboxGroup<String>(
           WidgetDocCard(
             title: 'Switch (Toggle)',
             description: 'Toggle switch for boolean settings',
-            icon: Icons.toggle_on,
+            icon: HugeIcons.strokeRoundedToggleOn,
             preview: TSwitch(label: 'Enable Notifications', valueNotifier: _notificationsNotifier),
             code: '''TSwitch(
   label: 'Enable Notifications',
@@ -824,7 +824,7 @@ TCheckboxGroup<String>(
           WidgetDocCard(
             title: 'Switch States, Sizes, and Colors',
             description: 'Different switch states, sizes, and custom active/inactive colors',
-            icon: Icons.settings,
+            icon: HugeIcons.strokeRoundedSettings01,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -905,7 +905,7 @@ TSwitch(
           WidgetDocCard(
             title: 'Switch with Validation',
             description: 'Required switch with validation rules',
-            icon: Icons.verified,
+            icon: HugeIcons.strokeRoundedCheckmarkBadge01,
             preview: TSwitch(
               label: 'I confirm I am 18 years or older',
               isRequired: true,
@@ -938,7 +938,7 @@ TSwitch(
           WidgetDocCard(
             title: 'Switch with Label Above',
             description: 'TSwitch configured with TLabelPosition.aboveField inside a custom input field theme',
-            icon: Icons.vertical_align_top,
+            icon: HugeIcons.strokeRoundedAlignTop,
             preview: TSwitch(
               label: 'Automatic Backups',
               tag: 'Recommended',

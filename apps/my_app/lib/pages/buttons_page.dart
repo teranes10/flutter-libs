@@ -35,7 +35,7 @@ class _ButtonsPageState extends State<ButtonsPage> {
           WidgetDocCard(
             title: 'Solid Buttons',
             description: 'Filled buttons with solid background colors',
-            icon: Icons.rectangle,
+            icon: HugeIcons.strokeRoundedRectangleCircle,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -69,20 +69,20 @@ class _ButtonsPageState extends State<ButtonsPage> {
           WidgetDocCard(
             title: 'Tonal Buttons',
             description: 'Buttons with subtle background tint',
-            icon: Icons.palette,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                TButton(type: TButtonType.tonal, icon: Icons.home, text: 'Primary', color: context.theme.primary, onTap: () {}),
-                TButton(type: TButtonType.tonal, icon: Icons.settings, text: 'Secondary', color: context.theme.secondary, onTap: () {}),
-                TButton(type: TButtonType.tonal, icon: Icons.check, text: 'Success', color: context.theme.success, onTap: () {}),
-                TButton(type: TButtonType.tonal, icon: Icons.warning, text: 'Warning', color: context.theme.warning, onTap: () {}),
+                TButton(type: TButtonType.tonal, icon: HugeIcons.strokeRoundedHome01, text: 'Primary', color: context.theme.primary, onTap: () {}),
+                TButton(type: TButtonType.tonal, icon: HugeIcons.strokeRoundedSettings01, text: 'Secondary', color: context.theme.secondary, onTap: () {}),
+                TButton(type: TButtonType.tonal, icon: HugeIcons.strokeRoundedTick01, text: 'Success', color: context.theme.success, onTap: () {}),
+                TButton(type: TButtonType.tonal, icon: HugeIcons.strokeRoundedAlert02, text: 'Warning', color: context.theme.warning, onTap: () {}),
               ],
             ),
             code: '''TButton(
   type: TButtonType.tonal,
-  icon: Icons.home,
+  icon: HugeIcons.strokeRoundedHome01,
   text: 'Primary',
   color: AppColors.primary,
   onTap: () {},
@@ -94,19 +94,19 @@ class _ButtonsPageState extends State<ButtonsPage> {
           WidgetDocCard(
             title: 'Outline Buttons',
             description: 'Buttons with colored borders',
-            icon: Icons.border_outer,
+            icon: HugeIcons.strokeRoundedBorderNone02,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                TButton(type: TButtonType.outline, icon: Icons.add, text: 'Add', color: context.theme.primary, onTap: () {}),
-                TButton(type: TButtonType.outline, icon: Icons.edit, text: 'Edit', color: context.theme.info, onTap: () {}),
-                TButton(type: TButtonType.outline, icon: Icons.delete, text: 'Delete', color: context.theme.danger, onTap: () {}),
+                TButton(type: TButtonType.outline, icon: HugeIcons.strokeRoundedAdd01, text: 'Add', color: context.theme.primary, onTap: () {}),
+                TButton(type: TButtonType.outline, icon: HugeIcons.strokeRoundedEdit02, text: 'Edit', color: context.theme.info, onTap: () {}),
+                TButton(type: TButtonType.outline, icon: HugeIcons.strokeRoundedDelete01, text: 'Delete', color: context.theme.danger, onTap: () {}),
               ],
             ),
             code: '''TButton(
   type: TButtonType.outline,
-  icon: Icons.add,
+  icon: HugeIcons.strokeRoundedAdd01,
   text: 'Add',
   color: AppColors.primary,
   onTap: () {},
@@ -117,20 +117,20 @@ class _ButtonsPageState extends State<ButtonsPage> {
           WidgetDocCard(
             title: 'Icon Buttons',
             description: 'Compact icon-only buttons',
-            icon: Icons.touch_app,
+            icon: HugeIcons.strokeRoundedTouch10,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                TButton(type: TButtonType.icon, icon: Icons.visibility, color: context.theme.success, onTap: () {}),
-                TButton(type: TButtonType.icon, icon: Icons.edit, color: context.theme.info, onTap: () {}),
-                TButton(type: TButtonType.icon, icon: Icons.archive, color: context.theme.warning, onTap: () {}),
-                TButton(type: TButtonType.icon, icon: Icons.delete_forever, color: context.theme.danger, onTap: () {}),
+                TButton(type: TButtonType.icon, icon: HugeIcons.strokeRoundedView, color: context.theme.success, onTap: () {}),
+                TButton(type: TButtonType.icon, icon: HugeIcons.strokeRoundedEdit02, color: context.theme.info, onTap: () {}),
+                TButton(type: TButtonType.icon, icon: HugeIcons.strokeRoundedArchive, color: context.theme.warning, onTap: () {}),
+                TButton(type: TButtonType.icon, icon: HugeIcons.strokeRoundedDelete02, color: context.theme.danger, onTap: () {}),
               ],
             ),
             code: '''TButton(
   type: TButtonType.icon,
-  icon: Icons.visibility,
+  icon: HugeIcons.strokeRoundedView,
   color: AppColors.success,
   onTap: () {},
 )''',
@@ -140,7 +140,7 @@ class _ButtonsPageState extends State<ButtonsPage> {
           WidgetDocCard(
             title: 'Button Sizes',
             description: 'Different size options for buttons',
-            icon: Icons.format_size,
+            icon: HugeIcons.strokeRoundedImageActualSize,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -184,32 +184,32 @@ TButton(
           WidgetDocCard(
             title: 'Button Shapes',
             description: 'Different shape options',
-            icon: Icons.category,
+            icon: HugeIcons.strokeRoundedFactory,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                TButton(icon: Icons.home, text: 'Normal', shape: TButtonShape.normal, onTap: () {}),
-                TButton(icon: Icons.home, text: 'Pill', shape: TButtonShape.pill, onTap: () {}),
-                TButton(icon: Icons.home, shape: TButtonShape.circle, onTap: () {}),
+                TButton(icon: HugeIcons.strokeRoundedHome01, text: 'Normal', shape: TButtonShape.normal, onTap: () {}),
+                TButton(icon: HugeIcons.strokeRoundedHome01, text: 'Pill', shape: TButtonShape.pill, onTap: () {}),
+                TButton(icon: HugeIcons.strokeRoundedHome01, shape: TButtonShape.circle, onTap: () {}),
               ],
             ),
             code: '''TButton(
-  icon: Icons.home,
+  icon: HugeIcons.strokeRoundedHome01,
   text: 'Normal',
   shape: TButtonShape.normal,
   onTap: () {},
 )
 
 TButton(
-  icon: Icons.home,
+  icon: HugeIcons.strokeRoundedHome01,
   text: 'Pill',
   shape: TButtonShape.pill,
   onTap: () {},
 )
 
 TButton(
-  icon: Icons.home,
+  icon: HugeIcons.strokeRoundedHome01,
   shape: TButtonShape.circle, // icon only
   onTap: () {},
 )''',
@@ -227,13 +227,13 @@ TButton(
           WidgetDocCard(
             title: 'Loading State',
             description: 'Buttons with automatic loading indicator',
-            icon: Icons.hourglass_empty,
+            icon: HugeIcons.strokeRoundedHourglass,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TButton(
                   text: 'Submit Form',
-                  icon: Icons.send,
+                  icon: HugeIcons.strokeRoundedSent,
                   loading: true,
                   color: context.theme.primary,
                   onPressed: (options) {
@@ -246,7 +246,7 @@ TButton(
                 const SizedBox(height: 16),
                 TButton(
                   text: 'Dynamic Loading',
-                  icon: Icons.sync,
+                  icon: HugeIcons.strokeRoundedRefresh,
                   loading: true,
                   loadingNotifier: _dynamicLoadingNotifier,
                   color: context.theme.secondary,
@@ -264,7 +264,7 @@ TButton(
             code: '''// Standard Loading
 TButton(
   text: 'Submit Form',
-  icon: Icons.send,
+  icon: HugeIcons.strokeRoundedSent,
   loading: true, // Enable loading state
   color: AppColors.primary,
   onPressed: (options) async {
@@ -313,22 +313,22 @@ TButton(
           WidgetDocCard(
             title: 'Toggle Button',
             description: 'Buttons that can be toggled between active/inactive states',
-            icon: Icons.toggle_on,
+            icon: HugeIcons.strokeRoundedToggleOn,
             preview: Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
                 TButton(
                   shape: TButtonShape.circle,
-                  icon: Icons.favorite_border,
-                  activeIcon: Icons.favorite,
+                  icon: HugeIcons.strokeRoundedFavouriteCircle,
+                  activeIcon: HugeIcons.strokeRoundedFavourite,
                   color: Colors.grey,
                   activeColor: Colors.red,
                   onChanged: (isActive) => _showSnackBar('Favorite: $isActive'),
                 ),
                 TButton(
-                  icon: Icons.notifications_none,
-                  activeIcon: Icons.notifications_active,
+                  icon: HugeIcons.strokeRoundedNotification01,
+                  activeIcon: HugeIcons.strokeRoundedNotification02,
                   text: 'Notifications',
                   color: context.theme.grey,
                   activeColor: context.theme.primary,
@@ -337,8 +337,8 @@ TButton(
               ],
             ),
             code: '''TButton(
-  icon: Icons.favorite_border,
-  activeIcon: Icons.favorite,
+  icon: HugeIcons.strokeRoundedFavouriteCircle,
+  activeIcon: HugeIcons.strokeRoundedFavourite,
   color: Colors.grey,
   activeColor: Colors.red,
   onChanged: (isActive) {
@@ -365,7 +365,7 @@ TButton(
           WidgetDocCard(
             title: 'Tile Buttons',
             description: 'Buttons with icon above and text below (Tile Shape)',
-            icon: Icons.grid_view,
+            icon: HugeIcons.strokeRoundedGrid,
             preview: Wrap(
               spacing: 12,
               runSpacing: 12,
@@ -373,7 +373,7 @@ TButton(
                 TButton(
                   shape: TButtonShape.tile,
                   type: TButtonType.tonal,
-                  icon: Icons.dashboard_outlined,
+                  icon: HugeIcons.strokeRoundedDashboardSquare01,
                   text: 'Dashboard',
                   color: context.theme.primary,
                   onTap: () {},
@@ -381,7 +381,7 @@ TButton(
                 TButton(
                   shape: TButtonShape.tile,
                   type: TButtonType.solid,
-                  icon: Icons.shopping_cart_outlined,
+                  icon: HugeIcons.strokeRoundedShoppingCart01,
                   text: 'Orders',
                   color: context.theme.secondary,
                   onTap: () {},
@@ -389,7 +389,7 @@ TButton(
                 TButton(
                   shape: TButtonShape.tile,
                   type: TButtonType.outline,
-                  icon: Icons.people_outline,
+                  icon: HugeIcons.strokeRoundedUserGroup,
                   text: 'Customers',
                   color: context.theme.success,
                   onTap: () {},
@@ -397,7 +397,7 @@ TButton(
                 TButton(
                   shape: TButtonShape.tile,
                   type: TButtonType.filledOutline,
-                  icon: Icons.analytics_outlined,
+                  icon: HugeIcons.strokeRoundedAnalytics01,
                   text: 'Reports',
                   color: context.theme.danger,
                   onTap: () {},
@@ -407,7 +407,7 @@ TButton(
             code: '''TButton(
   shape: TButtonShape.tile,
   type: TButtonType.tonal,
-  icon: Icons.dashboard_outlined,
+  icon: HugeIcons.strokeRoundedDashboardSquare01,
   text: 'Dashboard',
   color: AppColors.primary,
   onTap: () {},
@@ -418,16 +418,16 @@ TButton(
           WidgetDocCard(
             title: 'Button Badges & Alignments',
             description: 'Buttons with notification counts, text pills, status dots, and customizable corner/edge alignments',
-            icon: Icons.mark_chat_unread_outlined,
+            icon: HugeIcons.strokeRoundedCheckUnread04,
             preview: Wrap(
               spacing: 12,
               runSpacing: 12,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                TButton(icon: Icons.notifications_outlined, text: 'Alerts', badge: 5, color: context.theme.primary, onTap: () {}),
+                TButton(icon: HugeIcons.strokeRoundedNotification01, text: 'Alerts', badge: 5, color: context.theme.primary, onTap: () {}),
                 TButton(
                   type: TButtonType.tonal,
-                  icon: Icons.mail_outline,
+                  icon: HugeIcons.strokeRoundedMail01,
                   text: 'Messages',
                   badge: 128,
                   color: context.theme.secondary,
@@ -435,14 +435,14 @@ TButton(
                 ),
                 TButton(
                   shape: TButtonShape.circle,
-                  icon: Icons.chat_bubble_outline,
+                  icon: HugeIcons.strokeRoundedBubbleChat,
                   badge: true,
                   badgeColor: context.theme.success,
                   onTap: () {},
                 ),
                 TButton(
                   type: TButtonType.outline,
-                  icon: Icons.auto_awesome,
+                  icon: HugeIcons.strokeRoundedAiAutoRotate,
                   text: 'AI Assistant',
                   badge: 'NEW',
                   badgeAlignment: Alignment.topLeft,
@@ -451,7 +451,7 @@ TButton(
                 ),
                 TButton(
                   type: TButtonType.softOutline,
-                  icon: Icons.local_offer_outlined,
+                  icon: HugeIcons.strokeRoundedLocateOff,
                   text: 'Flash Deals',
                   badge: 'HOT',
                   badgeAlignment: Alignment.bottomRight,
@@ -460,19 +460,19 @@ TButton(
                 ),
                 TButton(
                   type: TButtonType.tonal,
-                  icon: Icons.inbox,
+                  icon: HugeIcons.strokeRoundedInbox,
                   text: 'Inbox',
                   badge: 3,
                   badgeAlignment: Alignment.bottomLeft,
                   badgeColor: context.theme.info,
                   onTap: () {},
                 ),
-                TButton(shape: TButtonShape.circle, icon: Icons.shopping_bag_outlined, badge: 2, onTap: () {}),
+                TButton(shape: TButtonShape.circle, icon: HugeIcons.strokeRoundedShoppingBag01, badge: 2, onTap: () {}),
               ],
             ),
             code: '''// 1. Notification Count Badge (Default Top-Right)
 TButton(
-  icon: Icons.notifications_outlined,
+  icon: HugeIcons.strokeRoundedNotification01,
   text: 'Alerts',
   badge: 5,
   onTap: () {},
@@ -481,7 +481,7 @@ TButton(
 // 2. High Count (Auto Formats to 99+)
 TButton(
   type: TButtonType.tonal,
-  icon: Icons.mail_outline,
+  icon: HugeIcons.strokeRoundedMail01,
   text: 'Messages',
   badge: 128,
   onTap: () {},
@@ -490,7 +490,7 @@ TButton(
 // 3. Status Dot Badge
 TButton(
   shape: TButtonShape.circle,
-  icon: Icons.chat_bubble_outline,
+  icon: HugeIcons.strokeRoundedBubbleChat,
   badge: true,
   badgeColor: AppColors.success,
   onTap: () {},
@@ -499,7 +499,7 @@ TButton(
 // 4. Custom Text Badge on Top-Left
 TButton(
   type: TButtonType.outline,
-  icon: Icons.auto_awesome,
+  icon: HugeIcons.strokeRoundedAiAutoRotate,
   text: 'AI Assistant',
   badge: 'NEW',
   badgeAlignment: Alignment.topLeft,
@@ -509,7 +509,7 @@ TButton(
 
 // 5. Custom Text Badge on Bottom-Right
 TButton(
-  icon: Icons.local_offer_outlined,
+  icon: HugeIcons.strokeRoundedLocateOff,
   text: 'Flash Deals',
   badge: 'HOT',
   badgeAlignment: Alignment.bottomRight,
@@ -542,17 +542,17 @@ TButton(
           WidgetDocCard(
             title: 'Button Group',
             description: 'Group multiple buttons together',
-            icon: Icons.view_week,
+            icon: HugeIcons.strokeRoundedAiView,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TButtonGroup(
                   type: TButtonGroupType.solid,
                   items: [
-                    TButtonGroupItem(icon: Icons.format_align_left, onTap: () {}),
-                    TButtonGroupItem(icon: Icons.format_align_center, onTap: () {}),
-                    TButtonGroupItem(icon: Icons.format_align_right, onTap: () {}),
-                    TButtonGroupItem(icon: Icons.format_align_justify, onTap: () {}),
+                    TButtonGroupItem(icon: HugeIcons.strokeRoundedAlignLeft, onTap: () {}),
+                    TButtonGroupItem(icon: HugeIcons.strokeRoundedKeyframeAlignCenter, onTap: () {}),
+                    TButtonGroupItem(icon: HugeIcons.strokeRoundedAlignRight, onTap: () {}),
+                    TButtonGroupItem(icon: HugeIcons.strokeRoundedTextAlignJustify, onTap: () {}),
                   ],
                 ),
               ],
@@ -561,15 +561,15 @@ TButton(
   type: TButtonGroupType.solid,
   items: [
     TButtonGroupItem(
-      icon: Icons.format_align_left,
+      icon: HugeIcons.strokeRoundedAlignLeft,
       onTap: () {},
     ),
     TButtonGroupItem(
-      icon: Icons.format_align_center,
+      icon: HugeIcons.strokeRoundedKeyframeAlignCenter,
       onTap: () {},
     ),
     TButtonGroupItem(
-      icon: Icons.format_align_right,
+      icon: HugeIcons.strokeRoundedAlignRight,
       onTap: () {},
     ),
   ],
@@ -580,7 +580,7 @@ TButton(
           WidgetDocCard(
             title: 'Cycle Button Group',
             description: 'Show only one button at a time and cycle through the items on tap',
-            icon: Icons.sync,
+            icon: HugeIcons.strokeRoundedRefresh,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -592,18 +592,18 @@ TButton(
                   },
                   items: [
                     TButtonGroupItem(
-                      icon: Icons.play_arrow,
+                      icon: HugeIcons.strokeRoundedPlay,
                       text: 'Play',
                       color: context.theme.success,
                       onTap: () => debugPrint('Play tapped'),
                     ),
                     TButtonGroupItem(
-                      icon: Icons.pause,
+                      icon: HugeIcons.strokeRoundedPause,
                       text: 'Pause',
                       color: context.theme.warning,
                       onTap: () => debugPrint('Pause tapped'),
                     ),
-                    TButtonGroupItem(icon: Icons.stop, text: 'Stop', color: context.theme.danger, onTap: () => debugPrint('Stop tapped')),
+                    TButtonGroupItem(icon: HugeIcons.strokeRoundedStop, text: 'Stop', color: context.theme.danger, onTap: () => debugPrint('Stop tapped')),
                   ],
                 ),
               ],
@@ -616,17 +616,17 @@ TButton(
   },
   items: [
     TButtonGroupItem(
-      icon: Icons.play_arrow,
+      icon: HugeIcons.strokeRoundedPlay,
       text: 'Play',
       color: AppColors.success,
     ),
     TButtonGroupItem(
-      icon: Icons.pause,
+      icon: HugeIcons.strokeRoundedPause,
       text: 'Pause',
       color: AppColors.warning,
     ),
     TButtonGroupItem(
-      icon: Icons.stop,
+      icon: HugeIcons.strokeRoundedStop,
       text: 'Stop',
       color: AppColors.danger,
     ),
@@ -638,7 +638,7 @@ TButton(
           WidgetDocCard(
             title: 'Stateful Button Group',
             description: 'Show multiple buttons with internal selection state management',
-            icon: Icons.check_box,
+            icon: HugeIcons.strokeRoundedCheckmarkSquare01,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -674,16 +674,16 @@ TButton(
           WidgetDocCard(
             title: 'Separated Selectable Cards',
             description: 'Button group configured with separated buttons, tile shape layout, and active tick indicators',
-            icon: Icons.grid_view_rounded,
+            icon: HugeIcons.strokeRoundedGrid,
             preview: TButtonGroup(
               separated: true,
               showTick: true,
               theme: const TButtonGroupTheme(type: TButtonGroupType.softOutline, shape: TButtonShape.tile, borderRadius: 12),
               initialIndex: 0,
               items: [
-                TButtonGroupItem(icon: Icons.inventory_2_outlined, text: 'Parcel'),
-                TButtonGroupItem(icon: Icons.all_inbox_outlined, text: 'Box'),
-                TButtonGroupItem(icon: Icons.local_mall_outlined, text: 'Bag'),
+                TButtonGroupItem(icon: HugeIcons.strokeRoundedPackage, text: 'Parcel'),
+                TButtonGroupItem(icon: HugeIcons.strokeRoundedInbox, text: 'Box'),
+                TButtonGroupItem(icon: HugeIcons.strokeRoundedShoppingBag01, text: 'Bag'),
               ],
             ),
             code: '''TButtonGroup(
@@ -697,9 +697,9 @@ TButton(
   ),
   initialIndex: 0,
   items: [
-    TButtonGroupItem(icon: Icons.inventory_2_outlined, text: 'Parcel'),
-    TButtonGroupItem(icon: Icons.all_inbox_outlined, text: 'Box'),
-    TButtonGroupItem(icon: Icons.local_mall_outlined, text: 'Bag'),
+    TButtonGroupItem(icon: HugeIcons.strokeRoundedPackage, text: 'Parcel'),
+    TButtonGroupItem(icon: HugeIcons.strokeRoundedInbox, text: 'Box'),
+    TButtonGroupItem(icon: HugeIcons.strokeRoundedShoppingBag01, text: 'Bag'),
   ],
 )''',
           ),
@@ -708,7 +708,7 @@ TButton(
           WidgetDocCard(
             title: 'Segmented Button Group',
             description: 'Pill-in-a-track selector; the active item is raised',
-            icon: Icons.view_agenda_outlined,
+            icon: HugeIcons.strokeRoundedViewAgenda,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -726,9 +726,9 @@ TButton(
                   type: TButtonGroupType.segmented,
                   initialIndex: 1,
                   items: [
-                    TButtonGroupItem(icon: Icons.view_list, text: 'List'),
-                    TButtonGroupItem(icon: Icons.grid_view, text: 'Grid'),
-                    TButtonGroupItem(icon: Icons.map_outlined, text: 'Map'),
+                    TButtonGroupItem(icon: HugeIcons.strokeRoundedAiView, text: 'List'),
+                    TButtonGroupItem(icon: HugeIcons.strokeRoundedGrid, text: 'Grid'),
+                    TButtonGroupItem(icon: HugeIcons.strokeRoundedMaps, text: 'Map'),
                   ],
                 ),
               ],
@@ -750,9 +750,9 @@ TButtonGroup(
   type: TButtonGroupType.segmented,
   initialIndex: 1,
   items: [
-    TButtonGroupItem(icon: Icons.view_list, text: 'List'),
-    TButtonGroupItem(icon: Icons.grid_view, text: 'Grid'),
-    TButtonGroupItem(icon: Icons.map_outlined, text: 'Map'),
+    TButtonGroupItem(icon: HugeIcons.strokeRoundedAiView, text: 'List'),
+    TButtonGroupItem(icon: HugeIcons.strokeRoundedGrid, text: 'Grid'),
+    TButtonGroupItem(icon: HugeIcons.strokeRoundedMaps, text: 'Map'),
   ],
 )''',
             properties: const [

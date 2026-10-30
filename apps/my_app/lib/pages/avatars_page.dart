@@ -28,7 +28,7 @@ class AvatarsPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Image Avatars',
             description: 'Avatars using remote image URLs',
-            icon: Icons.face,
+            icon: HugeIcons.strokeRoundedFaceId,
             preview: Wrap(
               spacing: 16,
               runSpacing: 16,
@@ -54,15 +54,30 @@ class AvatarsPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Initials Avatars',
             description: 'Automatically generates initials from a name',
-            icon: Icons.text_fields,
+            icon: HugeIcons.strokeRoundedText,
             preview: Wrap(
               spacing: 16,
               runSpacing: 16,
               children: [
-                TAvatar(name: 'John Doe', backgroundColor: Colors.blue.shade100, foregroundColor: Colors.blue.shade900),
-                TAvatar(name: 'Jane Smith', backgroundColor: Colors.green.shade100, foregroundColor: Colors.green.shade900),
-                TAvatar(name: 'Bob', backgroundColor: Colors.orange.shade100, foregroundColor: Colors.orange.shade900),
-                TAvatar(name: 'Alice Wonder', backgroundColor: Colors.purple.shade100, foregroundColor: Colors.purple.shade900),
+                TAvatar(
+                  name: 'John Doe',
+                  backgroundColor: Colors.blue.shade100,
+                  foregroundColor: Colors.blue.shade900,
+                  size: TInputSize.xs,
+                ),
+                TAvatar(
+                  name: 'Jane Smith',
+                  backgroundColor: Colors.green.shade100,
+                  foregroundColor: Colors.green.shade900,
+                  size: TInputSize.sm,
+                ),
+                TAvatar(name: 'Bob', backgroundColor: Colors.orange.shade100, foregroundColor: Colors.orange.shade900, size: TInputSize.md),
+                TAvatar(
+                  name: 'Alice Wonder',
+                  backgroundColor: Colors.purple.shade100,
+                  foregroundColor: Colors.purple.shade900,
+                  size: TInputSize.lg,
+                ),
               ],
             ),
             code: '''TAvatar(
@@ -81,7 +96,7 @@ class AvatarsPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Shapes',
             description: 'Circular and square (rounded) variants',
-            icon: Icons.shape_line,
+            icon: HugeIcons.strokeRoundedScanLine,
             preview: Wrap(
               spacing: 16,
               runSpacing: 16,
@@ -109,7 +124,7 @@ TAvatar.square(
           WidgetDocCard(
             title: 'Fallback Icon',
             description: 'Displays a generic icon when no image or name is provided',
-            icon: Icons.person_outline,
+            icon: HugeIcons.strokeRoundedUser,
             preview: const Wrap(
               spacing: 16,
               runSpacing: 16,
@@ -126,7 +141,7 @@ TAvatar.square(
           WidgetDocCard(
             title: 'Profile Style',
             description: 'Avatar combined with title and subtitle (e.g., name and role)',
-            icon: Icons.account_box,
+            icon: HugeIcons.strokeRoundedUserSquare,
             preview: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -169,7 +184,7 @@ TAvatar(
           WidgetDocCard(
             title: 'TImage - Sizing & Aspect Ratio',
             description: 'Supports width-only (auto height), height-only (auto width), size, and explicit aspect ratios',
-            icon: Icons.aspect_ratio,
+            icon: HugeIcons.strokeRoundedAspectRatio,
             preview: Wrap(
               spacing: 16,
               runSpacing: 16,
@@ -225,7 +240,7 @@ TImage(
           WidgetDocCard(
             title: 'TImage - Cropping Behavior',
             description: 'Control how images are cropped using alignment (topCenter, center, bottomCenter)',
-            icon: Icons.crop,
+            icon: HugeIcons.strokeRoundedCrop,
             preview: Wrap(
               spacing: 16,
               runSpacing: 16,

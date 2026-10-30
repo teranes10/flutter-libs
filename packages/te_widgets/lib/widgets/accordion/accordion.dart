@@ -325,8 +325,8 @@ class _TAccordionState extends State<TAccordion> with SingleTickerProviderStateM
                       widget.expandIcon ??
                           RotationTransition(
                             turns: _iconTurns,
-                            child: Icon(
-                              Icons.expand_more,
+                            child: TIcon.raw(
+                              HugeIcons.strokeRoundedChevronDown,
                               size: 20,
                               color: _isHovered || _isExpanded ? colors.primary : colors.onSurfaceVariant,
                             ),

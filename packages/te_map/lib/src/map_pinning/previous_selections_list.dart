@@ -76,7 +76,7 @@ class TPreviousSelectionsListState extends State<TPreviousSelectionsList> {
               },
               child: Row(
                 children: [
-                  Icon(Icons.history_outlined, color: colors.onSurfaceVariant),
+                  TIcon.raw(HugeIcons.strokeRoundedClock01, color: colors.onSurfaceVariant),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -104,7 +104,7 @@ class TPreviousSelectionsListState extends State<TPreviousSelectionsList> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  TButton(icon: Icons.close, type: TButtonType.outline, color: colors.error, onTap: () => deletePreviousSelection(index)),
+                  TButton(icon: HugeIcons.strokeRoundedCancel01, type: TButtonType.outline, color: colors.error, onTap: () => deletePreviousSelection(index)),
                 ],
               ),
             );

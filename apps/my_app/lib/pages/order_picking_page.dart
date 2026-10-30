@@ -248,7 +248,7 @@ class _OrderPickingPageState extends State<OrderPickingPage> {
       statusColor: color,
       done: done,
       total: total,
-      icon: Icons.inventory_2_outlined,
+      icon: HugeIcons.strokeRoundedPackage,
       onTap: () {},
     );
   }
@@ -261,7 +261,7 @@ class _OrderPickingPageState extends State<OrderPickingPage> {
     final shown = _itemsTab == 'exceptions' ? lines.where((l) => l.exceptions > 0).toList() : lines;
 
     return _orderPage(
-      footer: TActionBar(primaryText: 'Confirm & Complete', primaryIcon: Icons.check, onPrimary: resolved == lines.length ? () {} : null),
+      footer: TActionBar(primaryText: 'Confirm & Complete', primaryIcon: HugeIcons.strokeRoundedTick01, onPrimary: resolved == lines.length ? () {} : null),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -286,12 +286,12 @@ class _OrderPickingPageState extends State<OrderPickingPage> {
     return TTile(
       title: line.code,
       subtitle: line.name,
-      icon: Icons.inventory_2_outlined,
+      icon: HugeIcons.strokeRoundedPackage,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (line.exceptions > 0) ...[
-            TChip.solid(text: '${line.exceptions}', icon: Icons.error_outline_rounded, color: theme.danger, size: TChipSize.sm),
+            TChip.solid(text: '${line.exceptions}', icon: HugeIcons.strokeRoundedAlertCircle, color: theme.danger, size: TChipSize.sm),
             const SizedBox(width: 10),
           ],
           Text(
@@ -396,7 +396,7 @@ class _OrderPickingPageState extends State<OrderPickingPage> {
             subtitle: 'Pick location',
           ),
           const SizedBox(height: 8),
-          _checkTile(target: _Target.item, check: _item, icon: Icons.inventory_2_outlined, title: _current.code, subtitle: _current.name),
+          _checkTile(target: _Target.item, check: _item, icon: HugeIcons.strokeRoundedPackage, title: _current.code, subtitle: _current.name),
           const SizedBox(height: 8),
           _checkTile(
             target: _Target.lot,

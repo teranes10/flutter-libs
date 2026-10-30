@@ -23,7 +23,7 @@ class TTourStep {
   final String description;
 
   /// Optional icon shown in the card header.
-  final IconData? icon;
+  final dynamic icon;
 
   /// Preferred placement for the popover card. Defaults to [TTourPlacement.auto].
   final TTourPlacement placement;
@@ -167,8 +167,7 @@ class _TTourState extends State<TTour> {
       fit: StackFit.expand,
       children: [
         widget.child,
-        if (widget.controller.isActive && widget.controller.currentStepData != null)
-          _buildTourOverlay(context),
+        if (widget.controller.isActive && widget.controller.currentStepData != null) _buildTourOverlay(context),
       ],
     );
   }
@@ -261,7 +260,7 @@ class _TTourState extends State<TTour> {
               Row(
                 children: [
                   if (step.icon != null) ...[
-                    Icon(step.icon, size: 18, color: colors.primary),
+                    TIcon.raw(step.icon, size: 18, color: colors.primary),
                     const SizedBox(width: 8),
                   ],
                   Expanded(

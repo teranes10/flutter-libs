@@ -42,7 +42,7 @@ class _SpeedDialPageState extends State<SpeedDialPage> {
             title: 'Action Trigger Feedback',
             child: Row(
               children: [
-                Icon(Icons.touch_app_rounded, color: colors.primary, size: 22),
+                TIcon.raw(HugeIcons.strokeRoundedTouch10, color: colors.primary, size: 22),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -71,7 +71,7 @@ class _SpeedDialPageState extends State<SpeedDialPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.dashboard_customize_outlined, size: 48, color: theme.disabledColor),
+                        TIcon.raw(HugeIcons.strokeRoundedDashboardSquare01, size: 48, color: theme.disabledColor),
                         const SizedBox(height: 12),
                         Text('Click the "+" button in the bottom right corner', style: TextStyle(fontSize: 14, color: theme.hintColor)),
                       ],
@@ -86,22 +86,22 @@ class _SpeedDialPageState extends State<SpeedDialPage> {
                       tooltip: 'Quick Actions',
                       children: [
                         TSpeedDialChild(
-                          icon: Icons.person_add_rounded,
+                          icon: HugeIcons.strokeRoundedUserAdd01,
                           label: 'Add New Member',
                           onTap: () => _triggerAction('Add New Member'),
                         ),
                         TSpeedDialChild(
-                          icon: Icons.upload_file_rounded,
+                          icon: HugeIcons.strokeRoundedFileUpload,
                           label: 'Import CSV Records',
                           onTap: () => _triggerAction('Import CSV Records'),
                         ),
                         TSpeedDialChild(
-                          icon: Icons.picture_as_pdf_rounded,
+                          icon: HugeIcons.strokeRoundedPictureInPicture,
                           label: 'Export Analytics PDF',
                           onTap: () => _triggerAction('Export Analytics PDF'),
                         ),
                         TSpeedDialChild(
-                          icon: Icons.notifications_active_rounded,
+                          icon: HugeIcons.strokeRoundedNotification02,
                           label: 'Broadcast Notification',
                           backgroundColor: Colors.amber.shade700,
                           foregroundColor: Colors.white,

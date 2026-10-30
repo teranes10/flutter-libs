@@ -272,7 +272,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
         TMapPin(
           coordinates: fromCoordinates,
           label: fromAddress.isNotEmpty ? fromAddress : 'Your location',
-          icon: Icons.location_on,
+          icon: HugeIcons.strokeRoundedLocation01,
           iconColor: colors.primary,
         ),
       ];
@@ -282,13 +282,13 @@ class _TMapPinningState extends _TMapPinningStateBase {
       TMapPin(
         coordinates: fromCoordinates,
         label: fromAddress.isNotEmpty ? fromAddress : (widget.fromLabel ?? 'Pickup Point'),
-        icon: Icons.trip_origin,
+        icon: HugeIcons.strokeRoundedOrigami,
         iconColor: Colors.green,
       ),
       TMapPin(
         coordinates: toCoordinates!,
         label: toAddress.isNotEmpty ? toAddress : (widget.toLabel ?? 'Drop-off Point'),
-        icon: Icons.location_on,
+        icon: HugeIcons.strokeRoundedLocation01,
         iconColor: Colors.redAccent,
       ),
     ];
@@ -356,7 +356,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.directions_car_rounded, size: 14, color: colors.primary),
+                      TIcon.raw(HugeIcons.strokeRoundedCar05, size: 14, color: colors.primary),
                       const SizedBox(width: 5),
                       Text(
                         '${routeResult!.formattedDistance} • ${routeResult!.formattedDuration}',
@@ -403,7 +403,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
           ),
           child: Row(
             children: [
-              Icon(Icons.location_on, size: 16, color: colors.primary),
+              TIcon.raw(HugeIcons.strokeRoundedLocation01, size: 16, color: colors.primary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -418,7 +418,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.search, size: 16, color: colors.onSurfaceVariant),
+              TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 16, color: colors.onSurfaceVariant),
             ],
           ),
         ),
@@ -480,7 +480,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
               // To (Drop-off) Field
               Row(
                 children: [
-                  const Icon(Icons.location_on, size: 14, color: Colors.redAccent),
+                  TIcon.raw(HugeIcons.strokeRoundedLocation01, size: 14, color: Colors.redAccent),
                   const SizedBox(width: 5),
                   Expanded(
                     child: Text(
@@ -695,7 +695,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
                       padding: const EdgeInsets.all(4),
-                      child: Icon(Icons.swap_vert_rounded, size: 16, color: colors.onSurfaceVariant),
+                      child: TIcon.raw(HugeIcons.strokeRoundedArrowUpDown, size: 16, color: colors.onSurfaceVariant),
                     ),
                   ),
                 ),
@@ -712,7 +712,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on, size: 14, color: Colors.redAccent),
+                  TIcon.raw(HugeIcons.strokeRoundedLocation01, size: 14, color: Colors.redAccent),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -766,7 +766,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.route_outlined, size: 15, color: colors.primary),
+                    TIcon.raw(HugeIcons.strokeRoundedRoute01, size: 15, color: colors.primary),
                     const SizedBox(width: 6),
                     Text(
                       'Estimated Route Distance:',
@@ -836,7 +836,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.directions_car_filled_rounded, size: 16, color: colors.primary),
+                          TIcon.raw(HugeIcons.strokeRoundedDirections02, size: 16, color: colors.primary),
                           const SizedBox(width: 8),
                           Text(
                             'Distance: ${routeResult!.formattedDistance}',
@@ -870,8 +870,8 @@ class _TMapPinningState extends _TMapPinningStateBase {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          activePoint == TMapPointType.from ? Icons.trip_origin : Icons.location_on,
+                        TIcon.raw(
+                          activePoint == TMapPointType.from ? HugeIcons.strokeRoundedOrigami : HugeIcons.strokeRoundedLocation01,
                           size: 13,
                           color: activePoint == TMapPointType.from ? Colors.green : Colors.redAccent,
                         ),
@@ -1044,7 +1044,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              Icon(Icons.pin_drop_outlined, color: colors.primary),
+              TIcon.raw(HugeIcons.strokeRoundedMapPin, color: colors.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -1064,7 +1064,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
               const SizedBox(width: 8),
               if (hasInteracted && fromAddress.isNotEmpty)
                 TButton(
-                  icon: Icons.bookmark_add_outlined,
+                  icon: HugeIcons.strokeRoundedBookmarkAdd01,
                   type: TButtonType.outline,
                   onTap: () => _savedLocationsKey.currentState?.saveCurrentLocation(fromAddress, fromCoordinates),
                 ),

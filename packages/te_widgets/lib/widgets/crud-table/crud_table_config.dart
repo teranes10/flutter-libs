@@ -198,7 +198,7 @@ class TCrudCustomAction<T> {
   final String tooltip;
 
   /// Icon to display.
-  final IconData icon;
+  final dynamic icon;
 
   /// Color of the action button.
   final Color color;

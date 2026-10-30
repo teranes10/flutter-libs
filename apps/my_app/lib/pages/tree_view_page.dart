@@ -35,16 +35,16 @@ class _TreeViewPageState extends State<TreeViewPage> {
                     key: 'widgets',
                     label: 'widgets',
                     children: [
-                      TTreeNode(key: 'button', label: 'button.dart', icon: Icons.code_rounded),
-                      TTreeNode(key: 'table', label: 'crud_table.dart', icon: Icons.code_rounded),
-                      TTreeNode(key: 'popover', label: 'popover.dart', icon: Icons.code_rounded),
-                      TTreeNode(key: 'tree', label: 'tree_view.dart', icon: Icons.code_rounded),
+                      TTreeNode(key: 'button', label: 'button.dart', icon: HugeIcons.strokeRoundedCodeSquare),
+                      TTreeNode(key: 'table', label: 'crud_table.dart', icon: HugeIcons.strokeRoundedCodeSquare),
+                      TTreeNode(key: 'popover', label: 'popover.dart', icon: HugeIcons.strokeRoundedCodeSquare),
+                      TTreeNode(key: 'tree', label: 'tree_view.dart', icon: HugeIcons.strokeRoundedCodeSquare),
                     ],
                   ),
-                  TTreeNode(key: 'theme', label: 't_theme.dart', icon: Icons.palette_outlined),
+                  TTreeNode(key: 'theme', label: 't_theme.dart', icon: HugeIcons.strokeRoundedPaintBoard),
                 ],
               ),
-              TTreeNode(key: 'pubspec_widgets', label: 'pubspec.yaml', icon: Icons.description_outlined),
+              TTreeNode(key: 'pubspec_widgets', label: 'pubspec.yaml', icon: HugeIcons.strokeRoundedFile01),
             ],
           ),
           TTreeNode(
@@ -54,7 +54,7 @@ class _TreeViewPageState extends State<TreeViewPage> {
               TTreeNode(
                 key: 'editor_lib',
                 label: 'lib',
-                children: [TTreeNode(key: 'quill', label: 'quill_editor.dart', icon: Icons.code_rounded)],
+                children: [TTreeNode(key: 'quill', label: 'quill_editor.dart', icon: HugeIcons.strokeRoundedCodeSquare)],
               ),
             ],
           ),
@@ -72,12 +72,12 @@ class _TreeViewPageState extends State<TreeViewPage> {
                 key: 'src_pages',
                 label: 'pages',
                 children: [
-                  TTreeNode(key: 'dashboard_page', label: 'dashboard_page.dart', icon: Icons.dashboard_outlined),
-                  TTreeNode(key: 'users_page', label: 'users_page.dart', icon: Icons.people_outline),
-                  TTreeNode(key: 'settings_page', label: 'settings_page.dart', icon: Icons.settings_outlined),
+                  TTreeNode(key: 'dashboard_page', label: 'dashboard_page.dart', icon: HugeIcons.strokeRoundedDashboardSquare01),
+                  TTreeNode(key: 'users_page', label: 'users_page.dart', icon: HugeIcons.strokeRoundedUserGroup),
+                  TTreeNode(key: 'settings_page', label: 'settings_page.dart', icon: HugeIcons.strokeRoundedSettings01),
                 ],
               ),
-              TTreeNode(key: 'main', label: 'main.dart', icon: Icons.play_arrow_outlined),
+              TTreeNode(key: 'main', label: 'main.dart', icon: HugeIcons.strokeRoundedPlay),
             ],
           ),
         ],
@@ -132,7 +132,7 @@ class _TreeViewPageState extends State<TreeViewPage> {
                     onChanged: (val) => setState(() => _searchQuery = val),
                     style: const TextStyle(fontSize: 13),
                     decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                      prefixIcon: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18),
                       hintText: 'Filter tree nodes...',
                       hintStyle: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
                       isDense: true,
@@ -207,9 +207,9 @@ class _TreeViewPageState extends State<TreeViewPage> {
                   // Simulate async network latency
                   await Future.delayed(const Duration(milliseconds: 750));
                   return [
-                    const TTreeNode(key: 'bucket_1', label: 'production-backups-2026.tar.gz', icon: Icons.archive_outlined),
-                    const TTreeNode(key: 'bucket_2', label: 'user-avatars-cdn', icon: Icons.folder_outlined),
-                    const TTreeNode(key: 'bucket_3', label: 'audit-ledger.parquet', icon: Icons.data_array_rounded),
+                    const TTreeNode(key: 'bucket_1', label: 'production-backups-2026.tar.gz', icon: HugeIcons.strokeRoundedArchive),
+                    const TTreeNode(key: 'bucket_2', label: 'user-avatars-cdn', icon: HugeIcons.strokeRoundedFolder01),
+                    const TTreeNode(key: 'bucket_3', label: 'audit-ledger.parquet', icon: HugeIcons.strokeRoundedDataRecovery),
                   ];
                 },
               ),

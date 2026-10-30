@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'csv_column.dart';
 import 'csv_header_mapper.dart';
 
@@ -65,12 +66,12 @@ enum TCsvFileFormat {
       };
 
   /// Associated icon.
-  IconData get icon => switch (this) {
-        TCsvFileFormat.json => Icons.data_object_rounded,
-        TCsvFileFormat.tsv => Icons.table_rows_rounded,
-        TCsvFileFormat.pipe => Icons.view_column_outlined,
-        TCsvFileFormat.semicolon => Icons.grid_on_rounded,
-        _ => Icons.table_chart_rounded,
+  dynamic get icon => switch (this) {
+        TCsvFileFormat.json => HugeIcons.strokeRoundedBraces,
+        TCsvFileFormat.tsv => HugeIcons.strokeRoundedTableColumnsSplit,
+        TCsvFileFormat.pipe => HugeIcons.strokeRoundedDeleteColumn,
+        TCsvFileFormat.semicolon => HugeIcons.strokeRoundedGrid,
+        _ => HugeIcons.strokeRoundedTable,
       };
 
   /// Mime type for file saving.

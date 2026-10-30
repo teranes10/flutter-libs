@@ -72,33 +72,33 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                   items: [
                     TContextMenuItem(
                       text: 'New Folder',
-                      icon: Icons.create_new_folder_outlined,
+                      icon: HugeIcons.strokeRoundedFolderX,
                       shortcut: '⇧⌘N',
                       onTap: () => _trigger('Created New Folder in Workspace'),
                     ),
                     TContextMenuItem(
                       text: 'Upload Assets',
-                      icon: Icons.upload_file_rounded,
+                      icon: HugeIcons.strokeRoundedFileUpload,
                       onTap: () => _trigger('Selected Upload Assets'),
                     ),
                     TContextMenuItem(
                       text: 'Paste from Clipboard',
-                      icon: Icons.paste_rounded,
+                      icon: HugeIcons.strokeRoundedFilePaste,
                       shortcut: '⌘V',
                       onTap: () => _trigger('Pasted clipboard data into canvas'),
                     ),
                     const TContextMenuDivider(),
                     TContextMenuItem(
                       text: 'Select All Items',
-                      icon: Icons.select_all_rounded,
+                      icon: HugeIcons.strokeRoundedSelect02,
                       shortcut: '⌘A',
                       onTap: () => _trigger('Selected all items in workspace'),
                     ),
-                    TContextMenuItem(text: 'Canvas Settings', icon: Icons.tune_rounded, onTap: () => _trigger('Opened Canvas Settings')),
+                    TContextMenuItem(text: 'Canvas Settings', icon: HugeIcons.strokeRoundedFilterEdit, onTap: () => _trigger('Opened Canvas Settings')),
                     const TContextMenuDivider(),
                     TContextMenuItem(
                       text: 'Clear Canvas',
-                      icon: Icons.delete_sweep_rounded,
+                      icon: HugeIcons.strokeRoundedDelete02,
                       isDestructive: true,
                       onTap: () => _trigger('Cleared all items from canvas'),
                     ),
@@ -115,7 +115,7 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.mouse_outlined, size: 36, color: colors.primary),
+                        TIcon.raw(HugeIcons.strokeRoundedMouse01, size: 36, color: colors.primary),
                         const SizedBox(height: 8),
                         Text(
                           'Right-Click Anywhere Inside This Area',
@@ -156,31 +156,31 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                       items: [
                         TContextMenuItem(
                           text: 'View ${row.$1} Profile',
-                          icon: Icons.visibility_outlined,
+                          icon: HugeIcons.strokeRoundedView,
                           onTap: () => _trigger('Viewing customer profile: ${row.$1}'),
                         ),
                         TContextMenuItem(
                           text: 'Edit Account & Quota',
-                          icon: Icons.edit_outlined,
+                          icon: HugeIcons.strokeRoundedEdit02,
                           shortcut: '⌘E',
                           onTap: () => _trigger('Editing quota for: ${row.$1}'),
                         ),
                         TContextMenuItem(
                           text: 'Duplicate Record',
-                          icon: Icons.copy_rounded,
+                          icon: HugeIcons.strokeRoundedCopy01,
                           shortcut: '⌘D',
                           onTap: () => _trigger('Duplicated record for: ${row.$1}'),
                         ),
                         const TContextMenuDivider(),
                         TContextMenuItem(
                           text: 'Send In-App Notification',
-                          icon: Icons.send_rounded,
+                          icon: HugeIcons.strokeRoundedSent,
                           onTap: () => _trigger('Sent notification to: ${row.$1}'),
                         ),
                         const TContextMenuDivider(),
                         TContextMenuItem(
                           text: 'Delete Customer',
-                          icon: Icons.delete_outline,
+                          icon: HugeIcons.strokeRoundedDelete01,
                           isDestructive: true,
                           shortcut: '⌫',
                           onTap: () => _trigger('Deleted customer account: ${row.$1}'),
@@ -195,7 +195,7 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.business_rounded, color: colors.primary, size: 20),
+                            TIcon.raw(HugeIcons.strokeRoundedWhatsappBusiness, color: colors.primary, size: 20),
                             const SizedBox(width: 14),
                             Expanded(
                               child: Column(
@@ -208,7 +208,7 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                             ),
                             TBadge(label: row.$3, color: row.$4),
                             const SizedBox(width: 12),
-                            Icon(Icons.more_vert_rounded, size: 18, color: colors.onSurfaceVariant),
+                            TIcon.raw(HugeIcons.strokeRoundedMoreVertical, size: 18, color: colors.onSurfaceVariant),
                           ],
                         ),
                       ),

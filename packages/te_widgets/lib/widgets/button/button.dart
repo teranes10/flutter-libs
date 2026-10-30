@@ -23,7 +23,7 @@ part 'button_theme.dart';
 /// ```dart
 /// TButton(
 ///   text: 'Click Me',
-///   icon: Icons.check,
+///   icon: HugeIcons.strokeRoundedTick01,
 ///   color: AppColors.primary,
 ///   onTap: () => print('Tapped!'),
 /// )
@@ -46,8 +46,8 @@ part 'button_theme.dart';
 ///
 /// ```dart
 /// TButton(
-///   icon: Icons.favorite_border,
-///   activeIcon: Icons.favorite,
+///   icon: HugeIcons.strokeRoundedFavouriteCircle,
+///   activeIcon: HugeIcons.strokeRoundedFavourite,
 ///   color: Colors.grey,
 ///   activeColor: Colors.red,
 ///   onChanged: (isActive) => print('Active: $isActive'),
@@ -581,31 +581,20 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
               ),
       );
 
-      final isCustomChildOnly = widget.child != null &&
-          widget.text == null &&
-          widget.icon == null &&
-          widget.imageUrl == null &&
-          size == TButtonSize.zero;
+      final isCustomChildOnly =
+          widget.child != null && widget.text == null && widget.icon == null && widget.imageUrl == null && size == TButtonSize.zero;
 
       final isFill = baseTheme.type == TVariant.solid ||
-          (!baseTheme.container.isTransparent &&
-              baseTheme.type != TVariant.outline &&
-              baseTheme.type != TVariant.text);
+          (!baseTheme.container.isTransparent && baseTheme.type != TVariant.outline && baseTheme.type != TVariant.text);
 
       final isDisabled = _authDisabled || (widget.onPressed == null && widget.onTap == null && widget.onChanged == null);
       final states = _statesController.value;
-      final effectiveElevation = widget.elevation ??
-          theme.elevation ??
-          (isFill ? (baseTheme.type == TVariant.solid ? 1.0 : 0.5) : 0.0);
+      final effectiveElevation = widget.elevation ?? theme.elevation ?? (isFill ? (baseTheme.type == TVariant.solid ? 1.0 : 0.5) : 0.0);
 
-      final effectiveShadowColor = (widget.shadowColor ??
-              theme.shadowColor ??
-              baseTheme.shadow ??
-              baseTheme.color.shade(900))
-          .withValues(alpha: 0.18);
+      final effectiveShadowColor =
+          (widget.shadowColor ?? theme.shadowColor ?? baseTheme.shadow ?? baseTheme.color.shade(900)).withValues(alpha: 0.18);
 
-      final OutlinedBorder effectiveBorder =
-          theme.buttonStyle.shape?.resolve(states) ?? theme.shape.border;
+      final OutlinedBorder effectiveBorder = theme.buttonStyle.shape?.resolve(states) ?? theme.shape.border;
 
       final resolvedPadding = switch (theme.shape) {
         TButtonShape.tile => size.tilePaddingState.resolve(states),
@@ -727,7 +716,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
                   shape: BoxShape.circle,
                   color: tickColor,
                 ),
-                child: const Icon(Icons.check, size: 9, color: Colors.white),
+                child: TIcon.raw(HugeIcons.strokeRoundedCheck, size: 9, color: Colors.white),
               ),
         );
 
@@ -810,8 +799,7 @@ class _RenderFillIfTight extends RenderProxyBox {
 
   _TightWidthState probe;
 
-  BoxConstraints _childConstraints(BoxConstraints c) =>
-      probe.tight && c.hasBoundedWidth ? c.tighten(width: c.maxWidth) : c;
+  BoxConstraints _childConstraints(BoxConstraints c) => probe.tight && c.hasBoundedWidth ? c.tighten(width: c.maxWidth) : c;
 
   @override
   void performLayout() {
@@ -825,6 +813,5 @@ class _RenderFillIfTight extends RenderProxyBox {
   }
 
   @override
-  Size computeDryLayout(BoxConstraints constraints) =>
-      child?.getDryLayout(_childConstraints(constraints)) ?? constraints.smallest;
+  Size computeDryLayout(BoxConstraints constraints) => child?.getDryLayout(_childConstraints(constraints)) ?? constraints.smallest;
 }

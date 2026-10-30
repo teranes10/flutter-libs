@@ -64,10 +64,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 }
               },
               bottomBarItems: [
-                const TBottomBarItem(icon: Icons.home_outlined, label: 'Home'),
-                const TBottomBarItem(icon: Icons.assignment_outlined, label: 'Orders'),
-                const TBottomBarItem(icon: Icons.inventory_2, label: 'Create'),
-                const TBottomBarItem(icon: Icons.person_outline, label: 'Profile'),
+                const TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, label: 'Home'),
+                const TBottomBarItem(icon: HugeIcons.strokeRoundedTask01, label: 'Orders'),
+                const TBottomBarItem(icon: HugeIcons.strokeRoundedPackage, label: 'Create'),
+                const TBottomBarItem(icon: HugeIcons.strokeRoundedUser, label: 'Profile'),
               ],
               currentBottomIndex: 2, // 'Create' is selected
               child: Padding(
@@ -241,9 +241,9 @@ class _DeliveryPageState extends State<DeliveryPage> {
             });
           },
           items: [
-            TButtonGroupItem(icon: Icons.inventory_2_outlined, text: 'Parcel'),
-            TButtonGroupItem(icon: Icons.all_inbox_outlined, text: 'Box'),
-            TButtonGroupItem(icon: Icons.local_mall_outlined, text: 'Bag'),
+            TButtonGroupItem(icon: HugeIcons.strokeRoundedPackage, text: 'Parcel'),
+            TButtonGroupItem(icon: HugeIcons.strokeRoundedInbox, text: 'Box'),
+            TButtonGroupItem(icon: HugeIcons.strokeRoundedShoppingBag01, text: 'Bag'),
           ],
         ),
         const SizedBox(height: 20),
@@ -264,9 +264,9 @@ class _DeliveryPageState extends State<DeliveryPage> {
             });
           },
           items: [
-            TButtonGroupItem(icon: Icons.bolt, text: 'Express'),
-            TButtonGroupItem(icon: Icons.calendar_today_outlined, text: 'Same Day'),
-            TButtonGroupItem(icon: Icons.access_time, text: 'Standard'),
+            TButtonGroupItem(icon: HugeIcons.strokeRoundedBolt, text: 'Express'),
+            TButtonGroupItem(icon: HugeIcons.strokeRoundedCalendar01, text: 'Same Day'),
+            TButtonGroupItem(icon: HugeIcons.strokeRoundedClock01, text: 'Standard'),
           ],
         ),
         const SizedBox(height: 20),
@@ -386,15 +386,15 @@ class _DeliveryPageState extends State<DeliveryPage> {
                   TKeyValue(
                     'Pickup From',
                     value: '${_senderNameController.text} (${_senderPhoneController.text})',
-                    icon: const Icon(Icons.person_pin_circle_outlined, size: 16),
+                    icon: TIcon.raw(HugeIcons.strokeRoundedLocationUser01, size: 16),
                   ),
-                  TKeyValue('Pickup Address', value: _pickupAddressController.text, icon: const Icon(Icons.my_location, size: 16)),
+                  TKeyValue('Pickup Address', value: _pickupAddressController.text, icon: TIcon.raw(HugeIcons.strokeRoundedGpsSignal01, size: 16)),
                   TKeyValue(
                     'Deliver To',
                     value: '${_receiverNameController.text} (${_receiverPhoneController.text})',
-                    icon: const Icon(Icons.pin_drop_outlined, size: 16),
+                    icon: TIcon.raw(HugeIcons.strokeRoundedDragDrop, size: 16),
                   ),
-                  TKeyValue('Drop-off Address', value: _dropoffAddressController.text, icon: const Icon(Icons.place_outlined, size: 16)),
+                  TKeyValue('Drop-off Address', value: _dropoffAddressController.text, icon: TIcon.raw(HugeIcons.strokeRoundedLocation01, size: 16)),
                 ],
               ),
             ],
@@ -423,15 +423,15 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 forceKeyValue: true,
                 valueAfterKey: true,
                 values: [
-                  TKeyValue('Type', value: '$_packageType ($weight kg)', icon: const Icon(Icons.inventory_2_outlined, size: 16)),
+                  TKeyValue('Type', value: '$_packageType ($weight kg)', icon: TIcon.raw(HugeIcons.strokeRoundedPackage, size: 16)),
                   TKeyValue(
                     'Description',
                     value: _itemController.text.isEmpty ? "None" : _itemController.text,
-                    icon: const Icon(Icons.description_outlined, size: 16),
+                    icon: TIcon.raw(HugeIcons.strokeRoundedFile01, size: 16),
                   ),
-                  TKeyValue('Quantity', value: '$quantity', icon: const Icon(Icons.unarchive_outlined, size: 16)),
-                  TKeyValue('Dimensions', value: '15 x 10 x 5 cm', icon: const Icon(Icons.straighten_outlined, size: 16)),
-                  TKeyValue('Fragile', value: _isFragile ? "Yes" : "No", icon: const Icon(Icons.gavel_outlined, size: 16)),
+                  TKeyValue('Quantity', value: '$quantity', icon: TIcon.raw(HugeIcons.strokeRoundedUnarchive03, size: 16)),
+                  TKeyValue('Dimensions', value: '15 x 10 x 5 cm', icon: TIcon.raw(HugeIcons.strokeRoundedRuler, size: 16)),
+                  TKeyValue('Fragile', value: _isFragile ? "Yes" : "No", icon: TIcon.raw(HugeIcons.strokeRoundedGavel, size: 16)),
                 ],
               ),
             ],
@@ -450,7 +450,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.lock_outline, size: 16),
+                      TIcon.raw(HugeIcons.strokeRoundedLock, size: 16),
                       const SizedBox(width: 6),
                       Text(
                         'Price Breakdown',
@@ -459,10 +459,10 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     ],
                   ),
                   Row(
-                    children: const [
-                      Icon(Icons.verified_user_outlined, size: 14),
-                      SizedBox(width: 4),
-                      Text('Secure', style: TextStyle(fontSize: 12)),
+                    children: [
+                      TIcon.raw(HugeIcons.strokeRoundedUserShield01, size: 14),
+                      const SizedBox(width: 4),
+                      const Text('Secure', style: TextStyle(fontSize: 12)),
                     ],
                   ),
                 ],
@@ -508,7 +508,7 @@ class _DeliveryPageState extends State<DeliveryPage> {
             Expanded(
               child: TButton(
                 text: 'Confirm & Pay LKR 3410.00',
-                icon: Icons.lock,
+                icon: HugeIcons.strokeRoundedLock,
                 onTap: () {
                   // Action
                 },

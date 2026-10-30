@@ -144,7 +144,7 @@ class _PinFieldPageState extends State<PinFieldPage> {
                 const SizedBox(height: 16),
                 TButton(
                   text: _obscurePin ? 'Reveal PIN' : 'Hide PIN',
-                  icon: _obscurePin ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  icon: _obscurePin ? HugeIcons.strokeRoundedView : HugeIcons.strokeRoundedViewOff,
                   type: TButtonType.tonal,
                   size: TButtonSize.xs,
                   onTap: () => setState(() => _obscurePin = !_obscurePin),

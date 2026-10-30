@@ -107,7 +107,7 @@ void main() {
     expect(find.text('Details for Product Alpha'), findsOneWidget);
 
     // Find and tap the close icon
-    final closeButton = find.byIcon(Icons.close);
+    final closeButton = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedCancel01);
     expect(closeButton, findsOneWidget);
     await tester.tap(closeButton);
     await tester.pumpAndSettle();
@@ -164,7 +164,7 @@ void main() {
     expect(find.text('Details for Product Alpha'), findsOneWidget);
 
     // Find and tap the close icon in the overlay
-    final closeButton = find.byIcon(Icons.close);
+    final closeButton = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedCancel01);
     expect(closeButton, findsWidgets);
     await tester.tap(closeButton.first);
     await tester.pumpAndSettle();

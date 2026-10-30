@@ -168,7 +168,7 @@ class TListTheme {
   /// Builds a default empty state widget.
   static Widget buildEmptyState(
     ColorScheme colors, {
-    IconData icon = Icons.inbox_outlined,
+    dynamic icon = HugeIcons.strokeRoundedInbox,
     String title = 'No data available',
     message = 'No items found',
   }) {
@@ -180,7 +180,7 @@ class TListTheme {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(icon, size: 64, color: colors.onSurfaceVariant),
+                    TIcon.raw(icon, size: 64, color: colors.onSurfaceVariant),
                     const SizedBox(height: 16),
                     Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: colors.onSurface)),
                     const SizedBox(height: 8),
@@ -200,7 +200,7 @@ class TListTheme {
   /// Builds a default error state widget.
   static Widget buildErrorState(
     ColorScheme colors, {
-    IconData icon = Icons.error_outline,
+    dynamic icon = HugeIcons.strokeRoundedAlertCircle,
     required String title,
     required String message,
   }) {
@@ -210,7 +210,7 @@ class TListTheme {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 64, color: colors.error),
+            TIcon.raw(icon, size: 64, color: colors.error),
             const SizedBox(height: 16),
             Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: colors.onSurface)),
             const SizedBox(height: 8),

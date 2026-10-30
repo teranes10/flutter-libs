@@ -19,14 +19,14 @@ enum TFormType {
   }
 
   /// Icon representing this form type.
-  IconData get icon {
+  dynamic get icon {
     switch (this) {
       case TFormType.accordion:
-        return Icons.view_agenda_outlined;
+        return HugeIcons.strokeRoundedViewAgenda;
       case TFormType.horizontalTabs:
-        return Icons.tab_outlined;
+        return HugeIcons.strokeRoundedBrowser;
       case TFormType.verticalTabs:
-        return Icons.view_sidebar_outlined;
+        return HugeIcons.strokeRoundedSidebarLeft;
     }
   }
 
@@ -189,17 +189,17 @@ class TFormTypeToggleSwitch extends StatelessWidget {
           },
           items: [
             TButtonGroupItem(
-              icon: Icons.view_agenda_outlined,
+              icon: HugeIcons.strokeRoundedViewAgenda,
               tooltip: 'Form Layout: Accordion',
               active: currentType == TFormType.accordion,
             ),
             TButtonGroupItem(
-              icon: Icons.tab_outlined,
+              icon: HugeIcons.strokeRoundedBrowser,
               tooltip: 'Form Layout: Horizontal Tabs',
               active: currentType == TFormType.horizontalTabs,
             ),
             TButtonGroupItem(
-              icon: Icons.view_sidebar_outlined,
+              icon: HugeIcons.strokeRoundedSidebarLeft,
               tooltip: 'Form Layout: Vertical Tabs',
               active: currentType == TFormType.verticalTabs,
             ),

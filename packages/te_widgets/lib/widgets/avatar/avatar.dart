@@ -124,9 +124,9 @@ class TAvatar extends StatelessWidget {
       case TInputSize.sm:
         return 12;
       case TInputSize.md:
-        return 16;
+        return 15;
       case TInputSize.lg:
-        return 20;
+        return 18;
     }
   }
 
@@ -224,13 +224,13 @@ class TAvatar extends StatelessWidget {
         style: TextStyle(
           color: fgColor,
           fontSize: _getFontSize(),
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w400,
         ),
       );
     }
 
-    return Icon(
-      Icons.person,
+    return TIcon(
+      icon: HugeIcons.strokeRoundedUser02,
       color: fgColor,
       size: _getAvatarSize() * 0.6,
     );

@@ -10,7 +10,7 @@ part of 'nav_bar.dart';
 ///
 /// ```dart
 /// TNavItem(
-///   icon: Icons.settings,
+///   icon: HugeIcons.strokeRoundedSettings01,
 ///   label: 'Settings',
 ///   isActive: true,
 ///   onTap: () => print('Settings tapped'),
@@ -24,7 +24,7 @@ class TNavItem extends StatelessWidget {
   final bool isActive;
 
   /// The icon to display.
-  final IconData icon;
+  final dynamic icon;
 
   /// The optional label text to display when active.
   final String? label;
@@ -39,10 +39,11 @@ class TNavItem extends StatelessWidget {
   final TAuthMode? onDenied;
 
   /// Creates a navigation item.
-  const TNavItem({super.key, this.onTap, this.isActive = false, required this.icon, this.label, this.items, this.permission, this.onDenied});
+  const TNavItem(
+      {super.key, this.onTap, this.isActive = false, required this.icon, this.label, this.items, this.permission, this.onDenied});
 
   /// Creates a copy of this item with optional new values.
-  TNavItem copyWith({VoidCallback? onTap, bool? isActive, IconData? icon, String? label}) {
+  TNavItem copyWith({VoidCallback? onTap, bool? isActive, dynamic icon, String? label}) {
     return TNavItem(
         onTap: onTap ?? this.onTap,
         isActive: isActive ?? this.isActive,
@@ -70,7 +71,7 @@ class TNavItem extends StatelessWidget {
           child: Row(
             spacing: 7.5,
             children: [
-              Icon(icon, size: 20, color: isActive ? colors.onPrimaryContainer : colors.onSurface),
+              TIcon.raw(icon, size: 20, color: isActive ? colors.onPrimaryContainer : colors.onSurface),
               if (isActive)
                 Text(label ?? '', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: colors.onPrimaryContainer)),
               if (isActive) const SizedBox.shrink(),

@@ -4,7 +4,7 @@ import 'package:te_widgets/extensions/build_context_x.dart';
 import 'package:te_widgets/widgets/badge/badge.dart';
 import 'package:te_widgets/widgets/empty-state/empty_state.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
-
+import 'package:hugeicons/hugeicons.dart';
 /// A single actionable item in a [TCommandPalette].
 class TCommandItem {
   /// Unique identifier for this command.
@@ -257,7 +257,7 @@ class _TCommandPaletteState extends State<TCommandPalette> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.search_rounded, size: 20, color: colors.onSurfaceVariant),
+                  TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 20, color: colors.onSurfaceVariant),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
@@ -279,7 +279,7 @@ class _TCommandPaletteState extends State<TCommandPalette> {
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
-                        child: Icon(Icons.close_rounded, size: 16, color: colors.onSurfaceVariant),
+                        child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 16, color: colors.onSurfaceVariant),
                       ),
                     )
                   else
@@ -564,7 +564,7 @@ class TCommandPaletteTrigger extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.search_rounded, size: 16, color: colors.onSurfaceVariant),
+            TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 16, color: colors.onSurfaceVariant),
             const SizedBox(width: 8),
             Expanded(
               child: Text(

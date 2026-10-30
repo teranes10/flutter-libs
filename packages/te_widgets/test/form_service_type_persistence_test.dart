@@ -52,8 +52,8 @@ class FormWithSubForms extends TFormBase {
         TFormField.text(title, 'Title'),
         TFormField.tabs(
           tabs: [
-            TFormTab(title: 'Account', icon: Icons.person, input: account),
-            TFormTab(title: 'Profile', icon: Icons.badge, input: profile),
+            TFormTab(title: 'Account', icon: HugeIcons.strokeRoundedUser, input: account),
+            TFormTab(title: 'Profile', icon: HugeIcons.strokeRoundedBadgeDollarSign, input: profile),
           ],
         ),
       ];
@@ -68,8 +68,8 @@ class TabbedFormDirect extends TFormBase {
 
   @override
   List<TFormTab> get tabs => [
-        TFormTab(title: 'Account', icon: Icons.person, input: account),
-        TFormTab(title: 'Profile', icon: Icons.badge, input: profile),
+        TFormTab(title: 'Account', icon: HugeIcons.strokeRoundedUser, input: account),
+        TFormTab(title: 'Profile', icon: HugeIcons.strokeRoundedBadgeDollarSign, input: profile),
       ];
 }
 
@@ -154,7 +154,7 @@ void main() {
     expect(find.byType(TFormTypeToggleSwitch), findsOneWidget);
 
     // Close button should also be present
-    expect(find.byIcon(Icons.close), findsOneWidget);
+    expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedCancel01), findsOneWidget);
   });
 
   testWidgets('TFormTypeToggleSwitch cycles layout between horizontal tabs, vertical tabs, and accordion', (WidgetTester tester) async {

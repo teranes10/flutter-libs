@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/configs/theme/app_colors.dart';
 import 'package:te_widgets/extensions/build_context_x.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
-
+import 'package:hugeicons/hugeicons.dart';
 /// Semantic outcome status for [TResult].
 enum TResultStatus {
   success,
@@ -219,37 +219,37 @@ class TResult extends StatelessWidget {
 
     return switch (status) {
       TResultStatus.success => (
-          icon ?? Icons.check_circle_rounded,
+          icon ?? HugeIcons.strokeRoundedCheckmarkCircle01,
           iconColor ?? successColor,
           (iconColor ?? successColor).withValues(alpha: 0.12),
         ),
       TResultStatus.error => (
-          icon ?? Icons.cancel_rounded,
+          icon ?? HugeIcons.strokeRoundedCancel01,
           iconColor ?? dangerColor,
           (iconColor ?? dangerColor).withValues(alpha: 0.12),
         ),
       TResultStatus.warning => (
-          icon ?? Icons.warning_rounded,
+          icon ?? HugeIcons.strokeRoundedAlert02,
           iconColor ?? warningColor,
           (iconColor ?? warningColor).withValues(alpha: 0.12),
         ),
       TResultStatus.info => (
-          icon ?? Icons.info_rounded,
+          icon ?? HugeIcons.strokeRoundedInformationCircle,
           iconColor ?? primaryColor,
           (iconColor ?? primaryColor).withValues(alpha: 0.12),
         ),
       TResultStatus.forbidden => (
-          icon ?? Icons.gpp_bad_rounded,
+          icon ?? HugeIcons.strokeRoundedGamepad,
           iconColor ?? Colors.deepOrange,
           (iconColor ?? Colors.deepOrange).withValues(alpha: 0.12),
         ),
       TResultStatus.notFound => (
-          icon ?? Icons.explore_off_rounded,
+          icon ?? HugeIcons.strokeRoundedEarOff,
           iconColor ?? colors.onSurfaceVariant,
           colors.surfaceContainerHighest.withValues(alpha: 0.5),
         ),
       TResultStatus.serverError => (
-          icon ?? Icons.cloud_off_rounded,
+          icon ?? HugeIcons.strokeRoundedCloudOff,
           iconColor ?? dangerColor,
           (iconColor ?? dangerColor).withValues(alpha: 0.12),
         ),

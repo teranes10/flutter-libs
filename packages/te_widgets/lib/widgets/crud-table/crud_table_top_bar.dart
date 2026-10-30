@@ -26,7 +26,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             ? [
                 TButton(
                   type: TButtonType.softText,
-                  icon: Icons.close_rounded,
+                  icon: HugeIcons.strokeRoundedCancel01,
                   text: activeController.selectionInfo,
                   onPressed: (_) => activeController.clearSelection(),
                 ),
@@ -37,7 +37,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
                   TButton(
                     key: const ValueKey('crud_table_add_button'),
                     type: TButtonType.tonal,
-                    icon: Icons.add,
+                    icon: HugeIcons.strokeRoundedAdd01,
                     text: widget.config.addButtonText,
                     onPressed: (_) => handleCreate(),
                     permission: _perms?.create,
@@ -147,7 +147,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
         size: TInputSize.sm,
         labelPosition: TLabelPosition.aboveField,
         decorationType: TInputDecorationType.filled,
-        postWidget: Icon(Icons.search_rounded, size: 18, color: ctx.colors.onSurface),
+        postWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: ctx.colors.onSurface),
       ),
       placeholder: widget.config.searchPlaceholder,
       onValueChanged: (String? input) {
@@ -164,14 +164,14 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
     return TDropdown(
       items: [
         TDropdownItem(
-          icon: dense ? Icons.density_small_rounded : Icons.density_medium_rounded,
+          icon: dense ? HugeIcons.strokeRoundedCircleSmall : HugeIcons.strokeRoundedMedium,
           text: dense ? 'Comfortable Layout' : 'Dense Layout',
           onTap: () {
             dense = !dense;
           },
         ),
         TDropdownItem(
-          icon: Icons.view_column_rounded,
+          icon: HugeIcons.strokeRoundedDeleteColumn,
           text: 'Column Visibility',
           children: [
             TDropdownItem(
@@ -223,11 +223,11 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
           ],
         ),
         TDropdownItem(
-          icon: Icons.grid_view_rounded,
+          icon: HugeIcons.strokeRoundedGrid,
           text: 'View Mode',
           children: [
             TDropdownItem(
-              icon: Icons.view_list_rounded,
+              icon: HugeIcons.strokeRoundedUserList,
               text: 'Table View',
               color: viewMode == 0 ? ctx.colors.primary : null,
               onTap: () {
@@ -235,7 +235,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
               },
             ),
             TDropdownItem(
-              icon: Icons.view_agenda_rounded,
+              icon: HugeIcons.strokeRoundedViewAgenda,
               text: 'Card View',
               color: viewMode == 1 ? ctx.colors.primary : null,
               onTap: () {
@@ -243,7 +243,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
               },
             ),
             TDropdownItem(
-              icon: Icons.grid_view_rounded,
+              icon: HugeIcons.strokeRoundedGrid,
               text: 'Grid View',
               color: viewMode == 2 ? ctx.colors.primary : null,
               onTap: () {
@@ -253,11 +253,11 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
           ],
         ),
         TDropdownItem(
-          icon: Icons.dashboard_customize_rounded,
+          icon: HugeIcons.strokeRoundedDashboardSquare01,
           text: 'Card Layout',
           children: [
             TDropdownItem(
-              icon: Icons.wrap_text_rounded,
+              icon: HugeIcons.strokeRoundedCursorText,
               text: 'Stacked Flow',
               color: cardKeyValueMode == TKeyValueMode.stackedFlow ? ctx.colors.primary : null,
               onTap: () {
@@ -265,7 +265,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
               },
             ),
             TDropdownItem(
-              icon: Icons.grid_view_rounded,
+              icon: HugeIcons.strokeRoundedGrid,
               text: 'Stacked Columns',
               color: cardKeyValueMode == TKeyValueMode.stackedColumns ? ctx.colors.primary : null,
               onTap: () {
@@ -273,7 +273,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
               },
             ),
             TDropdownItem(
-              icon: Icons.horizontal_distribute_rounded,
+              icon: HugeIcons.strokeRoundedAlignHorizontalDistributeEnd,
               text: 'Inline Flow',
               color: cardKeyValueMode == TKeyValueMode.inlineFlow ? ctx.colors.primary : null,
               onTap: () {
@@ -281,7 +281,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
               },
             ),
             TDropdownItem(
-              icon: Icons.view_column_rounded,
+              icon: HugeIcons.strokeRoundedDeleteColumn,
               text: 'Inline Columns',
               color: cardKeyValueMode == TKeyValueMode.inlineColumns ? ctx.colors.primary : null,
               onTap: () {
@@ -291,7 +291,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
           ],
         ),
         TDropdownItem(
-          icon: Icons.unfold_more_rounded,
+          icon: HugeIcons.strokeRoundedUnfoldMore,
           text: 'Expand Mode',
           children: [
             TDropdownItem(
@@ -345,7 +345,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
         ),
         if (canCreate)
           TDropdownItem(
-            icon: Icons.add_box_rounded,
+            icon: HugeIcons.strokeRoundedAddSquare,
             text: 'Create Mode',
             children: [
               TDropdownItem(
@@ -398,14 +398,14 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             ],
           ),
         TDropdownItem(
-          icon: Icons.picture_as_pdf_rounded,
+          icon: HugeIcons.strokeRoundedPictureInPicture,
           text: 'Export as PDF',
           permission: _perms?.export,
           onDenied: _crudDenied(_perms?.export),
           onTap: () => handleExportPdf(),
         ),
         TDropdownItem(
-          icon: Icons.table_chart_rounded,
+          icon: HugeIcons.strokeRoundedTable,
           text: 'Export as CSV',
           permission: _perms?.export,
           onDenied: _crudDenied(_perms?.export),
@@ -416,7 +416,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
         type: TButtonType.text,
         color: ctx.colors.onSurfaceVariant,
         size: TButtonSize.sm,
-        icon: Icons.more_vert,
+        icon: HugeIcons.strokeRoundedMoreVertical,
       ),
     );
   }
@@ -568,8 +568,7 @@ class _ColumnVisibilityMenuState extends State<_ColumnVisibilityMenu> {
                 index: index,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Icon(
-                    Icons.drag_indicator_rounded,
+                  child: TIcon.raw(HugeIcons.strokeRoundedDragDrop,
                     size: 20,
                     color: context.colors.onSurfaceVariant.withAlpha(200),
                   ),

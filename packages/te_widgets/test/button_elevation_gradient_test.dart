@@ -154,7 +154,7 @@ void main() {
                 ),
                 TButton(
                   shape: TButtonShape.circle,
-                  icon: Icons.add,
+                  icon: HugeIcons.strokeRoundedAdd01,
                   onTap: () {},
                 ),
               ],

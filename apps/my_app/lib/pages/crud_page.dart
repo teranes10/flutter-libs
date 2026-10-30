@@ -106,10 +106,10 @@ class CrudPage extends StatelessWidget {
         // Note: The order of [tabContents] follows the order of this list,
         tabContents: [TCrudTableContent(headers: headers, controller: otherController)],
         topBarActions: [
-          TButton(type: TButtonType.tonal, icon: Icons.upload_file, text: 'Upload File', onPressed: (_) => {}),
+          TButton(type: TButtonType.tonal, icon: HugeIcons.strokeRoundedFileUpload, text: 'Upload File', onPressed: (_) => {}),
           TButton(
             type: TButtonType.tonal,
-            icon: Icons.select_all_sharp,
+            icon: HugeIcons.strokeRoundedSelect02,
             text: 'Selected',
             onPressed: (_) => {TToastService.info(context, 'Selected Items: ${controller.selectedItems.map((x) => x.title).join("\n")}')},
           ),
@@ -142,7 +142,7 @@ class CrudPage extends StatelessWidget {
               // 1. General Product Information Card
               TCard(
                 title: 'Product Information',
-                icon: Icons.info_outline_rounded,
+                icon: HugeIcons.strokeRoundedInformationCircle,
                 trailing: TChip(text: data.category.toUpperCase(), type: TVariant.tonal),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,7 +213,7 @@ class CrudPage extends StatelessWidget {
               // 2. Inventory & Stock Distribution Card
               TCard(
                 title: 'Stock & Warehouses',
-                icon: Icons.warehouse_outlined,
+                icon: HugeIcons.strokeRoundedWarehouse,
                 trailing: TChip(
                   text: '${data.stock} Units',
                   type: TVariant.tonal,
@@ -234,7 +234,7 @@ class CrudPage extends StatelessWidget {
               TCard(
                 title: 'Product Gallery',
                 subtitle: (data.images != null && data.images!.isNotEmpty) ? '${data.images!.length} images' : 'No images available',
-                icon: Icons.photo_library_outlined,
+                icon: HugeIcons.strokeRoundedLibrary,
                 child: data.images == null || data.images!.isEmpty
                     ? Text('No images available', style: TextStyle(color: ctx.colors.onSurfaceVariant))
                     : Wrap(
@@ -257,7 +257,7 @@ class CrudPage extends StatelessWidget {
               TCard(
                 title: 'Customer Reviews',
                 subtitle: '${mockReviews.length} reviews',
-                icon: Icons.rate_review_outlined,
+                icon: HugeIcons.strokeRoundedChatPreview,
                 child: TDataTable<_Review, int>(
                   shrinkWrap: true,
                   headers: [

@@ -30,9 +30,9 @@ part of 'button.dart';
 ///   cycle: true,
 ///   onIndexChanged: (index) => print('Cycled to item $index'),
 ///   items: [
-///     TButtonGroupItem(icon: Icons.play_arrow, text: 'Play'),
-///     TButtonGroupItem(icon: Icons.pause, text: 'Pause'),
-///     TButtonGroupItem(icon: Icons.stop, text: 'Stop'),
+///     TButtonGroupItem(icon: HugeIcons.strokeRoundedPlay, text: 'Play'),
+///     TButtonGroupItem(icon: HugeIcons.strokeRoundedPause, text: 'Pause'),
+///     TButtonGroupItem(icon: HugeIcons.strokeRoundedStop, text: 'Stop'),
 ///   ],
 /// )
 /// ```

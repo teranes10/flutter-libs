@@ -28,9 +28,9 @@ enum TBottomBarTextPosition {
 ///   currentIndex: _index,
 ///   onTap: (index) => setState(() => _index = index),
 ///   items: [
-///     TBottomBarItem(icon: Icons.home, label: 'Home'),
-///     TBottomBarItem(icon: Icons.search, label: 'Search'),
-///     TBottomBarItem(icon: Icons.person, label: 'Profile'),
+///     TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, label: 'Home'),
+///     TBottomBarItem(icon: HugeIcons.strokeRoundedSearch01, label: 'Search'),
+///     TBottomBarItem(icon: HugeIcons.strokeRoundedUser, label: 'Profile'),
 ///   ],
 ///   variant: TVariant.tonal,
 ///   textPosition: TBottomBarTextPosition.rightActive,

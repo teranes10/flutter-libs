@@ -257,7 +257,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
         if (isDesktop && widget.onBackPressed != null) ...[
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.close),
+            icon: TIcon.raw(HugeIcons.strokeRoundedCancel01),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
             onPressed: widget.onBackPressed,

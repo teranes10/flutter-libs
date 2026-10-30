@@ -336,7 +336,7 @@ class TStepper extends StatelessWidget {
       child: Center(
         child: step.icon ??
             (isCompleted
-                ? Icon(Icons.check, size: size * 0.5625, color: Colors.white)
+                ? TIcon.raw(HugeIcons.strokeRoundedTick01, size: size * 0.5625, color: Colors.white)
                 : Text(
                     '${index + 1}',
                     style: TextStyle(

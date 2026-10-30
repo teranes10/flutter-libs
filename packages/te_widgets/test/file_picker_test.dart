@@ -64,7 +64,7 @@ void main() {
     expect(find.text('image.png'), findsOneWidget);
 
     // Find the close icon on the first tag and tap it
-    final closeIcons = find.byIcon(Icons.close);
+    final closeIcons = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedCancel01);
     expect(closeIcons, findsNWidgets(2));
 
     await tester.tap(closeIcons.first);
@@ -131,7 +131,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final closeIcon = find.byIcon(Icons.close);
+    final closeIcon = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedCancel01);
     expect(closeIcon, findsOneWidget);
 
     await tester.tap(closeIcon);

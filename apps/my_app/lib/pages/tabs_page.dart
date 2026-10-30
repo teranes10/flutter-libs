@@ -52,7 +52,7 @@ class _TabsPageState extends State<TabsPage> {
           WidgetDocCard(
             title: 'Basic Tabs',
             description: 'Simple horizontal tabs with text and icons',
-            icon: Icons.tab,
+            icon: HugeIcons.strokeRoundedBrowser,
             preview: SizedBox(
               height: 300,
               child: TTabView<int>(
@@ -60,13 +60,13 @@ class _TabsPageState extends State<TabsPage> {
                   TTab(
                     value: 0,
                     text: 'Home',
-                    icon: Icons.home,
+                    icon: HugeIcons.strokeRoundedHome01,
                     content: (context) => Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
-                          Icon(Icons.home, color: context.theme.primary, size: 32),
+                          TIcon.raw(HugeIcons.strokeRoundedHome01, color: context.theme.primary, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -85,9 +85,9 @@ class _TabsPageState extends State<TabsPage> {
 
 TTabs<int>(
   tabs: [
-    TTab(value: 0, text: 'Home', icon: Icons.home),
-    TTab(value: 1, text: 'Profile', icon: Icons.person),
-    TTab(value: 2, text: 'Settings', icon: Icons.settings),
+    TTab(value: 0, text: 'Home', icon: HugeIcons.strokeRoundedHome01),
+    TTab(value: 1, text: 'Profile', icon: HugeIcons.strokeRoundedUser),
+    TTab(value: 2, text: 'Settings', icon: HugeIcons.strokeRoundedSettings01),
   ],
   selectedValue: _selectedTab,
   onTabChanged: (value) => setState(() => _selectedTab = value),
@@ -103,7 +103,7 @@ TTabs<int>(
           WidgetDocCard(
             title: 'Tabs with Count',
             description: 'Tabs displaying numeric counts in badges (e.g. status filters, pending queues)',
-            icon: Icons.numbers,
+            icon: HugeIcons.strokeRoundedArrangeByNumbers91,
             preview: SizedBox(
               height: 200,
               child: TTabView<String>(
@@ -113,7 +113,7 @@ TTabs<int>(
                     value: 'all',
                     text: 'All',
                     count: 24,
-                    icon: Icons.list_alt,
+                    icon: HugeIcons.strokeRoundedList,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -121,7 +121,7 @@ TTabs<int>(
                         decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                         child: Row(
                           children: [
-                            Icon(Icons.list_alt, color: context.theme.primary, size: 28),
+                            TIcon.raw(HugeIcons.strokeRoundedList, color: context.theme.primary, size: 28),
                             const SizedBox(width: 12),
                             Text('All Items (24 items total)', style: TextStyle(color: context.colors.onSurface)),
                           ],
@@ -133,7 +133,7 @@ TTabs<int>(
                     value: 'pending',
                     text: 'Pending',
                     count: 5,
-                    icon: Icons.schedule,
+                    icon: HugeIcons.strokeRoundedClock01,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -141,7 +141,7 @@ TTabs<int>(
                         decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                         child: Row(
                           children: [
-                            Icon(Icons.schedule, color: context.theme.primary, size: 28),
+                            TIcon.raw(HugeIcons.strokeRoundedClock01, color: context.theme.primary, size: 28),
                             const SizedBox(width: 12),
                             Text('Pending Items (5 items awaiting review)', style: TextStyle(color: context.colors.onSurface)),
                           ],
@@ -153,7 +153,7 @@ TTabs<int>(
                     value: 'completed',
                     text: 'Completed',
                     count: 18,
-                    icon: Icons.check_circle_outline,
+                    icon: HugeIcons.strokeRoundedCheckmarkCircle01,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -161,7 +161,7 @@ TTabs<int>(
                         decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                         child: Row(
                           children: [
-                            Icon(Icons.check_circle_outline, color: context.theme.primary, size: 28),
+                            TIcon.raw(HugeIcons.strokeRoundedCheckmarkCircle01, color: context.theme.primary, size: 28),
                             const SizedBox(width: 12),
                             Text('Completed Items (18 items finished)', style: TextStyle(color: context.colors.onSurface)),
                           ],
@@ -173,7 +173,7 @@ TTabs<int>(
                     value: 'archived',
                     text: 'Archived',
                     count: 1,
-                    icon: Icons.archive_outlined,
+                    icon: HugeIcons.strokeRoundedArchive,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -181,7 +181,7 @@ TTabs<int>(
                         decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                         child: Row(
                           children: [
-                            Icon(Icons.archive_outlined, color: context.theme.primary, size: 28),
+                            TIcon.raw(HugeIcons.strokeRoundedArchive, color: context.theme.primary, size: 28),
                             const SizedBox(width: 12),
                             Text('Archived Items (1 item in archive)', style: TextStyle(color: context.colors.onSurface)),
                           ],
@@ -196,10 +196,10 @@ TTabs<int>(
   selectedValue: _filter,
   onTabChanged: (val) => setState(() => _filter = val),
   tabs: const [
-    TTab(value: 'all', text: 'All', count: 24, icon: Icons.list_alt),
-    TTab(value: 'pending', text: 'Pending', count: 5, icon: Icons.schedule),
-    TTab(value: 'completed', text: 'Completed', count: 18, icon: Icons.check_circle_outline),
-    TTab(value: 'archived', text: 'Archived', count: 1, icon: Icons.archive_outlined),
+    TTab(value: 'all', text: 'All', count: 24, icon: HugeIcons.strokeRoundedList),
+    TTab(value: 'pending', text: 'Pending', count: 5, icon: HugeIcons.strokeRoundedClock01),
+    TTab(value: 'completed', text: 'Completed', count: 18, icon: HugeIcons.strokeRoundedCheckmarkCircle01),
+    TTab(value: 'archived', text: 'Archived', count: 1, icon: HugeIcons.strokeRoundedArchive),
   ],
 )''',
             properties: const [
@@ -217,7 +217,7 @@ TTabs<int>(
           WidgetDocCard(
             title: 'Scrollable Tabs',
             description: 'Tabs with horizontal scrolling and navigation buttons (desktop/web)',
-            icon: Icons.swap_horiz,
+            icon: HugeIcons.strokeRoundedArrowLeftRight,
             preview: SizedBox(
               height: 200,
               child: TTabView<int>(
@@ -226,7 +226,7 @@ TTabs<int>(
                   (i) => TTab(
                     value: i,
                     text: 'Tab ${i + 1}',
-                    icon: Icons.star,
+                    icon: HugeIcons.strokeRoundedStar,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -237,7 +237,7 @@ TTabs<int>(
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.star, color: context.theme.primary),
+                            TIcon.raw(HugeIcons.strokeRoundedStar, color: context.theme.primary),
                             const SizedBox(width: 12),
                             Text(
                               'Content for Tab ${i + 1}',
@@ -256,7 +256,7 @@ TTabs<int>(
             code: '''TTabs<int>(
   tabs: List.generate(
     10,
-    (i) => TTab(value: i, text: 'Tab \${i + 1}', icon: Icons.star),
+    (i) => TTab(value: i, text: 'Tab \${i + 1}', icon: HugeIcons.strokeRoundedStar),
   ),
   selectedValue: _selectedTab,
   onTabChanged: (value) => setState(() => _selectedTab = value),
@@ -283,7 +283,7 @@ TTabs<int>(
           WidgetDocCard(
             title: 'Vertical Tabs',
             description: 'Tabs arranged vertically with right-side indicator',
-            icon: Icons.swap_vert,
+            icon: HugeIcons.strokeRoundedArrowUpDown,
             preview: SizedBox(
               height: 200,
               child: Row(
@@ -292,10 +292,10 @@ TTabs<int>(
                   TTabs<int>(
                     controller: _verticalController,
                     tabs: [
-                      TTab(value: 0, text: 'Dashboard', icon: Icons.dashboard),
-                      TTab(value: 1, text: 'Analytics', icon: Icons.analytics),
-                      TTab(value: 2, text: 'Reports', icon: Icons.assessment),
-                      TTab(value: 3, text: 'Settings', icon: Icons.settings),
+                      TTab(value: 0, text: 'Dashboard', icon: HugeIcons.strokeRoundedDashboardSquare01),
+                      TTab(value: 1, text: 'Analytics', icon: HugeIcons.strokeRoundedAnalytics01),
+                      TTab(value: 2, text: 'Reports', icon: HugeIcons.strokeRoundedAnalytics02),
+                      TTab(value: 3, text: 'Settings', icon: HugeIcons.strokeRoundedSettings01),
                     ],
                     axis: Axis.vertical,
                   ),
@@ -307,14 +307,14 @@ TTabs<int>(
                         TTab(
                           value: 0,
                           text: 'Dashboard',
-                          icon: Icons.dashboard,
+                          icon: HugeIcons.strokeRoundedDashboardSquare01,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.dashboard, color: context.theme.primary, size: 32),
+                                TIcon.raw(HugeIcons.strokeRoundedDashboardSquare01, color: context.theme.primary, size: 32),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Dashboard Content',
@@ -329,14 +329,14 @@ TTabs<int>(
                         TTab(
                           value: 1,
                           text: 'Analytics',
-                          icon: Icons.analytics,
+                          icon: HugeIcons.strokeRoundedAnalytics01,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(color: context.theme.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.analytics, color: context.theme.info, size: 32),
+                                TIcon.raw(HugeIcons.strokeRoundedAnalytics01, color: context.theme.info, size: 32),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Analytics Content',
@@ -351,14 +351,14 @@ TTabs<int>(
                         TTab(
                           value: 2,
                           text: 'Reports',
-                          icon: Icons.assessment,
+                          icon: HugeIcons.strokeRoundedAnalytics02,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(color: context.theme.warning.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.assessment, color: context.theme.warning, size: 32),
+                                TIcon.raw(HugeIcons.strokeRoundedAnalytics02, color: context.theme.warning, size: 32),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Reports Content',
@@ -373,14 +373,14 @@ TTabs<int>(
                         TTab(
                           value: 3,
                           text: 'Settings',
-                          icon: Icons.settings,
+                          icon: HugeIcons.strokeRoundedSettings01,
                           content: (context) => Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(color: context.theme.success.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.settings, color: context.theme.success, size: 32),
+                                TIcon.raw(HugeIcons.strokeRoundedSettings01, color: context.theme.success, size: 32),
                                 const SizedBox(height: 8),
                                 Text(
                                   'Settings Content',
@@ -400,10 +400,10 @@ TTabs<int>(
             ),
             code: '''TTabs<int>(
   tabs: [
-    TTab(value: 0, text: 'Dashboard', icon: Icons.dashboard),
-    TTab(value: 1, text: 'Analytics', icon: Icons.analytics),
-    TTab(value: 2, text: 'Reports', icon: Icons.assessment),
-    TTab(value: 3, text: 'Settings', icon: Icons.settings),
+    TTab(value: 0, text: 'Dashboard', icon: HugeIcons.strokeRoundedDashboardSquare01),
+    TTab(value: 1, text: 'Analytics', icon: HugeIcons.strokeRoundedAnalytics01),
+    TTab(value: 2, text: 'Reports', icon: HugeIcons.strokeRoundedAnalytics02),
+    TTab(value: 3, text: 'Settings', icon: HugeIcons.strokeRoundedSettings01),
   ],
   selectedValue: _selectedTab,
   onTabChanged: (value) => setState(() => _selectedTab = value),
@@ -423,7 +423,7 @@ TTabs<int>(
           WidgetDocCard(
             title: 'Wrap Mode',
             description: 'Tabs that wrap to multiple lines when space is limited',
-            icon: Icons.wrap_text,
+            icon: HugeIcons.strokeRoundedTextWrap,
             preview: SizedBox(
               height: 150,
               child: TTabView<String>(
@@ -534,7 +534,7 @@ TTabs<int>(
           WidgetDocCard(
             title: 'Custom Tab Builder',
             description: 'Fully customizable tab appearance using tabBuilder',
-            icon: Icons.brush,
+            icon: HugeIcons.strokeRoundedPaintBrush01,
             preview: SizedBox(
               height: 150,
               child: TTabView<int>(
@@ -542,7 +542,7 @@ TTabs<int>(
                   TTab(
                     value: 0,
                     text: 'Design',
-                    icon: Icons.palette,
+                    icon: HugeIcons.strokeRoundedPaintBoard,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -555,7 +555,7 @@ TTabs<int>(
                   TTab(
                     value: 1,
                     text: 'Code',
-                    icon: Icons.code,
+                    icon: HugeIcons.strokeRoundedCodeSquare,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -568,7 +568,7 @@ TTabs<int>(
                   TTab(
                     value: 2,
                     text: 'Preview',
-                    icon: Icons.visibility,
+                    icon: HugeIcons.strokeRoundedView,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -581,7 +581,7 @@ TTabs<int>(
                   TTab(
                     value: 3,
                     text: 'Preview 1',
-                    icon: Icons.visibility,
+                    icon: HugeIcons.strokeRoundedView,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -609,7 +609,7 @@ TTabs<int>(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (tab.icon != null) ...[
-                              Icon(tab.icon, size: 18, color: isSelected ? context.colors.onPrimaryContainer : context.colors.onSurface),
+                              TIcon.raw(tab.icon, size: 18, color: isSelected ? context.colors.onPrimaryContainer : context.colors.onSurface),
                               const SizedBox(width: 8),
                             ],
                             Text(
@@ -631,9 +631,9 @@ TTabs<int>(
             ),
             code: '''TTabs<int>(
   tabs: [
-    TTab(value: 0, text: 'Design', icon: Icons.palette),
-    TTab(value: 1, text: 'Code', icon: Icons.code),
-    TTab(value: 2, text: 'Preview', icon: Icons.visibility),
+    TTab(value: 0, text: 'Design', icon: HugeIcons.strokeRoundedPaintBoard),
+    TTab(value: 1, text: 'Code', icon: HugeIcons.strokeRoundedCodeSquare),
+    TTab(value: 2, text: 'Preview', icon: HugeIcons.strokeRoundedView),
   ],
   selectedValue: _selectedTab,
   onTabChanged: (value) => setState(() => _selectedTab = value),
@@ -676,7 +676,7 @@ TTabs<int>(
           WidgetDocCard(
             title: 'Styled Tabs',
             description: 'Tabs with custom colors and styling',
-            icon: Icons.color_lens,
+            icon: HugeIcons.strokeRoundedColorPicker,
             preview: SizedBox(
               height: 150,
               child: TTabView<int>(
@@ -684,7 +684,7 @@ TTabs<int>(
                   TTab(
                     value: 0,
                     text: 'Overview',
-                    icon: Icons.dashboard,
+                    icon: HugeIcons.strokeRoundedDashboardSquare01,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -697,7 +697,7 @@ TTabs<int>(
                   TTab(
                     value: 1,
                     text: 'Details',
-                    icon: Icons.info,
+                    icon: HugeIcons.strokeRoundedInformationCircle,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -710,7 +710,7 @@ TTabs<int>(
                   TTab(
                     value: 2,
                     text: 'History',
-                    icon: Icons.history,
+                    icon: HugeIcons.strokeRoundedClock01,
                     content: (context) => Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
@@ -732,9 +732,9 @@ TTabs<int>(
             ),
             code: '''TTabs<int>(
   tabs: [
-    TTab(value: 0, text: 'Overview', icon: Icons.dashboard),
-    TTab(value: 1, text: 'Details', icon: Icons.info),
-    TTab(value: 2, text: 'History', icon: Icons.history),
+    TTab(value: 0, text: 'Overview', icon: HugeIcons.strokeRoundedDashboardSquare01),
+    TTab(value: 1, text: 'Details', icon: HugeIcons.strokeRoundedInformationCircle),
+    TTab(value: 2, text: 'History', icon: HugeIcons.strokeRoundedClock01),
   ],
   selectedValue: _selectedTab,
   onTabChanged: (value) => setState(() => _selectedTab = value),
@@ -764,7 +764,7 @@ TTabs<int>(
           WidgetDocCard(
             title: 'Tab View (Simple Pattern)',
             description: 'Combined tabs and content using TTabView',
-            icon: Icons.view_column,
+            icon: HugeIcons.strokeRoundedViewOff,
             preview: SizedBox(
               height: 300,
               child: TTabView<int>(
@@ -773,13 +773,13 @@ TTabs<int>(
                   TTab(
                     value: 0,
                     text: 'Home',
-                    icon: Icons.home,
+                    icon: HugeIcons.strokeRoundedHome01,
                     content: (context) => Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
-                          Icon(Icons.home, color: context.theme.primary, size: 32),
+                          TIcon.raw(HugeIcons.strokeRoundedHome01, color: context.theme.primary, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -794,13 +794,13 @@ TTabs<int>(
                   TTab(
                     value: 1,
                     text: 'Profile',
-                    icon: Icons.person,
+                    icon: HugeIcons.strokeRoundedUser,
                     content: (context) => Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(color: context.theme.success.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
-                          Icon(Icons.person, color: context.theme.success, size: 32),
+                          TIcon.raw(HugeIcons.strokeRoundedUser, color: context.theme.success, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -815,13 +815,13 @@ TTabs<int>(
                   TTab(
                     value: 2,
                     text: 'Settings',
-                    icon: Icons.settings,
+                    icon: HugeIcons.strokeRoundedSettings01,
                     content: (context) => Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(color: context.theme.info.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                       child: Row(
                         children: [
-                          Icon(Icons.settings, color: context.theme.info, size: 32),
+                          TIcon.raw(HugeIcons.strokeRoundedSettings01, color: context.theme.info, size: 32),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -842,19 +842,19 @@ TTabs<int>(
     TTab(
       value: 0,
       text: 'Home',
-      icon: Icons.home,
+      icon: HugeIcons.strokeRoundedHome01,
       content: (context) => HomePage(),
     ),
     TTab(
       value: 1,
       text: 'Profile',
-      icon: Icons.person,
+      icon: HugeIcons.strokeRoundedUser,
       content: (context) => ProfilePage(),
     ),
     TTab(
       value: 2,
       text: 'Settings',
-      icon: Icons.settings,
+      icon: HugeIcons.strokeRoundedSettings01,
       content: (context) => SettingsPage(),
     ),
   ],
@@ -870,7 +870,7 @@ TTabs<int>(
           WidgetDocCard(
             title: 'Separated Tabs and Content',
             description: 'Tabs and content in different locations using TTabController',
-            icon: Icons.splitscreen,
+            icon: HugeIcons.strokeRoundedLayoutLeft,
             preview: SizedBox(
               height: 350,
               child: Column(
@@ -882,9 +882,9 @@ TTabs<int>(
                     child: TTabs<int>(
                       controller: _separatedController,
                       tabs: [
-                        TTab(value: 0, text: 'Dashboard', icon: Icons.dashboard),
-                        TTab(value: 1, text: 'Analytics', icon: Icons.analytics),
-                        TTab(value: 2, text: 'Reports', icon: Icons.assessment),
+                        TTab(value: 0, text: 'Dashboard', icon: HugeIcons.strokeRoundedDashboardSquare01),
+                        TTab(value: 1, text: 'Analytics', icon: HugeIcons.strokeRoundedAnalytics01),
+                        TTab(value: 2, text: 'Reports', icon: HugeIcons.strokeRoundedAnalytics02),
                       ],
                     ),
                   ),
@@ -903,7 +903,7 @@ TTabs<int>(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.dashboard, color: context.theme.primary, size: 40),
+                                TIcon.raw(HugeIcons.strokeRoundedDashboardSquare01, color: context.theme.primary, size: 40),
                                 const SizedBox(height: 12),
                                 Text(
                                   'Dashboard',
@@ -927,7 +927,7 @@ TTabs<int>(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.analytics, color: context.theme.info, size: 40),
+                                TIcon.raw(HugeIcons.strokeRoundedAnalytics01, color: context.theme.info, size: 40),
                                 const SizedBox(height: 12),
                                 Text(
                                   'Analytics',
@@ -951,7 +951,7 @@ TTabs<int>(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(Icons.assessment, color: context.theme.warning, size: 40),
+                                TIcon.raw(HugeIcons.strokeRoundedAnalytics02, color: context.theme.warning, size: 40),
                                 const SizedBox(height: 12),
                                 Text(
                                   'Reports',
@@ -976,9 +976,9 @@ final controller = TTabController<int>(initialValue: 0);
 TTabs(
   controller: controller,
   tabs: [
-    TTab(value: 0, text: 'Dashboard', icon: Icons.dashboard),
-    TTab(value: 1, text: 'Analytics', icon: Icons.analytics),
-    TTab(value: 2, text: 'Reports', icon: Icons.assessment),
+    TTab(value: 0, text: 'Dashboard', icon: HugeIcons.strokeRoundedDashboardSquare01),
+    TTab(value: 1, text: 'Analytics', icon: HugeIcons.strokeRoundedAnalytics01),
+    TTab(value: 2, text: 'Reports', icon: HugeIcons.strokeRoundedAnalytics02),
   ],
 )
 
@@ -1005,7 +1005,7 @@ TTabContent(
           WidgetDocCard(
             title: 'Segmented Tabs',
             description: 'Pill-in-a-track control for switching between a few views (e.g. Global / Node settings)',
-            icon: Icons.view_agenda_outlined,
+            icon: HugeIcons.strokeRoundedViewAgenda,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1028,8 +1028,8 @@ TTabContent(
                   selectedValue: _segmentedTab,
                   onTabChanged: (v) => setState(() => _segmentedTab = v),
                   tabs: const [
-                    TTab(value: 1, text: 'Global', icon: Icons.public),
-                    TTab(value: 2, text: 'Node', icon: Icons.hub_outlined, count: 4),
+                    TTab(value: 1, text: 'Global', icon: HugeIcons.strokeRoundedPolicy),
+                    TTab(value: 2, text: 'Node', icon: HugeIcons.strokeRoundedShrub, count: 4),
                     TTab(value: 3, text: 'Archived', isEnabled: false),
                   ],
                 ),
@@ -1056,8 +1056,8 @@ TTabs<int>(
   inline: true,
   selectedValue: _tab,
   tabs: const [
-    TTab(value: 1, text: 'Global', icon: Icons.public),
-    TTab(value: 2, text: 'Node', icon: Icons.hub_outlined, count: 4),
+    TTab(value: 1, text: 'Global', icon: HugeIcons.strokeRoundedPolicy),
+    TTab(value: 2, text: 'Node', icon: HugeIcons.strokeRoundedShrub, count: 4),
   ],
 )''',
             properties: const [

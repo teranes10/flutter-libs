@@ -9,7 +9,7 @@ class AlertButton {
   final String? text;
 
   /// The icon to display on the button.
-  final IconData? icon;
+  final dynamic icon;
 
   /// Callback fired when the button is clicked.
   final VoidCallback? onClick;
@@ -34,7 +34,7 @@ class AlertButton {
 ///   builder: (context) => TAlert(
 ///     title: 'Confirm Action',
 ///     text: 'Are you sure you want to proceed?',
-///     icon: Icons.warning,
+///     icon: HugeIcons.strokeRoundedAlert02,
 ///     color: AppColors.warning,
 ///     closeButton: AlertButton(
 ///       text: 'Cancel',
@@ -59,7 +59,7 @@ class AlertButton {
 ///   builder: (context) => TAlert(
 ///     title: 'Success',
 ///     text: 'Operation completed successfully!',
-///     icon: Icons.check_circle,
+///     icon: HugeIcons.strokeRoundedCheckmarkCircle01,
 ///     color: AppColors.success,
 ///     closeButton: AlertButton(
 ///       text: 'OK',
@@ -82,7 +82,7 @@ class TAlert extends StatelessWidget {
   final String? title;
 
   /// The icon to display at the top of the dialog.
-  final IconData? icon;
+  final dynamic icon;
 
   /// The primary color for the alert and confirm button.
   final Color? color;
@@ -127,7 +127,7 @@ class TAlert extends StatelessWidget {
       contentPadding: wTheme.contentPadding,
       actionsPadding: wTheme.actionsPadding,
       actionsAlignment: wTheme.actionsAlignment,
-      icon: icon != null ? Icon(icon, size: wTheme.iconSize, color: color) : null,
+      icon: icon != null ? TIcon.raw(icon, size: wTheme.iconSize!, color: color) : null,
       title: title != null ? Text(title!, style: wTheme.titleStyle) : null,
       content: text is String
           ? (progress

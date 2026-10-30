@@ -36,7 +36,7 @@ void main() {
       expect(find.text('Popover Content Body'), findsOneWidget);
 
       // Tap close button to dismiss
-      await tester.tap(find.byIcon(Icons.close_rounded));
+      await tester.tap(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedCancel01));
       await tester.pumpAndSettle();
 
       expect(find.text('Popover Content Body'), findsNothing);
@@ -287,13 +287,13 @@ void main() {
                 items: [
                   TContextMenuItem(
                     text: 'Edit Record',
-                    icon: Icons.edit,
+                    icon: HugeIcons.strokeRoundedEdit02,
                     onTap: () => editTapped = true,
                   ),
                   const TContextMenuDivider(),
                   TContextMenuItem(
                     text: 'Delete Permanently',
-                    icon: Icons.delete_outline,
+                    icon: HugeIcons.strokeRoundedDelete01,
                     isDestructive: true,
                     onTap: () => deleteTapped = true,
                   ),

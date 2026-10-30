@@ -13,9 +13,9 @@ class LayoutThemeToggleButton extends ConsumerWidget {
     return TButton(
       size: TButtonSize.xs.copyWith(icon: 16),
       type: TButtonType.icon,
-      icon: Icons.wb_sunny,
+      icon: HugeIcons.strokeRoundedSunSnow,
       color: Colors.yellow.shade700,
-      activeIcon: Icons.nights_stay,
+      activeIcon: HugeIcons.strokeRoundedGhost,
       activeColor: Colors.cyan.shade600,
       active: isDark,
       tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
@@ -38,7 +38,7 @@ class LayoutColorToggleButton extends ConsumerWidget {
         for (var i = 0; i < primaryColorOptions.length; i++)
           TDropdownItem(
             text: primaryColorOptions[i].name,
-            icon: Icons.circle,
+            icon: HugeIcons.strokeRoundedCircle,
             color: primaryColorOptions[i].color,
             onTap: () => ref.read(themeNotifierProvider.notifier).selectColor(i),
           ),
@@ -46,7 +46,7 @@ class LayoutColorToggleButton extends ConsumerWidget {
       child: TButton(
         size: TButtonSize.xs.copyWith(icon: 16),
         type: TButtonType.icon,
-        icon: Icons.palette_outlined,
+        icon: HugeIcons.strokeRoundedPaintBoard,
         color: selectedColorOption.color,
         tooltip: 'Accent color',
       ),
@@ -90,8 +90,8 @@ class _LayoutFullscreenToggleButtonState extends State<LayoutFullscreenToggleBut
     return TButton(
       size: TButtonSize.xs.copyWith(icon: 16),
       type: TButtonType.icon,
-      icon: Icons.fullscreen,
-      activeIcon: Icons.fullscreen_exit,
+      icon: HugeIcons.strokeRoundedFullscreen,
+      activeIcon: HugeIcons.strokeRoundedFullscreen,
       activeColor: colors.error,
       color: colors.onSurfaceVariant,
       active: _isFullscreen,
@@ -112,7 +112,7 @@ class LayoutLogoutButton extends StatelessWidget {
 
     return TButton(
       type: TButtonType.icon,
-      icon: Icons.logout_rounded,
+      icon: HugeIcons.strokeRoundedLogout01,
       size: TButtonSize.xs.copyWith(icon: 16),
       color: colors.onSurfaceVariant,
       tooltip: 'Log out',

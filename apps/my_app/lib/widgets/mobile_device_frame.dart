@@ -34,7 +34,7 @@ class TMobileDeviceFrame extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // Status Bar Mock
-        _buildMockStatusBar(),
+        _buildMockStatusBar(context),
         // Custom Header
         if (title != null) _buildCustomHeader(context),
         // Content
@@ -74,21 +74,24 @@ class TMobileDeviceFrame extends StatelessWidget {
     );
   }
 
-  Widget _buildMockStatusBar() {
+  Widget _buildMockStatusBar(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       color: Colors.transparent,
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('9:41', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(
+            '9:41',
+            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13, color: context.colors.onSurface),
+          ),
           Row(
             children: [
-              Icon(Icons.signal_cellular_4_bar, size: 14),
-              SizedBox(width: 4),
-              Icon(Icons.wifi, size: 14),
-              SizedBox(width: 4),
-              Icon(Icons.battery_5_bar, size: 14),
+              TIcon.raw(HugeIcons.strokeRoundedSignalHigh, size: 14),
+              SizedBox(width: 5),
+              TIcon.raw(HugeIcons.strokeRoundedWifi01, size: 14),
+              SizedBox(width: 5),
+              TIcon.raw(HugeIcons.strokeRoundedBatteryMedium02, size: 14),
             ],
           ),
         ],
@@ -104,7 +107,10 @@ class TMobileDeviceFrame extends StatelessWidget {
       ),
       child: Row(
         children: [
-          IconButton(icon: const Icon(Icons.arrow_back_ios, size: 16), onPressed: onBackPressed),
+          IconButton(
+            icon: TIcon.raw(HugeIcons.strokeRoundedArrowLeft01, size: 16),
+            onPressed: onBackPressed,
+          ),
           Expanded(
             child: Center(
               child: Text(title!, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),

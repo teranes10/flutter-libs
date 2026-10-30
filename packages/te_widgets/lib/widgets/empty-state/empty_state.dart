@@ -18,12 +18,12 @@ import 'package:te_widgets/te_widgets.dart';
 /// ```dart
 /// // Standard empty state with action
 /// TEmptyState(
-///   icon: Icons.inbox_outlined,
+///   icon: HugeIcons.strokeRoundedInbox,
 ///   title: 'No Customers Yet',
 ///   description: 'Get started by creating your first customer account.',
 ///   action: TButton(
 ///     text: 'Add Customer',
-///     icon: Icons.add,
+///     icon: HugeIcons.strokeRoundedAdd01,
 ///     onTap: () => openAddCustomer(),
 ///   ),
 /// )
@@ -95,7 +95,7 @@ class TEmptyState extends StatelessWidget {
   /// Creates a standard "No Data" placeholder.
   const TEmptyState.noData({
     super.key,
-    this.icon = Icons.inbox_outlined,
+    this.icon = HugeIcons.strokeRoundedInbox,
     this.image,
     this.title = 'No data available',
     this.titleWidget,
@@ -128,7 +128,7 @@ class TEmptyState extends StatelessWidget {
         (onClear != null
             ? TButton(
                 text: 'Clear Search',
-                icon: Icons.clear_rounded,
+                icon: HugeIcons.strokeRoundedCancel01,
                 type: TButtonType.tonal,
                 size: TButtonSize.xs,
                 onPressed: (_) => onClear(),
@@ -137,7 +137,7 @@ class TEmptyState extends StatelessWidget {
 
     return TEmptyState(
       key: key,
-      icon: Icons.search_off_rounded,
+      icon: HugeIcons.strokeRoundedSearch02,
       title: effectiveTitle,
       description: effectiveDesc,
       action: effectiveAction,
@@ -149,7 +149,7 @@ class TEmptyState extends StatelessWidget {
   /// Creates a 404 or missing resource empty state.
   const TEmptyState.notFound({
     super.key,
-    this.icon = Icons.find_in_page_outlined,
+    this.icon = HugeIcons.strokeRoundedSearch02,
     this.image,
     this.title = 'Item Not Found',
     this.titleWidget,
@@ -178,7 +178,7 @@ class TEmptyState extends StatelessWidget {
         (onRetry != null
             ? TButton(
                 text: 'Try Again',
-                icon: Icons.refresh_rounded,
+                icon: HugeIcons.strokeRoundedRefresh,
                 type: TButtonType.tonal,
                 size: TButtonSize.xs,
                 onPressed: (_) => onRetry(),
@@ -187,7 +187,7 @@ class TEmptyState extends StatelessWidget {
 
     return TEmptyState(
       key: key,
-      icon: Icons.error_outline_rounded,
+      icon: HugeIcons.strokeRoundedAlertCircle,
       iconColor: Colors.redAccent,
       title: title,
       description: description,
@@ -200,7 +200,7 @@ class TEmptyState extends StatelessWidget {
   /// Creates a compact empty state for small cards, popovers, or table cells.
   const TEmptyState.compact({
     super.key,
-    this.icon = Icons.inbox_outlined,
+    this.icon = HugeIcons.strokeRoundedInbox,
     String message = 'No items found',
     this.action,
     this.iconColor,

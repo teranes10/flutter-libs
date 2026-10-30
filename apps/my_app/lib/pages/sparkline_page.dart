@@ -58,7 +58,7 @@ class _SparklinePageState extends State<SparklinePage> {
               children: [
                 TButton(
                   text: 'Shuffle Revenue Data',
-                  icon: Icons.shuffle_rounded,
+                  icon: HugeIcons.strokeRoundedShuffle,
                   type: TButtonType.outline,
                   size: TSize.sm,
                   onTap: _randomizeData,

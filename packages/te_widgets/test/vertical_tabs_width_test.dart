@@ -7,9 +7,9 @@ void main() {
 
   testWidgets('TTabs with Axis.vertical expands all tabs to the width of the widest tab', (WidgetTester tester) async {
     final tabs = [
-      TTab<String>(value: 'short', text: 'Short', icon: Icons.person),
-      TTab<String>(value: 'long', text: 'A Very Long Tab Title For Width Testing', icon: Icons.badge),
-      TTab<String>(value: 'med', text: 'Medium Title', icon: Icons.settings),
+      TTab<String>(value: 'short', text: 'Short', icon: HugeIcons.strokeRoundedUser),
+      TTab<String>(value: 'long', text: 'A Very Long Tab Title For Width Testing', icon: HugeIcons.strokeRoundedBadgeDollarSign),
+      TTab<String>(value: 'med', text: 'Medium Title', icon: HugeIcons.strokeRoundedSettings01),
     ];
 
     await tester.pumpWidget(
@@ -43,8 +43,8 @@ void main() {
 
   testWidgets('TTabs with Axis.vertical expands to available space when constrained by parent', (WidgetTester tester) async {
     final tabs = [
-      TTab<String>(value: 'tab1', text: 'Tab 1', icon: Icons.person),
-      TTab<String>(value: 'tab2', text: 'Tab 2', icon: Icons.badge),
+      TTab<String>(value: 'tab1', text: 'Tab 1', icon: HugeIcons.strokeRoundedUser),
+      TTab<String>(value: 'tab2', text: 'Tab 2', icon: HugeIcons.strokeRoundedBadgeDollarSign),
     ];
 
     await tester.pumpWidget(
@@ -78,8 +78,8 @@ void main() {
 
   testWidgets('TTabs with Axis.vertical and scrollable expands tabs to widest tab', (WidgetTester tester) async {
     final tabs = [
-      TTab<String>(value: 'short', text: 'Short', icon: Icons.person),
-      TTab<String>(value: 'long', text: 'Another Very Long Tab Name In Scrollable Mode', icon: Icons.badge),
+      TTab<String>(value: 'short', text: 'Short', icon: HugeIcons.strokeRoundedUser),
+      TTab<String>(value: 'long', text: 'Another Very Long Tab Name In Scrollable Mode', icon: HugeIcons.strokeRoundedBadgeDollarSign),
     ];
 
     await tester.pumpWidget(

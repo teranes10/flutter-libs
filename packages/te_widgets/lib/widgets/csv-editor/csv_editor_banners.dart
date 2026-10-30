@@ -13,34 +13,34 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
             triggerMode: TDropdownTriggerMode.tap,
             items: [
               TDropdownItem(
-                icon: Icons.table_chart_rounded,
+                icon: HugeIcons.strokeRoundedTable,
                 text: 'CSV Template (Comma ,)',
                 onTap: () => downloadTemplate(format: TCsvFileFormat.csv),
               ),
               TDropdownItem(
-                icon: Icons.grid_on_rounded,
+                icon: HugeIcons.strokeRoundedGrid,
                 text: 'CSV Template (Semicolon ;)',
                 onTap: () => downloadTemplate(format: TCsvFileFormat.semicolon),
               ),
               TDropdownItem(
-                icon: Icons.table_rows_rounded,
+                icon: HugeIcons.strokeRoundedTableColumnsSplit,
                 text: 'TSV Template (Tab \\t)',
                 onTap: () => downloadTemplate(format: TCsvFileFormat.tsv),
               ),
               TDropdownItem(
-                icon: Icons.view_column_outlined,
+                icon: HugeIcons.strokeRoundedDeleteColumn,
                 text: 'PSV Template (Pipe |)',
                 onTap: () => downloadTemplate(format: TCsvFileFormat.pipe),
               ),
               TDropdownItem(
-                icon: Icons.data_object_rounded,
+                icon: HugeIcons.strokeRoundedSourceCode,
                 text: 'JSON Template (.json)',
                 onTap: () => downloadTemplate(format: TCsvFileFormat.json),
               ),
             ],
             child: TButton(
               text: 'Template',
-              icon: Icons.download_rounded,
+              icon: HugeIcons.strokeRoundedDownload01,
               type: TButtonType.tonal,
               size: TButtonSize.xs,
             ),
@@ -50,34 +50,34 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
             triggerMode: TDropdownTriggerMode.tap,
             items: [
               TDropdownItem(
-                icon: Icons.table_chart_rounded,
+                icon: HugeIcons.strokeRoundedTable,
                 text: 'Export as CSV (Comma ,)',
                 onTap: () => exportCurrentData(format: TCsvFileFormat.csv),
               ),
               TDropdownItem(
-                icon: Icons.grid_on_rounded,
+                icon: HugeIcons.strokeRoundedGrid,
                 text: 'Export as CSV (Semicolon ;)',
                 onTap: () => exportCurrentData(format: TCsvFileFormat.semicolon),
               ),
               TDropdownItem(
-                icon: Icons.table_rows_rounded,
+                icon: HugeIcons.strokeRoundedTableColumnsSplit,
                 text: 'Export as TSV (Tab \\t)',
                 onTap: () => exportCurrentData(format: TCsvFileFormat.tsv),
               ),
               TDropdownItem(
-                icon: Icons.view_column_outlined,
+                icon: HugeIcons.strokeRoundedDeleteColumn,
                 text: 'Export as PSV (Pipe |)',
                 onTap: () => exportCurrentData(format: TCsvFileFormat.pipe),
               ),
               TDropdownItem(
-                icon: Icons.data_object_rounded,
+                icon: HugeIcons.strokeRoundedSourceCode,
                 text: 'Export as JSON (.json)',
                 onTap: () => exportCurrentData(format: TCsvFileFormat.json),
               ),
             ],
             child: TButton(
               text: 'Export',
-              icon: Icons.file_download_outlined,
+              icon: HugeIcons.strokeRoundedDownload01,
               type: TButtonType.tonal,
               size: TButtonSize.xs,
             ),
@@ -85,7 +85,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
         if (rows.isNotEmpty)
           TButton(
             text: 'Clear All',
-            icon: Icons.delete_outline_rounded,
+            icon: HugeIcons.strokeRoundedDelete01,
             type: TButtonType.softText,
             color: AppColors.danger,
             size: TButtonSize.xs,
@@ -129,7 +129,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
                   color: colors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.cloud_upload_rounded, size: 32, color: colors.primary),
+                child: TIcon.raw(HugeIcons.strokeRoundedCloudUpload, size: 32, color: colors.primary),
               ),
               const SizedBox(height: 12),
               Text(
@@ -151,7 +151,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
                 children: [
                   TButton(
                     text: 'Browse File',
-                    icon: Icons.folder_open_rounded,
+                    icon: HugeIcons.strokeRoundedFolderOpen,
                     type: TButtonType.tonal,
                     size: TButtonSize.xs,
                     onPressed: (_) => pickFile(),
@@ -159,7 +159,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
                   if (widget.allowPaste) ...[
                     TButton(
                       text: 'Paste Data',
-                      icon: Icons.paste_rounded,
+                      icon: HugeIcons.strokeRoundedFilePaste,
                       type: TButtonType.softText,
                       size: TButtonSize.xs,
                       onPressed: (_) => openPasteModal(),
@@ -168,7 +168,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
                   if (widget.allowAddRow) ...[
                     TButton(
                       text: 'Add Row Manually',
-                      icon: Icons.add,
+                      icon: HugeIcons.strokeRoundedAdd01,
                       type: TButtonType.softText,
                       size: TButtonSize.xs,
                       onPressed: (_) => addNewRow(),
@@ -197,7 +197,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
       child: TAlignedRow(
         wrapperModeThreshold: 1,
         left: [
-          Icon(detectedFormat.icon, color: colors.primary, size: 20),
+          TIcon.raw(detectedFormat.icon, color: colors.primary, size: 20),
           Text(
             loadedFileName ?? 'Manual Dataset',
             style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colors.onSurface),
@@ -230,14 +230,14 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
           if (rawCsvHeaders.isNotEmpty)
             TButton(
               text: 'Map Headers',
-              icon: Icons.alt_route_rounded,
+              icon: HugeIcons.strokeRoundedRoute03,
               type: TButtonType.tonal,
               size: TButtonSize.xs,
               onPressed: (_) => openMappingDialog(),
             ),
           TButton(
             text: 'Replace File',
-            icon: Icons.replay_rounded,
+            icon: HugeIcons.strokeRoundedReplay,
             type: TButtonType.softText,
             size: TButtonSize.xs,
             onPressed: (_) => pickFile(),
@@ -245,7 +245,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
           if (widget.allowPaste)
             TButton(
               text: 'Paste Data',
-              icon: Icons.paste_rounded,
+              icon: HugeIcons.strokeRoundedFilePaste,
               type: TButtonType.softText,
               size: TButtonSize.xs,
               onPressed: (_) => openPasteModal(),
@@ -265,7 +265,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
       message: '$formatLabel differ from expected schema. ($mappedCount of $totalExpected columns mapped)',
       action: TButton(
         text: 'Review Mapping',
-        icon: Icons.tune_rounded,
+        icon: HugeIcons.strokeRoundedFilterEdit,
         type: TButtonType.tonal,
         size: TButtonSize.xxs,
         onPressed: (_) => openMappingDialog(),
@@ -283,7 +283,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
         if (widget.allowAddRow)
           TButton(
             text: 'Add Row',
-            icon: Icons.add,
+            icon: HugeIcons.strokeRoundedAdd01,
             type: TButtonType.tonal,
             size: TButtonSize.xs,
             onPressed: (_) => addNewRow(),

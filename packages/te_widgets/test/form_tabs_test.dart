@@ -32,8 +32,8 @@ class ParentFormWithTabs extends TFormBase {
         TFormField.text(title, 'Title', isRequired: true),
         TFormField.horizontalTabs(
           tabs: [
-            TFormTab(title: 'Account', icon: Icons.person, input: account),
-            TFormTab(title: 'Profile', icon: Icons.badge, input: profile),
+            TFormTab(title: 'Account', icon: HugeIcons.strokeRoundedUser, input: account),
+            TFormTab(title: 'Profile', icon: HugeIcons.strokeRoundedBadgeDollarSign, input: profile),
           ],
         ),
       ];
@@ -53,8 +53,8 @@ void main() {
           body: SingleChildScrollView(
             child: TFormBuilder.horizontalTabs(
               tabs: [
-                TFormTab(title: 'Account Tab', icon: Icons.person, input: accountForm),
-                TFormTab(title: 'Profile Tab', icon: Icons.badge, input: profileForm),
+                TFormTab(title: 'Account Tab', icon: HugeIcons.strokeRoundedUser, input: accountForm),
+                TFormTab(title: 'Profile Tab', icon: HugeIcons.strokeRoundedBadgeDollarSign, input: profileForm),
               ],
             ),
           ),
@@ -95,8 +95,8 @@ void main() {
             child: TFormBuilder.verticalTabs(
               tabWidth: 180,
               tabs: [
-                TFormTab(title: 'Account', icon: Icons.person, input: accountForm),
-                TFormTab(title: 'Profile', icon: Icons.badge, input: profileForm),
+                TFormTab(title: 'Account', icon: HugeIcons.strokeRoundedUser, input: accountForm),
+                TFormTab(title: 'Profile', icon: HugeIcons.strokeRoundedBadgeDollarSign, input: profileForm),
               ],
             ),
           ),

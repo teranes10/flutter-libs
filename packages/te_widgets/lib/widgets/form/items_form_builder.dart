@@ -172,7 +172,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
               type: TButtonType.text,
               size: TButtonSize.sm.copyWith(hPad: 0),
               text: widget.buttonLabel,
-              icon: Icons.add_rounded,
+              icon: HugeIcons.strokeRoundedAdd01,
               onTap: () {
                 if (!isExpanded) {
                   toggleExpand();

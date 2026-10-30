@@ -14,7 +14,7 @@ export 'chip_size.dart';
 /// ```dart
 /// TChip(
 ///   text: 'Active',
-///   icon: Icons.check_circle,
+///   icon: HugeIcons.strokeRoundedCheckmarkCircle01,
 ///   color: AppColors.success,
 /// )
 /// ```
@@ -36,7 +36,7 @@ export 'chip_size.dart';
 /// TChip(
 ///   text: 'Electronics',
 ///   trailing: TIcon(
-///     icon: Icons.close,
+///     icon: HugeIcons.strokeRoundedCancel01,
 ///     size: 11,
 ///     padding: EdgeInsets.zero,
 ///     onTap: () => print('Removed'),

@@ -74,7 +74,7 @@ class TCalendarView extends StatelessWidget {
         Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.chevron_left_rounded),
+              icon: TIcon.raw(HugeIcons.strokeRoundedArrowLeft01),
               onPressed: () => onMonthChanged?.call(DateTime(month.year, month.month - 1)),
             ),
             Expanded(
@@ -85,7 +85,7 @@ class TCalendarView extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.chevron_right_rounded),
+              icon: TIcon.raw(HugeIcons.strokeRoundedArrowRight01),
               onPressed: () => onMonthChanged?.call(DateTime(month.year, month.month + 1)),
             ),
           ],

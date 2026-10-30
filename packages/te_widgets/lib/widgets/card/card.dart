@@ -63,7 +63,7 @@ enum TCardShadow {
 ///   onTap: () => print('Card tapped'),
 ///   child: Column(
 ///     children: [
-///       Icon(Icons.star),
+///       HugeIcon(icon: HugeIcons.strokeRoundedStar),
 ///       Text('Featured Item'),
 ///     ],
 ///   ),
@@ -84,7 +84,7 @@ class TCard extends StatelessWidget {
   final String? subtitle;
 
   /// Card header icon.
-  final IconData? icon;
+  final dynamic icon;
 
   /// Custom widget to use as title instead of [title] text.
   final Widget? titleWidget;

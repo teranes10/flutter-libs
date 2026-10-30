@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-
+import 'package:te_widgets/widgets/icon/icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 /// Controller for [TSplitPane] to programmatically control split ratio and collapse states.
 class TSplitPaneController extends ChangeNotifier {
   double? _ratio;
@@ -469,10 +470,10 @@ class _TSplitPaneState extends State<TSplitPane> {
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: const EdgeInsets.all(2.0),
-                    child: Icon(
+                    child: TIcon.raw(
                       isHorizontal
-                          ? (isLeadingCollapsed ? Icons.chevron_right : Icons.chevron_left)
-                          : (isLeadingCollapsed ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up),
+                          ? (isLeadingCollapsed ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowLeft01)
+                          : (isLeadingCollapsed ? HugeIcons.strokeRoundedArrowDown01 : HugeIcons.strokeRoundedArrowUp01),
                       size: 14,
                       color: isLeadingCollapsed ? activeColor : null,
                     ),
@@ -484,10 +485,10 @@ class _TSplitPaneState extends State<TSplitPane> {
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: const EdgeInsets.all(2.0),
-                    child: Icon(
+                    child: TIcon.raw(
                       isHorizontal
-                          ? (isTrailingCollapsed ? Icons.chevron_left : Icons.chevron_right)
-                          : (isTrailingCollapsed ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down),
+                          ? (isTrailingCollapsed ? HugeIcons.strokeRoundedArrowLeft01 : HugeIcons.strokeRoundedArrowRight01)
+                          : (isTrailingCollapsed ? HugeIcons.strokeRoundedArrowUp01 : HugeIcons.strokeRoundedArrowDown01),
                       size: 14,
                       color: isTrailingCollapsed ? activeColor : null,
                     ),

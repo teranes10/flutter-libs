@@ -356,7 +356,7 @@ class _TNumberFieldState<T extends num?> extends State<TNumberField<T>>
         Row(
           children: [
             _QuantityButton(
-              icon: Icons.remove_rounded,
+              icon: HugeIcons.strokeRoundedRemove01,
               enabled: canDecrease,
               size: btnSize,
               onStep: () => _step(-wTheme.decrement),
@@ -394,7 +394,7 @@ class _TNumberFieldState<T extends num?> extends State<TNumberField<T>>
               ),
             ),
             _QuantityButton(
-              icon: Icons.add_rounded,
+              icon: HugeIcons.strokeRoundedAdd01,
               enabled: canIncrease,
               size: btnSize,
               onStep: () => _step(wTheme.increment),
@@ -493,7 +493,7 @@ class _TNumberFieldState<T extends num?> extends State<TNumberField<T>>
 ///
 /// Tap steps once; press-and-hold repeats and accelerates.
 class _QuantityButton extends StatefulWidget {
-  final IconData icon;
+  final dynamic icon;
   final bool enabled;
   final VoidCallback onStep;
   final TSize size;
@@ -560,7 +560,7 @@ class _QuantityButtonState extends State<_QuantityButton> {
             shape: BoxShape.circle,
             color: enabled ? cs.primaryContainer : cs.surfaceContainerHighest,
           ),
-          child: Icon(
+          child: TIcon.raw(
             widget.icon,
             size: size.icon,
             color: enabled ? cs.onPrimaryContainer : cs.onSurface.withValues(alpha: 0.38),

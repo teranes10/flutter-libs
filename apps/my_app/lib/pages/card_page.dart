@@ -149,17 +149,17 @@ class CardPage extends StatelessWidget {
               children: [
                 sample(
                   'Compact tile',
-                  TTile.h5(icon: Icons.analytics_outlined, iconColor: t.info, title: 'Analytics', subtitle: 'Updated 2m ago').card(),
+                  TTile.h5(icon: HugeIcons.strokeRoundedAnalytics01, iconColor: t.info, title: 'Analytics', subtitle: 'Updated 2m ago').card(),
                   width: 260,
                 ),
                 sample(
                   'Tile with trailing',
                   TTile.h5(
-                    icon: Icons.cloud_done_rounded,
+                    icon: HugeIcons.strokeRoundedCloudCheck,
                     iconColor: t.success,
                     title: 'Backup complete',
                     subtitle: '5.2 GB synced',
-                    trailing: const Icon(Icons.chevron_right, size: 20),
+                    trailing: TIcon.raw(HugeIcons.strokeRoundedArrowRight01, size: 20),
                   ).card(),
                   width: 320,
                 ),
@@ -167,7 +167,7 @@ class CardPage extends StatelessWidget {
                   'Hub tile (iconOnTop)',
                   TTile.h4(
                     iconOnTop: true,
-                    icon: Icons.inventory_2_outlined,
+                    icon: HugeIcons.strokeRoundedPackage,
                     iconColor: t.primary,
                     title: 'Stocktake',
                     subtitle: '12 open counts',
@@ -178,7 +178,7 @@ class CardPage extends StatelessWidget {
                 sample(
                   'Task row',
                   TTile.task(
-                    icon: Icons.local_shipping_outlined,
+                    icon: HugeIcons.strokeRoundedDeliveryTruck01,
                     title: 'DO-90312 · Dispatch',
                     subtitle: 'Dock 4',
                     status: 'Urgent',
@@ -205,15 +205,15 @@ class CardPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TTile.h4(
-                        icon: Icons.inventory_2_outlined,
+                        icon: HugeIcons.strokeRoundedPackage,
                         iconColor: t.primary,
                         title: 'Wireless Headphones',
                         subtitle: 'Electronics',
                         trailing: TChip(text: '\$129.00', size: TChipSize.sm, type: TVariant.text, color: t.success),
                         valuesMode: TKeyValueMode.inlineColumns,
                         values: [
-                          TKeyValue('SKU', value: 'WH-1000-BLK', icon: Icons.tag_rounded),
-                          TKeyValue('Barcode', value: '4006381333931', icon: Icons.qr_code_2_rounded),
+                          TKeyValue('SKU', value: 'WH-1000-BLK', icon: HugeIcons.strokeRoundedTag01),
+                          TKeyValue('Barcode', value: '4006381333931', icon: HugeIcons.strokeRoundedQrCode),
                         ],
                       ),
                     ],
@@ -226,15 +226,15 @@ class CardPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TTile.h4(
-                        icon: Icons.person_outline_rounded,
+                        icon: HugeIcons.strokeRoundedUser,
                         iconColor: t.info,
                         title: 'Jane Doe',
                         subtitle: 'Customer',
                         trailing: TChip(text: 'VIP', size: TChipSize.sm, type: TVariant.tonal, color: t.warning),
                         valuesMode: TKeyValueMode.inlineColumns,
                         values: [
-                          TKeyValue('Email', value: 'jane.doe@example.com', icon: Icons.email_outlined),
-                          TKeyValue('Phone', value: '+1 555 010 2030', icon: Icons.phone_outlined),
+                          TKeyValue('Email', value: 'jane.doe@example.com', icon: HugeIcons.strokeRoundedMail01),
+                          TKeyValue('Phone', value: '+1 555 010 2030', icon: HugeIcons.strokeRoundedCall),
                         ],
                       ),
                     ],
@@ -247,15 +247,15 @@ class CardPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TTile.h4(
-                        icon: Icons.receipt_long_outlined,
+                        icon: HugeIcons.strokeRoundedInvoice,
                         iconColor: t.primary,
                         title: 'SO-10452',
                         subtitle: 'Oct 24, 2026',
                         trailing: TChip(text: 'Shipped', size: TChipSize.sm, type: TVariant.tonal, color: t.success),
                         valuesMode: TKeyValueMode.inlineColumns,
                         values: [
-                          TKeyValue('Customer', value: 'Jane Doe', icon: Icons.person_outline_rounded),
-                          TKeyValue('Total', value: '\$258.00', icon: Icons.payments_outlined),
+                          TKeyValue('Customer', value: 'Jane Doe', icon: HugeIcons.strokeRoundedUser),
+                          TKeyValue('Total', value: '\$258.00', icon: HugeIcons.strokeRoundedPayment02),
                         ],
                       ),
                     ],
@@ -279,7 +279,7 @@ class CardPage extends StatelessWidget {
                     child: TCard(
                       title: 'Card ${level.name}',
                       subtitle: 'shadowLevel: ${level.name}',
-                      icon: Icons.layers_outlined,
+                      icon: HugeIcons.strokeRoundedLayers01,
                       trailing: TBadge(label: level.name, color: t.primary),
                       shadowLevel: level,
                       margin: EdgeInsets.zero,

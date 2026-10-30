@@ -25,7 +25,7 @@ class AccordionPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Basic Accordion',
             description: 'Standard collapsible section.',
-            icon: Icons.view_headline,
+            icon: HugeIcons.strokeRoundedViewAgenda,
             preview: const Column(
               children: [
                 TAccordion(title: 'Accordion Item 1', content: Text('This is the content for the first item.')),
@@ -55,11 +55,11 @@ class AccordionPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Configurable Icon & Background Colors',
             description: 'Accordion with custom icon background colors, expanded states, padding, and border radius',
-            icon: Icons.palette,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: Column(
               children: [
                 TAccordion(
-                  icon: Icons.settings,
+                  icon: HugeIcons.strokeRoundedSettings01,
                   title: 'Settings',
                   subtitle: 'Manage your application preferences',
                   iconBackgroundColor: context.theme.primary.withAlpha(25),
@@ -71,7 +71,7 @@ class AccordionPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 TAccordion(
-                  icon: Icons.security,
+                  icon: HugeIcons.strokeRoundedShield01,
                   title: 'Security & Privacy',
                   subtitle: 'Two-factor auth and active sessions',
                   iconBackgroundColor: context.theme.success.withAlpha(25),
@@ -82,7 +82,7 @@ class AccordionPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 TAccordion(
-                  icon: Icons.warning_amber_rounded,
+                  icon: HugeIcons.strokeRoundedAlert02,
                   title: 'Danger Zone',
                   subtitle: 'Irreversible account operations',
                   iconBackgroundColor: context.theme.danger.withAlpha(25),
@@ -94,7 +94,7 @@ class AccordionPage extends StatelessWidget {
               ],
             ),
             code: '''TAccordion(
-  icon: Icons.settings,
+  icon: HugeIcons.strokeRoundedSettings01,
   title: 'Settings',
   subtitle: 'Manage preferences',
   iconBackgroundColor: context.theme.primary.withAlpha(25),
@@ -126,12 +126,12 @@ class AccordionPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Standalone TTile (TTileHeader / TAccordionHeader)',
             description: 'The versatile tile component with icon container, title, subtitle, and trailing widget',
-            icon: Icons.splitscreen,
+            icon: HugeIcons.strokeRoundedLayoutLeft,
             preview: Column(
               children: [
                 TCard(
                   child: TTile(
-                    icon: Icons.analytics_outlined,
+                    icon: HugeIcons.strokeRoundedAnalytics01,
                     iconBackgroundColor: context.theme.info.withAlpha(30),
                     iconColor: context.theme.info,
                     title: 'Real-time Analytics',
@@ -142,19 +142,19 @@ class AccordionPage extends StatelessWidget {
                 const SizedBox(height: 12),
                 TCard(
                   child: TTile(
-                    icon: Icons.cloud_done_rounded,
+                    icon: HugeIcons.strokeRoundedCloudSavingDone01,
                     iconBackgroundColor: context.theme.success.withAlpha(30),
                     iconColor: context.theme.success,
                     title: 'Cloud Backup Complete',
                     subtitle: '5.2 GB synced to AWS S3',
-                    trailing: const Icon(Icons.chevron_right, size: 20),
+                    trailing: TIcon.raw(HugeIcons.strokeRoundedArrowRight01, size: 20),
                   ),
                 ),
               ],
             ),
             code: '''// Use standalone TTile / TAccordionHeader / TTileHeader anywhere:
 TTile(
-  icon: Icons.analytics_outlined,
+  icon: HugeIcons.strokeRoundedAnalytics01,
   iconBackgroundColor: context.theme.info.withAlpha(30),
   iconColor: context.theme.info,
   title: 'Real-time Analytics',
@@ -176,7 +176,7 @@ TTile(
           WidgetDocCard(
             title: 'Accordion Group (Single Open Item)',
             description: 'Wrap accordions in TAccordionGroup so expanding one collapses the others.',
-            icon: Icons.view_agenda,
+            icon: HugeIcons.strokeRoundedViewAgenda,
             preview: TAccordionGroup(
               initiallyExpandedIndex: 0,
               children: [

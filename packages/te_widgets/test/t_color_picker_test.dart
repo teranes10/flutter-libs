@@ -19,7 +19,7 @@ void main() {
     );
 
     expect(find.text('Test Color'), findsOneWidget);
-    expect(find.byIcon(Icons.add), findsOneWidget);
+    expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedAdd01), findsOneWidget);
   });
 
   testWidgets('TFormField.colorPicker creates valid form field', (WidgetTester tester) async {

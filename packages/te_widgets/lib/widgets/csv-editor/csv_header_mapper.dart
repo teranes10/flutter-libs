@@ -243,7 +243,7 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
               children: [
                 TButton(
                   text: 'Auto Match',
-                  icon: Icons.auto_awesome_rounded,
+                  icon: HugeIcons.strokeRoundedAiAutoRotate,
                   type: TButtonType.tonal,
                   size: TButtonSize.xs,
                   onPressed: (_) => _autoMatch(),
@@ -251,7 +251,7 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
                 const SizedBox(width: 8),
                 TButton(
                   text: 'Clear',
-                  icon: Icons.clear_all_rounded,
+                  icon: HugeIcons.strokeRoundedCancel02,
                   type: TButtonType.softText,
                   size: TButtonSize.xs,
                   onPressed: (_) => _clearMapping(),
@@ -274,7 +274,7 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
             ),
             child: Row(
               children: [
-                Icon(Icons.warning_amber_rounded, size: 18, color: colors.error),
+                TIcon.raw(HugeIcons.strokeRoundedAlert02, size: 18, color: colors.error),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -317,7 +317,7 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
                           children: [
                             Row(
                               children: [
-                                Icon(col.type.icon, size: 16, color: colors.primary),
+                                TIcon.raw(col.type.icon, size: 16, color: colors.primary),
                                 const SizedBox(width: 6),
                                 Flexible(
                                   child: Text(
@@ -353,7 +353,7 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
                       // Middle: Arrow icon
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Icon(Icons.arrow_forward_rounded, size: 16, color: colors.onSurfaceVariant),
+                        child: TIcon.raw(HugeIcons.strokeRoundedArrowRight01, size: 16, color: colors.onSurfaceVariant),
                       ),
 
                       // Right: CSV Header Dropdown & Sample Preview
@@ -415,7 +415,7 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
             const SizedBox(width: 10),
             TButton(
               text: 'Apply Mapping',
-              icon: Icons.check_circle_outline_rounded,
+              icon: HugeIcons.strokeRoundedCheckmarkCircle01,
               type: TButtonType.solid,
               onPressed: (_) {
                 widget.onConfirm(_currentMapping);

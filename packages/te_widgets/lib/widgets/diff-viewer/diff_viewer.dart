@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:te_widgets/widgets/badge/badge.dart';
-
+import 'package:te_widgets/te_widgets.dart';
 /// The visual presentation mode for [TDiffViewer].
 enum TDiffViewMode {
   /// Old and new text are displayed side by side in two aligned columns.
@@ -232,7 +231,7 @@ class _TDiffViewerState extends State<TDiffViewer> {
             color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
             child: Row(
               children: [
-                const Icon(Icons.difference_outlined, size: 16),
+                TIcon.raw(HugeIcons.strokeRoundedNotEqualSignSquare, size: 16),
                 const SizedBox(width: 8),
                 Text(
                   _activeMode == TDiffViewMode.sideBySide

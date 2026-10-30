@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-
+import 'package:te_widgets/widgets/icon/icon.dart';
+import 'package:hugeicons/hugeicons.dart';
 /// A child action item in a [TSpeedDial].
 class TSpeedDialChild {
   /// The icon displayed inside this action button.
-  final IconData icon;
+  final dynamic icon;
 
   /// Optional label text displayed beside the button.
   final String? label;
@@ -33,11 +34,11 @@ class TSpeedDial extends StatefulWidget {
   /// List of child actions revealed when the dial expands.
   final List<TSpeedDialChild> children;
 
-  /// Main collapsed icon. Defaults to [Icons.add].
-  final IconData icon;
+  /// Main collapsed icon. Defaults to [HugeIcons.strokeRoundedAdd01].
+  final dynamic icon;
 
-  /// Main expanded icon. Defaults to [Icons.close].
-  final IconData activeIcon;
+  /// Main expanded icon. Defaults to [HugeIcons.strokeRoundedCancel01].
+  final dynamic activeIcon;
 
   /// Background color for the main button.
   final Color? backgroundColor;
@@ -57,8 +58,8 @@ class TSpeedDial extends StatefulWidget {
   const TSpeedDial({
     super.key,
     required this.children,
-    this.icon = Icons.add,
-    this.activeIcon = Icons.close,
+    this.icon = HugeIcons.strokeRoundedAdd01,
+    this.activeIcon = HugeIcons.strokeRoundedCancel01,
     this.backgroundColor,
     this.foregroundColor,
     this.tooltip,
@@ -169,7 +170,7 @@ class _TSpeedDialState extends State<TSpeedDial> with SingleTickerProviderStateM
                           _close();
                           child.onTap();
                         },
-                        child: Icon(child.icon, size: 20),
+                        child: TIcon.raw(child.icon, size: 20),
                       ),
                     ],
                   ),
@@ -191,7 +192,7 @@ class _TSpeedDialState extends State<TSpeedDial> with SingleTickerProviderStateM
             builder: (context, _) {
               return Transform.rotate(
                 angle: _animCtrl.value * (math.pi / 2),
-                child: Icon(
+                child: TIcon.raw(
                   _animCtrl.value > 0.5 ? widget.activeIcon : widget.icon,
                   size: 24,
                 ),

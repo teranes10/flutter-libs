@@ -6,7 +6,7 @@ import 'package:te_widgets/widgets/menu/menu_item_data.dart';
 import 'package:te_widgets/widgets/menu/menu_theme.dart';
 import 'package:te_widgets/widgets/menu/menu_overlay_controller.dart';
 import 'package:te_widgets/widgets/menu/menu_overlay_panel.dart';
-
+import 'package:hugeicons/hugeicons.dart';
 /// A single row inside an open [TMenuOverlayPanel]. If the item has
 /// visible children, hovering/tapping it opens another panel to the side
 /// via its own [OverlayPortalController], positioned with the same
@@ -234,13 +234,13 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
         if (widget.item.hasVisibleChildrenIn(context))
           Padding(
             padding: EdgeInsets.only(left: widget.theme.gap),
-            child: Icon(
+            child: TIcon.raw(
               widget.theme.arrowIcon ??
                   (widget.theme.secondaryAlignment == TPopupAlignment.leftTop ||
                           widget.theme.secondaryAlignment == TPopupAlignment.leftBottom ||
                           widget.theme.secondaryAlignment == TPopupAlignment.leftCenter
-                      ? Icons.chevron_left_rounded
-                      : Icons.chevron_right_rounded),
+                      ? HugeIcons.strokeRoundedArrowLeft01
+                      : HugeIcons.strokeRoundedArrowRight01),
               size: widget.theme.arrowIconSize > 0 ? widget.theme.arrowIconSize : 16,
               color: color,
             ),

@@ -20,9 +20,9 @@ class _MapSamplePageState extends State<MapSamplePage> {
       // 1. Asset taxi pin with label D001
       const TMapPin(coordinates: LatLng(9.663746, 80.005974), label: "D001", assetPath: "assets/taxi-24.png"),
       // 2. Polyline label marker
-      const TMapPin(coordinates: LatLng(9.662800, 80.006800), label: "Route 1", icon: Icons.navigation_outlined),
+      const TMapPin(coordinates: LatLng(9.662800, 80.006800), label: "Route 1", icon: HugeIcons.strokeRoundedNavigation01),
       // 3. Polygon area label marker
-      const TMapPin(coordinates: LatLng(9.664500, 80.004500), label: "Zone A", icon: Icons.crop_free_rounded),
+      const TMapPin(coordinates: LatLng(9.664500, 80.004500), label: "Zone A", icon: HugeIcons.strokeRoundedCrop),
       // 4. Custom Builder Pin with Custom Info Window
       TMapPin(
         coordinates: const LatLng(9.663033, 80.005747),
@@ -33,9 +33,9 @@ class _MapSamplePageState extends State<MapSamplePage> {
             border: Border.all(color: Colors.white, width: 2),
             boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
           ),
-          child: const Padding(
-            padding: EdgeInsets.all(6.0),
-            child: Icon(Icons.restaurant, color: Colors.white, size: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: TIcon.raw(HugeIcons.strokeRoundedRestaurant, color: Colors.white, size: 16),
           ),
         ),
         infoWindowBuilder: (context) => Column(
@@ -44,7 +44,7 @@ class _MapSamplePageState extends State<MapSamplePage> {
           children: [
             Row(
               children: [
-                Icon(Icons.restaurant, size: 14, color: colors.primary),
+                TIcon.raw(HugeIcons.strokeRoundedRestaurant, size: 14, color: colors.primary),
                 const SizedBox(width: 6),
                 const Text("Premium Diner", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
               ],

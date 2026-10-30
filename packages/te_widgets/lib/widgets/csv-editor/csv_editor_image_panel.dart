@@ -246,7 +246,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
             child: TAlignedRow(
               wrapperModeThreshold: 1,
               left: [
-                Icon(Icons.photo_library_outlined, size: 18, color: colors.primary),
+                TIcon.raw(HugeIcons.strokeRoundedLibrary, size: 18, color: colors.primary),
                 Text(
                   'Images & Media (${_pickedImages.length})',
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: colors.onSurface),
@@ -263,7 +263,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
                 if (_pickedImages.isNotEmpty)
                   TButton(
                     text: 'Clear All',
-                    icon: Icons.delete_outline_rounded,
+                    icon: HugeIcons.strokeRoundedDelete01,
                     type: TButtonType.softText,
                     color: AppColors.danger,
                     size: TButtonSize.xxs,
@@ -271,13 +271,13 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
                   ),
                 TButton(
                   text: 'Add Images / ZIP',
-                  icon: Icons.add_photo_alternate_outlined,
+                  icon: HugeIcons.strokeRoundedUserAdd02,
                   type: TButtonType.tonal,
                   size: TButtonSize.xs,
                   onPressed: (_) => pickImages(),
                 ),
-                Icon(
-                  _imagePanelExpanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                TIcon.raw(
+                  _imagePanelExpanded ? HugeIcons.strokeRoundedArrowUp01 : HugeIcons.strokeRoundedArrowDown01,
                   size: 18,
                   color: colors.onSurfaceVariant,
                 ),
@@ -311,7 +311,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_photo_alternate_outlined, size: 28, color: colors.primary.withValues(alpha: 0.7)),
+              TIcon.raw(HugeIcons.strokeRoundedUserAdd02, size: 28, color: colors.primary.withValues(alpha: 0.7)),
               const SizedBox(height: 8),
               Text(
                 'Drop images or a ZIP here, or click to browse',
@@ -362,7 +362,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
                   color: colors.surfaceContainerHigh,
-                  child: Icon(Icons.broken_image_outlined, color: colors.onSurfaceVariant),
+                  child: TIcon.raw(HugeIcons.strokeRoundedAiImage, color: colors.onSurfaceVariant),
                 ),
               ),
             ),
@@ -413,7 +413,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
                 child: Container(
                   padding: const EdgeInsets.all(2),
                   decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                  child: const Icon(Icons.close, size: 11, color: Colors.white),
+                  child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 11, color: Colors.white),
                 ),
               ),
             ),
@@ -455,7 +455,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
                   ),
-                  child: Icon(Icons.image_not_supported_outlined, size: 16, color: AppColors.warning),
+                  child: TIcon.raw(HugeIcons.strokeRoundedImageNotFound02, size: 16, color: AppColors.warning),
                 ),
               ),
             );
@@ -476,7 +476,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
                     width: 32,
                     height: 32,
                     color: colors.surfaceContainerHigh,
-                    child: Icon(Icons.broken_image_outlined, size: 14, color: colors.onSurfaceVariant),
+                    child: TIcon.raw(HugeIcons.strokeRoundedAiImage, size: 14, color: colors.onSurfaceVariant),
                   ),
                 ),
               ),
@@ -489,7 +489,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
             message: 'Some images in this row have no match in the image gallery',
             child: Padding(
               padding: const EdgeInsets.only(left: 4),
-              child: Icon(Icons.warning_amber_rounded, size: 14, color: AppColors.warning),
+              child: TIcon.raw(HugeIcons.strokeRoundedAlert02, size: 14, color: AppColors.warning),
             ),
           ),
       ],

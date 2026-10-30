@@ -240,7 +240,7 @@ class TTextField<T extends String?> extends StatefulWidget
           : IconButton(
               tooltip: 'Scan with camera',
               constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-              icon: const Icon(Icons.qr_code_scanner_rounded),
+              icon: TIcon.raw(HugeIcons.strokeRoundedScan),
               onPressed: disabled ? null : onCameraTap,
             ),
       onSubmitted: (text) {

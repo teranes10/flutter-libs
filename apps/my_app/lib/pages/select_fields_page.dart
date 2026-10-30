@@ -47,7 +47,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           WidgetDocCard(
             title: 'Basic Select',
             description: 'Simple dropdown with string values',
-            icon: Icons.arrow_drop_down_circle,
+            icon: HugeIcons.strokeRoundedArrowDown01,
             preview: TSelect<String, String, String>(
               label: 'Country',
               placeholder: 'Select a country',
@@ -76,7 +76,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           WidgetDocCard(
             title: 'Searchable Select',
             description: 'Dropdown with built-in search functionality',
-            icon: Icons.search,
+            icon: HugeIcons.strokeRoundedSearch01,
             preview: TSelect<String, String, String>(
               label: 'City',
               placeholder: 'Search for a city',
@@ -116,7 +116,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
           WidgetDocCard(
             title: 'Custom Object Select',
             description: 'Dropdown with custom data objects',
-            icon: Icons.category,
+            icon: HugeIcons.strokeRoundedFactory,
             preview: TSelect<_User, int, int>(
               label: 'User',
               placeholder: 'Select a user',
@@ -163,7 +163,7 @@ TSelect<User, int, int>(
           WidgetDocCard(
             title: 'Required Select',
             description: 'Dropdown with validation rules',
-            icon: Icons.rule,
+            icon: HugeIcons.strokeRoundedRuler,
             preview: TSelect<String, String, String>(
               label: 'Department',
               placeholder: 'Select department',
@@ -193,7 +193,7 @@ TSelect<User, int, int>(
           WidgetDocCard(
             title: 'Disabled Select',
             description: 'Non-interactive dropdown',
-            icon: Icons.block,
+            icon: HugeIcons.strokeRoundedBlockGame,
             preview: TSelect<String, String, String>(
               label: 'Status',
               value: 'Active',
@@ -215,7 +215,7 @@ TSelect<User, int, int>(
           WidgetDocCard(
             title: 'Select with Clear Button',
             description: 'Enable clear button to quickly deselect items',
-            icon: Icons.clear,
+            icon: HugeIcons.strokeRoundedCancel01,
             preview: TMultiSelect<String, String, String>(
               label: 'Favorite Color',
               placeholder: 'Select a color',
@@ -253,7 +253,7 @@ TMultiSelect<String, String, String>(
           WidgetDocCard(
             title: 'Lazy Loading Select',
             description: 'Dropdown that loads items from the API only on first open',
-            icon: Icons.hourglass_empty,
+            icon: HugeIcons.strokeRoundedHourglass,
             preview: TSelect<String, String, String>(
               label: 'Lazy Options',
               placeholder: 'Click to load items...',
@@ -294,7 +294,7 @@ TMultiSelect<String, String, String>(
           WidgetDocCard(
             title: 'Select with Custom Footer',
             description: 'Dropdown displaying a sticky footer action to create a new option inline',
-            icon: Icons.add_circle_outline,
+            icon: HugeIcons.strokeRoundedAddCircle,
             preview: StatefulBuilder(
               builder: (context, setState) {
                 return TSelect<String, String, String>(
@@ -310,7 +310,7 @@ TMultiSelect<String, String, String>(
                         child: TButton(
                           type: TButtonType.tonal,
                           size: TButtonSize.block,
-                          icon: Icons.add,
+                          icon: HugeIcons.strokeRoundedAdd01,
                           text: 'Create New Option',
                           onTap: () async {
                             final form = _CreateOptionForm();
@@ -343,7 +343,7 @@ TMultiSelect<String, String, String>(
         padding: const EdgeInsets.all(8.0),
         child: TButton(
           type: TButtonType.tonal,
-          icon: Icons.add,
+          icon: HugeIcons.strokeRoundedAdd01,
           text: 'Create New Option',
           expanded: true,
           onTap: () => showCreateOptionForm(context),
@@ -365,7 +365,7 @@ TMultiSelect<String, String, String>(
           WidgetDocCard(
             title: 'Hierarchical / Nested Select',
             description: 'Dropdown displaying nested tree items with inline expansion',
-            icon: Icons.account_tree,
+            icon: HugeIcons.strokeRoundedFolderTree,
             preview: TSelect<_Category, String, String>(
               label: 'Category',
               placeholder: 'Select category / sub-category',

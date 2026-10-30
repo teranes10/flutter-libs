@@ -36,7 +36,7 @@ import 'package:te_widgets/te_widgets.dart';
 ///   context,
 ///   'Custom notification text',
 ///   title: 'Custom Title',
-///   icon: Icons.star,
+///   icon: HugeIcons.strokeRoundedStar,
 ///   color: Colors.purple,
 ///   duration: Duration(seconds: 5),
 ///   actionText: 'Retry',
@@ -49,7 +49,7 @@ class TSnackbarService {
     BuildContext context,
     String message, {
     String? title,
-    IconData? icon,
+    dynamic icon,
     Duration? duration,
     Color? color,
     TVariant? type,
@@ -112,7 +112,7 @@ class TSnackbarService {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (icon != null) ...[
-                      Icon(icon, color: wTheme.onContainer, size: 20),
+                      TIcon.raw(icon, color: wTheme.onContainer, size: 20),
                       const SizedBox(width: 12),
                     ],
                     Expanded(
@@ -149,7 +149,7 @@ class TSnackbarService {
                       TButton(
                         type: TButtonType.text,
                         size: TButtonSize.xxs,
-                        icon: Icons.close_rounded,
+                        icon: HugeIcons.strokeRoundedCancel01,
                         color: wTheme.onContainer,
                         onTap: () {
                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -180,7 +180,7 @@ class TSnackbarService {
       context,
       message,
       title: title,
-      icon: Icons.check_circle_outline_rounded,
+      icon: HugeIcons.strokeRoundedCheckmarkCircle01,
       color: context.theme.success,
       actionText: actionText,
       onTap: onTap,
@@ -201,7 +201,7 @@ class TSnackbarService {
       context,
       message,
       title: title,
-      icon: Icons.info_outline_rounded,
+      icon: HugeIcons.strokeRoundedInformationCircle,
       color: context.theme.info,
       actionText: actionText,
       onTap: onTap,
@@ -222,7 +222,7 @@ class TSnackbarService {
       context,
       message,
       title: title,
-      icon: Icons.warning_amber_rounded,
+      icon: HugeIcons.strokeRoundedAlert02,
       color: context.theme.warning,
       actionText: actionText,
       onTap: onTap,
@@ -243,7 +243,7 @@ class TSnackbarService {
       context,
       message,
       title: title,
-      icon: Icons.error_outline_rounded,
+      icon: HugeIcons.strokeRoundedAlertCircle,
       color: context.theme.danger,
       actionText: actionText,
       onTap: onTap,

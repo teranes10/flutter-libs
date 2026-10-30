@@ -37,7 +37,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
           WidgetDocCard(
             title: 'Standard No Data (TEmptyState.noData)',
             description: 'Default initial state when a dataset or list contains zero items',
-            icon: Icons.inbox_outlined,
+            icon: HugeIcons.strokeRoundedInbox,
             preview: Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
@@ -48,10 +48,10 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
               child: TEmptyState.noData(
                 title: 'No Customers Yet',
                 description: 'You have not added any customer records yet. Add your first customer to get started.',
-                action: TButton(text: 'Add Customer', icon: Icons.add, type: TButtonType.solid, size: TButtonSize.sm, onTap: () {}),
+                action: TButton(text: 'Add Customer', icon: HugeIcons.strokeRoundedAdd01, type: TButtonType.solid, size: TButtonSize.sm, onTap: () {}),
                 secondaryAction: TButton(
                   text: 'Import CSV',
-                  icon: Icons.upload_file_rounded,
+                  icon: HugeIcons.strokeRoundedFileUpload,
                   type: TButtonType.tonal,
                   size: TButtonSize.sm,
                   onTap: () {},
@@ -63,7 +63,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
   description: 'Add your first customer to get started.',
   action: TButton(
     text: 'Add Customer',
-    icon: Icons.add,
+    icon: HugeIcons.strokeRoundedAdd01,
     type: TButtonType.solid,
     size: TButtonSize.sm,
     onTap: () => openAddCustomer(),
@@ -82,7 +82,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
           WidgetDocCard(
             title: 'Search Results Empty State (TEmptyState.search)',
             description: 'Contextual feedback when user query returns 0 matches with clear button',
-            icon: Icons.search_off_rounded,
+            icon: HugeIcons.strokeRoundedSearchX,
             preview: Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
@@ -108,7 +108,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
           WidgetDocCard(
             title: 'Not Found / 404 (TEmptyState.notFound)',
             description: 'Used when viewing details for an entity that was deleted or doesn’t exist',
-            icon: Icons.find_in_page_outlined,
+            icon: HugeIcons.strokeRoundedSearch02,
             preview: Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
@@ -121,7 +121,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
                 description: 'The invoice `#INV-2026-9042` could not be located in your database.',
                 action: TButton(
                   text: 'Back to Invoices',
-                  icon: Icons.arrow_back_rounded,
+                  icon: HugeIcons.strokeRoundedArrowLeft01,
                   type: TButtonType.tonal,
                   size: TButtonSize.sm,
                   onTap: () {},
@@ -133,7 +133,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
   description: 'The invoice `#INV-2026-9042` could not be located.',
   action: TButton(
     text: 'Back to Invoices',
-    icon: Icons.arrow_back_rounded,
+    icon: HugeIcons.strokeRoundedArrowLeft01,
     type: TButtonType.tonal,
     size: TButtonSize.sm,
     onTap: () => context.pop(),
@@ -146,7 +146,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
           WidgetDocCard(
             title: 'Error State with Retry (TEmptyState.error)',
             description: 'Graceful failure state with retry trigger for failed network calls',
-            icon: Icons.error_outline_rounded,
+            icon: HugeIcons.strokeRoundedAlertCircle,
             preview: Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
@@ -172,7 +172,7 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
           WidgetDocCard(
             title: 'Compact Mode (TEmptyState.compact)',
             description: 'Low-profile single-line empty state ideal for select menus and compact cards',
-            icon: Icons.vertical_align_center_rounded,
+            icon: HugeIcons.strokeRoundedKeyframeAlignCenter,
             preview: Container(
               width: 380,
               decoration: BoxDecoration(
@@ -181,13 +181,13 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
                 border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.4)),
               ),
               child: TEmptyState.compact(
-                icon: Icons.filter_list_off_rounded,
+                icon: HugeIcons.strokeRoundedFilterReset,
                 message: 'No active filters applied',
                 action: TButton(text: 'Reset', type: TButtonType.softText, size: TButtonSize.xxs, onTap: () {}),
               ),
             ),
             code: '''TEmptyState.compact(
-  icon: Icons.filter_list_off_rounded,
+  icon: HugeIcons.strokeRoundedFilterReset,
   message: 'No active filters applied',
   action: TButton(
     text: 'Reset',

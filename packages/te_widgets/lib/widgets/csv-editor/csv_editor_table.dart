@@ -34,10 +34,10 @@ mixin _TCsvEditorTable on _TCsvEditorStateContract, _TCsvEditorActions {
               if (hasRowError)
                 TTooltip(
                   message: item.data.errors.values.join('\n'),
-                  child: Icon(Icons.error_outline_rounded, size: 16, color: colors.error),
+                  child: TIcon.raw(HugeIcons.strokeRoundedAlertCircle, size: 16, color: colors.error),
                 )
               else
-                Icon(Icons.check_circle_outline_rounded, size: 16, color: colors.primary.withValues(alpha: 0.7)),
+                TIcon.raw(HugeIcons.strokeRoundedCheckmarkCircle01, size: 16, color: colors.primary.withValues(alpha: 0.7)),
             ],
           );
         },
@@ -115,13 +115,13 @@ mixin _TCsvEditorTable on _TCsvEditorStateContract, _TCsvEditorActions {
           (item) => [
             if (widget.allowDuplicateRow)
               TButtonGroupItem(
-                icon: Icons.copy_rounded,
+                icon: HugeIcons.strokeRoundedCopy01,
                 tooltip: 'Duplicate Row',
                 onTap: () => duplicateRowById(item.data.id),
               ),
             if (widget.allowDeleteRow)
               TButtonGroupItem(
-                icon: Icons.delete_outline_rounded,
+                icon: HugeIcons.strokeRoundedDelete01,
                 color: colors.error,
                 tooltip: 'Delete Row',
                 onTap: () => deleteRowById(item.data.id),
@@ -144,7 +144,7 @@ mixin _TCsvEditorTable on _TCsvEditorStateContract, _TCsvEditorActions {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.table_chart_outlined, size: 48, color: colors.onSurfaceVariant),
+              TIcon.raw(HugeIcons.strokeRoundedTable, size: 48, color: colors.onSurfaceVariant),
               const SizedBox(height: 12),
               Text(
                 'No data loaded',
@@ -166,7 +166,7 @@ mixin _TCsvEditorTable on _TCsvEditorStateContract, _TCsvEditorActions {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_off_rounded, size: 36, color: colors.onSurfaceVariant),
+            TIcon.raw(HugeIcons.strokeRoundedSearch02, size: 36, color: colors.onSurfaceVariant),
             const SizedBox(height: 8),
             Text('No rows matching current filter', style: TextStyle(color: colors.onSurfaceVariant, fontSize: 13)),
           ],

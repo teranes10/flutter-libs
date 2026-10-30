@@ -69,11 +69,7 @@ class _TScanViewState extends State<TScanView> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _controller = MobileScannerController(
-      torchEnabled: false,
-      detectionSpeed: DetectionSpeed.noDuplicates,
-      detectionTimeoutMs: 50,
-    );
+    _controller = MobileScannerController(torchEnabled: false, detectionSpeed: DetectionSpeed.noDuplicates, detectionTimeoutMs: 50);
     _line = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
   }
 
@@ -123,18 +119,17 @@ class _TScanViewState extends State<TScanView> with SingleTickerProviderStateMix
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.no_photography_outlined, color: Colors.white70, size: 40),
+                        TIcon.raw(HugeIcons.strokeRoundedHologram, color: Colors.white70, size: 40),
                         const SizedBox(height: 8),
-                        Text(
-                          'Camera unavailable',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                        ),
+                        Text('Camera unavailable', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
                       ],
                     ),
                   ),
                 ),
               ),
-              CustomPaint(painter: ScanOverlayPainter(scanWindow: scanWindow, borderRadius: widget.borderRadius - 4)),
+              CustomPaint(
+                painter: ScanOverlayPainter(scanWindow: scanWindow, borderRadius: widget.borderRadius - 4),
+              ),
               ScanningLine(animation: _line, scanWindow: scanWindow),
               if (!kIsWeb)
                 Positioned(
@@ -142,7 +137,7 @@ class _TScanViewState extends State<TScanView> with SingleTickerProviderStateMix
                   right: 8,
                   child: _RoundButton(
                     tooltip: _torchOn ? 'Torch off' : 'Torch on',
-                    icon: _torchOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+                    icon: _torchOn ? HugeIcons.strokeRoundedFlash : HugeIcons.strokeRoundedFlashOff,
                     onTap: () {
                       setState(() => _torchOn = !_torchOn);
                       _controller.toggleTorch();
@@ -156,7 +151,7 @@ class _TScanViewState extends State<TScanView> with SingleTickerProviderStateMix
                   bottom: 12,
                   child: TButton(
                     text: 'Manual entry',
-                    icon: Icons.keyboard_alt_outlined,
+                    icon: HugeIcons.strokeRoundedKeyboard,
                     type: TButtonType.tonal,
                     size: TSize.xl.copyWith(minW: 0),
                     onTap: widget.onManualEntry,
@@ -171,7 +166,7 @@ class _TScanViewState extends State<TScanView> with SingleTickerProviderStateMix
 }
 
 class _RoundButton extends StatelessWidget {
-  final IconData icon;
+  final dynamic icon;
   final String tooltip;
   final VoidCallback onTap;
 
@@ -185,7 +180,7 @@ class _RoundButton extends StatelessWidget {
       child: IconButton(
         tooltip: tooltip,
         constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-        icon: Icon(icon, color: Colors.white),
+        icon: TIcon.raw(icon, color: Colors.white),
         onPressed: onTap,
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 /// A widget that tracks hover state and rebuilds on hover changes.
 ///
 /// `THoverable` provides hover detection with:
@@ -27,7 +26,7 @@ import 'package:flutter/material.dart';
 ///   cursor: SystemMouseCursors.grab,
 ///   builder: (context, isHovering) {
 ///     return Icon(
-///       Icons.drag_handle,
+///       HugeIcons.strokeRoundedDragLeft04,
 ///       color: isHovering ? Colors.blue : Colors.grey,
 ///     );
 ///   },

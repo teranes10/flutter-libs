@@ -24,71 +24,71 @@ class _BottomBarPageState extends State<BottomBarPage> {
 
   // Interactive sample items
   final List<TBottomBarItem> _configuratorItems = const [
-    TBottomBarItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Home'),
-    TBottomBarItem(icon: Icons.search_rounded, label: 'Search'),
-    TBottomBarItem(icon: Icons.notifications_outlined, activeIcon: Icons.notifications, label: 'Alerts', badge: 5),
-    TBottomBarItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'Profile'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, activeIcon: HugeIcons.strokeRoundedHome01, label: 'Home'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedSearch01, label: 'Search'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedNotification01, activeIcon: HugeIcons.strokeRoundedNotification01, label: 'Alerts', badge: 5),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedUser, activeIcon: HugeIcons.strokeRoundedUser, label: 'Profile'),
   ];
 
   // Badge sample items
   final List<TBottomBarItem> _badgeItems = const [
-    TBottomBarItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, activeIcon: HugeIcons.strokeRoundedHome01, label: 'Home'),
     TBottomBarItem(
-      icon: Icons.shopping_bag_outlined,
-      activeIcon: Icons.shopping_bag_rounded,
+      icon: HugeIcons.strokeRoundedShoppingBag01,
+      activeIcon: HugeIcons.strokeRoundedShoppingBag01,
       label: 'Orders',
       badge: 4, // Numeric count
     ),
     TBottomBarItem(
-      icon: Icons.chat_bubble_outline_rounded,
-      activeIcon: Icons.chat_bubble_rounded,
+      icon: HugeIcons.strokeRoundedBubbleChat,
+      activeIcon: HugeIcons.strokeRoundedBubbleChat,
       label: 'Messages',
       badge: 'NEW', // Text pill badge
     ),
     TBottomBarItem(
-      icon: Icons.notifications_outlined,
-      activeIcon: Icons.notifications_rounded,
+      icon: HugeIcons.strokeRoundedNotification01,
+      activeIcon: HugeIcons.strokeRoundedNotification01,
       label: 'Alerts',
       badge: true, // Dot indicator
     ),
-    TBottomBarItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedUser, activeIcon: HugeIcons.strokeRoundedUser, label: 'Profile'),
   ];
 
   // Emphasized sample items
   final List<TBottomBarItem> _emphasizedItems = const [
-    TBottomBarItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
-    TBottomBarItem(icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2_rounded, label: 'Inventory'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, activeIcon: HugeIcons.strokeRoundedHome01, label: 'Home'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedPackage, activeIcon: HugeIcons.strokeRoundedPackage, label: 'Inventory'),
     TBottomBarItem(
-      icon: Icons.qr_code_scanner_rounded,
+      icon: HugeIcons.strokeRoundedBarcodeScan,
       label: 'Scan',
       emphasized: true, // Raised circular primary button
     ),
-    TBottomBarItem(icon: Icons.history_rounded, activeIcon: Icons.history_rounded, label: 'History'),
-    TBottomBarItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: 'Settings'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedClock01, activeIcon: HugeIcons.strokeRoundedClock01, label: 'History'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedSettings01, activeIcon: HugeIcons.strokeRoundedSettings01, label: 'Settings'),
   ];
 
   // Field / Handheld combined workflow items
   final List<TBottomBarItem> _fieldWorkflowItems = const [
-    TBottomBarItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: 'Overview'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedDashboardSquare01, activeIcon: HugeIcons.strokeRoundedDashboardSquare01, label: 'Overview'),
     TBottomBarItem(
-      icon: Icons.checklist_rounded,
+      icon: HugeIcons.strokeRoundedCheckList,
       label: 'Pick Tasks',
       badge: 12, // Pending tasks count
     ),
     TBottomBarItem(
-      icon: Icons.qr_code_scanner_rounded,
+      icon: HugeIcons.strokeRoundedBarcodeScan,
       label: 'Scan',
       emphasized: true, // Center raised scan action
     ),
     TBottomBarItem(
-      icon: Icons.notifications_outlined,
-      activeIcon: Icons.notifications_rounded,
+      icon: HugeIcons.strokeRoundedNotification01,
+      activeIcon: HugeIcons.strokeRoundedNotification01,
       label: 'Alerts',
       badge: true, // Unread dot indicator
     ),
     TBottomBarItem(
-      icon: Icons.account_circle_outlined,
-      activeIcon: Icons.account_circle_rounded,
+      icon: HugeIcons.strokeRoundedUserCircle,
+      activeIcon: HugeIcons.strokeRoundedUserCircle,
       label: 'Account',
       badge: 'PRO', // Status badge
     ),
@@ -96,10 +96,10 @@ class _BottomBarPageState extends State<BottomBarPage> {
 
   // Custom Color items
   final List<TBottomBarItem> _dangerItems = const [
-    TBottomBarItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: 'Monitor'),
-    TBottomBarItem(icon: Icons.warning_amber_rounded, label: 'Incidents', badge: 3),
-    TBottomBarItem(icon: Icons.shield_outlined, activeIcon: Icons.shield, label: 'Security'),
-    TBottomBarItem(icon: Icons.settings_outlined, label: 'Config'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedDashboardSquare01, activeIcon: HugeIcons.strokeRoundedDashboardSquare01, label: 'Monitor'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedAlert02, label: 'Incidents', badge: 3),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedShield01, activeIcon: HugeIcons.strokeRoundedShield01, label: 'Security'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedSettings01, label: 'Config'),
   ];
 
   Widget _buildMockContainer({required BuildContext context, required Widget child, required String activeLabel, String? subtitle}) {
@@ -119,7 +119,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               children: [
-                Icon(Icons.touch_app_outlined, size: 18, color: colors.primary),
+                TIcon.raw(HugeIcons.strokeRoundedTouch10, size: 18, color: colors.primary),
                 const SizedBox(width: 8),
                 Text(
                   'Active: $activeLabel',
@@ -163,7 +163,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
           WidgetDocCard(
             title: 'Interactive Playground & Variants',
             description: 'Experiment with label placement modes, highlight variants, and tab switching.',
-            icon: Icons.tune_rounded,
+            icon: HugeIcons.strokeRoundedFilterEdit,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -226,10 +226,10 @@ class _BottomBarPageState extends State<BottomBarPage> {
   textPosition: TBottomBarTextPosition.${_textPosition.name},
   variant: TVariant.${_variant.name},
   items: const [
-    TBottomBarItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Home'),
-    TBottomBarItem(icon: Icons.search_rounded, label: 'Search'),
-    TBottomBarItem(icon: Icons.notifications_outlined, activeIcon: Icons.notifications, label: 'Alerts', badge: 5),
-    TBottomBarItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'Profile'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, activeIcon: HugeIcons.strokeRoundedHome01, label: 'Home'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedSearch01, label: 'Search'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedNotification01, activeIcon: HugeIcons.strokeRoundedNotification01, label: 'Alerts', badge: 5),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedUser, activeIcon: HugeIcons.strokeRoundedUser, label: 'Profile'),
   ],
 )''',
             properties: const [
@@ -263,7 +263,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
             description:
                 'TBottomBarItem accepts any badge format: integer count (e.g. 4), boolean status dot (true), '
                 'or text pill (e.g. "NEW"). Badges wrap the tab icon automatically with consistent alignment.',
-            icon: Icons.mark_chat_unread_outlined,
+            icon: HugeIcons.strokeRoundedCheckUnread04,
             preview: _buildMockContainer(
               context: context,
               activeLabel: _badgeItems[_badgeIndex].label,
@@ -282,26 +282,26 @@ class _BottomBarPageState extends State<BottomBarPage> {
   textPosition: TBottomBarTextPosition.bottomAlways,
   variant: TVariant.tonal,
   items: const [
-    TBottomBarItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, activeIcon: HugeIcons.strokeRoundedHome01, label: 'Home'),
     TBottomBarItem(
-      icon: Icons.shopping_bag_outlined,
-      activeIcon: Icons.shopping_bag_rounded,
+      icon: HugeIcons.strokeRoundedShoppingBag01,
+      activeIcon: HugeIcons.strokeRoundedShoppingBag01,
       label: 'Orders',
       badge: 4, // Integer count badge
     ),
     TBottomBarItem(
-      icon: Icons.chat_bubble_outline_rounded,
-      activeIcon: Icons.chat_bubble_rounded,
+      icon: HugeIcons.strokeRoundedBubbleChat,
+      activeIcon: HugeIcons.strokeRoundedBubbleChat,
       label: 'Messages',
       badge: 'NEW', // Text pill badge
     ),
     TBottomBarItem(
-      icon: Icons.notifications_outlined,
-      activeIcon: Icons.notifications_rounded,
+      icon: HugeIcons.strokeRoundedNotification01,
+      activeIcon: HugeIcons.strokeRoundedNotification01,
       label: 'Alerts',
       badge: true, // Unread dot indicator
     ),
-    TBottomBarItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedUser, activeIcon: HugeIcons.strokeRoundedUser, label: 'Profile'),
   ],
 )''',
             properties: const [
@@ -326,7 +326,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
                 'Setting emphasized: true renders the item as a raised, circular primary action button '
                 'that floats above the bottom bar with an elevated drop shadow. Ideal for center Scan, Quick Add, '
                 'or POS checkout actions.',
-            icon: Icons.center_focus_strong_rounded,
+            icon: HugeIcons.strokeRoundedCenterFocus,
             preview: _buildMockContainer(
               context: context,
               activeLabel: _emphasizedItems[_emphasizedIndex].label,
@@ -345,15 +345,15 @@ class _BottomBarPageState extends State<BottomBarPage> {
   textPosition: TBottomBarTextPosition.bottomAlways,
   variant: TVariant.tonal,
   items: const [
-    TBottomBarItem(icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),
-    TBottomBarItem(icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2_rounded, label: 'Inventory'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, activeIcon: HugeIcons.strokeRoundedHome01, label: 'Home'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedPackage, activeIcon: HugeIcons.strokeRoundedPackage, label: 'Inventory'),
     TBottomBarItem(
-      icon: Icons.qr_code_scanner_rounded,
+      icon: HugeIcons.strokeRoundedBarcodeScan,
       label: 'Scan',
       emphasized: true, // Raised circular primary button floating above the bar
     ),
-    TBottomBarItem(icon: Icons.history_rounded, label: 'History'),
-    TBottomBarItem(icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: 'Settings'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedClock01, label: 'History'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedSettings01, activeIcon: HugeIcons.strokeRoundedSettings01, label: 'Settings'),
   ],
 )''',
             properties: const [
@@ -373,7 +373,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
             description:
                 'Real-world warehouse & field technician pattern combining pending task counters, '
                 'alert dots, and a center emphasized barcode scanner.',
-            icon: Icons.handyman_outlined,
+            icon: HugeIcons.strokeRoundedHand,
             preview: _buildMockContainer(
               context: context,
               activeLabel: _fieldWorkflowItems[_fieldWorkflowIndex].label,
@@ -392,26 +392,26 @@ class _BottomBarPageState extends State<BottomBarPage> {
   textPosition: TBottomBarTextPosition.bottomAlways,
   variant: TVariant.tonal,
   items: const [
-    TBottomBarItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: 'Overview'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedDashboardSquare01, activeIcon: HugeIcons.strokeRoundedDashboardSquare01, label: 'Overview'),
     TBottomBarItem(
-      icon: Icons.checklist_rounded,
+      icon: HugeIcons.strokeRoundedCheckList,
       label: 'Pick Tasks',
       badge: 12, // Task count
     ),
     TBottomBarItem(
-      icon: Icons.qr_code_scanner_rounded,
+      icon: HugeIcons.strokeRoundedBarcodeScan,
       label: 'Scan',
       emphasized: true, // Center raised scan action
     ),
     TBottomBarItem(
-      icon: Icons.notifications_outlined,
-      activeIcon: Icons.notifications_rounded,
+      icon: HugeIcons.strokeRoundedNotification01,
+      activeIcon: HugeIcons.strokeRoundedNotification01,
       label: 'Alerts',
       badge: true, // Unread dot indicator
     ),
     TBottomBarItem(
-      icon: Icons.account_circle_outlined,
-      activeIcon: Icons.account_circle_rounded,
+      icon: HugeIcons.strokeRoundedUserCircle,
+      activeIcon: HugeIcons.strokeRoundedUserCircle,
       label: 'Account',
       badge: 'PRO', // Status pill
     ),
@@ -428,7 +428,7 @@ class _BottomBarPageState extends State<BottomBarPage> {
           WidgetDocCard(
             title: 'Custom Color & Soft Outline Variant',
             description: 'Customize highlight color (e.g. Danger / Incident alert bar) and active-only label layout.',
-            icon: Icons.palette_outlined,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: _buildMockContainer(
               context: context,
               activeLabel: _dangerItems[_customColorIndex].label,
@@ -446,10 +446,10 @@ class _BottomBarPageState extends State<BottomBarPage> {
   currentIndex: _currentIndex,
   onTap: (index) => setState(() => _currentIndex = index),
   items: const [
-    TBottomBarItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard_rounded, label: 'Monitor'),
-    TBottomBarItem(icon: Icons.warning_amber_rounded, label: 'Incidents', badge: 3),
-    TBottomBarItem(icon: Icons.shield_outlined, activeIcon: Icons.shield, label: 'Security'),
-    TBottomBarItem(icon: Icons.settings_outlined, label: 'Config'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedDashboardSquare01, activeIcon: HugeIcons.strokeRoundedDashboardSquare01, label: 'Monitor'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedAlert02, label: 'Incidents', badge: 3),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedShield01, activeIcon: HugeIcons.strokeRoundedShield01, label: 'Security'),
+    TBottomBarItem(icon: HugeIcons.strokeRoundedSettings01, label: 'Config'),
   ],
   textPosition: TBottomBarTextPosition.rightActive,
   variant: TVariant.softOutline,

@@ -338,7 +338,7 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
                       size: TInputSize.sm,
                       labelPosition: TLabelPosition.aboveField,
                       decorationType: TInputDecorationType.filled,
-                      postWidget: Icon(Icons.search_rounded, size: 18, color: colors.onSurface),
+                      postWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: colors.onSurface),
                     ),
                     placeholder: widget.searchPlaceholder,
                     onValueChanged: (String? input) {
@@ -351,7 +351,7 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
                   TButton(
                     type: TButtonType.tonal,
                     size: TButtonSize.sm,
-                    icon: Icons.add,
+                    icon: HugeIcons.strokeRoundedAdd01,
                     onPressed: (_) => listController.beginCreateItem(),
                   ),
                 ],
@@ -380,7 +380,7 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
 
     return Center(
       child: TEmptyState(
-        icon: widget.emptyIcon ?? Icons.touch_app_outlined,
+        icon: widget.emptyIcon ?? HugeIcons.strokeRoundedTouch10,
         title: widget.emptyTitle ?? 'No item selected',
         description: widget.emptyDescription ?? 'Select an item from the list to view its details',
       ),

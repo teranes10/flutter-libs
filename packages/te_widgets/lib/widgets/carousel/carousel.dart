@@ -148,7 +148,6 @@ class _TCarouselState extends State<TCarousel> {
               },
               itemBuilder: (context, i) => widget.children[i % count],
             ),
-
             if (widget.showArrows && count > 1) ...[
               Positioned(
                 left: 8,
@@ -156,7 +155,7 @@ class _TCarouselState extends State<TCarousel> {
                 bottom: 0,
                 child: Center(
                   child: _NavArrow(
-                    icon: Icons.chevron_left_rounded,
+                    icon: HugeIcons.strokeRoundedArrowLeft01,
                     onTap: widget.loop || _realPage > 0 ? _goBack : null,
                   ),
                 ),
@@ -167,13 +166,12 @@ class _TCarouselState extends State<TCarousel> {
                 bottom: 0,
                 child: Center(
                   child: _NavArrow(
-                    icon: Icons.chevron_right_rounded,
+                    icon: HugeIcons.strokeRoundedArrowRight01,
                     onTap: widget.loop || _realPage < count - 1 ? _goNext : null,
                   ),
                 ),
               ),
             ],
-
             if (widget.showIndicators && count > 1)
               Positioned(
                 bottom: 10,
@@ -207,7 +205,7 @@ class _TCarouselState extends State<TCarousel> {
 }
 
 class _NavArrow extends StatelessWidget {
-  final IconData icon;
+  final dynamic icon;
   final VoidCallback? onTap;
 
   const _NavArrow({required this.icon, required this.onTap});
@@ -222,7 +220,7 @@ class _NavArrow extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(4),
-          child: Icon(icon, color: Colors.white, size: 22),
+          child: TIcon.raw(icon, color: Colors.white, size: 22),
         ),
       ),
     );

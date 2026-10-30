@@ -509,8 +509,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
       height: h,
       color: widget.color ?? (isDark ? colors.surfaceContainer : colors.surfaceContainerLow),
       alignment: Alignment.center,
-      child: Icon(
-        Icons.image_not_supported_outlined,
+      child: TIcon.raw(HugeIcons.strokeRoundedImageNotFound02,
         size: iconSize,
         color: colors.onSurfaceVariant.withAlpha(120),
       ),

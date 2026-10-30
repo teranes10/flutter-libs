@@ -195,12 +195,12 @@ void main() {
                 TSpeedDial(
                   children: [
                     TSpeedDialChild(
-                      icon: Icons.file_download,
+                      icon: HugeIcons.strokeRoundedDownload01,
                       label: 'Export CSV',
                       onTap: () => exportTapped = true,
                     ),
                     TSpeedDialChild(
-                      icon: Icons.share,
+                      icon: HugeIcons.strokeRoundedShare01,
                       label: 'Share',
                       onTap: () {},
                     ),
@@ -214,7 +214,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Find toggle button by add icon
-      final fabFinder = find.byIcon(Icons.add);
+      final fabFinder = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedAdd01);
       expect(fabFinder, findsOneWidget);
 
       // Tap main FAB to expand

@@ -36,14 +36,14 @@ void main() {
       expect(find.text('index.ts'), findsNothing); // Collapsed by default
 
       // Expand 'src'
-      await tester.tap(find.byIcon(Icons.chevron_right_rounded));
+      await tester.tap(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedChevronRight));
       await tester.pumpAndSettle();
 
       expect(find.text('index.ts'), findsOneWidget);
       expect(find.text('app.ts'), findsOneWidget);
 
       // Collapse 'src'
-      await tester.tap(find.byIcon(Icons.chevron_right_rounded));
+      await tester.tap(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedChevronRight));
       await tester.pumpAndSettle();
 
       expect(find.text('index.ts'), findsNothing);

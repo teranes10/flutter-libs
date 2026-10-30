@@ -64,12 +64,16 @@ class _ListsPageState extends State<ListsPage> {
             WidgetDocCard(
               title: 'Reorderable List',
               description: 'A list that allows users to reorder items using drag and drop.',
-              icon: Icons.reorder,
+              icon: HugeIcons.strokeRoundedRecord,
               preview: TList<String, String>(
                 shrinkWrap: true,
                 controller: TListController<String, String>(items: _items, reorderable: true),
                 itemBuilder: (context, item, index) {
-                  return ListTile(key: ValueKey(item.key), title: Text(item.data), leading: const Icon(Icons.drag_handle));
+                  return ListTile(
+                    key: ValueKey(item.key),
+                    title: Text(item.data),
+                    leading: TIcon.raw(HugeIcons.strokeRoundedDragLeft04),
+                  );
                 },
               ),
               code: '''
@@ -94,7 +98,7 @@ TList<String, String>(
     return ListTile(
       key: ValueKey(item.key),
       title: Text(item.data),
-      leading: const Icon(Icons.drag_handle),
+      leading: TIcon.raw(HugeIcons.strokeRoundedDragLeft04),
     );
   },
 )''',
@@ -107,7 +111,7 @@ TList<String, String>(
             WidgetDocCard(
               title: 'List View with Card Tiles',
               description: 'TListView rendering each item as a TTile wrapped in a card.',
-              icon: Icons.view_agenda_outlined,
+              icon: HugeIcons.strokeRoundedViewAgenda,
               preview: TListView<String, String>(
                 shrinkWrap: true,
                 items: _cardItems,
@@ -117,8 +121,8 @@ TList<String, String>(
                     key: ValueKey(item.key),
                     title: item.data,
                     subtitle: 'Subtitle for ${item.data}',
-                    icon: Icons.task_alt,
-                    trailing: const Icon(Icons.chevron_right),
+                    icon: HugeIcons.strokeRoundedTask01,
+                    trailing: TIcon.raw(HugeIcons.strokeRoundedArrowRight01),
                   ).card(onTap: () {});
                 },
               ),
@@ -133,8 +137,8 @@ TListView<String, String>(
     return TTile(
       title: item.data,
       subtitle: 'Subtitle for \${item.data}',
-      icon: Icons.task_alt,
-      trailing: const Icon(Icons.chevron_right),
+      icon: HugeIcons.strokeRoundedTask01,
+      trailing: const HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01),
     ).card(borderColor: Colors.transparent, onTap: () {});
   },
 )''',
@@ -148,7 +152,7 @@ TListView<String, String>(
             WidgetDocCard(
               title: 'Hierarchical List',
               description: 'Nested items resolved through itemChildren; tap a parent to expand or collapse.',
-              icon: Icons.account_tree_outlined,
+              icon: HugeIcons.strokeRoundedFolderTree,
               preview: TList<_Node, String>(
                 theme: context.theme.listTheme.copyWith(
                   shrinkWrap: true,
@@ -162,8 +166,10 @@ TListView<String, String>(
                     key: ValueKey(item.key),
                     title: item.data.name,
                     subtitle: hasChildren ? '${item.childCount} items' : null,
-                    icon: hasChildren ? Icons.folder_outlined : Icons.label_outline,
-                    trailing: hasChildren ? Icon(expanded ? Icons.expand_less : Icons.expand_more) : null,
+                    icon: hasChildren ? HugeIcons.strokeRoundedFolder01 : HugeIcons.strokeRoundedTag01,
+                    trailing: hasChildren
+                        ? TIcon.raw(expanded ? HugeIcons.strokeRoundedArrowUp01 : HugeIcons.strokeRoundedArrowDown01)
+                        : null,
                   ).card(
                     margin: EdgeInsets.only(left: item.level * 24.0),
                     onTap: hasChildren ? () => _treeController.toggleExpansion(item.key) : null,
@@ -202,7 +208,7 @@ TList<Node, String>(
       padding: EdgeInsets.only(left: item.level * 24.0),
       child: TTile(
         title: item.data.name,
-        icon: hasChildren ? Icons.folder_outlined : Icons.label_outline,
+        icon: hasChildren ? HugeIcons.strokeRoundedFolder01 : HugeIcons.strokeRoundedTag01,
       ).card(
         borderColor: Colors.transparent,
         onTap: hasChildren ? () => controller.toggleExpansion(item.key) : null,

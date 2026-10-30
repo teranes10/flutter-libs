@@ -9,7 +9,7 @@ part of 'form_builder.dart';
 /// ```dart
 /// TFormTab(
 ///   title: 'Account',
-///   icon: Icons.person,
+///   icon: HugeIcons.strokeRoundedUser,
 ///   input: AccountForm(),
 /// )
 /// ```
@@ -26,7 +26,7 @@ class TFormTab {
   final String? subtitle;
 
   /// Optional icon displayed on the tab.
-  final IconData? icon;
+  final dynamic icon;
 
   /// The form model for this tab's content.
   final TFormBase? input;
@@ -73,7 +73,7 @@ class TFormTab {
     dynamic value,
     String? title,
     String? subtitle,
-    IconData? icon,
+    dynamic icon,
     required TFormBase form,
     bool isEnabled = true,
     bool isActive = false,
@@ -98,7 +98,7 @@ class TFormTab {
     dynamic value,
     required String title,
     String? subtitle,
-    IconData? icon,
+    dynamic icon,
     required List<TFormField> fields,
     List<TFormField>? sidebarFields,
     TGridSize? sidebarSize,

@@ -9,17 +9,17 @@ Widget _host(Widget child) => MaterialApp(
 
 void main() {
   testWidgets('TTile shrinks without trailing and expands with it', (tester) async {
-    await tester.pumpWidget(_host(const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      TTile(key: Key('a'), title: 'Short', icon: Icons.star),
-      TTile(key: Key('b'), title: 'Short', icon: Icons.star, trailing: Icon(Icons.chevron_right)),
+    await tester.pumpWidget(_host(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      TTile(key: Key('a'), title: 'Short', icon: HugeIcons.strokeRoundedStar),
+      TTile(key: Key('b'), title: 'Short', icon: HugeIcons.strokeRoundedStar, trailing: TIcon.raw(HugeIcons.strokeRoundedArrowRight01)),
     ])));
     expect(tester.getSize(find.byKey(const Key('a'))).width, lessThan(200));
     expect(tester.getSize(find.byKey(const Key('b'))).width, 400);
   });
 
   testWidgets('TTile iconOnTop stacks icon above title', (tester) async {
-    await tester.pumpWidget(_host(const TTile(iconOnTop: true, title: 'Hub', icon: Icons.star)));
-    expect(tester.getTopLeft(find.byIcon(Icons.star)).dy, lessThan(tester.getTopLeft(find.text('Hub')).dy));
+    await tester.pumpWidget(_host(const TTile(iconOnTop: true, title: 'Hub', icon: HugeIcons.strokeRoundedStar)));
+    expect(tester.getTopLeft(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedStar)).dy, lessThan(tester.getTopLeft(find.text('Hub')).dy));
   });
 
   testWidgets('.card wraps in TCard with shadow level', (tester) async {

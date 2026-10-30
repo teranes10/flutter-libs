@@ -75,7 +75,7 @@ class _PickersPageState extends State<PickersPage> {
           WidgetDocCard(
             title: 'Date Picker',
             description: 'Calendar-based date selection with formatted display',
-            icon: Icons.calendar_today,
+            icon: HugeIcons.strokeRoundedCalendar01,
             preview: TDatePicker(label: 'Birth Date', placeholder: 'Select your birth date', valueNotifier: _birthDateNotifier),
             code: '''TDatePicker(
   label: 'Birth Date',
@@ -101,7 +101,7 @@ class _PickersPageState extends State<PickersPage> {
           WidgetDocCard(
             title: 'Date Picker with Range Constraints',
             description: 'Restrict selectable dates to a specific range',
-            icon: Icons.date_range,
+            icon: HugeIcons.strokeRoundedCalendar01,
             preview: TDatePicker(
               label: 'Appointment Date',
               placeholder: 'Select appointment date',
@@ -131,7 +131,7 @@ class _PickersPageState extends State<PickersPage> {
           WidgetDocCard(
             title: 'Date Picker with Custom Format',
             description: 'Use custom date formatting patterns',
-            icon: Icons.format_paint,
+            icon: HugeIcons.strokeRoundedPaintBoard,
             preview: TDatePicker(
               label: 'Event Date',
               placeholder: 'dd/MM/yyyy',
@@ -158,7 +158,7 @@ TDatePicker(
           WidgetDocCard(
             title: 'Date Picker with Validation',
             description: 'Add validation rules to ensure data integrity',
-            icon: Icons.verified,
+            icon: HugeIcons.strokeRoundedCheckmarkBadge01,
             preview: TDatePicker(
               label: 'Start Date',
               placeholder: 'Select start date',
@@ -205,7 +205,7 @@ TDatePicker(
           WidgetDocCard(
             title: 'Time Picker',
             description: 'Clock-style time selection with formatted display',
-            icon: Icons.access_time,
+            icon: HugeIcons.strokeRoundedClock01,
             preview: TTimePicker(label: 'Meeting Time', placeholder: 'Select meeting time', valueNotifier: _meetingTimeNotifier),
             code: '''TTimePicker(
   label: 'Meeting Time',
@@ -231,7 +231,7 @@ TDatePicker(
           WidgetDocCard(
             title: 'Time Picker - 24 Hour Format',
             description: 'Display time in 24-hour format instead of 12-hour',
-            icon: Icons.schedule,
+            icon: HugeIcons.strokeRoundedClock01,
             preview: TTimePicker(
               label: 'Start Time',
               placeholder: 'HH:mm',
@@ -254,7 +254,7 @@ TTimePicker(
           WidgetDocCard(
             title: 'Time Picker with Initial Value',
             description: 'Set a default time value',
-            icon: Icons.alarm,
+            icon: HugeIcons.strokeRoundedAlarmClock,
             preview: TTimePicker(label: 'Alarm Time', placeholder: 'Set alarm', valueNotifier: _alarmTimeNotifier),
             code: '''TTimePicker(
   label: 'Alarm Time',
@@ -271,7 +271,7 @@ TTimePicker(
           WidgetDocCard(
             title: 'Time Picker with Business Hours Validation',
             description: 'Validate time selection within specific hours',
-            icon: Icons.business,
+            icon: HugeIcons.strokeRoundedWhatsappBusiness,
             preview: TTimePicker(
               label: 'Office Hours',
               placeholder: 'Select time',
@@ -313,7 +313,7 @@ TTimePicker(
           WidgetDocCard(
             title: 'DateTime Picker',
             description: 'Combined date and time selection with tabbed interface',
-            icon: Icons.event_available,
+            icon: HugeIcons.strokeRoundedCalendarBlock01,
             preview: TDateTimePicker(label: 'Event Start', placeholder: 'Select date and time', valueNotifier: _eventStartNotifier),
             code: '''TDateTimePicker(
   label: 'Event Start',
@@ -339,7 +339,7 @@ TTimePicker(
           WidgetDocCard(
             title: 'DateTime Picker with Custom Format',
             description: 'Use custom datetime formatting patterns',
-            icon: Icons.edit_calendar,
+            icon: HugeIcons.strokeRoundedEditTable,
             preview: TDateTimePicker(
               label: 'Delivery Time',
               placeholder: 'dd/MM/yyyy HH:mm',
@@ -375,7 +375,7 @@ TDateTimePicker(
           WidgetDocCard(
             title: 'DateTime Picker with Advanced Validation',
             description: 'Complex validation rules for datetime selection',
-            icon: Icons.rule,
+            icon: HugeIcons.strokeRoundedRuler,
             preview: TDateTimePicker(
               label: 'Appointment',
               placeholder: 'Select appointment time',
@@ -437,7 +437,7 @@ TDateTimePicker(
           WidgetDocCard(
             title: 'Advanced: Booking System',
             description: 'Check-in and check-out dates with dependent validation',
-            icon: Icons.hotel,
+            icon: HugeIcons.strokeRoundedHotel01,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -478,7 +478,7 @@ TDateTimePicker(
                             decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
                             child: Row(
                               children: [
-                                Icon(Icons.info_outline, size: 16, color: context.theme.primary),
+                                TIcon.raw(HugeIcons.strokeRoundedInformationCircle, size: 16, color: context.theme.primary),
                                 SizedBox(width: 8),
                                 Text(
                                   'Total: $nights night${nights != 1 ? 's' : ''}',
@@ -531,7 +531,7 @@ Column(
           WidgetDocCard(
             title: 'Pickers with Clear Button',
             description: 'Enable clear button to quickly reset selected dates/times',
-            icon: Icons.clear_all,
+            icon: HugeIcons.strokeRoundedCancel02,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -602,7 +602,7 @@ TDateTimePicker(
               return WidgetDocCard(
                 title: 'Slider (Value: ${value?.toStringAsFixed(0)})',
                 description: 'Select a single value from a range.',
-                icon: Icons.linear_scale,
+                icon: HugeIcons.strokeRoundedScale,
                 preview: Column(
                   children: [
                     TSlider(
@@ -648,7 +648,7 @@ TSlider(
               return WidgetDocCard(
                 title: 'Range Slider (Range: ${range?.start.toStringAsFixed(0)} - ${range?.end.toStringAsFixed(0)})',
                 description: 'Select a range of values.',
-                icon: Icons.sync_alt,
+                icon: HugeIcons.strokeRoundedRefresh,
                 preview: Column(
                   children: [
                     TRangeSlider(label: 'Price Range (Stepped)', valueNotifier: _rangeSliderNotifier, min: 0, max: 1000, divisions: 20),
@@ -687,7 +687,7 @@ TSlider(
               return WidgetDocCard(
                 title: 'Rating (Score: ${rating?.toStringAsFixed(1)})',
                 description: 'Star-based rating component.',
-                icon: Icons.star_half,
+                icon: HugeIcons.strokeRoundedStarHalf,
                 preview: TRating(label: 'Rate your experience', valueNotifier: _ratingNotifier, allowHalfRating: true),
                 code: '''TRating(
   label: 'Rate your experience',
@@ -711,7 +711,7 @@ TSlider(
               return WidgetDocCard(
                 title: 'Color Picker (Selected: $hex)',
                 description: 'Simple grid-based color selection with custom gradient picker.',
-                icon: Icons.color_lens,
+                icon: HugeIcons.strokeRoundedColorPicker,
                 preview: TColorPicker(label: 'Brand Color', valueNotifier: _colorPickerNotifier, enableCustomColor: true),
                 code: '''TColorPicker(
   label: 'Brand Color',
@@ -744,7 +744,7 @@ TSlider(
               return WidgetDocCard(
                 title: 'Color Picker - Plus Icon Only (Selected: $hex)',
                 description: 'Compact color picker showing only the plus button.',
-                icon: Icons.add_circle_outline,
+                icon: HugeIcons.strokeRoundedAddCircle,
                 preview: TColorPicker(label: 'Accent Color', valueNotifier: _colorPickerNotifier, onlyPlusIcon: true),
                 code: '''// Via TFormField:
 TFormField.colorPicker(accentColorProp, 'Accent Color', onlyPlusIcon: true)

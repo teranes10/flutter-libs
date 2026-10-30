@@ -33,7 +33,7 @@ class _StepperPageState extends State<StepperPage> {
           WidgetDocCard(
             title: 'Vertical Stepper',
             description: 'A vertical layout for multi-step processes.',
-            icon: Icons.list,
+            icon: HugeIcons.strokeRoundedList,
             preview: TStepper(
               currentStep: _verticalStep,
               onStepTapped: (step) => setState(() => _verticalStep = step),
@@ -110,7 +110,7 @@ class _StepperPageState extends State<StepperPage> {
           WidgetDocCard(
             title: 'Horizontal Stepper',
             description: 'A horizontal layout for linear processes.',
-            icon: Icons.linear_scale,
+            icon: HugeIcons.strokeRoundedScale,
             preview: TStepper(
               type: TStepperType.horizontal,
               currentStep: _horizontalStep,

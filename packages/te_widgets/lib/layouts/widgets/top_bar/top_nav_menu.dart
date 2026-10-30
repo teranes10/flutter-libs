@@ -153,7 +153,7 @@ class _TopNavItemButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (item.icon != null) ...[
-              Icon(
+              TIcon.raw(
                 item.icon,
                 size: theme.iconSize * 0.9,
                 color: color,

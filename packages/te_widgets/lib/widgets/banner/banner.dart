@@ -10,12 +10,12 @@ enum TBannerType {
   neutral;
 
   /// Default icon corresponding to the banner semantic type.
-  IconData get defaultIcon => switch (this) {
-        info => Icons.info_outline_rounded,
-        success => Icons.check_circle_outline_rounded,
-        warning => Icons.warning_amber_rounded,
-        error => Icons.error_outline_rounded,
-        neutral => Icons.notifications_none_rounded,
+  dynamic get defaultIcon => switch (this) {
+        info => HugeIcons.strokeRoundedInformationCircle,
+        success => HugeIcons.strokeRoundedCheckmarkCircle01,
+        warning => HugeIcons.strokeRoundedAlert02,
+        error => HugeIcons.strokeRoundedAlertCircle,
+        neutral => HugeIcons.strokeRoundedNotification01,
       };
 
   /// Resolves the semantic color from the current context.
@@ -175,7 +175,7 @@ class TBanner extends StatelessWidget {
       title = 'Sync failed';
       message = error;
       action = onRetry == null ? null : TButton(text: 'Retry', type: TButtonType.tonal, size: actionSize, onTap: onRetry);
-      resolvedIcon = icon ?? Icons.error_outline_rounded;
+      resolvedIcon = icon ?? HugeIcons.strokeRoundedAlertCircle;
     } else if (syncing) {
       type = TBannerType.info;
       title = pendingCount > 0 ? 'Syncing $pendingCount changes…' : 'Syncing…';
@@ -195,13 +195,13 @@ class TBanner extends StatelessWidget {
       action = onViewPending == null || pendingCount == 0
           ? null
           : TButton(text: 'View pending', type: TButtonType.tonal, size: actionSize, onTap: onViewPending);
-      resolvedIcon = icon ?? Icons.cloud_off_rounded;
+      resolvedIcon = icon ?? HugeIcons.strokeRoundedCloudOff;
     } else {
       type = TBannerType.info;
       title = '$pendingCount changes waiting to sync';
       message = last;
       action = onRetry == null ? null : TButton(text: 'Sync now', type: TButtonType.tonal, size: actionSize, onTap: onRetry);
-      resolvedIcon = icon ?? Icons.cloud_upload_outlined;
+      resolvedIcon = icon ?? HugeIcons.strokeRoundedCloudUpload;
     }
 
     return TBanner(
@@ -542,7 +542,7 @@ class TBanner extends StatelessWidget {
                   height: firstLineHeight,
                   child: Center(
                     child: IconButton(
-                      icon: Icon(Icons.close_rounded, size: 16.0, color: textColor.withValues(alpha: 0.7)),
+                      icon: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 16.0, color: textColor.withValues(alpha: 0.7)),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 20.0, minHeight: 20.0),
                       splashRadius: 16.0,

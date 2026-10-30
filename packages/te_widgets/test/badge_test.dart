@@ -11,11 +11,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: theme,
-          home: const Scaffold(
+          home: Scaffold(
             body: Center(
               child: TBadge(
                 count: 120,
-                child: Icon(Icons.notifications),
+                child: TIcon.raw(HugeIcons.strokeRoundedNotification01),
               ),
             ),
           ),
@@ -23,7 +23,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.notifications), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedNotification01), findsOneWidget);
       expect(find.text('99+'), findsOneWidget);
     });
 
@@ -31,11 +31,11 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: theme,
-          home: const Scaffold(
+          home: Scaffold(
             body: Center(
               child: TBadge(
                 dot: true,
-                child: Icon(Icons.mail),
+                child: TIcon.raw(HugeIcons.strokeRoundedMail01),
               ),
             ),
           ),
@@ -43,7 +43,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.mail), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedMail01), findsOneWidget);
       expect(
         find.descendant(
           of: find.byType(TBadge),
@@ -57,7 +57,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: theme,
-          home: const Scaffold(
+          home: Scaffold(
             body: Column(
               children: [
                 TBadge(
@@ -73,7 +73,7 @@ void main() {
                   child: Text('With Bool'),
                 ),
                 TBadge(
-                  badge: Icon(Icons.star, size: 12),
+                  badge: TIcon.raw(HugeIcons.strokeRoundedStar, size: 12),
                   child: Text('With Widget'),
                 ),
               ],
@@ -85,22 +85,22 @@ void main() {
 
       expect(find.text('15'), findsOneWidget);
       expect(find.text('NEW'), findsOneWidget);
-      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedStar), findsOneWidget);
     });
 
     testWidgets('supports named constructors: count, dot, label, custom, and standalone', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: theme,
-          home: const Scaffold(
+          home: Scaffold(
             body: Column(
               children: [
                 TBadge.count(
                   count: 42,
-                  child: Icon(Icons.shopping_cart),
+                  child: TIcon.raw(HugeIcons.strokeRoundedShoppingCart01),
                 ),
                 TBadge.dot(
-                  child: Icon(Icons.person),
+                  child: TIcon.raw(HugeIcons.strokeRoundedUser),
                 ),
                 TBadge.label(
                   label: 'PRO',
@@ -130,7 +130,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: theme,
-          home: const Scaffold(
+          home: Scaffold(
             body: Column(
               children: [
                 TBadge(
@@ -160,7 +160,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: theme,
-          home: const Scaffold(
+          home: Scaffold(
             body: Center(
               child: TBadge(
                 badge: 'HOT',
@@ -190,7 +190,7 @@ void main() {
                 TBadge(
                   size: TBadgeSize.sm,
                   badge: 3,
-                  child: const Icon(Icons.mail),
+                  child: TIcon.raw(HugeIcons.strokeRoundedMail01),
                 ),
                 TBadge(
                   size: TBadgeSize.lg,

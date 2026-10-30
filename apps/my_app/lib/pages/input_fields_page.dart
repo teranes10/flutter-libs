@@ -44,7 +44,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Text Field',
             description: 'Single-line text input with label and placeholder',
-            icon: Icons.text_fields,
+            icon: HugeIcons.strokeRoundedText,
             preview: TTextField(
               label: 'Full Name',
               info: 'Please enter your full name as it appears on your ID',
@@ -74,7 +74,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Required Field with Validation',
             description: 'Text field with required indicator and validation rules',
-            icon: Icons.check_circle,
+            icon: HugeIcons.strokeRoundedCheckmarkCircle01,
             preview: TTextField(
               label: 'Email',
               placeholder: 'Enter your email',
@@ -114,7 +114,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Multi-line Text Area',
             description: 'Text field with multiple rows for longer content',
-            icon: Icons.notes,
+            icon: HugeIcons.strokeRoundedNote,
             preview: TTextField(
               label: 'Description',
               placeholder: 'Enter a detailed description...',
@@ -142,7 +142,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Number Field',
             description: 'Input field for numeric values with formatting',
-            icon: Icons.numbers,
+            icon: HugeIcons.strokeRoundedArrangeByNumbers91,
             preview: TNumberField(
               label: 'Quantity',
               placeholder: 'Enter quantity',
@@ -177,7 +177,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Flanked Number Field (Split Stepper)',
             description: 'TNumberField with splitStepper: true placing the minus button in pre-widget and plus button in post-widget',
-            icon: Icons.unfold_more,
+            icon: HugeIcons.strokeRoundedUnfoldMore,
             preview: TNumberField(label: 'Adjust Value', placeholder: '0', splitStepper: true, valueNotifier: ValueNotifier<double?>(10.0)),
             code: '''TNumberField(
   label: 'Adjust Value',
@@ -191,7 +191,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Number Field with Clear Button',
             description: 'Number field with clearable option to reset value',
-            icon: Icons.clear,
+            icon: HugeIcons.strokeRoundedCancel01,
             preview: TNumberField(label: 'Price', placeholder: 'Enter price', clearable: true, valueNotifier: ValueNotifier<double?>(null)),
             code: '''TNumberField(
   label: 'Price',
@@ -216,7 +216,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
             title: 'Quantity Stepper Variant',
             description:
                 'Touch-optimized quantity stepper with large 64dp buttons, min/max clamping, unit caption, and quick-add preset chips',
-            icon: Icons.add_circle_outline_rounded,
+            icon: HugeIcons.strokeRoundedAddCircle,
             preview: SizedBox(
               width: 340,
               child: TNumberField<int>(
@@ -269,7 +269,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Number Field with Min & Max Bounds',
             description: 'Standard number field with min and max constraints clamping stepper increments and input',
-            icon: Icons.tune_rounded,
+            icon: HugeIcons.strokeRoundedFilterEdit,
             preview: TNumberField<double>(
               label: 'Discount Percentage',
               placeholder: '0',
@@ -305,7 +305,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Disabled Field',
             description: 'Non-editable field with grayed out appearance',
-            icon: Icons.block,
+            icon: HugeIcons.strokeRoundedBlockGame,
             preview: TTextField(label: 'Account ID', value: 'ACC-12345', disabled: true),
             code: '''TTextField(
   label: 'Account ID',
@@ -326,7 +326,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Above Label Position',
             description: 'Label positioned above the field with info icon next to it',
-            icon: Icons.vertical_align_top,
+            icon: HugeIcons.strokeRoundedAlignTop,
             preview: Builder(
               builder: (context) {
                 return TTextField(
@@ -359,7 +359,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Read-Only Field',
             description: 'Field that displays value but cannot be edited',
-            icon: Icons.visibility,
+            icon: HugeIcons.strokeRoundedView,
             preview: TTextField(label: 'Username', value: 'john.doe', readOnly: true, helperText: 'Username cannot be changed'),
             code: '''TTextField(
   label: 'Username',
@@ -376,7 +376,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Tags Field',
             description: 'Input field for managing multiple tags',
-            icon: Icons.label,
+            icon: HugeIcons.strokeRoundedTag01,
             preview: TTagsField(label: 'Tags', placeholder: 'Add tags...'),
             code: '''TTagsField(
   label: 'Tags',
@@ -398,7 +398,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Tags Field with Clear Button',
             description: 'Tags field with clearable option to remove all tags',
-            icon: Icons.clear_all,
+            icon: HugeIcons.strokeRoundedCancel02,
             preview: TTagsField(
               label: 'Keywords',
               placeholder: 'Add keywords...',
@@ -430,7 +430,7 @@ class _InputFieldsPageState extends State<InputFieldsPage> {
           WidgetDocCard(
             title: 'Date/Time Formatted Field',
             description: 'Text field with automatic date/time formatting and masking',
-            icon: Icons.calendar_month,
+            icon: HugeIcons.strokeRoundedCalendar03,
             preview: Column(
               children: [
                 TDateTimeTextField(label: 'Date', formatType: TDateTimeFormatType.date, onValueChanged: (v) => debugPrint('Date: $v')),
@@ -476,7 +476,7 @@ TDateTimeTextField(
           WidgetDocCard(
             title: 'Phone Number Field',
             description: 'Phone input with country code selection and automatic formatting',
-            icon: Icons.phone,
+            icon: HugeIcons.strokeRoundedCall,
             preview: TPhoneField(label: 'Phone Number', isRequired: true, onValueChanged: (v) => debugPrint('Phone: $v')),
             code: '''TPhoneField(
   label: 'Phone Number',
@@ -497,7 +497,7 @@ TDateTimeTextField(
           WidgetDocCard(
             title: 'Two-Way Binding with ValueNotifier',
             description: 'Bind field value to a ValueNotifier for reactive updates',
-            icon: Icons.sync,
+            icon: HugeIcons.strokeRoundedRefresh,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -543,7 +543,7 @@ ValueListenableBuilder<String?>(
           WidgetDocCard(
             title: 'Text Field with Clear Button',
             description: 'Enable clear button to allow users to quickly clear the field',
-            icon: Icons.clear,
+            icon: HugeIcons.strokeRoundedCancel01,
             preview: TTextField(
               label: 'Search',
               placeholder: 'Type to search...',
@@ -574,7 +574,7 @@ ValueListenableBuilder<String?>(
           WidgetDocCard(
             title: 'File Picker',
             description: 'File upload widget with file type restrictions',
-            icon: Icons.upload_file,
+            icon: HugeIcons.strokeRoundedFileUpload,
             preview: TFilePicker(label: 'Upload Document', placeholder: 'Choose file', valueNotifier: ValueNotifier<List<TFile>>([])),
             code: '''TFilePicker(
   label: 'Upload Document',
@@ -598,7 +598,7 @@ ValueListenableBuilder<String?>(
           WidgetDocCard(
             title: 'Multiple File Picker',
             description: 'File picker allowing selection of multiple files at once',
-            icon: Icons.file_copy,
+            icon: HugeIcons.strokeRoundedCopy01,
             preview: TFilePicker(
               label: 'Upload Multiple Documents',
               placeholder: 'Choose files',
@@ -632,7 +632,7 @@ ValueListenableBuilder<String?>(
           WidgetDocCard(
             title: 'File Picker with Clear Button',
             description: 'File picker with clearable option to remove selected files',
-            icon: Icons.clear,
+            icon: HugeIcons.strokeRoundedCancel01,
             preview: TFilePicker(
               label: 'Upload Images',
               placeholder: 'Choose images',
@@ -682,7 +682,7 @@ ValueListenableBuilder<String?>(
           WidgetDocCard(
             title: 'File Picker with onAdd & onRemove Events',
             description: 'Receive real-time callbacks with List<TFile> whenever files are added or removed (individually or cleared).',
-            icon: Icons.playlist_add_check_rounded,
+            icon: HugeIcons.strokeRoundedPackageCheck,
             preview: TFilePicker(
               label: 'Upload Attachments',
               placeholder: 'Choose files to observe events',
@@ -738,7 +738,7 @@ ValueListenableBuilder<String?>(
           WidgetDocCard(
             title: 'File Picker Gallery Mode',
             description: 'Image file picker displaying selected images as 100x100 TImage thumbnails with hover title/subtitle overlays',
-            icon: Icons.collections,
+            icon: HugeIcons.strokeRoundedCollectionsBookmark,
             preview: TFilePicker(
               label: 'Image Gallery Picker',
               placeholder: 'Choose gallery images',
@@ -777,7 +777,7 @@ ValueListenableBuilder<String?>(
           WidgetDocCard(
             title: 'Camera File Picker (Direct Photo Capture)',
             description: 'Directly launches device camera to capture proof photos or damage evidence, with automatic image downscaling.',
-            icon: Icons.photo_camera_rounded,
+            icon: HugeIcons.strokeRoundedCamera01,
             preview: TFilePicker(
               label: 'Proof of Delivery Photo',
               placeholder: 'Take photo with camera',
@@ -825,7 +825,7 @@ ValueListenableBuilder<String?>(
             title: 'Files or Camera Picker (Dual Source)',
             description:
                 'Prompts user to choose between capturing a photo with the camera or selecting an existing file from the gallery / device.',
-            icon: Icons.add_a_photo_rounded,
+            icon: HugeIcons.strokeRoundedCameraAdd01,
             preview: TFilePicker(
               label: 'Damage Evidence Photo / Document',
               placeholder: 'Capture photo or choose file',
@@ -863,7 +863,7 @@ ValueListenableBuilder<String?>(
           WidgetDocCard(
             title: 'Signature Pad (TSignaturePad)',
             description: 'Touch / stylus canvas for proof-of-delivery, sign-offs, and agreement approvals.',
-            icon: Icons.draw_rounded,
+            icon: HugeIcons.strokeRoundedRaw02,
             preview: SizedBox(
               width: 400,
               child: TSignaturePad(hint: 'Sign here', onChanged: (hasInk) => debugPrint('Signature changed: $hasInk')),
@@ -912,7 +912,7 @@ final pngBytes = await controller.toPngBytes();''',
           WidgetDocCard(
             title: 'Compare: Decoration Type',
             description: 'outline, filled, underline and none side by side',
-            icon: Icons.compare,
+            icon: HugeIcons.strokeRoundedGitCompare,
             defaultShowCode: true,
             preview: _VariantGrid(
               variants: [for (final t in TInputDecorationType.values) (t.name, (c) => _themes(c, decorationType: t))],
@@ -925,7 +925,7 @@ final pngBytes = await controller.toPngBytes();''',
           WidgetDocCard(
             title: 'Compare: Label Position',
             description: 'aboveField, floating and inlineFloating side by side',
-            icon: Icons.compare,
+            icon: HugeIcons.strokeRoundedGitCompare,
             defaultShowCode: true,
             preview: _VariantGrid(
               variants: [for (final l in TLabelPosition.values) (l.name, (c) => _themes(c, labelPosition: l))],
@@ -938,7 +938,7 @@ final pngBytes = await controller.toPngBytes();''',
           WidgetDocCard(
             title: 'Compare: Size',
             description: 'xs, sm, md and lg side by side',
-            icon: Icons.compare,
+            icon: HugeIcons.strokeRoundedGitCompare,
             defaultShowCode: true,
             preview: _VariantGrid(
               variants: [for (final z in TInputSize.values) (z.name, (c) => _themes(c, size: z))],

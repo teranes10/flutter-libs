@@ -45,7 +45,7 @@ class _ResultsPageState extends State<ResultsPage> {
                 right: 16,
                 child: SafeArea(
                   child: IconButton.filledTonal(
-                    icon: const Icon(Icons.close_rounded),
+                    icon: TIcon.raw(HugeIcons.strokeRoundedCancel01),
                     tooltip: 'Close full-screen preview',
                     onPressed: () => Navigator.of(ctx).pop(),
                   ),
@@ -88,15 +88,15 @@ class _ResultsPageState extends State<ResultsPage> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildTabChip(TResultStatus.success, 'Success', Icons.check_circle_outline),
+                _buildTabChip(TResultStatus.success, 'Success', HugeIcons.strokeRoundedCheckmarkCircle01),
                 const SizedBox(width: 8),
-                _buildTabChip(TResultStatus.forbidden, '403 Forbidden', Icons.lock_outline),
+                _buildTabChip(TResultStatus.forbidden, '403 Forbidden', HugeIcons.strokeRoundedLock),
                 const SizedBox(width: 8),
-                _buildTabChip(TResultStatus.notFound, '404 Not Found', Icons.search_off),
+                _buildTabChip(TResultStatus.notFound, '404 Not Found', HugeIcons.strokeRoundedSearchX),
                 const SizedBox(width: 8),
-                _buildTabChip(TResultStatus.serverError, '500 Server Error', Icons.cloud_off_rounded),
+                _buildTabChip(TResultStatus.serverError, '500 Server Error', HugeIcons.strokeRoundedCloudOff),
                 const SizedBox(width: 8),
-                _buildTabChip(TResultStatus.warning, 'Warning Notice', Icons.warning_amber_rounded),
+                _buildTabChip(TResultStatus.warning, 'Warning Notice', HugeIcons.strokeRoundedAlert02),
               ],
             ),
           ),
@@ -157,7 +157,7 @@ class _ResultsPageState extends State<ResultsPage> {
                       ),
                       TButton(
                         text: 'Launch Fullscreen Page',
-                        icon: Icons.fullscreen_rounded,
+                        icon: HugeIcons.strokeRoundedFullscreen,
                         type: TButtonType.solid,
                         size: TButtonSize.sm,
                         onTap: () => _openFullscreenSample(context),
@@ -200,7 +200,7 @@ class _ResultsPageState extends State<ResultsPage> {
                               children: [
                                 Row(
                                   children: [
-                                    Icon(Icons.touch_app_outlined, size: 18, color: colors.primary),
+                                    TIcon.raw(HugeIcons.strokeRoundedTouch10, size: 18, color: colors.primary),
                                     const SizedBox(width: 8),
                                     Text(
                                       'How `docked` Works',
@@ -308,7 +308,7 @@ class _ResultsPageState extends State<ResultsPage> {
     );
   }
 
-  Widget _buildTabChip(TResultStatus status, String label, IconData icon) {
+  Widget _buildTabChip(TResultStatus status, String label, dynamic icon) {
     final isSelected = _activeTab == status;
     return TButton(
       text: label,
@@ -388,13 +388,13 @@ class _ResultsPageState extends State<ResultsPage> {
           primaryAction: TButton(
             text: 'Go to Cloud Console',
             type: TButtonType.solid,
-            icon: Icons.dashboard_rounded,
+            icon: HugeIcons.strokeRoundedDashboardSquare01,
             onTap: onCustomPrimary ?? () => _setAction('Clicked: Go to Cloud Console'),
           ),
           secondaryAction: TButton(
             text: 'Download Receipt',
             type: TButtonType.tonal,
-            icon: Icons.download_rounded,
+            icon: HugeIcons.strokeRoundedDownload01,
             onTap: onCustomSecondary ?? () => _setAction('Clicked: Download Receipt'),
           ),
         );
@@ -406,7 +406,7 @@ class _ResultsPageState extends State<ResultsPage> {
           subtitle: 'You need the "Security Admin" or "Org Owner" RBAC permission to access cluster firewall rules.',
           primaryAction: TButton(
             text: 'Request Permission',
-            icon: Icons.vpn_key_rounded,
+            icon: HugeIcons.strokeRoundedKey01,
             type: TButtonType.solid,
             onTap: onCustomPrimary ?? () => _setAction('Clicked: Request Permission'),
           ),
@@ -424,13 +424,13 @@ class _ResultsPageState extends State<ResultsPage> {
           subtitle: 'The dataset or invoice ID you navigated to could not be found or has been moved.',
           primaryAction: TButton(
             text: 'Return Home',
-            icon: Icons.home_rounded,
+            icon: HugeIcons.strokeRoundedHome01,
             type: TButtonType.solid,
             onTap: onCustomPrimary ?? () => _setAction('Clicked: Return Home'),
           ),
           secondaryAction: TButton(
             text: 'Search Directory',
-            icon: Icons.search_rounded,
+            icon: HugeIcons.strokeRoundedSearch01,
             type: TButtonType.tonal,
             onTap: onCustomSecondary ?? () => _setAction('Clicked: Search Directory'),
           ),
@@ -443,13 +443,13 @@ class _ResultsPageState extends State<ResultsPage> {
           subtitle: 'An unexpected exception occurred while processing the request. Error Trace ID: req_9821_f10a.',
           primaryAction: TButton(
             text: 'Retry Request',
-            icon: Icons.refresh_rounded,
+            icon: HugeIcons.strokeRoundedRefresh,
             type: TButtonType.solid,
             onTap: onCustomPrimary ?? () => _setAction('Clicked: Retry Request'),
           ),
           secondaryAction: TButton(
             text: 'System Status Page',
-            icon: Icons.health_and_safety_outlined,
+            icon: HugeIcons.strokeRoundedHealth,
             type: TButtonType.tonal,
             onTap: onCustomSecondary ?? () => _setAction('Clicked: System Status Page'),
           ),
@@ -484,13 +484,13 @@ class _ResultsPageState extends State<ResultsPage> {
   primaryAction: TButton(
     text: 'Go to Cloud Console',
     type: TButtonType.solid,
-    icon: Icons.dashboard_rounded,
+    icon: HugeIcons.strokeRoundedDashboardSquare01,
     onTap: () => navigateToConsole(),
   ),
   secondaryAction: TButton(
     text: 'Download Receipt',
     type: TButtonType.tonal,
-    icon: Icons.download_rounded,
+    icon: HugeIcons.strokeRoundedDownload01,
     onTap: () => downloadReceipt(),
   ),
 );''';

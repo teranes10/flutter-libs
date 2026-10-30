@@ -31,8 +31,8 @@ class TRating extends StatefulWidget with TInputValueMixin<double>, TFocusMixin,
   final double itemSize;
   final Color? color;
   final Color? unratedColor;
-  final IconData ratedIcon;
-  final IconData unratedIcon;
+  final dynamic ratedIcon;
+  final dynamic unratedIcon;
   final bool disabled;
   final bool allowHalfRating;
   final double spacing;
@@ -51,8 +51,8 @@ class TRating extends StatefulWidget with TInputValueMixin<double>, TFocusMixin,
     this.itemSize = 24.0,
     this.color,
     this.unratedColor,
-    this.ratedIcon = Icons.star,
-    this.unratedIcon = Icons.star_border,
+    this.ratedIcon = HugeIcons.strokeRoundedStar,
+    this.unratedIcon = HugeIcons.strokeRoundedStar,
     this.disabled = false,
     this.allowHalfRating = false,
     this.spacing = 0.0,
@@ -103,8 +103,8 @@ class _TRatingState extends State<TRating>
                         notifyValueChanged(ratingValue);
                         setState(() {});
                       },
-                child: Icon(
-                  isHalfRated ? Icons.star_half : (isRated ? widget.ratedIcon : widget.unratedIcon),
+                child: TIcon.raw(
+                  isHalfRated ? HugeIcons.strokeRoundedStarHalf : (isRated ? widget.ratedIcon : widget.unratedIcon),
                   color: (isRated || isHalfRated) ? ratedColor : unratedColor,
                   size: widget.itemSize,
                 ),

@@ -30,7 +30,7 @@ class CopyButtonPage extends StatelessWidget {
           WidgetDocCard(
             title: 'Icon-Only Copy Button (TCopyButton)',
             description: 'Minimal copy action with smooth animated transition to checkmark feedback',
-            icon: Icons.copy_rounded,
+            icon: HugeIcons.strokeRoundedCopy01,
             preview: const Wrap(
               spacing: 16,
               runSpacing: 12,
@@ -57,7 +57,7 @@ TCopyButton(
           WidgetDocCard(
             title: 'Copy Button with Text Label & Toast Alert',
             description: 'Displays a readable label that changes to "Copied!" and emits a toast notification',
-            icon: Icons.notifications_active_outlined,
+            icon: HugeIcons.strokeRoundedNotification02,
             preview: const Wrap(
               spacing: 16,
               runSpacing: 12,
@@ -94,7 +94,7 @@ TCopyButton(
           WidgetDocCard(
             title: 'Inline Copyable Pill (TCopyable)',
             description: 'Pairs text with a copy button that appears on hover or stays visible',
-            icon: Icons.code_rounded,
+            icon: HugeIcons.strokeRoundedCodeSquare,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -131,7 +131,7 @@ TCopyable.text(
           WidgetDocCard(
             title: 'Admin Context (API Credentials Card)',
             description: 'Common usage inside developer settings and credential management panels',
-            icon: Icons.vpn_key_outlined,
+            icon: HugeIcons.strokeRoundedKey01,
             preview: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -144,7 +144,7 @@ TCopyable.text(
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.terminal_rounded, size: 20, color: colors.primary),
+                      TIcon.raw(HugeIcons.strokeRoundedComputer, size: 20, color: colors.primary),
                       const SizedBox(width: 8),
                       Text(
                         'Production API Endpoint',

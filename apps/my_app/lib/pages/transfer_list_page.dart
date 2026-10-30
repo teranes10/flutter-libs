@@ -131,7 +131,7 @@ class _TransferListPageState extends State<TransferListPage> {
                 ),
 
                 // Reset Button
-                TButton(text: 'Reset Defaults', icon: Icons.refresh_rounded, size: TSize.sm, type: TButtonType.outline, onTap: _resetData),
+                TButton(text: 'Reset Defaults', icon: HugeIcons.strokeRoundedRefresh, size: TSize.sm, type: TButtonType.outline, onTap: _resetData),
               ],
             ),
           ),
@@ -184,7 +184,7 @@ class _TransferListPageState extends State<TransferListPage> {
                       label: Text('${p.label} (${p.scope})', style: const TextStyle(fontSize: 11)),
                       backgroundColor: p.isSensitive ? Colors.red.withValues(alpha: 0.12) : colors.surfaceContainerHighest,
                       side: BorderSide(color: p.isSensitive ? Colors.red.shade400 : theme.dividerColor),
-                      avatar: p.isSensitive ? const Icon(Icons.shield_outlined, size: 14, color: Colors.red) : null,
+                      avatar: p.isSensitive ? TIcon.raw(HugeIcons.strokeRoundedShield01, size: 14, color: Colors.red) : null,
                     );
                   }).toList(),
                 ),

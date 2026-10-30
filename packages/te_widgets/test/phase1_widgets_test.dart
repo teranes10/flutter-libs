@@ -75,7 +75,7 @@ void main() {
           theme: theme,
           home: Scaffold(
             body: TEmptyState(
-              icon: Icons.inbox_outlined,
+              icon: HugeIcons.strokeRoundedInbox,
               title: 'No Items',
               description: 'Please add items to your cart.',
               action: TButton(
@@ -172,7 +172,7 @@ void main() {
         ),
       );
 
-      final iconFinder = find.byIcon(Icons.info_outline_rounded);
+      final iconFinder = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedInformationCircle);
       final titleFinder = find.text('Heading');
       final singleMessageFinder = find.text('Short message');
 
@@ -201,7 +201,7 @@ void main() {
         ),
       );
 
-      final multiIconFinder = find.byIcon(Icons.info_outline_rounded);
+      final multiIconFinder = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedInformationCircle);
       final multiTitleFinder = find.text('Heading');
       final multiMessageFinder = find.text('First line of message\nSecond line of message');
 
@@ -230,7 +230,7 @@ void main() {
         ),
       );
 
-      final wrapIconFinder = find.byIcon(Icons.info_outline_rounded);
+      final wrapIconFinder = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedInformationCircle);
       final wrapTitleFinder = find.text('Heading');
       final wrapMessageFinder = find.text('This is a very long message that definitely exceeds two hundred and fifty pixels width and wraps onto multiple lines.');
 
@@ -268,8 +268,8 @@ void main() {
       await tester.tap(find.text('Upgrade'));
       expect(actionTapped, isTrue);
 
-      expect(find.byIcon(Icons.close_rounded), findsOneWidget);
-      await tester.tap(find.byIcon(Icons.close_rounded));
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedCancel01), findsOneWidget);
+      await tester.tap(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedCancel01));
       expect(dismissed, isTrue);
     });
   });

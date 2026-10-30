@@ -193,13 +193,13 @@ class _TFilePickerState extends State<TFilePicker>
               children: [
                 ListTile(
                   minTileHeight: 56,
-                  leading: const Icon(Icons.photo_camera_outlined),
+                  leading: TIcon.raw(HugeIcons.strokeRoundedCamera01),
                   title: const Text('Take photo'),
                   onTap: () => Navigator.pop(context, TFilePickerSource.camera),
                 ),
                 ListTile(
                   minTileHeight: 56,
-                  leading: const Icon(Icons.folder_open_outlined),
+                  leading: TIcon.raw(HugeIcons.strokeRoundedFolderOpen),
                   title: const Text('Choose file'),
                   onTap: () => Navigator.pop(context, TFilePickerSource.files),
                 ),
@@ -312,7 +312,7 @@ class _TFilePickerState extends State<TFilePicker>
           setState(() => notifyValueChanged([]));
         }
       },
-      beforePreWidget: Icon(widget.source == TFilePickerSource.files ? Icons.attach_file_rounded : Icons.photo_camera_outlined,
+      beforePreWidget: TIcon.raw(widget.source == TFilePickerSource.files ? HugeIcons.strokeRoundedAttachment : HugeIcons.strokeRoundedCamera01,
           size: 16, color: colors.onSurfaceVariant),
       child: Focus(
         focusNode: focusNode,

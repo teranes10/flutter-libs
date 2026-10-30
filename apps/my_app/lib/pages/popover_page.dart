@@ -66,7 +66,7 @@ class _PopoverPageState extends State<PopoverPage> {
                           CircleAvatar(
                             radius: 20,
                             backgroundColor: colors.primaryContainer,
-                            child: Icon(Icons.person_rounded, color: colors.primary),
+                            child: TIcon.raw(HugeIcons.strokeRoundedUser, color: colors.primary),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -98,7 +98,7 @@ class _PopoverPageState extends State<PopoverPage> {
                       ),
                     ],
                   ),
-                  child: TButton(text: 'User Card (Tap)', icon: Icons.person_outline, type: TButtonType.tonal),
+                  child: TButton(text: 'User Card (Tap)', icon: HugeIcons.strokeRoundedUser, type: TButtonType.tonal),
                 ),
 
                 // 2. Filter Form Popover
@@ -154,7 +154,7 @@ class _PopoverPageState extends State<PopoverPage> {
                       },
                     );
                   },
-                  child: TButton(text: 'Filter Settings', icon: Icons.filter_alt_outlined, type: TButtonType.tonal),
+                  child: TButton(text: 'Filter Settings', icon: HugeIcons.strokeRoundedFilter, type: TButtonType.tonal),
                 ),
 
                 // 3. Hover Trigger Popover
@@ -167,7 +167,7 @@ class _PopoverPageState extends State<PopoverPage> {
                     'This popover reveals itself smoothly on mouse hover without needing an explicit tap!',
                     style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
                   ),
-                  child: TButton(text: 'Hover over me', icon: Icons.mouse_rounded, type: TButtonType.softOutline),
+                  child: TButton(text: 'Hover over me', icon: HugeIcons.strokeRoundedMouse01, type: TButtonType.softOutline),
                 ),
               ],
             ),
@@ -201,7 +201,7 @@ class _PopoverPageState extends State<PopoverPage> {
                       onCancel: () => _setStatus('Cancelled database deletion'),
                       child: TButton(
                         text: 'Delete Cluster',
-                        icon: Icons.delete_forever_rounded,
+                        icon: HugeIcons.strokeRoundedDelete02,
                         color: AppColors.danger,
                         type: TButtonType.solid,
                       ),
@@ -213,12 +213,12 @@ class _PopoverPageState extends State<PopoverPage> {
                       description: 'Team members will no longer be able to submit edits.',
                       confirmText: 'Archive',
                       confirmColor: colors.primary,
-                      icon: Icons.archive_outlined,
+                      icon: HugeIcons.strokeRoundedArchive,
                       onConfirm: () {
                         _setStatus('Project workspace successfully archived');
                       },
                       onCancel: () => _setStatus('Archive cancelled'),
-                      child: TButton(text: 'Archive Project', icon: Icons.archive_outlined, type: TButtonType.tonal),
+                      child: TButton(text: 'Archive Project', icon: HugeIcons.strokeRoundedArchive, type: TButtonType.tonal),
                     ),
 
                     // Reset settings confirmation
@@ -227,13 +227,13 @@ class _PopoverPageState extends State<PopoverPage> {
                       description: 'Active client access tokens will immediately expire.',
                       confirmText: 'Regenerate',
                       confirmColor: Colors.orange.shade700,
-                      icon: Icons.key_rounded,
+                      icon: HugeIcons.strokeRoundedKey01,
                       iconColor: Colors.orange.shade700,
                       onConfirm: () async {
                         await Future.delayed(const Duration(milliseconds: 500));
                         _setStatus('API secret rotated and new tokens issued');
                       },
-                      child: TButton(text: 'Rotate API Keys', icon: Icons.refresh_rounded, type: TButtonType.softOutline),
+                      child: TButton(text: 'Rotate API Keys', icon: HugeIcons.strokeRoundedRefresh, type: TButtonType.softOutline),
                     ),
                   ],
                 ),

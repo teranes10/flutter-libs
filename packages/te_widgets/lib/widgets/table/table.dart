@@ -35,7 +35,7 @@ part 'table_details.dart';
 ///     TTableHeader.image('Avatar', (user) => user.avatarUrl),
 ///     TTableHeader(text: 'Name', map: (user) => user.name),
 ///     TTableHeader.actions((user) => [
-///       TButton.icon(icon: Icons.edit, onPressed: () => edit(user)),
+///       TButton.icon(icon: HugeIcons.strokeRoundedEdit02, onPressed: () => edit(user)),
 ///     ]),
 ///   ],
 ///   controller: listController,

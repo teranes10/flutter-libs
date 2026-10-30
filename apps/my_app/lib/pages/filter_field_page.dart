@@ -244,11 +244,11 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
               ),
             ],
             right: [
-              TButton(icon: Icons.auto_awesome, text: 'Preset: Electronics', type: TButtonType.tonal, onTap: _applyPreset1),
-              TButton(icon: Icons.history, text: 'Preset: Recent Stock', type: TButtonType.tonal, onTap: _applyPreset2),
-              TButton(icon: Icons.clear_all, text: 'Clear All', type: TButtonType.softText, onTap: _clearPreset),
+              TButton(icon: HugeIcons.strokeRoundedAiAutoRotate, text: 'Preset: Electronics', type: TButtonType.tonal, onTap: _applyPreset1),
+              TButton(icon: HugeIcons.strokeRoundedClock01, text: 'Preset: Recent Stock', type: TButtonType.tonal, onTap: _applyPreset2),
+              TButton(icon: HugeIcons.strokeRoundedCancel02, text: 'Clear All', type: TButtonType.softText, onTap: _clearPreset),
               TButton(
-                icon: Icons.open_in_new,
+                icon: HugeIcons.strokeRoundedPropertyNew,
                 text: 'Open in Form Modal',
                 type: TButtonType.solid,
                 onPressed: (_) async {
@@ -385,7 +385,7 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
         ),
         child: Row(
           children: [
-            Icon(Icons.filter_list_off, size: 16, color: theme.colorScheme.onSurfaceVariant),
+            TIcon.raw(HugeIcons.strokeRoundedFilterReset, size: 16, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(width: 8),
             Text('No active filter rules applied.', style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant)),
           ],
@@ -409,7 +409,7 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
             children: [
               Row(
                 children: [
-                  Icon(Icons.filter_alt, size: 16, color: AppColors.primary),
+                  TIcon.raw(HugeIcons.strokeRoundedFilter, size: 16, color: AppColors.primary),
                   const SizedBox(width: 6),
                   Text('Applied Filters (${rules.length})', style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600)),
                 ],

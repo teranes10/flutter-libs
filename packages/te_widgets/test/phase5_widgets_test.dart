@@ -36,7 +36,7 @@ void main() {
       expect(find.text('true'), findsOneWidget);
 
       // Find expand/collapse arrow and tap it
-      final arrowFinder = find.byIcon(Icons.keyboard_arrow_down);
+      final arrowFinder = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedArrowDown01);
       expect(arrowFinder, findsWidgets);
 
       // Tap collapse

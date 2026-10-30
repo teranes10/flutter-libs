@@ -77,7 +77,7 @@ class _TablesCreateBuilderPageState extends State<TablesCreateBuilderPage> {
                   ],
                 ),
                 TButton(
-                  icon: Icons.add,
+                  icon: HugeIcons.strokeRoundedAdd01,
                   text: 'Add Product',
                   onPressed: (_) {
                     _clearInputs();

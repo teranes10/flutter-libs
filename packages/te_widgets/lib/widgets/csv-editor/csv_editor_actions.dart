@@ -156,7 +156,7 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
               TButton(
                 text: 'Parse Data',
                 type: TButtonType.solid,
-                icon: Icons.check,
+                icon: HugeIcons.strokeRoundedTick01,
                 onPressed: (_) {
                   Navigator.of(mContext.context).pop(textController.text);
                 },

@@ -23,7 +23,7 @@ class TAlertService {
     BuildContext context, {
     final dynamic text,
     final String? title,
-    final IconData? icon,
+    final dynamic icon,
     final Color? color,
     final AlertButton? closeButton,
     final AlertButton? confirmButton,
@@ -76,22 +76,22 @@ class TAlertService {
 
   /// Shows an informational alert.
   static void info(BuildContext context, String title, String message) {
-    show(context, title: title, text: message, icon: Icons.info_outline_rounded, color: context.theme.info);
+    show(context, title: title, text: message, icon: HugeIcons.strokeRoundedInformationCircle, color: context.theme.info);
   }
 
   /// Shows a success alert.
   static void success(BuildContext context, String title, String message) {
-    show(context, title: title, text: message, icon: Icons.check_circle_outline_rounded, color: context.theme.success);
+    show(context, title: title, text: message, icon: HugeIcons.strokeRoundedCheckmarkCircle01, color: context.theme.success);
   }
 
   /// Shows a warning alert.
   static void warning(BuildContext context, String title, String message) {
-    show(context, title: title, text: message, icon: Icons.warning_amber_rounded, color: context.theme.warning);
+    show(context, title: title, text: message, icon: HugeIcons.strokeRoundedAlert02, color: context.theme.warning);
   }
 
   /// Shows an error alert.
   static void error(BuildContext context, String title, String message) {
-    show(context, title: title, text: message, icon: Icons.error_outline_rounded, color: context.theme.danger);
+    show(context, title: title, text: message, icon: HugeIcons.strokeRoundedAlertCircle, color: context.theme.danger);
   }
 
   /// Shows a progress alert.
@@ -122,7 +122,7 @@ class TAlertService {
     show(context,
         title: 'Are you sure?',
         text: msg,
-        icon: Icons.archive_rounded,
+        icon: HugeIcons.strokeRoundedArchive,
         color: context.theme.danger,
         confirmButton: AlertButton(text: 'Archive', onClick: onConfirm));
   }
@@ -140,7 +140,7 @@ class TAlertService {
     show(context,
         title: 'Are you sure?',
         text: msg,
-        icon: Icons.unarchive_rounded,
+        icon: HugeIcons.strokeRoundedUnarchive03,
         color: context.theme.info,
         confirmButton: AlertButton(text: 'Restore', onClick: onConfirm));
   }
@@ -158,7 +158,7 @@ class TAlertService {
     show(context,
         title: 'Are you sure?',
         text: msg,
-        icon: Icons.delete_forever_rounded,
+        icon: HugeIcons.strokeRoundedDelete02,
         color: context.theme.danger,
         confirmButton: AlertButton(text: 'Delete', onClick: onConfirm));
   }

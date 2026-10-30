@@ -12,7 +12,7 @@ void main() {
           theme: theme,
           home: Scaffold(
             body: TButton(
-              icon: Icons.add,
+              icon: HugeIcons.strokeRoundedAdd01,
               text: 'Add Item',
               onTap: () {},
             ),
@@ -21,7 +21,7 @@ void main() {
       );
 
       expect(find.byType(TIcon), findsOneWidget);
-      expect(find.byIcon(Icons.add), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedAdd01), findsOneWidget);
       expect(find.text('Add Item'), findsOneWidget);
     });
 
@@ -74,8 +74,8 @@ void main() {
               theme: theme,
               home: Scaffold(
                 body: TButton(
-                  icon: Icons.favorite_border,
-                  activeIcon: Icons.favorite,
+                  icon: HugeIcons.strokeRoundedFavouriteCircle,
+                  activeIcon: HugeIcons.strokeRoundedFavourite,
                   active: active,
                   onChanged: (val) {
                     setState(() => active = val);
@@ -87,13 +87,13 @@ void main() {
         ),
       );
 
-      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
-      expect(find.byIcon(Icons.favorite), findsNothing);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedFavouriteCircle), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedFavourite), findsNothing);
 
       await tester.tap(find.byType(ElevatedButton));
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.favorite), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedFavourite), findsOneWidget);
     });
 
     testWidgets('supports rotation turns when toggled active', (tester) async {
@@ -105,7 +105,7 @@ void main() {
               theme: theme,
               home: Scaffold(
                 body: TButton(
-                  icon: Icons.keyboard_arrow_down,
+                  icon: HugeIcons.strokeRoundedArrowDown01,
                   turns: (0.0, 0.5),
                   active: active,
                   onChanged: (val) {
@@ -136,11 +136,11 @@ void main() {
               cycle: true,
               items: [
                 TButtonGroupItem(
-                  icon: Icons.play_arrow,
+                  icon: HugeIcons.strokeRoundedPlay,
                   text: 'Play',
                 ),
                 TButtonGroupItem(
-                  icon: Icons.pause,
+                  icon: HugeIcons.strokeRoundedPause,
                   text: 'Pause',
                 ),
               ],
@@ -150,12 +150,12 @@ void main() {
       );
 
       expect(find.byType(TIcon), findsOneWidget);
-      expect(find.byIcon(Icons.play_arrow), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedPlay), findsOneWidget);
 
       await tester.tap(find.byType(ElevatedButton));
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.pause), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedPause), findsOneWidget);
     });
 
     testWidgets('TPagination renders HugeIcons via TIcon for navigation', (tester) async {
@@ -182,13 +182,13 @@ void main() {
         MaterialApp(
           theme: theme,
           home: Scaffold(
-            body: TIcon.raw(Icons.star, size: 24, color: Colors.amber),
+            body: TIcon.raw(HugeIcons.strokeRoundedStar, size: 24, color: Colors.amber),
           ),
         ),
       );
 
       expect(find.byType(TIcon), findsOneWidget);
-      expect(find.byIcon(Icons.star), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedStar), findsOneWidget);
       expect(find.byType(InkWell), findsNothing);
       expect(find.byType(Container), findsNothing);
     });
@@ -215,7 +215,7 @@ void main() {
           theme: theme,
           home: Scaffold(
             body: TButton(
-              icon: Icons.notifications,
+              icon: HugeIcons.strokeRoundedNotification01,
               text: 'Alerts',
               badge: 5,
               onTap: () {},
@@ -241,7 +241,7 @@ void main() {
           theme: theme,
           home: Scaffold(
             body: TButton(
-              icon: Icons.mail,
+              icon: HugeIcons.strokeRoundedMail01,
               badge: true,
               onTap: () {},
             ),
@@ -261,7 +261,7 @@ void main() {
           theme: theme,
           home: Scaffold(
             body: TButton(
-              icon: Icons.star,
+              icon: HugeIcons.strokeRoundedStar,
               text: 'Featured',
               badge: 'NEW',
               badgeAlignment: Alignment.topLeft,
@@ -290,7 +290,7 @@ void main() {
           theme: theme,
           home: Scaffold(
             body: TButton(
-              icon: Icons.chat,
+              icon: HugeIcons.strokeRoundedBubbleChat,
               badge: const SizedBox(key: customKey, width: 10, height: 10),
               badgeAlignment: Alignment.bottomRight,
               onTap: () {},

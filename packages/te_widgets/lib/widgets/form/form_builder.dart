@@ -40,8 +40,8 @@ part 'form_type.dart';
 /// ```dart
 /// TFormBuilder.horizontalTabs(
 ///   tabs: [
-///     TFormTab(title: 'Account', icon: Icons.person, input: accountForm),
-///     TFormTab(title: 'Settings', icon: Icons.settings, input: settingsForm),
+///     TFormTab(title: 'Account', icon: HugeIcons.strokeRoundedUser, input: accountForm),
+///     TFormTab(title: 'Settings', icon: HugeIcons.strokeRoundedSettings01, input: settingsForm),
 ///   ],
 /// )
 /// ```
@@ -127,7 +127,7 @@ class TFormBuilder extends StatefulWidget {
   /// Callback fired when any field value changes.
   final VoidCallback? onValueChanged;
 
-  final IconData? icon;
+  final dynamic icon;
 
   /// Optional title for the form (renders inside an accordion when provided).
   final String? label;

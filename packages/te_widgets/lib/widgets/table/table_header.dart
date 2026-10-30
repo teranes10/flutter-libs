@@ -1578,8 +1578,7 @@ class TTableHeader<T, K> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
           ),
-          child: Icon(
-            Icons.more_vert_rounded,
+          child: TIcon.raw(HugeIcons.strokeRoundedMoreVertical,
             size: isDense ? 16 : 18,
             color: ctx.colors.onSurfaceVariant,
           ),

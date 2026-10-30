@@ -134,11 +134,10 @@ class _TColorPickerState extends State<TColorPicker>
                 ]
               : null,
         ),
-        child: Icon(
-          Icons.add,
+        child: TIcon.raw(
+          HugeIcons.strokeRoundedAdd01,
           color: !hasValue ? Colors.white : (selectedColor!.computeLuminance() > 0.5 ? Colors.black : Colors.white),
           size: widget.itemSize * 0.6,
-          shadows: !hasValue ? const [Shadow(blurRadius: 2, color: Colors.black)] : null,
         ),
       ),
     );
@@ -201,8 +200,8 @@ class _TColorPickerState extends State<TColorPicker>
                           : null,
                     ),
                     child: isSelected
-                        ? Icon(
-                            Icons.check,
+                        ? TIcon.raw(
+                            HugeIcons.strokeRoundedTick01,
                             color: color.computeLuminance() > 0.5 ? Colors.black : Colors.white,
                             size: widget.itemSize * 0.6,
                           )
@@ -439,8 +438,8 @@ class _CustomColorPickerDialogState extends State<_CustomColorPickerDialog> {
                                       : null,
                                 ),
                                 child: isSelected
-                                    ? Icon(
-                                        Icons.check,
+                                    ? TIcon.raw(
+                                        HugeIcons.strokeRoundedTick01,
                                         color: recentColor.computeLuminance() > 0.5 ? Colors.black : Colors.white,
                                         size: 16,
                                       )
@@ -472,8 +471,8 @@ class _CustomColorPickerDialogState extends State<_CustomColorPickerDialog> {
                                     ),
                                   ],
                                 ),
-                                child: const Icon(
-                                  Icons.close,
+                                child: TIcon.raw(
+                                  HugeIcons.strokeRoundedCancel01,
                                   size: 10,
                                   color: Colors.white,
                                 ),

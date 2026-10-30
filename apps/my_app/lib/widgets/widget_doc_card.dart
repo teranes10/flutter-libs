@@ -76,7 +76,7 @@ class WidgetDocCard extends StatefulWidget {
   final List<PropertyDoc> properties;
 
   /// Optional icon to display in the header.
-  final IconData? icon;
+  final dynamic? icon;
 
   /// Whether to start with the code tab expanded.
   final bool defaultShowCode;
@@ -149,7 +149,7 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(color: context.theme.primary.withAlpha(26), borderRadius: BorderRadius.circular(8)),
-                        child: Icon(widget.icon, color: context.theme.primary, size: 24),
+                        child: TIcon.raw(widget.icon, color: context.theme.primary, size: 24),
                       ),
                     if (widget.icon != null) const SizedBox(width: 10),
                     // Title and Subtitle
@@ -180,9 +180,9 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                         selectedValue: value,
                         inline: true,
                         tabs: [
-                          TTab(value: 0, icon: Icons.remove_red_eye),
-                          TTab(value: 1, icon: Icons.code),
-                          if (widget.properties.isNotEmpty) TTab(value: 2, icon: Icons.list_alt),
+                          TTab(value: 0, icon: HugeIcons.strokeRoundedView),
+                          TTab(value: 1, icon: HugeIcons.strokeRoundedCode),
+                          if (widget.properties.isNotEmpty) TTab(value: 2, icon: HugeIcons.strokeRoundedPropertyNew),
                         ],
                         onTabChanged: (value) => _tabController.value = value,
                       );
@@ -231,11 +231,7 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                         Positioned(
                           top: 0,
                           right: 0,
-                          child: TCopyButton(
-                            text: widget.code.trim(),
-                            size: TButtonSize.xs,
-                            type: TButtonType.tonal,
-                          ),
+                          child: TCopyButton(text: widget.code.trim(), size: TButtonSize.xs, type: TButtonType.tonal),
                         ),
                       ],
                     ),

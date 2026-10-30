@@ -42,9 +42,9 @@ void main() {
         onTap: (i) => tapped = i,
         textPosition: TBottomBarTextPosition.bottomAlways,
         items: const [
-          TBottomBarItem(icon: Icons.home, label: 'Home', permission: 'a'),
-          TBottomBarItem(icon: Icons.search, label: 'Search', permission: 'b'),
-          TBottomBarItem(icon: Icons.person, label: 'Profile', permission: 'c'),
+          TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, label: 'Home', permission: 'a'),
+          TBottomBarItem(icon: HugeIcons.strokeRoundedSearch01, label: 'Search', permission: 'b'),
+          TBottomBarItem(icon: HugeIcons.strokeRoundedUser, label: 'Profile', permission: 'c'),
         ],
       ),
     ));
@@ -72,7 +72,7 @@ void main() {
     await t.pumpWidget(host(
       c,
       Column(children: [
-        TNavItem(icon: Icons.home, label: 'Nav', isActive: true, permission: 'x', onTap: () => taps++),
+        TNavItem(icon: HugeIcons.strokeRoundedHome01, label: 'Nav', isActive: true, permission: 'x', onTap: () => taps++),
         TTile(title: 'Tile', permission: 'x', onTap: () => taps++),
       ]),
     ));
@@ -87,10 +87,10 @@ void main() {
     addTearDown(t.view.resetPhysicalSize);
 
     final items = [
-      const TSidebarItem(icon: Icons.dashboard, text: 'Dashboard', route: '/d', home: true, permission: 'dash'),
-      const TSidebarItem(icon: Icons.inventory, text: 'Reports', route: '/r', permission: 'reports'),
-      const TSidebarItem(icon: Icons.settings, text: 'Admin', children: [
-        TSidebarItem(icon: Icons.people, text: 'Users', route: '/u', permission: 'users'),
+      const TSidebarItem(icon: HugeIcons.strokeRoundedDashboardSquare01, text: 'Dashboard', route: '/d', home: true, permission: 'dash'),
+      const TSidebarItem(icon: HugeIcons.strokeRoundedPackage, text: 'Reports', route: '/r', permission: 'reports'),
+      const TSidebarItem(icon: HugeIcons.strokeRoundedSettings01, text: 'Admin', children: [
+        TSidebarItem(icon: HugeIcons.strokeRoundedUserGroup, text: 'Users', route: '/u', permission: 'users'),
       ]),
     ];
     final c = TAuthController(permissions: const ['dash']);

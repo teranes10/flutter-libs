@@ -12,7 +12,7 @@ class TMapPin {
   final LatLng coordinates;
   final String? label;
   final Color? labelColor;
-  final IconData? icon;
+  final dynamic icon;
   final Color? iconColor;
   final String? assetPath;
   final Alignment? alignment;

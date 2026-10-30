@@ -239,7 +239,7 @@ class TabbedSettingsForm extends TFormBase {
       tabs: [
         TFormTab.fields(
           title: 'General',
-          icon: Icons.tune,
+          icon: HugeIcons.strokeRoundedFilterEdit,
           fields: [
             TFormField.text(siteName, 'Site Name', isRequired: true),
             TFormField.text(siteUrl, 'Site URL', isRequired: true),
@@ -248,7 +248,7 @@ class TabbedSettingsForm extends TFormBase {
         ),
         TFormTab.fields(
           title: 'Email / SMTP',
-          icon: Icons.mail_outline,
+          icon: HugeIcons.strokeRoundedMail01,
           fields: [
             TFormField.text(smtpHost, 'SMTP Host').size(8),
             TFormField.number<int>(smtpPort, 'Port').size(4),
@@ -257,7 +257,7 @@ class TabbedSettingsForm extends TFormBase {
         ),
         TFormTab.fields(
           title: 'Security',
-          icon: Icons.security,
+          icon: HugeIcons.strokeRoundedShield01,
           fields: [
             TFormField.toggle(enable2FA, 'Require 2FA for all users'),
             TFormField.number<int>(sessionTimeout, 'Session Timeout (minutes)'),
@@ -265,7 +265,7 @@ class TabbedSettingsForm extends TFormBase {
         ),
         TFormTab.fields(
           title: 'Notifications',
-          icon: Icons.notifications_outlined,
+          icon: HugeIcons.strokeRoundedNotification01,
           fields: [TFormField.toggle(notifyEmail, 'Email Notifications'), TFormField.toggle(notifyPush, 'Push Notifications')],
         ),
       ],

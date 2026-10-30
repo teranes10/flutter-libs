@@ -35,26 +35,26 @@ class LayoutProfileButton extends ConsumerWidget {
       if (showThemeToggle)
         TDropdownItem(
           icon: switch (currentThemeMode) {
-            ThemeMode.light => Icons.light_mode_outlined,
-            ThemeMode.dark => Icons.dark_mode_outlined,
-            ThemeMode.system => Icons.brightness_auto_outlined,
+            ThemeMode.light => HugeIcons.strokeRoundedDrawingMode,
+            ThemeMode.dark => HugeIcons.strokeRoundedDarkMode,
+            ThemeMode.system => HugeIcons.strokeRoundedEraserAuto,
           },
           text: 'Theme (${currentThemeMode.name[0].toUpperCase()}${currentThemeMode.name.substring(1)})',
           children: [
             TDropdownItem(
-              icon: Icons.brightness_auto_outlined,
+              icon: HugeIcons.strokeRoundedEraserAuto,
               text: 'System',
               color: currentThemeMode == ThemeMode.system ? colors.primary : null,
               onTap: () => themeNotifier.setThemeMode(ThemeMode.system),
             ),
             TDropdownItem(
-              icon: Icons.light_mode_outlined,
+              icon: HugeIcons.strokeRoundedDrawingMode,
               text: 'Light',
               color: currentThemeMode == ThemeMode.light ? colors.primary : null,
               onTap: () => themeNotifier.setThemeMode(ThemeMode.light),
             ),
             TDropdownItem(
-              icon: Icons.dark_mode_outlined,
+              icon: HugeIcons.strokeRoundedDarkMode,
               text: 'Dark',
               color: currentThemeMode == ThemeMode.dark ? colors.primary : null,
               onTap: () => themeNotifier.setThemeMode(ThemeMode.dark),
@@ -63,14 +63,14 @@ class LayoutProfileButton extends ConsumerWidget {
         ),
       if (showColorToggle)
         TDropdownItem(
-          icon: Icons.palette_outlined,
+          icon: HugeIcons.strokeRoundedPaintBoard,
           color: selectedColorOption.color,
           text: 'Accent Color',
           children: [
             for (var i = 0; i < primaryColorOptions.length; i++)
               TDropdownItem(
                 text: primaryColorOptions[i].name,
-                icon: Icons.circle,
+                icon: HugeIcons.strokeRoundedCircle,
                 color: primaryColorOptions[i].color,
                 onTap: () => themeNotifier.selectColor(i),
               ),
@@ -78,13 +78,13 @@ class LayoutProfileButton extends ConsumerWidget {
         ),
       if (kIsWeb && showFullscreenToggle)
         TDropdownItem(
-          icon: isFullscreen ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+          icon: isFullscreen ? HugeIcons.strokeRoundedFullscreen : HugeIcons.strokeRoundedFullscreen,
           text: isFullscreen ? 'Exit Fullscreen' : 'Fullscreen',
           onTap: () => TFullscreen.toggleFullscreen(),
         ),
       if (showLogout && onLogout != null)
         TDropdownItem(
-          icon: Icons.logout_rounded,
+          icon: HugeIcons.strokeRoundedLogout01,
           text: 'Log out',
           onTap: onLogout,
         ),
@@ -102,8 +102,7 @@ class LayoutProfileButton extends ConsumerWidget {
           children: [
             profile,
             const SizedBox(width: 12),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
+            TIcon.raw(HugeIcons.strokeRoundedArrowDown01,
               size: 16,
               color: colors.onSurfaceVariant,
             ),

@@ -12,28 +12,28 @@ void main() {
 
   final testItems = [
     const TSidebarItem(
-      icon: Icons.dashboard,
+      icon: HugeIcons.strokeRoundedDashboardSquare01,
       text: 'Dashboard',
       route: '/dashboard',
       home: true,
     ),
     const TSidebarItem(
-      icon: Icons.inventory_2_outlined,
+      icon: HugeIcons.strokeRoundedPackage,
       text: 'Products',
       route: '/products',
       children: [
         TSidebarItem(
-          icon: Icons.list,
+          icon: HugeIcons.strokeRoundedList,
           text: 'Product List',
           route: 'list',
         ),
         TSidebarItem(
-          icon: Icons.category,
+          icon: HugeIcons.strokeRoundedFactory,
           text: 'Categories',
           route: 'categories',
           children: [
             TSidebarItem(
-              icon: Icons.subdirectory_arrow_right,
+              icon: HugeIcons.strokeRoundedSquareArrowLeftRight,
               text: 'Subcategories',
               route: 'sub',
             ),
@@ -42,38 +42,38 @@ void main() {
       ],
     ),
     const TSidebarItem(
-      icon: Icons.settings,
+      icon: HugeIcons.strokeRoundedSettings01,
       text: 'Settings',
       route: '/settings',
     ),
   ];
 
   final manyItems = [
-    const TSidebarItem(icon: Icons.dashboard, text: 'Dashboard', route: '/dashboard', home: true),
+    const TSidebarItem(icon: HugeIcons.strokeRoundedDashboardSquare01, text: 'Dashboard', route: '/dashboard', home: true),
     const TSidebarItem(
-      icon: Icons.inventory,
+      icon: HugeIcons.strokeRoundedPackage,
       text: 'Products',
       route: '/products',
       children: [
-        TSidebarItem(icon: Icons.list, text: 'Product List', route: 'list'),
+        TSidebarItem(icon: HugeIcons.strokeRoundedList, text: 'Product List', route: 'list'),
         TSidebarItem(
-          icon: Icons.category,
+          icon: HugeIcons.strokeRoundedFactory,
           text: 'Categories',
           route: 'categories',
           children: [
-            TSidebarItem(icon: Icons.subdirectory_arrow_right, text: 'Subcategories', route: 'sub'),
+            TSidebarItem(icon: HugeIcons.strokeRoundedSquareArrowLeftRight, text: 'Subcategories', route: 'sub'),
           ],
         ),
       ],
     ),
-    const TSidebarItem(icon: Icons.analytics, text: 'Analytics', route: '/analytics'),
-    const TSidebarItem(icon: Icons.people, text: 'Customers', route: '/customers'),
-    const TSidebarItem(icon: Icons.receipt_long, text: 'Orders', route: '/orders'),
-    const TSidebarItem(icon: Icons.local_shipping, text: 'Logistics', route: '/logistics'),
-    const TSidebarItem(icon: Icons.payments, text: 'Finance', route: '/finance'),
-    const TSidebarItem(icon: Icons.campaign, text: 'Marketing', route: '/marketing'),
-    const TSidebarItem(icon: Icons.support_agent, text: 'Support', route: '/support'),
-    const TSidebarItem(icon: Icons.settings, text: 'System', route: '/settings'),
+    const TSidebarItem(icon: HugeIcons.strokeRoundedAnalytics01, text: 'Analytics', route: '/analytics'),
+    const TSidebarItem(icon: HugeIcons.strokeRoundedUserGroup, text: 'Customers', route: '/customers'),
+    const TSidebarItem(icon: HugeIcons.strokeRoundedInvoice, text: 'Orders', route: '/orders'),
+    const TSidebarItem(icon: HugeIcons.strokeRoundedDeliveryTruck01, text: 'Logistics', route: '/logistics'),
+    const TSidebarItem(icon: HugeIcons.strokeRoundedPayment02, text: 'Finance', route: '/finance'),
+    const TSidebarItem(icon: HugeIcons.strokeRoundedChampion, text: 'Marketing', route: '/marketing'),
+    const TSidebarItem(icon: HugeIcons.strokeRoundedCustomerSupport, text: 'Support', route: '/support'),
+    const TSidebarItem(icon: HugeIcons.strokeRoundedSettings01, text: 'System', route: '/settings'),
   ];
 
   Widget buildApp({
@@ -279,23 +279,23 @@ void main() {
 
       final multiLevelItems = [
         const TSidebarItem(
-          icon: Icons.dashboard,
+          icon: HugeIcons.strokeRoundedDashboardSquare01,
           text: 'Dashboard',
           route: '/dashboard',
           home: true,
         ),
         const TSidebarItem(
-          icon: Icons.inventory_2_outlined,
+          icon: HugeIcons.strokeRoundedPackage,
           text: 'Products',
           route: '/products',
           children: [
             TSidebarItem(
-              icon: Icons.category,
+              icon: HugeIcons.strokeRoundedFactory,
               text: 'Categories',
               route: 'categories',
               children: [
                 TSidebarItem(
-                  icon: Icons.subdirectory_arrow_right,
+                  icon: HugeIcons.strokeRoundedSquareArrowLeftRight,
                   text: 'Subcategories',
                   route: 'sub',
                 ),
