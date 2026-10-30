@@ -179,8 +179,13 @@ class TTextFieldTheme extends TInputFieldTheme {
   }
 
   /// Creates a default theme derived from the context colors.
-  factory TTextFieldTheme.defaultTheme(ColorScheme colors) {
-    final baseTheme = TInputFieldTheme.defaultTheme(colors);
+  factory TTextFieldTheme.defaultTheme(
+    ColorScheme colors, {
+    TInputSize size = defaultInputSize,
+    TInputDecorationType decorationType = defaultInputDecorationType,
+    TLabelPosition labelPosition = defaultLabelPosition,
+  }) {
+    final baseTheme = TInputFieldTheme.defaultTheme(colors, size: size, decorationType: decorationType, labelPosition: labelPosition);
 
     return TTextFieldTheme(
       size: baseTheme.size,

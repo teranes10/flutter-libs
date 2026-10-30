@@ -139,6 +139,8 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
       child: InkWell(
         borderRadius: BorderRadius.circular(wTheme.borderRadius.resolve(states)),
         hoverColor: Colors.transparent,
+        focusColor: Colors.transparent,
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         onHover: (value) {

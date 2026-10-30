@@ -206,36 +206,33 @@ class TNumberFieldTheme extends TTextFieldTheme {
   }
 
   /// Creates a default theme derived from the context colors.
-  factory TNumberFieldTheme.defaultTheme(ColorScheme colors) {
-    final baseTheme = TTextFieldTheme.defaultTheme(colors);
+  factory TNumberFieldTheme.defaultTheme(
+    ColorScheme colors, {
+    TInputSize size = defaultInputSize,
+    TInputDecorationType decorationType = defaultInputDecorationType,
+    TLabelPosition labelPosition = defaultLabelPosition,
+  }) {
+    final baseTheme = TTextFieldTheme.defaultTheme(colors, size: size, decorationType: decorationType, labelPosition: labelPosition);
     final increment = 1;
     final decrement = 1;
 
     Widget decreaseButtonBuilder(onTap, enabled) {
-      return TButton(
-        type: TButtonType.icon,
-        size: TButtonSize.xxs.copyWith(
-          minW: baseTheme.fieldFontSize + 4,
-          minH: baseTheme.fieldHeight - (baseTheme.fieldPadding.top + baseTheme.fieldPadding.bottom),
-          icon: baseTheme.fieldFontSize + 2,
-        ),
-        icon: Icons.remove,
+      return TIcon(
+        icon: HugeIcons.strokeRoundedMinusSign,
+        size: baseTheme.fieldFontSize + 3,
         color: colors.onSurfaceVariant,
         onTap: enabled ? onTap : null,
+        semanticLabel: 'Decrease',
       );
     }
 
     Widget increaseButtonBuilder(onTap, enabled) {
-      return TButton(
-        type: TButtonType.icon,
-        size: TButtonSize.xxs.copyWith(
-          minW: baseTheme.fieldFontSize + 4,
-          minH: baseTheme.fieldHeight - (baseTheme.fieldPadding.top + baseTheme.fieldPadding.bottom),
-          icon: baseTheme.fieldFontSize + 2,
-        ),
-        icon: Icons.add,
+      return TIcon(
+        icon: HugeIcons.strokeRoundedAdd01,
+        size: baseTheme.fieldFontSize + 3,
         color: colors.onSurfaceVariant,
         onTap: enabled ? onTap : null,
+        semanticLabel: 'Increase',
       );
     }
 
@@ -269,16 +266,13 @@ class TNumberFieldTheme extends TTextFieldTheme {
       increaseButtonBuilder: increaseButtonBuilder,
       decreaseButtonBuilder: decreaseButtonBuilder,
       stepperBuilder: (ctx, onValueChanged, canIncrease, canDecrease) {
-        return Padding(
-          padding: EdgeInsetsGeometry.only(right: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 12,
-            children: [
-              decreaseButtonBuilder(() => onValueChanged(-decrement), canDecrease),
-              increaseButtonBuilder(() => onValueChanged(increment), canIncrease),
-            ],
-          ),
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 12,
+          children: [
+            decreaseButtonBuilder(() => onValueChanged(-decrement), canDecrease),
+            increaseButtonBuilder(() => onValueChanged(increment), canIncrease),
+          ],
         );
       },
     );

@@ -908,9 +908,102 @@ final pngBytes = await controller.toPngBytes();''',
             ],
           ),
 
+          // Variant comparisons
+          WidgetDocCard(
+            title: 'Compare: Decoration Type',
+            description: 'outline, filled, underline and none side by side',
+            icon: Icons.compare,
+            defaultShowCode: true,
+            preview: _VariantGrid(
+              variants: [for (final t in TInputDecorationType.values) (t.name, (c) => _themes(c, decorationType: t))],
+            ),
+            code: '''TTextField(
+  label: 'Label',
+  theme: TTextFieldTheme.defaultTheme(colors, decorationType: TInputDecorationType.filled),
+)''',
+          ),
+          WidgetDocCard(
+            title: 'Compare: Label Position',
+            description: 'aboveField, floating and inlineFloating side by side',
+            icon: Icons.compare,
+            defaultShowCode: true,
+            preview: _VariantGrid(
+              variants: [for (final l in TLabelPosition.values) (l.name, (c) => _themes(c, labelPosition: l))],
+            ),
+            code: '''TTextField(
+  label: 'Label',
+  theme: TTextFieldTheme.defaultTheme(colors, labelPosition: TLabelPosition.floating),
+)''',
+          ),
+          WidgetDocCard(
+            title: 'Compare: Size',
+            description: 'xs, sm, md and lg side by side',
+            icon: Icons.compare,
+            defaultShowCode: true,
+            preview: _VariantGrid(
+              variants: [for (final z in TInputSize.values) (z.name, (c) => _themes(c, size: z))],
+            ),
+            code: '''TTextField(
+  label: 'Label',
+  theme: TTextFieldTheme.defaultTheme(colors, size: TInputSize.lg),
+)''',
+          ),
+
           const SizedBox(height: 40),
         ],
       ),
+    );
+  }
+}
+
+typedef _Themes = (TTextFieldTheme, TNumberFieldTheme);
+
+_Themes _themes(
+  ColorScheme c, {
+  TInputSize size = defaultInputSize,
+  TInputDecorationType decorationType = defaultInputDecorationType,
+  TLabelPosition labelPosition = defaultLabelPosition,
+}) =>
+    (
+      TTextFieldTheme.defaultTheme(c, size: size, decorationType: decorationType, labelPosition: labelPosition),
+      TNumberFieldTheme.defaultTheme(c, size: size, decorationType: decorationType, labelPosition: labelPosition),
+    );
+
+/// One column per variant, each showing text, number, date and prefixed fields.
+class _VariantGrid extends StatelessWidget {
+  final List<(String, _Themes Function(ColorScheme))> variants;
+
+  const _VariantGrid({required this.variants});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+
+    return Wrap(
+      spacing: 24,
+      runSpacing: 24,
+      children: [
+        for (final (name, build) in variants)
+          SizedBox(
+            width: 260,
+            child: Builder(builder: (context) {
+              final (textTheme, numberTheme) = build(colors);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 12,
+                children: [
+                  Text(name, style: TextStyle(fontWeight: FontWeight.w600, color: colors.primary)),
+                  TTextField(label: 'Text', placeholder: 'Placeholder', theme: textTheme),
+                  TTextField(label: 'With value', value: 'ACC-12345', theme: textTheme),
+                  TTextField(label: 'Clearable', value: 'Clear me', clearable: true, theme: textTheme),
+                  TNumberField<double>(label: 'Number', value: 15, theme: numberTheme),
+                  TDatePicker(label: 'Date', theme: textTheme),
+                ],
+              );
+            }),
+          ),
+      ],
     );
   }
 }

@@ -120,7 +120,7 @@ class TInputFieldTheme {
     final newHelperTextStyle = helperTextStyle ?? this.helperTextStyle;
     final newErrorTextStyle = errorTextStyle ?? this.errorTextStyle;
     final newTagStyle = tagStyle ?? this.tagStyle;
-    final newPadding = padding ?? this.padding ?? size?.padding ?? fieldPadding;
+    final newPadding = padding ?? this.padding ?? (size ?? this.size).padding;
     final shouldRebuildLabel = labelStyle != null || tagStyle != null || errorTextStyle != null || backgroundColor != null;
 
     return TInputFieldTheme(
@@ -303,7 +303,9 @@ class TInputFieldTheme {
     final effectivePadding = decorationType == TInputDecorationType.underline
         ? basePadding.copyWith(top: 0, bottom: basePadding.bottom)
         : showFloatingLabel && labelPosition == TLabelPosition.inlineFloating
-            ? basePadding.copyWith(top: basePadding.top / 1.2, bottom: basePadding.bottom / 1.2)
+            // Label + text + padding must fit in the fixed field height; larger padding overflows
+            // the decorator and squeezes the label against the text.
+            ? basePadding.copyWith(top: basePadding.top * 0.75, bottom: basePadding.bottom * 0.65)
             : basePadding;
 
     return InputDecoration(
@@ -332,9 +334,9 @@ class TInputFieldTheme {
       visualDensity: VisualDensity.compact,
       hintText: placeholder,
       hintStyle: hintStyle.resolve(states),
-      prefixIconConstraints: BoxConstraints(minHeight: fieldHeight - effectivePadding.vertical, minWidth: effectivePadding.left),
+      prefixIconConstraints: BoxConstraints(minWidth: effectivePadding.left),
       prefixIcon: _buildPreWidget(beforePreWidget),
-      suffixIconConstraints: BoxConstraints(minHeight: fieldHeight - effectivePadding.vertical, minWidth: effectivePadding.right),
+      suffixIconConstraints: BoxConstraints(minWidth: effectivePadding.right),
       suffixIcon: _buildPostWidget(
         beforePostWidget: beforePostWidget,
         onClear: onClear,
