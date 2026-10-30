@@ -545,7 +545,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
       return;
     }
 
-    final selectedKey = widget.itemValue == null ? listController.itemKey(value as T) : value as K;
+    final selectedKey = widget.itemValue == null ? listController.itemKey(value as T) : (value is K ? value as K : _keyOfValue(value));
     if (!_isLocalItems && widget.itemValue == null && selectedKey != null) {
       listController.registerItem(value as T);
     }
@@ -554,6 +554,14 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
     if (!selectedKeySet.equalsEach(listController.selectedKeys)) {
       listController.updateSelectionState(selectedKeySet);
     }
+  }
+
+  /// The key of the item whose [TSelect.itemValue] is [value], for a select whose value type is not its key type (an enum value with the enum's name as key).
+  K? _keyOfValue(V value) {
+    for (final item in listController.flatItems) {
+      if (widget.itemValue!(item) == value) return listController.itemKey(item);
+    }
+    return null;
   }
 
   void _onItemSelected(TListItem<T, K> item) {
