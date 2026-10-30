@@ -1,3 +1,12 @@
+## 3.9.0
+
+ - **REFACTOR**: migrate Icons.* to HugeIcons and Icon widgets to TIcon.raw.
+ - **FIX**(te_widgets): even label/text spacing with icons, drop focus overlay on containers, TIcon number stepper.
+ - **FIX**(te_widgets): close table overlays on dispose, dedupe streamed creates, change CRUD expansion defaults.
+ - **FEAT**(te_widgets): fade scrollable tab edges and fix tab wrapping.
+ - **FEAT**(te_widgets): add stacked sub-row table columns and matrix table demo pages.
+ - **FEAT**(te_widgets): add permission-string authorization engine and segmented tabs/button group.
+
 ## 3.8.0
 
  - **FEAT**(te_widgets): add forceCache support across image-bearing widgets.

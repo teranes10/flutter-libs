@@ -1,3 +1,7 @@
+## 3.2.4
+
+ - **REFACTOR**: migrate Icons.* to HugeIcons and Icon widgets to TIcon.raw.
+
 ## 3.2.3
 
  - Update a dependency to the latest release.

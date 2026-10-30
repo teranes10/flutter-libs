@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-10-31
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`te_map` - `v3.2.4`](#te_map---v324)
+ - [`te_scanner` - `v3.2.4`](#te_scanner---v324)
+ - [`te_widgets` - `v3.9.0`](#te_widgets---v390)
+ - [`te_editor` - `v3.3.1`](#te_editor---v331)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_editor` - `v3.3.1`
+
+---
+
+#### `te_map` - `v3.2.4`
+
+ - **REFACTOR**: migrate Icons.* to HugeIcons and Icon widgets to TIcon.raw.
+
+#### `te_scanner` - `v3.2.4`
+
+ - **REFACTOR**: migrate Icons.* to HugeIcons and Icon widgets to TIcon.raw.
+
+#### `te_widgets` - `v3.9.0`
+
+ - **REFACTOR**: migrate Icons.* to HugeIcons and Icon widgets to TIcon.raw.
+ - **FIX**(te_widgets): even label/text spacing with icons, drop focus overlay on containers, TIcon number stepper.
+ - **FIX**(te_widgets): close table overlays on dispose, dedupe streamed creates, change CRUD expansion defaults.
+ - **FEAT**(te_widgets): fade scrollable tab edges and fix tab wrapping.
+ - **FEAT**(te_widgets): add stacked sub-row table columns and matrix table demo pages.
+ - **FEAT**(te_widgets): add permission-string authorization engine and segmented tabs/button group.
+
+
 ## 2026-10-26
 
 ### Changes
