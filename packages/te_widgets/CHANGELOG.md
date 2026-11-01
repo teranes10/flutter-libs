@@ -1,3 +1,7 @@
+## 3.9.1
+
+ - **REFACTOR**(te_widgets): unify menu/dropdown theming with hover background and compact sizing.
+
 ## 3.9.0
 
  - **REFACTOR**: migrate Icons.* to HugeIcons and Icon widgets to TIcon.raw.
