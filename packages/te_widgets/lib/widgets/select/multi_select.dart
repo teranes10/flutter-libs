@@ -281,6 +281,24 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
     return heightSum + extraPadding;
   }
 
+  // A select popup reads as a compact menu, not a full list screen — default to the same
+  // icon/text scale as the standardized TDropdown/TSidebar overlay menu items instead of
+  // TListCard's roomier general-purpose defaults (18px icons, 15px title), unless the caller
+  // already supplied their own cardTheme.
+  TListCardTheme _effectiveCardTheme(BuildContext context) {
+    return widget.cardTheme ??
+        TListCardTheme.defaultTheme(
+          context.colors,
+          iconSize: 16.0,
+          fontSize: 14.0,
+          subtitleFontSize: 11.0,
+        ).copyWith(
+          // Matches TDropdownTheme's itemPadding/itemBorderRadius.
+          padding: const EdgeInsets.all(6),
+          borderRadius: BorderRadius.circular(8),
+        );
+  }
+
   @override
   Widget getContentWidget(BuildContext context) {
     // Infinite scroll only makes sense for server-side loading.
@@ -315,7 +333,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
             isSelected: listController.isSelected(item.key),
             isExpanded: listController.isExpanded(item.key),
             level: item.level,
-            theme: widget.cardTheme,
+            theme: _effectiveCardTheme(ctx),
             multiple: true,
             onTap: () => _onItemSelected(item),
             hasChildren: item.hasChildren,
@@ -340,6 +358,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
                       child: TTextField(
                           placeholder: 'Search...',
                           decorationType: TInputDecorationType.underline,
+                          preWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: context.colors.onSurface),
                           value: listController.value.search,
                           onValueChanged: (text) => listController.handleSearchChange(text ?? '')),
                     ),
@@ -350,7 +369,9 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
           )
         : list;
 
-    return Padding(padding: const EdgeInsets.fromLTRB(6, 16, 6, 16), child: content);
+    // Matches TDropdownTheme's overlayPadding so the select popup's outer padding lines up
+    // with the standardized dropdown/sidebar overlay.
+    return Padding(padding: const EdgeInsets.all(6), child: content);
   }
 
   @override

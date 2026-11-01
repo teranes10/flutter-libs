@@ -348,7 +348,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
         sizeFactor: _slideAnimation,
         child: Padding(
           padding: EdgeInsets.only(
-            left: widget.level == 0 ? widget.theme.itemPadding.left * 2 : (widget.theme.itemPadding.left + widget.theme.childPadding.left),
+            left: widget.level == 0 ? widget.theme.itemPadding.left * 4.6 : (widget.theme.childPadding.left * 4.6),
           ),
           child: Container(
             decoration: BoxDecoration(border: Border(left: BorderSide(color: widget.theme.borderColor, width: 1))),

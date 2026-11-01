@@ -209,8 +209,8 @@ class TTileSize extends TSize {
 
   // ── Product / Image Presets (sm, md, lg) ──────────────────────────────────
 
-  /// Small product/image tile focusing on image dimensions (50px) with balanced typography.
-  /// (font: 14.0, icon: 50.0, radius: 8.0, hPad/vPad: 8.0, spacing: 12.0, subtitle: 12.0, subGap: 2.0, desc: 11.5, descGap: 4.0).
+  /// Small product/image tile focusing on image dimensions (55px) with balanced typography.
+  /// (font: 14.0, icon: 55.0, radius: 8.0, hPad/vPad: 8.0, spacing: 12.0, subtitle: 11.5, subGap: 0.0, desc: 11.0, descGap: 6.0).
   static const TTileSize sm = TTileSize(
     minW: 55.0,
     minH: 55.0,
@@ -228,8 +228,8 @@ class TTileSize extends TSize {
     descGap: 6.0,
   );
 
-  /// Medium product/image tile focusing on image dimensions (75px) with balanced typography.
-  /// (font: 16.0, icon: 75.0, radius: 10.0, hPad/vPad: 8.0, spacing: 14.0, subtitle: 13.0, subGap: 2.5, desc: 12.0, descGap: 5.0).
+  /// Medium product/image tile focusing on image dimensions (80px) with balanced typography.
+  /// (font: 16.0, icon: 80.0, radius: 10.0, hPad/vPad: 8.0, spacing: 14.0, subtitle: 11.5, subGap: 0.0, desc: 11.0, descGap: 7.5).
   static const TTileSize md = TTileSize(
     minW: 80.0,
     minH: 80.0,

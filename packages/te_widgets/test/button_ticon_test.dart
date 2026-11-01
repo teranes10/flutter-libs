@@ -230,7 +230,10 @@ void main() {
         find.descendant(of: find.byType(TButton), matching: find.byType(Positioned)),
       );
       expect(positioned.top, -4.0);
-      expect(positioned.right, -4.0);
+      // The badge's text width is added to the base -4.0 offset so wider badge text expands
+      // outward instead of overlapping the button content, so this is <= the base offset
+      // rather than a fixed value.
+      expect(positioned.right, lessThanOrEqualTo(-4.0));
       expect(positioned.left, isNull);
       expect(positioned.bottom, isNull);
     });
@@ -278,7 +281,9 @@ void main() {
         find.descendant(of: find.byType(TButton), matching: find.byType(Positioned)),
       );
       expect(positioned.top, -4.0);
-      expect(positioned.left, -4.0);
+      // Same text-width-aware outward offset as the right-aligned case above, mirrored to the
+      // left side here.
+      expect(positioned.left, lessThanOrEqualTo(-4.0));
       expect(positioned.right, isNull);
       expect(positioned.bottom, isNull);
     });

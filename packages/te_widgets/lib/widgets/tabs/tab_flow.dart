@@ -82,11 +82,19 @@ class _RenderTabFlow extends RenderBox
   void performLayout() {
     final maxWidth = constraints.maxWidth;
     final natural = {for (final c in _children) c: c.getMaxIntrinsicWidth(double.infinity)};
+    final rows = _rows(maxWidth, natural);
+    // Only stretch rows to fill the available width once tabs have actually wrapped onto
+    // multiple rows — a single row that fits within maxWidth keeps its natural content width,
+    // so a measure-then-place parent (e.g. TAlignedRow) sees the real size instead of always
+    // reading "needs the full row", which would force it onto its own row every time.
+    final shouldFill = rows.length > 1;
     var y = 0.0;
-    for (final row in _rows(maxWidth, natural)) {
+    var contentWidth = 0.0;
+    for (final row in rows) {
       final widths = [for (final c in row) math.min(natural[c]!, maxWidth)];
       final total = widths.fold(0.0, (a, b) => a + b);
-      final free = maxWidth - total - _spacing * (row.length - 1);
+      final rowWidth = total + _spacing * (row.length - 1);
+      final free = shouldFill ? maxWidth - total - _spacing * (row.length - 1) : 0.0;
       var x = 0.0;
       var rowHeight = 0.0;
       for (var i = 0; i < row.length; i++) {
@@ -97,8 +105,10 @@ class _RenderTabFlow extends RenderBox
         rowHeight = math.max(rowHeight, row[i].size.height);
       }
       y += rowHeight + _runSpacing;
+      contentWidth = math.max(contentWidth, rowWidth);
     }
-    size = constraints.constrain(Size(maxWidth, math.max(0, y - _runSpacing)));
+    final width = shouldFill ? maxWidth : math.min(contentWidth, maxWidth);
+    size = constraints.constrain(Size(width, math.max(0, y - _runSpacing)));
   }
 
   @override
@@ -123,7 +133,17 @@ class _RenderTabFlow extends RenderBox
   }
 
   @override
-  Size computeDryLayout(BoxConstraints constraints) => Size(constraints.maxWidth, computeMaxIntrinsicHeight(constraints.maxWidth));
+  Size computeDryLayout(BoxConstraints constraints) {
+    final maxWidth = constraints.maxWidth;
+    final natural = {for (final c in _children) c: c.getMaxIntrinsicWidth(double.infinity)};
+    final rows = _rows(maxWidth, natural);
+    final height = computeMaxIntrinsicHeight(maxWidth);
+    if (rows.length > 1) return Size(maxWidth, height);
+    final contentWidth = rows.isEmpty
+        ? 0.0
+        : rows.first.fold(0.0, (s, c) => s + math.min(natural[c]!, maxWidth)) + _spacing * math.max(0, rows.first.length - 1);
+    return Size(math.min(contentWidth, maxWidth), height);
+  }
 
   @override
   void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);

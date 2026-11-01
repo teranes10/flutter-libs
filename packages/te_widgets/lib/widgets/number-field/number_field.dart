@@ -471,19 +471,15 @@ class _TNumberFieldState<T extends num?> extends State<TNumberField<T>>
       textAlign: isSplit ? TextAlign.center : TextAlign.start,
       textAlignVertical: isSplit ? TextAlignVertical.center : null,
       labelAlignment: isSplit ? FloatingLabelAlignment.center : null,
+      // `beforePreWidget`/`beforePostWidget` are already wrapped in `fieldPadding`-based
+      // insets by `_buildPaddedWidget` (buildInputDecoration), scaled to the field's own
+      // TInputSize — adding a flat 8px here on top double-padded the stepper icons,
+      // worst at `xs` size where 8px is most of the field's own horizontal padding.
       beforePreWidget: isSplit && wTheme.decreaseButtonBuilder != null
-          ? Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: wTheme.decreaseButtonBuilder!(() => _changeValueBy(-wTheme.decrement), !disabled),
-            )
+          ? wTheme.decreaseButtonBuilder!(() => _changeValueBy(-wTheme.decrement), !disabled)
           : null,
       beforePostWidget: isSplit
-          ? (wTheme.increaseButtonBuilder != null
-              ? Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: wTheme.increaseButtonBuilder!(() => _changeValueBy(wTheme.increment), !disabled),
-                )
-              : null)
+          ? wTheme.increaseButtonBuilder?.call(() => _changeValueBy(wTheme.increment), !disabled)
           : wTheme.stepperBuilder?.call(context, _changeValueBy, !disabled, !disabled),
     );
   }

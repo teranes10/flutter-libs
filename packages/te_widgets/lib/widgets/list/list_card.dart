@@ -111,41 +111,47 @@ class TListCard extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Semantics(
-          container: true,
-          button: true,
-          selected: isSelected,
-          enabled: !isDisabled,
-          label: title,
-          child: Material(
-            color: backgroundColor,
-            child: InkWell(
-              onTap: isDisabled ? null : onTap,
-              child: Container(
-                constraints: BoxConstraints(minHeight: 40),
-                padding: EdgeInsets.only(
-                  left: wTheme.padding.left + (level * wTheme.levelIndentation),
-                  right: wTheme.padding.right,
-                  top: wTheme.padding.top,
-                  bottom: wTheme.padding.bottom,
-                ),
-                child: Row(
-                  children: [
-                    if (wTheme.showSelectionIndicator) wTheme.selectionIndicatorBuilder(multiple, isSelected, isDisabled),
-                    if (leading != null) ...[
-                      leading!,
-                      const SizedBox(width: 10),
-                    ] else if (icon != null) ...[
-                      TIcon.raw(
-                        icon,
-                        size: 20,
-                        color: isSelected ? colors.onPrimaryContainer : colors.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 12),
+        Padding(
+          padding: wTheme.margin,
+          child: Semantics(
+            container: true,
+            button: true,
+            selected: isSelected,
+            enabled: !isDisabled,
+            label: title,
+            child: Material(
+              color: backgroundColor,
+              borderRadius: wTheme.borderRadius,
+              clipBehavior: wTheme.borderRadius == BorderRadius.zero ? Clip.none : Clip.antiAlias,
+              child: InkWell(
+                borderRadius: wTheme.borderRadius,
+                onTap: isDisabled ? null : onTap,
+                child: Container(
+                  constraints: BoxConstraints(minHeight: 40),
+                  padding: EdgeInsets.only(
+                    left: wTheme.padding.left + (level * wTheme.levelIndentation),
+                    right: wTheme.padding.right,
+                    top: wTheme.padding.top,
+                    bottom: wTheme.padding.bottom,
+                  ),
+                  child: Row(
+                    children: [
+                      if (wTheme.showSelectionIndicator) wTheme.selectionIndicatorBuilder(multiple, isSelected, isDisabled),
+                      if (leading != null) ...[
+                        leading!,
+                        const SizedBox(width: 10),
+                      ] else if (icon != null) ...[
+                        TIcon.raw(
+                          icon,
+                          size: 20,
+                          color: isSelected ? colors.onPrimaryContainer : colors.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                      Expanded(child: wTheme.contentBuilder(title, subTitle, imageUrl, isSelected, isDisabled)),
+                      if (effectiveHasChildren) wTheme.expansionIndicatorBuilder(isExpanded, isDisabled),
                     ],
-                    Expanded(child: wTheme.contentBuilder(title, subTitle, imageUrl, isSelected, isDisabled)),
-                    if (effectiveHasChildren) wTheme.expansionIndicatorBuilder(isExpanded, isDisabled),
-                  ],
+                  ),
                 ),
               ),
             ),

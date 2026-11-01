@@ -35,9 +35,9 @@ void main() {
       expect(TTileSize.h5.spacing, 12.0);
 
       // Verify product/image tile sizes
-      expect(TTileSize.sm.icon, 50.0);
+      expect(TTileSize.sm.icon, 55.0);
       expect(TTileSize.sm.font, 14.0);
-      expect(TTileSize.md.icon, 75.0);
+      expect(TTileSize.md.icon, 80.0);
       expect(TTileSize.md.font, 16.0);
       expect(TTileSize.lg.icon, 100.0);
       expect(TTileSize.lg.font, 18.0);

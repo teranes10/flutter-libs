@@ -63,7 +63,6 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final isDark = colors.isDarkMode;
     final effectiveRootId = widget.rootId ?? TMenuScope.maybeOf(context);
 
     return MouseRegion(
@@ -83,10 +82,15 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
               decoration: BoxDecoration(
                 color: ElevationOverlay.applySurfaceTint(colors.surface, colors.surfaceTint, widget.theme.overlayElevation),
                 borderRadius: widget.theme.overlayBorderRadius,
-                border: BoxBorder.all(color: colors.surfaceTint, width: 1),
+                border: BoxBorder.all(color: colors.outlineVariant, width: 1),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withAlpha(isDark ? 25 : 15), blurRadius: 16.0),
-                  BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 2.0, spreadRadius: -1.0),
+                  // Light, wide ambient shadow — large blur and positive spread so the panel
+                  // reads as lifted off the page, tinted with the theme's own shadow color
+                  // rather than flat black so it stays subtle on light/pastel surfaces...
+                  BoxShadow(color: colors.shadow.withAlpha(180), blurRadius: 32.0, spreadRadius: 2.0, offset: const Offset(0, 12)),
+                  // ...plus a short, tight contact shadow (negative spread) right under the
+                  // panel for a crisp edge close to the surface.
+                  BoxShadow(color: colors.shadow.withAlpha(200), blurRadius: 8.0, spreadRadius: -2.0, offset: const Offset(0, 2)),
                 ],
               ),
               constraints: widget.theme.boxConstraints,

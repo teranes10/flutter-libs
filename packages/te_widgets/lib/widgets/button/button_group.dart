@@ -307,13 +307,14 @@ class _TButtonGroupState extends State<TButtonGroup> {
     if (widget.separated) {
       return Wrap(
         alignment: widget.alignment,
+        crossAxisAlignment: WrapCrossAlignment.center,
         spacing: widget.spacing ?? 8,
         runSpacing: widget.spacing ?? 8,
         children: children,
       );
     }
 
-    return Wrap(alignment: widget.alignment, children: children);
+    return Wrap(alignment: widget.alignment, crossAxisAlignment: WrapCrossAlignment.center, children: children);
   }
 
   Widget _buildButton(

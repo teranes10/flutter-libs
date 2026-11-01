@@ -47,27 +47,65 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
               ],
         right: [
           if (showTabs)
-            // When the row wraps, the slot gives tabs a tight width: stretch them to fill it
-            // like the other top bar items instead of staying at their intrinsic width.
-            LayoutBuilder(
-              builder: (_, box) => ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: box.hasTightWidth ? box.maxWidth : double.infinity),
-                child: TTabs(
-                  wrap: true,
-                  selectedValue: currentTab,
-                  onTabChanged: (i) {
-                    currentTab = i;
-                    widget.config.onTabChange?.call(i);
-                  },
-                  tabs: tabs,
-                ),
-              ),
+            // TAlignedRow always lays this child out at the row's own maxWidth to measure it,
+            // then uses the resulting size to decide row placement. Wrapping TTabs in a
+            // LayoutBuilder/ConstrainedBox that stretches to fill that width makes it measure
+            // as "full row width" even when the tabs only need their natural content width,
+            // which forces it onto its own row every time. Pass TTabs straight through so it
+            // reports its real content size and wraps only when it actually overflows.
+            TTabs(
+              wrap: true,
+              selectedValue: currentTab,
+              onTabChanged: (i) {
+                currentTab = i;
+                widget.config.onTabChange?.call(i);
+              },
+              tabs: tabs,
             ),
           if (shouldShowFilterButton) _buildFilterButton(ctx),
           _buildSearchBar(ctx).size(w: 275),
+          // Card layout is forced automatically once the table can't fit as a table (narrow
+          // screen or overflowing columns) regardless of viewMode, so these manual toggles are
+          // meaningless there — only offer them when there's room for them to matter.
+          if (ctx.isDesktop) ...[
+            _buildViewModeGroup(ctx),
+            // Dense/comfortable only affects table-row spacing — meaningless once Grid View
+            // is active, since that renders cards instead of rows.
+            if (viewMode != 2) _buildDenseToggle(ctx),
+          ],
           _buildMoreOptionsButton(ctx),
         ],
       ),
+    );
+  }
+
+  Widget _buildViewModeGroup(BuildContext ctx) {
+    // Segmented mode wraps its buttons in a track with `boxedPadding: EdgeInsets.all(3)`
+    // (TButtonGroupTheme.fromBaseTheme), so the track ends up 6px taller than the button's
+    // own minH unless that's subtracted here — otherwise this sits taller than the search
+    // bar it's aligned next to.
+    final inputHeight = TInputSize.sm.height;
+    return TButtonGroup(
+      type: TButtonGroupType.segmented,
+      size: TButtonSize.fromInputSize(TInputSize.sm).copyWith(minH: inputHeight - 6),
+      initialIndex: viewMode == 2 ? 1 : 0,
+      onIndexChanged: (index) => viewMode = index == 1 ? 2 : 0,
+      items: [
+        TButtonGroupItem(icon: HugeIcons.strokeRoundedList, tooltip: 'List View'),
+        TButtonGroupItem(icon: HugeIcons.strokeRoundedGridTable, tooltip: 'Grid View'),
+      ],
+    );
+  }
+
+  Widget _buildDenseToggle(BuildContext ctx) {
+    return TButton(
+      baseTheme: TWidgetTheme.surfaceTheme(ctx.colors),
+      size: TButtonSize.fromInputSize(TInputSize.sm),
+      icon: HugeIcons.strokeRoundedUnfoldMore,
+      activeIcon: HugeIcons.strokeRoundedUnfoldLess,
+      active: dense,
+      tooltip: dense ? 'Comfortable Layout' : 'Dense Layout',
+      onPressed: (_) => dense = !dense,
     );
   }
 
@@ -149,7 +187,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
         size: TInputSize.sm,
         labelPosition: TLabelPosition.aboveField,
         decorationType: TInputDecorationType.filled,
-        postWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: ctx.colors.onSurface),
+        preWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: ctx.colors.onSurface),
       ),
       placeholder: widget.config.searchPlaceholder,
       onValueChanged: (String? input) {
@@ -165,13 +203,6 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
   Widget _buildMoreOptionsButton(BuildContext ctx) {
     return TDropdown(
       items: [
-        TDropdownItem(
-          icon: dense ? HugeIcons.strokeRoundedCircleSmall : HugeIcons.strokeRoundedMedium,
-          text: dense ? 'Comfortable Layout' : 'Dense Layout',
-          onTap: () {
-            dense = !dense;
-          },
-        ),
         TDropdownItem(
           icon: HugeIcons.strokeRoundedDeleteColumn,
           text: 'Column Visibility',
@@ -224,128 +255,64 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
             ),
           ],
         ),
-        TDropdownItem(
-          icon: HugeIcons.strokeRoundedGrid,
-          text: 'View Mode',
-          children: [
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedUserList,
-              text: 'Table View',
-              color: viewMode == 0 ? ctx.colors.primary : null,
-              onTap: () {
-                viewMode = 0;
-              },
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedViewAgenda,
-              text: 'Card View',
-              color: viewMode == 1 ? ctx.colors.primary : null,
-              onTap: () {
-                viewMode = 1;
-              },
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedGrid,
-              text: 'Grid View',
-              color: viewMode == 2 ? ctx.colors.primary : null,
-              onTap: () {
-                viewMode = 2;
-              },
-            ),
-          ],
-        ),
-        TDropdownItem(
-          icon: HugeIcons.strokeRoundedDashboardSquare01,
-          text: 'Card Layout',
-          children: [
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedCursorText,
-              text: 'Stacked Flow',
-              color: cardKeyValueMode == TKeyValueMode.stackedFlow ? ctx.colors.primary : null,
-              onTap: () {
-                cardKeyValueMode = TKeyValueMode.stackedFlow;
-              },
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedGrid,
-              text: 'Stacked Columns',
-              color: cardKeyValueMode == TKeyValueMode.stackedColumns ? ctx.colors.primary : null,
-              onTap: () {
-                cardKeyValueMode = TKeyValueMode.stackedColumns;
-              },
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedAlignHorizontalDistributeEnd,
-              text: 'Inline Flow',
-              color: cardKeyValueMode == TKeyValueMode.inlineFlow ? ctx.colors.primary : null,
-              onTap: () {
-                cardKeyValueMode = TKeyValueMode.inlineFlow;
-              },
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedDeleteColumn,
-              text: 'Inline Columns',
-              color: cardKeyValueMode == TKeyValueMode.inlineColumns ? ctx.colors.primary : null,
-              onTap: () {
-                cardKeyValueMode = TKeyValueMode.inlineColumns;
-              },
-            ),
-          ],
-        ),
-        TDropdownItem(
-          icon: HugeIcons.strokeRoundedUnfoldMore,
-          text: 'Expand Mode',
-          children: [
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedArrowRight01,
-              text: 'Side Panel',
-              onTap: () {
-                expansionMode = TTableExpansionMode.side;
-              },
-            ),
-            _buildExpandModeItemWithWidth(
-              ctx: ctx,
-              icon: HugeIcons.strokeRoundedArrowUpRight01,
-              text: 'Side Overlay',
-              isSelected: effectiveExpansionMode == TTableExpansionMode.sideOverlay,
-              onSelect: () {
-                expansionMode = TTableExpansionMode.sideOverlay;
-              },
-              currentWidth: effectiveSideOverlayWidth.toInt(),
-              onWidthChanged: (w) {
-                sideOverlayWidth = w;
-              },
-            ),
-            _buildExpandModeItemWithWidth(
-              ctx: ctx,
-              icon: HugeIcons.strokeRoundedArrowUp02,
-              text: 'Dialog',
-              isSelected: effectiveExpansionMode == TTableExpansionMode.dialog,
-              onSelect: () {
-                expansionMode = TTableExpansionMode.dialog;
-              },
-              currentWidth: effectiveDialogWidth.toInt(),
-              onWidthChanged: (w) {
-                dialogWidth = w;
-              },
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedLinkForward,
-              text: 'Full Page',
-              onTap: () {
-                expansionMode = TTableExpansionMode.page;
-              },
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedArrowDown01,
-              text: 'Inline Bottom',
-              onTap: () {
-                expansionMode = TTableExpansionMode.bottom;
-              },
-            ),
-          ],
-        ),
-        if (canCreate)
+        // Create/Expand mode (side panel, side overlay, dialog, full page, inline bottom) are
+        // desktop layout choices — on narrow/mobile screens the table already renders as cards
+        // and these presentation options don't apply.
+        if (ctx.isDesktop)
+          TDropdownItem(
+            icon: HugeIcons.strokeRoundedUnfoldMore,
+            text: 'Expand Mode',
+            children: [
+              TDropdownItem(
+                icon: HugeIcons.strokeRoundedArrowRight01,
+                text: 'Side Panel',
+                onTap: () {
+                  expansionMode = TTableExpansionMode.side;
+                },
+              ),
+              _buildExpandModeItemWithWidth(
+                ctx: ctx,
+                icon: HugeIcons.strokeRoundedArrowUpRight01,
+                text: 'Side Overlay',
+                isSelected: effectiveExpansionMode == TTableExpansionMode.sideOverlay,
+                onSelect: () {
+                  expansionMode = TTableExpansionMode.sideOverlay;
+                },
+                currentWidth: effectiveSideOverlayWidth.toInt(),
+                onWidthChanged: (w) {
+                  sideOverlayWidth = w;
+                },
+              ),
+              _buildExpandModeItemWithWidth(
+                ctx: ctx,
+                icon: HugeIcons.strokeRoundedArrowUp02,
+                text: 'Dialog',
+                isSelected: effectiveExpansionMode == TTableExpansionMode.dialog,
+                onSelect: () {
+                  expansionMode = TTableExpansionMode.dialog;
+                },
+                currentWidth: effectiveDialogWidth.toInt(),
+                onWidthChanged: (w) {
+                  dialogWidth = w;
+                },
+              ),
+              TDropdownItem(
+                icon: HugeIcons.strokeRoundedLinkForward,
+                text: 'Full Page',
+                onTap: () {
+                  expansionMode = TTableExpansionMode.page;
+                },
+              ),
+              TDropdownItem(
+                icon: HugeIcons.strokeRoundedArrowDown01,
+                text: 'Inline Bottom',
+                onTap: () {
+                  expansionMode = TTableExpansionMode.bottom;
+                },
+              ),
+            ],
+          ),
+        if (canCreate && ctx.isDesktop)
           TDropdownItem(
             icon: HugeIcons.strokeRoundedAddSquare,
             text: 'Create Mode',
@@ -433,9 +400,14 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
     required ValueChanged<double> onWidthChanged,
   }) {
     final colors = ctx.colors;
+    final dropdownTheme = ctx.theme.dropdownTheme;
     return TDropdownItem(
+      // `customContent` rows bypass TMenuOverlayItem entirely (no itemPadding, no hover
+      // highlight), so its own padding must mirror `dropdownTheme.itemPadding` exactly —
+      // otherwise this icon sits out of line with the plain text rows (Side Panel, Full
+      // Page, Inline Bottom) above and below it.
       customContent: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+        padding: dropdownTheme.itemPadding,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
@@ -445,31 +417,28 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
                   onSelect();
                   TMenuOverlayController.hideAll();
                 },
-                borderRadius: BorderRadius.circular(6),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                  child: Row(
-                    children: [
-                      TIcon(
-                        icon: icon,
-                        size: 20,
-                        color: isSelected ? colors.primary : colors.onSurface,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          text,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.w500 : FontWeight.w300,
-                            color: isSelected ? colors.primary : colors.onSurface,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                borderRadius: dropdownTheme.itemBorderRadius,
+                child: Row(
+                  children: [
+                    TIcon(
+                      icon: icon,
+                      size: dropdownTheme.iconSize,
+                      color: isSelected ? colors.primary : colors.onSurface,
+                    ),
+                    SizedBox(width: dropdownTheme.gap),
+                    Expanded(
+                      child: Text(
+                        text,
+                        style: TextStyle(
+                          fontSize: dropdownTheme.fontSize,
+                          fontWeight: isSelected ? FontWeight.w500 : dropdownTheme.fontWeight,
+                          color: isSelected ? colors.primary : colors.onSurface,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -570,7 +539,8 @@ class _ColumnVisibilityMenuState extends State<_ColumnVisibilityMenu> {
                 index: index,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: TIcon.raw(HugeIcons.strokeRoundedDragDrop,
+                  child: TIcon.raw(
+                    HugeIcons.strokeRoundedGripHorizontal,
                     size: 20,
                     color: context.colors.onSurfaceVariant.withAlpha(200),
                   ),

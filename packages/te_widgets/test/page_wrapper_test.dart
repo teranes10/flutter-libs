@@ -8,6 +8,15 @@ void main() {
   testWidgets('TPageWrapper renders header, content, and footer correctly', (WidgetTester tester) async {
     bool backPressed = false;
 
+    // TPageWrapper shows the back/close control as an IconButton only at desktop widths
+    // (context.isDesktop, >= kDesktopBreakpoint); below that it renders a TButton instead.
+    // The default test surface (800x600) is below that breakpoint, so without this the
+    // IconButton this test looks for never renders.
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       MaterialApp(
         theme: theme,

@@ -137,7 +137,8 @@ class TSidebarTheme extends TMenuTheme {
     required super.activeColor,
     required super.activeBackgroundColor,
     required super.borderColor,
-    this.childPadding = const EdgeInsets.fromLTRB(12, 9, 6, 9),
+    super.hoverBackgroundColor,
+    this.childPadding = const EdgeInsets.all(6),
     this.minimizedItemPadding = const EdgeInsets.all(12),
     this.expandIconSize = 16.0,
     super.animationDuration = const Duration(milliseconds: 150),
@@ -148,16 +149,20 @@ class TSidebarTheme extends TMenuTheme {
     super.alignment = TPopupAlignment.rightTop,
     super.offset = 14.0,
     super.secondaryAlignment = TPopupAlignment.rightTop,
-    super.secondaryOffset = 4.0,
+    // Matches TDropdownTheme's gap between nested submenu panels (Child 1 -> Child 2 -> Child 3)
+    // so they don't sit flush against each other.
+    super.secondaryOffset = 8.0,
     super.boxConstraints = const BoxConstraints(minWidth: 180, maxWidth: 275),
     super.iconSize = 18.0,
     super.arrowIconSize = 12.0,
     super.gap = 10.0,
     super.overlayElevation = 8.0,
-    super.overlayBorderRadius = const BorderRadius.all(Radius.circular(8.0)),
-    super.overlayPadding = const EdgeInsets.symmetric(vertical: 8),
-    super.itemPadding = const EdgeInsets.fromLTRB(16, 12, 8, 12),
-    super.itemBorderRadius = const BorderRadius.all(Radius.circular(6.0)),
+    // Matches TDropdownTheme's tuned panel/item metrics so both overlay menus share the same
+    // look (rounder corners, tighter item padding, hover background).
+    super.overlayBorderRadius = const BorderRadius.all(Radius.circular(14.0)),
+    super.overlayPadding = const EdgeInsets.all(6),
+    super.itemPadding = const EdgeInsets.all(6),
+    super.itemBorderRadius = const BorderRadius.all(Radius.circular(8.0)),
     super.fontSize = 14.0,
     super.fontWeight = FontWeight.w300,
     super.arrowIcon,
@@ -174,6 +179,7 @@ class TSidebarTheme extends TMenuTheme {
       activeColor: colors.onPrimaryContainer,
       activeBackgroundColor: colors.primaryContainer,
       borderColor: colors.outlineVariant,
+      hoverBackgroundColor: colors.surfaceDim,
     );
   }
 
@@ -184,6 +190,7 @@ class TSidebarTheme extends TMenuTheme {
     Color? activeColor,
     Color? activeBackgroundColor,
     Color? borderColor,
+    Color? hoverBackgroundColor,
     EdgeInsets? childPadding,
     EdgeInsets? minimizedItemPadding,
     double? expandIconSize,
@@ -215,6 +222,7 @@ class TSidebarTheme extends TMenuTheme {
       activeColor: activeColor ?? this.activeColor,
       activeBackgroundColor: activeBackgroundColor ?? this.activeBackgroundColor,
       borderColor: borderColor ?? this.borderColor,
+      hoverBackgroundColor: hoverBackgroundColor ?? this.hoverBackgroundColor,
       childPadding: childPadding ?? this.childPadding,
       minimizedItemPadding: minimizedItemPadding ?? this.minimizedItemPadding,
       expandIconSize: expandIconSize ?? this.expandIconSize,

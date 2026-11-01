@@ -194,6 +194,15 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     );
   }
 
+  /// Splits row actions into flat (inline) vs. menu buttons dynamically by count, instead of
+  /// each button's static `showFlat` config: the first two (view+edit, or view+restore) stay
+  /// flat as the primary actions; the third (archive, or delete) stays flat only when it's the
+  /// only extra action (3 total); any further actions always collapse into the overflow menu.
+  (List<TButtonGroupItem> flat, List<TButtonGroupItem> menu) _splitRowActions(List<TButtonGroupItem> buttons) {
+    if (buttons.length <= 3) return (buttons, const []);
+    return (buttons.sublist(0, 2), buttons.sublist(2));
+  }
+
   List<TTableHeader<T, K>> _buildActiveHeaders(TWidgetThemeExtension theme) {
     final headers = List<TTableHeader<T, K>>.from(widget.headers);
 
@@ -209,8 +218,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         headers.add(TTableHeader<T, K>.actions(
           (item) {
             final buttons = _buildActiveActionButtons(theme, item.data);
-            final flatButtons = buttons.where((b) => b.showFlat).toList();
-            final menuButtons = buttons.where((b) => !b.showFlat).toList();
+            final (flatButtons, menuButtons) = _splitRowActions(buttons);
 
             final result = <TButtonGroupItem>[...flatButtons];
             if (menuButtons.length == 1) {
@@ -246,8 +254,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         headers.add(TTableHeader<T, K>.actions(
           (item) {
             final buttons = _buildArchiveActionButtons(theme, item.data);
-            final flatButtons = buttons.where((b) => b.showFlat).toList();
-            final menuButtons = buttons.where((b) => !b.showFlat).toList();
+            final (flatButtons, menuButtons) = _splitRowActions(buttons);
 
             final result = <TButtonGroupItem>[...flatButtons];
             if (menuButtons.length == 1) {
@@ -292,20 +299,19 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       items: dropdownItems,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
-        child: Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Semantics(
-            button: true,
-            label: 'More actions',
-            identifier: 'row-action-menu',
-            excludeSemantics: true,
-            child: TIcon.raw(HugeIcons.strokeRoundedMoreVertical,
-              size: 20,
-              color: context.colors.onSurfaceVariant,
-            ),
+        // `TButtonGroup` wraps this `child` in a TButton sized TButtonSize.sm, which already
+        // supplies the minW/minH + padding that size every other icon button in the row — so
+        // just provide the bare icon here. Wrapping it in an extra sized box double-pads it,
+        // making this trigger visibly wider (and so, more gap before it) than its siblings.
+        child: Semantics(
+          button: true,
+          label: 'More actions',
+          identifier: 'row-action-menu',
+          excludeSemantics: true,
+          child: TIcon.raw(
+            HugeIcons.strokeRoundedMoreVertical,
+            size: TButtonSize.sm.icon,
+            color: context.colors.onSurfaceVariant,
           ),
         ),
       ),
@@ -331,24 +337,14 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   }
 
   int _effectiveActiveVisibleCount() {
-    int flat = 0;
-    int menu = 0;
+    int total = 0;
 
-    if (canView && _crudVisible(_perms?.view)) {
-      widget.config.canViewFlat ? flat++ : menu++;
-    }
-    if (canEdit && _crudVisible(_perms?.edit)) {
-      widget.config.canEditFlat ? flat++ : menu++;
-    }
-    if (widget.onArchive != null && _crudVisible(_perms?.archive)) {
-      widget.config.canArchiveFlat ? flat++ : menu++;
-    }
+    if (canView && _crudVisible(_perms?.view)) total++;
+    if (canEdit && _crudVisible(_perms?.edit)) total++;
+    if (widget.onArchive != null && _crudVisible(_perms?.archive)) total++;
+    total += widget.config.activeActions.length;
 
-    for (final action in widget.config.activeActions) {
-      action.showFlat ? flat++ : menu++;
-    }
-
-    return flat + (menu > 0 ? 1 : 0);
+    return total <= 3 ? total : 3;
   }
 
   List<TButtonGroupItem> _buildActiveActionButtons(TWidgetThemeExtension theme, T item) {
@@ -360,7 +356,10 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         semanticIdentifier: 'row-action-view',
         icon: HugeIcons.strokeRoundedView,
         color: theme.success,
-        showFlat: widget.config.canViewFlat,
+        // `_splitRowActions` decides flat-vs-menu placement by count/position; every button
+        // here is built as flat so that placement isn't re-collapsed by `TTableHeader.actions`'s
+        // own showFlat-based regrouping downstream.
+        showFlat: true,
         permission: _perms?.view,
         onDenied: _crudDenied(_perms?.view),
         onPressed: (_) => handleView(item, _listController),
@@ -371,9 +370,9 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       buttons.add(TButtonGroupItem(
         tooltip: 'Edit',
         semanticIdentifier: 'row-action-edit',
-        icon: HugeIcons.strokeRoundedEdit02,
+        icon: HugeIcons.strokeRoundedEdit03,
         color: theme.info,
-        showFlat: widget.config.canEditFlat,
+        showFlat: true,
         permission: _perms?.edit,
         onDenied: _crudDenied(_perms?.edit),
         onPressed: (_) => handleEdit(item),
@@ -384,9 +383,9 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       buttons.add(TButtonGroupItem(
         tooltip: 'Archive',
         semanticIdentifier: 'row-action-archive',
-        icon: HugeIcons.strokeRoundedArchive,
+        icon: HugeIcons.strokeRoundedArchiveArrowDown,
         color: theme.danger,
-        showFlat: widget.config.canArchiveFlat,
+        showFlat: true,
         permission: _perms?.archive,
         onDenied: _crudDenied(_perms?.archive),
         onPressed: (_) => handleArchive(item),
@@ -394,13 +393,14 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     }
 
     for (final action in widget.config.activeActions) {
-      if (_crudVisible(action.permission, action.onDenied) && canPerformActionSync(item, action.canPerform, key: 'custom:${action.tooltip}')) {
+      if (_crudVisible(action.permission, action.onDenied) &&
+          canPerformActionSync(item, action.canPerform, key: 'custom:${action.tooltip}')) {
         buttons.add(TButtonGroupItem(
           tooltip: action.tooltip,
           semanticIdentifier: 'row-action-${action.tooltip.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')}',
           icon: action.icon,
           color: action.color,
-          showFlat: action.showFlat,
+          showFlat: true,
           permission: action.permission,
           onDenied: _crudDenied(action.permission, action.onDenied),
           onPressed: (_) => performAction(() => action.onPressed(item)),
@@ -430,24 +430,14 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
   }
 
   int _effectiveArchiveVisibleCount() {
-    int flat = 0;
-    int menu = 0;
+    int total = 0;
 
-    if (canView && _crudVisible(_perms?.view)) {
-      widget.config.canViewFlat ? flat++ : menu++;
-    }
-    if (widget.onRestore != null && _crudVisible(_perms?.restore)) {
-      widget.config.canRestoreFlat ? flat++ : menu++;
-    }
-    if (widget.onDelete != null && _crudVisible(_perms?.delete)) {
-      widget.config.canDeleteFlat ? flat++ : menu++;
-    }
+    if (canView && _crudVisible(_perms?.view)) total++;
+    if (widget.onRestore != null && _crudVisible(_perms?.restore)) total++;
+    if (widget.onDelete != null && _crudVisible(_perms?.delete)) total++;
+    total += widget.config.archiveActions.length;
 
-    for (final action in widget.config.archiveActions) {
-      action.showFlat ? flat++ : menu++;
-    }
-
-    return flat + (menu > 0 ? 1 : 0);
+    return total <= 3 ? total : 3;
   }
 
   List<TButtonGroupItem> _buildArchiveActionButtons(TWidgetThemeExtension theme, T item) {
@@ -460,7 +450,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         semanticIdentifier: 'row-action-view',
         icon: HugeIcons.strokeRoundedView,
         color: theme.success,
-        showFlat: widget.config.canViewFlat,
+        showFlat: true,
         permission: _perms?.view,
         onDenied: _crudDenied(_perms?.view),
         onPressed: (_) => handleView(item, _archiveListController),
@@ -472,9 +462,9 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       buttons.add(TButtonGroupItem(
         tooltip: 'Restore',
         semanticIdentifier: 'row-action-restore',
-        icon: HugeIcons.strokeRoundedRestoreBin,
+        icon: HugeIcons.strokeRoundedArchiveRestore,
         color: theme.info,
-        showFlat: widget.config.canRestoreFlat,
+        showFlat: true,
         permission: _perms?.restore,
         onDenied: _crudDenied(_perms?.restore),
         onPressed: (_) => handleRestore(item),
@@ -488,7 +478,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         semanticIdentifier: 'row-action-delete',
         icon: HugeIcons.strokeRoundedDelete02,
         color: theme.danger,
-        showFlat: widget.config.canDeleteFlat,
+        showFlat: true,
         permission: _perms?.delete,
         onDenied: _crudDenied(_perms?.delete),
         onPressed: (_) => handleDelete(item),
@@ -497,13 +487,14 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
 
     // Custom actions for archive table
     for (final action in widget.config.archiveActions) {
-      if (_crudVisible(action.permission, action.onDenied) && canPerformActionSync(item, action.canPerform, key: 'custom:${action.tooltip}')) {
+      if (_crudVisible(action.permission, action.onDenied) &&
+          canPerformActionSync(item, action.canPerform, key: 'custom:${action.tooltip}')) {
         buttons.add(TButtonGroupItem(
           tooltip: action.tooltip,
           semanticIdentifier: 'row-action-${action.tooltip.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '-')}',
           icon: action.icon,
           color: action.color,
-          showFlat: action.showFlat,
+          showFlat: true,
           permission: action.permission,
           onDenied: _crudDenied(action.permission, action.onDenied),
           onPressed: (_) => performAction(() => action.onPressed(item)),

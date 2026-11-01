@@ -222,25 +222,32 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
   }
 
   Widget buildContentWidget(BuildContext context) {
+    final colors = context.colors;
     return TCard(
       elevation: 0,
+      // Same outline + two-layer shadow as TMenuOverlayPanel (the TDropdown/TSidebar overlay
+      // engine) so every popup card in the library reads as one consistent "floating surface"
+      // style: a light, wide ambient shadow for lift, plus a short, tight contact shadow for a
+      // crisp edge, both tinted from the theme's shadow color rather than flat black.
+      border: BoxBorder.all(color: colors.outlineVariant, width: 1),
       shadow: [
-        BoxShadow(
-          color: context.colors.shadow,
-          blurRadius: 16,
-          spreadRadius: 0,
-          offset: const Offset(0, 16),
-        ),
+        BoxShadow(color: colors.shadow.withAlpha(180), blurRadius: 32.0, spreadRadius: 2.0, offset: const Offset(0, 12)),
+        BoxShadow(color: colors.shadow.withAlpha(200), blurRadius: 8.0, spreadRadius: -2.0, offset: const Offset(0, 2)),
       ],
       padding: EdgeInsets.zero,
       margin: EdgeInsets.zero,
-      borderRadius: BorderRadius.circular(12),
+      // Matches TMenuOverlayPanel's overlayBorderRadius so the popup card and the
+      // dropdown/sidebar overlay card read as the same shape.
+      borderRadius: BorderRadius.circular(14),
       child: Container(
         key: _contentKey,
         child: Stack(
           children: [
             getContentWidget(context),
-            if (_widget.showCloseButton)
+            // Anchored (desktop) popups already dismiss on an outside tap/click, right next to
+            // their trigger — an explicit close button there is redundant chrome. Centered
+            // (mobile modal) popups keep it since the barrier tap target is easy to miss.
+            if (_widget.showCloseButton && effectivePopupMode != TPopupMode.anchored)
               Positioned(top: 0, right: 0, child: TIcon.close(size: 20, padding: EdgeInsets.all(5), onTap: hidePopup)),
           ],
         ),

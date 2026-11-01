@@ -197,11 +197,14 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           borderRadius: widget.theme.itemBorderRadius,
-          child: Container(
+          child: AnimatedContainer(
+            duration: widget.theme.animationDuration,
             width: double.infinity,
             padding: widget.theme.itemPadding,
             decoration: BoxDecoration(
-              color: widget.isActive ? widget.theme.activeBackgroundColor : null,
+              color: widget.isActive
+                  ? widget.theme.activeBackgroundColor
+                  : (_isHovered ? widget.theme.hoverBackgroundColor : null),
               borderRadius: widget.theme.itemBorderRadius,
             ),
             child: Opacity(

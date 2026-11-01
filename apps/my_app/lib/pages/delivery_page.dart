@@ -388,13 +388,21 @@ class _DeliveryPageState extends State<DeliveryPage> {
                     value: '${_senderNameController.text} (${_senderPhoneController.text})',
                     icon: TIcon.raw(HugeIcons.strokeRoundedLocationUser01, size: 16),
                   ),
-                  TKeyValue('Pickup Address', value: _pickupAddressController.text, icon: TIcon.raw(HugeIcons.strokeRoundedGpsSignal01, size: 16)),
+                  TKeyValue(
+                    'Pickup Address',
+                    value: _pickupAddressController.text,
+                    icon: TIcon.raw(HugeIcons.strokeRoundedGpsSignal01, size: 16),
+                  ),
                   TKeyValue(
                     'Deliver To',
                     value: '${_receiverNameController.text} (${_receiverPhoneController.text})',
                     icon: TIcon.raw(HugeIcons.strokeRoundedDragDrop, size: 16),
                   ),
-                  TKeyValue('Drop-off Address', value: _dropoffAddressController.text, icon: TIcon.raw(HugeIcons.strokeRoundedLocation01, size: 16)),
+                  TKeyValue(
+                    'Drop-off Address',
+                    value: _dropoffAddressController.text,
+                    icon: TIcon.raw(HugeIcons.strokeRoundedLocation01, size: 16),
+                  ),
                 ],
               ),
             ],

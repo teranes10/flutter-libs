@@ -38,7 +38,7 @@ class TButtonShape {
   });
 
   /// Standard rounded rectangle (radius 6.0).
-  static const TButtonShape normal = TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(6.0))));
+  static const TButtonShape normal = TButtonShape(border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))));
 
   /// Pill shape (stadium border).
   static const TButtonShape pill = TButtonShape(border: StadiumBorder());
@@ -164,9 +164,7 @@ class TButtonTheme {
     };
 
     final isFill = baseTheme.type == TVariant.solid ||
-        (!baseTheme.container.isTransparent &&
-            baseTheme.type != TVariant.outline &&
-            baseTheme.type != TVariant.text);
+        (!baseTheme.container.isTransparent && baseTheme.type != TVariant.outline && baseTheme.type != TVariant.text);
 
     final defaultElevation = isFill ? (baseTheme.type == TVariant.solid ? 1.0 : 0.5) : 0.0;
     final effectiveElevation = elevation ?? defaultElevation;

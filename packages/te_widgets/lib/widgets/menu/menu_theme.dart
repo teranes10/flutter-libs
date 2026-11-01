@@ -15,6 +15,10 @@ class TMenuTheme {
   final Color activeBackgroundColor;
   final Color borderColor;
 
+  /// Background painted behind a hovered (non-active) item. Null keeps the
+  /// previous text/icon-only hover feedback.
+  final Color? hoverBackgroundColor;
+
   final Duration animationDuration;
   final Duration showDelay;
   final Duration hideDelay;
@@ -48,6 +52,7 @@ class TMenuTheme {
     required this.activeColor,
     required this.activeBackgroundColor,
     required this.borderColor,
+    this.hoverBackgroundColor,
     this.animationDuration = const Duration(milliseconds: 200),
     this.showDelay = const Duration(milliseconds: 25),
     this.hideDelay = const Duration(milliseconds: 125),
@@ -83,6 +88,7 @@ class TMenuTheme {
     Color? activeColor,
     Color? activeBackgroundColor,
     Color? borderColor,
+    Color? hoverBackgroundColor,
     Duration? animationDuration,
     Duration? showDelay,
     Duration? hideDelay,
@@ -111,6 +117,7 @@ class TMenuTheme {
       activeColor: activeColor ?? this.activeColor,
       activeBackgroundColor: activeBackgroundColor ?? this.activeBackgroundColor,
       borderColor: borderColor ?? this.borderColor,
+      hoverBackgroundColor: hoverBackgroundColor ?? this.hoverBackgroundColor,
       animationDuration: animationDuration ?? this.animationDuration,
       showDelay: showDelay ?? this.showDelay,
       hideDelay: hideDelay ?? this.hideDelay,

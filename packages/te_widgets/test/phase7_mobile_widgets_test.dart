@@ -296,7 +296,8 @@ void main() {
       expect(find.text('Confirm'), findsOneWidget);
     });
 
-    testWidgets('stacks onto two lines with primary first (0.9h) and secondary below (0.75h) when space constrained', (tester) async {
+    testWidgets('stacks onto two lines with primary first (full 56dp) and secondary below (0.75h) when space constrained',
+        (tester) async {
       var primaryPressed = 0;
       var secondaryPressed = 0;
 
@@ -323,8 +324,9 @@ void main() {
 
       // Primary action is first on top, secondary action is below
       expect(secondaryRect.top, greaterThanOrEqualTo(primaryRect.bottom), reason: 'secondary action is below primary on two lines');
-      // Height scaling: primary is 0.9 (50.4), secondary is 0.75 (42.0)
-      expect(primaryRect.height, closeTo(56 * 0.9, 1.0), reason: 'primary height scaled to 0.9');
+      // Primary keeps the full 56dp touch target when stacked (see TActionBar's doc comment);
+      // only secondary is scaled down, to 0.75 (42.0).
+      expect(primaryRect.height, closeTo(56, 1.0), reason: 'primary keeps the full 56dp touch target');
       expect(secondaryRect.height, closeTo(56 * 0.75, 1.0), reason: 'secondary height scaled to 0.75');
 
       // Both actions span the available width (360 - 32 = 328)
