@@ -1,3 +1,7 @@
+## 3.10.0
+
+ - **FEAT**(te_widgets): crud top bar metrics list with aligned-row layout, tabs fill, dense toggle in menu.
+
 ## 3.9.1
 
  - **REFACTOR**(te_widgets): unify menu/dropdown theming with hover background and compact sizing.
