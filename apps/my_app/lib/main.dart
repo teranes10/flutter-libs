@@ -19,7 +19,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeNotifierProvider);
-    final theme = TAppTheme.defaultTheme(primary: themeState.primaryColor);
+    final theme = themeState.theme;
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,

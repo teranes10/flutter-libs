@@ -195,7 +195,6 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final shadowColor = colors.shadow.withAlpha(50);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -266,8 +265,9 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  shadowColor,
-                                  shadowColor.withAlpha(0),
+                                  colors.shadow.withAlpha(8),
+                                  colors.shadow.withAlpha(4),
+                                  colors.shadow.withAlpha(1),
                                 ],
                               ),
                             ),
@@ -298,8 +298,9 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
                                 begin: Alignment.bottomCenter,
                                 end: Alignment.topCenter,
                                 colors: [
-                                  shadowColor,
-                                  shadowColor.withAlpha(0),
+                                  colors.shadow.withAlpha(8),
+                                  colors.shadow.withAlpha(4),
+                                  colors.shadow.withAlpha(1),
                                 ],
                               ),
                             ),
@@ -465,7 +466,7 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
             index: index,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: TIcon.raw(HugeIcons.strokeRoundedGripHorizontal, size: 20, color: context.colors.onSurfaceVariant.withAlpha(200)),
+              child: TIcon.raw(HugeIcons.strokeRoundedGripVertical, size: 12, color: context.colors.onSurfaceVariant.withAlpha(200)),
             ),
           ),
           Expanded(child: child)

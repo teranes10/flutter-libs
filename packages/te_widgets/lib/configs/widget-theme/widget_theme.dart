@@ -122,7 +122,7 @@ class TWidgetTheme {
       isDarkMode: colors.isDarkMode,
       type: variant,
       color: colors.onSurfaceVariant.toMaterial(),
-      container: colors.surfaceDim,
+      container: colors.surfaceContainerLow,
       containerVariant: colors.surfaceContainerHigh,
       onContainer: colors.onSurface,
       onContainerVariant: colors.onSurfaceVariant,
@@ -132,14 +132,14 @@ class TWidgetTheme {
 
   static TWidgetTheme fieldTheme(BuildContext context, {TVariant variant = TVariant.tonal}) {
     final colors = context.colors;
-    final parentColor = context.getBackgroundColor(colors.surface);
+    final tonalBg = context.getTonalBackground();
 
     return TWidgetTheme(
       isDarkMode: colors.isDarkMode,
       type: variant,
       color: colors.onSurfaceVariant.toMaterial(),
-      container: parentColor.adaptiveContrast(context, 0.025),
-      containerVariant: parentColor.adaptiveContrast(context, 0.02),
+      container: tonalBg.tonal,
+      containerVariant: tonalBg.tonal,
       onContainer: colors.onSurface,
       onContainerVariant: colors.onSurfaceVariant,
       shadow: colors.shadow,

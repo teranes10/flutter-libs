@@ -224,16 +224,22 @@ class TIcon extends StatelessWidget {
       return effectiveIconWidget;
     }
 
-    final tappable = InkWell(
-      onTap: onTap,
-      borderRadius: borderRadius,
-      hoverColor: Colors.transparent,
-      child: Container(
-        decoration: BoxDecoration(shape: shape, color: background, borderRadius: borderRadius, boxShadow: shadow),
-        padding: padding,
-        child: effectiveIconWidget,
-      ),
+    final decorated = Container(
+      decoration: BoxDecoration(shape: shape, color: background, borderRadius: borderRadius, boxShadow: shadow),
+      padding: padding,
+      child: effectiveIconWidget,
     );
+
+    // Without a tap handler, skip InkWell: it would force the basic cursor and
+    // override the cursor of an enclosing button.
+    final tappable = onTap == null
+        ? decorated
+        : InkWell(
+            onTap: onTap,
+            borderRadius: borderRadius,
+            hoverColor: Colors.transparent,
+            child: decorated,
+          );
 
     if (onTap == null || (semanticLabel == null && semanticIdentifier == null)) return tappable;
 

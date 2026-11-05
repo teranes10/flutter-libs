@@ -5,6 +5,8 @@ import 'dart:html' as html;
 
 final Map<void Function(bool), StreamSubscription> _subscriptions = {};
 
+bool getIsFullscreenSupported() => html.window.document.fullscreenEnabled ?? false;
+
 bool getIsFullscreen() {
   return html.window.document.fullscreenElement != null;
 }

@@ -296,7 +296,7 @@ class _BottomBarItemWidget extends StatelessWidget {
                     BoxShadow(color: mColor.withValues(alpha: 0.35), blurRadius: 12, offset: const Offset(0, 4)),
                   ],
                 ),
-                child: TIcon.raw(icon, color: colors.onPrimary, size: iconSize + 2),
+                child: TIcon(icon: icon, color: colors.onPrimary, size: iconSize + 2, padding: EdgeInsets.all(12)),
               ),
               const SizedBox(height: 2),
               Text(item.label, style: labelStyle.copyWith(color: mColor), maxLines: 1, overflow: TextOverflow.ellipsis),

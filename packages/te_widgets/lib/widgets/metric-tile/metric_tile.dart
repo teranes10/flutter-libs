@@ -78,6 +78,13 @@ class TMetricTile extends StatelessWidget {
   /// Custom border color.
   final Color? borderColor;
 
+  /// Custom background gradient. Overrides [backgroundColor] and the [type] container fill.
+  final Gradient? gradient;
+
+  /// If true (and [gradient] is null), paints a soft diagonal gradient from the
+  /// surface color to a tint of [color].
+  final bool accentGradient;
+
   /// Custom text style for the [label].
   final TextStyle? labelStyle;
 
@@ -114,6 +121,8 @@ class TMetricTile extends StatelessWidget {
     this.borderRadius,
     this.backgroundColor,
     this.borderColor,
+    this.gradient,
+    this.accentGradient = true,
     this.labelStyle,
     this.valueStyle,
     this.subtitleStyle,
@@ -135,8 +144,7 @@ class TMetricTile extends StatelessWidget {
       valueStyle ?? TextStyle(fontSize: compact ? 13 : 15, fontWeight: FontWeight.bold, color: theme?.onContainer ?? colors.onSurface);
 
   TextStyle _subtitleStyle(ColorScheme colors, [TWidgetTheme? theme]) =>
-      subtitleStyle ??
-      TextStyle(fontSize: compact ? 9 : 10, color: (theme?.onContainerVariant ?? colors.onSurfaceVariant).withAlpha(180));
+      subtitleStyle ?? TextStyle(fontSize: compact ? 9 : 10, color: (theme?.onContainerVariant ?? colors.onSurfaceVariant).withAlpha(180));
 
   /// Estimates the natural single-line width of this tile: [label], [value]
   /// (plus [trend]) and [subtitle] measured with their resolved styles, plus
@@ -166,19 +174,30 @@ class TMetricTile extends StatelessWidget {
     final colors = context.colors;
     final theme = _variantTheme(colors);
     final accentColor = theme?.onContainer ?? color ?? colors.primary;
-    final radius = borderRadius ?? BorderRadius.circular(10);
+    final radius = borderRadius ?? BorderRadius.circular(15);
     final effectivePadding = padding ??
         (compact ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8) : const EdgeInsets.symmetric(horizontal: 14, vertical: 12));
 
     final effectiveBgColor = backgroundColor ?? theme?.container ?? colors.surfaceContainerLow;
-    final effectiveBorderColor = borderColor ?? theme?.outline ?? (theme != null ? Colors.transparent : colors.outlineVariant.withAlpha(60));
+    final effectiveBorderColor =
+        borderColor ?? theme?.outline ?? (theme != null ? Colors.transparent : colors.outlineVariant.withAlpha(60));
 
     final iconPadding = EdgeInsets.all(compact ? 6 : 8);
+
+    final effectiveGradient = gradient ??
+        (accentGradient
+            ? LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [(color ?? colors.primary).withAlpha(6), (color ?? colors.primary).withAlpha(0)],
+              )
+            : null);
 
     Widget content = Container(
       padding: effectivePadding,
       decoration: BoxDecoration(
-        color: effectiveBgColor,
+        color: effectiveGradient == null ? effectiveBgColor : (backgroundColor ?? colors.surface),
+        gradient: effectiveGradient,
         borderRadius: radius,
         border: Border.all(color: effectiveBorderColor),
       ),
@@ -225,7 +244,8 @@ class TMetricTile extends StatelessWidget {
         ),
         trailing: trailing ??
             (onTap != null
-                ? TIcon.raw(HugeIcons.strokeRoundedArrowRight01,
+                ? TIcon.raw(
+                    HugeIcons.strokeRoundedArrowRight01,
                     size: compact ? 16 : 18,
                     color: colors.onSurfaceVariant.withAlpha(140),
                   )

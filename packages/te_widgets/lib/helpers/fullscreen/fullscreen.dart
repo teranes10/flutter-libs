@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'fullscreen_stub.dart' if (dart.library.html) 'fullscreen_web.dart' if (dart.library.io) 'fullscreen_mobile.dart';
 
 abstract class TFullscreen {
+  /// True only on web browsers that implement the Fullscreen API (not iOS Safari on iPhone).
+  static bool get isSupported => kIsWeb && getIsFullscreenSupported();
+
   static bool get isFullscreen {
     if (kIsWeb) {
       return getIsFullscreen();

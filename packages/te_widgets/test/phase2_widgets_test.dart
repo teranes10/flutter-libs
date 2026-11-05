@@ -78,7 +78,7 @@ void main() {
     });
   });
 
-  group('TPopconfirm Tests', () {
+  group('TPopConfirm Tests', () {
     testWidgets('renders popconfirm and confirms action', (tester) async {
       bool confirmed = false;
 
@@ -87,7 +87,7 @@ void main() {
           theme: theme,
           home: Scaffold(
             body: Center(
-              child: TPopconfirm.danger(
+              child: TPopConfirm.danger(
                 title: 'Delete Customer?',
                 description: 'This operation is permanent.',
                 confirmText: 'Delete Now',
@@ -130,7 +130,7 @@ void main() {
           theme: theme,
           home: Scaffold(
             body: Center(
-              child: TPopconfirm(
+              child: TPopConfirm(
                 title: 'Apply changes?',
                 onConfirm: () => confirmed = true,
                 onCancel: () => cancelled = true,

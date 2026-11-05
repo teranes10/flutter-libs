@@ -186,7 +186,7 @@ void main() {
       await tester.pumpWidget(buildApp(initialMode: TSidebarMode.none));
       await tester.pumpAndSettle();
 
-      final breadcrumbsFinder = find.byType(TBreadcrumbs);
+      final breadcrumbsFinder = find.byType(LayoutPageHeader);
       final tristateFinder = find.byType(SidebarTristateButton);
       final navMenuItemsFinder = find.byType(LayoutTopNavMenuItem);
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 /// A vertical stack of fixed-height sub-rows with optional hairline dividers.
 ///
@@ -50,7 +51,7 @@ class TSubRows extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (children.isEmpty) return const SizedBox.shrink();
-    final color = dividerColor ?? Theme.of(context).dividerColor.withValues(alpha: Theme.of(context).dividerColor.a * 0.5);
+    final color = dividerColor ?? context.colors.outlineVariant.withAlpha(120);
 
     return Column(
       mainAxisSize: MainAxisSize.min,

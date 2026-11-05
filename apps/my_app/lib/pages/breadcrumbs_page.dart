@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/navigation.dart';
 import 'package:te_widgets/te_widgets.dart';
 import 'package:my_app/widgets/widget_doc_card.dart';
 
@@ -28,15 +27,13 @@ class BreadcrumbsPage extends StatelessWidget {
           // Basic Breadcrumbs
           WidgetDocCard(
             title: 'Basic Breadcrumbs',
-            description: 'Automatically generated from sidebar items and current route',
+            description: 'Generated from the route metadata set by toGoRoutes()',
             icon: HugeIcons.strokeRoundedScale,
-            preview: TBreadcrumbs(items: sidebarItems),
-            code: '''TBreadcrumbs(
-  items: sidebarItems,
-)''',
+            preview: const TBreadcrumbs(),
+            code: '''const TBreadcrumbs()''',
             properties: const [
-              PropertyDoc(name: 'items', type: 'List<TSidebarItem>', description: 'Sidebar items used to map routes to labels'),
-              PropertyDoc(name: 'includeHome', type: 'bool', defaultValue: 'true', description: 'Whether to show the home link'),
+              PropertyDoc(name: 'showIcons', type: 'bool', defaultValue: 'false', description: 'Whether to show each item icon'),
+              PropertyDoc(name: 'homeLabel', type: 'String?', defaultValue: 'null', description: 'Label of a leading home link; when null the first route is the first crumb'),
               PropertyDoc(name: 'separator', type: 'Widget', description: 'Widget placed between items'),
             ],
           ),
@@ -50,7 +47,6 @@ class BreadcrumbsPage extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: context.colors.surfaceContainerLow, borderRadius: BorderRadius.circular(8)),
               child: TBreadcrumbs(
-                items: sidebarItems,
                 activeColor: Colors.orange,
                 separator: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8),
@@ -59,7 +55,6 @@ class BreadcrumbsPage extends StatelessWidget {
               ),
             ),
             code: '''TBreadcrumbs(
-  items: sidebarItems,
   activeColor: Colors.orange,
   separator: Padding(
     padding: EdgeInsets.symmetric(horizontal: 8),

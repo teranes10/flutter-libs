@@ -405,7 +405,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
   Widget? _buildFooter(BuildContext context, ColorScheme colors, bool isDark) {
     if (widget.footer == null) return null;
 
-    final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor(colors.surface);
+    final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor();
 
     return Container(
       decoration: BoxDecoration(
@@ -419,7 +419,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
   Widget build(BuildContext context) {
     final isDark = context.isDarkMode;
     final colors = context.colors;
-    final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor(colors.surface);
+    final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor();
 
     return LayoutBuilder(
       builder: (context, constraints) {

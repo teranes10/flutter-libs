@@ -106,7 +106,7 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final backgroundColor = context.getBackgroundColor(context.colors.surface);
+    final backgroundColor = context.getBackgroundColor();
     final borderColor = Colors.transparent;
 
     final content = TList<T, int>(

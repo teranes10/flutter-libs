@@ -16,66 +16,97 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
   Widget _buildTopBarContent(BuildContext ctx, {required bool hasSelection}) {
     final activeController = currentTab == 0 ? _listController : _archiveListController;
 
+    final config = widget.config;
+    final hasHeader = config.pageTitle != null || config.pageIcon != null || config.pageInfo != null;
+
+    final createAndActions = [
+      if (canCreate && _crudVisible(_perms?.create))
+        TButton(
+          key: const ValueKey('crud_table_add_button'),
+          type: TButtonType.tonal,
+          icon: HugeIcons.strokeRoundedAdd01,
+          text: config.addButtonText,
+          onPressed: (_) => handleCreate(),
+          permission: _perms?.create,
+          onDenied: _crudDenied(_perms?.create),
+        ),
+      ...config.topBarActions,
+    ];
+
+    final selectionActions = [
+      TButton(
+        type: TButtonType.softText,
+        icon: HugeIcons.strokeRoundedCancel01,
+        text: activeController.selectionInfo,
+        onPressed: (_) => activeController.clearSelection(),
+      ),
+      ...?config.bulkActionsBuilder?.call(ctx, activeController),
+    ];
+
+    final rightItems = [
+      if (showTabs)
+        // TAlignedRow always lays this child out at the row's own maxWidth to measure it,
+        // then uses the resulting size to decide row placement. Wrapping TTabs in a
+        // LayoutBuilder/ConstrainedBox that stretches to fill that width makes it measure
+        // as "full row width" even when the tabs only need their natural content width,
+        // which forces it onto its own row every time. Pass TTabs straight through so it
+        // reports its real content size and wraps only when it actually overflows.
+        TTabs(
+          wrap: true,
+          // Narrow screens put the tabs on their own line; let them stretch across it.
+          fill: !ctx.isDesktop,
+          selectedValue: currentTab,
+          onTabChanged: (i) {
+            currentTab = i;
+            config.onTabChange?.call(i);
+          },
+          tabs: tabs,
+        ),
+      if (shouldShowFilterButton) _buildFilterButton(ctx),
+      // On narrow screens search and the more-options button share one line as a single item.
+      if (ctx.isDesktop)
+        _buildSearchBar(ctx).size(w: 275)
+      else
+        Row(
+          spacing: 8,
+          children: [Expanded(child: _buildSearchBar(ctx)), _buildMoreOptionsButton(ctx)],
+        ),
+      // Card layout is forced automatically once the table can't fit as a table (narrow
+      // screen or overflowing columns) regardless of viewMode, so these manual toggles are
+      // meaningless there — only offer them when there's room for them to matter.
+      if (ctx.isDesktop) ...[
+        _buildViewModeGroup(ctx),
+      ],
+      if (ctx.isDesktop) _buildMoreOptionsButton(ctx),
+    ];
+
+    Widget searchRow(List<Widget> left) => TAlignedRow(
+          moveAllToSecondRow: true,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          rowSpacing: 8,
+          wrapperExpanded: true,
+          wrapperModeThreshold: 2,
+          left: left,
+          right: rightItems,
+        );
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
-      child: TAlignedRow(
-        moveAllToSecondRow: true,
-        wrapperExpanded: true,
-        wrapperModeThreshold: 2,
-        left: hasSelection
-            ? [
-                TButton(
-                  type: TButtonType.softText,
-                  icon: HugeIcons.strokeRoundedCancel01,
-                  text: activeController.selectionInfo,
-                  onPressed: (_) => activeController.clearSelection(),
-                ),
-                ...?widget.config.bulkActionsBuilder?.call(ctx, activeController),
-              ]
-            : [
-                if (canCreate && _crudVisible(_perms?.create))
-                  TButton(
-                    key: const ValueKey('crud_table_add_button'),
-                    type: TButtonType.tonal,
-                    icon: HugeIcons.strokeRoundedAdd01,
-                    text: widget.config.addButtonText,
-                    onPressed: (_) => handleCreate(),
-                    permission: _perms?.create,
-                    onDenied: _crudDenied(_perms?.create),
-                  ),
-                ...widget.config.topBarActions,
-              ],
-        right: [
-          if (showTabs)
-            // TAlignedRow always lays this child out at the row's own maxWidth to measure it,
-            // then uses the resulting size to decide row placement. Wrapping TTabs in a
-            // LayoutBuilder/ConstrainedBox that stretches to fill that width makes it measure
-            // as "full row width" even when the tabs only need their natural content width,
-            // which forces it onto its own row every time. Pass TTabs straight through so it
-            // reports its real content size and wraps only when it actually overflows.
-            TTabs(
-              wrap: true,
-              selectedValue: currentTab,
-              onTabChanged: (i) {
-                currentTab = i;
-                widget.config.onTabChange?.call(i);
-              },
-              tabs: tabs,
+      child: !hasHeader
+          ? searchRow(hasSelection ? selectionActions : createAndActions)
+          : _CrudHeaderBar(
+              header: TTile.h4(
+                icon: config.pageIcon,
+                iconBackgroundColor: Colors.transparent,
+                title: config.pageTitle,
+                subtitle: config.pageInfo,
+              ),
+              // While rows are selected the selection actions take over the search row, and
+              // the header row keeps only the page info.
+              actions: hasSelection ? const [] : createAndActions,
+              metrics: config.topBarMetrics,
+              searchRowBuilder: (leading, overflow) => searchRow([...leading, ...(hasSelection ? selectionActions : overflow)]),
             ),
-          if (shouldShowFilterButton) _buildFilterButton(ctx),
-          _buildSearchBar(ctx).size(w: 275),
-          // Card layout is forced automatically once the table can't fit as a table (narrow
-          // screen or overflowing columns) regardless of viewMode, so these manual toggles are
-          // meaningless there — only offer them when there's room for them to matter.
-          if (ctx.isDesktop) ...[
-            _buildViewModeGroup(ctx),
-            // Dense/comfortable only affects table-row spacing — meaningless once Grid View
-            // is active, since that renders cards instead of rows.
-            if (viewMode != 2) _buildDenseToggle(ctx),
-          ],
-          _buildMoreOptionsButton(ctx),
-        ],
-      ),
     );
   }
 
@@ -84,28 +115,16 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
     // (TButtonGroupTheme.fromBaseTheme), so the track ends up 6px taller than the button's
     // own minH unless that's subtracted here — otherwise this sits taller than the search
     // bar it's aligned next to.
-    final inputHeight = TInputSize.sm.height;
+    final inputSize = TInputSize.sm;
     return TButtonGroup(
       type: TButtonGroupType.segmented,
-      size: TButtonSize.fromInputSize(TInputSize.sm).copyWith(minH: inputHeight - 6),
+      size: TButtonSize.fromInputSize(inputSize).copyWith(minH: inputSize.height - 6),
       initialIndex: viewMode == 2 ? 1 : 0,
       onIndexChanged: (index) => viewMode = index == 1 ? 2 : 0,
       items: [
-        TButtonGroupItem(icon: HugeIcons.strokeRoundedList, tooltip: 'List View'),
-        TButtonGroupItem(icon: HugeIcons.strokeRoundedGridTable, tooltip: 'Grid View'),
+        TButtonGroupItem(icon: HugeIcons.strokeRoundedTableOfContents, tooltip: 'List View'),
+        TButtonGroupItem(icon: HugeIcons.strokeRoundedGridView, tooltip: 'Grid View'),
       ],
-    );
-  }
-
-  Widget _buildDenseToggle(BuildContext ctx) {
-    return TButton(
-      baseTheme: TWidgetTheme.surfaceTheme(ctx.colors),
-      size: TButtonSize.fromInputSize(TInputSize.sm),
-      icon: HugeIcons.strokeRoundedUnfoldMore,
-      activeIcon: HugeIcons.strokeRoundedUnfoldLess,
-      active: dense,
-      tooltip: dense ? 'Comfortable Layout' : 'Dense Layout',
-      onPressed: (_) => dense = !dense,
     );
   }
 
@@ -203,6 +222,14 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
   Widget _buildMoreOptionsButton(BuildContext ctx) {
     return TDropdown(
       items: [
+        // Dense/comfortable only affects table-row spacing — meaningless in Grid View (cards)
+        // or on narrow screens, so it lives in this menu instead of taking toolbar space.
+        if (ctx.isDesktop && viewMode != 2)
+          TDropdownItem(
+            icon: dense ? HugeIcons.strokeRoundedUnfoldMore : HugeIcons.strokeRoundedUnfoldLess,
+            text: dense ? 'Comfortable Rows' : 'Dense Rows',
+            onTap: () => dense = !dense,
+          ),
         TDropdownItem(
           icon: HugeIcons.strokeRoundedDeleteColumn,
           text: 'Column Visibility',
@@ -471,7 +498,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
   }
 
   double _getColumnListHeight() {
-    return (widget.headers.length * 36.0 + 8.0).clamp(100.0, 300.0);
+    return (widget.headers.length * 34.0).clamp(100.0, 300.0);
   }
 }
 
@@ -538,10 +565,10 @@ class _ColumnVisibilityMenuState extends State<_ColumnVisibilityMenu> {
               ReorderableDragStartListener(
                 index: index,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   child: TIcon.raw(
-                    HugeIcons.strokeRoundedGripHorizontal,
-                    size: 20,
+                    HugeIcons.strokeRoundedGripVertical,
+                    size: 12,
                     color: context.colors.onSurfaceVariant.withAlpha(200),
                   ),
                 ),
@@ -573,6 +600,130 @@ class _ColumnVisibilityMenuState extends State<_ColumnVisibilityMenu> {
           );
         },
       ),
+    );
+  }
+}
+
+/// Page header row: [header] on the left with [actions] at the right end of the same row.
+///
+/// Widths of the header and every action are measured once (off-stage, unconstrained) and cached;
+/// from then on the split is pure arithmetic against the available width, so resizing never
+/// re-measures. Actions that don't fit are handed to [searchRowBuilder] as `overflow`, which
+/// places them left of the search. [metrics] sits between the two rows.
+class _CrudHeaderBar extends StatefulWidget {
+  final Widget header;
+  final List<Widget> actions;
+  final List<Widget> metrics;
+
+  /// [leading] are the metric tiles, placed first in the row's left group.
+  final Widget Function(List<Widget> leading, List<Widget> overflow) searchRowBuilder;
+
+  const _CrudHeaderBar({
+    required this.header,
+    required this.actions,
+    required this.searchRowBuilder,
+    this.metrics = const [],
+  });
+
+  @override
+  State<_CrudHeaderBar> createState() => _CrudHeaderBarState();
+}
+
+class _CrudHeaderBarState extends State<_CrudHeaderBar> {
+  static const double _gap = 8;
+
+  List<GlobalKey> _keys = [];
+  List<double>? _widths; // [header, ...actions]
+
+  /// Width of each metric tile; they sit in the search row's left group, the controls on the right.
+  static const double _tileWidth = 220;
+
+  @override
+  void initState() {
+    super.initState();
+    _resetMeasure();
+  }
+
+  @override
+  void didUpdateWidget(_CrudHeaderBar old) {
+    super.didUpdateWidget(old);
+    if (old.actions.length != widget.actions.length) _resetMeasure();
+  }
+
+  void _resetMeasure() {
+    _keys = List.generate(widget.actions.length + 1, (_) => GlobalKey());
+    _widths = null;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final widths = [for (final k in _keys) (k.currentContext?.size?.width)];
+      if (widths.any((w) => w == null)) return;
+      setState(() {
+        _widths = widths.cast<double>();
+      });
+    });
+  }
+
+  Widget _buildBody(List<Widget> overflow) => widget.searchRowBuilder([
+        for (final m in widget.metrics) SizedBox(width: _tileWidth, child: m),
+      ], overflow);
+
+  @override
+  Widget build(BuildContext context) {
+    final widths = _widths;
+    final actions = widget.actions;
+
+    final measure = widths != null
+        ? const SizedBox.shrink()
+        : Offstage(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const NeverScrollableScrollPhysics(),
+              child: Row(
+                children: [
+                  SizedBox(key: _keys[0], child: widget.header),
+                  for (var i = 0; i < actions.length; i++) SizedBox(key: _keys[i + 1], child: actions[i]),
+                ],
+              ),
+            ),
+          );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        var fitCount = 0;
+        if (widths != null) {
+          var used = widths[0];
+          for (var i = 0; i < actions.length; i++) {
+            used += _gap + widths[i + 1];
+            if (used > constraints.maxWidth) break;
+            fitCount++;
+          }
+        } else {
+          fitCount = actions.length;
+        }
+
+        final overflow = actions.sublist(fitCount);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            measure,
+            Opacity(
+              opacity: widths == null ? 0 : 1,
+              child: Row(
+                children: [
+                  Expanded(child: Align(alignment: Alignment.centerLeft, child: widget.header)),
+                  for (var i = 0; i < fitCount; i++) ...[
+                    if (i > 0) const SizedBox(width: _gap),
+                    actions[i],
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildBody(overflow),
+          ],
+        );
+      },
     );
   }
 }

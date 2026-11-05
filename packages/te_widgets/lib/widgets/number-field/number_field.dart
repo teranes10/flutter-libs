@@ -541,28 +541,16 @@ class _QuantityButtonState extends State<_QuantityButton> {
     final enabled = widget.enabled;
     final size = widget.size;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return TButton(
+      type: TButtonType.tonal,
+      size: size,
+      shape: TButtonShape.circle,
+      color: cs.primary,
+      icon: widget.icon,
       onTap: enabled ? widget.onStep : null,
       onLongPressStart: enabled ? (_) => _startRepeating() : null,
       onLongPressEnd: (_) => _stopRepeating(),
       onLongPressCancel: _stopRepeating,
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Container(
-          width: size.minW,
-          height: size.minH,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: enabled ? cs.primaryContainer : cs.surfaceContainerHighest,
-          ),
-          child: TIcon.raw(
-            widget.icon,
-            size: size.icon,
-            color: enabled ? cs.onPrimaryContainer : cs.onSurface.withValues(alpha: 0.38),
-          ),
-        ),
-      ),
     );
   }
 }

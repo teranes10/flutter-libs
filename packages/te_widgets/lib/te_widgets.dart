@@ -61,6 +61,9 @@ export 'layouts/widgets/sidebar/sidebar.dart';
 export 'layouts/widgets/logo.dart';
 export 'layouts/widgets/top_bar.dart';
 export 'layouts/layout.dart';
+export 'layouts/widgets/bottom_bar.dart';
+export 'layouts/widgets/desktop_sidebar.dart';
+export 'layouts/widgets/layout_common.dart';
 
 export 'mixins/focus_mixin.dart';
 export 'mixins/input_field_mixin.dart';
@@ -291,6 +294,8 @@ export 'widgets/banner/banner.dart';
 export 'widgets/copy-button/copy_button.dart';
 
 export 'widgets/popover/popover.dart';
+export 'widgets/popover/pop_confirm.dart';
+export 'widgets/popover/popover_service.dart';
 export 'widgets/command-palette/command_palette.dart';
 export 'widgets/context-menu/context_menu.dart';
 
@@ -315,4 +320,3 @@ export 'widgets/affix/affix.dart';
 export 'widgets/mentions/mentions_field.dart';
 export 'widgets/menubar/menubar.dart';
 export 'widgets/calendar/calendar_view.dart';
-

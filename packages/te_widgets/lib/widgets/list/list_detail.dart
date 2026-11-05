@@ -208,7 +208,7 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor(colors.surface);
+    final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor();
     final effectiveCardBg = widget.cardBackgroundColor ?? effectiveBg;
 
     return LayoutBuilder(

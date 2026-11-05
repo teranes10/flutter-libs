@@ -87,27 +87,14 @@ class _TablesCreateBuilderPageState extends State<TablesCreateBuilderPage> {
               ],
             ),
             const SizedBox(height: 24),
-            Expanded(
-              child: Card(
-                elevation: 0,
-                color: colors.surfaceContainerLow,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: colors.outlineVariant.o(0.5)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TTable<DemoProduct, String>(
-                    headers: headers,
-                    controller: _controller,
-                    details: TTableDetails(
-                      mode: TTableExpansionMode.bottom,
-                      itemTitle: (item) => item.name,
-                      builder: _buildProductDetails,
-                      createBuilder: _buildProductForm,
-                    ),
-                  ),
-                ),
+            TTable<DemoProduct, String>(
+              headers: headers,
+              controller: _controller,
+              details: TTableDetails(
+                mode: TTableExpansionMode.bottom,
+                itemTitle: (item) => item.name,
+                builder: _buildProductDetails,
+                createBuilder: _buildProductForm,
               ),
             ),
           ],

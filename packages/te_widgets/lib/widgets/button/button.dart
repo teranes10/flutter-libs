@@ -205,6 +205,15 @@ class TButton extends StatefulWidget {
   /// Call `options.stopLoading()` when the async operation completes.
   final Function(TButtonPressOptions)? onPressed;
 
+  /// Callback fired when a long press gesture starts.
+  final GestureLongPressStartCallback? onLongPressStart;
+
+  /// Callback fired when a long press gesture ends (finger/pointer released).
+  final GestureLongPressEndCallback? onLongPressEnd;
+
+  /// Callback fired when a long press gesture is cancelled before it completes.
+  final VoidCallback? onLongPressCancel;
+
   /// Callback fired when the button's active state changes.
   ///
   /// Useful for toggle buttons. The callback receives the new active state.
@@ -263,6 +272,9 @@ class TButton extends StatefulWidget {
     this.tooltip,
     this.onTap,
     this.onPressed,
+    this.onLongPressStart,
+    this.onLongPressEnd,
+    this.onLongPressCancel,
     this.active = false,
     this.activeIcon,
     this.activeColor,
@@ -641,19 +653,12 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
                       gradient: effectiveGradient,
                     )
                   : null,
-              child: _FillIfTight(
-                probe: _tightProbe,
-                child: Align(
-                  widthFactor: 1,
-                  heightFactor: 1,
-                  child: Container(
-                    width: isExpandedOrBlock ? double.infinity : null,
-                    alignment: isExpandedOrBlock ? Alignment.center : null,
-                    constraints: BoxConstraints(minWidth: size.minW, minHeight: size.minH),
-                    padding: resolvedPadding,
-                    child: buttonContent,
-                  ),
-                ),
+              child: Container(
+                width: isExpandedOrBlock ? double.infinity : null,
+                alignment: isExpandedOrBlock ? Alignment.center : null,
+                constraints: BoxConstraints(minWidth: size.minW, minHeight: size.minH),
+                padding: resolvedPadding,
+                child: _CenterIfTight(child: buttonContent),
               ),
             );
 
@@ -667,10 +672,19 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             statesController: _statesController,
             onPressed: isDisabled ? null : _handlePress,
             style: effectiveButtonStyle,
-            child: innerWidget,
+            child: _FillIfTight(probe: _tightProbe, child: innerWidget),
           ),
         ),
       );
+
+      if (!isDisabled && !_isLoading && (widget.onLongPressStart != null || widget.onLongPressEnd != null || widget.onLongPressCancel != null)) {
+        resultButton = GestureDetector(
+          onLongPressStart: widget.onLongPressStart,
+          onLongPressEnd: widget.onLongPressEnd,
+          onLongPressCancel: widget.onLongPressCancel,
+          child: resultButton,
+        );
+      }
 
       if (widget.tooltip != null) {
         resultButton = TTooltip(
@@ -782,6 +796,8 @@ class _RenderTightWidthProbe extends RenderProxyBox {
 }
 
 /// Forces its child to the available width when [probe] reports a tight width.
+///
+/// Sits directly under the button's own loosening wrapper (which would otherwise shrink the content).
 class _FillIfTight extends SingleChildRenderObjectWidget {
   const _FillIfTight({required this.probe, required super.child});
 
@@ -813,5 +829,36 @@ class _RenderFillIfTight extends RenderProxyBox {
   }
 
   @override
-  Size computeDryLayout(BoxConstraints constraints) => child?.getDryLayout(_childConstraints(constraints)) ?? constraints.smallest;
+  Size computeDryLayout(BoxConstraints constraints) => child?.getDryLayout(constraints) ?? constraints.smallest;
+}
+
+/// Centers its child in the available width when that width is tight.
+class _CenterIfTight extends SingleChildRenderObjectWidget {
+  const _CenterIfTight({required super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderCenterIfTight();
+}
+
+class _RenderCenterIfTight extends RenderShiftedBox {
+  _RenderCenterIfTight() : super(null);
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    if (child == null) {
+      size = constraints.smallest;
+      return;
+    }
+    child.layout(constraints.loosen(), parentUsesSize: true);
+    final width = constraints.hasTightWidth ? constraints.maxWidth : child.size.width;
+    size = constraints.constrain(Size(width, child.size.height));
+    (child.parentData! as BoxParentData).offset = Offset((size.width - child.size.width) / 2, (size.height - child.size.height) / 2);
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final childSize = child?.getDryLayout(constraints.loosen()) ?? Size.zero;
+    return constraints.constrain(Size(constraints.hasTightWidth ? constraints.maxWidth : childSize.width, childSize.height));
+  }
 }

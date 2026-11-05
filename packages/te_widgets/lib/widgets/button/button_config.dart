@@ -80,6 +80,9 @@ class TButtonGroupItem {
   /// Overrides the denied behaviour for this item; see [TButton.onDenied].
   final TAuthMode? onDenied;
 
+  /// Wraps the rendered button, e.g. in an anchored confirmation popover.
+  final Widget Function(Widget button)? wrap;
+
   /// Creates a button group item.
   TButtonGroupItem({
     this.icon,
@@ -103,6 +106,7 @@ class TButtonGroupItem {
     this.semanticIdentifier,
     this.permission,
     this.onDenied,
+    this.wrap,
     this.onTap,
     this.onPressed,
   });

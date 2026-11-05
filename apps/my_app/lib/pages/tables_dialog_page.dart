@@ -59,51 +59,40 @@ class _TablesDialogPageState extends State<TablesDialogPage> {
                 style: context.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
               ),
               const SizedBox(height: 24),
-              Card(
-                elevation: 0,
-                color: colors.surfaceContainerLow,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: colors.outlineVariant.o(0.5)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TTable<DemoProduct, String>(
-                    shrinkWrap: true,
-                    headers: headers,
-                    controller: _controller,
-                    details: TTableDetails(
-                      mode: TTableExpansionMode.dialog,
-                      itemTitle: (x) => x.name,
-                      itemSubTitle: (x) => x.category,
-                      itemImageUrl: (x) => x.imageUrl,
-                      itemDescription: (x) => x.description,
-                      builder: (ctx, item, index) {
-                        final product = item.data;
-                        return TRowExpandedBuilder.tabs(
-                          ctx,
-                          tabs: [
-                            TTab(
-                              value: 'details',
-                              text: 'Details',
-                              content: (ctx) => SingleChildScrollView(
-                                padding: const EdgeInsets.all(16),
-                                child: TKeyValueSection(
-                                  values: [
-                                    TKeyValue.text('SKU Code', product.sku),
-                                    TKeyValue.text('Manufacturer', product.manufacturer),
-                                    TKeyValue.text('Warranty', product.warranty),
-                                    TKeyValue.text('Weight', product.weight),
-                                    TKeyValue.text('Description', product.description),
-                                  ],
-                                ),
-                              ),
+              TTable<DemoProduct, String>(
+                shrinkWrap: true,
+                headers: headers,
+                controller: _controller,
+                details: TTableDetails(
+                  mode: TTableExpansionMode.dialog,
+                  itemTitle: (x) => x.name,
+                  itemSubTitle: (x) => x.category,
+                  itemImageUrl: (x) => x.imageUrl,
+                  itemDescription: (x) => x.description,
+                  builder: (ctx, item, index) {
+                    final product = item.data;
+                    return TRowExpandedBuilder.tabs(
+                      ctx,
+                      tabs: [
+                        TTab(
+                          value: 'details',
+                          text: 'Details',
+                          content: (ctx) => SingleChildScrollView(
+                            padding: const EdgeInsets.all(16),
+                            child: TKeyValueSection(
+                              values: [
+                                TKeyValue.text('SKU Code', product.sku),
+                                TKeyValue.text('Manufacturer', product.manufacturer),
+                                TKeyValue.text('Warranty', product.warranty),
+                                TKeyValue.text('Weight', product.weight),
+                                TKeyValue.text('Description', product.description),
+                              ],
                             ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],

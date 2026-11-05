@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:te_widgets/te_widgets.dart';
 import 'app_colors.dart';
 
 final themeModeKey = 'te_theme_mode';
 final sidebarMinifiedKey = 'te_sidebar_minified';
 final sidebarModeKey = 'te_sidebar_mode';
 final primaryColorIndexKey = 'te_primary_color_index';
+final layoutStyleKey = 'te_layout_style';
 
 ThemeMode _initialTheme = ThemeMode.light;
 TSidebarMode _initialSidebarMode = TSidebarMode.full;
 int _initialPrimaryColorIndex = 0;
+TLayoutStyle _initialLayoutStyle = TLayoutStyle.layout1;
+
+/// Which `TLayout` implementation the app renders.
+enum TLayoutStyle {
+  /// Sidebar + top bar (profile in the top bar).
+  layout1,
+
+  /// Sidebar only (profile pinned in the sidebar).
+  layout2;
+
+  String get label => this == layout1 ? 'Layout 1' : 'Layout 2';
+}
 
 /// Tristate modes for the navigation sidebar.
 enum TSidebarMode {
@@ -26,21 +40,28 @@ enum TSidebarMode {
 class TThemeState {
   final ThemeMode themeMode;
   final int primaryColorIndex;
+  final TLayoutStyle layoutStyle;
 
   MaterialColor get primaryColor => primaryColorOptions[primaryColorIndex].color;
+
+  TAppTheme get theme =>
+      layoutStyle == TLayoutStyle.layout2 ? TAppTheme.defaultTheme2(primary: primaryColor) : TAppTheme.defaultTheme(primary: primaryColor);
 
   const TThemeState({
     required this.themeMode,
     required this.primaryColorIndex,
+    this.layoutStyle = TLayoutStyle.layout1,
   });
 
   TThemeState copyWith({
     ThemeMode? themeMode,
     int? primaryColorIndex,
+    TLayoutStyle? layoutStyle,
   }) {
     return TThemeState(
       themeMode: themeMode ?? this.themeMode,
       primaryColorIndex: primaryColorIndex ?? this.primaryColorIndex,
+      layoutStyle: layoutStyle ?? this.layoutStyle,
     );
   }
 }
@@ -68,6 +89,10 @@ Future<void> initializeApp([SharedPreferences? prefs]) async {
   }
 
   _initialPrimaryColorIndex = p.getInt(primaryColorIndexKey) ?? 0;
+  _initialLayoutStyle = TLayoutStyle.values.firstWhere(
+    (l) => l.name == p.getString(layoutStyleKey),
+    orElse: () => TLayoutStyle.layout1,
+  );
 }
 
 class ThemeNotifier extends Notifier<TThemeState> {
@@ -76,6 +101,7 @@ class ThemeNotifier extends Notifier<TThemeState> {
     return TThemeState(
       themeMode: _initialTheme,
       primaryColorIndex: _initialPrimaryColorIndex,
+      layoutStyle: _initialLayoutStyle,
     );
   }
 
@@ -95,6 +121,11 @@ class ThemeNotifier extends Notifier<TThemeState> {
       state = state.copyWith(primaryColorIndex: index);
       _savePrimaryColor(index);
     }
+  }
+
+  void setLayoutStyle(TLayoutStyle style) {
+    state = state.copyWith(layoutStyle: style);
+    SharedPreferences.getInstance().then((p) => p.setString(layoutStyleKey, style.name));
   }
 
   Future<void> _saveThemeMode(ThemeMode mode) async {

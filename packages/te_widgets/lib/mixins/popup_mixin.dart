@@ -229,10 +229,10 @@ mixin TPopupStateMixin<T extends StatefulWidget> on State<T> {
       // engine) so every popup card in the library reads as one consistent "floating surface"
       // style: a light, wide ambient shadow for lift, plus a short, tight contact shadow for a
       // crisp edge, both tinted from the theme's shadow color rather than flat black.
-      border: BoxBorder.all(color: colors.outlineVariant, width: 1),
+      border: BoxBorder.all(color: colors.outlineVariant.withAlpha(60), width: 1),
       shadow: [
-        BoxShadow(color: colors.shadow.withAlpha(180), blurRadius: 32.0, spreadRadius: 2.0, offset: const Offset(0, 12)),
-        BoxShadow(color: colors.shadow.withAlpha(200), blurRadius: 8.0, spreadRadius: -2.0, offset: const Offset(0, 2)),
+        BoxShadow(color: colors.shadow.withAlpha(15), blurRadius: 32.0, spreadRadius: 2.0, offset: const Offset(0, 12)),
+        BoxShadow(color: colors.shadow.withAlpha(30), blurRadius: 8.0, spreadRadius: -2.0, offset: const Offset(0, 2)),
       ],
       padding: EdgeInsets.zero,
       margin: EdgeInsets.zero,

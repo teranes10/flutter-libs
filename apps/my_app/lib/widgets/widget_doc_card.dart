@@ -76,7 +76,7 @@ class WidgetDocCard extends StatefulWidget {
   final List<PropertyDoc> properties;
 
   /// Optional icon to display in the header.
-  final dynamic? icon;
+  final dynamic icon;
 
   /// Whether to start with the code tab expanded.
   final bool defaultShowCode;

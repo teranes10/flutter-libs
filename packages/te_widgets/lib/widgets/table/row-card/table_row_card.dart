@@ -125,7 +125,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
     final wTheme = theme ?? TTableScope.maybeOf(context)?.theme?.rowCardTheme ?? context.theme.tableTheme.rowCardTheme;
     final states = <WidgetState>{if (isSelected) WidgetState.selected};
     final themeBgColor = wTheme.backgroundColor.resolve(states);
-    final resolvedBgColor = backgroundColor ?? (themeBgColor == colors.surface ? context.getBackgroundColor(colors.surface) : themeBgColor);
+    final resolvedBgColor = backgroundColor ?? themeBgColor;
 
     final controller = TTableScope.maybeOf(context)?.controller;
     final isDense = TTableScope.maybeOf(context)?.dense ?? false;

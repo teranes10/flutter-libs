@@ -543,7 +543,12 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx),
-          TTableRowHeader<T, K>(theme: wTheme.headerTheme, headers: widget.headers, controller: listController, columnWidths: columnWidths, showExpandIcon: _showExpandIcon),
+          TTableRowHeader<T, K>(
+              theme: wTheme.headerTheme,
+              headers: widget.headers,
+              controller: listController,
+              columnWidths: columnWidths,
+              showExpandIcon: _showExpandIcon),
         ],
       ),
       itemBuilder: (ctx, item, index) => _buildRowCard(columnWidths, ctx, item, index),

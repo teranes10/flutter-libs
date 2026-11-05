@@ -98,15 +98,15 @@ class TOptionTile extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 48),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: TTile(
-                title: label,
-                subtitle: description,
-                leading: leading,
-                iconColor: resolvedIconColor,
-                trailing: _buildIndicator(colors, accent),
-                size: TTileSize.h5,
-                titleStyle: const TextStyle(fontWeight: FontWeight.w600),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Center(
+                child: TTile.h5(
+                  title: label,
+                  subtitle: description,
+                  leading: leading,
+                  iconColor: resolvedIconColor,
+                  trailing: _buildIndicator(colors, accent),
+                ),
               ),
             ),
           ),
@@ -119,8 +119,8 @@ class TOptionTile extends StatelessWidget {
     switch (indicator) {
       case TOptionIndicator.radio:
         return Container(
-          width: 26,
-          height: 26,
+          width: 22,
+          height: 22,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: selected ? accent : colors.outline, width: 2),
@@ -133,8 +133,8 @@ class TOptionTile extends StatelessWidget {
         );
       case TOptionIndicator.check:
         return Container(
-          width: 26,
-          height: 26,
+          width: 22,
+          height: 22,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(7),
             color: selected ? accent : Colors.transparent,

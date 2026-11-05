@@ -160,15 +160,15 @@ class TInputFieldTheme {
     final color = WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.error)) return colors.error;
       if (states.contains(WidgetState.focused)) return colors.primary;
-      if (states.contains(WidgetState.disabled)) return colors.outlineVariant;
-      return colors.outline;
+      if (states.contains(WidgetState.disabled)) return colors.outlineVariant.withAlpha(120);
+      return colors.outline.withAlpha(120);
     });
 
     final borderColor = WidgetStateProperty.resolveWith((states) {
       if (states.contains(WidgetState.error)) return colors.error;
       if (states.contains(WidgetState.focused)) return colors.primary;
-      if (states.contains(WidgetState.disabled)) return colors.outlineVariant;
-      return colors.outline;
+      if (states.contains(WidgetState.disabled)) return colors.outlineVariant.withAlpha(120);
+      return colors.outline.withAlpha(120);
     });
 
     final labelStyle = WidgetStateProperty.resolveWith((states) {
@@ -240,17 +240,17 @@ class TInputFieldTheme {
 
   static Color _defaultBackgroundColor(TInputDecorationType decorationType, Set<WidgetState> states, BuildContext context) {
     final colors = context.colors;
-    final parentColor = context.getBackgroundColor(colors.surface);
+    final tonalBg = context.getTonalBackground();
 
     if (decorationType == TInputDecorationType.filled) {
       return states.contains(WidgetState.disabled)
-          ? parentColor
+          ? tonalBg.tonal.adaptiveContrast(context, 0.05)
           : states.contains(WidgetState.error)
               ? colors.errorContainer
-              : parentColor.adaptiveContrast(context, 0.025);
+              : tonalBg.tonal;
     }
 
-    return states.contains(WidgetState.disabled) ? parentColor.adaptiveContrast(context, 0.025) : parentColor;
+    return states.contains(WidgetState.disabled) ? tonalBg.tonal : tonalBg.bg;
   }
 
   InputBorder buildInputBorder(Set<WidgetState> states) {

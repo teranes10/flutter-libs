@@ -43,9 +43,9 @@ class TAppTheme {
         surfaceContainerHighest: grey.shade200.lighten(0.15),
         onSurface: grey.shade900,
         onSurfaceVariant: grey.shade800,
-        outline: grey.shade300,
-        outlineVariant: grey.shade200,
-        shadow: grey.shade200.withAlpha(100),
+        outline: grey.shade500,
+        outlineVariant: grey.shade300,
+        shadow: grey[950],
         scrim: grey[950]?.withAlpha(75),
         surfaceTint: grey.shade50.o(0.1),
       ),
@@ -72,11 +72,61 @@ class TAppTheme {
         surfaceContainerHighest: grey[950]!.lighten(0.15),
         onSurface: grey.shade300,
         onSurfaceVariant: grey.shade400,
-        outline: grey.shade800,
-        outlineVariant: grey.shade900,
-        shadow: Colors.black54.withAlpha(50),
+        outline: grey.shade600,
+        outlineVariant: grey.shade700,
+        shadow: Colors.black,
         scrim: Colors.black26,
         surfaceTint: grey[950]!.lighten(0.12).o(0.1),
+      ),
+      widgetThemeBuilder: (scheme) => TWidgetThemeExtension.defaultTheme(scheme),
+    );
+  }
+
+  factory TAppTheme.defaultTheme2({
+    MaterialColor primary = AppColors.primary,
+    MaterialColor secondary = AppColors.secondary,
+    MaterialColor danger = AppColors.danger,
+    MaterialColor grey = AppColors.grey,
+  }) {
+    return TAppTheme(
+      lightScheme: ColorScheme.fromSeed(
+        seedColor: primary,
+        brightness: Brightness.light,
+      ).copyWith(
+        primary: primary,
+        onPrimary: Colors.white,
+        secondary: secondary,
+        error: danger,
+        onError: Colors.white,
+        errorContainer: danger.shade50,
+        onErrorContainer: danger,
+        surface: AppColors.lightSurface,
+        onSurface: const Color(0xFF172033),
+        surfaceContainerLowest: Colors.white,
+        surfaceContainerLow: const Color(0xFFF7F8FC),
+        surfaceContainer: const Color(0xFFF0F2F7),
+        surfaceContainerHigh: const Color(0xFFE9ECF3),
+        outline: const Color(0xFFAAB3C2),
+        outlineVariant: const Color(0xFFE1E5ED),
+      ),
+      darkScheme: ColorScheme.fromSeed(
+        seedColor: primary,
+        brightness: Brightness.dark,
+      ).copyWith(
+        primary: primary.shade300,
+        secondary: secondary.shade300,
+        error: danger,
+        onError: Colors.white,
+        errorContainer: danger.shade800.lighten(0.03),
+        onErrorContainer: danger.shade100,
+        surface: AppColors.darkSurface,
+        onSurface: const Color(0xFFF1F4FA),
+        surfaceContainerLowest: const Color(0xFF0D1017),
+        surfaceContainerLow: const Color(0xFF171B25),
+        surfaceContainer: const Color(0xFF1D2330),
+        surfaceContainerHigh: const Color(0xFF252C3A),
+        outline: const Color(0xFF687386),
+        outlineVariant: const Color(0xFF303746),
       ),
       widgetThemeBuilder: (scheme) => TWidgetThemeExtension.defaultTheme(scheme),
     );
@@ -98,9 +148,10 @@ class TAppTheme {
     final widgetTheme = widgetThemeBuilder(lightScheme);
 
     return ThemeData(
+      useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: lightScheme,
-      primarySwatch: widgetTheme.primary,
+      scaffoldBackgroundColor: AppColors.lightBackground,
       textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
       scrollbarTheme: scrollbarTheme(lightScheme),
       extensions: [widgetTheme],
@@ -111,8 +162,10 @@ class TAppTheme {
     final widgetTheme = widgetThemeBuilder(darkScheme);
 
     return ThemeData(
+      useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: darkScheme,
+      scaffoldBackgroundColor: AppColors.darkBackground,
       primarySwatch: widgetTheme.primary,
       textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
       scrollbarTheme: scrollbarTheme(darkScheme),

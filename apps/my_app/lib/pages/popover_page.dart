@@ -174,9 +174,9 @@ class _PopoverPageState extends State<PopoverPage> {
           ),
           const SizedBox(height: 24),
 
-          // Section 2: Inline Confirmation (TPopconfirm)
+          // Section 2: Inline Confirmation (TPopConfirm)
           TCard(
-            title: 'Inline Action Confirmation (TPopconfirm)',
+            title: 'Inline Action Confirmation (TPopConfirm)',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -190,7 +190,7 @@ class _PopoverPageState extends State<PopoverPage> {
                   runSpacing: 16,
                   children: [
                     // Danger confirmation
-                    TPopconfirm.danger(
+                    TPopConfirm.danger(
                       title: 'Delete Production Database?',
                       description: 'All replicas will be detached and data erased permanently.',
                       confirmText: 'Delete DB',
@@ -208,7 +208,7 @@ class _PopoverPageState extends State<PopoverPage> {
                     ),
 
                     // Standard confirmation
-                    TPopconfirm(
+                    TPopConfirm(
                       title: 'Archive Project Workspace?',
                       description: 'Team members will no longer be able to submit edits.',
                       confirmText: 'Archive',
@@ -222,7 +222,7 @@ class _PopoverPageState extends State<PopoverPage> {
                     ),
 
                     // Reset settings confirmation
-                    TPopconfirm(
+                    TPopConfirm(
                       title: 'Reset API Credentials?',
                       description: 'Active client access tokens will immediately expire.',
                       confirmText: 'Regenerate',

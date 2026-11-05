@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -168,7 +167,7 @@ class LayoutActionsRow extends StatelessWidget {
         else ...[
           if (showThemeToggle) const LayoutThemeToggleButton(),
           if (showColorToggle) const LayoutColorToggleButton(),
-          if (kIsWeb && showFullscreenToggle) const LayoutFullscreenToggleButton(),
+          if (TFullscreen.isSupported && showFullscreenToggle) const LayoutFullscreenToggleButton(),
           if (showLogout && onLogout != null) LayoutLogoutButton(onLogout: onLogout),
         ],
       ],

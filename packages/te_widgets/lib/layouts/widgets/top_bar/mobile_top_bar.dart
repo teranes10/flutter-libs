@@ -33,12 +33,7 @@ class LayoutMobileTopBar extends StatelessWidget {
                     onTap: () => Navigator.of(context).pop(),
                   ),
                 Expanded(
-                  child: TBreadcrumbs(
-                    items: resolvedItems,
-                    includeHome: false,
-                    homeLabel: 'Home',
-                    homeRoute: '/',
-                  ),
+                  child: LayoutPageHeader(),
                 ),
               ],
             ),

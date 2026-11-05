@@ -560,6 +560,91 @@ TMetricTile(
             ],
           ),
 
+          const SizedBox(height: 24),
+
+          // 3.4 Gradient cards
+          WidgetDocCard(
+            title: 'Gradient Cards (accentGradient / gradient)',
+            description:
+                'accentGradient paints a soft diagonal gradient from the surface to a tint of color. Pass gradient for a fully custom fill. Combine with a larger borderRadius and padding for a hero KPI look.',
+            icon: HugeIcons.strokeRoundedPaintBoard,
+            preview: TMetricGrid(
+              minTileWidth: 240,
+              children: [
+                TMetricTile(
+                  label: 'Inventory Value',
+                  value: '\$84,230',
+                  icon: HugeIcons.strokeRoundedChartBarLine,
+                  color: theme.success,
+                  trend: '8.2%',
+                  trendUp: true,
+                  accentGradient: true,
+                  borderRadius: BorderRadius.circular(20),
+                  padding: const EdgeInsets.all(18),
+                ),
+                TMetricTile(
+                  label: 'Open Orders',
+                  value: '1,284',
+                  icon: HugeIcons.strokeRoundedShoppingCart01,
+                  color: theme.info,
+                  trend: '3.1%',
+                  trendUp: false,
+                  accentGradient: true,
+                  borderRadius: BorderRadius.circular(20),
+                  padding: const EdgeInsets.all(18),
+                ),
+                TMetricTile(
+                  label: 'Custom Gradient',
+                  value: '98.6%',
+                  icon: HugeIcons.strokeRoundedAnalytics01,
+                  color: theme.primary,
+                  gradient: LinearGradient(
+                    begin: Alignment.topRight,
+                    end: Alignment.bottomLeft,
+                    colors: [theme.primary.withAlpha(24), theme.primary.withAlpha(0)],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  padding: const EdgeInsets.all(18),
+                ),
+              ],
+            ),
+            code: '''TMetricTile(
+  label: 'Inventory Value',
+  value: '\$84,230',
+  icon: HugeIcons.strokeRoundedChartBarLine,
+  color: context.theme.success,
+  trend: '8.2%',
+  trendUp: true,
+  accentGradient: true, // surface -> tint of color
+  borderRadius: BorderRadius.circular(20),
+  padding: const EdgeInsets.all(18),
+)
+
+// Fully custom fill:
+TMetricTile(
+  label: 'Custom Gradient',
+  value: '98.6%',
+  gradient: LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0x1400A86B), Color(0x3C2196F3)],
+  ),
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'accentGradient',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Soft diagonal gradient from the surface color to a tint of color.',
+              ),
+              PropertyDoc(
+                name: 'gradient',
+                type: 'Gradient?',
+                description: 'Custom background gradient. Overrides accentGradient and backgroundColor.',
+              ),
+            ],
+          ),
+
           const SizedBox(height: 36),
 
           // ==================== SECTION 4: TTILE ====================
@@ -648,6 +733,17 @@ TMetricTile(
                     title: 'Heading 6 (h6 • 12.5px/w500)',
                     subtitle: 'Dense sidebar & compact table row tile • Icon 16px • Spacing 10px',
                     trailing: TBadge(label: 'h6', color: colors.onSurfaceVariant),
+                  ),
+                ),
+                _buildTileContainer(
+                  context,
+                  child: TTile.h7(
+                    icon: HugeIcons.strokeRoundedBlocks,
+                    iconBackgroundColor: colors.onSurface.withAlpha(15),
+                    iconColor: colors.onSurfaceVariant,
+                    title: 'Heading 7 (h7 • 11.5px/w500)',
+                    subtitle: 'Dense sidebar & compact table row tile • Icon 16px • Spacing 10px',
+                    trailing: TBadge(label: 'h7', color: colors.onSurfaceVariant),
                   ),
                 ),
               ],

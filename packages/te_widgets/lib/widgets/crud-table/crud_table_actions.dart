@@ -93,39 +93,36 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
     });
   }
 
-  void handleArchive(T item) {
-    TAlertService.confirmArchive(context, () async {
-      await _performAction(() async {
-        final success = await widget.onArchive!(item);
-        if (success == true) {
-          _listController.removeItem(item);
-          _permissionCache.remove(item);
-        }
-      });
+  /// Runs the archive action; confirmation is shown by a popover around the row button.
+  Future<void> handleArchive(T item) {
+    return _performAction(() async {
+      final success = await widget.onArchive!(item);
+      if (success == true) {
+        _listController.removeItem(item);
+        _permissionCache.remove(item);
+      }
     });
   }
 
-  void handleRestore(T item) {
-    TAlertService.confirmRestore(context, () async {
-      await _performAction(() async {
-        final success = await widget.onRestore!(item);
-        if (success == true) {
-          _archiveListController.removeItem(item);
-          _permissionCache.remove(item);
-        }
-      });
+  /// Runs the restore action; confirmation is shown by a popover around the row button.
+  Future<void> handleRestore(T item) {
+    return _performAction(() async {
+      final success = await widget.onRestore!(item);
+      if (success == true) {
+        _archiveListController.removeItem(item);
+        _permissionCache.remove(item);
+      }
     });
   }
 
-  void handleDelete(T item) {
-    TAlertService.confirmDelete(context, () async {
-      await _performAction(() async {
-        final success = await widget.onDelete!(item);
-        if (success == true) {
-          _archiveListController.removeItem(item);
-          _permissionCache.remove(item);
-        }
-      });
+  /// Runs the delete action; confirmation is shown by a popover around the row button.
+  Future<void> handleDelete(T item) {
+    return _performAction(() async {
+      final success = await widget.onDelete!(item);
+      if (success == true) {
+        _archiveListController.removeItem(item);
+        _permissionCache.remove(item);
+      }
     });
   }
 

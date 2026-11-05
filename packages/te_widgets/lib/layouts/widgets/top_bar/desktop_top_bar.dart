@@ -6,7 +6,6 @@ import 'package:te_widgets/te_widgets.dart';
 enum _TopBarSlot {
   logo,
   breadcrumbs,
-  tristate,
   actions,
 }
 
@@ -42,17 +41,8 @@ class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
       );
     }
 
-    // 2. Layout tristate button
-    Size tristateSize = Size.zero;
-    if (hasChild(_TopBarSlot.tristate)) {
-      tristateSize = layoutChild(
-        _TopBarSlot.tristate,
-        BoxConstraints(maxWidth: size.width),
-      );
-    }
-
     final rightEdge = size.width - actionsSize.width;
-    final tristateX = (hasChild(_TopBarSlot.actions) && actionsSize.width > 0 ? rightEdge - spacing : size.width) - tristateSize.width;
+    final menuRightEdge = hasChild(_TopBarSlot.actions) && actionsSize.width > 0 ? rightEdge - spacing : size.width;
 
     // 3. Layout logo on the far left (in none mode)
     Size logoSize = Size.zero;
@@ -68,7 +58,7 @@ class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
     // 4. Layout breadcrumbs after logo
     Size breadcrumbsSize = Size.zero;
     if (hasChild(_TopBarSlot.breadcrumbs)) {
-      final maxBreadcrumbsWidth = (tristateX - spacing - breadcrumbsX - 20.0).clamp(0.0, size.width);
+      final maxBreadcrumbsWidth = (menuRightEdge - spacing - breadcrumbsX - 20.0).clamp(0.0, size.width);
       breadcrumbsSize = layoutChild(
         _TopBarSlot.breadcrumbs,
         BoxConstraints(maxWidth: maxBreadcrumbsWidth),
@@ -91,7 +81,7 @@ class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
 
     // 6. Determine which items fit
     final breadcrumbsEnd = breadcrumbsX + (hasChild(_TopBarSlot.breadcrumbs) ? breadcrumbsSize.width : 0.0);
-    final availableMenuWidth = tristateX - spacing - (breadcrumbsEnd + spacing);
+    final availableMenuWidth = menuRightEdge - spacing - (breadcrumbsEnd + spacing);
 
     int fitCount = 0;
     double fitWidth = 0.0;
@@ -122,7 +112,7 @@ class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
 
     // 9. Position menu items (centered between breadcrumbs and sidebar state icon, vertically bottom-aligned)
     if (fitCount > 0) {
-      double currentX = (breadcrumbsEnd + tristateX - fitWidth) / 2;
+      double currentX = (breadcrumbsEnd + menuRightEdge - fitWidth) / 2;
       for (int i = 0; i < fitCount; i++) {
         if (hasChild(i)) {
           final y = (size.height - itemSizes[i].height).clamp(0.0, size.height);
@@ -137,14 +127,6 @@ class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
       if (hasChild(i)) {
         positionChild(i, const Offset(-99999, -99999));
       }
-    }
-
-    // 10. Position tristate button (vertically bottom-aligned in none mode, center-aligned in full/minified)
-    if (hasChild(_TopBarSlot.tristate)) {
-      final y = isNoneMode
-          ? (size.height - tristateSize.height).clamp(0.0, size.height)
-          : ((size.height - tristateSize.height) / 2).clamp(0.0, size.height);
-      positionChild(_TopBarSlot.tristate, Offset(tristateX, y));
     }
 
     // 11. Position actions
@@ -237,7 +219,7 @@ class _LayoutDesktopTopBarState extends ConsumerState<LayoutDesktopTopBar> {
     );
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(15, 18, 15, 7),
+      padding: const EdgeInsets.fromLTRB(15, 12, 15, 7),
       child: SizedBox(
         height: 48.0,
         child: CustomMultiChildLayout(
@@ -256,9 +238,7 @@ class _LayoutDesktopTopBarState extends ConsumerState<LayoutDesktopTopBar> {
             LayoutId(
               id: _TopBarSlot.breadcrumbs,
               child: TBreadcrumbs(
-                items: widget.resolvedItems,
-                includeHome: widget.homeItem != null,
-                homeLabel: widget.homeItem?.text ?? 'Home',
+                homeLabel: widget.homeItem?.text,
                 homeRoute: widget.homeItem?.route ?? '/',
               ),
             ),
@@ -271,14 +251,6 @@ class _LayoutDesktopTopBarState extends ConsumerState<LayoutDesktopTopBar> {
                     theme: menuTheme,
                   ),
                 ),
-            LayoutId(
-              id: _TopBarSlot.tristate,
-              child: SidebarTristateButton(
-                overflowNotifier: isNoneMode ? _overflowNotifier : null,
-                items: isNoneMode ? _overflowNotifier.value : const [],
-                theme: widget.sidebarTheme,
-              ),
-            ),
             LayoutId(
               id: _TopBarSlot.actions,
               child: LayoutActionsRow(

@@ -96,7 +96,57 @@ class CrudPage extends StatelessWidget {
         return true;
       },
       config: TCrudConfig<ProductDto, int>(
+        pageIcon: HugeIcons.strokeRoundedPackage,
+        pageTitle: 'Products',
+        pageInfo: 'Manage your product catalog',
+        topBarMetrics: [
+          TMetricTile(
+            label: 'Total Products',
+            value: '1,248',
+
+            icon: HugeIcons.strokeRoundedPackage,
+            color: context.theme.primary,
+            trend: '+2.6%',
+            trendUp: true,
+          ),
+          TMetricTile(
+            label: 'Inventory Value',
+            value: '\$84,230',
+
+            icon: HugeIcons.strokeRoundedWallet01,
+            color: context.theme.success,
+            trend: '+8.1%',
+            trendUp: true,
+          ),
+          TMetricTile(
+            label: 'Low Stock',
+            value: '23',
+
+            icon: HugeIcons.strokeRoundedAlert02,
+            color: context.theme.warning,
+            trend: '+5',
+            trendUp: false,
+          ),
+          TMetricTile(
+            label: 'Out of Stock',
+            value: '7',
+
+            icon: HugeIcons.strokeRoundedCancelCircle,
+            color: context.theme.danger,
+            trend: '-2',
+            trendUp: true,
+          ),
+        ],
         flatActions: false,
+        // Advanced filters; the applied values are persisted per route by TCrudTable.
+        filters: [
+          TFilter.text<ProductDto>('Title', map: (x) => x.title),
+          TFilter.text<ProductDto>('SKU', map: (x) => x.sku),
+          TFilter.select<ProductDto>('Category', items: categories, map: (x) => x.category),
+          TFilter.number<ProductDto>('Price', map: (x) => x.price),
+          TFilter.number<ProductDto>('Stock', map: (x) => x.stock),
+          TFilter.number<ProductDto>('Rating', map: (x) => x.rating),
+        ],
         tabs: [
           TTab(text: "Active", value: 0),
           TTab(text: "Others", value: 2),
@@ -107,12 +157,6 @@ class CrudPage extends StatelessWidget {
         tabContents: [TCrudTableContent(headers: headers, controller: otherController)],
         topBarActions: [
           TButton(type: TButtonType.tonal, icon: HugeIcons.strokeRoundedFileUpload, text: 'Upload File', onPressed: (_) => {}),
-          TButton(
-            type: TButtonType.tonal,
-            icon: HugeIcons.strokeRoundedSelect02,
-            text: 'Selected',
-            onPressed: (_) => {TToastService.info(context, 'Selected Items: ${controller.selectedItems.map((x) => x.title).join("\n")}')},
-          ),
         ],
       ),
       itemTitle: (item) => item.title,
@@ -272,11 +316,11 @@ class CrudPage extends StatelessWidget {
           ),
         );
       },
-      rowColorBuilder: (item, index) {
-        if (item.data.stock < 5) return Colors.red.withAlpha(15);
-        if (item.data.stock < 10) return Colors.orange.withAlpha(15);
-        return null; // Use default background color
-      },
+      // rowColorBuilder: (item, index) {
+      //   if (item.data.stock < 5) return Colors.red.withAlpha(15);
+      //   if (item.data.stock < 10) return Colors.orange.withAlpha(15);
+      //   return null; // Use default background color
+      // },
       controller: controller,
       archiveController: archiveController,
     );

@@ -379,6 +379,18 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     _persistRouteSettings();
   }
 
+  Map<String, dynamic>? _lastActiveFilters;
+  Map<String, dynamic>? _lastArchiveFilters;
+
+  void _onFiltersMaybeChanged() {
+    final a = _listController.value.advancedSearch;
+    final b = _archiveListController.value.advancedSearch;
+    if (identical(a, _lastActiveFilters) && identical(b, _lastArchiveFilters)) return;
+    _lastActiveFilters = a;
+    _lastArchiveFilters = b;
+    _settingsDebouncer.run(_persistFilters);
+  }
+
   final TDebouncer _settingsDebouncer = TDebouncer(milliseconds: 500);
 
   void _debouncedPersistRouteSettings() {
@@ -492,6 +504,8 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     if (!_hasInitializedRouteSettings && (widget.config.persistSettings ?? true)) {
       _hasInitializedRouteSettings = true;
       _restoreRouteSettings();
+      _listController.addListener(_onFiltersMaybeChanged);
+      _archiveListController.addListener(_onFiltersMaybeChanged);
     }
   }
 
@@ -637,6 +651,8 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
 
   @override
   void dispose() {
+    _listController.removeListener(_onFiltersMaybeChanged);
+    _archiveListController.removeListener(_onFiltersMaybeChanged);
     _settingsDebouncer.dispose();
     _permissionCache.clear();
     if (_isControllerOwned) {

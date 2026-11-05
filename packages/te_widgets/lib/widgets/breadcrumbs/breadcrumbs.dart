@@ -4,20 +4,15 @@ import 'package:te_widgets/te_widgets.dart';
 
 /// A breadcrumb widget that displays the current route hierarchy.
 ///
-/// `TBreadcrumbs` uses [GoRouter] location and a list of [TSidebarItem]s
-/// to generate a sequence of clickable navigation links.
-///
-/// ## Basic Usage
+/// `TBreadcrumbs` reads the [TRouteMeta.breadcrumbs] trail that
+/// `toGoRoutes()` attaches to every route, so it needs no item list.
+/// Segments of a parameterized route (e.g. `/explorer/:path(.*)`) beyond the
+/// static part are appended, labeled from the `labels` passed via `tGo()`.
 ///
 /// ```dart
-/// TBreadcrumbs(
-///   items: sidebarItems,
-/// )
+/// const TBreadcrumbs()
 /// ```
 class TBreadcrumbs extends StatelessWidget {
-  /// The list of sidebar items used to look up labels for routes.
-  final List<TSidebarItem> items;
-
   /// Custom text style for the breadcrumb links.
   final TextStyle? style;
 
@@ -25,128 +20,98 @@ class TBreadcrumbs extends StatelessWidget {
   final Color? activeColor;
 
   /// The widget used as a separator between items.
-  ///
-  /// Defaults to a chevron right icon.
   final Widget separator;
 
-  /// Whether to include a "Home" item at the beginning.
-  final bool includeHome;
-
-  /// The label for the home item.
-  final String homeLabel;
+  /// The label of a leading home item. When null no home item is added and the
+  /// first item of the route trail is the first crumb.
+  final String? homeLabel;
 
   /// The route for the home item.
   final String homeRoute;
 
+  /// Whether to show each item's icon before its label.
+  final bool showIcons;
+
   /// Creates a breadcrumb widget.
   const TBreadcrumbs({
     super.key,
-    required this.items,
     this.style,
     this.activeColor,
     this.separator = const Padding(
       padding: EdgeInsets.symmetric(horizontal: 8),
       child: Text('/', style: TextStyle(color: Colors.grey)),
     ),
-    this.includeHome = true,
-    this.homeLabel = 'Home',
+    this.homeLabel,
     this.homeRoute = '/',
+    this.showIcons = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final state = GoRouterState.of(context);
+    final state = context.leafRouteState;
     final location = state.matchedLocation;
-    final pathSegments = location.split('/').where((s) => s.isNotEmpty).toList();
     final labelsObj = state.extra is Map<String, Object> ? (state.extra as Map<String, Object>)['labels'] : null;
-    Map<String, String> labels = labelsObj is Map<String, String> ? labelsObj : <String, String>{};
+    final labels = labelsObj is Map<String, String> ? labelsObj : <String, String>{};
 
-    List<Widget> breadcrumbWidgets = [];
+    final crumbs = <({String label, String? route, Object? icon})>[];
+    if (homeLabel != null) crumbs.add((label: homeLabel!, route: homeRoute, icon: null));
 
-    if (includeHome) {
-      breadcrumbWidgets.add(_buildItem(context, homeLabel, homeRoute, location == homeRoute, state));
+    final trail = (state.metadata[TRouteMeta.breadcrumbs] as List?)?.cast<Map<String, Object?>>() ?? const [];
+    var consumed = '';
+    for (final entry in trail) {
+      final raw = entry[TRouteMeta.route] as String?;
+      // Route groups (no page) are shown but not navigable.
+      final hasPage = entry[TRouteMeta.hasPage] as bool? ?? true;
+      // A parameterized route is only navigable up to its static prefix.
+      final route = hasPage ? raw?.split('/').takeWhile((s) => !s.startsWith(':')).join('/') : null;
+      if (route != null) consumed = route;
+      crumbs.add((label: entry[TRouteMeta.title] as String? ?? raw?.split('/').last.capitalize() ?? '', route: route, icon: entry[TRouteMeta.icon]));
     }
 
-    String currentPath = '';
-    for (int i = 0; i < pathSegments.length; i++) {
-      final segment = pathSegments[i];
-      currentPath += '/$segment';
-      final isLast = i == pathSegments.length - 1;
-
-      // Skip adding if it's the home route and we already added home
-      if (includeHome && currentPath == homeRoute) continue;
-
-      if (breadcrumbWidgets.isNotEmpty) {
-        breadcrumbWidgets.add(separator);
+    // Segments the route pattern captured (e.g. `:path(.*)`) become extra crumbs.
+    if (location.startsWith(consumed) && location.length > consumed.length) {
+      var path = consumed;
+      for (final segment in location.substring(consumed.length).split('/').where((s) => s.isNotEmpty)) {
+        path += '/$segment';
+        crumbs.add((label: labels[segment] ?? segment.capitalize(), route: path, icon: null));
       }
+    }
 
-      // Try to find a label in extra, or capitalize segment
-      String label = labels[segment] ?? _findItemByRoute(items, currentPath)?.text ?? segment.capitalize();
-
-      breadcrumbWidgets.add(_buildItem(context, label, currentPath, isLast, state));
+    final widgets = <Widget>[];
+    for (var i = 0; i < crumbs.length; i++) {
+      if (i > 0) widgets.add(separator);
+      final c = crumbs[i];
+      widgets.add(_buildItem(context, c.label, c.route, i == crumbs.length - 1, state, showIcons ? c.icon : null));
     }
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: breadcrumbWidgets,
-      ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: widgets),
     );
   }
 
-  Widget _buildItem(BuildContext context, String label, String route, bool isLast, GoRouterState state) {
+  Widget _buildItem(BuildContext context, String label, String? route, bool isLast, GoRouterState state, Object? icon) {
     final colors = context.colors;
     final color = isLast ? (activeColor ?? colors.primary) : colors.onSurfaceVariant;
 
     return InkWell(
-      onTap: isLast ? null : () => context.go(route, extra: state.extra),
+      // Parts without a route are not navigable.
+      onTap: isLast || route == null ? null : () => context.go(route, extra: state.extra),
       borderRadius: BorderRadius.circular(4),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        child: Text(
-          label,
-          style: style?.copyWith(color: color) ??
-              TextStyle(
-                color: color,
-                fontSize: 16,
-                fontWeight: isLast ? FontWeight.w400 : FontWeight.w300,
-              ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[TIcon.raw(icon, color: color, size: 16), const SizedBox(width: 6)],
+            Text(
+              label,
+              style: style?.copyWith(color: color) ??
+                  TextStyle(color: color, fontSize: 16, fontWeight: isLast ? FontWeight.w400 : FontWeight.w300),
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  TSidebarItem? _findItemByRoute(List<TSidebarItem> items, String route) {
-    for (var item in items) {
-      if (item.route == null) continue;
-
-      // Exact match
-      if (item.route == route) return item;
-
-      // Handle parameterized routes in TSidebarItem
-      // e.g., if item.route is '/explorer/:path(.*)' and route is '/explorer/a/b'
-      // if (item.route!.contains(':')) {
-      //   final itemSegments = item.route!.split('/').where((s) => s.isNotEmpty).toList();
-      //   final routeSegments = route.split('/').where((s) => s.isNotEmpty).toList();
-
-      //   if (itemSegments.length <= routeSegments.length) {
-      //     bool match = true;
-      //     for (int i = 0; i < itemSegments.length; i++) {
-      //       if (!itemSegments[i].startsWith(':') && itemSegments[i] != routeSegments[i]) {
-      //         match = false;
-      //         break;
-      //       }
-      //     }
-      //     if (match) return item;
-      //   }
-      // }
-
-      if (item.children != null) {
-        final found = _findItemByRoute(item.children!, route);
-        if (found != null) return found;
-      }
-    }
-    return null;
   }
 }

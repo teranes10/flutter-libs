@@ -9,16 +9,24 @@ class TTabFlow extends MultiChildRenderObjectWidget {
   final double spacing;
   final double runSpacing;
 
-  const TTabFlow({super.key, super.children, this.spacing = 2, this.runSpacing = 2});
+  /// Stretch the children to fill the width even when they all fit on a single row.
+  ///
+  /// Only applies when the parent forces an exact width (tight constraints). Under loose
+  /// constraints, which is how measure-then-place parents such as TAlignedRow probe a child, the
+  /// natural unexpanded width is reported, so the tabs never claim a full row just to be measured.
+  final bool fill;
+
+  const TTabFlow({super.key, super.children, this.spacing = 2, this.runSpacing = 2, this.fill = false});
 
   @override
-  RenderObject createRenderObject(BuildContext context) => _RenderTabFlow(spacing, runSpacing);
+  RenderObject createRenderObject(BuildContext context) => _RenderTabFlow(spacing, runSpacing, fill);
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderTabFlow)
       ..spacing = spacing
-      ..runSpacing = runSpacing;
+      ..runSpacing = runSpacing
+      ..fill = fill;
   }
 }
 
@@ -26,10 +34,17 @@ class _FlowParentData extends ContainerBoxParentData<RenderBox> {}
 
 class _RenderTabFlow extends RenderBox
     with ContainerRenderObjectMixin<RenderBox, _FlowParentData>, RenderBoxContainerDefaultsMixin<RenderBox, _FlowParentData> {
-  _RenderTabFlow(this._spacing, this._runSpacing);
+  _RenderTabFlow(this._spacing, this._runSpacing, this._fill);
 
   double _spacing;
   double _runSpacing;
+  bool _fill;
+
+  set fill(bool v) {
+    if (_fill == v) return;
+    _fill = v;
+    markNeedsLayout();
+  }
 
   set spacing(double v) {
     if (_spacing == v) return;
@@ -87,7 +102,7 @@ class _RenderTabFlow extends RenderBox
     // multiple rows — a single row that fits within maxWidth keeps its natural content width,
     // so a measure-then-place parent (e.g. TAlignedRow) sees the real size instead of always
     // reading "needs the full row", which would force it onto its own row every time.
-    final shouldFill = rows.length > 1;
+    final shouldFill = (_fill && constraints.hasTightWidth) || rows.length > 1;
     var y = 0.0;
     var contentWidth = 0.0;
     for (final row in rows) {
@@ -112,8 +127,7 @@ class _RenderTabFlow extends RenderBox
   }
 
   @override
-  double computeMinIntrinsicWidth(double height) =>
-      _children.fold(0.0, (m, c) => math.max(m, c.getMinIntrinsicWidth(height)));
+  double computeMinIntrinsicWidth(double height) => _children.fold(0.0, (m, c) => math.max(m, c.getMinIntrinsicWidth(height)));
 
   @override
   double computeMaxIntrinsicWidth(double height) =>
@@ -138,7 +152,7 @@ class _RenderTabFlow extends RenderBox
     final natural = {for (final c in _children) c: c.getMaxIntrinsicWidth(double.infinity)};
     final rows = _rows(maxWidth, natural);
     final height = computeMaxIntrinsicHeight(maxWidth);
-    if (rows.length > 1) return Size(maxWidth, height);
+    if ((_fill && constraints.hasTightWidth) || rows.length > 1) return Size(maxWidth, height);
     final contentWidth = rows.isEmpty
         ? 0.0
         : rows.first.fold(0.0, (s, c) => s + math.min(natural[c]!, maxWidth)) + _spacing * math.max(0, rows.first.length - 1);
@@ -149,6 +163,5 @@ class _RenderTabFlow extends RenderBox
   void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
-      defaultHitTestChildren(result, position: position);
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) => defaultHitTestChildren(result, position: position);
 }

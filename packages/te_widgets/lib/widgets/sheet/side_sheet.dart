@@ -52,7 +52,7 @@ class TSideSheet extends StatelessWidget {
       effectiveMinWidth,
       effectiveMaxWidth > effectiveMinWidth ? effectiveMaxWidth : effectiveMinWidth,
     );
-    final effectiveBg = backgroundColor ?? context.getBackgroundColor(colors.surface);
+    final effectiveBg = backgroundColor ?? context.getBackgroundColor();
 
     final defaultBorderRadius = borderRadius ??
         (fromLeft ? const BorderRadius.horizontal(right: Radius.circular(12)) : const BorderRadius.horizontal(left: Radius.circular(12)));
@@ -93,9 +93,7 @@ class TSideSheet extends StatelessWidget {
       children: [
         if (header != null) header!,
         if (header == null && (title != null || showCloseButton == true)) _buildHeader(context, colors),
-        isShrinkWrap
-            ? Flexible(child: SingleChildScrollView(child: child))
-            : Expanded(child: child),
+        isShrinkWrap ? Flexible(child: SingleChildScrollView(child: child)) : Expanded(child: child),
         if (footer != null) footer!,
       ],
     );

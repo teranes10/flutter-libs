@@ -466,11 +466,11 @@ class _TooltipContent extends StatelessWidget {
             margin: margin,
             showArrow: showArrow,
             backgroundColor: wTheme.container,
-            shadowColor: wTheme.shadow,
+            shadowColor: wTheme.shadow?.withAlpha(60),
             maxWidth: maxWidth,
             child: Material(
               elevation: 8,
-              shadowColor: wTheme.shadow,
+              shadowColor: wTheme.shadow?.withAlpha(60),
               borderRadius: BorderRadius.circular(8),
               child: MouseRegion(
                 onEnter: onPointerEnter,

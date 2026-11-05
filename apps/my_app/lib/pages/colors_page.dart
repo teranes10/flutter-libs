@@ -22,6 +22,7 @@ class _ColorsPageState extends State<ColorsPage> {
               buildColor(context.colors.surfaceDim, label: 'surfaceDim'),
               buildColor(context.colors.surfaceContainerLowest, label: 'surfaceContainerLowest'),
               buildColor(context.colors.surfaceContainerLow, label: 'surfaceContainerLow'),
+              buildColor(context.colors.surface, label: 'surface'),
               buildColor(context.colors.surfaceContainer, label: 'surfaceContainer'),
               buildColor(context.colors.surfaceContainerHigh, label: 'surfaceContainerHigh'),
               buildColor(context.colors.surfaceContainerHighest, label: 'surfaceContainerHighest'),
@@ -60,12 +61,19 @@ class _ColorsPageState extends State<ColorsPage> {
     );
   }
 
-  Widget buildColor(Color color, {required String label, double width = 200, double height = 50}) {
+  Widget buildColor(Color color, {required String label, double width = 250, double height = 50}) {
     return Container(
       width: width,
       height: height,
       color: color,
-      child: Center(child: Text(label)),
+      child: Center(
+        child: Row(
+          children: [
+            Container(width: 20, height: height - 20, color: context.getTonalBackground(color, color).tonal),
+            Text('$label (${color.computeLuminance().toStringAsFixed(3)})'),
+          ],
+        ),
+      ),
     );
   }
 }

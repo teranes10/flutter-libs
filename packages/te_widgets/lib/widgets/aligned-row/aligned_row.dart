@@ -280,8 +280,7 @@ class RenderAlignedRow extends RenderBox
   Map<RenderBox, Size>? _sandbox;
   BoxConstraints? _sandboxConstraints;
 
-  bool get _isLegacyExpanded =>
-      _expandBelowWidth != null && (_sandboxConstraints ?? constraints).maxWidth < _expandBelowWidth!;
+  bool get _isLegacyExpanded => _expandBelowWidth != null && (_sandboxConstraints ?? constraints).maxWidth < _expandBelowWidth!;
 
   Size _sizeOf(RenderBox box) => _sandbox?[box] ?? box.size;
 
@@ -370,8 +369,11 @@ class RenderAlignedRow extends RenderBox
     RenderBox? child = firstChild;
     while (child != null) {
       final pd = child.parentData as _AlignedRowParentData;
-      _lay(child, BoxConstraints(maxWidth: maxWidth));
-      final childSize = _sizeOf(child);
+      // Measure without a real layout: children that get a tight slot later must only ever
+      // see that final layout, otherwise width-dependent children keep a stale loose layout.
+      final loose = BoxConstraints(maxWidth: maxWidth);
+      if (_sandbox != null) _lay(child, loose);
+      final childSize = _sandbox != null ? _sizeOf(child) : child.getDryLayout(loose);
 
       // Try to get a more accurate intrinsic width for Text children.
       final textW = _measureTextWidth(child);
@@ -433,7 +435,7 @@ class RenderAlignedRow extends RenderBox
       final gap = (maxWidth - items.fold(0.0, (s, c) => s + c.intrinsicWidth)) / (items.length - 1);
       double cx = 0;
       for (final c in items) {
-        final cy = _childY(y, rowH, c.size.height);
+        final cy = _childY(y, rowH, _sizeOf(c.box).height);
         (c.box.parentData as _AlignedRowParentData).offset = Offset(cx, cy);
         cx += c.intrinsicWidth + gap;
       }
@@ -447,7 +449,7 @@ class RenderAlignedRow extends RenderBox
     };
 
     for (final c in items) {
-      final cy = _childY(y, rowH, c.size.height);
+      final cy = _childY(y, rowH, _sizeOf(c.box).height);
       (c.box.parentData as _AlignedRowParentData).offset = Offset(x, cy);
       x += c.intrinsicWidth + _spacing;
     }
@@ -644,9 +646,9 @@ class RenderAlignedRow extends RenderBox
         final isLast = j == row.length - 1;
         final slotW = isLast ? baseSlot + remainder : baseSlot;
         _lay(
-               row[j].box,
-               BoxConstraints(minWidth: slotW, maxWidth: slotW, minHeight: 0, maxHeight: double.infinity),
-            );
+          row[j].box,
+          BoxConstraints(minWidth: slotW, maxWidth: slotW, minHeight: 0, maxHeight: double.infinity),
+        );
       }
 
       final rh = _rowHeight(row);
@@ -703,14 +705,14 @@ class RenderAlignedRow extends RenderBox
         // Re-layout each child with its assigned slot width.
         for (int j = 0; j < row.length; j++) {
           _lay(
-                 row[j].box,
-                 BoxConstraints(
-                  minWidth: slotWidths[j],
-                  maxWidth: slotWidths[j],
-                  minHeight: 0,
-                  maxHeight: double.infinity,
-                ),
-              );
+            row[j].box,
+            BoxConstraints(
+              minWidth: slotWidths[j],
+              maxWidth: slotWidths[j],
+              minHeight: 0,
+              maxHeight: double.infinity,
+            ),
+          );
         }
 
         final rh = _rowHeight(row);
@@ -750,7 +752,7 @@ class RenderAlignedRow extends RenderBox
       final gap = (maxWidth - items.fold(0.0, (s, c) => s + c.intrinsicWidth)) / (items.length - 1);
       double cx = 0;
       for (final c in items) {
-        final cy = _childY(y, rowH, c.size.height);
+        final cy = _childY(y, rowH, _sizeOf(c.box).height);
         (c.box.parentData as _AlignedRowParentData).offset = Offset(cx, cy);
         cx += c.intrinsicWidth + gap;
       }
@@ -764,7 +766,7 @@ class RenderAlignedRow extends RenderBox
     };
 
     for (final c in items) {
-      final cy = _childY(y, rowH, c.size.height);
+      final cy = _childY(y, rowH, _sizeOf(c.box).height);
       (c.box.parentData as _AlignedRowParentData).offset = Offset(x, cy);
       x += c.intrinsicWidth + _spacing;
     }
@@ -806,6 +808,13 @@ class RenderAlignedRow extends RenderBox
     }
     final maxWidth = constraints.maxWidth;
     final children = _measure(maxWidth);
+
+    final slotsChildren = _isLegacyExpanded || (_wrapperExpanded && _estimateRows(children, maxWidth) > _wrapperModeThreshold);
+    if (!slotsChildren) {
+      for (final c in children) {
+        c.box.layout(BoxConstraints(maxWidth: maxWidth), parentUsesSize: true);
+      }
+    }
 
     final totalHeight = _flow(children, maxWidth, true);
     size = constraints.constrain(Size(maxWidth, totalHeight));

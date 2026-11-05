@@ -105,8 +105,8 @@ class MobileSidebarOverlayPanel extends StatelessWidget {
         maxWidth: maxWidth,
       ),
       decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: const BorderRadius.only(topRight: Radius.circular(12)),
+        color: colors.surfaceContainerLow,
+        border: Border(right: BorderSide(color: colors.outlineVariant)),
         boxShadow: [
           BoxShadow(
             color: colors.shadow.withValues(alpha: 0.15),
@@ -116,31 +116,23 @@ class MobileSidebarOverlayPanel extends StatelessWidget {
         ],
       ),
       child: SafeArea(
-        child: Column(
-          children: [
-            if (logo != null) Padding(padding: const EdgeInsets.only(top: 12), child: logo!),
-            Expanded(
-              child: Sidebar(
-                items: sidebarItems,
-                minWidth: minWidth,
-                maxWidth: maxWidth,
-                minifiedWidth: minifiedWidth,
-                isMinimized: false,
-                onTap: (_) => onItemTap(),
-                theme: TSidebarTheme.defaultTheme(context).copyWith(
-                  itemPadding: const EdgeInsets.fromLTRB(8, 12, 6, 12),
-                  childPadding: const EdgeInsets.fromLTRB(8, 9, 4, 9),
-                ),
-                footer: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-                  margin: const EdgeInsets.fromLTRB(4, 12, 4, 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: colors.surfaceContainer,
-                  ),
-                  child: LayoutActionsRow(
-                    profile: profile,
+        child: Sidebar(
+          items: sidebarItems,
+          minWidth: minWidth,
+          maxWidth: maxWidth,
+          minifiedWidth: minifiedWidth,
+          isMinimized: false,
+          onTap: (_) => onItemTap(),
+          theme: TSidebarTheme.defaultTheme(context).copyWith(
+            itemPadding: const EdgeInsets.fromLTRB(8, 12, 6, 12),
+            childPadding: const EdgeInsets.fromLTRB(8, 9, 4, 9),
+          ),
+          header: logo == null ? null : Padding(padding: const EdgeInsets.fromLTRB(14, 12, 12, 0), child: logo),
+          pinnedFooter: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 8, 12, 12),
+            child: profile == null
+                ? LayoutActionsRow(
+                    profile: null,
                     showThemeToggle: showThemeToggle,
                     showColorToggle: showColorToggle,
                     actions: actions,
@@ -149,11 +141,27 @@ class MobileSidebarOverlayPanel extends StatelessWidget {
                     onLogout: onLogout,
                     spacing: 10,
                     runSpacing: 10,
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (actions != null && actions!.isNotEmpty) ...[
+                        Wrap(spacing: 10, runSpacing: 10, children: actions!),
+                        const SizedBox(height: 8),
+                      ],
+                      LayoutProfileButton(
+                        profile: profile!,
+                        expand: true,
+                        showThemeToggle: showThemeToggle,
+                        showColorToggle: showColorToggle,
+                        showFullscreenToggle: showFullscreenToggle,
+                        showLogout: showLogout,
+                        onLogout: onLogout,
+                      ),
+                    ],
                   ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

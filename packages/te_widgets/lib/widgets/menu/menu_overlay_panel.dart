@@ -80,17 +80,17 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
           child: IntrinsicWidth(
             child: Container(
               decoration: BoxDecoration(
-                color: ElevationOverlay.applySurfaceTint(colors.surface, colors.surfaceTint, widget.theme.overlayElevation),
+                color: ElevationOverlay.applySurfaceTint(colors.surface, colors.surfaceContainerLow, widget.theme.overlayElevation),
                 borderRadius: widget.theme.overlayBorderRadius,
-                border: BoxBorder.all(color: colors.outlineVariant, width: 1),
+                border: BoxBorder.all(color: colors.outlineVariant.withAlpha(60), width: 1),
                 boxShadow: [
                   // Light, wide ambient shadow — large blur and positive spread so the panel
                   // reads as lifted off the page, tinted with the theme's own shadow color
                   // rather than flat black so it stays subtle on light/pastel surfaces...
-                  BoxShadow(color: colors.shadow.withAlpha(180), blurRadius: 32.0, spreadRadius: 2.0, offset: const Offset(0, 12)),
+                  BoxShadow(color: colors.shadow.withAlpha(15), blurRadius: 32.0, spreadRadius: 2.0, offset: const Offset(0, 12)),
                   // ...plus a short, tight contact shadow (negative spread) right under the
                   // panel for a crisp edge close to the surface.
-                  BoxShadow(color: colors.shadow.withAlpha(200), blurRadius: 8.0, spreadRadius: -2.0, offset: const Offset(0, 2)),
+                  BoxShadow(color: colors.shadow.withAlpha(30), blurRadius: 8.0, spreadRadius: -2.0, offset: const Offset(0, 2)),
                 ],
               ),
               constraints: widget.theme.boxConstraints,

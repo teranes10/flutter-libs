@@ -182,6 +182,11 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
         } catch (_) {}
       }
 
+      final restoredActive = _decodeFilters(prefs.getString('${prefix}_filters_active'));
+      final restoredArchive = _decodeFilters(prefs.getString('${prefix}_filters_archive'));
+      if (restoredActive != null && restoredActive.isNotEmpty) _listController.handleAdvancedSearchChange(restoredActive);
+      if (restoredArchive != null && restoredArchive.isNotEmpty) _archiveListController.handleAdvancedSearchChange(restoredArchive);
+
       if (changed) {
         _persistedRouteSettings[routeKey] = (
           dense: _dense,
@@ -277,6 +282,35 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       }
       prefs.setString('${prefix}_headerOrder', jsonEncode(_headerOrder));
       prefs.setString('${prefix}_headerVisibility', jsonEncode(_headerVisibility));
+    });
+  }
+
+  Map<String, dynamic>? _decodeFilters(String? json) {
+    if (json == null) return null;
+    try {
+      return Map<String, dynamic>.from(jsonDecode(json) as Map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Saves the advanced filters of both lists so they survive reloads.
+  void _persistFilters() {
+    if (!(widget.config.persistSettings ?? true)) return;
+    final prefix = 'tc_cfg_${_resolveRouteStorageKey(context)}';
+    final active = _listController.value.advancedSearch ?? const {};
+    final archive = _archiveListController.value.advancedSearch ?? const {};
+    SharedPreferences.getInstance().then((prefs) {
+      for (final e in {'active': active, 'archive': archive}.entries) {
+        final key = '${prefix}_filters_${e.key}';
+        if (e.value.isEmpty) {
+          prefs.remove(key);
+        } else {
+          try {
+            prefs.setString(key, jsonEncode(e.value));
+          } catch (_) {}
+        }
+      }
     });
   }
 }

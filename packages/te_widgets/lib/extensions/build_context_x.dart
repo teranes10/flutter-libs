@@ -14,19 +14,21 @@ bool get kIsDesktopPlatform {
 }
 
 extension BuildContextX on BuildContext {
+  /// State of the innermost matched route. Unlike `GoRouterState.of`, which inside a `ShellRoute`
+  /// returns the shell's own state, this carries the leaf route's metadata. Still rebuilds on navigation.
+  GoRouterState get leafRouteState {
+    GoRouterState.of(this);
+    return GoRouter.of(this).state;
+  }
+
   bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+  Color get scaffoldBackgroundColor => Theme.of(this).scaffoldBackgroundColor;
   ColorScheme get colors => Theme.of(this).colorScheme;
   TextTheme get textTheme => Theme.of(this).textTheme;
 
   TWidgetThemeExtension get theme {
     final ext = Theme.of(this).extension<TWidgetThemeExtension>();
-    if (ext == null) {
-      throw FlutterError(
-        'TWidgetThemeExtension is not found in ThemeData. '
-        'Ensure you have added it to your ThemeData.extensions list.',
-      );
-    }
-    return ext;
+    return ext ?? TWidgetThemeExtension.defaultTheme(colors);
   }
 
   TWidgetThemeExtension? get themeOrNull => Theme.of(this).extension<TWidgetThemeExtension>();
@@ -34,7 +36,13 @@ extension BuildContextX on BuildContext {
   TWidgetTheme getWidgetTheme(TVariant type, [Color? color]) =>
       color != null ? TWidgetTheme.from(isDarkMode, color, type) : TWidgetTheme.surfaceTheme(colors, variant: type);
 
-  Color getBackgroundColor(Color defaultColor) => TBackgroundColorScope.maybeOf(this) ?? defaultColor;
+  Color getBackgroundColor([Color? defaultColor]) => TBackgroundColorScope.maybeOf(this) ?? defaultColor ?? colors.surface;
+
+  ({Color tonal, Color bg}) getTonalBackground([Color? color, Color? defaultBgColor]) {
+    final bg = getBackgroundColor(defaultBgColor);
+    if (color != null && bg != color) return (tonal: color, bg: bg);
+    return (tonal: (color ?? bg).adaptiveContrast(this, 0.025), bg: bg);
+  }
 
   MediaQueryData get mediaQuery => MediaQuery.of(this);
   double get screenWidth => mediaQuery.screenWidth;

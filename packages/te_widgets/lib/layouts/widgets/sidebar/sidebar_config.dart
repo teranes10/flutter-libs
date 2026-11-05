@@ -9,6 +9,9 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
   final dynamic icon;
   @override
   final String? text;
+
+  /// Short description shown as the page header subtitle; also exposed as go_router route metadata.
+  final String? info;
   final String? route;
   @override
   final List<TSidebarItem>? children;
@@ -29,6 +32,7 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
     this.builder,
     this.icon,
     this.text,
+    this.info,
     this.route,
     this.children,
     this.onTap,
@@ -46,6 +50,7 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
     Widget Function(BuildContext context, GoRouterState state)? builder,
     dynamic icon,
     String? text,
+    String? info,
     String? route,
     List<TSidebarItem>? children,
     VoidCallback? onTap,
@@ -62,6 +67,7 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
       builder: builder ?? this.builder,
       icon: icon ?? this.icon,
       text: text ?? this.text,
+      info: info ?? this.info,
       route: route ?? this.route,
       children: children ?? this.children,
       onTap: onTap ?? this.onTap,
@@ -310,13 +316,6 @@ class TSidebarItemsResolver {
       }).toList();
     }
 
-    final resolvedItems = resolveInternal(items);
-
-    // Default home if none found
-    if (!homeFound && resolvedItems.isNotEmpty) {
-      resolvedItems[0] = resolvedItems[0].copyWith(home: true);
-    }
-
-    return resolvedItems;
+    return resolveInternal(items);
   }
 }

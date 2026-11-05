@@ -484,20 +484,20 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final actions = (!isCreating && !isEditing && itemData != null) ? details.actions?.call(itemData) : null;
 
     Widget buildWrapper(BuildContext context, List<Widget> extra) => TPageWrapper(
-      title: title,
-      subTitle: subTitle,
-      description: description,
-      imageUrl: imageUrl,
-      highlights: highlights,
-      itemInfo: itemInfo,
-      itemInfoMode: details.itemInfoMode,
-      itemInfoGridInline: details.itemInfoGridInline,
-      actions: [...?actions, ...extra].isEmpty ? null : [...?actions, ...extra],
-      onBackPressed: () => TTableScope.of(context).close(context),
-      shrinkWrap: details.mode != TTableExpansionMode.page &&
-          (details.mode != TTableExpansionMode.sideOverlay || details.sideOverlayHeightMode == TSheetHeightMode.shrinkWrap),
-      child: child,
-    );
+          title: title,
+          subTitle: subTitle,
+          description: description,
+          imageUrl: imageUrl,
+          highlights: highlights,
+          itemInfo: itemInfo,
+          itemInfoMode: details.itemInfoMode,
+          itemInfoGridInline: details.itemInfoGridInline,
+          actions: [...?actions, ...extra].isEmpty ? null : [...?actions, ...extra],
+          onBackPressed: () => TTableScope.of(context).close(context),
+          shrinkWrap: details.mode != TTableExpansionMode.page &&
+              (details.mode != TTableExpansionMode.sideOverlay || details.sideOverlayHeightMode == TSheetHeightMode.shrinkWrap),
+          child: child,
+        );
     final pageWrapper = _TTableDetailsActionsHost(builder: buildWrapper);
 
     return details.mode == TTableExpansionMode.side ? getCardWrapper(pageWrapper) : pageWrapper;

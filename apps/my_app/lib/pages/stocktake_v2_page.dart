@@ -234,6 +234,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
           TTextField.scan(label: null, placeholder: 'Search stocktake no...', onScan: (_) {}, onCameraTap: () {}),
           const SizedBox(height: 8),
           TTabs<String>(
+            scrollable: true,
             selectedValue: _listFilter,
             onTabChanged: (v) => setState(() => _listFilter = v),
             tabs: const [
@@ -274,7 +275,7 @@ class _StocktakeV2PageState extends State<StocktakeV2Page> {
       total: total,
       icon: HugeIcons.strokeRoundedLocation01,
       onTap: () {},
-    );
+    ).cardSm(padding: EdgeInsetsGeometry.zero);
   }
 
   // 3. Create stocktake

@@ -58,56 +58,45 @@ class _TablesBottomPageState extends State<TablesBottomPage> {
                 style: context.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
               ),
               const SizedBox(height: 24),
-              Card(
-                elevation: 0,
-                color: colors.surfaceContainerLow,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: colors.outlineVariant.o(0.5)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TTable<DemoProduct, String>(
-                    shrinkWrap: true,
-                    headers: headers,
-                    controller: _controller,
-                    details: TTableDetails(
-                      mode: TTableExpansionMode.bottom,
-                      builder: (ctx, item, index) {
-                        final product = item.data;
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: colors.surfaceContainerHighest.o(0.3),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: colors.outlineVariant.o(0.5)),
+              TTable<DemoProduct, String>(
+                shrinkWrap: true,
+                headers: headers,
+                controller: _controller,
+                details: TTableDetails(
+                  mode: TTableExpansionMode.bottom,
+                  builder: (ctx, item, index) {
+                    final product = item.data;
+                    return Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainerHighest.o(0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: colors.outlineVariant.o(0.5)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Product Technical Specs & Summary',
+                              style: context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.primary),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Product Technical Specs & Summary',
-                                  style: context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.primary),
-                                ),
-                                const SizedBox(height: 16),
-                                TKeyValueSection(
-                                  values: [
-                                    TKeyValue.text('SKU Code', product.sku),
-                                    TKeyValue.text('Manufacturer', product.manufacturer),
-                                    TKeyValue.text('Warranty Period', product.warranty),
-                                    TKeyValue.text('Weight', product.weight),
-                                    TKeyValue.text('Description', product.description),
-                                  ],
-                                ),
+                            const SizedBox(height: 16),
+                            TKeyValueSection(
+                              values: [
+                                TKeyValue.text('SKU Code', product.sku),
+                                TKeyValue.text('Manufacturer', product.manufacturer),
+                                TKeyValue.text('Warranty Period', product.warranty),
+                                TKeyValue.text('Weight', product.weight),
+                                TKeyValue.text('Description', product.description),
                               ],
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],

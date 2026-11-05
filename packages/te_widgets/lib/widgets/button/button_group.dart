@@ -281,7 +281,8 @@ class _TButtonGroupState extends State<TButtonGroup> {
 
     for (int p = 0; p < total; p++) {
       final i = visible[p];
-      final button = _buildButton(context, groupTheme: groupTheme, item: widget.items[i], index: i, position: p, total: total);
+      var button = _buildButton(context, groupTheme: groupTheme, item: widget.items[i], index: i, position: p, total: total);
+      button = widget.items[i].wrap?.call(button) ?? button;
 
       children.add(button);
 
@@ -390,10 +391,15 @@ class _TButtonGroupState extends State<TButtonGroup> {
     );
 
     final defaultTheme = context.theme.buttonTheme;
+    // Separated filled-text buttons: only the active one keeps its background.
+    final dropBackground = widget.separated &&
+        !isActive &&
+        (groupTheme.type == TButtonGroupType.filledText || groupTheme.type == TButtonGroupType.boxed);
+    final effectiveButtonType = dropBackground ? TButtonType.text : groupTheme.type.buttonType;
     final buttonTheme = defaultTheme.copyWith(
       baseTheme: defaultTheme.baseTheme.rebuild(
         color: item.color ?? groupTheme.color,
-        type: groupTheme.type.buttonType.colorType,
+        type: effectiveButtonType.colorType,
       ),
       size: widget.size,
       shape: groupTheme.shape,
@@ -412,7 +418,7 @@ class _TButtonGroupState extends State<TButtonGroup> {
         shadow: colors.shadow,
       );
       final segTheme = defaultTheme.copyWith(
-        baseTheme: isActive ? activeBase : TWidgetTheme.surfaceTheme(colors, variant: TVariant.text),
+        baseTheme: isActive ? activeBase : TWidgetTheme.surfaceTheme(colors, variant: TVariant.text).copyWith(container: Colors.transparent),
         size: widget.size,
         shape: groupTheme.shape,
         elevation: isActive ? 1 : 0,

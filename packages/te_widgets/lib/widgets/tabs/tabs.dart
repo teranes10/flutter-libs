@@ -412,7 +412,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
               ),
             );
     } else if (widget.axis == Axis.horizontal && (widget.wrap || (widget.flowOnMobile && context.isMobile))) {
-      body = TTabFlow(spacing: widget.tabSpacing, runSpacing: widget.tabRunSpacing, children: tabWidgets);
+      body = TTabFlow(spacing: widget.tabSpacing, runSpacing: widget.tabRunSpacing, fill: widget.fill, children: tabWidgets);
     } else {
       // Full-width (or full stretch for vertical)
       body = widget.axis == Axis.horizontal

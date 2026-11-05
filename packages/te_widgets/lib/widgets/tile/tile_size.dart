@@ -110,9 +110,9 @@ class TTileSize extends TSize {
     font: 24.0,
     icon: 32.0,
     radius: 16.0,
-    spacing: 16.0,
-    subtitleFont: 15.0,
-    subtitleGap: 4.0,
+    spacing: 14.0,
+    subtitleFont: 13.0,
+    subtitleGap: 3.5,
     descFont: 14.0,
     descGap: 8.0,
   );
@@ -120,14 +120,14 @@ class TTileSize extends TSize {
   /// Heading 2: Large tile for major section headers and modal titles.
   /// (font: 20.0, icon: 28.0, radius: 14.0, hPad/vPad: 10.0, spacing: 14.0, subtitle: 14.0, subGap: 3.5, desc: 13.0, descGap: 7.0).
   static const TTileSize h2 = TTileSize(
-    hPad: 10.0,
-    vPad: 10.0,
+    hPad: 11.0,
+    vPad: 11.0,
     font: 20.0,
     icon: 28.0,
     radius: 14.0,
-    spacing: 14.0,
-    subtitleFont: 14.0,
-    subtitleGap: 3.5,
+    spacing: 13.0,
+    subtitleFont: 12.5,
+    subtitleGap: 3.0,
     descFont: 13.0,
     descGap: 7.0,
   );
@@ -135,14 +135,14 @@ class TTileSize extends TSize {
   /// Heading 3: Medium-large tile for secondary sections and large card headers.
   /// (font: 18.0, icon: 24.0, radius: 12.0, hPad: 9.0, vPad: 9.0, spacing: 13.0, subtitle: 13.0, subGap: 3.0, desc: 12.5, descGap: 6.0).
   static const TTileSize h3 = TTileSize(
-    hPad: 9.0,
-    vPad: 9.0,
+    hPad: 10.0,
+    vPad: 10.0,
     font: 18.0,
-    icon: 24.0,
+    icon: 26.0,
     radius: 12.0,
-    spacing: 13.0,
-    subtitleFont: 13.0,
-    subtitleGap: 3.0,
+    spacing: 12.0,
+    subtitleFont: 12.0,
+    subtitleGap: 2.5,
     descFont: 12.5,
     descGap: 6.0,
   );
@@ -150,14 +150,14 @@ class TTileSize extends TSize {
   /// Heading 4: Standard prominent tile for regular cards and dialog sections.
   /// (font: 16.0, icon: 22.0, radius: 12.0, hPad/vPad: 8.0, spacing: 12.0, subtitle: 12.5, subGap: 2.5, desc: 12.0, descGap: 5.0).
   static const TTileSize h4 = TTileSize(
-    hPad: 8.0,
-    vPad: 8.0,
+    hPad: 9.0,
+    vPad: 9.0,
     font: 16.0,
-    icon: 22.0,
+    icon: 24.0,
     radius: 12.0,
-    spacing: 12.0,
-    subtitleFont: 12.5,
-    subtitleGap: 2.5,
+    spacing: 11.0,
+    subtitleFont: 11.5,
+    subtitleGap: 2.0,
     descFont: 12.0,
     descGap: 5.0,
   );
@@ -168,25 +168,25 @@ class TTileSize extends TSize {
     hPad: 8.0,
     vPad: 8.0,
     font: 14.0,
-    icon: 20.0,
+    icon: 22.0,
     radius: 12.0,
-    spacing: 12.0,
-    subtitleFont: 12.0,
-    subtitleGap: 2.0,
-    descFont: 11.5,
+    spacing: 10.0,
+    subtitleFont: 11.0,
+    subtitleGap: 1.5,
+    descFont: 11.0,
     descGap: 4.0,
   );
 
   /// Heading 6: Compact/dense tile for tight lists, sidebars, and dense table rows.
   /// (font: 12.5, icon: 16.0, radius: 8.0, hPad/vPad: 6.0, spacing: 10.0, subtitle: 11.0, subGap: 1.5, desc: 10.5, descGap: 4.0).
   static const TTileSize h6 = TTileSize(
-    hPad: 6.0,
-    vPad: 6.0,
+    hPad: 7.0,
+    vPad: 7.0,
     font: 12.5,
-    icon: 16.0,
+    icon: 20.0,
     radius: 8.0,
-    spacing: 10.0,
-    subtitleFont: 11.0,
+    spacing: 9.0,
+    subtitleFont: 10.5,
     subtitleGap: 1.5,
     descFont: 10.5,
     descGap: 4.0,
@@ -195,10 +195,10 @@ class TTileSize extends TSize {
   /// Heading 7: Extra-compact tile for nested rows (e.g. batch lines under an accordion).
   /// (font: 11.5, icon: 14.0, radius: 6.0, hPad/vPad: 4.0, spacing: 8.0, subtitle: 10.0, subGap: 1.0, desc: 9.5, descGap: 3.0).
   static const TTileSize h7 = TTileSize(
-    hPad: 4.0,
-    vPad: 4.0,
+    hPad: 6.0,
+    vPad: 6.0,
     font: 11.5,
-    icon: 14.0,
+    icon: 18.0,
     radius: 6.0,
     spacing: 8.0,
     subtitleFont: 10.0,
@@ -277,13 +277,16 @@ extension TTileSizeExtension on TSize {
     if (this is TTileSize && (this as TTileSize).fontWeight != null) {
       return (this as TTileSize).fontWeight!;
     }
-    return font >= 22.0 ? FontWeight.w700 : (font >= 16.0 ? FontWeight.w600 : FontWeight.w500);
+    return font >= 22.0 ? FontWeight.w600 : (font >= 16.0 ? FontWeight.w500 : FontWeight.w400);
   }
 
   /// Resolves the subtitle font weight.
   FontWeight resolveSubtitleFontWeight() {
     if (this is TTileSize && (this as TTileSize).subtitleFontWeight != null) {
       return (this as TTileSize).subtitleFontWeight!;
+    }
+    if (this is TTileSize && (this as TTileSize).subtitleFont != null) {
+      return (this as TTileSize).subtitleFont! >= 13.0 ? FontWeight.w400 : FontWeight.w300;
     }
     return FontWeight.w400;
   }

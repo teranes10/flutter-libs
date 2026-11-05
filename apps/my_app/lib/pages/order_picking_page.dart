@@ -250,7 +250,7 @@ class _OrderPickingPageState extends State<OrderPickingPage> {
       total: total,
       icon: HugeIcons.strokeRoundedPackage,
       onTap: () {},
-    );
+    ).cardSm(padding: EdgeInsetsGeometry.zero);
   }
 
   // Order details + picking summary. No Start button: tap an item to pick it.
@@ -261,7 +261,11 @@ class _OrderPickingPageState extends State<OrderPickingPage> {
     final shown = _itemsTab == 'exceptions' ? lines.where((l) => l.exceptions > 0).toList() : lines;
 
     return _orderPage(
-      footer: TActionBar(primaryText: 'Confirm & Complete', primaryIcon: HugeIcons.strokeRoundedTick01, onPrimary: resolved == lines.length ? () {} : null),
+      footer: TActionBar(
+        primaryText: 'Confirm & Complete',
+        primaryIcon: HugeIcons.strokeRoundedTick01,
+        onPrimary: resolved == lines.length ? () {} : null,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -396,7 +400,13 @@ class _OrderPickingPageState extends State<OrderPickingPage> {
             subtitle: 'Pick location',
           ),
           const SizedBox(height: 8),
-          _checkTile(target: _Target.item, check: _item, icon: HugeIcons.strokeRoundedPackage, title: _current.code, subtitle: _current.name),
+          _checkTile(
+            target: _Target.item,
+            check: _item,
+            icon: HugeIcons.strokeRoundedPackage,
+            title: _current.code,
+            subtitle: _current.name,
+          ),
           const SizedBox(height: 8),
           _checkTile(
             target: _Target.lot,

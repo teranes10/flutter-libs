@@ -46,7 +46,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
             itemsPerPageOptions: widget.config.itemsPerPageOptions,
             rowBuilder: widget.rowBuilder,
             rowColorBuilder: widget.rowColorBuilder,
-            mobileCardBuilder: widget.mobileCardBuilder ?? _defaultMobileCard,
+            mobileCardBuilder: widget.mobileCardBuilder, //_defaultMobileCard
             details: (widget.expandedDetails != null)
                 ? widget.expandedDetails!.copyWith(
                     mode: effectiveExpansionMode,
@@ -388,7 +388,8 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         showFlat: true,
         permission: _perms?.archive,
         onDenied: _crudDenied(_perms?.archive),
-        onPressed: (_) => handleArchive(item),
+        wrap: (button) => TPopoverService.confirmArchive(context,
+            name: widget.itemTitle?.call(item), onConfirm: () => handleArchive(item), child: button),
       ));
     }
 
@@ -467,7 +468,8 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         showFlat: true,
         permission: _perms?.restore,
         onDenied: _crudDenied(_perms?.restore),
-        onPressed: (_) => handleRestore(item),
+        wrap: (button) => TPopoverService.confirmRestore(context,
+            name: widget.itemTitle?.call(item), onConfirm: () => handleRestore(item), child: button),
       ));
     }
 
@@ -481,7 +483,8 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         showFlat: true,
         permission: _perms?.delete,
         onDenied: _crudDenied(_perms?.delete),
-        onPressed: (_) => handleDelete(item),
+        wrap: (button) =>
+            TPopoverService.confirmDelete(context, name: widget.itemTitle?.call(item), onConfirm: () => handleDelete(item), child: button),
       ));
     }
 

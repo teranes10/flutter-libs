@@ -58,63 +58,47 @@ class _TablesSidePageState extends State<TablesSidePage> {
               style: context.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
-            Expanded(
-              child: Card(
-                elevation: 0,
-                color: colors.surfaceContainerLow,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: colors.outlineVariant.o(0.5)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: TTable<DemoProduct, String>(
-                    headers: headers,
-                    controller: _controller,
-                    details: TTableDetails(
-                      mode: TTableExpansionMode.side,
-                      itemTitle: (x) => x.name,
-                      itemSubTitle: (x) => x.category,
-                      itemImageUrl: (x) => x.imageUrl,
-                      itemDescription: (x) => x.description,
-                      builder: (ctx, item, index) {
-                        final product = item.data;
-                        return TRowExpandedBuilder.tabs(
-                          ctx,
-                          tabs: [
-                            TTab(
-                              value: 'overview',
-                              text: 'Overview',
-                              content: (ctx) => SingleChildScrollView(
-                                padding: const EdgeInsets.all(16),
-                                child: TKeyValueSection(
-                                  values: [
-                                    TKeyValue.text('SKU Code', product.sku),
-                                    TKeyValue.text('Manufacturer', product.manufacturer),
-                                    TKeyValue.text('Weight', product.weight),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            TTab(
-                              value: 'specs',
-                              text: 'Specs',
-                              content: (ctx) => SingleChildScrollView(
-                                padding: const EdgeInsets.all(16),
-                                child: TKeyValueSection(
-                                  values: [
-                                    TKeyValue.text('Warranty', product.warranty),
-                                    TKeyValue.text('Description', product.description),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
+            TTable<DemoProduct, String>(
+              headers: headers,
+              controller: _controller,
+              details: TTableDetails(
+                mode: TTableExpansionMode.side,
+                itemTitle: (x) => x.name,
+                itemSubTitle: (x) => x.category,
+                itemImageUrl: (x) => x.imageUrl,
+                itemDescription: (x) => x.description,
+                builder: (ctx, item, index) {
+                  final product = item.data;
+                  return TRowExpandedBuilder.tabs(
+                    ctx,
+                    tabs: [
+                      TTab(
+                        value: 'overview',
+                        text: 'Overview',
+                        content: (ctx) => SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: TKeyValueSection(
+                            values: [
+                              TKeyValue.text('SKU Code', product.sku),
+                              TKeyValue.text('Manufacturer', product.manufacturer),
+                              TKeyValue.text('Weight', product.weight),
+                            ],
+                          ),
+                        ),
+                      ),
+                      TTab(
+                        value: 'specs',
+                        text: 'Specs',
+                        content: (ctx) => SingleChildScrollView(
+                          padding: const EdgeInsets.all(16),
+                          child: TKeyValueSection(
+                            values: [TKeyValue.text('Warranty', product.warranty), TKeyValue.text('Description', product.description)],
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],

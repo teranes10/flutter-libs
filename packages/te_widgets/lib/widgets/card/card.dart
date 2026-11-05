@@ -22,18 +22,18 @@ enum TCardShadow {
   /// Resolves the layered [BoxShadow]s for this level using [color] (only its
   /// RGB is used for [sm]..[lg]).
   List<BoxShadow> resolve(Color color) => switch (this) {
-        none => [BoxShadow(color: color, offset: const Offset(0, 1))],
+        none => [BoxShadow(color: color.withAlpha(15), offset: const Offset(0, 1))],
         sm => [
-            BoxShadow(color: color, offset: const Offset(0, 2), blurRadius: 8, spreadRadius: -1),
-            BoxShadow(color: color, offset: const Offset(0, 1), blurRadius: 3, spreadRadius: -1),
+            BoxShadow(color: color.withAlpha(15), offset: const Offset(0, 2), blurRadius: 8, spreadRadius: -1),
+            BoxShadow(color: color.withAlpha(30), offset: const Offset(0, 1), blurRadius: 3, spreadRadius: -1),
           ],
         md => [
-            BoxShadow(color: color, offset: const Offset(0, 4), blurRadius: 14, spreadRadius: -2),
-            BoxShadow(color: color, offset: const Offset(0, 2), blurRadius: 5, spreadRadius: -1),
+            BoxShadow(color: color.withAlpha(15), offset: const Offset(0, 4), blurRadius: 14, spreadRadius: -2),
+            BoxShadow(color: color.withAlpha(30), offset: const Offset(0, 2), blurRadius: 5, spreadRadius: -1),
           ],
         lg => [
-            BoxShadow(color: color, offset: const Offset(0, 8), blurRadius: 24, spreadRadius: -4),
-            BoxShadow(color: color, offset: const Offset(0, 5), blurRadius: 9, spreadRadius: -2),
+            BoxShadow(color: color.withAlpha(15), offset: const Offset(0, 8), blurRadius: 20, spreadRadius: -4),
+            BoxShadow(color: color.withAlpha(30), offset: const Offset(0, 4), blurRadius: 9, spreadRadius: -2),
           ],
       };
 }
@@ -132,7 +132,7 @@ class TCard extends StatelessWidget {
 
   /// The background color of the card.
   ///
-  /// Defaults to the theme's surface color.
+  /// Defaults to a vertical gradient from the theme's surface to surfaceContainerLow.
   final Color? backgroundColor;
 
   /// The internal padding inside the card.
@@ -228,6 +228,7 @@ class TCard extends StatelessWidget {
     final colors = context.colors;
     final defaultBorderRadius = borderRadius ?? BorderRadius.circular(12);
     final headerNode = _buildHeader(context);
+    final resShadowColor = shadowColor ?? colors.shadow;
 
     Widget content;
     if (headerNode != null) {
@@ -249,16 +250,23 @@ class TCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: defaultBorderRadius,
         border: border,
-        boxShadow: shadow ?? shadowLevel.resolve(shadowColor ?? colors.shadow),
+        gradient: backgroundColor == null
+            ? LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [colors.surface, colors.surface, colors.surfaceContainerLowest],
+              )
+            : null,
+        boxShadow: shadow ?? shadowLevel.resolve(resShadowColor),
       ),
       child: Material(
         elevation: elevation ?? 0,
-        color: backgroundColor ?? colors.surface,
-        shadowColor: shadowColor ?? colors.shadow,
+        color: backgroundColor ?? Colors.transparent,
+        shadowColor: resShadowColor,
         clipBehavior: clipBehavior ?? Clip.none,
         shape: RoundedRectangleBorder(
           borderRadius: defaultBorderRadius,
-          side: BorderSide(color: borderColor ?? Colors.transparent),
+          side: BorderSide(color: borderColor ?? colors.outlineVariant.withAlpha(60)),
         ),
         child: TBackgroundColorScope(
           backgroundColor: backgroundColor ?? colors.surface,

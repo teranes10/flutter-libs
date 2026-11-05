@@ -92,6 +92,23 @@ class TCrudConfig<T, K> {
   /// Custom actions to display in the top bar.
   final List<Widget> topBarActions;
 
+  /// Icon of the page header shown at the start of the top bar (with [pageTitle] / [pageInfo]).
+  ///
+  /// When any of the three page fields is set, the top bar starts with a `TTile.h4` header and
+  /// the create button + [topBarActions] sit to its right. Actions that don't fit there (their
+  /// widths are measured once) fall back to the left of the search row.
+  final dynamic pageIcon;
+
+  /// Title of the page header (see [pageIcon]).
+  final String? pageTitle;
+
+  /// Subtitle / info text of the page header (see [pageIcon]).
+  final String? pageInfo;
+
+  /// Optional metric tiles rendered between the page header row and the search row. They wrap
+  /// in fixed-width slots and the search row fills the space left on the last line. Only used together with the page header fields.
+  final List<Widget> topBarMetrics;
+
   /// Whether rows can be multi-selected via checkboxes, enabling bulk actions.
   ///
   /// When true, a checkbox column appears (desktop and mobile) and
@@ -177,6 +194,10 @@ class TCrudConfig<T, K> {
     this.activeActions = const [],
     this.archiveActions = const [],
     this.topBarActions = const [],
+    this.pageIcon,
+    this.pageTitle,
+    this.pageInfo,
+    this.topBarMetrics = const [],
     this.enableBulkActions = false,
     this.bulkActionsBuilder,
     this.actionButtonWidth = 50.0,
