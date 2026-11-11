@@ -289,6 +289,8 @@ export 'widgets/snackbar/snackbar_service.dart';
 
 export 'widgets/tooltip/tooltip_config.dart';
 export 'widgets/tooltip/tooltip.dart';
+export 'widgets/marquee/marquee.dart';
+export 'widgets/rolling-text/rolling_text.dart';
 
 export 'widgets/skeleton/skeleton.dart';
 export 'widgets/empty-state/empty_state.dart';

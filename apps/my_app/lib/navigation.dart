@@ -14,6 +14,8 @@ import 'package:my_app/pages/colors_page.dart';
 import 'package:my_app/pages/command_palette_page.dart';
 import 'package:my_app/pages/context_menu_page.dart';
 import 'package:my_app/pages/copy_button_page.dart';
+import 'package:my_app/pages/marquee_page.dart';
+import 'package:my_app/pages/rolling_text_page.dart';
 import 'package:my_app/pages/crud_hierarchy_page.dart';
 import 'package:my_app/pages/crud_page.dart';
 import 'package:my_app/pages/crud_riverpod_page.dart';
@@ -122,6 +124,8 @@ final sidebarItems = [
       TSidebarItem(icon: HugeIcons.strokeRoundedCursorPointer01, text: 'Buttons', route: 'buttons', page: const ButtonsPage()),
       TSidebarItem(icon: HugeIcons.strokeRoundedUnfoldMore, text: 'Speed Dial', route: 'speed-dial', page: const SpeedDialPage()),
       TSidebarItem(icon: HugeIcons.strokeRoundedCopy01, text: 'Copy Button', route: 'copy-button', page: const CopyButtonPage()),
+      TSidebarItem(icon: HugeIcons.strokeRoundedTextWrap, text: 'Marquee', route: 'marquee', page: const MarqueePage()),
+      TSidebarItem(icon: HugeIcons.strokeRoundedRotate02, text: 'Rolling Text', route: 'rolling-text', page: const RollingTextPage()),
     ],
   ),
 
