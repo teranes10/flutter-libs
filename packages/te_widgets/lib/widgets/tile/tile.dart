@@ -155,6 +155,17 @@ class TTile extends StatelessWidget {
   /// Defaults to 16.0.
   final double? valuesSpacing;
 
+  /// Draws a thin horizontal divider between the header and the [values] section.
+  final bool valuesDivider;
+
+  /// Draws thin vertical dividers between columns of the [values] section
+  /// (applies to flow/column modes, not [TKeyValueMode.split]).
+  final bool valuesColumnDividers;
+
+  /// Optional footer shown below [values] (e.g. chips on the left, action buttons on the right).
+  /// Separated from the content by a divider when [valuesDivider] is true.
+  final Widget? footer;
+
   const TTile({
     super.key,
     this.size = TTileSize.h5,
@@ -173,6 +184,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -267,6 +281,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -310,6 +327,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -353,6 +373,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -396,6 +419,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -439,6 +465,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -482,6 +511,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -525,6 +557,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -568,6 +603,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -611,6 +649,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -654,6 +695,9 @@ class TTile extends StatelessWidget {
     this.values,
     this.valuesMode,
     this.valuesSpacing,
+    this.valuesDivider = false,
+    this.valuesColumnDividers = false,
+    this.footer,
     this.iconColor,
     this.hoveredIconColor,
     this.expandedIconColor,
@@ -1029,7 +1073,8 @@ class TTile extends StatelessWidget {
                       builder: (_, c, child) => c == null
                           ? child!
                           : Transform.translate(
-                              offset: Offset(0, c),
+                              // Never lift the image above the row top when it is taller than the text block.
+                              offset: Offset(0, math.max(c, leadingHeight / 2)),
                               child: FractionalTranslation(translation: const Offset(0, -0.5), child: child),
                             ),
                     )
@@ -1037,7 +1082,22 @@ class TTile extends StatelessWidget {
                     leadingWidget,
                   SizedBox(width: effectiveSpacing),
                 ],
-                if (trailing != null) Expanded(child: textColumn) else Flexible(child: textColumn),
+                if (trailing != null)
+                  Expanded(
+                    child: (trailingBesideHead && crossAxisAlignment == null && leadingWidget != null)
+                        // Image taller than the text block: center the text against the image instead.
+                        ? ValueListenableBuilder<double?>(
+                            valueListenable: headCenter,
+                            child: textColumn,
+                            builder: (_, c, child) => Padding(
+                              padding: EdgeInsets.only(top: c == null ? 0 : math.max(0.0, leadingHeight / 2 - c)),
+                              child: child,
+                            ),
+                          )
+                        : textColumn,
+                  )
+                else
+                  Flexible(child: textColumn),
                 if (trailing != null && iconOnTop) trailing!,
               ],
             );
@@ -1058,17 +1118,32 @@ class TTile extends StatelessWidget {
             content = topRow;
           }
 
-          if (values != null && values!.isNotEmpty) {
+          final hasValues = values != null && values!.isNotEmpty;
+          if (hasValues || footer != null) {
+            final gap = valuesSpacing ?? 16.0;
+            final divider = Divider(height: 1, thickness: 1, color: colors.outlineVariant.withAlpha(120));
             content = Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 content,
-                SizedBox(height: valuesSpacing ?? 16.0),
-                TKeyValueSection(
-                  values: values!,
-                  mode: valuesMode ?? TKeyValueMode.inlineFlow,
-                ),
+                if (hasValues) ...[
+                  SizedBox(height: valuesDivider ? gap * 0.5 : gap),
+                  if (valuesDivider) ...[divider, SizedBox(height: gap * 0.5)],
+                  TKeyValueSection(
+                    values: values!,
+                    mode: valuesMode ?? TKeyValueMode.inlineFlow,
+                    showLeftBorder: valuesColumnDividers ? true : null,
+                    // Divider is drawn mid-gap, so this gives equal breathing room on both sides of it.
+                    hSpacing: valuesColumnDividers ? 28 : null,
+                    vSpacing: valuesColumnDividers ? 14 : null,
+                  ),
+                ],
+                if (footer != null) ...[
+                  SizedBox(height: hasValues ? gap * 0.75 : gap),
+                  if (valuesDivider) ...[divider, SizedBox(height: gap * 0.75)],
+                  footer!,
+                ],
               ],
             );
           }

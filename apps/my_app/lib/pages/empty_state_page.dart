@@ -48,7 +48,13 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
               child: TEmptyState.noData(
                 title: 'No Customers Yet',
                 description: 'You have not added any customer records yet. Add your first customer to get started.',
-                action: TButton(text: 'Add Customer', icon: HugeIcons.strokeRoundedAdd01, type: TButtonType.solid, size: TButtonSize.sm, onTap: () {}),
+                action: TButton(
+                  text: 'Add Customer',
+                  icon: HugeIcons.strokeRoundedAdd01,
+                  type: TButtonType.solid,
+                  size: TButtonSize.sm,
+                  onTap: () {},
+                ),
                 secondaryAction: TButton(
                   text: 'Import CSV',
                   icon: HugeIcons.strokeRoundedFileUpload,

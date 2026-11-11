@@ -19,7 +19,7 @@ class TTableMobileCardTheme extends TKeyValueTheme {
 
   /// Creates a mobile card theme.
   const TTableMobileCardTheme({
-    this.margin = const EdgeInsets.only(bottom: 4),
+    this.margin = const EdgeInsets.only(bottom: 8),
     this.padding = const EdgeInsets.all(6),
     this.elevation = 0,
     this.borderRadius = const BorderRadius.all(Radius.circular(12)),

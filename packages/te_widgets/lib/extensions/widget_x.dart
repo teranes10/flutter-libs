@@ -99,4 +99,36 @@ extension WidgetX on Widget {
   /// [card] with a prominent [TCardShadow.lg] shadow.
   Widget cardLg({EdgeInsetsGeometry padding = const EdgeInsets.all(12), VoidCallback? onTap}) =>
       card(shadow: TCardShadow.lg, padding: padding, onTap: onTap);
+
+  /// Uses this widget as the header of an expandable [TTreeCard] whose [children]
+  /// hang off a tree connector line. Nest `.treeCard(...)` for deeper levels.
+  /// Usage: `TTile(title: 'Parent').treeCard(children: [TTile(title: 'Child').card()])`
+  Widget treeCard({
+    required List<Widget> children,
+    bool initiallyExpanded = false,
+    bool? isExpanded,
+    ValueChanged<bool>? onExpansionChanged,
+    EdgeInsetsGeometry padding = const EdgeInsets.all(16),
+    double? lineInset,
+    double? elbowWidth,
+    double? gap,
+    double? elbowY,
+    bool showDots = false,
+    Color? lineColor,
+  }) {
+    return TTreeCard(
+      header: this,
+      initiallyExpanded: initiallyExpanded,
+      isExpanded: isExpanded,
+      onExpansionChanged: onExpansionChanged,
+      padding: padding,
+      lineInset: lineInset,
+      elbowWidth: elbowWidth,
+      gap: gap,
+      elbowY: elbowY,
+      showDots: showDots,
+      lineColor: lineColor,
+      children: children,
+    );
+  }
 }

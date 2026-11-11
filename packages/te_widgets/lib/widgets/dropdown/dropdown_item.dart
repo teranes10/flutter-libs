@@ -17,6 +17,8 @@ class TDropdownItem extends TMenuItemData<TDropdownItem> {
   @override
   final Color? color;
   @override
+  final String? imageUrl;
+  @override
   final Widget? customContent;
   @override
   final Object? permission;
@@ -32,6 +34,7 @@ class TDropdownItem extends TMenuItemData<TDropdownItem> {
     this.extra,
     this.hidden = false,
     this.color,
+    this.imageUrl,
     this.customContent,
     this.permission,
     this.onDenied,

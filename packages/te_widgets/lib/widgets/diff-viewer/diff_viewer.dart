@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+
 /// The visual presentation mode for [TDiffViewer].
 enum TDiffViewMode {
   /// Old and new text are displayed side by side in two aligned columns.

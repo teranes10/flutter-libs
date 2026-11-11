@@ -82,9 +82,7 @@ class _TRichTextFieldState extends State<TRichTextField>
       toolbarRunSpacing: 0,
       toolbarSectionSpacing: 0,
       toolbarIconAlignment: WrapAlignment.start,
-      buttonOptions: const QuillSimpleToolbarButtonOptions(
-        base: QuillToolbarBaseButtonOptions(iconSize: _iconSize, iconButtonFactor: 1.5),
-      ),
+      buttonOptions: const QuillSimpleToolbarButtonOptions(base: QuillToolbarBaseButtonOptions(iconSize: _iconSize, iconButtonFactor: 1.5)),
       showDividers: false,
       showFontFamily: false,
       showFontSize: false,

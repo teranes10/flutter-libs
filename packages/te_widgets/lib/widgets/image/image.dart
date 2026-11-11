@@ -363,6 +363,38 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   /// re-precache is needed (url changed) vs. an incidental rebuild.
   String? _precachedFor;
 
+  /// URLs whose cached [ImageProvider] entry failed to decode (`ImageCodecException`, seen on web with stale cache
+  /// entries). They are rendered from persisted raw bytes instead (the [TImage.forceCache] path), which is stored
+  /// once and then served from memory, so later visits neither fail nor hit the server.
+  static final Set<String> _bytesFallbackUrls = {};
+
+  bool get _useBytes => widget.forceCache || (widget.url != null && _bytesFallbackUrls.contains(widget.url));
+
+  void _fallBackToBytes() {
+    final url = widget.url;
+    if (url == null || url.isEmpty || _bytesFallbackUrls.contains(url)) return;
+    _bytesFallbackUrls.add(url);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || widget.url != url) return;
+      setState(_initForceCacheFuture);
+    });
+  }
+
+  /// URLs that recently failed to load (404, not an image, ...), so they
+  /// show the placeholder immediately instead of re-requesting each time.
+  static final Map<String, DateTime> _brokenUrls = {};
+  static const _brokenTtl = Duration(minutes: 5);
+
+  static bool _isKnownBroken(String url) {
+    final at = _brokenUrls[url];
+    if (at == null) return false;
+    if (DateTime.now().difference(at) > _brokenTtl) {
+      _brokenUrls.remove(url);
+      return false;
+    }
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -378,7 +410,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!widget.forceCache) {
+    if (!_useBytes) {
       _maybeInitPrecache();
     }
   }
@@ -389,14 +421,14 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     if (old.url != widget.url || old.forceCache != widget.forceCache) {
       _initForceCacheFuture();
     }
-    if (!widget.forceCache) {
+    if (!_useBytes) {
       _maybeInitPrecache();
     }
   }
 
   void _initForceCacheFuture() {
-    if (widget.forceCache && widget.url != null && widget.url!.isNotEmpty) {
-      _forceCacheFuture = _resolveBytes(widget.url!);
+    if (_useBytes && widget.url != null && widget.url!.isNotEmpty) {
+      _forceCacheFuture = _resolveBytes(widget.url!, persist: widget.forceCache);
     } else {
       _forceCacheFuture = null;
     }
@@ -416,8 +448,53 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   /// the renderer trying to upload an empty/disposed frame as a texture.
   /// Deferring to [ImageCache] avoids that: it's the single source of truth
   /// the renderer itself reads from.
+  /// URL whose persistent-storage lookup was started by this state, and whether it is still running.
+  String? _storageLookupFor;
+  bool _storagePending = false;
+
+  /// URLs known (this session) not to be in persistent storage, so they are not looked up again.
+  static final Set<String> _storageMisses = {};
+
+  /// Lookup order for the default path is memory -> persistent storage -> cache library -> server. Returns true
+  /// while that lookup is still deciding, or when the bytes are already available (nothing to download).
+  bool _resolveFromMemoryOrStorage(String url) {
+    if (_forceCacheMemory.containsKey(url)) {
+      _storagePending = false;
+      _networkProvider = null;
+      _precacheFuture = null;
+      return true;
+    }
+    if (_storageMisses.contains(url)) {
+      _storagePending = false;
+      return false;
+    }
+    if (_storageLookupFor != url) {
+      _storageLookupFor = url;
+      _storagePending = true;
+      _networkProvider = null;
+      _precacheFuture = null;
+      _precachedFor = null;
+      void done(Uint8List? bytes) {
+        if (bytes != null && bytes.isNotEmpty) {
+          _forceCacheMemory[url] = bytes;
+        } else {
+          _storageMisses.add(url);
+        }
+        if (!mounted || widget.url != url) return;
+        setState(() {
+          _storagePending = false;
+          _maybeInitPrecache();
+        });
+      }
+
+      TImageStorage.loadImageByKey(TImageStorage.urlToKey(url)).then(done, onError: (_) => done(null));
+    }
+    return true;
+  }
+
   void _maybeInitPrecache() {
     final url = widget.url;
+    if (url != null && url.isNotEmpty && _resolveFromMemoryOrStorage(url)) return;
     final identity = url != null && url.isNotEmpty ? '$url|${widget.cacheKey}' : null;
 
     if (identity == _precachedFor) {
@@ -426,16 +503,28 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     _precachedFor = identity;
 
     if (url != null && url.isNotEmpty) {
+      if (_isKnownBroken(url)) {
+        // Recently failed (404, undecodable body, ...): don't hit the
+        // network again on every rebuild/remount, just show the fallback.
+        _networkProvider = null;
+        _precacheFuture = null;
+        return;
+      }
       final provider = CachedNetworkImageProvider(
         url,
         cacheKey: widget.cacheKey,
         cacheManager: widget.cacheManager,
       );
       _networkProvider = provider;
-      _precacheFuture = precacheImage(provider, context).catchError((_) {
-        // Swallow here; the FutureBuilder's `hasError`/`done` state combo
-        // in _buildImage() drives the fallback UI. We don't want an
-        // unhandled rejection surfacing as a Zone error.
+      // `precacheImage` reports failures via `onError` (or, when absent,
+      // FlutterError.reportError — the "image failed to precache" log) and
+      // then completes normally, so a `catchError` on the future never
+      // silenced it. Fallback UI is driven by _buildImage(), so swallow here.
+      _precacheFuture = precacheImage(provider, context, onError: (e, s) {
+        _brokenUrls[url] = DateTime.now();
+        if (mounted && _precachedFor == identity) {
+          setState(() => _networkProvider = null);
+        }
       });
       // No manual setState() needed: didChangeDependencies()/didUpdateWidget()
       // are always followed synchronously by build() in the same pipeline
@@ -446,8 +535,11 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     }
   }
 
-  /// Resolves image bytes from the persistent store, downloading if needed.
-  Future<Uint8List?> _resolveBytes(String url) async {
+  /// Resolves image bytes: memory -> persistent store -> server.
+  ///
+  /// The persistent store is only ever *written* when [persist] is true (i.e. [TImage.forceCache]); otherwise the
+  /// download stays in memory so images from arbitrary sources cannot bloat browser/app storage. Reading is always fine.
+  Future<Uint8List?> _resolveBytes(String url, {required bool persist}) async {
     // 1. Hot path: already decoded this session.
     if (_forceCacheMemory.containsKey(url)) {
       return _forceCacheMemory[url];
@@ -458,8 +550,14 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     // 2. Try loading from the persistent store.
     Uint8List? bytes = await TImageStorage.loadImageByKey(key);
 
-    // 3. Not cached yet — download, persist, then load bytes.
-    bytes ??= await _resolveLocalRef(url, key);
+    // 3. Not stored yet — download (persisting only when asked to).
+    if (bytes == null) {
+      if (persist) {
+        bytes = await _resolveLocalRef(url, key);
+      } else {
+        bytes = await TImageStorage.downloadBytes(url);
+      }
+    }
 
     if (bytes != null) {
       _forceCacheMemory[url] = bytes;
@@ -509,7 +607,8 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
       height: h,
       color: widget.color ?? (isDark ? colors.surfaceContainer : colors.surfaceContainerLow),
       alignment: Alignment.center,
-      child: TIcon.raw(HugeIcons.strokeRoundedImageNotFound02,
+      child: TIcon.raw(
+        HugeIcons.strokeRoundedImageNotFound02,
         size: iconSize,
         color: colors.onSurfaceVariant.withAlpha(120),
       ),
@@ -583,6 +682,10 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
       return KeyedSubtree(key: const ValueKey('fallback'), child: fallbackImage);
     }
 
+    final stored = _forceCacheMemory[widget.url!];
+    if (stored != null) return _buildLoadedImage(stored);
+    if (_storagePending) return _ImageShimmer(key: const ValueKey('shimmer'), width: imgW, height: imgH);
+
     final provider = _networkProvider;
     if (provider == null) {
       return KeyedSubtree(key: const ValueKey('fallback'), child: fallbackImage);
@@ -603,10 +706,13 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
               fit: widget.fit,
               alignment: _resolvedAlignment,
               gaplessPlayback: true,
-              errorBuilder: (_, __, ___) => KeyedSubtree(
-                key: const ValueKey('error_fallback'),
-                child: fallbackImage,
-              ),
+              errorBuilder: (_, error, stack) {
+                _fallBackToBytes();
+                return KeyedSubtree(
+                  key: const ValueKey('error_fallback'),
+                  child: fallbackImage,
+                );
+              },
             );
           } else if (snap.connectionState == ConnectionState.done && snap.error != null) {
             child = KeyedSubtree(
@@ -646,7 +752,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
 
     Widget imageChild;
 
-    if (widget.forceCache && _forceCacheFuture != null) {
+    if (_useBytes && _forceCacheFuture != null) {
       // Synchronous hot path: bytes already decoded this session — render
       // directly, no FutureBuilder or AnimatedSwitcher needed.
       final cachedBytes = widget.url != null ? _forceCacheMemory[widget.url!] : null;
@@ -821,15 +927,19 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
 
     return buildWithDropdownTarget(
       child: InkWell(
-        onTap: () {
-          if (widget.showTitleSubtitleOverlayOnHover && !widget.overlayTitleSubtitle) {
-            setState(() => _isTappedVisible = !_isTappedVisible);
-          }
-          if (canInteract) {
-            showPopup(context);
-          }
-          widget.onTap?.call();
-        },
+        // A null onTap lets taps fall through to a parent (e.g. a TButton that
+        // embeds a non-interactive image) instead of being swallowed here.
+        onTap: !canInteract && widget.onTap == null && !widget.showTitleSubtitleOverlayOnHover
+            ? null
+            : () {
+                if (widget.showTitleSubtitleOverlayOnHover && !widget.overlayTitleSubtitle) {
+                  setState(() => _isTappedVisible = !_isTappedVisible);
+                }
+                if (canInteract) {
+                  showPopup(context);
+                }
+                widget.onTap?.call();
+              },
         customBorder: widget.border,
         hoverColor: colors.primaryContainer,
         splashColor: colors.primary,

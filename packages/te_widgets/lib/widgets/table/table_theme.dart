@@ -223,6 +223,8 @@ class TTableTheme extends TListTheme {
     List<T> sampleItems = const [],
     TextStyle? headerTextStyle,
     TextStyle? contentTextStyle,
+    double treeIndentPerLevel = 16.0,
+    double treeBaseWidth = 36.0,
   }) {
     final fixedWidths = <int, TableColumnWidth>{};
     int columnIndex = 0;
@@ -240,7 +242,7 @@ class TTableTheme extends TListTheme {
     }
 
     final effectiveTreeLevel = isHierarchical && maxTreeLevel == 0 ? 1 : maxTreeLevel;
-    final treeIndentBonus = (isHierarchical || maxTreeLevel > 0) ? (effectiveTreeLevel * 16.0 + 36.0) : 0.0;
+    final treeIndentBonus = (isHierarchical || maxTreeLevel > 0) ? (effectiveTreeLevel * treeIndentPerLevel + treeBaseWidth) : 0.0;
 
     final autoIndices = <int>[];
     final autoBasisWidths = <double>[]; // weighting basis, already clamped into [min, max]

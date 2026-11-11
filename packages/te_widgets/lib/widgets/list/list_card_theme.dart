@@ -98,7 +98,8 @@ class TListCardTheme {
     return (isExpanded, isDisabled) => AnimatedRotation(
           turns: isExpanded ? 0.25 : 0.0,
           duration: const Duration(milliseconds: 200),
-          child: TIcon.raw(HugeIcons.strokeRoundedArrowRight01,
+          child: TIcon.raw(
+            HugeIcons.strokeRoundedArrowRight01,
             size: iconSize,
             color: isDisabled ? colors.onSurface.o(0.38) : colors.onSurfaceVariant,
           ),
@@ -119,8 +120,8 @@ class TListCardTheme {
       if (multiple) {
         return Padding(
           padding: const EdgeInsets.only(right: 8.0),
-          child:
-              TIcon.raw(isSelected ? HugeIcons.strokeRoundedCheckmarkSquare03 : HugeIcons.strokeRoundedSquare, size: iconSize, color: color),
+          child: TIcon.raw(isSelected ? HugeIcons.strokeRoundedCheckmarkSquare03 : HugeIcons.strokeRoundedSquare,
+              size: iconSize, color: color),
         );
       }
 
@@ -161,7 +162,8 @@ class TListCardTheme {
           Text(title, style: TextStyle(fontSize: fontSize, color: titleColor, fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400)),
           if (subTitle != null) const SizedBox(),
           if (subTitle != null)
-            Text(subTitle, style: TextStyle(fontSize: subtitleFontSize, color: isDisabled ? colors.onSurface.o(0.38) : colors.onSurfaceVariant)),
+            Text(subTitle,
+                style: TextStyle(fontSize: subtitleFontSize, color: isDisabled ? colors.onSurface.o(0.38) : colors.onSurfaceVariant)),
         ],
       );
 

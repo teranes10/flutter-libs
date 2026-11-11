@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// A powerful list component with pagination, search, and infinite scroll.
@@ -61,6 +62,10 @@ import 'package:te_widgets/te_widgets.dart';
 /// - [TListController] for programmatic control
 /// - [TDataTable] for tabular data
 /// - [TListCard] for default card rendering
+/// A remembered measurement of a list layout: the average [item] height (separator included) and the [chrome]
+/// (header, footer and anything else that is not an item) of the list area.
+typedef TItemHeightSample = ({double item, double chrome});
+
 class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Custom builder for rendering each list item.
   final ListItemBuilder<T, K> itemBuilder;
@@ -131,6 +136,17 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
   ///
   /// Defaults to true.
   final bool autoItemsPerPage;
+
+  /// Estimated height of one item including its separator, used to size the first page before any item has been
+  /// rendered. Falls back to a layout-based guess when null.
+  final double? estimatedItemHeight;
+
+  /// Returns a remembered measurement for a list that is [width] wide, used for the first page-size estimate.
+  final TItemHeightSample? Function(double width)? itemHeightHint;
+
+  /// Called with the measured item height and chrome for the current [width], so callers can remember them and
+  /// return them from [itemHeightHint] next time.
+  final void Function(double width, double item, double chrome)? onItemHeightMeasured;
 
   // List card
 
@@ -205,6 +221,9 @@ class TList<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.onScrollPositionChanged,
     // Auto
     this.autoItemsPerPage = true,
+    this.estimatedItemHeight,
+    this.itemHeightHint,
+    this.onItemHeightMeasured,
     // List card
     this.cardTheme,
     ItemTextAccessor<T>? itemTitle,
@@ -423,6 +442,8 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               });
             }
 
+            if (widget.autoItemsPerPage) _handleAutoItemsPerPage(constraints);
+
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
               if (wTheme.infiniteScroll != false &&
@@ -479,44 +500,162 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
     );
   }
 
-  double? _previousHeight;
-  int? _resolvedItemsPerPage;
+  int? _lastAutoItemsPerPage;
+  bool _fitScheduled = false;
+  bool _initialLoadRequested = false;
 
-  void _handleAutoItemsPerPage(BoxConstraints constraints) {
-    if (providedItemsPerPage > 0) {
-      if (providedItemsPerPage != _resolvedItemsPerPage) {
-        _resolvedItemsPerPage = providedItemsPerPage;
-        _updateItemsPerPage(providedItemsPerPage);
-      }
-    } else if (constraints.maxHeight.isFinite) {
-      final maxHeight = constraints.maxHeight;
-      int perRow = 1;
-
-      final itemHeight = 40;
-      if (maxHeight <= 0 || itemHeight <= 0) return;
-      if (_previousHeight != null && _previousHeight! > maxHeight) return;
-
-      final rowCount = (maxHeight / itemHeight).floor().clamp(1, 100);
-      final count = rowCount * perRow;
-      if (_resolvedItemsPerPage != count) {
-        _previousHeight = maxHeight;
-        _resolvedItemsPerPage = count;
-        _updateItemsPerPage(count);
-      }
-    } else if (listController.itemsPerPage == 0) {
-      _updateItemsPerPage(10);
-    }
+  /// Row height used for the very first estimate, before any row has been measured. It is a little under the
+  /// real height so the estimate over-fills (a bit of scrolling is fine, blank space is not).
+  double get _estimatedRowHeight {
+    if (widget.estimatedItemHeight != null) return widget.estimatedItemHeight!;
+    final scope = TTableScope.maybeOf(context);
+    if (scope == null) return 60;
+    if (scope.isCardView) return scope.dense ? 84 : 112;
+    return scope.dense ? 52 : 76;
   }
 
-  void _updateItemsPerPage(int value) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (listController.isEmpty && !listController.isFetching) {
-        if (listController.itemsPerPage != value) {
-          listController.handleItemsPerPageChange(value);
-        } else {
+  /// Height taken by the column header and the pagination footer, which sit inside the list and are not rows.
+  double get _estimatedChromeHeight {
+    final scope = TTableScope.maybeOf(context);
+    if (scope == null) return 0;
+    final header = scope.isCardView ? 0.0 : (scope.dense ? 34.0 : 46.0);
+    final footer = scope.dense ? 48.0 : 60.0;
+    return header + footer;
+  }
+
+  /// Starts the first load with an estimated page size (a single request), then lets [_fitItemsPerPage]
+  /// grow the page from the measured row height if blank space remains.
+  void _handleAutoItemsPerPage(BoxConstraints constraints) {
+    final c = listController;
+    _lastWidth = constraints.maxWidth;
+    _lastMaxHeight = constraints.maxHeight;
+
+    if (!_initialLoadRequested) {
+      _initialLoadRequested = true;
+      final sample = widget.itemHeightHint?.call(constraints.maxWidth);
+      final estimate = c.autoItemsPerPage
+          ? (constraints.hasBoundedHeight && constraints.maxHeight > 0
+              ? ((constraints.maxHeight - (sample?.chrome ?? _estimatedChromeHeight)) / (sample?.item ?? _estimatedRowHeight))
+                  .ceil()
+                  .clamp(1, 200)
+              : (c.itemsPerPage > 0 ? c.itemsPerPage : 10))
+          : c.itemsPerPage;
+      if (c.autoItemsPerPage) _lastAutoItemsPerPage = estimate;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (estimate > 0 && estimate != listController.itemsPerPage) {
+          listController.handleItemsPerPageChange(estimate); // loads with the new size
+        } else if (listController.isEmpty && !listController.isFetching) {
           listController.handleRefresh();
         }
-      }
+      });
+      return;
+    }
+
+    if (!c.autoItemsPerPage && widget.onItemHeightMeasured == null) return;
+    if (!constraints.hasBoundedHeight || wTheme.shrinkWrap == true || wTheme.infiniteScroll == true || wTheme.grid != null) return;
+    if (_fitScheduled) return;
+    _fitScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fitScheduled = false;
+      if (mounted) _fitItemsPerPage();
     });
+  }
+
+  double? _lastReportedItemHeight;
+  double? _lastReportedChrome;
+  double? _lastReportedWidth;
+  double _lastWidth = 0;
+  double _lastMaxHeight = 0;
+
+  void _fitItemsPerPage() {
+    final c = listController;
+    final state = c.value;
+    if (state.loading || state.fetching || state.displayItems.isEmpty) return;
+    // Expanded/edited rows change the content height, which is neither a row measurement nor a reason to resize.
+    if (state.activeKey != null || state.isCreatingItem) return;
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    if (!position.hasViewportDimension) return;
+
+    final viewport = _findViewport(context.findRenderObject(), position);
+    if (viewport == null) return;
+
+    // Total laid-out extent of the slivers (header/footer inside the scroll view plus the items) and the items alone.
+    double content = 0;
+    double itemsExtent = 0;
+    for (RenderSliver? child = viewport.firstChild; child != null; child = viewport.childAfter(child)) {
+      content += child.geometry?.scrollExtent ?? 0;
+      final items = _findItemsSliver(child);
+      if (items != null && itemsExtent == 0) itemsExtent = items.geometry?.scrollExtent ?? 0;
+    }
+
+    final rows = state.displayItems.length;
+    if (itemsExtent <= 0) return;
+    final rowExtent = itemsExtent / rows;
+
+    // Chrome = what surrounds the items: sticky header/footer outside the scroll view plus the in-scroll parts.
+    final chrome = (_lastMaxHeight.isFinite ? _lastMaxHeight - position.viewportDimension : 0) + (content - itemsExtent);
+
+    // Reported on every measurement (tiny changes ignored) so the caller can keep a running average per width.
+    if (_lastReportedItemHeight == null ||
+        (_lastReportedItemHeight! - rowExtent).abs() > 1 ||
+        (_lastReportedChrome! - chrome).abs() > 1 ||
+        _lastReportedWidth != _lastWidth) {
+      _lastReportedItemHeight = rowExtent;
+      _lastReportedChrome = chrome;
+      _lastReportedWidth = _lastWidth;
+      widget.onItemHeightMeasured?.call(_lastWidth, rowExtent, chrome);
+    }
+
+    if (!c.autoItemsPerPage) return;
+    if (_lastAutoItemsPerPage != null && c.itemsPerPage != _lastAutoItemsPerPage) {
+      // The page size was changed from outside (e.g. the page-size dropdown): stop auto-fitting.
+      c.autoItemsPerPage = false;
+      return;
+    }
+
+    // Only ever grow: scrolling is fine, blank space below the rows is not. Round up so the space is always covered.
+    int? target;
+    final slack = position.viewportDimension - content;
+    if (slack > 1 && rows >= c.itemsPerPage && (state.hasMoreItems || state.totalItems > rows)) {
+      target = (c.itemsPerPage + (slack / rowExtent).ceil()).clamp(1, 200);
+    }
+    if (target == null || target == c.itemsPerPage) return;
+
+    _lastAutoItemsPerPage = target;
+    c.handleItemsPerPageChange(target);
+  }
+
+  /// The sliver that lays out the items (a multi-box sliver list) inside [root], if any.
+  RenderSliverMultiBoxAdaptor? _findItemsSliver(RenderObject root) {
+    RenderSliverMultiBoxAdaptor? found;
+    void visit(RenderObject node) {
+      if (found != null) return;
+      if (node is RenderSliverMultiBoxAdaptor) {
+        found = node;
+        return;
+      }
+      node.visitChildren(visit);
+    }
+
+    visit(root);
+    return found;
+  }
+
+  RenderViewport? _findViewport(RenderObject? root, ScrollPosition position) {
+    RenderViewport? found;
+    void visit(RenderObject node) {
+      if (found != null) return;
+      if (node is RenderViewport && node.offset == position) {
+        found = node;
+        return;
+      }
+      node.visitChildren(visit);
+    }
+
+    if (root != null) visit(root);
+    return found;
   }
 }

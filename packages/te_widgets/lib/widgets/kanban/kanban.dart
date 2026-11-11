@@ -200,9 +200,7 @@ class _TKanbanBoardState<T> extends State<TKanbanBoard<T>> {
                     ),
                     // Item Count Badge
                     TBadge.standalone(
-                      label: column.maxItems != null
-                          ? '${column.items.length} / ${column.maxItems}'
-                          : '${column.items.length}',
+                      label: column.maxItems != null ? '${column.items.length} / ${column.maxItems}' : '${column.items.length}',
                       color: column.maxItems != null && column.items.length >= column.maxItems!
                           ? Colors.orange.shade700
                           : (isDark ? Colors.grey.shade800 : Colors.grey.shade300),

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
 import 'package:hugeicons/hugeicons.dart';
+
 /// A child action item in a [TSpeedDial].
 class TSpeedDialChild {
   /// The icon displayed inside this action button.

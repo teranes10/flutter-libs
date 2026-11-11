@@ -104,7 +104,12 @@ class TPreviousSelectionsListState extends State<TPreviousSelectionsList> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  TButton(icon: HugeIcons.strokeRoundedCancel01, type: TButtonType.outline, color: colors.error, onTap: () => deletePreviousSelection(index)),
+                  TButton(
+                    icon: HugeIcons.strokeRoundedCancel01,
+                    type: TButtonType.outline,
+                    color: colors.error,
+                    onTap: () => deletePreviousSelection(index),
+                  ),
                 ],
               ),
             );

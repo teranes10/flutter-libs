@@ -15,6 +15,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
         double? createSideOverlayWidth,
         List<String>? headerOrder,
         Map<String, bool>? headerVisibility,
+        Map<String, double>? rowHeights,
       })> _persistedRouteSettings = {};
 
   String? _findRouteName(BuildContext context) {
@@ -67,6 +68,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       if (cached.sideOverlayWidth != null) _sideOverlayWidth = cached.sideOverlayWidth;
       if (cached.createDialogWidth != null) _createDialogWidth = cached.createDialogWidth;
       if (cached.createSideOverlayWidth != null) _createSideOverlayWidth = cached.createSideOverlayWidth;
+      if (cached.rowHeights != null) _rowHeights = Map<String, double>.of(cached.rowHeights!);
       if (cached.headerOrder != null && cached.headerVisibility != null) {
         _reconcileHeaders(cached.headerOrder!, cached.headerVisibility!);
       }
@@ -126,6 +128,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       final savedCreateSideOverlayWidth = prefs.getDouble('${prefix}_createSideOverlayWidth');
       final savedHeaderOrderJson = prefs.getString('${prefix}_headerOrder');
       final savedHeaderVisibilityJson = prefs.getString('${prefix}_headerVisibility');
+      final savedRowHeightsJson = prefs.getString('${prefix}_rowHeights');
 
       bool changed = false;
       if (savedDense != null && savedDense != _dense) {
@@ -182,6 +185,15 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
         } catch (_) {}
       }
 
+      if (savedRowHeightsJson != null) {
+        try {
+          final saved = (jsonDecode(savedRowHeightsJson) as Map).map((k, v) => MapEntry(k as String, (v as num).toDouble()));
+          // Heights measured this session win over the stored ones.
+          _rowHeights = {...saved, ..._rowHeights};
+          changed = true;
+        } catch (_) {}
+      }
+
       final restoredActive = _decodeFilters(prefs.getString('${prefix}_filters_active'));
       final restoredArchive = _decodeFilters(prefs.getString('${prefix}_filters_archive'));
       if (restoredActive != null && restoredActive.isNotEmpty) _listController.handleAdvancedSearchChange(restoredActive);
@@ -200,6 +212,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
           createSideOverlayWidth: _createSideOverlayWidth,
           headerOrder: _headerOrder,
           headerVisibility: _headerVisibility,
+          rowHeights: _rowHeights,
         );
         // ignore: invalid_use_of_protected_member
         setState(() {});
@@ -223,6 +236,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       createSideOverlayWidth: _createSideOverlayWidth,
       headerOrder: _headerOrder,
       headerVisibility: _headerVisibility,
+      rowHeights: _rowHeights,
     );
 
     final pageStorage = PageStorage.maybeOf(context);
@@ -282,6 +296,7 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
       }
       prefs.setString('${prefix}_headerOrder', jsonEncode(_headerOrder));
       prefs.setString('${prefix}_headerVisibility', jsonEncode(_headerVisibility));
+      prefs.setString('${prefix}_rowHeights', jsonEncode(_rowHeights));
     });
   }
 
@@ -312,5 +327,45 @@ extension _TCrudTableSettingsExt<T, K, F extends TFormBase> on _TCrudTableState<
         }
       }
     });
+  }
+
+  /// Key of the remembered row height for a layout at a width; widths are bucketed to 100px.
+  static String _rowHeightPrefix(bool isCardView, bool dense) => '${isCardView ? 'card' : 'row'}_${dense ? 'dense' : 'comfortable'}_';
+
+  static int _widthBucket(double width) => (width / 100).round() * 100;
+
+  /// The remembered measurement for the closest width recorded for this layout, so widths that behave alike
+  /// (same column wrapping) share one answer without having to be measured individually.
+  TItemHeightSample? _rowHeightHint(bool isCardView, bool dense, double width) {
+    final prefix = _rowHeightPrefix(isCardView, dense);
+    String? bestKey;
+    int bestDistance = 1 << 30;
+    final bucket = _widthBucket(width);
+    for (final key in _rowHeights.keys) {
+      if (!key.startsWith(prefix) || key.endsWith('_chrome')) continue;
+      final recorded = int.tryParse(key.substring(prefix.length));
+      if (recorded == null) continue;
+      final distance = (recorded - bucket).abs();
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestKey = key;
+      }
+    }
+    if (bestKey == null) return null;
+    return (item: _rowHeights[bestKey]!, chrome: _rowHeights['${bestKey}_chrome'] ?? 0);
+  }
+
+  /// Folds a measurement into the running average of its layout and width bucket (always, even when a value is
+  /// already stored, so the estimate keeps improving) and persists it.
+  void _recordRowHeight(bool isCardView, bool dense, double width, double item, double chrome) {
+    final key = '${_rowHeightPrefix(isCardView, dense)}${_widthBucket(width)}';
+    final oldItem = _rowHeights[key];
+    final oldChrome = _rowHeights['${key}_chrome'];
+    final nextItem = oldItem == null ? item : (oldItem + item) / 2;
+    final nextChrome = oldChrome == null ? chrome : (oldChrome + chrome) / 2;
+    if (oldItem != null && oldChrome != null && (nextItem - oldItem).abs() < 0.5 && (nextChrome - oldChrome).abs() < 0.5) return;
+    _rowHeights[key] = nextItem;
+    _rowHeights['${key}_chrome'] = nextChrome;
+    _persistRouteSettings();
   }
 }

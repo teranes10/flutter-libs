@@ -41,6 +41,8 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
             key: const ValueKey('table_layout'),
             theme: effectiveTheme.copyWith(dense: dense),
             optionalPaginationBar: widget.config.optionalPaginationBar,
+            rowHeightHint: _rowHeightHint,
+            onRowHeightMeasured: _recordRowHeight,
             headers: headers,
             controller: controller,
             itemsPerPageOptions: widget.config.itemsPerPageOptions,
@@ -125,66 +127,66 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     );
   }
 
-  Widget _defaultMobileCard(BuildContext ctx, TListItem<T, K> item, int index, VoidCallback? onTap) {
-    final children = widget.itemChildren?.call(item.data);
-    final hasChildren = children != null && children.isNotEmpty;
+  // Widget _defaultMobileCard(BuildContext ctx, TListItem<T, K> item, int index, VoidCallback? onTap) {
+  //   final children = widget.itemChildren?.call(item.data);
+  //   final hasChildren = children != null && children.isNotEmpty;
 
-    return TTile(
-      title: widget.itemTitle?.call(item.data),
-      subtitle: widget.itemSubTitle?.call(item.data),
-      imageUrl: widget.itemImageUrl?.call(item.data),
-      iconSize: 56,
-      spacing: 12,
-      trailing: hasChildren ? TChip(text: '${children.length}', size: TChipSize.sm, type: TVariant.tonal) : null,
-    ).card(
-      padding: const EdgeInsetsGeometry.all(8),
-      onTap: hasChildren ? () => _openChildrenPage(ctx, item, children) : onTap,
-    );
-  }
+  //   return TTile(
+  //     title: widget.itemTitle?.call(item.data),
+  //     subtitle: widget.itemSubTitle?.call(item.data),
+  //     imageUrl: widget.itemImageUrl?.call(item.data),
+  //     iconSize: 56,
+  //     spacing: 12,
+  //     trailing: hasChildren ? TChip(text: '${children.length}', size: TChipSize.sm, type: TVariant.tonal) : null,
+  //   ).card(
+  //     padding: const EdgeInsetsGeometry.all(8),
+  //     onTap: hasChildren ? () => _openChildrenPage(ctx, item, children) : onTap,
+  //   );
+  // }
 
   /// Hierarchical items drill down on cards: each level is its own page that
   /// lists the children of the tapped item with the same table configuration.
-  void _openChildrenPage(BuildContext ctx, TListItem<T, K> item, List<T> children) {
-    final hasTabs = widget.config.tabs != null || widget.config.tabContents.isNotEmpty;
-    Navigator.of(ctx).push(
-      MaterialPageRoute<void>(
-        builder: (_) => Scaffold(
-          appBar: AppBar(title: Text(widget.itemTitle?.call(item.data) ?? '')),
-          body: TCrudTable<T, K, F>(
-            headers: widget.headers,
-            items: children,
-            itemKey: _listController.itemKey,
-            itemChildren: widget.itemChildren,
-            createForm: widget.createForm,
-            editForm: widget.editForm,
-            onCreate: widget.onCreate,
-            onView: widget.onView,
-            onEdit: widget.onEdit,
-            onArchive: widget.onArchive,
-            onRestore: widget.onRestore,
-            onDelete: widget.onDelete,
-            config: hasTabs ? const TCrudConfig() : widget.config,
-            expandedBuilder: widget.expandedBuilder,
-            expandedDetails: widget.expandedDetails,
-            expansionMode: widget.expansionMode,
-            createMode: widget.createMode,
-            itemTitle: widget.itemTitle,
-            itemSubTitle: widget.itemSubTitle,
-            itemDescription: widget.itemDescription,
-            itemImageUrl: widget.itemImageUrl,
-            itemInfo: widget.itemInfo,
-            itemHighlights: widget.itemHighlights,
-            itemInfoGridInline: widget.itemInfoGridInline,
-            theme: widget.theme,
-            rowBuilder: widget.rowBuilder,
-            rowColorBuilder: widget.rowColorBuilder,
-            mobileCardBuilder: widget.mobileCardBuilder,
-            filters: widget.filters,
-          ),
-        ),
-      ),
-    );
-  }
+  // void _openChildrenPage(BuildContext ctx, TListItem<T, K> item, List<T> children) {
+  //   final hasTabs = widget.config.tabs != null || widget.config.tabContents.isNotEmpty;
+  //   Navigator.of(ctx).push(
+  //     MaterialPageRoute<void>(
+  //       builder: (_) => Scaffold(
+  //         appBar: AppBar(title: Text(widget.itemTitle?.call(item.data) ?? '')),
+  //         body: TCrudTable<T, K, F>(
+  //           headers: widget.headers,
+  //           items: children,
+  //           itemKey: _listController.itemKey,
+  //           itemChildren: widget.itemChildren,
+  //           createForm: widget.createForm,
+  //           editForm: widget.editForm,
+  //           onCreate: widget.onCreate,
+  //           onView: widget.onView,
+  //           onEdit: widget.onEdit,
+  //           onArchive: widget.onArchive,
+  //           onRestore: widget.onRestore,
+  //           onDelete: widget.onDelete,
+  //           config: hasTabs ? const TCrudConfig() : widget.config,
+  //           expandedBuilder: widget.expandedBuilder,
+  //           expandedDetails: widget.expandedDetails,
+  //           expansionMode: widget.expansionMode,
+  //           createMode: widget.createMode,
+  //           itemTitle: widget.itemTitle,
+  //           itemSubTitle: widget.itemSubTitle,
+  //           itemDescription: widget.itemDescription,
+  //           itemImageUrl: widget.itemImageUrl,
+  //           itemInfo: widget.itemInfo,
+  //           itemHighlights: widget.itemHighlights,
+  //           itemInfoGridInline: widget.itemInfoGridInline,
+  //           theme: widget.theme,
+  //           rowBuilder: widget.rowBuilder,
+  //           rowColorBuilder: widget.rowColorBuilder,
+  //           mobileCardBuilder: widget.mobileCardBuilder,
+  //           filters: widget.filters,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _defaultDetails(BuildContext ctx, List<TTableHeader<T, K>> headers, TListItem<T, K> item, int index) {
     return TKeyValueSection(

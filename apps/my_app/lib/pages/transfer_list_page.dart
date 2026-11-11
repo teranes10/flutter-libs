@@ -131,7 +131,13 @@ class _TransferListPageState extends State<TransferListPage> {
                 ),
 
                 // Reset Button
-                TButton(text: 'Reset Defaults', icon: HugeIcons.strokeRoundedRefresh, size: TSize.sm, type: TButtonType.outline, onTap: _resetData),
+                TButton(
+                  text: 'Reset Defaults',
+                  icon: HugeIcons.strokeRoundedRefresh,
+                  size: TSize.sm,
+                  type: TButtonType.outline,
+                  onTap: _resetData,
+                ),
               ],
             ),
           ),

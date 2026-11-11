@@ -56,8 +56,7 @@ extension SidebarItemListX on List<TSidebarItem> {
           TRouteMeta.hasPage: item.builder != null || item.page != null,
         },
       ];
-      final children =
-          item.children != null ? _buildRoutes(item.children!, parentPath: originalPath, trail: itemTrail) : <GoRoute>[];
+      final children = item.children != null ? _buildRoutes(item.children!, parentPath: originalPath, trail: itemTrail) : <GoRoute>[];
 
       if (path != null) {
         routes.add(
@@ -74,7 +73,7 @@ extension SidebarItemListX on List<TSidebarItem> {
             },
             pageBuilder: (context, state) {
               final child = item.builder?.call(context, state) ?? item.page ?? PlaceholderPage(title: item.text ?? '404');
-              return NoTransitionPage(child: child);
+              return NoTransitionPage(child: item.permission == null ? child : TAuthRouteGuard(permission: item.permission, child: child));
             },
             routes: children,
           ),

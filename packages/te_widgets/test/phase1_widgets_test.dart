@@ -223,7 +223,8 @@ void main() {
               width: 250,
               child: TBanner.info(
                 title: 'Heading',
-                message: 'This is a very long message that definitely exceeds two hundred and fifty pixels width and wraps onto multiple lines.',
+                message:
+                    'This is a very long message that definitely exceeds two hundred and fifty pixels width and wraps onto multiple lines.',
               ),
             ),
           ),
@@ -232,7 +233,8 @@ void main() {
 
       final wrapIconFinder = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedInformationCircle);
       final wrapTitleFinder = find.text('Heading');
-      final wrapMessageFinder = find.text('This is a very long message that definitely exceeds two hundred and fifty pixels width and wraps onto multiple lines.');
+      final wrapMessageFinder = find
+          .text('This is a very long message that definitely exceeds two hundred and fifty pixels width and wraps onto multiple lines.');
 
       final wrapIconTopLeft = tester.getTopLeft(wrapIconFinder);
       final wrapTitleTopLeft = tester.getTopLeft(wrapTitleFinder);

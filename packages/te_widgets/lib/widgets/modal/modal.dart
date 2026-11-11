@@ -189,7 +189,10 @@ class TModal extends StatelessWidget {
         children: [
           if (showCloseButton == true && isMobile)
             TIcon(
-                icon: HugeIcons.strokeRoundedArrowLeft01, size: 21, padding: EdgeInsets.fromLTRB(3, 3, 3, 1.2), onTap: () => onClose?.call()),
+                icon: HugeIcons.strokeRoundedArrowLeft01,
+                size: 21,
+                padding: EdgeInsets.fromLTRB(3, 3, 3, 1.2),
+                onTap: () => onClose?.call()),
           Expanded(
             child: title != null
                 ? Text(title ?? '',

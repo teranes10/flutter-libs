@@ -101,6 +101,11 @@ class TTableHeader<T, K> {
   /// Optional prefix or formatting hook when flattened on mobile (e.g. `(header, key) => '$header: $key'`).
   final String Function(String headerText, String childKey)? mobileKeyPrefixBuilder;
 
+  /// Estimated height of this column's content in a comfortable row, used to estimate the page size before any
+  /// row has been rendered. Null for single-line content (text, chip, switch, ...); set for columns that grow
+  /// the row, such as images and multi-value cells.
+  final double? estimatedHeight;
+
   /// Creates a standard table header.
   const TTableHeader(
     this.text, {
@@ -121,6 +126,7 @@ class TTableHeader<T, K> {
     this.flattenOnMobile = false,
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
+    this.estimatedHeight,
   });
 
   /// Whether the cell skips the table's default horizontal cell padding and fills its full column width.
@@ -201,7 +207,8 @@ class TTableHeader<T, K> {
     this.flattenOnMobile = false,
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
-  })  : builder = null,
+  })  : estimatedHeight = null,
+        builder = null,
         keyValuesBuilder = null;
 
   /// Creates a header for displaying images.
@@ -219,7 +226,8 @@ class TTableHeader<T, K> {
     this.showInDetails = false,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = null,
+  })  : estimatedHeight = width,
+        map = null,
         key = null,
         filterType = null,
         filterable = false,
@@ -265,7 +273,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : widthEstimator = widthEstimator ??
+  })  : estimatedHeight = null,
+        widthEstimator = widthEstimator ??
             ((data) {
               final text = map?.call(data)?.toString() ?? '';
               if (text.isEmpty) return 0.0;
@@ -319,7 +328,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = ((data) => builder(data).map((c) => c.text).where((s) => s != null && s.isNotEmpty).join(', ')),
+  })  : estimatedHeight = null,
+        map = ((data) => builder(data).map((c) => c.text).where((s) => s != null && s.isNotEmpty).join(', ')),
         widthEstimator = widthEstimator ??
             ((data) {
               final items = builder(data);
@@ -393,7 +403,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = map,
+  })  : estimatedHeight = null,
+        map = map,
         widthEstimator = widthEstimator ?? ((_) => 85.0),
         builder = ((ctx, item, __) {
           final hex = map(item.data);
@@ -426,7 +437,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = map,
+  })  : estimatedHeight = null,
+        map = map,
         widthEstimator = widthEstimator ?? ((_) => itemCount * itemSize + (itemCount > 1 ? (itemCount - 1) * spacing : 0.0) + 4.0),
         builder = ((ctx, item, __) {
           final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
@@ -472,7 +484,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = map,
+  })  : estimatedHeight = null,
+        map = map,
         widthEstimator = widthEstimator ??
             _defaultProgressWidthEstimator(
               map: map,
@@ -545,7 +558,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = null,
+  })  : estimatedHeight = null,
+        map = null,
         builder = ((ctx, item, __) {
           final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
           final widgets = builder(item.data);
@@ -582,7 +596,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = null,
+  })  : estimatedHeight = 36,
+        map = null,
         builder = ((ctx, item, __) {
           final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
           final widgets = builder(item.data);
@@ -672,7 +687,8 @@ class TTableHeader<T, K> {
     this.filterItems,
     this.filterDef,
     double Function(T data)? widthEstimator,
-  })  : map = null,
+  })  : estimatedHeight = 36,
+        map = null,
         keyValuesBuilder = builder,
         widthEstimator = widthEstimator ??
             ((data) {
@@ -788,7 +804,8 @@ class TTableHeader<T, K> {
     this.filterItems,
     this.filterDef,
     double Function(T data)? widthEstimator,
-  })  : map = null,
+  })  : estimatedHeight = 36,
+        map = null,
         keyValuesBuilder = builder,
         widthEstimator = widthEstimator ??
             ((data) {
@@ -934,7 +951,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = title,
+  })  : estimatedHeight = 40,
+        map = title,
         widthEstimator = widthEstimator ??
             ((data) {
               final t = title(data);
@@ -1013,7 +1031,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  }) : builder = ((_, item, __) {
+  })  : estimatedHeight = null,
+        builder = ((_, item, __) {
           final value = map?.call(item.data)?.toString();
           if (value.isNullOrBlank) return SizedBox.shrink();
 
@@ -1045,7 +1064,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = get,
+  })  : estimatedHeight = null,
+        map = get,
         widthEstimator = widthEstimator ?? ((_) => 48.0),
         builder = ((ctx, item, __) {
           final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
@@ -1079,7 +1099,8 @@ class TTableHeader<T, K> {
     this.showInDetails = false,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = null,
+  })  : estimatedHeight = null,
+        map = null,
         key = null,
         filterType = null,
         filterable = false,
@@ -1162,7 +1183,8 @@ class TTableHeader<T, K> {
     this.showInDetails = true,
     this.mobileKeyPrefixBuilder,
     this.keyValuesBuilder,
-  })  : map = get,
+  })  : estimatedHeight = null,
+        map = get,
         builder = ((ctx, item, index) {
           final cellScope = TTableCellScope.maybeScopeOf(ctx);
           final activeCursor = cellScope?.activeCellNotifier ?? TTableCellScope.maybeOf(ctx);
@@ -1578,7 +1600,8 @@ class TTableHeader<T, K> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
           ),
-          child: TIcon.raw(HugeIcons.strokeRoundedMoreVertical,
+          child: TIcon.raw(
+            HugeIcons.strokeRoundedMoreVertical,
             size: isDense ? 16 : 18,
             color: ctx.colors.onSurfaceVariant,
           ),
@@ -1609,6 +1632,7 @@ class _TStackedTableHeader<T, K> extends TTableHeader<T, K> {
     super.showInDetails,
     super.mobileKeyPrefixBuilder,
   }) : super(
+          estimatedHeight: rowHeight * 2,
           filterable: false,
           builder: (ctx, item, _) {
             final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;

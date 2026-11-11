@@ -22,16 +22,8 @@ class TScanBuffer {
   Duration? _lastKeyAt;
 
   /// Creates a scan buffer.
-  TScanBuffer({
-    this.maxKeyGap = const Duration(milliseconds: 100),
-    this.minLength = 3,
-    Set<LogicalKeyboardKey>? terminators,
-  }) : terminators = terminators ??
-            {
-              LogicalKeyboardKey.enter,
-              LogicalKeyboardKey.numpadEnter,
-              LogicalKeyboardKey.tab,
-            };
+  TScanBuffer({this.maxKeyGap = const Duration(milliseconds: 100), this.minLength = 3, Set<LogicalKeyboardKey>? terminators})
+    : terminators = terminators ?? {LogicalKeyboardKey.enter, LogicalKeyboardKey.numpadEnter, LogicalKeyboardKey.tab};
 
   /// Feeds a key event. Returns the completed barcode when [event] is a
   /// terminator ending a valid scan, otherwise `null`.

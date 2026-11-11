@@ -149,7 +149,12 @@ class CardPage extends StatelessWidget {
               children: [
                 sample(
                   'Compact tile',
-                  TTile.h5(icon: HugeIcons.strokeRoundedAnalytics01, iconColor: t.info, title: 'Analytics', subtitle: 'Updated 2m ago').card(),
+                  TTile.h5(
+                    icon: HugeIcons.strokeRoundedAnalytics01,
+                    iconColor: t.info,
+                    title: 'Analytics',
+                    subtitle: 'Updated 2m ago',
+                  ).card(),
                   width: 260,
                 ),
                 sample(

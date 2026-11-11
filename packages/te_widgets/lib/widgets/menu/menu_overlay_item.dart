@@ -2,11 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/helpers/popup_position.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
+import 'package:te_widgets/widgets/image/image.dart';
 import 'package:te_widgets/widgets/menu/menu_item_data.dart';
 import 'package:te_widgets/widgets/menu/menu_theme.dart';
 import 'package:te_widgets/widgets/menu/menu_overlay_controller.dart';
 import 'package:te_widgets/widgets/menu/menu_overlay_panel.dart';
 import 'package:hugeicons/hugeicons.dart';
+
 /// A single row inside an open [TMenuOverlayPanel]. If the item has
 /// visible children, hovering/tapping it opens another panel to the side
 /// via its own [OverlayPortalController], positioned with the same
@@ -202,9 +204,7 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
             width: double.infinity,
             padding: widget.theme.itemPadding,
             decoration: BoxDecoration(
-              color: widget.isActive
-                  ? widget.theme.activeBackgroundColor
-                  : (_isHovered ? widget.theme.hoverBackgroundColor : null),
+              color: widget.isActive ? widget.theme.activeBackgroundColor : (_isHovered ? widget.theme.hoverBackgroundColor : null),
               borderRadius: widget.theme.itemBorderRadius,
             ),
             child: Opacity(
@@ -220,7 +220,15 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
   Widget _buildContent(Color color) {
     return Row(
       children: [
-        if (widget.item.icon != null) ...[
+        if (widget.item.imageUrl != null) ...[
+          TImage.circle(
+            size: widget.theme.iconSize * 2,
+            url: widget.item.imageUrl,
+            disabled: true,
+            color: color.withAlpha(50),
+          ),
+          if (widget.item.text != null) SizedBox(width: widget.theme.gap),
+        ] else if (widget.item.icon != null) ...[
           TIcon(icon: widget.item.icon, size: widget.theme.iconSize, color: color),
           if (widget.item.text != null) SizedBox(width: widget.theme.gap),
         ],

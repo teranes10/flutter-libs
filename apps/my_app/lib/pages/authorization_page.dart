@@ -39,26 +39,29 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
-            children: [
-              for (final p in _all) FilterChip(label: Text(p), selected: _granted.contains(p), onSelected: (v) => _toggle(p, v)),
-            ],
+            children: [for (final p in _all) FilterChip(label: Text(p), selected: _granted.contains(p), onSelected: (v) => _toggle(p, v))],
           ),
           const SizedBox(height: 24),
           Text('Buttons (denied: disabled by default, hide on request)', style: context.textTheme.titleMedium),
           const SizedBox(height: 8),
-          Wrap(spacing: 8, children: [
-            TButton(text: 'Edit', permission: 'orders.edit', onTap: () {}),
-            TButton(text: 'Delete (hide)', permission: 'orders.delete', onDenied: TAuthMode.hide, onTap: () {}),
-            TButton(text: 'Any of', permission: const TPermission.any(['orders.edit', 'reports.view']), onTap: () {}),
-          ]),
+          Wrap(
+            spacing: 8,
+            children: [
+              TButton(text: 'Edit', permission: 'orders.edit', onTap: () {}),
+              TButton(text: 'Delete (hide)', permission: 'orders.delete', onDenied: TAuthMode.hide, onTap: () {}),
+              TButton(text: 'Any of', permission: const TPermission.any(['orders.edit', 'reports.view']), onTap: () {}),
+            ],
+          ),
           const SizedBox(height: 24),
           Text('Button group', style: context.textTheme.titleMedium),
           const SizedBox(height: 8),
-          TButtonGroup(items: [
-            TButtonGroupItem(text: 'View', permission: 'orders.view', onTap: () {}),
-            TButtonGroupItem(text: 'Edit', permission: 'orders.edit', onTap: () {}),
-            TButtonGroupItem(text: 'Delete', permission: 'orders.delete', onDenied: TAuthMode.hide, onTap: () {}),
-          ]),
+          TButtonGroup(
+            items: [
+              TButtonGroupItem(text: 'View', permission: 'orders.view', onTap: () {}),
+              TButtonGroupItem(text: 'Edit', permission: 'orders.edit', onTap: () {}),
+              TButtonGroupItem(text: 'Delete', permission: 'orders.delete', onDenied: TAuthMode.hide, onTap: () {}),
+            ],
+          ),
           const SizedBox(height: 24),
           Text('Tabs (denied: hidden)', style: context.textTheme.titleMedium),
           const SizedBox(height: 8),

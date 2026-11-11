@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+
 /// A banner displaying error messages
 class TErrorBuilder extends StatelessWidget {
   final TError error;

@@ -164,6 +164,12 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Builder for content before the list items.
   final WidgetBuilder? beforeItemsBuilder;
 
+  /// Returns a remembered measurement for the given layout and width, used for the first page-size estimate.
+  final TItemHeightSample? Function(bool isCardView, bool dense, double width)? rowHeightHint;
+
+  /// Reports the measured item height and chrome of a layout at a width so they can be remembered and returned from [rowHeightHint].
+  final void Function(bool isCardView, bool dense, double width, double item, double chrome)? onRowHeightMeasured;
+
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
@@ -208,6 +214,8 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.mobileCardBuilder,
     this.dense,
     this.optionalPaginationBar,
+    this.rowHeightHint,
+    this.onRowHeightMeasured,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -291,6 +299,8 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
         rowColorBuilder: widget.rowColorBuilder,
         mobileCardBuilder: widget.mobileCardBuilder,
         beforeItemsBuilder: widget.beforeItemsBuilder,
+        rowHeightHint: widget.rowHeightHint,
+        onRowHeightMeasured: widget.onRowHeightMeasured,
         selectableText: widget.selectableText,
       );
     });

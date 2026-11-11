@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:te_widgets/widgets/result/result.dart';
 
 import 'auth_controller.dart';
 import 'auth_mode.dart';
@@ -21,5 +22,22 @@ class TAuthGate extends StatelessWidget {
     if (result.isAllowed) return child;
     if (result.isHidden) return const SizedBox.shrink();
     return IgnorePointer(child: Opacity(opacity: 0.45, child: child));
+  }
+}
+
+/// Guards a whole page: shows [child] when [permission] is granted, otherwise an "access denied" result.
+///
+/// `TSidebarItem.permission` hides the menu entry; this stops the same page being opened by its address.
+/// `toGoRoutes()` wraps every routed item that has a permission in it.
+class TAuthRouteGuard extends StatelessWidget {
+  final Object? permission;
+  final Widget child;
+
+  const TAuthRouteGuard({super.key, required this.permission, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (context.authResolve(permission, target: TAuthTarget.sidebarItem).isAllowed) return child;
+    return const TResult.forbidden(title: 'Access denied', subtitle: 'Your role does not include access to this page.');
   }
 }

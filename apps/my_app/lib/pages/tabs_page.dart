@@ -425,84 +425,84 @@ TTabs<int>(
             description: 'Tabs that wrap to multiple lines when space is limited',
             icon: HugeIcons.strokeRoundedTextWrap,
             preview: TTabView<String>(
-                tabs: [
-                  TTab(
-                    value: 'all',
-                    text: 'All Items',
-                    content: (context) => Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
-                        child: Text('Showing all items', style: TextStyle(color: context.colors.onSurface)),
-                      ),
+              tabs: [
+                TTab(
+                  value: 'all',
+                  text: 'All Items',
+                  content: (context) => Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      child: Text('Showing all items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
-                  TTab(
-                    value: 'active',
-                    text: 'Active',
-                    isActive: true,
-                    content: (context) => Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
-                        child: Text('Showing active items', style: TextStyle(color: context.colors.onSurface)),
-                      ),
+                ),
+                TTab(
+                  value: 'active',
+                  text: 'Active',
+                  isActive: true,
+                  content: (context) => Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      child: Text('Showing active items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
-                  TTab(
-                    value: 'pending',
-                    text: 'Pending',
-                    content: (context) => Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
-                        child: Text('Showing pending items', style: TextStyle(color: context.colors.onSurface)),
-                      ),
+                ),
+                TTab(
+                  value: 'pending',
+                  text: 'Pending',
+                  content: (context) => Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      child: Text('Showing pending items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
-                  TTab(
-                    value: 'completed',
-                    text: 'Completed',
-                    content: (context) => Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
-                        child: Text('Showing completed items', style: TextStyle(color: context.colors.onSurface)),
-                      ),
+                ),
+                TTab(
+                  value: 'completed',
+                  text: 'Completed',
+                  content: (context) => Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      child: Text('Showing completed items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
-                  TTab(
-                    value: 'archived',
-                    text: 'Archived',
-                    content: (context) => Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
-                        child: Text('Showing archived items', style: TextStyle(color: context.colors.onSurface)),
-                      ),
+                ),
+                TTab(
+                  value: 'archived',
+                  text: 'Archived',
+                  content: (context) => Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      child: Text('Showing archived items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
-                  TTab(
-                    value: 'deleted',
-                    text: 'Deleted',
-                    content: (context) => Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
-                        child: Text('Showing deleted items', style: TextStyle(color: context.colors.onSurface)),
-                      ),
+                ),
+                TTab(
+                  value: 'deleted',
+                  text: 'Deleted',
+                  content: (context) => Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      child: Text('Showing deleted items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
-                ],
-                inline: true,
-                wrap: true,
-              ),
+                ),
+              ],
+              inline: true,
+              wrap: true,
+            ),
             code: '''TTabs<String>(
   tabs: [
     TTab(value: 'all', text: 'All Items'),
@@ -606,7 +606,11 @@ TTabs<int>(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (tab.icon != null) ...[
-                              TIcon.raw(tab.icon, size: 18, color: isSelected ? context.colors.onPrimaryContainer : context.colors.onSurface),
+                              TIcon.raw(
+                                tab.icon,
+                                size: 18,
+                                color: isSelected ? context.colors.onPrimaryContainer : context.colors.onSurface,
+                              ),
                               const SizedBox(width: 8),
                             ],
                             Text(
@@ -1058,8 +1062,18 @@ TTabs<int>(
   ],
 )''',
             properties: const [
-              PropertyDoc(name: 'style', type: 'TTabStyle', defaultValue: 'TTabStyle.underline', description: 'Use TTabStyle.segmented for the pill-in-a-track look (horizontal only)'),
-              PropertyDoc(name: 'inline', type: 'bool', defaultValue: 'false', description: 'Required for segmented so the track hugs the tabs'),
+              PropertyDoc(
+                name: 'style',
+                type: 'TTabStyle',
+                defaultValue: 'TTabStyle.underline',
+                description: 'Use TTabStyle.segmented for the pill-in-a-track look (horizontal only)',
+              ),
+              PropertyDoc(
+                name: 'inline',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Required for segmented so the track hugs the tabs',
+              ),
               PropertyDoc(name: 'fill', type: 'bool', defaultValue: 'false', description: 'Share the width evenly between segments'),
             ],
           ),

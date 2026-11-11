@@ -17,9 +17,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: theme,
-        home: const Scaffold(
-          body: ResultsPage(),
-        ),
+        home: const Scaffold(body: ResultsPage()),
       ),
     );
     await tester.pumpAndSettle();

@@ -9,12 +9,14 @@ void main() {
     tester.view.physicalSize = const Size(400, 800);
     tester.view.devicePixelRatio = 1;
     router.go('/data-management/crud-hierarchy');
-    await tester.pumpWidget(ProviderScope(
-      child: MaterialApp.router(
-        theme: TAppTheme.defaultTheme(primary: Colors.blue).lightTheme,
-        routerConfig: router,
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp.router(
+          theme: TAppTheme.defaultTheme(primary: Colors.blue).lightTheme,
+          routerConfig: router,
+        ),
       ),
-    ));
+    );
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.text('Electronics & Gadgets'));
     for (var i = 0; i < 5; i++) {

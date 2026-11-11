@@ -69,6 +69,10 @@ class TTableMobileCard<T, K> extends StatelessWidget {
   /// Custom background color for the card.
   final Color? backgroundColor;
 
+  /// Renders only the card content, without the card surface, margin or built-in tree chevron/indent.
+  /// Used inside a [TTreeCard] which supplies the surface and the tree connectors.
+  final bool bare;
+
   /// Creates a mobile table card.
   const TTableMobileCard({
     super.key,
@@ -96,6 +100,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     this.onSelectionChanged,
     this.onTap,
     this.backgroundColor,
+    this.bare = false,
   });
 
   dynamic _getDetailExpandIcon(TTableExpansionMode mode, bool isExpanded) {
@@ -133,7 +138,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
       left: wTheme.margin.left + indentWidth,
     );
 
-    final isTreeMode = (controller?.isHierarchical ?? false) || item.level > 0 || item.hasChildren;
+    final isTreeMode = !bare && ((controller?.isHierarchical ?? false) || item.level > 0 || item.hasChildren);
 
     final mappedKeyValues = TKeyValue.mapHeaders(context, headers, item, index);
     if (isTreeMode && mappedKeyValues.isNotEmpty) {
@@ -180,6 +185,9 @@ class TTableMobileCard<T, K> extends StatelessWidget {
       );
     }
 
+    final content = _buildContent(context, wTheme, colors, mappedKeyValues, isDense);
+    if (bare) return content;
+
     return TCard(
       margin: cardMargin,
       elevation: wTheme.elevation,
@@ -191,48 +199,53 @@ class TTableMobileCard<T, K> extends StatelessWidget {
       hoverColor: colors.onSurface.withAlpha(12),
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: wTheme.padding,
-            child: TKeyValueSection(
-              theme: wTheme,
-              mode: wTheme.mode,
-              values: [
-                if (selectable)
-                  TKeyValue(
-                    "",
-                    widget: TCheckbox(
-                      value: isSelected,
-                      onValueChanged: (value) => onSelectionChanged?.call(),
-                    ),
-                    alignment: Alignment.topLeft,
+      child: content,
+    );
+  }
+
+  Widget _buildContent(
+      BuildContext context, TTableMobileCardTheme wTheme, ColorScheme colors, List<TKeyValue> mappedKeyValues, bool isDense) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: wTheme.padding,
+          child: TKeyValueSection(
+            theme: wTheme,
+            mode: wTheme.mode,
+            values: [
+              if (selectable)
+                TKeyValue(
+                  "",
+                  widget: TCheckbox(
+                    value: isSelected,
+                    onValueChanged: (value) => onSelectionChanged?.call(),
                   ),
-                ...mappedKeyValues,
-                if (expandable && showExpandIcon)
-                  TKeyValue(
-                    "",
-                    widget: Builder(builder: (context) {
-                      return TIcon(
-                        icon: _getDetailExpandIcon(expansionMode, isDetailExpanded),
-                        size: isDense ? 18 : 20,
-                        color: colors.onSurfaceVariant,
-                        background: colors.surfaceContainerLow,
-                        padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
-                        borderRadius: BorderRadius.circular(20),
-                        active: isDetailExpanded,
-                        onTap: onExpansionChanged,
-                      );
-                    }),
-                    alignment: Alignment.bottomRight,
-                  )
-              ],
-            ),
+                  alignment: Alignment.topLeft,
+                ),
+              ...mappedKeyValues,
+              if (expandable && showExpandIcon)
+                TKeyValue(
+                  "",
+                  widget: Builder(builder: (context) {
+                    return TIcon(
+                      icon: _getDetailExpandIcon(expansionMode, isDetailExpanded),
+                      size: isDense ? 18 : 20,
+                      color: colors.onSurfaceVariant,
+                      background: colors.surfaceContainerLow,
+                      padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
+                      borderRadius: BorderRadius.circular(20),
+                      active: isDetailExpanded,
+                      onTap: onExpansionChanged,
+                    );
+                  }),
+                  alignment: Alignment.bottomRight,
+                )
+            ],
           ),
-          if (isDetailExpanded && !expandSide && expandedContent != null) Padding(padding: wTheme.padding, child: expandedContent!),
-        ],
-      ),
+        ),
+        if (isDetailExpanded && !expandSide && expandedContent != null) Padding(padding: wTheme.padding, child: expandedContent!),
+      ],
     );
   }
 }

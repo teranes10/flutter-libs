@@ -222,8 +222,8 @@ class TFormField<T> {
     );
   }
 
-  static TFormField<DateTime> date(
-    TFieldProp<DateTime> prop,
+  static TFormField<T> date<T extends DateTime?>(
+    TFieldProp<T> prop,
     String? label, {
     String? tag,
     String? placeholder,
@@ -245,7 +245,7 @@ class TFormField<T> {
     DateTime? firstDate,
     DateTime? lastDate,
   }) {
-    return TFormField<DateTime>(
+    return TFormField<T>(
       prop: prop,
       builder: (onValueChanged) => TDatePicker(
         label: label,
@@ -270,7 +270,7 @@ class TFormField<T> {
         lastDate: lastDate,
         value: prop.value,
         valueNotifier: prop.valueNotifier,
-        onValueChanged: onValueChanged,
+        onValueChanged: (v) => onValueChanged(v as T?),
       ),
     );
   }
@@ -324,8 +324,8 @@ class TFormField<T> {
     );
   }
 
-  static TFormField<DateTime> dateTime(
-    TFieldProp<DateTime> prop,
+  static TFormField<T> dateTime<T extends DateTime?>(
+    TFieldProp<T> prop,
     String? label, {
     String? tag,
     String? placeholder,
@@ -347,7 +347,7 @@ class TFormField<T> {
     DateTime? firstDate,
     DateTime? lastDate,
   }) {
-    return TFormField<DateTime>(
+    return TFormField<T>(
       prop: prop,
       builder: (onValueChanged) => TDateTimePicker(
         label: label,
@@ -372,7 +372,7 @@ class TFormField<T> {
         lastDate: lastDate,
         value: prop.value,
         valueNotifier: prop.valueNotifier,
-        onValueChanged: onValueChanged,
+        onValueChanged: (v) => onValueChanged(v as T?),
       ),
     );
   }

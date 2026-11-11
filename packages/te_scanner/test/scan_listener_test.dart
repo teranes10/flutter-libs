@@ -4,11 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:te_scanner/te_scanner.dart';
 
 KeyDownEvent _key(LogicalKeyboardKey key, String? char, int ms) => KeyDownEvent(
-      physicalKey: PhysicalKeyboardKey.keyA,
-      logicalKey: key,
-      character: char,
-      timeStamp: Duration(milliseconds: ms),
-    );
+  physicalKey: PhysicalKeyboardKey.keyA,
+  logicalKey: key,
+  character: char,
+  timeStamp: Duration(milliseconds: ms),
+);
 
 void main() {
   group('TScanBuffer', () {
@@ -49,7 +49,12 @@ void main() {
     testWidgets('delivers a wedge scan when no text field is focused', (tester) async {
       final scans = <String>[];
       await tester.pumpWidget(
-        MaterialApp(home: TScanListener(onScan: scans.add, child: const Scaffold(body: Text('screen')))),
+        MaterialApp(
+          home: TScanListener(
+            onScan: scans.add,
+            child: const Scaffold(body: Text('screen')),
+          ),
+        ),
       );
 
       for (final c in 'SKU12345'.split('')) {

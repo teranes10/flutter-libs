@@ -65,7 +65,11 @@ class TBreadcrumbs extends StatelessWidget {
       // A parameterized route is only navigable up to its static prefix.
       final route = hasPage ? raw?.split('/').takeWhile((s) => !s.startsWith(':')).join('/') : null;
       if (route != null) consumed = route;
-      crumbs.add((label: entry[TRouteMeta.title] as String? ?? raw?.split('/').last.capitalize() ?? '', route: route, icon: entry[TRouteMeta.icon]));
+      crumbs.add((
+        label: entry[TRouteMeta.title] as String? ?? raw?.split('/').last.capitalize() ?? '',
+        route: route,
+        icon: entry[TRouteMeta.icon]
+      ));
     }
 
     // Segments the route pattern captured (e.g. `:path(.*)`) become extra crumbs.

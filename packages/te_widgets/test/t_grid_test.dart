@@ -4,7 +4,9 @@ import 'package:te_widgets/te_widgets.dart';
 
 Widget _host(Widget child, {double width = 700}) => MaterialApp(
       builder: (context, home) => MediaQuery(data: MediaQueryData(size: Size(width, 800)), child: home!),
-      home: Scaffold(body: Align(alignment: Alignment.topLeft, child: SizedBox(width: width, child: Align(alignment: Alignment.topLeft, child: child)))),
+      home: Scaffold(
+          body:
+              Align(alignment: Alignment.topLeft, child: SizedBox(width: width, child: Align(alignment: Alignment.topLeft, child: child)))),
     );
 
 List<Widget> _tiles() => const [

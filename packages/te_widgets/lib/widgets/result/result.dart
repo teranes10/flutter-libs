@@ -3,6 +3,7 @@ import 'package:te_widgets/configs/theme/app_colors.dart';
 import 'package:te_widgets/extensions/build_context_x.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
 import 'package:hugeicons/hugeicons.dart';
+
 /// Semantic outcome status for [TResult].
 enum TResultStatus {
   success,

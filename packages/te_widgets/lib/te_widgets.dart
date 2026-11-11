@@ -300,6 +300,7 @@ export 'widgets/command-palette/command_palette.dart';
 export 'widgets/context-menu/context_menu.dart';
 
 export 'widgets/tree-view/tree_view.dart';
+export 'widgets/tree-card/tree_card.dart';
 export 'widgets/result/result.dart';
 export 'widgets/pin-field/pin_field.dart';
 

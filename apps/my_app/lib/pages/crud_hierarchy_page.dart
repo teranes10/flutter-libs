@@ -26,13 +26,8 @@ class CrudHierarchyPage extends StatelessWidget {
       itemChildren: (x) => x.children,
       createForm: () => CategoryForm(),
       editForm: (item) => CategoryForm(item),
-      onCreate: (form) async => CategoryTreeItem(
-        id: 'cat-${_categoryId++}',
-        name: form.name.value,
-        code: form.code.value,
-        itemCount: 0,
-        status: 'Active',
-      ),
+      onCreate: (form) async =>
+          CategoryTreeItem(id: 'cat-${_categoryId++}', name: form.name.value, code: form.code.value, itemCount: 0, status: 'Active'),
       onEdit: (item, form) async => CategoryTreeItem(
         id: item.id,
         name: form.name.value,

@@ -56,6 +56,9 @@ class TKeyValueSection extends StatelessWidget {
   final bool? removeEmpty;
   final bool? selectable;
 
+  /// Draws vertical separators between items in the same row of grid layouts.
+  final bool? showLeftBorder;
+
   const TKeyValueSection({
     super.key,
     required this.values,
@@ -71,6 +74,7 @@ class TKeyValueSection extends StatelessWidget {
     this.inlineKeyAlignment,
     this.removeEmpty,
     this.selectable,
+    this.showLeftBorder,
     this.hSpacing,
     this.vSpacing,
     this.gap,
@@ -223,6 +227,7 @@ class TKeyValueSection extends StatelessWidget {
       gap: gap,
       removeEmpty: removeEmpty,
       selectable: selectable,
+      showLeftBorder: showLeftBorder,
     );
 
     final shouldRemoveEmpty = wTheme.removeEmpty;
@@ -586,21 +591,21 @@ class _GridCell extends StatelessWidget {
       final keyText = kv.key.isNullOrBlank
           ? null
           : hasKeyMaxWidth
-          ? Flexible(
-              child: Text(
-                '${kv.key}:',
-                style: theme.keyStyle,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-              ),
-            )
-          : Text(
-              '${kv.key}:',
-              style: theme.keyStyle,
-              maxLines: 1,
-              softWrap: false,
-            );
+              ? Flexible(
+                  child: Text(
+                    '${kv.key}:',
+                    style: theme.keyStyle,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )
+              : Text(
+                  '${kv.key}:',
+                  style: theme.keyStyle,
+                  maxLines: 1,
+                  softWrap: false,
+                );
 
       final keyContent = Row(
         mainAxisSize: MainAxisSize.min,

@@ -1,14 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
-import 'package:te_widgets/configs/theme/app_colors.dart';
-import 'package:te_widgets/enum/size.dart';
-import 'package:te_widgets/extensions/build_context_x.dart';
-import 'package:te_widgets/helpers/popup_position.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'package:te_widgets/widgets/button/button.dart';
-import 'package:te_widgets/widgets/icon/icon.dart';
-import 'package:te_widgets/widgets/popover/popover.dart';
 
 /// A specialized confirmation popover anchored directly to a trigger action.
 ///

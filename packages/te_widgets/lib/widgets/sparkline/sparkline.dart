@@ -318,10 +318,7 @@ class TTrendIndicator extends StatelessWidget {
               textWidget,
             if (labelWidget != null) ...[
               const SizedBox(width: 6),
-              if (isFinite)
-                Flexible(child: labelWidget)
-              else
-                labelWidget,
+              if (isFinite) Flexible(child: labelWidget) else labelWidget,
             ],
           ],
         );

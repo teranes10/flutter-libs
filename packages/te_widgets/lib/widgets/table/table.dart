@@ -128,6 +128,12 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Builder for content before the list items.
   final WidgetBuilder? beforeItemsBuilder;
 
+  /// Returns a remembered measurement for the given layout and width, used for the first page-size estimate.
+  final TItemHeightSample? Function(bool isCardView, bool dense, double width)? rowHeightHint;
+
+  /// Reports the measured item height and chrome of a layout at a width so they can be remembered and returned from [rowHeightHint].
+  final void Function(bool isCardView, bool dense, double width, double item, double chrome)? onRowHeightMeasured;
+
   /// Custom builder for the row background color.
   final Color? Function(TListItem<T, K> item, int index)? rowColorBuilder;
 
@@ -183,6 +189,8 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.rowColorBuilder,
     this.mobileCardBuilder,
     this.beforeItemsBuilder,
+    this.rowHeightHint,
+    this.onRowHeightMeasured,
   }) : assert(
           theme == null ||
               (grid == null &&
@@ -265,6 +273,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   bool? _cachedMeasurementsSelectable;
   bool? _cachedMeasurementsExpandable;
   int? _cachedMeasurementsMaxLevel;
+  double? _cachedMeasurementsIndent;
   bool? _cachedMeasurementsIsHierarchical;
   List<TListItem<T, K>>? _cachedMeasurementsForItems;
 
@@ -287,6 +296,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return true;
   }
 
+  double get _treeIndent => TTreeCard.indentOf(context);
+
   TTableColumnMeasurements _getMeasurements() {
     final headers = _effectiveHeaders;
     final selectable = listController.selectable;
@@ -301,6 +312,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         _cachedMeasurementsSelectable == selectable &&
         _cachedMeasurementsExpandable == expandable &&
         _cachedMeasurementsMaxLevel == maxLevel &&
+        _cachedMeasurementsIndent == _treeIndent &&
         _cachedMeasurementsIsHierarchical == isHierarchical &&
         _itemsEquals(_cachedMeasurementsForItems, displayItems)) {
       return _cachedMeasurements!;
@@ -316,6 +328,9 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       sampleItems: sampleItems,
       headerTextStyle: wTheme.headerTheme.textStyle,
       contentTextStyle: wTheme.rowCardTheme.contentTextStyle,
+      // The first column holds the tree indent: one TTreeCard level + the chevron slot.
+      treeIndentPerLevel: _nestRowTree ? _treeIndent : 16.0,
+      treeBaseWidth: _nestRowTree ? TTreeCard.chevronWidth : 36.0,
     );
 
     _cachedMeasurements = measurements;
@@ -323,6 +338,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     _cachedMeasurementsSelectable = selectable;
     _cachedMeasurementsExpandable = expandable;
     _cachedMeasurementsMaxLevel = maxLevel;
+    _cachedMeasurementsIndent = _treeIndent;
     _cachedMeasurementsIsHierarchical = isHierarchical;
     _cachedMeasurementsForItems = List<TListItem<T, K>>.of(displayItems);
     return measurements;
@@ -514,10 +530,22 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     required Widget Function(BuildContext ctx) headerContent,
     required Widget Function(BuildContext ctx, TListItem<T, K> item, int index) itemBuilder,
     required double gap,
+    bool nestDescendants = false,
+    required bool isCardView,
   }) {
+    // Descendants are drawn inside their root's TTreeCard, so they take no separator gap.
+    Widget separator(BuildContext ctx, int index) {
+      final display = listController.value.displayItems;
+      if (nestDescendants && index + 1 < display.length && display[index + 1].level > 0) return const SizedBox.shrink();
+      return SizedBox(height: gap);
+    }
+
     return TList<T, K>(
+      estimatedItemHeight: isCardView ? null : _estimatedRowHeight(),
+      itemHeightHint: (w) => widget.rowHeightHint?.call(isCardView, wTheme.dense ?? false, w),
+      onItemHeightMeasured: (w, item, chrome) => widget.onRowHeightMeasured?.call(isCardView, wTheme.dense ?? false, w, item, chrome),
       theme: wTheme.copyWith(
-        listSeparatorBuilder: wTheme.listSeparatorBuilder ?? (gap > 0 ? (ctx, index) => SizedBox(height: gap) : null),
+        listSeparatorBuilder: wTheme.listSeparatorBuilder ?? (gap > 0 ? separator : null),
         headerBuilder: (ctx) => _wrapWithFocusDimmer(ctx, headerContent(ctx)),
         footerBuilder: wTheme.footerBuilder == null ? null : (ctx) => _wrapWithFocusDimmer(ctx, wTheme.footerBuilder!(ctx)),
       ),
@@ -534,11 +562,26 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     );
   }
 
+  /// Row height guessed from the column types before any row is rendered: plain text, chips and switches keep the
+  /// base height, while image / multi-value columns raise it by their estimated content height.
+  double _estimatedRowHeight() {
+    final dense = wTheme.dense ?? false;
+    double content = 24;
+    for (final h in _effectiveHeaders) {
+      final e = h.estimatedHeight;
+      if (e != null && e > content) content = e;
+    }
+    if (dense) content *= 0.85;
+    return content + wTheme.rowCardTheme.padding.vertical + _rowGap + 2;
+  }
+
   Widget _buildTableView(ColorScheme colors, BoxConstraints constraints) {
     final columnWidths = _getColumnWidths(constraints.maxWidth);
 
     return _buildListScaffold(
       gap: _rowGap,
+      isCardView: false,
+      nestDescendants: _nestRowTree,
       headerContent: (ctx) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -551,13 +594,18 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
               showExpandIcon: _showExpandIcon),
         ],
       ),
-      itemBuilder: (ctx, item, index) => _buildRowCard(columnWidths, ctx, item, index),
+      itemBuilder: (ctx, item, index) {
+        if (!_nestRowTree) return _buildRowCard(columnWidths, ctx, item, index);
+        return item.level > 0 ? const SizedBox.shrink() : _buildRowTree(ctx, item, index, constraints.maxWidth);
+      },
     );
   }
 
   Widget _buildCardView(ColorScheme colors, BoxConstraints constraints) {
     return _buildListScaffold(
       gap: _cardGap,
+      isCardView: true,
+      nestDescendants: _nestMobileTree,
       headerContent: (ctx) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [if (wTheme.headerBuilder != null) wTheme.headerBuilder!(ctx)],
@@ -727,6 +775,129 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     );
   }
 
+  /// Hierarchical lists on the mobile card view render as nested [TTreeCard]s
+  /// (unless a custom [mobileCardBuilder] is supplied).
+  bool get _nestRowTree => listController.isHierarchical;
+
+  bool get _nestMobileTree => listController.isHierarchical && widget.mobileCardBuilder == null;
+
+  Widget _buildMobileTree(BuildContext ctx, TListItem<T, K> item, int index) => _buildTree(
+        ctx,
+        item,
+        index,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        header: (expanded, onRowTap) => TTableMobileCard<T, K>(
+          index: index,
+          item: item,
+          headers: _effectiveHeaders,
+          theme: wTheme.mobileCardTheme,
+          width: wTheme.cardWidth,
+          bare: true,
+          expandable: listController.expandable,
+          showExpandIcon: _showExpandIcon,
+          isExpanded: expanded,
+          isDetailExpanded: _isInlineExpanded(item),
+          expansionMode: effectiveExpansionMode,
+          expandSide: effectiveExpansionMode == TTableExpansionMode.side,
+          onExpansionChanged: () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key),
+          expandedContent: _resolveExpandedContent(ctx, item, index),
+          selectable: listController.selectable,
+          isSelected: listController.isSelected(item.key),
+          onSelectionChanged: () => listController.toggleSelection(item.key),
+          expandIcon: widget.details?.expandIcon,
+          collapseIcon: widget.details?.collapseIcon,
+        ),
+        childBuilder: _buildMobileTree,
+      );
+
+  /// Large-screen row cards render hierarchical lists as nested [TTreeCard]s whose headers
+  /// are the table rows. A nested card is narrower than the table by its tree indent, so the
+  /// columns are resolved for the full table width (identical to the header) and only the first
+  /// column gives up that indent. Every other column keeps its exact width and stays straight.
+  Widget _buildRowTree(BuildContext ctx, TListItem<T, K> item, int index, double maxWidth, {int depth = 0}) {
+    final columnWidths = Map<int, TableColumnWidth>.from(_getColumnWidths(maxWidth));
+    final firstDataColumn = (listController.selectable ? 1 : 0) + (listController.expandable && _showExpandIcon ? 1 : 0);
+    final first = columnWidths[firstDataColumn];
+    if (first is FixedColumnWidth) {
+      final minFirst = _effectiveHeaders.first.minWidth ?? 50;
+      final indent = depth * _treeIndent + TTreeCard.chevronWidth;
+      columnWidths[firstDataColumn] = FixedColumnWidth((first.value - indent).clamp(minFirst, double.infinity));
+    }
+    final rowTheme = wTheme.rowCardTheme;
+    final selected = listController.isSelected(item.key);
+    return _buildTree(
+      ctx,
+      item,
+      index,
+      padding: rowTheme.padding,
+      alignLeaves: true,
+      background: rowTheme.backgroundColor.resolve({if (selected) WidgetState.selected}),
+      header: (expanded, onRowTap) => TTableRowCard<T, K>(
+        index: index,
+        item: item,
+        headers: _effectiveHeaders,
+        theme: rowTheme,
+        width: wTheme.cardWidth,
+        columnWidths: columnWidths,
+        bare: true,
+        expandable: listController.expandable,
+        showExpandIcon: _showExpandIcon,
+        isExpanded: expanded,
+        isDetailExpanded: _isInlineExpanded(item),
+        expansionMode: effectiveExpansionMode,
+        expandSide: effectiveExpansionMode == TTableExpansionMode.side,
+        onExpansionChanged: () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key),
+        expandedContent: _resolveExpandedContent(ctx, item, index),
+        selectable: listController.selectable,
+        isSelected: selected,
+        onSelectionChanged: () => listController.toggleSelection(item.key),
+        expandIcon: widget.details?.expandIcon,
+        collapseIcon: widget.details?.collapseIcon,
+      ),
+      childBuilder: (c, child, childIndex) => _buildRowTree(c, child, childIndex, maxWidth, depth: depth + 1),
+    );
+  }
+
+  Widget _buildTree(
+    BuildContext ctx,
+    TListItem<T, K> item,
+    int index, {
+    required EdgeInsetsGeometry padding,
+    required Widget Function(bool expanded, VoidCallback? onRowTap) header,
+    required Widget Function(BuildContext ctx, TListItem<T, K> child, int index) childBuilder,
+    bool alignLeaves = false,
+    Color? background,
+  }) {
+    final expanded = listController.isExpanded(item.key);
+    final onRowTap = (listController.expandable && _expandOnRowTap)
+        ? () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key)
+        : null;
+    final display = listController.value.displayItems;
+    final children = <Widget>[];
+    if (expanded) {
+      for (final key in item.childrenKeys ?? const <Never>[]) {
+        final child = listController.itemsMap[key];
+        if (child == null) continue;
+        final childIndex = display.indexWhere((x) => x.key == key);
+        children.add(childBuilder(ctx, child, childIndex < 0 ? index : childIndex));
+      }
+    }
+
+    return TTreeCard(
+      key: ValueKey('tree_${item.key}'),
+      padding: padding,
+      backgroundColor: widget.rowColorBuilder?.call(item, index) ?? background,
+      alignLeaves: alignLeaves,
+      centerChevron: !_isInlineExpanded(item),
+      expandable: item.hasChildren,
+      isExpanded: expanded,
+      onExpansionChanged: (_) => listController.toggleExpansion(item.key),
+      onTap: onRowTap,
+      header: header(expanded, onRowTap),
+      children: children,
+    );
+  }
+
   Widget _buildMobileCard(BuildContext ctx, TListItem<T, K> item, int index) {
     if (widget.mobileCardBuilder != null) {
       return widget.mobileCardBuilder!(
@@ -735,6 +906,10 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         index,
         listController.expandable ? () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key) : null,
       );
+    }
+    if (_nestMobileTree) {
+      // Roots render the whole subtree; descendants are skipped by the flat list.
+      return item.level > 0 ? const SizedBox.shrink() : _buildMobileTree(ctx, item, index);
     }
     final onRowTap = (listController.expandable && _expandOnRowTap)
         ? () => _handleExpansionTap(item.key, listController.value.expandedDetailKey != item.key)

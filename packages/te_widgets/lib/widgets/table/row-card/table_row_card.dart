@@ -72,6 +72,10 @@ class TTableRowCard<T, K> extends StatelessWidget {
   final Color? backgroundColor;
 
   /// Creates a table row card.
+  /// Renders only the row cells, without the card surface or built-in tree chevron/indent.
+  /// Used inside a [TTreeCard] which supplies the surface and the tree connectors.
+  final bool bare;
+
   const TTableRowCard({
     super.key,
     required this.index,
@@ -99,6 +103,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
     this.onSelectionChanged,
     this.onTap,
     this.backgroundColor,
+    this.bare = false,
   });
 
   dynamic _getDetailExpandIcon(TTableExpansionMode mode, bool isExpanded) {
@@ -129,7 +134,10 @@ class TTableRowCard<T, K> extends StatelessWidget {
 
     final controller = TTableScope.maybeOf(context)?.controller;
     final isDense = TTableScope.maybeOf(context)?.dense ?? false;
-    final indentWidth = item.level * 16.0;
+    final indentWidth = bare ? 0.0 : item.level * 16.0;
+
+    final content = _buildContent(context, colors, wTheme, controller, isDense, indentWidth);
+    if (bare) return content;
 
     return TCard(
       margin: wTheme.margin,
@@ -142,141 +150,146 @@ class TTableRowCard<T, K> extends StatelessWidget {
       hoverColor: colors.onSurface.withAlpha(12),
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Table(
-            columnWidths: columnWidths,
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            children: [
-              TableRow(children: [
-                if (expandable && showExpandIcon)
-                  Builder(builder: (context) {
-                    return Align(
-                      alignment: Alignment.centerLeft,
-                      child: TIcon(
-                        icon: _getDetailExpandIcon(expansionMode, isDetailExpanded),
-                        size: isDense ? 18 : 20,
-                        padding: isDense ? const EdgeInsets.all(3) : const EdgeInsets.all(6),
-                        color: colors.onSurfaceVariant,
-                        background: colors.surfaceContainerLow,
-                        active: isDetailExpanded,
-                        onTap: onExpansionChanged,
-                      ),
-                    );
-                  }),
-                if (selectable)
-                  Align(
+      child: content,
+    );
+  }
+
+  Widget _buildContent(BuildContext context, ColorScheme colors, TTableRowCardTheme wTheme, TListController<dynamic, dynamic>? controller,
+      bool isDense, double indentWidth) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Table(
+          columnWidths: columnWidths,
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          children: [
+            TableRow(children: [
+              if (expandable && showExpandIcon)
+                Builder(builder: (context) {
+                  return Align(
                     alignment: Alignment.centerLeft,
-                    child: TCheckbox(value: isSelected, onValueChanged: (v) => onSelectionChanged?.call()),
-                  ),
-                ...headers.asMap().entries.map((entry) {
-                  final headerIndex = entry.key;
-                  final header = entry.value;
-
-                  Widget cellWidget = header.builder != null
-                      ? Builder(
-                          builder: (context) => DefaultTextStyle.merge(
-                            style: wTheme.contentTextStyle,
-                            child: header.builder!(context, item, index),
-                          ),
-                        )
-                      : Text(header.getValue(item.data), style: wTheme.contentTextStyle);
-
-                  if (headerIndex == 0) {
-                    final iconSlotWidth = isDense ? 20.0 : 24.0;
-                    final isTreeMode = (controller?.isHierarchical ?? false) || item.level > 0 || item.hasChildren;
-
-                    cellWidget = Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (indentWidth > 0) SizedBox(width: indentWidth),
-                        if (item.hasChildren) ...[
-                          Builder(builder: (ctx) {
-                            final isTreeExpanded = controller?.isExpanded(item.key) ?? false;
-                            final isAutoMode = controller?.expansionMode == TExpansionMode.auto;
-
-                            Widget iconWidget = Padding(
-                              padding: const EdgeInsets.only(top: 1.5),
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () {
-                                  controller?.toggleExpansion(item.key);
-                                },
-                                onDoubleTap: isAutoMode
-                                    ? () {
-                                        controller?.toggleExpandDescendants(item.key);
-                                      }
-                                    : null,
-                                child: TIcon(
-                                  icon: isTreeExpanded ? HugeIcons.strokeRoundedArrowDown01 : HugeIcons.strokeRoundedArrowRight01,
-                                  size: isDense ? 18 : 20,
-                                  padding: const EdgeInsets.all(0),
-                                  color: colors.onSurfaceVariant,
-                                  background: colors.surfaceContainerLow,
-                                  active: isTreeExpanded,
-                                ),
-                              ),
-                            );
-
-                            return iconWidget;
-                          }),
-                          const SizedBox(width: 6),
-                        ] else if (isTreeMode) ...[
-                          SizedBox(width: iconSlotWidth),
-                        ],
-                        Flexible(child: cellWidget),
-                      ],
-                    );
-                  }
-
-                  final isTreeMode = (controller?.isHierarchical ?? false) || item.level > 0 || item.hasChildren;
-                  final treeArrowWidth = item.hasChildren ? 26.0 : (isTreeMode ? (isDense ? 20.0 : 24.0) : 0.0);
-                  final rowTreeExtraWidth = (headerIndex == 0 && isTreeMode) ? (indentWidth + treeArrowWidth) : 0.0;
-                  final cellMinWidth = (header.minWidth ?? 50) + rowTreeExtraWidth;
-                  final cellMaxWidth = (header.maxWidth != null && header.maxWidth != double.infinity)
-                      ? header.maxWidth! + rowTreeExtraWidth
-                      : double.infinity;
-                  final cellKey = "${item.key}_${header.text}";
-                  final cellScope = TTableCellScope.maybeScopeOf(context);
-                  final activeCursor = cellScope?.activeCellNotifier ?? TTableCellScope.maybeOf(context);
-
-                  final cellContainer = Container(
-                    constraints: BoxConstraints(minWidth: cellMinWidth, maxWidth: cellMaxWidth),
-                    padding: header.fullBleedCell ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 5),
-                    alignment: header.alignment ?? Alignment.centerLeft,
-                    child: cellWidget,
+                    child: TIcon(
+                      icon: _getDetailExpandIcon(expansionMode, isDetailExpanded),
+                      size: isDense ? 18 : 20,
+                      padding: isDense ? const EdgeInsets.all(3) : const EdgeInsets.all(6),
+                      color: colors.onSurfaceVariant,
+                      background: colors.surfaceContainerLow,
+                      active: isDetailExpanded,
+                      onTap: onExpansionChanged,
+                    ),
                   );
-
-                  if (activeCursor != null) {
-                    return InkWell(
-                      focusColor: Colors.transparent,
-                      splashColor: Colors.transparent,
-                      onTap: () => activeCursor.value = cellKey,
-                      child: cellContainer,
-                    );
-                  }
-
-                  return cellContainer;
                 }),
-              ])
-            ],
-          ),
-          if (expandable)
-            AnimatedSize(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              child: isDetailExpanded && !expandSide
-                  ? Container(
-                      width: double.infinity,
-                      margin: EdgeInsets.only(top: wTheme.padding.top),
-                      child: expandedContent,
-                    )
-                  : const SizedBox.shrink(),
-            )
-        ],
-      ),
+              if (selectable)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TCheckbox(value: isSelected, onValueChanged: (v) => onSelectionChanged?.call()),
+                ),
+              ...headers.asMap().entries.map((entry) {
+                final headerIndex = entry.key;
+                final header = entry.value;
+
+                Widget cellWidget = header.builder != null
+                    ? Builder(
+                        builder: (context) => DefaultTextStyle.merge(
+                          style: wTheme.contentTextStyle,
+                          child: header.builder!(context, item, index),
+                        ),
+                      )
+                    : Text(header.getValue(item.data), style: wTheme.contentTextStyle);
+
+                if (headerIndex == 0) {
+                  final iconSlotWidth = isDense ? 20.0 : 24.0;
+                  final isTreeMode = !bare && ((controller?.isHierarchical ?? false) || item.level > 0 || item.hasChildren);
+
+                  cellWidget = Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if (indentWidth > 0) SizedBox(width: indentWidth),
+                      if (item.hasChildren && !bare) ...[
+                        Builder(builder: (ctx) {
+                          final isTreeExpanded = controller?.isExpanded(item.key) ?? false;
+                          final isAutoMode = controller?.expansionMode == TExpansionMode.auto;
+
+                          Widget iconWidget = Padding(
+                            padding: const EdgeInsets.only(top: 1.5),
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                controller?.toggleExpansion(item.key);
+                              },
+                              onDoubleTap: isAutoMode
+                                  ? () {
+                                      controller?.toggleExpandDescendants(item.key);
+                                    }
+                                  : null,
+                              child: TIcon(
+                                icon: isTreeExpanded ? HugeIcons.strokeRoundedArrowDown01 : HugeIcons.strokeRoundedArrowRight01,
+                                size: isDense ? 18 : 20,
+                                padding: const EdgeInsets.all(0),
+                                color: colors.onSurfaceVariant,
+                                background: colors.surfaceContainerLow,
+                                active: isTreeExpanded,
+                              ),
+                            ),
+                          );
+
+                          return iconWidget;
+                        }),
+                        const SizedBox(width: 6),
+                      ] else if (isTreeMode) ...[
+                        SizedBox(width: iconSlotWidth),
+                      ],
+                      Flexible(child: cellWidget),
+                    ],
+                  );
+                }
+
+                final isTreeMode = !bare && ((controller?.isHierarchical ?? false) || item.level > 0 || item.hasChildren);
+                final treeArrowWidth = item.hasChildren ? 26.0 : (isTreeMode ? (isDense ? 20.0 : 24.0) : 0.0);
+                final rowTreeExtraWidth = (headerIndex == 0 && isTreeMode) ? (indentWidth + treeArrowWidth) : 0.0;
+                final cellMinWidth = (header.minWidth ?? 50) + rowTreeExtraWidth;
+                final cellMaxWidth = (header.maxWidth != null && header.maxWidth != double.infinity)
+                    ? header.maxWidth! + rowTreeExtraWidth
+                    : double.infinity;
+                final cellKey = "${item.key}_${header.text}";
+                final cellScope = TTableCellScope.maybeScopeOf(context);
+                final activeCursor = cellScope?.activeCellNotifier ?? TTableCellScope.maybeOf(context);
+
+                final cellContainer = Container(
+                  constraints: BoxConstraints(minWidth: cellMinWidth, maxWidth: cellMaxWidth),
+                  padding: header.fullBleedCell ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 5),
+                  alignment: header.alignment ?? Alignment.centerLeft,
+                  child: cellWidget,
+                );
+
+                if (activeCursor != null) {
+                  return InkWell(
+                    focusColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    onTap: () => activeCursor.value = cellKey,
+                    child: cellContainer,
+                  );
+                }
+
+                return cellContainer;
+              }),
+            ])
+          ],
+        ),
+        if (expandable)
+          AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            child: isDetailExpanded && !expandSide
+                ? Container(
+                    width: double.infinity,
+                    margin: EdgeInsets.only(top: wTheme.padding.top),
+                    child: expandedContent,
+                  )
+                : const SizedBox.shrink(),
+          )
+      ],
     );
   }
 }

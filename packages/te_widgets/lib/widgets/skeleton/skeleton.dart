@@ -460,14 +460,10 @@ class _TSkeletonState extends State<TSkeleton> with SingleTickerProviderStateMix
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final baseColor = widget.color ??
-        (isDark
-            ? colors.surfaceContainerHighest.withValues(alpha: 0.45)
-            : colors.surfaceContainerHighest.withValues(alpha: 0.65));
+        (isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.45) : colors.surfaceContainerHighest.withValues(alpha: 0.65));
 
-    final highlightColor = widget.highlightColor ??
-        (isDark
-            ? colors.surfaceContainerHighest.withValues(alpha: 0.8)
-            : colors.surfaceContainerLowest);
+    final highlightColor =
+        widget.highlightColor ?? (isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.8) : colors.surfaceContainerLowest);
 
     return AnimatedBuilder(
       animation: _animation,
@@ -484,9 +480,7 @@ class _TSkeletonState extends State<TSkeleton> with SingleTickerProviderStateMix
             shape: widget.shape,
             borderRadius: widget.shape == BoxShape.circle ? null : (widget.borderRadius ?? BorderRadius.circular(6.0)),
           ),
-          child: widget.child != null
-              ? Opacity(opacity: 0.0, child: widget.child)
-              : null,
+          child: widget.child != null ? Opacity(opacity: 0.0, child: widget.child) : null,
         );
       },
     );

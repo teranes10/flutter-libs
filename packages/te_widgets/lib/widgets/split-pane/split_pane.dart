@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
 import 'package:hugeicons/hugeicons.dart';
+
 /// Controller for [TSplitPane] to programmatically control split ratio and collapse states.
 class TSplitPaneController extends ChangeNotifier {
   double? _ratio;

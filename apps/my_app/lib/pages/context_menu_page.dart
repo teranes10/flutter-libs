@@ -94,7 +94,11 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                       shortcut: '⌘A',
                       onTap: () => _trigger('Selected all items in workspace'),
                     ),
-                    TContextMenuItem(text: 'Canvas Settings', icon: HugeIcons.strokeRoundedFilterEdit, onTap: () => _trigger('Opened Canvas Settings')),
+                    TContextMenuItem(
+                      text: 'Canvas Settings',
+                      icon: HugeIcons.strokeRoundedFilterEdit,
+                      onTap: () => _trigger('Opened Canvas Settings'),
+                    ),
                     const TContextMenuDivider(),
                     TContextMenuItem(
                       text: 'Clear Canvas',

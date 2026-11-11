@@ -72,9 +72,7 @@ class TWatermark extends StatelessWidget {
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final defaultColor = isDark
-        ? Colors.white.withValues(alpha: opacity)
-        : Colors.black.withValues(alpha: opacity);
+    final defaultColor = isDark ? Colors.white.withValues(alpha: opacity) : Colors.black.withValues(alpha: opacity);
 
     final resolvedStyle = (textStyle ??
             TextStyle(

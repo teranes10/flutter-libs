@@ -69,11 +69,7 @@ class _ListsPageState extends State<ListsPage> {
                 shrinkWrap: true,
                 controller: TListController<String, String>(items: _items, reorderable: true),
                 itemBuilder: (context, item, index) {
-                  return ListTile(
-                    key: ValueKey(item.key),
-                    title: Text(item.data),
-                    leading: TIcon.raw(HugeIcons.strokeRoundedDragLeft04),
-                  );
+                  return ListTile(key: ValueKey(item.key), title: Text(item.data), leading: TIcon.raw(HugeIcons.strokeRoundedDragLeft04));
                 },
               ),
               code: '''

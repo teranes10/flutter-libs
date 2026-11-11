@@ -1360,6 +1360,244 @@ TTile(
 
           const SizedBox(height: 24),
 
+          // 4.5b Entity cards with key-value section, dividers & footer
+          WidgetDocCard(
+            title: 'Entity Cards: Key-Value Section, Dividers & Footer',
+            description:
+                'Product / stock cards: a TTile header (image, title, subtitle, trailing status) over a TKeyValueSection with horizontal (valuesDivider) and vertical (valuesColumnDividers) separators, plus a footer for chips and actions. Wrap with .card() for the surface.',
+            icon: HugeIcons.strokeRoundedPackage,
+            preview: Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                SizedBox(
+                  width: 360,
+                  child: TTile.sm(
+                    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200',
+                    title: 'JR Red Rice Flour',
+                    subtitle: 'JR • Flours',
+                    trailing: TChip(text: 'Active', color: theme.success),
+                    valuesMode: TKeyValueMode.stackedFlow,
+                    valuesDivider: true,
+                    valuesColumnDividers: true,
+                    values: [
+                      TKeyValue('Price', value: 'Rs. 180 – Rs. 340'),
+                      TKeyValue('In stock', value: '370'),
+                      TKeyValue.chip('Variants', '2', color: theme.info),
+                      TKeyValue('SKU', value: 'RED-RICE-FLOUR-500G +1'),
+                    ],
+                    footer: TAlignedRow(
+                      left: [
+                        TChip.tonal(text: 'ECOMMERCE', color: theme.info, size: TChipSize.sm),
+                        TChip.tonal(text: 'POS', color: theme.success, size: TChipSize.sm),
+                      ],
+                      right: [
+                        TButton(icon: HugeIcons.strokeRoundedView, size: TButtonSize.xs, type: TButtonType.tonal, onTap: () {}),
+                        TButton(icon: HugeIcons.strokeRoundedEdit02, size: TButtonSize.xs, type: TButtonType.tonal, onTap: () {}),
+                      ],
+                    ),
+                  ).card(padding: const EdgeInsets.all(16)),
+                ),
+                SizedBox(
+                  width: 360,
+                  child: TTile.sm(
+                    imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e4?w=200',
+                    title: 'Main Warehouse (Colombo)',
+                    valuesMode: TKeyValueMode.stackedFlow,
+                    valuesDivider: true,
+                    valuesColumnDividers: true,
+                    values: [
+                      TKeyValue('On hand', value: '148 units'),
+                      TKeyValue('Available', value: '148 units'),
+                      TKeyValue('Reserved', value: '0 units'),
+                      TKeyValue('Unit price', value: 'Rs. 312'),
+                      TKeyValue('Value', value: 'Rs. 46,176'),
+                      TKeyValue.chip('Expiry', 'Oct 28, 2027', color: theme.success),
+                    ],
+                    footer: TAlignedRow(
+                      right: [
+                        TButton(
+                          icon: HugeIcons.strokeRoundedArrowDataTransferHorizontal,
+                          size: TButtonSize.xs,
+                          type: TButtonType.tonal,
+                          onTap: () {},
+                        ),
+                        TButton(
+                          icon: HugeIcons.strokeRoundedSlidersHorizontal,
+                          size: TButtonSize.xs,
+                          type: TButtonType.tonal,
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ).card(padding: const EdgeInsets.all(16)),
+                ),
+              ],
+            ),
+            code: '''TTile.md(
+  imageUrl: 'https://.../flour.jpg',
+  title: 'JR Red Rice Flour',
+  subtitle: 'JR • Flours',
+  trailing: TChip.tonal(text: 'Active', color: context.theme.success, size: TChipSize.sm),
+  valuesMode: TKeyValueMode.stackedFlow,
+  valuesDivider: true,        // line between header and values (and before footer)
+  valuesColumnDividers: true, // vertical separators between columns
+  values: [
+    TKeyValue('Price', value: 'Rs. 180 – Rs. 340'),
+    TKeyValue('In stock', value: '370'),
+    TKeyValue.chip('Variants', '2'),
+    TKeyValue('SKU', value: 'RED-RICE-FLOUR-500G +1'),
+  ],
+  // Never Row: TAlignedRow wraps instead of overflowing on narrow widths.
+  footer: TAlignedRow(
+    left: [TChip.tonal(text: 'ECOMMERCE', size: TChipSize.sm)],   // basic usage: left
+    right: [TButton(icon: HugeIcons.strokeRoundedView, size: TButtonSize.xs, type: TButtonType.tonal, onTap: view)], // special/actions: right
+  ),
+).card(padding: const EdgeInsets.all(20))''',
+            properties: const [
+              PropertyDoc(
+                name: 'valuesDivider',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Horizontal divider between header and values, and before the footer.',
+              ),
+              PropertyDoc(
+                name: 'valuesColumnDividers',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Vertical separators between value columns (flow/column modes).',
+              ),
+              PropertyDoc(
+                name: 'footer',
+                type: 'Widget?',
+                description: 'Widget below the values, e.g. chips on the left and action buttons on the right.',
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // 4.5c Expandable tree cards
+          WidgetDocCard(
+            title: 'Expandable Tree Cards (TTreeCard)',
+            description:
+                'Expandable card whose children hang off a rounded tree connector line. Nest TTreeCard for deeper levels; leaf children are plain tiles wrapped with .card(). Tap the card to expand or collapse.',
+            icon: HugeIcons.strokeRoundedFolderTree,
+            preview: TTreeCard(
+              initiallyExpanded: true,
+              showDots: true,
+              header: TTile.sm(
+                imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e4?w=200',
+                title: 'JR Bengal Gram',
+                subtitle: '2 locations • 2 batches',
+                valuesMode: TKeyValueMode.stackedFlow,
+                valuesDivider: true,
+                valuesColumnDividers: true,
+                values: [
+                  TKeyValue('Total units', value: '183'),
+                  TKeyValue('Stock value', value: 'Rs. 57,096'),
+                ],
+              ),
+              children: [
+                TTreeCard(
+                  initiallyExpanded: true,
+                  showDots: true,
+                  header: TTile.sm(
+                    imageUrl: 'https://images.unsplash.com/photo-1515543904379-3d757afe72e4?w=200',
+                    title: 'BENGAL-GRAM-1KG',
+                    subtitle: 'SKU: BENGAL-GRAM-1KG',
+                    valuesMode: TKeyValueMode.stackedFlow,
+                    valuesDivider: true,
+                    valuesColumnDividers: true,
+                    values: [
+                      TKeyValue('Units', value: '183 units'),
+                      TKeyValue('Price', value: 'Rs. 312 / unit'),
+                      TKeyValue.chip('Expiry', 'Oct 28, 2027', color: theme.success),
+                    ],
+                  ),
+                  children: [
+                    for (final loc in const [
+                      ('Retail Store Floor (Colombo)', '35', 'Rs. 10,920'),
+                      ('Main Warehouse (Colombo)', '148', 'Rs. 46,176'),
+                    ])
+                      TTile.h5(
+                        title: loc.$1,
+                        valuesMode: TKeyValueMode.stackedFlow,
+                        valuesDivider: true,
+                        valuesColumnDividers: true,
+                        values: [
+                          TKeyValue('On hand', value: '${loc.$2} units'),
+                          TKeyValue('Available', value: '${loc.$2} units'),
+                          TKeyValue('Reserved', value: '0 units'),
+                          TKeyValue('Unit price', value: 'Rs. 312'),
+                          TKeyValue('Value', value: loc.$3),
+                          TKeyValue.chip('Expiry', 'Oct 28, 2027', color: theme.success),
+                        ],
+                        footer: TAlignedRow(
+                          right: [
+                            TButton(
+                              icon: HugeIcons.strokeRoundedArrowDataTransferHorizontal,
+                              size: TButtonSize.xs,
+                              type: TButtonType.tonal,
+                              onTap: () {},
+                            ),
+                            TButton(
+                              icon: HugeIcons.strokeRoundedSlidersHorizontal,
+                              size: TButtonSize.xs,
+                              type: TButtonType.tonal,
+                              onTap: () {},
+                            ),
+                          ],
+                        ),
+                      ).card(padding: const EdgeInsets.all(16)),
+                  ],
+                ),
+              ],
+            ),
+            code: '''TTreeCard(
+  initiallyExpanded: true,
+  showDots: true,
+  header: TTile.sm(
+    imageUrl: url, title: 'JR Bengal Gram', subtitle: '2 locations • 2 batches',
+    valuesMode: TKeyValueMode.stackedFlow, valuesDivider: true, valuesColumnDividers: true,
+    values: [TKeyValue('Total units', value: '183'), TKeyValue('Stock value', value: 'Rs. 57,096')],
+  ),
+  children: [
+    TTreeCard(header: variantTile, children: [
+      locationTile.card(padding: const EdgeInsets.all(16)), // leaf: plain tile in a card
+    ]),
+  ],
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'header',
+                type: 'Widget',
+                isRequired: true,
+                description: 'Card content shown beside the chevron (usually a TTile with values/footer).',
+              ),
+              PropertyDoc(
+                name: 'children',
+                type: 'List<Widget>',
+                defaultValue: 'const []',
+                description: 'Nodes drawn on the tree line; nest TTreeCard for deeper levels.',
+              ),
+              PropertyDoc(
+                name: 'initiallyExpanded / isExpanded',
+                type: 'bool',
+                defaultValue: 'false',
+                description: 'Uncontrolled initial state, or controlled state with onExpansionChanged.',
+              ),
+              PropertyDoc(
+                name: 'lineInset / elbowWidth / gap / elbowY',
+                type: 'double',
+                description: 'Tree geometry: line offset from card edge, elbow width, vertical gap, and elbow height within a child.',
+              ),
+              PropertyDoc(name: 'showDots', type: 'bool', defaultValue: 'false', description: 'Dot where each elbow meets its child.'),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
           // 4.5 Card wrapper + shadow levels
           WidgetDocCard(
             title: 'Card Wrapper & Shadow Levels (.card / TCardShadow)',
@@ -1449,7 +1687,7 @@ TTile.h5(icon: HugeIcons.strokeRoundedLayers01, title: 'Raised', subtitle: 'sm')
   title: 'Stocktake',
   subtitle: '12 open counts',
   trailing: TBadge(label: '12', color: context.theme.primary),
-).card(padding: const EdgeInsets.all(16))''',
+).card(padding: const EdgeInsets.all(20))''',
             properties: const [
               PropertyDoc(
                 name: 'iconOnTop',

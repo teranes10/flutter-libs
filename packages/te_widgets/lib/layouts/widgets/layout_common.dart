@@ -110,9 +110,7 @@ class LayoutMainContent extends StatelessWidget {
             SizedBox(height: isMobile ? 4 : 8),
             Expanded(
               child: Padding(
-                padding: isMobile
-                    ? const EdgeInsets.symmetric(vertical: 4, horizontal: 6)
-                    : const EdgeInsets.only(left: 20, right: 6, bottom: 6, top: 14),
+                padding: isMobile ? const EdgeInsets.symmetric(vertical: 6) : const EdgeInsets.only(left: 20, bottom: 6, top: 14),
                 child: child,
               ),
             ),

@@ -387,16 +387,18 @@ class _TProgressBarState extends State<TProgressBar> with SingleTickerProviderSt
         if (widget.label != null || displayValue != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 6.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+            // TAlignedRow wraps the value under the label instead of overflowing in narrow cells.
+            child: TAlignedRow(
+              spacing: 8,
+              rowSpacing: 2,
+              left: [
                 if (widget.label != null)
                   Text(
                     widget.label!,
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurface),
-                  )
-                else
-                  const SizedBox.shrink(),
+                  ),
+              ],
+              right: [
                 if (displayValue != null)
                   Text(
                     displayValue,

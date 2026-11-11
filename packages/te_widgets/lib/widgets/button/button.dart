@@ -104,6 +104,10 @@ class TButton extends StatefulWidget {
   /// just Flutter's in-memory [ImageCache]. See [TImage.forceCache].
   final bool forceCache;
 
+  /// When set, the [imageUrl] is drawn as a rounded rectangle with this corner
+  /// radius instead of the shape-default (circle, or radius 8 for [TButtonShape.normal]).
+  final double? imageRadius;
+
   /// The primary color of the button.
   ///
   /// This affects the button's background, border, or text color depending on [type].
@@ -268,6 +272,7 @@ class TButton extends StatefulWidget {
     this.icon,
     this.imageUrl,
     this.forceCache = false,
+    this.imageRadius,
     this.text,
     this.tooltip,
     this.onTap,
@@ -540,14 +545,14 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
                 ),
               )
       else if (widget.imageUrl != null)
-        if (theme.shape == TButtonShape.normal)
+        if (theme.shape == TButtonShape.normal || widget.imageRadius != null)
           TImage(
             size: size.icon,
             url: widget.imageUrl,
             color: theme.baseTheme.onContainerVariant.withAlpha(50),
             disabled: true,
             forceCache: widget.forceCache,
-            border: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
+            border: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(widget.imageRadius ?? 8))),
           )
         else
           TImage.circle(
@@ -677,7 +682,9 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
         ),
       );
 
-      if (!isDisabled && !_isLoading && (widget.onLongPressStart != null || widget.onLongPressEnd != null || widget.onLongPressCancel != null)) {
+      if (!isDisabled &&
+          !_isLoading &&
+          (widget.onLongPressStart != null || widget.onLongPressEnd != null || widget.onLongPressCancel != null)) {
         resultButton = GestureDetector(
           onLongPressStart: widget.onLongPressStart,
           onLongPressEnd: widget.onLongPressEnd,

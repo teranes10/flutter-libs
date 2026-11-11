@@ -19,7 +19,8 @@ void main() {
 
   testWidgets('TTile iconOnTop stacks icon above title', (tester) async {
     await tester.pumpWidget(_host(const TTile(iconOnTop: true, title: 'Hub', icon: HugeIcons.strokeRoundedStar)));
-    expect(tester.getTopLeft(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedStar)).dy, lessThan(tester.getTopLeft(find.text('Hub')).dy));
+    expect(tester.getTopLeft(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedStar)).dy,
+        lessThan(tester.getTopLeft(find.text('Hub')).dy));
   });
 
   testWidgets('.card wraps in TCard with shadow level', (tester) async {

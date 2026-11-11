@@ -329,7 +329,8 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
     final isSelected = _selectedKeys.contains(node.key);
     final checkboxState = _getCheckboxState(node);
 
-    final defaultIcon = hasChildren ? (isExpanded ? HugeIcons.strokeRoundedFolderOpen : HugeIcons.strokeRoundedFolder01) : HugeIcons.strokeRoundedFile01;
+    final defaultIcon =
+        hasChildren ? (isExpanded ? HugeIcons.strokeRoundedFolderOpen : HugeIcons.strokeRoundedFolder01) : HugeIcons.strokeRoundedFile01;
 
     final effectiveIcon = (isExpanded ? (node.expandedIcon ?? node.icon) : node.icon) ?? defaultIcon;
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'app_colors.dart';
 
 final themeModeKey = 'te_theme_mode';
 final sidebarMinifiedKey = 'te_sidebar_minified';

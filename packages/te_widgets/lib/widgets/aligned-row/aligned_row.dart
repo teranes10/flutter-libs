@@ -364,6 +364,26 @@ class RenderAlignedRow extends RenderBox
 
   // ── Pass 1: measure every child ───────────────────────────────────────────
 
+  /// Whether [node] or any descendant is a layout-builder render object, which cannot compute
+  /// a dry layout (it throws in debug and leaves framework dry-layout state set, or reports
+  /// zero in release).
+  static bool _hasLayoutBuilder(RenderObject node) {
+    if (node is RenderAbstractLayoutBuilderMixin) return true;
+    var found = false;
+    node.visitChildren((c) {
+      if (!found && _hasLayoutBuilder(c)) found = true;
+    });
+    return found;
+  }
+
+  /// Size of [child] under [loose]: a dry layout when supported, otherwise a real layout
+  /// (later superseded by the final constraints, which simply re-lays the child out).
+  Size _dryOrLiveSize(RenderBox child, BoxConstraints loose) {
+    if (!_hasLayoutBuilder(child)) return child.getDryLayout(loose);
+    child.layout(loose, parentUsesSize: true);
+    return child.size;
+  }
+
   List<_Child> _measure(double maxWidth) {
     final out = <_Child>[];
     RenderBox? child = firstChild;
@@ -373,7 +393,7 @@ class RenderAlignedRow extends RenderBox
       // see that final layout, otherwise width-dependent children keep a stale loose layout.
       final loose = BoxConstraints(maxWidth: maxWidth);
       if (_sandbox != null) _lay(child, loose);
-      final childSize = _sandbox != null ? _sizeOf(child) : child.getDryLayout(loose);
+      final childSize = _sandbox != null ? _sizeOf(child) : _dryOrLiveSize(child, loose);
 
       // Try to get a more accurate intrinsic width for Text children.
       final textW = _measureTextWidth(child);

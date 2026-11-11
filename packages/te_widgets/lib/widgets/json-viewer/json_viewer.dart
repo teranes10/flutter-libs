@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+
 /// Interactive, collapsible JSON and map/object tree inspector for API payloads,
 /// audit events, webhook logs, and database records.
 class TJsonViewer extends StatefulWidget {

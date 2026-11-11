@@ -11,20 +11,21 @@ abstract class TImageStorage {
 
   static String urlToKey(String url) => sha1.convert(utf8.encode(url)).toString();
 
-  static Future<String?> downloadAndCacheImage(String remoteUrl) async {
+  /// Downloads [remoteUrl] without storing it anywhere. Returns null on failure.
+  static Future<Uint8List?> downloadBytes(String remoteUrl) async {
     try {
       final response = await _dio.get<List<int>>(remoteUrl, options: Options(responseType: ResponseType.bytes));
-
-      if (response.data != null) {
-        final bytes = Uint8List.fromList(response.data!);
-        final key = sha1.convert(utf8.encode(remoteUrl)).toString();
-        return await storeImage(key, bytes);
-      }
+      if (response.data != null) return Uint8List.fromList(response.data!);
     } catch (e) {
-      debugPrint('⚠️ [ImageDownloader] Failed to cache image for $remoteUrl: $e');
+      debugPrint('⚠️ [ImageDownloader] Failed to download $remoteUrl: $e');
     }
+    return null;
+  }
 
-    return null; // Return null on failure
+  static Future<String?> downloadAndCacheImage(String remoteUrl) async {
+    final bytes = await downloadBytes(remoteUrl);
+    if (bytes == null) return null; // Return null on failure
+    return await storeImage(urlToKey(remoteUrl), bytes);
   }
 
   static Future<String?> storeImage(String key, Uint8List bytes) async {

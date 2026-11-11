@@ -285,17 +285,19 @@ class _TTabsState<T> extends State<TTabs<T>> {
           shaderCallback: (bounds) {
             final isHorizontal = widget.axis == Axis.horizontal;
             // Fade extent as a fraction of the viewport, step-reduced opacity toward the edge.
-            const fadeFraction = 0.08;
+            // Center 50% fully opaque; each outer 25% fades down to 30% opacity at the edge.
+            const fadeFraction = 0.25;
             final startStop = _canScrollStart ? fadeFraction : 0.0;
             final endStop = _canScrollEnd ? 1.0 - fadeFraction : 1.0;
+            final edge = Colors.black.withValues(alpha: 0.3);
             return LinearGradient(
               begin: isHorizontal ? Alignment.centerLeft : Alignment.topCenter,
               end: isHorizontal ? Alignment.centerRight : Alignment.bottomCenter,
-              colors: const [
-                Colors.transparent,
+              colors: [
+                edge,
                 Colors.black,
                 Colors.black,
-                Colors.transparent,
+                edge,
               ],
               stops: [0.0, startStop, endStop, 1.0],
             ).createShader(bounds);
@@ -315,31 +317,40 @@ class _TTabsState<T> extends State<TTabs<T>> {
                 left: 0,
                 top: 0,
                 bottom: 0,
-                child: TIcon(
-                    shadow: !_canScrollStart
-                        ? null
-                        : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: const Offset(0, 0))],
-                    background: !_canScrollStart ? null : navBg,
-                    icon: HugeIcons.strokeRoundedArrowLeft01,
-                    size: 20,
-                    onTap: !_canScrollStart ? null : () => _scrollBy(-200),
-                    color: _canScrollStart ? navColor : navColor.o(0.4),
-                    borderRadius: BorderRadius.circular(100)),
+                child: Center(
+                    child: TIcon(
+                        shadow: !_canScrollStart
+                            ? null
+                            : [
+                                BoxShadow(color: colors.shadow.withAlpha(15), offset: const Offset(4, 0), blurRadius: 20, spreadRadius: -4),
+                                BoxShadow(color: colors.shadow.withAlpha(30), offset: const Offset(2, 0), blurRadius: 9, spreadRadius: -2),
+                              ],
+                        background: !_canScrollStart ? null : navBg,
+                        icon: HugeIcons.strokeRoundedArrowLeft01,
+                        size: 20,
+                        onTap: !_canScrollStart ? null : () => _scrollBy(-200),
+                        color: _canScrollStart ? navColor : navColor.o(0.4),
+                        borderRadius: BorderRadius.circular(100))),
               ),
               Positioned(
                 right: 0,
                 top: 0,
                 bottom: 0,
-                child: TIcon(
-                    shadow: !_canScrollEnd
-                        ? null
-                        : [BoxShadow(blurRadius: 8, spreadRadius: 4, color: colors.shadow, offset: const Offset(0, 0))],
-                    background: !_canScrollEnd ? null : navBg,
-                    icon: HugeIcons.strokeRoundedArrowRight01,
-                    size: 20,
-                    onTap: !_canScrollEnd ? null : () => _scrollBy(200),
-                    color: _canScrollEnd ? navColor : navColor.o(0.4),
-                    borderRadius: BorderRadius.circular(100)),
+                child: Center(
+                    child: TIcon(
+                        shadow: !_canScrollEnd
+                            ? null
+                            : [
+                                BoxShadow(
+                                    color: colors.shadow.withAlpha(15), offset: const Offset(-4, 0), blurRadius: 20, spreadRadius: -4),
+                                BoxShadow(color: colors.shadow.withAlpha(30), offset: const Offset(-2, 0), blurRadius: 9, spreadRadius: -2),
+                              ],
+                        background: !_canScrollEnd ? null : navBg,
+                        icon: HugeIcons.strokeRoundedArrowRight01,
+                        size: 20,
+                        onTap: !_canScrollEnd ? null : () => _scrollBy(200),
+                        color: _canScrollEnd ? navColor : navColor.o(0.4),
+                        borderRadius: BorderRadius.circular(100))),
               )
             ] else ...[
               Positioned(

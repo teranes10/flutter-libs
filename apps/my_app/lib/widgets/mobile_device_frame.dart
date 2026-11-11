@@ -107,10 +107,7 @@ class TMobileDeviceFrame extends StatelessWidget {
       ),
       child: Row(
         children: [
-          IconButton(
-            icon: TIcon.raw(HugeIcons.strokeRoundedArrowLeft01, size: 16),
-            onPressed: onBackPressed,
-          ),
+          IconButton(icon: TIcon.raw(HugeIcons.strokeRoundedArrowLeft01, size: 16), onPressed: onBackPressed),
           Expanded(
             child: Center(
               child: Text(title!, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),

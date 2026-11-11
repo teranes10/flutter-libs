@@ -125,6 +125,11 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     }
   }
 
+  /// Whether the page size is fitted to the available height by [TList].
+  ///
+  /// True when no explicit `itemsPerPage` was given; switched off once the page size is changed by anything other than the auto-fit.
+  bool autoItemsPerPage;
+
   /// Whether items can be reordered.
   final bool reorderable;
 
@@ -217,7 +222,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   /// Creates a [TListController].
   TListController({
     List<T> items = const [],
-    int itemsPerPage = 10,
+    int? itemsPerPage,
     int? searchDelay,
     String search = '',
     this.selectionMode = TSelectionMode.none,
@@ -237,7 +242,8 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     this.loadOnSearchOnly = false,
     List<TFilterDef<T>>? filterDefs,
     Map<String, dynamic>? additional,
-  })  : _expansionMode = expansionMode,
+  })  : autoItemsPerPage = itemsPerPage == null || itemsPerPage <= 0,
+        _expansionMode = expansionMode,
         isServerSide = onLoad != null,
         _filterDefs = filterDefs != null ? List<TFilterDef<T>>.from(filterDefs) : null,
         _debouncer = TDebouncer(milliseconds: searchDelay ?? (onLoad != null ? 2500 : 750)),
@@ -250,7 +256,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
             selectedKeys: initialSelectedKeys != null ? LinkedHashSet<K>.from(initialSelectedKeys) : LinkedHashSet<K>(),
             expandedKeys: initialExpandedKeys != null ? LinkedHashSet<K>.from(initialExpandedKeys) : LinkedHashSet<K>(),
             page: 1,
-            itemsPerPage: itemsPerPage,
+            itemsPerPage: itemsPerPage ?? 10,
             totalItems: items.length,
             loading: loading,
             fetching: false,

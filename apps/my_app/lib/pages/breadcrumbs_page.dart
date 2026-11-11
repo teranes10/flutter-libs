@@ -33,7 +33,12 @@ class BreadcrumbsPage extends StatelessWidget {
             code: '''const TBreadcrumbs()''',
             properties: const [
               PropertyDoc(name: 'showIcons', type: 'bool', defaultValue: 'false', description: 'Whether to show each item icon'),
-              PropertyDoc(name: 'homeLabel', type: 'String?', defaultValue: 'null', description: 'Label of a leading home link; when null the first route is the first crumb'),
+              PropertyDoc(
+                name: 'homeLabel',
+                type: 'String?',
+                defaultValue: 'null',
+                description: 'Label of a leading home link; when null the first route is the first crumb',
+              ),
               PropertyDoc(name: 'separator', type: 'Widget', description: 'Widget placed between items'),
             ],
           ),

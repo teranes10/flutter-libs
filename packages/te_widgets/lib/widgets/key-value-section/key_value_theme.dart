@@ -233,8 +233,8 @@ class TKeyValueTheme {
   factory TKeyValueTheme.defaultTheme(ColorScheme colors) {
     return TKeyValueTheme(
       keyStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant),
-      labelStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant),
-      valueStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w400, color: colors.onSurface),
+      labelStyle: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w400, color: colors.onSurfaceVariant.withAlpha(175)),
+      valueStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: colors.onSurface),
       borderColor: colors.outlineVariant,
     );
   }

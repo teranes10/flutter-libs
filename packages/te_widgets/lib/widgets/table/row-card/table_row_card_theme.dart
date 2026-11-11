@@ -18,8 +18,8 @@ class TTableRowCardTheme {
 
   /// Creates a table row card theme.
   const TTableRowCardTheme({
-    this.margin = const EdgeInsets.symmetric(vertical: 2),
-    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    this.margin = const EdgeInsets.only(bottom: 3),
+    this.padding = const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
     this.elevation = 0,
     this.borderRadius = const BorderRadius.all(Radius.circular(12)),
     required this.backgroundColor,

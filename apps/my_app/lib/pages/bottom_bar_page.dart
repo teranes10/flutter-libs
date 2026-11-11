@@ -26,7 +26,12 @@ class _BottomBarPageState extends State<BottomBarPage> {
   final List<TBottomBarItem> _configuratorItems = const [
     TBottomBarItem(icon: HugeIcons.strokeRoundedHome01, activeIcon: HugeIcons.strokeRoundedHome01, label: 'Home'),
     TBottomBarItem(icon: HugeIcons.strokeRoundedSearch01, label: 'Search'),
-    TBottomBarItem(icon: HugeIcons.strokeRoundedNotification01, activeIcon: HugeIcons.strokeRoundedNotification01, label: 'Alerts', badge: 5),
+    TBottomBarItem(
+      icon: HugeIcons.strokeRoundedNotification01,
+      activeIcon: HugeIcons.strokeRoundedNotification01,
+      label: 'Alerts',
+      badge: 5,
+    ),
     TBottomBarItem(icon: HugeIcons.strokeRoundedUser, activeIcon: HugeIcons.strokeRoundedUser, label: 'Profile'),
   ];
 

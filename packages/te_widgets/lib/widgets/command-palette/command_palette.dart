@@ -5,6 +5,7 @@ import 'package:te_widgets/widgets/badge/badge.dart';
 import 'package:te_widgets/widgets/empty-state/empty_state.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
 import 'package:hugeicons/hugeicons.dart';
+
 /// A single actionable item in a [TCommandPalette].
 class TCommandItem {
   /// Unique identifier for this command.
@@ -350,9 +351,7 @@ class _TCommandPaletteState extends State<TCommandPalette> {
                               margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
                               padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
                               decoration: BoxDecoration(
-                                color: isSelected
-                                    ? colors.primaryContainer.withValues(alpha: isDark ? 0.3 : 0.5)
-                                    : Colors.transparent,
+                                color: isSelected ? colors.primaryContainer.withValues(alpha: isDark ? 0.3 : 0.5) : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               child: Row(

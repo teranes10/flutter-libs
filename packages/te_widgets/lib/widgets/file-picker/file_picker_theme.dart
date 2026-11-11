@@ -283,7 +283,8 @@ class TFilePickerTheme extends TInputFieldTheme {
                     color: Colors.black54,
                     shape: BoxShape.circle,
                   ),
-                  child: TIcon.raw(HugeIcons.strokeRoundedCancel01,
+                  child: TIcon.raw(
+                    HugeIcons.strokeRoundedCancel01,
                     size: 12,
                     color: Colors.white,
                   ),

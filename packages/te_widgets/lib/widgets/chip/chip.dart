@@ -130,8 +130,8 @@ class TChip extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.size,
-  }) : _defaultSize = TChipSize.md,
-       type = TVariant.solid;
+  })  : _defaultSize = TChipSize.md,
+        type = TVariant.solid;
 
   /// Creates a tonal (tinted background) chip.
   const TChip.tonal({
@@ -146,8 +146,8 @@ class TChip extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.size,
-  }) : _defaultSize = TChipSize.md,
-       type = TVariant.tonal;
+  })  : _defaultSize = TChipSize.md,
+        type = TVariant.tonal;
 
   /// Creates an outlined chip with transparent background.
   const TChip.outline({
@@ -162,8 +162,8 @@ class TChip extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.size,
-  }) : _defaultSize = TChipSize.md,
-       type = TVariant.outline;
+  })  : _defaultSize = TChipSize.md,
+        type = TVariant.outline;
 
   /// Creates a soft outline chip with subtle background tint and border.
   const TChip.softOutline({
@@ -178,8 +178,8 @@ class TChip extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.size,
-  }) : _defaultSize = TChipSize.md,
-       type = TVariant.softOutline;
+  })  : _defaultSize = TChipSize.md,
+        type = TVariant.softOutline;
 
   /// Creates a text-only/ghost variant chip without background or border.
   const TChip.text({
@@ -194,8 +194,8 @@ class TChip extends StatelessWidget {
     this.padding,
     this.borderRadius,
     this.size,
-  }) : _defaultSize = TChipSize.md,
-       type = TVariant.text;
+  })  : _defaultSize = TChipSize.md,
+        type = TVariant.text;
 
   /// Creates a list of [TChip]s from a list of string labels.
   static List<TChip> fromStrings(

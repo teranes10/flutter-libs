@@ -16,6 +16,9 @@ part 'crud_table_export.dart';
 part 'crud_table_form.dart';
 part 'crud_table_settings.dart';
 
+const double _kMobilePageInset = 12;
+const double _kDesktopPageInset = 6;
+
 /// A complete CRUD (Create, Read, Update, Delete) table component.
 ///
 /// `TCrudTable` provides a full-featured data table with:
@@ -358,6 +361,9 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     setState(() {});
   }
 
+  /// Running average of the measured item height per layout (`row|card` x `comfortable|dense`).
+  Map<String, double> _rowHeights = {};
+
   bool _dense = false;
   bool get dense => _dense;
   set dense(bool value) {
@@ -684,11 +690,17 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
       );
     }
 
+    // The layout adds no right inset (so scrollbars sit at the screen edge); the table pads its own
+    // content instead. Mobile also loses the left inset.
+    final isMobile = context.isMobile;
+    final left = isMobile ? _kMobilePageInset : 0.0;
+    final right = isMobile ? _kMobilePageInset : _kDesktopPageInset;
+    final basePadding = widget.padding ?? tableTheme.padding ?? EdgeInsets.zero;
     return _buildContent(
       theme,
       tableTheme.copyWith(
-        padding: widget.padding ?? tableTheme.padding,
-        headerBuilder: headerContent,
+        padding: basePadding.copyWith(left: basePadding.left + left, right: basePadding.right + right),
+        headerBuilder: (c) => Padding(padding: EdgeInsets.only(left: left, right: right), child: headerContent(c)),
       ),
     );
   }

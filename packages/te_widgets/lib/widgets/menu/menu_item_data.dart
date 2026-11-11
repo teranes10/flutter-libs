@@ -21,6 +21,9 @@ abstract class TMenuItemData<T extends TMenuItemData<T>> {
   bool get isClickable;
   Color? get color => null;
 
+  /// Optional image shown (circular) before the text, in place of [icon].
+  String? get imageUrl => null;
+
   bool get hasVisibleChildren => visibleChildren.isNotEmpty;
   List<T> get visibleChildren => children?.where((c) => !c.isHidden).toList() ?? const [];
   bool get isHidden => hidden;

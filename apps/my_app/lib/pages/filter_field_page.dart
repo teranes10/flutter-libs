@@ -244,7 +244,12 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
               ),
             ],
             right: [
-              TButton(icon: HugeIcons.strokeRoundedAiAutoRotate, text: 'Preset: Electronics', type: TButtonType.tonal, onTap: _applyPreset1),
+              TButton(
+                icon: HugeIcons.strokeRoundedAiAutoRotate,
+                text: 'Preset: Electronics',
+                type: TButtonType.tonal,
+                onTap: _applyPreset1,
+              ),
               TButton(icon: HugeIcons.strokeRoundedClock01, text: 'Preset: Recent Stock', type: TButtonType.tonal, onTap: _applyPreset2),
               TButton(icon: HugeIcons.strokeRoundedCancel02, text: 'Clear All', type: TButtonType.softText, onTap: _clearPreset),
               TButton(

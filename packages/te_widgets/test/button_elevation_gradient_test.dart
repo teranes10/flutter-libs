@@ -163,9 +163,11 @@ void main() {
         ),
       );
 
-      final inks = tester.widgetList<Ink>(
-        find.descendant(of: find.byType(ElevatedButton), matching: find.byType(Ink)),
-      ).toList();
+      final inks = tester
+          .widgetList<Ink>(
+            find.descendant(of: find.byType(ElevatedButton), matching: find.byType(Ink)),
+          )
+          .toList();
 
       expect(inks.length, 2);
       final pillDec = inks[0].decoration as ShapeDecoration?;

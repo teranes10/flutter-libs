@@ -149,11 +149,31 @@ class _TablesPageState extends State<TablesPage> {
                 TTableHeader.chip("Stock", (x) => x.stock, color: (_) => context.theme.info),
                 TTableHeader.actions(
                   (x) => [
-                    TButtonGroupItem(tooltip: 'View', icon: HugeIcons.strokeRoundedPropertyView, color: context.theme.success, onPressed: (_) => {}),
+                    TButtonGroupItem(
+                      tooltip: 'View',
+                      icon: HugeIcons.strokeRoundedPropertyView,
+                      color: context.theme.success,
+                      onPressed: (_) => {},
+                    ),
                     TButtonGroupItem(tooltip: 'Edit', icon: HugeIcons.strokeRoundedEdit02, color: context.theme.info, onPressed: (_) => {}),
-                    TButtonGroupItem(tooltip: 'Restore', icon: HugeIcons.strokeRoundedUnarchive03, color: context.theme.info, onPressed: (_) => {}),
-                    TButtonGroupItem(tooltip: 'Archive', icon: HugeIcons.strokeRoundedArchive, color: context.theme.warning, onPressed: (_) => {}),
-                    TButtonGroupItem(tooltip: 'Delete', icon: HugeIcons.strokeRoundedDelete02, color: context.theme.danger, onPressed: (_) => {}),
+                    TButtonGroupItem(
+                      tooltip: 'Restore',
+                      icon: HugeIcons.strokeRoundedUnarchive03,
+                      color: context.theme.info,
+                      onPressed: (_) => {},
+                    ),
+                    TButtonGroupItem(
+                      tooltip: 'Archive',
+                      icon: HugeIcons.strokeRoundedArchive,
+                      color: context.theme.warning,
+                      onPressed: (_) => {},
+                    ),
+                    TButtonGroupItem(
+                      tooltip: 'Delete',
+                      icon: HugeIcons.strokeRoundedDelete02,
+                      color: context.theme.danger,
+                      onPressed: (_) => {},
+                    ),
                   ],
                   count: 5,
                 ),
@@ -234,7 +254,8 @@ final List<TTableHeader<Product, int>> chipsTableHeaders = [
     "Features (TChip)",
     (x) => [
       if (x.features.contains('Pro')) const TChip.solid(text: 'Pro', icon: HugeIcons.strokeRoundedStar, color: AppColors.warning),
-      if (x.features.contains('Verified')) const TChip.tonal(text: 'Verified', icon: HugeIcons.strokeRoundedCheckmarkBadge01, color: AppColors.info),
+      if (x.features.contains('Verified'))
+        const TChip.tonal(text: 'Verified', icon: HugeIcons.strokeRoundedCheckmarkBadge01, color: AppColors.info),
       if (x.features.contains('Fast Ship')) const TChip.outline(text: 'Fast Ship', icon: HugeIcons.strokeRoundedDeliveryTruck01),
     ],
     spacing: 4.0,

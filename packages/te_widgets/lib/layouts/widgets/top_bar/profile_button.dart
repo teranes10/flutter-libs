@@ -44,7 +44,6 @@ class LayoutProfileButton extends ConsumerWidget {
     final activeColorIndex = themeState.primaryColorIndex;
     final selectedColorOption = primaryColorOptions[activeColorIndex];
     final isFullscreen = TFullscreen.isFullscreen;
-    final layoutStyle = themeState.layoutStyle;
     final sidebarMode = ref.watch(sidebarNotifierProvider);
     final sidebarNotifier = ref.read(sidebarNotifierProvider.notifier);
     final colors = context.colors;

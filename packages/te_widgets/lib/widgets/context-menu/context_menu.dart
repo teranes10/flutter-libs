@@ -162,9 +162,7 @@ class _TContextMenuState extends State<TContextMenu> {
     // This correctly handles offsets introduced by parent Layouts, Navigators, Sidebars,
     // TopBars, and window padding.
     final overlayRenderBox = Overlay.of(context).context.findRenderObject() as RenderBox?;
-    final localTapPosition = overlayRenderBox != null
-        ? overlayRenderBox.globalToLocal(globalPosition)
-        : globalPosition;
+    final localTapPosition = overlayRenderBox != null ? overlayRenderBox.globalToLocal(globalPosition) : globalPosition;
 
     setState(() {
       _tapPosition = localTapPosition;
