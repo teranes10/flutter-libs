@@ -493,11 +493,19 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               //    height: _calculateHeight(state),
               shrinkWrap: wTheme.shrinkWrap ?? false,
               scrollController: _scrollController,
+              onRefresh: listController.isServerSide ? _pullToRefresh : null,
             );
           },
         );
       }),
     );
+  }
+
+  Future<void> _pullToRefresh() async {
+    listController.handleRefresh();
+    while (mounted && (listController.value.loading || listController.value.fetching)) {
+      await Future.delayed(const Duration(milliseconds: 50));
+    }
   }
 
   int? _lastAutoItemsPerPage;

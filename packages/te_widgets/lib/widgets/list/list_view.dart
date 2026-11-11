@@ -97,6 +97,9 @@ class TListView<T, K> extends StatefulWidget {
   final List<Widget Function(BuildContext)>? sliverBefore;
   final List<Widget Function(BuildContext)>? sliverAfter;
 
+  /// Enables pull-to-refresh when set (ignored when shrink-wrapped).
+  final Future<void> Function()? onRefresh;
+
   /// Creates a list view.
   const TListView({
     super.key,
@@ -128,6 +131,7 @@ class TListView<T, K> extends StatefulWidget {
     this.scrollController,
     this.sliverBefore,
     this.sliverAfter,
+    this.onRefresh,
   }) : assert(grid == null || !reorderable, "GridView does not support item reordering.");
 
   @override
@@ -207,6 +211,10 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
           physics: effectiveShrinkWrap ? const NeverScrollableScrollPhysics() : const AlwaysScrollableScrollPhysics(),
           slivers: _buildSlivers(context),
         );
+
+        if (!effectiveShrinkWrap && widget.onRefresh != null) {
+          listView = RefreshIndicator(onRefresh: widget.onRefresh!, child: listView);
+        }
 
         if (!effectiveShrinkWrap) {
           listView = Scrollbar(

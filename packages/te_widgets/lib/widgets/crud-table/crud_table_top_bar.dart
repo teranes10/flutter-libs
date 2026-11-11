@@ -43,6 +43,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
       ...?config.bulkActionsBuilder?.call(ctx, activeController),
     ];
 
+    final activeIsServerSide = activeController.isServerSide;
     final rightItems = [
       if (showTabs)
         // TAlignedRow always lays this child out at the row's own maxWidth to measure it,
@@ -65,7 +66,10 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
       if (shouldShowFilterButton) _buildFilterButton(ctx),
       // On narrow screens search and the more-options button share one line as a single item.
       if (ctx.isDesktop)
-        _buildSearchBar(ctx).size(w: 275)
+        ...[
+          _buildSearchBar(ctx).size(w: 275),
+          if (activeIsServerSide) _buildRefreshButton(ctx),
+        ]
       else
         Row(
           spacing: 8,
@@ -195,6 +199,16 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
           );
         },
       ),
+    );
+  }
+
+  Widget _buildRefreshButton(BuildContext ctx) {
+    return TButton(
+      baseTheme: TWidgetTheme.fieldTheme(ctx, variant: TVariant.outline),
+      size: TButtonSize.fromInputSize(TInputSize.sm),
+      icon: HugeIcons.strokeRoundedRefresh01,
+      tooltip: 'Refresh',
+      onPressed: (_) => (currentTab == 0 ? _listController : _archiveListController).handleRefresh(),
     );
   }
 
