@@ -1,3 +1,19 @@
+## Unreleased
+
+ - **FEAT**(te_widgets): `TSelect` and `TMultiSelect` inline create: `createForm`, `onCreateItem`, `createLabel` and `selectCreated` add an "Add New" footer button that opens a form and adds (and selects) the new item.
+ - **FEAT**(te_widgets): add refresh button to crud toolbar and pull-to-refresh to `TList`.
+ - **FEAT**(te_widgets): add `TMarquee` and `TRollingText` with my_app samples.
+ - **FEAT**(te_widgets): add theme customizer panel and rebuild color picker.
+ - **FEAT**(te_widgets): add `TDropzone` and rework csv editor import/export.
+ - **FEAT**(te_widgets): open profile and crud toolbar more-options dropdowns on click.
+ - **FEAT**(te_widgets): replace toastification with built-in toast host.
+ - **FEAT**(te_widgets)!: **BREAKING** migrate to file_picker 13.
+ - **REFACTOR**(te_widgets): replace photo_view with `InteractiveViewer`.
+ - **REFACTOR**(te_widgets): drop crypto and dio in favour of FNV key and http.
+ - **STYLE**(te_widgets): update default backgrounds and layout/metric tile tweaks.
+ - **CHORE**(te_widgets): tree-card and crud table inset work; stricter lints, check script, CI and pre-commit hook.
+ - **TEST**(te_widgets): update layout, tile size and stepper tests.
+
 ## 3.10.0
 
  - **FEAT**(te_widgets): crud top bar metrics list with aligned-row layout, tabs fill, dense toggle in menu.
