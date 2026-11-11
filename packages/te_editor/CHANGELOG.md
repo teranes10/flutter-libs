@@ -1,3 +1,7 @@
+## 3.3.4
+
+ - **FIX**: automated deployment and release. ([62aa9082](https://github.com/teranes10/flutter-libs/commit/62aa908245dd98901b70c2855fba4dd55c1aa7f5))
+
 ## 3.3.3
 
  - Update a dependency to the latest release.

@@ -1,3 +1,10 @@
+## 4.0.0
+
+> Note: This release has breaking changes.
+
+ - **FIX**: automated deployment and release. ([62aa9082](https://github.com/teranes10/flutter-libs/commit/62aa908245dd98901b70c2855fba4dd55c1aa7f5))
+ - **BREAKING** **REFACTOR**(te_map): replace dio with http. ([a451eabd](https://github.com/teranes10/flutter-libs/commit/a451eabd8a49618de1f6925ca4d943751d89a4d8))
+
 ## 3.2.6
 
  - Update a dependency to the latest release.

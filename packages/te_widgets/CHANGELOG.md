@@ -1,3 +1,20 @@
+## 4.0.0
+
+> Note: This release has breaking changes.
+
+ - **REFACTOR**(te_widgets): replace photo_view with InteractiveViewer. ([8c4815ff](https://github.com/teranes10/flutter-libs/commit/8c4815ff4f13bc0567f74a83e7c295ff0c162819))
+ - **REFACTOR**(te_widgets): drop crypto and dio in favour of FNV key and http. ([f790449d](https://github.com/teranes10/flutter-libs/commit/f790449d7c3accefcb6523afa8ac37b7ccdf2385))
+ - **FIX**: automated deployment and release. ([62aa9082](https://github.com/teranes10/flutter-libs/commit/62aa908245dd98901b70c2855fba4dd55c1aa7f5))
+ - **FEAT**(te_widgets): add inline create (createForm/onCreateItem) to TSelect and TMultiSelect. ([14fb9e2a](https://github.com/teranes10/flutter-libs/commit/14fb9e2aebd85964b2b67ff712aeed092f9cc1eb))
+ - **FEAT**(te_widgets): add refresh button to crud toolbar and pull-to-refresh to TList. ([9b4c33c5](https://github.com/teranes10/flutter-libs/commit/9b4c33c5bb117548662b9fb4a9291ba4ce6c9dfa))
+ - **FEAT**(te_widgets): add TMarquee and TRollingText with my_app samples. ([1e54c324](https://github.com/teranes10/flutter-libs/commit/1e54c324ec5e3a77b80f074c8b050538f20be176))
+ - **FEAT**(te_widgets): add theme customizer panel and rebuild color picker. ([fd60e851](https://github.com/teranes10/flutter-libs/commit/fd60e8518df4cffb65ff385e7d15390ea10b22e1))
+ - **FEAT**(te_widgets): add TDropzone and rework csv editor import/export. ([e7700b07](https://github.com/teranes10/flutter-libs/commit/e7700b07561a869992cd5ed8013af6e34c403b63))
+ - **FEAT**(te_widgets): open profile and crud toolbar more-options dropdowns on click. ([a59df43d](https://github.com/teranes10/flutter-libs/commit/a59df43d76356cabbd5b2445e3ace0dea220852a))
+ - **FEAT**(te_widgets): replace toastification with built-in toast host. ([7da030d1](https://github.com/teranes10/flutter-libs/commit/7da030d148170369f34ff9f53ae6c146e12637a0))
+ - **DOCS**(te_widgets): add unreleased changes to changelog. ([82a3f031](https://github.com/teranes10/flutter-libs/commit/82a3f031d130c0ee3730facd29ce8dab6cb952f0))
+ - **BREAKING** **FEAT**(te_widgets): migrate to file_picker 13. ([3047508a](https://github.com/teranes10/flutter-libs/commit/3047508a2ba60fc991e8e5cf779a0da30b7a5ff2))
+
 ## 3.11.0
 
  - **FEAT**(te_widgets): `TSelect` and `TMultiSelect` inline create: `createForm`, `onCreateItem`, `createLabel` and `selectCreated` add an "Add New" footer button that opens a form and adds (and selects) the new item.

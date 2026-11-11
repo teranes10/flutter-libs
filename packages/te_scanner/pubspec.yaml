@@ -1,6 +1,6 @@
 name: te_scanner
 description: "Te Scanner Widgets for barcode and QR scanning"
-version: 3.2.6
+version: 3.2.7
 
 homepage: https://teranes10.github.io/flutter-libs/myapp
 repository: https://github.com/teranes10/flutter-libs/tree/master/packages/te_scanner
@@ -13,7 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   mobile_scanner: ^7.4.0
-  te_widgets: ^3.10.0
+  te_widgets: ^4.0.0
 
 dev_dependencies:
   flutter_test:
