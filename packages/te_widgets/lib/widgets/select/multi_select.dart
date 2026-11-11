@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_widgets/widgets/select/select_create.dart';
 import 'package:te_widgets/widgets/tags-field/tags_field_mixin.dart';
 
 /// A multi-select dropdown field with search and tags support.
@@ -128,6 +130,24 @@ class TMultiSelect<T, V, K> extends StatefulWidget
   final TListCardTheme? cardTheme;
   final bool lazy;
 
+  /// Factory for the form shown by the "Add New" footer button.
+  ///
+  /// When null (or [onCreateItem] is null) no footer button is shown.
+  final TFormBase Function()? createForm;
+
+  /// Converts the saved [createForm] form into a new item.
+  ///
+  /// A non-null result is added to the list controller.
+  final FutureOr<T?> Function(dynamic form)? onCreateItem;
+
+  /// Label of the footer button that opens [createForm]. Defaults to 'Add New'.
+  final String createLabel;
+
+  /// Whether the item created through [createForm] is selected right away. Defaults to true.
+  final bool selectCreated;
+
+  bool get _canCreate => createForm != null && onCreateItem != null;
+
   /// The number of items to show as visible in the dropdown before scrolling.
   ///
   /// For local [items] (no [onLoad]), this controls the dropdown height:
@@ -179,6 +199,10 @@ class TMultiSelect<T, V, K> extends StatefulWidget
     this.cardTheme,
     this.itemValue,
     this.lazy = false,
+    this.createForm,
+    this.onCreateItem,
+    this.createLabel = 'Add New',
+    this.selectCreated = true,
     this.visibleItemsCount,
     ItemTextAccessor<T>? itemText,
     ItemKeyAccessor<T, K>? itemKey,
@@ -271,7 +295,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
 
     // Only add infinite-scroll footer height for server-side lists.
     final hasMore = !_isLocalItems && listController.value.hasMoreItems;
-    final hasFooter = widget.listTheme?.footerBuilder != null || listTheme.footerBuilder != null;
+    final hasFooter = widget._canCreate || widget.listTheme?.footerBuilder != null || listTheme.footerBuilder != null;
     final extraPadding = 16.0 +
         16.0 +
         (hasMore ? 40.0 : 0.0) +
@@ -299,13 +323,28 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
         );
   }
 
+  TListTheme _withCreate(TListTheme theme) {
+    if (!widget._canCreate) return theme;
+    return withSelectCreateFooter(
+      theme,
+      (ctx) => buildSelectCreateFooter<T, K>(
+        context: ctx,
+        controller: listController,
+        createForm: widget.createForm!,
+        onCreateItem: widget.onCreateItem,
+        label: widget.createLabel,
+        onCreated: widget.selectCreated ? _selectCreated : null,
+      ),
+    );
+  }
+
   @override
   Widget getContentWidget(BuildContext context) {
     // Infinite scroll only makes sense for server-side loading.
     // For local items, all items are already loaded — no scroll-to-load needed.
     final list = TList<T, K>(
       controller: listController,
-      theme: listTheme.copyWith(
+      theme: _withCreate(listTheme.copyWith(
         animationBuilder: TListAnimationBuilders.slideInDown,
         animationDuration: Duration(milliseconds: 150),
         infiniteScroll: !_isLocalItems,
@@ -316,7 +355,7 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
                     child: Text('No items found', style: TextStyle(fontSize: 14, color: context.colors.onSurfaceVariant)),
                   ),
                 ),
-      ),
+      )),
       itemBuilder: (ctx, item, index) {
         return TMeasureSize(
           onMeasure: (height) {
@@ -468,19 +507,27 @@ class _TMultiSelectState<T, V, K> extends State<TMultiSelect<T, V, K>>
     }
   }
 
+  void _selectCreated(T item) {
+    listController.select(listController.itemKey(item));
+    _syncSelection();
+  }
+
   void _onItemSelected(TListItem<T, K> item) {
     if (item.hasChildren) {
       listController.toggleExpansion(item.key);
     } else {
       listController.toggleSelection(item.key);
-
-      final selectedValues = listController.selectedItems.map((x) => widget.itemValue?.call(x) ?? x as V).toList();
-      final selectedTexts = listController.selectedItems.map((x) => widget.itemText(x)).toList();
-
-      tagsController.updateState(tags: selectedTexts);
-      notifyValueChanged(selectedValues);
-      focusNode.requestFocus();
+      _syncSelection();
     }
+  }
+
+  void _syncSelection() {
+    final selectedValues = listController.selectedItems.map((x) => widget.itemValue?.call(x) ?? x as V).toList();
+    final selectedTexts = listController.selectedItems.map((x) => widget.itemText(x)).toList();
+
+    tagsController.updateState(tags: selectedTexts);
+    notifyValueChanged(selectedValues);
+    focusNode.requestFocus();
   }
 
   void _updateState() {

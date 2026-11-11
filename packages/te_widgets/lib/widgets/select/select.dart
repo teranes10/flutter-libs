@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'package:te_widgets/widgets/select/select_create.dart';
 
 /// A function that extracts a value from an item.
 ///
@@ -244,6 +246,24 @@ class TSelect<T, V, K> extends StatefulWidget
   /// Whether to load items lazily when the dropdown is first opened.
   final bool lazy;
 
+  /// Factory for the form shown by the "Add New" footer button.
+  ///
+  /// When null (or [onCreateItem] is null) no footer button is shown.
+  final TFormBase Function()? createForm;
+
+  /// Converts the saved [createForm] form into a new item.
+  ///
+  /// A non-null result is added to the list controller.
+  final FutureOr<T?> Function(dynamic form)? onCreateItem;
+
+  /// Label of the footer button that opens [createForm]. Defaults to 'Add New'.
+  final String createLabel;
+
+  /// Whether the item created through [createForm] is selected right away. Defaults to true.
+  final bool selectCreated;
+
+  bool get _canCreate => createForm != null && onCreateItem != null;
+
   /// Whether to only load data when a search query is present.
   final bool loadOnSearchOnly;
 
@@ -301,6 +321,10 @@ class TSelect<T, V, K> extends StatefulWidget
     this.cardTheme,
     this.itemValue,
     this.lazy = false,
+    this.createForm,
+    this.onCreateItem,
+    this.createLabel = 'Add New',
+    this.selectCreated = true,
     this.loadOnSearchOnly = false,
     this.visibleItemsCount,
     this.autoSelectFirst = false,
@@ -357,7 +381,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
 
     // Only add infinite-scroll footer height for server-side lists.
     final hasMore = !_isLocalItems && listController.value.hasMoreItems;
-    final hasFooter = widget.listTheme?.footerBuilder != null || listTheme.footerBuilder != null;
+    final hasFooter = widget._canCreate || widget.listTheme?.footerBuilder != null || listTheme.footerBuilder != null;
     final extraPadding =
         16.0 + 16.0 + (hasMore ? 40.0 : 0.0) + (hasFooter ? 48.0 : 0.0) + (shouldCenteredOverlay && widget.filterable ? 62.0 : 0.0);
     return heightSum + extraPadding;
@@ -406,13 +430,28 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
         );
   }
 
+  TListTheme _withCreate(TListTheme theme) {
+    if (!widget._canCreate) return theme;
+    return withSelectCreateFooter(
+      theme,
+      (ctx) => buildSelectCreateFooter<T, K>(
+        context: ctx,
+        controller: listController,
+        createForm: widget.createForm!,
+        onCreateItem: widget.onCreateItem,
+        label: widget.createLabel,
+        onCreated: widget.selectCreated ? _selectCreated : null,
+      ),
+    );
+  }
+
   @override
   Widget getContentWidget(BuildContext context) {
     // Infinite scroll only makes sense for server-side loading.
     // For local items, all items are already loaded — no scroll-to-load needed.
     final list = TList<T, K>(
       controller: listController,
-      theme: listTheme.copyWith(
+      theme: _withCreate(listTheme.copyWith(
         animationBuilder: TListAnimationBuilders.slideInDown,
         animationDuration: Duration(milliseconds: 150),
         infiniteScroll: !_isLocalItems,
@@ -423,7 +462,7 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
                     child: Text('No items found', style: TextStyle(fontSize: 14, color: context.colors.onSurfaceVariant)),
                   ),
                 ),
-      ),
+      )),
       itemBuilder: (ctx, item, index) {
         return TMeasureSize(
           onMeasure: (height) {
@@ -583,6 +622,12 @@ class _TSelectState<T, V, K> extends State<TSelect<T, V, K>>
       if (widget.itemValue!(item) == value) return listController.itemKey(item);
     }
     return null;
+  }
+
+  void _selectCreated(T item) {
+    listController.select(listController.itemKey(item));
+    notifyValueChanged(widget.itemValue?.call(item) ?? item as V);
+    hidePopup();
   }
 
   void _onItemSelected(TListItem<T, K> item) {

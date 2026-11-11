@@ -15,6 +15,7 @@ class _SelectFieldsPageState extends State<SelectFieldsPage> {
   final _userNotifier = ValueNotifier<int?>(null);
   final _footerValueNotifier = ValueNotifier<String?>('');
   final List<String> _footerOptions = ['Item A', 'Item B', 'Item C'];
+  final List<String> _tagOptions = ['Urgent', 'Bug', 'Feature'];
   List<String> _colors = [];
 
   @override
@@ -290,74 +291,57 @@ TMultiSelect<String, String, String>(
             ],
           ),
 
-          // Select with Custom Footer (Create Option)
+          // Select with inline create
           WidgetDocCard(
-            title: 'Select with Custom Footer',
-            description: 'Dropdown displaying a sticky footer action to create a new option inline',
+            title: 'Select with Add New',
+            description: 'A footer button opens createForm; onCreateItem turns the saved form into an item added to the list',
             icon: HugeIcons.strokeRoundedAddCircle,
-            preview: StatefulBuilder(
-              builder: (context, setState) {
-                return TSelect<String, String, String>(
+            preview: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 16,
+              children: [
+                TSelect<String, String, String>(
                   label: 'Project Options',
                   placeholder: 'Select a project option',
                   items: _footerOptions,
                   valueNotifier: _footerValueNotifier,
-                  listTheme: context.theme.listTheme.copyWith(
-                    footerSticky: true,
-                    footerBuilder: (context) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TButton(
-                          type: TButtonType.tonal,
-                          size: TButtonSize.block,
-                          icon: HugeIcons.strokeRoundedAdd01,
-                          text: 'Create New Option',
-                          onTap: () async {
-                            final form = _CreateOptionForm();
-                            final result = await TFormService.show(context, form);
-                            if (result != null) {
-                              final text = result.optionName.value.trim();
-                              if (text.isNotEmpty) {
-                                setState(() {
-                                  _footerOptions.add(text);
-                                  _footerValueNotifier.value = text;
-                                });
-                              }
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
+                  createForm: _CreateOptionForm.new,
+                  createLabel: 'Create New Option',
+                  onCreateItem: (form) {
+                    final text = (form as _CreateOptionForm).optionName.value.trim();
+                    return text.isEmpty ? null : text;
+                  },
+                ),
+                TMultiSelect<String, String, String>(
+                  label: 'Tags',
+                  placeholder: 'Select tags',
+                  items: _tagOptions,
+                  createForm: _CreateOptionForm.new,
+                  onCreateItem: (form) {
+                    final text = (form as _CreateOptionForm).optionName.value.trim();
+                    return text.isEmpty ? null : text;
+                  },
+                ),
+              ],
             ),
             code: '''TSelect<String, String, String>(
   label: 'Project Options',
-  placeholder: 'Select an option',
   items: options,
-  listTheme: TListTheme(
-    footerSticky: true,
-    footerBuilder: (context) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TButton(
-          type: TButtonType.tonal,
-          icon: HugeIcons.strokeRoundedAdd01,
-          text: 'Create New Option',
-          expanded: true,
-          onTap: () => showCreateOptionForm(context),
-        ),
-      );
-    },
-  ),
+  createForm: CreateOptionForm.new,
+  createLabel: 'Create New Option', // defaults to 'Add New'
+  onCreateItem: (form) => (form as CreateOptionForm).optionName.value.trim(),
+)
+
+// Same props on TMultiSelect
+TMultiSelect<String, String, String>(
+  items: tags,
+  createForm: CreateOptionForm.new,
+  onCreateItem: (form) => (form as CreateOptionForm).optionName.value.trim(),
 )''',
             properties: const [
-              PropertyDoc(
-                name: 'listTheme',
-                type: 'TListTheme?',
-                description: 'Custom theme for the inner list, where footerBuilder and footerSticky can be configured',
-              ),
+              PropertyDoc(name: 'createForm', type: 'TFormBase Function()?', description: 'Factory for the form shown by the footer button'),
+              PropertyDoc(name: 'onCreateItem', type: 'FutureOr<T?> Function(form)?', description: 'Converts the saved form to an item; non-null results are added to the list'),
+              PropertyDoc(name: 'createLabel', type: 'String', description: "Footer button label, defaults to 'Add New'"),
             ],
           ),
 
