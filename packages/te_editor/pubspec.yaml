@@ -4,6 +4,7 @@ version: 3.3.3
 
 homepage: https://teranes10.github.io/flutter-libs/myapp
 repository: https://github.com/teranes10/flutter-libs/tree/master/packages/te_editor
+resolution: workspace
 environment:
   sdk: ^3.10.4
   flutter: ">=1.17.0"
