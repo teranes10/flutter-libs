@@ -75,7 +75,7 @@ abstract class TFormBase {
     for (var field in fieldsToCheck) {
       if (field.isSubForm) return true;
       if (field._field is TFormBuilder) {
-        final fb = field._field as TFormBuilder;
+        final fb = field._field;
         if (fb.tabs != null && fb.tabs!.isNotEmpty) return true;
         if (fb.input != null && fb.input != this) return true;
       } else if (field._field is TItemsFormBuilder) {
@@ -112,7 +112,7 @@ abstract class TFormBase {
           }
         }
       } else if (field._field is TFormBuilder) {
-        final fb = field._field as TFormBuilder;
+        final fb = field._field;
         if (fb.input != null) {
           errorsList.addAll(fb.input!.validationErrors);
         } else if (fb.fields != null) {
@@ -145,7 +145,7 @@ abstract class TFormBase {
         return true;
       }
       if (field._field is TFormBuilder) {
-        final fb = field._field as TFormBuilder;
+        final fb = field._field;
         if (fb.input != null && fb.input!.isChanged) {
           return true;
         } else if (fb.fields != null && _getIsChanged(fb.fields!)) {
@@ -183,7 +183,7 @@ abstract class TFormBase {
     for (var field in fieldsToSave) {
       field.prop?.saveBaseline();
       if (field._field is TFormBuilder) {
-        final fb = field._field as TFormBuilder;
+        final fb = field._field;
         if (fb.input != null) {
           fb.input!.saveBaseline();
         } else if (fb.fields != null) {
@@ -214,7 +214,7 @@ abstract class TFormBase {
     for (var field in fieldsToReset) {
       field.prop?.reset();
       if (field._field is TFormBuilder) {
-        final fb = field._field as TFormBuilder;
+        final fb = field._field;
         if (fb.input != null) {
           fb.input!.reset();
         } else if (fb.fields != null) {
@@ -251,7 +251,7 @@ abstract class TFormBase {
     for (var field in fieldsToDispose) {
       field.prop?.dispose();
       if (field._field is TFormBuilder) {
-        final fb = field._field as TFormBuilder;
+        final fb = field._field;
         if (fb.input != null) {
           fb.input!.dispose();
         } else if (fb.fields != null) {
