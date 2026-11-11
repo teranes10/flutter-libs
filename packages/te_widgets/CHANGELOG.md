@@ -1,4 +1,4 @@
-## Unreleased
+## 3.11.0
 
  - **FEAT**(te_widgets): `TSelect` and `TMultiSelect` inline create: `createForm`, `onCreateItem`, `createLabel` and `selectCreated` add an "Add New" footer button that opens a form and adds (and selects) the new item.
  - **FEAT**(te_widgets): add refresh button to crud toolbar and pull-to-refresh to `TList`.
