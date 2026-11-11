@@ -9,6 +9,5 @@ jobs:
         with:
           channel: stable
           cache: true
-      - run: dart pub global activate melos
-      - run: melos bootstrap
-      - run: melos run check
+      - run: dart pub get
+      - run: dart run melos run check
