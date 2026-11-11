@@ -11,6 +11,13 @@ commands:
     includeCommitId: true
 
 scripts:
+  check:
+    run: |
+      dart format --output=none --set-exit-if-changed packages apps &&
+      melos exec -c 1 -- flutter analyze --fatal-infos &&
+      melos exec -c 1 --dir-exists=test -- flutter test
+    description: Format check + analyze + tests (run by CI).
+
   format:
     run: melos exec -- dart format .
     description: Format all Dart files across the workspace.

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Enable once: git config core.hooksPath .githooks
+dart format --output=none --set-exit-if-changed packages apps || { echo "Run: melos run format"; exit 1; }
+melos exec -c 1 -- flutter analyze --fatal-infos

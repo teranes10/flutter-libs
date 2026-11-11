@@ -61,7 +61,7 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
         _listController.addItem(newItem);
       }
       if (mounted && ctx.mounted) {
-        scope.close(ctx);
+        unawaited(scope.close(ctx));
       }
       form.reset();
       form.dispose();
@@ -76,7 +76,7 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
     if (updatedItem != null) {
       _listController.updateItem(item, updatedItem);
       if (mounted && ctx.mounted) {
-        scope.close(ctx);
+        unawaited(scope.close(ctx));
       }
       form.reset();
       form.dispose();

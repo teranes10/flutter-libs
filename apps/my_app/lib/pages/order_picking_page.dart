@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
@@ -369,7 +371,7 @@ class _OrderPickingPageState extends State<OrderPickingPage> {
   /// The item field takes a product barcode or a lot barcode. Scanning before the location is
   /// resolved asks for a location exception first.
   Future<void> _scanItem(String code) async {
-    TFeedback.selection();
+    unawaited(TFeedback.selection());
     if (!_loc.resolved && !await _showException(_Target.location)) return;
     if (!mounted) return;
 
