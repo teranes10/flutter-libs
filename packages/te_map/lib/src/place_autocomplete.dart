@@ -3,7 +3,7 @@ import 'map_config.dart';
 import 'google_places_client.dart';
 import 'openstreet_client.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:te_widgets/te_widgets.dart';
 
 class TPlaceResult {
@@ -60,7 +60,7 @@ class _TMapConfigTemp {
 }
 
 class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
-  final Dio _dio = Dio();
+  final http.Client _client = http.Client();
   TPlaceResult? _selectedPlace;
   String? _autoSessionToken;
 
@@ -68,6 +68,12 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
   void initState() {
     super.initState();
     _applySelectedAddress(widget.selectedAddress, notify: false);
+  }
+
+  @override
+  void dispose() {
+    _client.close();
+    super.dispose();
   }
 
   @override
@@ -121,7 +127,7 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
     }
 
     try {
-      final client = TGoogleClient(dio: _dio, googleMapApiKey: apiKey);
+      final client = TGoogleClient(client: _client, googleMapApiKey: apiKey);
 
       String? token = widget.config?.sessionToken;
       if (token == null || token.isEmpty) {
@@ -150,7 +156,7 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
   }
 
   Future<TLoadResult<TPlaceResult>> _loadNominatimPlaces(String query) async {
-    final osClient = TOpenStreetMapClient(dio: _dio);
+    final osClient = TOpenStreetMapClient(client: _client);
     final results = await osClient.search(query, limit: widget.limit);
     return TLoadResult(results, results.length);
   }
@@ -160,7 +166,7 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
     if (apiKey == null || apiKey.isEmpty) return;
 
     try {
-      final client = TGoogleClient(dio: _dio, googleMapApiKey: apiKey);
+      final client = TGoogleClient(client: _client, googleMapApiKey: apiKey);
       final token = widget.config?.sessionToken ?? _autoSessionToken;
 
       final response = await client.fetchPlaceDetails(placeId, fields: TGoogleClient.defaultPlaceDetailsFields, sessionToken: token);

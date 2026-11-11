@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import '../google_places_client.dart';
 import '../openstreet_client.dart';
 import '../route_result.dart';
@@ -251,6 +251,7 @@ class _TMapPinningState extends _TMapPinningStateBase {
 
   @override
   void dispose() {
+    httpClient.close();
     fromSearchController.dispose();
     toSearchController.dispose();
     reverseGeocodeDebounce?.cancel();

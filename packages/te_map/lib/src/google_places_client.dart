@@ -1,4 +1,5 @@
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
+import 'http_json.dart';
 import 'package:latlong2/latlong.dart';
 import 'map_config.dart';
 import 'route_result.dart';
@@ -383,10 +384,10 @@ class TGoogleClient {
     detailsDisplayName,
   ];
 
-  final Dio _dio;
+  final http.Client _client;
   final String? _googleMapApiKey;
 
-  TGoogleClient({Dio? dio, String? googleMapApiKey}) : _dio = dio ?? Dio(), _googleMapApiKey = googleMapApiKey;
+  TGoogleClient({http.Client? client, String? googleMapApiKey}) : _client = client ?? http.Client(), _googleMapApiKey = googleMapApiKey;
 
   String? _resolveApiKey() {
     if (_googleMapApiKey != null && _googleMapApiKey.isNotEmpty) {
@@ -408,14 +409,15 @@ class TGoogleClient {
 
     final data = (config ?? const TGooglePlacesConfig()).toJson(input);
 
-    final response = await _dio.post(
+    final response = await httpJson(
+      _client,
       'https://places.googleapis.com/v1/places:autocomplete',
-      data: data,
-      options: Options(headers: {'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': fieldMasks.join(','), 'Content-Type': 'application/json'}),
+      body: data,
+      headers: {'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': fieldMasks.join(',')},
     );
 
-    if (response.data is Map<String, dynamic>) {
-      return TGoogleAutocompleteResponse.fromJson(response.data as Map<String, dynamic>);
+    if (response is Map<String, dynamic>) {
+      return TGoogleAutocompleteResponse.fromJson(response);
     }
     throw Exception('Invalid response format from Autocomplete API.');
   }
@@ -433,14 +435,15 @@ class TGoogleClient {
 
     final id = placeId.startsWith('places/') ? placeId.split('/').last : placeId;
 
-    final response = await _dio.get(
+    final response = await httpJson(
+      _client,
       'https://places.googleapis.com/v1/places/$id',
-      queryParameters: {if (sessionToken != null && sessionToken.isNotEmpty) 'sessionToken': sessionToken},
-      options: Options(headers: {'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': fields.join(',')}),
+      query: {if (sessionToken != null && sessionToken.isNotEmpty) 'sessionToken': sessionToken},
+      headers: {'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': fields.join(',')},
     );
 
-    if (response.data is Map<String, dynamic>) {
-      return TGooglePlaceDetailsResponse.fromJson(response.data as Map<String, dynamic>);
+    if (response is Map<String, dynamic>) {
+      return TGooglePlaceDetailsResponse.fromJson(response);
     }
     throw Exception('Invalid response format from Place Details API.');
   }
@@ -452,12 +455,13 @@ class TGoogleClient {
       return null;
     }
 
-    final response = await _dio.get(
+    final response = await httpJson(
+      _client,
       'https://maps.googleapis.com/maps/api/geocode/json',
-      queryParameters: {'latlng': '$latitude,$longitude', 'key': apiKey},
+      query: {'latlng': '$latitude,$longitude', 'key': apiKey},
     );
 
-    final data = response.data;
+    final data = response;
     if (data is! Map<String, dynamic>) return null;
     if (data['status']?.toString() != 'OK') return null;
 
@@ -479,9 +483,10 @@ class TGoogleClient {
     }
 
     try {
-      final response = await _dio.get(
+      final response = await httpJson(
+        _client,
         'https://maps.googleapis.com/maps/api/directions/json',
-        queryParameters: {
+        query: {
           'origin': '${origin.latitude},${origin.longitude}',
           'destination': '${destination.latitude},${destination.longitude}',
           'mode': 'driving',
@@ -489,7 +494,7 @@ class TGoogleClient {
         },
       );
 
-      final data = response.data;
+      final data = response;
       if (data is! Map<String, dynamic>) return null;
       if (data['status']?.toString() != 'OK') return null;
 

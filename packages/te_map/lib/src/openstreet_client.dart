@@ -1,23 +1,25 @@
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'http_json.dart';
 import 'place_autocomplete.dart';
 import 'route_result.dart';
 
 /// Client to interact with Nominatim and OSRM OpenStreetMap APIs.
 class TOpenStreetMapClient {
-  final Dio _dio;
+  final http.Client _client;
 
-  TOpenStreetMapClient({Dio? dio}) : _dio = dio ?? Dio();
+  TOpenStreetMapClient({http.Client? client}) : _client = client ?? http.Client();
 
   /// Reverse-geocode lat/lng to a formatted address.
   Future<String?> reverseGeocode(double latitude, double longitude) async {
     try {
-      final response = await _dio.get(
+      final response = await httpJson(
+        _client,
         'https://nominatim.openstreetmap.org/reverse',
-        queryParameters: {'lat': latitude.toString(), 'lon': longitude.toString(), 'format': 'json', 'addressdetails': '1'},
-        options: Options(headers: {'User-Agent': 'te_widgets_map_pinning'}),
+        query: {'lat': latitude.toString(), 'lon': longitude.toString(), 'format': 'json', 'addressdetails': '1'},
+        headers: {'User-Agent': 'te_widgets_map_pinning'},
       );
-      final data = response.data;
+      final data = response;
       if (data is Map) {
         final address = data['display_name']?.toString().trim();
         if (address != null && address.isNotEmpty) return address;
@@ -31,14 +33,15 @@ class TOpenStreetMapClient {
     if (query.isEmpty) return [];
 
     try {
-      final response = await _dio.get(
+      final response = await httpJson(
+        _client,
         'https://nominatim.openstreetmap.org/search',
-        queryParameters: {'q': query, 'format': 'json', 'addressdetails': '1', 'limit': limit.toString()},
-        options: Options(headers: {'User-Agent': 'te_widgets_map_autocomplete'}),
+        query: {'q': query, 'format': 'json', 'addressdetails': '1', 'limit': limit.toString()},
+        headers: {'User-Agent': 'te_widgets_map_autocomplete'},
       );
 
-      if (response.data is List) {
-        final List data = response.data;
+      if (response is List) {
+        final List data = response;
         return data.map((item) {
           final latVal = double.tryParse(item['lat']?.toString() ?? '') ?? 0.0;
           final lonVal = double.tryParse(item['lon']?.toString() ?? '') ?? 0.0;
@@ -60,13 +63,14 @@ class TOpenStreetMapClient {
     try {
       final url =
           'https://router.project-osrm.org/route/v1/driving/${origin.longitude},${origin.latitude};${destination.longitude},${destination.latitude}';
-      final response = await _dio.get(
+      final response = await httpJson(
+        _client,
         url,
-        queryParameters: {'overview': 'full', 'geometries': 'geojson'},
-        options: Options(headers: {'User-Agent': 'te_widgets_map_routing'}),
+        query: {'overview': 'full', 'geometries': 'geojson'},
+        headers: {'User-Agent': 'te_widgets_map_routing'},
       );
 
-      final data = response.data;
+      final data = response;
       if (data is! Map<String, dynamic>) return null;
       if (data['code']?.toString() != 'Ok') return null;
 

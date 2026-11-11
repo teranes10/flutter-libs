@@ -31,7 +31,7 @@ abstract class _TMapPinningStateBase extends State<TMapPinning>
 
   // Geocoding state
   bool isResolvingAddress = false;
-  final Dio dio = Dio();
+  final http.Client httpClient = http.Client();
   Timer? reverseGeocodeDebounce;
   Timer? routeCalculateDebounce;
   int reverseGeocodeRequestId = 0;
@@ -92,13 +92,13 @@ abstract class _TMapPinningStateBase extends State<TMapPinning>
     final apiKey = resolveApiKey();
     if (apiKey != null && apiKey.isNotEmpty) {
       try {
-        final client = TGoogleClient(dio: dio, googleMapApiKey: apiKey);
+        final client = TGoogleClient(client: httpClient, googleMapApiKey: apiKey);
         final address = await client.reverseGeocode(coordinates.latitude, coordinates.longitude);
         if (address != null && address.isNotEmpty) return address;
       } catch (_) {}
     }
 
-    final osClient = TOpenStreetMapClient(dio: dio);
+    final osClient = TOpenStreetMapClient(client: httpClient);
     final osAddress = await osClient.reverseGeocode(coordinates.latitude, coordinates.longitude);
     if (osAddress != null && osAddress.isNotEmpty) return osAddress;
 
@@ -159,12 +159,12 @@ abstract class _TMapPinningStateBase extends State<TMapPinning>
       TRouteResult? result;
       final apiKey = resolveApiKey();
       if (apiKey != null && apiKey.isNotEmpty) {
-        final googleClient = TGoogleClient(dio: dio, googleMapApiKey: apiKey);
+        final googleClient = TGoogleClient(client: httpClient, googleMapApiKey: apiKey);
         result = await googleClient.fetchRoute(fromCoordinates, toCoordinates!);
       }
 
       if (result == null) {
-        final osClient = TOpenStreetMapClient(dio: dio);
+        final osClient = TOpenStreetMapClient(client: httpClient);
         result = await osClient.fetchRoute(fromCoordinates, toCoordinates!);
       }
 
