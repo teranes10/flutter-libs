@@ -69,7 +69,7 @@ class LayoutMainContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final background = framed ? colors.surface : context.scaffoldBackgroundColor;
+    final background = context.scaffoldBackgroundColor;
 
     return TBackgroundColorScope(
       backgroundColor: background,

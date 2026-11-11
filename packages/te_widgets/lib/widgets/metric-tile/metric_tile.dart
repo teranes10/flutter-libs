@@ -184,12 +184,17 @@ class TMetricTile extends StatelessWidget {
 
     final iconPadding = EdgeInsets.all(compact ? 6 : 8);
 
+    final effectiveColor = color ?? colors.primary;
+
     final effectiveGradient = gradient ??
         (accentGradient
-            ? LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-                colors: [(color ?? colors.primary).withAlpha(6), (color ?? colors.primary).withAlpha(0)],
+            ? RadialGradient(
+                colors: [
+                  effectiveColor.withAlpha(2),
+                  effectiveColor.withAlpha(6),
+                ],
+                center: Alignment.topRight,
+                radius: 0.0,
               )
             : null);
 
