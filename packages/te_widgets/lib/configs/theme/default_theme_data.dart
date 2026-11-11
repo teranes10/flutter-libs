@@ -7,7 +7,13 @@ class TAppTheme {
   final ColorScheme darkScheme;
   final TWidgetThemeExtension Function(ColorScheme colors) widgetThemeBuilder;
 
+  /// Scaffold background overrides (default: [AppColors.lightBackground] / [AppColors.darkBackground]).
+  final Color? lightBackground;
+  final Color? darkBackground;
+
   const TAppTheme({
+    this.lightBackground,
+    this.darkBackground,
     required this.lightScheme,
     required this.darkScheme,
     required this.widgetThemeBuilder,
@@ -151,7 +157,7 @@ class TAppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: lightScheme,
-      scaffoldBackgroundColor: AppColors.lightBackground,
+      scaffoldBackgroundColor: lightBackground ?? AppColors.lightBackground,
       textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
       scrollbarTheme: scrollbarTheme(lightScheme),
       extensions: [widgetTheme],
@@ -165,7 +171,7 @@ class TAppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: darkScheme,
-      scaffoldBackgroundColor: AppColors.darkBackground,
+      scaffoldBackgroundColor: darkBackground ?? AppColors.darkBackground,
       primarySwatch: widgetTheme.primary,
       textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
       scrollbarTheme: scrollbarTheme(darkScheme),

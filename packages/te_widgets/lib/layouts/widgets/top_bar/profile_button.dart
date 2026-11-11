@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+import 'theme_customizer.dart';
+
 class LayoutProfileButton extends ConsumerWidget {
   final Widget profile;
   final bool showThemeToggle;
@@ -41,8 +43,6 @@ class LayoutProfileButton extends ConsumerWidget {
     final themeState = ref.watch(themeNotifierProvider);
     final themeNotifier = ref.read(themeNotifierProvider.notifier);
     final currentThemeMode = themeState.themeMode;
-    final activeColorIndex = themeState.primaryColorIndex;
-    final selectedColorOption = primaryColorOptions[activeColorIndex];
     final isFullscreen = TFullscreen.isFullscreen;
     final sidebarMode = ref.watch(sidebarNotifierProvider);
     final sidebarNotifier = ref.read(sidebarNotifierProvider.notifier);
@@ -113,17 +113,9 @@ class LayoutProfileButton extends ConsumerWidget {
       if (showColorToggle)
         TDropdownItem(
           icon: HugeIcons.strokeRoundedPaintBoard,
-          color: selectedColorOption.color,
-          text: 'Accent Color',
-          children: [
-            for (var i = 0; i < primaryColorOptions.length; i++)
-              TDropdownItem(
-                text: primaryColorOptions[i].name,
-                icon: HugeIcons.strokeRoundedCircle,
-                color: primaryColorOptions[i].color,
-                onTap: () => themeNotifier.selectColor(i),
-              ),
-          ],
+          color: themeState.primaryColor,
+          text: 'Customize',
+          onTap: () => showThemeCustomizer(context),
         ),
       if (TFullscreen.isSupported && showFullscreenToggle)
         TDropdownItem(
