@@ -242,16 +242,19 @@ class _TFilePickerState extends State<TFilePicker>
     if (widget.disabled) return;
 
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        withData: true,
-        type: widget.fileType.toFilePickerType(),
-        allowMultiple: widget.allowMultiple,
-        allowedExtensions: widget.allowedExtensions,
-      );
+      final type = widget.fileType.toFilePickerType();
+      final List<PlatformFile> picked;
+      if (widget.allowMultiple) {
+        picked = await FilePicker.pickFiles(type: type, allowedExtensions: widget.allowedExtensions);
+      } else {
+        final f = await FilePicker.pickFile(type: type, allowedExtensions: widget.allowedExtensions);
+        picked = f == null ? const [] : [f];
+      }
+      if (picked.isEmpty) return;
 
-      if (result == null) return;
-
-      _addFiles(result.toFiles());
+      final files = await picked.toFiles();
+      if (!mounted) return;
+      _addFiles(files);
     } catch (e) {
       debugPrint('Error picking files: $e');
     }
@@ -312,8 +315,10 @@ class _TFilePickerState extends State<TFilePicker>
           setState(() => notifyValueChanged([]));
         }
       },
-      beforePreWidget: TIcon.raw(widget.source == TFilePickerSource.files ? HugeIcons.strokeRoundedAttachment : HugeIcons.strokeRoundedCamera01,
-          size: 16, color: colors.onSurfaceVariant),
+      beforePreWidget: TIcon.raw(
+          widget.source == TFilePickerSource.files ? HugeIcons.strokeRoundedAttachment : HugeIcons.strokeRoundedCamera01,
+          size: 16,
+          color: colors.onSurfaceVariant),
       child: Focus(
         focusNode: focusNode,
         autofocus: widget.autoFocus,

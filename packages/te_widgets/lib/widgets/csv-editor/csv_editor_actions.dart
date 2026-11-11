@@ -8,23 +8,16 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
 
   Future<void> pickFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final file = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: widget.allowedExtensions,
-        withData: true,
       );
+      if (file == null) return;
 
-      if (result == null || result.files.isEmpty) return;
-
-      final file = result.files.first;
-      final bytes = file.bytes;
-      if (bytes == null) {
-        if (mounted) TToastService.error(context, 'Unable to read file content.');
-        return;
-      }
+      final bytes = await file.readAsBytes();
 
       final content = utf8.decode(bytes, allowMalformed: true);
-      processContent(content, fileName: file.name, fileSize: file.size);
+      processContent(content, fileName: file.name, fileSize: file.lengthSync() ?? bytes.length);
     } catch (e) {
       if (mounted) TToastService.error(context, 'Error reading file: $e');
     }

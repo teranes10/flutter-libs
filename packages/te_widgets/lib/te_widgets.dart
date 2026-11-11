@@ -136,7 +136,7 @@ export 'widgets/error/error.dart';
 export 'widgets/file-picker/file.dart';
 export 'widgets/file-picker/file_picker_theme.dart';
 export 'widgets/file-picker/file_picker.dart';
-export 'package:file_picker/file_picker.dart' show PlatformFile, FilePicker, FileType, FilePickerResult;
+export 'package:file_picker/file_picker.dart' show PlatformFile, FilePicker, FileType;
 
 export 'widgets/filter/filter.dart';
 

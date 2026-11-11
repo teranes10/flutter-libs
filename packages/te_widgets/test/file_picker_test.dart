@@ -1,32 +1,81 @@
 import 'dart:typed_data';
+// ignore: depend_on_referenced_packages
+import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:file_picker/file_picker.dart'
+    show FilePickerPlatform, FilePickerStatus, AndroidOptions, DarwinOptions, WindowsOptions, LinuxOptions, WebOptions;
 import 'package:te_widgets/te_widgets.dart';
 
-class MockFilePicker extends FilePicker with MockPlatformInterfaceMixin {
+/// In-memory [PlatformFile] (file_picker 13 made it abstract).
+base class _MemFile extends PlatformFile {
+  _MemFile(this.name, this._bytes);
+
+  final Uint8List _bytes;
+
+  @override
+  final String name;
+
+  @override
+  Uri get uri => Uri.dataFromBytes(_bytes);
+
+  @override
+  String? get path => null;
+
+  @override
+  XFile get xFile => XFile.fromData(_bytes, name: name);
+
+  @override
+  int? lengthSync() => _bytes.length;
+
+  @override
+  Future<int?> length() async => _bytes.length;
+
+  @override
+  Future<Uint8List> readAsBytes() async => _bytes;
+
+  @override
+  Stream<Uint8List> readAsByteStream() => Stream.value(_bytes);
+}
+
+class MockFilePicker extends FilePickerPlatform with MockPlatformInterfaceMixin {
   final List<PlatformFile> filesToReturn;
 
   MockFilePicker(this.filesToReturn);
 
   @override
-  Future<FilePickerResult?> pickFiles({
+  Future<List<PlatformFile>> pickFiles({
     String? dialogTitle,
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-    dynamic onFileLoading,
-    bool allowCompression = true,
-    int compressionQuality = 30,
-    bool allowMultiple = false,
-    bool withData = true,
-    bool withReadStream = false,
-    bool lockParentWindow = false,
-    bool readSequential = false,
-  }) async {
-    return FilePickerResult(filesToReturn);
-  }
+    Function(FilePickerStatus)? onFileLoading,
+    int compressionQuality = 0,
+    AndroidOptions androidOptions = const AndroidOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
+  }) async =>
+      filesToReturn;
+
+  @override
+  Future<PlatformFile?> pickFile({
+    String? dialogTitle,
+    String? initialDirectory,
+    FileType type = FileType.any,
+    List<String>? allowedExtensions,
+    Function(FilePickerStatus)? onFileLoading,
+    int compressionQuality = 0,
+    AndroidOptions androidOptions = const AndroidOptions(),
+    DarwinOptions darwinOptions = const DarwinOptions(),
+    WindowsOptions windowsOptions = const WindowsOptions(),
+    LinuxOptions linuxOptions = const LinuxOptions(),
+    WebOptions webOptions = const WebOptions(),
+  }) async =>
+      filesToReturn.isEmpty ? null : filesToReturn.first;
 }
 
 void main() {
@@ -143,12 +192,8 @@ void main() {
   });
 
   testWidgets('TFilePicker onAdd provides List<TFile> when files are picked', (WidgetTester tester) async {
-    final newPlatformFile = PlatformFile(
-      name: 'picked_image.png',
-      size: 5,
-      bytes: Uint8List.fromList([10, 20, 30, 40, 50]),
-    );
-    FilePicker.platform = MockFilePicker([newPlatformFile]);
+    final newPlatformFile = _MemFile('picked_image.png', Uint8List.fromList([10, 20, 30, 40, 50]));
+    FilePickerPlatform.instance = MockFilePicker([newPlatformFile]);
 
     List<TFile>? addedFiles;
 
@@ -178,12 +223,8 @@ void main() {
 
   testWidgets('TFilePicker onAdd and onRemove when single file selection replaces existing file', (WidgetTester tester) async {
     final oldFile = TFile(name: 'old.png', bytes: Uint8List.fromList([1, 2, 3]));
-    final newPlatformFile = PlatformFile(
-      name: 'new.png',
-      size: 3,
-      bytes: Uint8List.fromList([4, 5, 6]),
-    );
-    FilePicker.platform = MockFilePicker([newPlatformFile]);
+    final newPlatformFile = _MemFile('new.png', Uint8List.fromList([4, 5, 6]));
+    FilePickerPlatform.instance = MockFilePicker([newPlatformFile]);
 
     List<TFile>? addedFiles;
     List<TFile>? removedFiles;

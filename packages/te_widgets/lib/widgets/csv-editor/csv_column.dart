@@ -1,6 +1,7 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import '../file-picker/file.dart';
 import 'package:hugeicons/hugeicons.dart';
+
 /// Supported data types for columns in [TCsvEditor].
 enum TCsvColumnType {
   /// String text field.
@@ -97,8 +98,8 @@ class TCsvColumn {
   /// Content alignment inside cell.
   final Alignment alignment;
 
-  /// Upload callback for image columns: receives PlatformFile, returns server URL.
-  final Future<String> Function(PlatformFile file)? uploadCallback;
+  /// Upload callback for image columns: receives TFile, returns server URL.
+  final Future<String> Function(TFile file)? uploadCallback;
 
   /// Separator used to split/join multiple image filenames in a single cell.
   final String imageSeparator;
@@ -199,7 +200,7 @@ class TCsvColumn {
         imageSeparator = '|';
 
   /// Creates an image filename column with upload support.
-  /// [uploadCallback] receives a PlatformFile and returns the server URL (GUID-named).
+  /// [uploadCallback] receives a TFile and returns the server URL (GUID-named).
   /// Multiple images are separated by [imageSeparator] (default `|`).
   const TCsvColumn.image({
     required this.key,

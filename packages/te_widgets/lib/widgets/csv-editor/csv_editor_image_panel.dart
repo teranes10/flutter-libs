@@ -34,20 +34,18 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
 
   Future<void> pickImages() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final files = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'zip'],
-        allowMultiple: true,
-        withData: true,
       );
-      if (result == null || result.files.isEmpty) return;
+      if (files.isEmpty) return;
 
-      for (final f in result.files) {
-        if (f.bytes == null) continue;
+      for (final f in files) {
+        final bytes = await f.readAsBytes();
         if (f.extension?.toLowerCase() == 'zip') {
-          _extractZip(f.bytes!);
+          _extractZip(bytes);
         } else {
-          _addPickedImage(f.name, f.bytes!, f.extension ?? 'jpg');
+          _addPickedImage(f.name, bytes, f.extension ?? 'jpg');
         }
       }
       _refreshImageReferences();
@@ -70,10 +68,8 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
         if (!imageExts.contains(ext)) continue;
 
         final content = file.content;
-        if (content is List<int>) {
-          _addPickedImage(name, Uint8List.fromList(content), ext);
-          extractedCount++;
-        }
+        _addPickedImage(name, Uint8List.fromList(content), ext);
+        extractedCount++;
       }
       if (mounted && extractedCount > 0) {
         TToastService.success(context, 'Extracted $extractedCount images from ZIP archive.');
@@ -109,8 +105,8 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
     if (raw.trim().isEmpty) return [];
     final filenames = raw.split(col.imageSeparator).map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
 
-    return filenames.map((fname) {
-      final lowerName = fname.toLowerCase();
+    return filenames.map((filename) {
+      final lowerName = filename.toLowerCase();
 
       // 1. Exact filename match (with or without extension)
       if (_pickedImages.containsKey(lowerName)) {
@@ -196,11 +192,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
     for (final entry in toUpload.entries) {
       final img = entry.value;
       try {
-        final file = PlatformFile(
-          name: img.filename,
-          size: img.bytes.length,
-          bytes: img.bytes,
-        );
+        final file = TFile(name: img.filename, bytes: img.bytes);
         final serverUrl = await defaultCol.uploadCallback!(file);
         urlMap[img.filename.toLowerCase()] = serverUrl;
       } catch (e) {
@@ -214,7 +206,7 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
         final raw = row.getValue(col.key)?.toString() ?? '';
         if (raw.trim().isEmpty) continue;
         final filenames = raw.split(col.imageSeparator).map((s) => s.trim()).toList();
-        final resolved = filenames.map((fname) => urlMap[fname.toLowerCase()] ?? fname).toList();
+        final resolved = filenames.map((filename) => urlMap[filename.toLowerCase()] ?? filename).toList();
         row.setValue(col.key, resolved.join(col.imageSeparator));
       }
     }
@@ -440,13 +432,13 @@ mixin _TCsvEditorImagePanel on _TCsvEditorStateContract, _TCsvEditorActions {
         ...resolved.take(3).indexed.map((entry) {
           final i = entry.$1;
           final img = entry.$2;
-          final fname = i < filenames.length ? filenames[i] : '';
+          final filename = i < filenames.length ? filenames[i] : '';
 
           if (img == null) {
             return Padding(
               padding: const EdgeInsets.only(right: 4),
               child: TTooltip(
-                message: 'No uploaded image matches "$fname"',
+                message: 'No uploaded image matches "$filename"',
                 child: Container(
                   width: 32,
                   height: 32,
