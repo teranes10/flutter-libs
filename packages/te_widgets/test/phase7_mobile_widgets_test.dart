@@ -61,7 +61,7 @@ void main() {
 
       final plus = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedAdd01);
       final minus = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedRemove01);
-      expect(tester.getSize(find.ancestor(of: plus, matching: find.byType(Container)).first).shortestSide, greaterThanOrEqualTo(48));
+      expect(tester.getSize(find.ancestor(of: plus, matching: find.byType(TButton)).first).shortestSide, greaterThanOrEqualTo(48));
 
       await tester.tap(plus);
       await tester.pumpAndSettle();
@@ -117,7 +117,7 @@ void main() {
       );
 
       final plusIcon = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedAdd01);
-      final buttonContainer = find.ancestor(of: plusIcon, matching: find.byType(Container)).first;
+      final buttonContainer = find.ancestor(of: plusIcon, matching: find.byType(TButton)).first;
       final btnSize = tester.getSize(buttonContainer);
       expect(btnSize.width, 56.0);
       expect(btnSize.height, 56.0);
@@ -296,8 +296,7 @@ void main() {
       expect(find.text('Confirm'), findsOneWidget);
     });
 
-    testWidgets('stacks onto two lines with primary first (full 56dp) and secondary below (0.75h) when space constrained',
-        (tester) async {
+    testWidgets('stacks onto two lines with primary first (full 56dp) and secondary below (0.75h) when space constrained', (tester) async {
       var primaryPressed = 0;
       var secondaryPressed = 0;
 
@@ -462,7 +461,8 @@ void main() {
       );
 
       expect(find.text('4'), findsOneWidget, reason: 'tasks badge count');
-      expect(tester.getSize(find.ancestor(of: find.text('Tasks'), matching: find.byType(AnimatedContainer)).first).height, greaterThanOrEqualTo(48));
+      expect(tester.getSize(find.ancestor(of: find.text('Tasks'), matching: find.byType(AnimatedContainer)).first).height,
+          greaterThanOrEqualTo(48));
 
       await tester.tap(find.text('Scan'));
       expect(selected, 2);

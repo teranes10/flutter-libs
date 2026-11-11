@@ -12,13 +12,11 @@ enum _TopBarSlot {
 class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
   final int itemCount;
   final bool isNoneMode;
-  final ValueNotifier<List<TSidebarItem>> overflowNotifier;
   final List<TSidebarItem> allItems;
 
   _DesktopTopBarLayoutDelegate({
     required this.itemCount,
     required this.isNoneMode,
-    required this.overflowNotifier,
     required this.allItems,
   });
 
@@ -134,16 +132,6 @@ class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {
       final y = ((size.height - actionsSize.height) / 2).clamp(0.0, size.height);
       positionChild(_TopBarSlot.actions, Offset(rightEdge, y));
     }
-
-    // 12. Update overflow items notifier asynchronously if changed
-    final overflow = isNoneMode ? allItems.sublist(fitCount) : <TSidebarItem>[];
-    if (!listEquals(overflowNotifier.value, overflow)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!listEquals(overflowNotifier.value, overflow)) {
-          overflowNotifier.value = overflow;
-        }
-      });
-    }
   }
 
   @override
@@ -191,20 +179,6 @@ class LayoutDesktopTopBar extends ConsumerStatefulWidget {
 }
 
 class _LayoutDesktopTopBarState extends ConsumerState<LayoutDesktopTopBar> {
-  late final ValueNotifier<List<TSidebarItem>> _overflowNotifier;
-
-  @override
-  void initState() {
-    super.initState();
-    _overflowNotifier = ValueNotifier<List<TSidebarItem>>([]);
-  }
-
-  @override
-  void dispose() {
-    _overflowNotifier.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final sidebarMode = ref.watch(sidebarNotifierProvider);
@@ -226,7 +200,6 @@ class _LayoutDesktopTopBarState extends ConsumerState<LayoutDesktopTopBar> {
           delegate: _DesktopTopBarLayoutDelegate(
             itemCount: visibleItems.length,
             isNoneMode: isNoneMode,
-            overflowNotifier: _overflowNotifier,
             allItems: visibleItems,
           ),
           children: [

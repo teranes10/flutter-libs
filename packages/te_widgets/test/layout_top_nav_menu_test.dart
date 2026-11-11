@@ -178,7 +178,7 @@ void main() {
       expect(find.text('Subcategories'), findsOneWidget);
     });
 
-    testWidgets('Top nav menu items are centered between breadcrumbs and sidebar state icon in none mode', (tester) async {
+    testWidgets('Top nav menu items are centered between breadcrumbs and actions in none mode', (tester) async {
       tester.view.physicalSize = const Size(1920, 1080);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -186,90 +186,24 @@ void main() {
       await tester.pumpWidget(buildApp(initialMode: TSidebarMode.none));
       await tester.pumpAndSettle();
 
-      final breadcrumbsFinder = find.byType(LayoutPageHeader);
-      final tristateFinder = find.byType(SidebarTristateButton);
+      final breadcrumbsFinder = find.byType(TBreadcrumbs);
+      final actionsFinder = find.byType(LayoutActionsRow);
       final navMenuItemsFinder = find.byType(LayoutTopNavMenuItem);
 
       expect(breadcrumbsFinder, findsOneWidget);
-      expect(tristateFinder, findsOneWidget);
+      expect(actionsFinder, findsOneWidget);
       expect(navMenuItemsFinder, findsWidgets);
 
       final breadcrumbsRect = tester.getRect(breadcrumbsFinder);
-      final tristateRect = tester.getRect(tristateFinder);
+      final actionsRect = tester.getRect(actionsFinder);
+      final itemsLeft = tester.getRect(navMenuItemsFinder.first).left;
+      final itemsRight = tester.getRect(navMenuItemsFinder.last).right;
 
-      final firstItemRect = tester.getRect(navMenuItemsFinder.first);
-      final lastItemRect = tester.getRect(navMenuItemsFinder.last);
-
-      final itemsLeft = firstItemRect.left;
-      final itemsRight = lastItemRect.right;
-
+      // The layout reserves a 20px gutter before the actions row.
       final leftGap = itemsLeft - breadcrumbsRect.right;
-      final rightGap = tristateRect.left - itemsRight;
+      final rightGap = actionsRect.left - 20.0 - itemsRight;
 
       expect(leftGap, closeTo(rightGap, 1.0));
-    });
-
-    testWidgets('None mode shows possible top bar tabs and tristate down arrow with hover dropdown for remaining items', (tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(buildApp(
-        items: manyItems,
-        initialMode: TSidebarMode.none,
-      ));
-      await tester.pumpAndSettle();
-
-      // Top nav menu items should be displayed in top bar
-      expect(find.byType(LayoutTopNavMenuItem), findsWidgets);
-
-      // First few items should fit as top bar tabs
-      expect(find.text('Products'), findsOneWidget);
-
-      // Tristate button shows down arrow in none mode
-      expect(find.byType(SidebarTristateButton), findsOneWidget);
-      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowDown01), findsWidgets);
-
-      // Hovering over tristate button reveals the overflow items dropdown
-      final tristateBtn = find.byType(SidebarTristateButton);
-      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
-      await gesture.addPointer(location: Offset.zero);
-      await gesture.moveTo(tester.getCenter(tristateBtn));
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.pumpAndSettle();
-
-      // Overflow items should now be visible in the dropdown
-      expect(find.text('Analytics'), findsOneWidget);
-    });
-
-    testWidgets('Tristate sidebar button has directional arrow icons: minified -> right, full -> left, none -> down', (tester) async {
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(buildApp(
-        items: manyItems,
-        initialMode: TSidebarMode.full,
-      ));
-      await tester.pumpAndSettle();
-
-      // Full mode displays left arrow icon
-      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowLeft01), findsOneWidget);
-
-      // Tapping tristate button cycles: full -> none (down arrow)
-      await tester.tap(find.byType(SidebarTristateButton));
-      await tester.pumpAndSettle();
-      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowDown01), findsWidgets);
-
-      // Tapping again cycles: none -> minified (right arrow)
-      await tester.tap(find.byType(SidebarTristateButton));
-      await tester.pumpAndSettle();
-      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowRight01), findsOneWidget);
-
-      // Tapping again cycles: minified -> full (left arrow)
-      await tester.tap(find.byType(SidebarTristateButton));
-      await tester.pumpAndSettle();
-      expect(find.byWidgetPredicate((w) => w is TIcon && w.icon == HugeIcons.strokeRoundedArrowLeft01), findsOneWidget);
     });
 
     testWidgets('Nested submenus propagate left alignment when right side is constrained', (tester) async {
@@ -331,32 +265,6 @@ void main() {
       // Subcategories is displayed
       final subcategoriesItem = find.text('Subcategories');
       expect(subcategoriesItem, findsOneWidget);
-    });
-
-    testWidgets('Dropdown panels constrain max height to screen height - target - 50', (tester) async {
-      tester.view.physicalSize = const Size(1200, 600);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-
-      await tester.pumpWidget(buildApp(
-        items: manyItems,
-        initialMode: TSidebarMode.none,
-      ));
-      await tester.pumpAndSettle();
-
-      final tristateBtn = find.byType(SidebarTristateButton);
-      final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
-      await gesture.addPointer(location: Offset.zero);
-      await gesture.moveTo(tester.getCenter(tristateBtn));
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.pumpAndSettle();
-
-      final overlayPanels = find.byType(TMenuOverlayPanel<TSidebarItem>);
-      expect(overlayPanels, findsOneWidget);
-
-      final panelSize = tester.getSize(overlayPanels);
-      // Screen height is 600, topbar is ~60, buffer is 50 -> panel max height <= 500
-      expect(panelSize.height, lessThanOrEqualTo(500));
     });
 
     testWidgets('Profile button shows end down-arrow and opens dropdown with theme system/light/dark, color, fullscreen, logout',

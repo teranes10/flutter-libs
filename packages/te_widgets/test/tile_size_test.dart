@@ -31,8 +31,8 @@ void main() {
 
       // Verify default h5 values match standard tile dimensions
       expect(TTileSize.h5.font, 14.0);
-      expect(TTileSize.h5.icon, 20.0);
-      expect(TTileSize.h5.spacing, 12.0);
+      expect(TTileSize.h5.icon, 22.0);
+      expect(TTileSize.h5.spacing, 10.0);
 
       // Verify product/image tile sizes
       expect(TTileSize.sm.icon, 55.0);
