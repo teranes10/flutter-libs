@@ -161,7 +161,7 @@ class TCsvHeaderMapperModal extends StatefulWidget {
     required List<List<String>> sampleRows,
     required TCsvHeaderMapping initialMapping,
   }) {
-    return TModalService.show<TCsvHeaderMapping>(
+    return TModalService.showAdaptive<TCsvHeaderMapping>(
       context,
       (mContext) => TCsvHeaderMapperModal(
         expectedColumns: expectedColumns,
@@ -279,7 +279,7 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
                 Expanded(
                   child: Text(
                     'Required fields unmapped: ${unmappedRequired.map((c) => c.header).join(', ')}',
-                    style: TextStyle(fontSize: 12, color: colors.onErrorContainer, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 12, color: colors.onErrorContainer, fontWeight: FontWeight.w400),
                   ),
                 ),
               ],
@@ -309,44 +309,19 @@ class _TCsvHeaderMapperModalState extends State<TCsvHeaderMapperModal> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Left: Expected Column Info
+
                       Expanded(
                         flex: 5,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                TIcon.raw(col.type.icon, size: 16, color: colors.primary),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: Text(
-                                    col.header,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                      color: isUnmappedRequired ? colors.error : colors.onSurface,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                if (col.isRequired) ...[
-                                  const SizedBox(width: 6),
-                                  TChip(
-                                    text: 'Required',
-                                    type: TVariant.tonal,
-                                    color: isUnmappedRequired ? AppColors.danger : AppColors.secondary,
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Type: ${col.type.label} • Key: ${col.key}',
-                              style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
-                            ),
-                          ],
+                        child: TTile.h6(
+                          icon: col.type.icon,
+                          title: col.header,
+                          subtitle: 'Type: ${col.type.label} • Key: ${col.key}',
+                          trailing: col.isRequired
+                              ? Text(
+                                  '*',
+                                  style: TextStyle(color: colors.error),
+                                )
+                              : null,
                         ),
                       ),
 

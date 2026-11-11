@@ -174,18 +174,19 @@ mixin _TCsvEditorTable on _TCsvEditorStateContract, _TCsvEditorActions {
       );
     }
 
-    return TTable<TCsvRow, String>(
+    return TDataTable<TCsvRow, String>(
       headers: buildTableHeaders(colors),
       items: filtered,
       itemKey: (row) => row.id,
       itemsPerPage: widget.itemsPerPage > 0 ? widget.itemsPerPage : null,
       shrinkWrap: true,
+      optionalPaginationBar: true,
       dense: theme.dense,
       editable: true,
       cellErrorBuilder: (row, col) => row.errors[col],
       rowColorBuilder: (item, index) {
         if (!item.data.isValid) {
-          return colors.errorContainer.withValues(alpha: 0.15);
+          return colors.errorContainer.withAlpha(160);
         }
         return null;
       },

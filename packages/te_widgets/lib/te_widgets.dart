@@ -102,6 +102,7 @@ export 'widgets/crud-table/crud_table.dart';
 
 export 'widgets/csv-editor/csv_column.dart';
 export 'widgets/csv-editor/csv_row.dart';
+export 'widgets/csv-editor/csv_encoding.dart';
 export 'widgets/csv-editor/csv_parser.dart';
 export 'widgets/csv-editor/csv_header_mapper.dart';
 export 'widgets/csv-editor/csv_editor_theme.dart';
@@ -129,6 +130,7 @@ export 'widgets/accordion/accordion_theme.dart';
 export 'widgets/tile/tile.dart';
 export 'widgets/tile/tile_size.dart';
 export 'widgets/dropdown/dropdown.dart';
+export 'widgets/dropzone/dropzone.dart';
 
 export 'widgets/error/error_builder.dart';
 export 'widgets/error/error.dart';

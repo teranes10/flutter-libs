@@ -304,6 +304,17 @@ class _TFilePickerState extends State<TFilePicker>
 
   @override
   Widget build(BuildContext context) {
+    return TDropzone(
+      enabled: !widget.disabled,
+      multiple: widget.allowMultiple,
+      allowedExtensions: widget.allowedExtensions,
+      borderRadius: BorderRadius.circular(8),
+      onDrop: _addFiles,
+      child: _buildField(),
+    );
+  }
+
+  Widget _buildField() {
     return buildContainer(
       onTap: _onTap,
       expands: true,

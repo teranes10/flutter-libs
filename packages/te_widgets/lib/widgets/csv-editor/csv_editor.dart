@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async' show unawaited;
 import 'package:archive/archive.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +7,7 @@ import 'package:te_widgets/te_widgets.dart';
 
 part 'csv_editor_actions.dart';
 part 'csv_editor_banners.dart';
+part 'csv_editor_export.dart';
 part 'csv_editor_image_panel.dart';
 part 'csv_editor_table.dart';
 
@@ -134,6 +135,16 @@ abstract class _TCsvEditorStateContract extends State<TCsvEditor> {
   set loadedFileSize(int? val);
   TCsvFileFormat get detectedFormat;
   set detectedFormat(TCsvFileFormat val);
+  TCsvEncoding get detectedEncoding;
+  set detectedEncoding(TCsvEncoding val);
+  TJsonStyle? get detectedJsonStyle;
+  set detectedJsonStyle(TJsonStyle? val);
+  double? get loadProgress;
+  set loadProgress(double? val);
+  bool get isLoading;
+  set isLoading(bool val);
+  String? get loadingFileName;
+  set loadingFileName(String? val);
   String get effectiveDelimiter;
   set effectiveDelimiter(String val);
   List<String> get rawCsvHeaders;
@@ -167,6 +178,21 @@ class _TCsvEditorState extends _TCsvEditorStateContract
 
   @override
   TCsvFileFormat detectedFormat = TCsvFileFormat.csv;
+
+  @override
+  TCsvEncoding detectedEncoding = TCsvEncoding.utf8;
+
+  @override
+  TJsonStyle? detectedJsonStyle;
+
+  @override
+  double? loadProgress;
+
+  @override
+  bool isLoading = false;
+
+  @override
+  String? loadingFileName;
 
   @override
   String effectiveDelimiter = ',';
@@ -226,7 +252,12 @@ class _TCsvEditorState extends _TCsvEditorStateContract
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // 1. Upload Dropzone / Loaded File Banner
-          if (rows.isEmpty) buildDropzone(colors, isDark) else buildLoadedFileBanner(colors, isDark),
+          if (isLoading)
+            buildLoadingCard(colors, isDark)
+          else if (rows.isEmpty)
+            buildDropzone(colors, isDark)
+          else
+            buildLoadedFileBanner(colors, isDark),
 
           // 2. Bulk Image Gallery Panel (active if any image column exists)
           buildImagePanel(colors, isDark),

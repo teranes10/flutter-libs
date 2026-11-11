@@ -179,6 +179,12 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Whether text within the table is selectable. Defaults to true.
   final bool selectableText;
 
+  /// Whether specific cells are editable. See [TTable.editable].
+  final bool editable;
+
+  /// Returns an error message for a cell, or null. See [TTable.cellErrorBuilder].
+  final String? Function(T data, String column)? cellErrorBuilder;
+
   /// Creates a data table component.
   const TDataTable({
     super.key,
@@ -196,6 +202,8 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     //Details
     this.details,
     this.selectableText = true,
+    this.editable = false,
+    this.cellErrorBuilder,
     //DataTable
     this.paginationTotalVisible = 5,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
@@ -302,6 +310,8 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
         rowHeightHint: widget.rowHeightHint,
         onRowHeightMeasured: widget.onRowHeightMeasured,
         selectableText: widget.selectableText,
+        editable: widget.editable,
+        cellErrorBuilder: widget.cellErrorBuilder,
       );
     });
   }

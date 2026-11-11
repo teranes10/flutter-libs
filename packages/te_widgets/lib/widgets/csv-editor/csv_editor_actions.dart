@@ -14,17 +14,71 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
       );
       if (file == null) return;
 
+      setState(() {
+        isLoading = true;
+        loadingFileName = file.name;
+      });
       final bytes = await file.readAsBytes();
-
-      final content = utf8.decode(bytes, allowMalformed: true);
-      processContent(content, fileName: file.name, fileSize: file.lengthSync() ?? bytes.length);
+      await loadBytes(bytes, fileName: file.name);
     } catch (e) {
-      if (mounted) TToastService.error(context, 'Error reading file: $e');
+      if (mounted) {
+        setState(() => isLoading = false);
+        TToastService.error(context, 'Error reading file: $e');
+      }
     }
   }
 
-  void processContent(String content, {String? fileName, int? fileSize, String? delimiter}) {
-    final parsed = TCsvParser.parseGeneric(content, delimiter: delimiter);
+  void _setProgress(double value) {
+    if (mounted) setState(() => loadProgress = value.clamp(0.0, 1.0));
+  }
+
+  /// Decodes [bytes] (encoding auto-detected) and loads them as CSV / JSON.
+  Future<void> loadBytes(Uint8List bytes, {String? fileName}) async {
+    setState(() {
+      isLoading = true;
+      loadProgress = 0;
+      loadingFileName = fileName;
+    });
+    try {
+      // Let the progress state paint before the work starts.
+      await WidgetsBinding.instance.endOfFrame;
+      final decoded = TCsvEncoding.decode(bytes);
+      await _loadText(decoded.text, fileName: fileName, fileSize: bytes.length, encoding: decoded.encoding);
+    } catch (e) {
+      if (mounted) TToastService.error(context, 'Could not read file: $e');
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  /// Loads raw text (e.g. pasted data) as CSV / JSON.
+  Future<void> processContent(String content, {String? fileName, int? fileSize, String? delimiter, TCsvEncoding? encoding}) async {
+    setState(() {
+      isLoading = true;
+      loadProgress = 0;
+      loadingFileName = fileName;
+    });
+    try {
+      await WidgetsBinding.instance.endOfFrame;
+      await _loadText(content, fileName: fileName, fileSize: fileSize, delimiter: delimiter, encoding: encoding);
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
+  }
+
+  /// Parses in time slices (so the progress bar keeps moving, also on web where
+  /// isolates aren't available) and then builds the table rows the same way.
+  Future<void> _loadText(String content, {String? fileName, int? fileSize, String? delimiter, TCsvEncoding? encoding}) async {
+    final parsed = await TCsvParser.parseGenericAsync(content, delimiter: delimiter, onProgress: (p) => _setProgress(p * 0.6));
+    if (!mounted) return;
+    await applyParsed(parsed, fileName: fileName, fileSize: fileSize, encoding: encoding);
+  }
+
+  /// Backward compatible alias for [processContent].
+  Future<void> processCsvContent(String content, {String? fileName, int? fileSize}) =>
+      processContent(content, fileName: fileName, fileSize: fileSize);
+
+  Future<void> applyParsed(TCsvParseResult parsed, {String? fileName, int? fileSize, TCsvEncoding? encoding}) async {
     if (parsed.isEmpty) {
       if (mounted) TToastService.warning(context, 'The file is empty.');
       return;
@@ -49,28 +103,58 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
       loadedFileSize = fileSize;
       detectedFormat = parsed.format;
       effectiveDelimiter = parsed.delimiter ?? ',';
+      detectedEncoding = encoding ?? TCsvEncoding.utf8;
+      detectedJsonStyle = parsed.jsonStyle;
       rawCsvHeaders = headers;
       rawCsvRows = dataRows;
       currentMapping = autoMapping;
       hasDiffHeaders = !areIdentical;
     });
 
-    applyMapping(autoMapping);
+    await applyMappingAsync(autoMapping, onProgress: (p) => _setProgress(0.6 + 0.4 * p));
+    if (!mounted) return;
 
     if (hasDiffHeaders && widget.autoPromptMappingOnDiff && mounted) {
       // Prompt mapping dialog if headers differ
-      openMappingDialog();
+      unawaited(openMappingDialog());
     } else {
       if (mounted) {
-        final formatName = parsed.format.shortLabel;
-        TToastService.success(context, 'Loaded ${dataRows.length} rows from $formatName file.');
+        final detail = parsed.format == TCsvFileFormat.json
+            ? 'JSON, ${parsed.jsonStyle?.label.toLowerCase()}'
+            : '${parsed.format == TCsvFileFormat.custom ? 'delimiter "${parsed.delimiter}"' : parsed.format.shortLabel}, ${detectedEncoding.label}';
+        TToastService.success(context, 'Loaded ${dataRows.length} rows ($detail).');
       }
     }
   }
 
-  /// Backward compatible alias for [processContent].
-  void processCsvContent(String content, {String? fileName, int? fileSize}) =>
-      processContent(content, fileName: fileName, fileSize: fileSize);
+  Future<void> applyMappingAsync(TCsvHeaderMapping mapping, {void Function(double progress)? onProgress}) async {
+    final built = <TCsvRow>[];
+    final total = rawCsvRows.length;
+    final watch = Stopwatch()..start();
+
+    for (var i = 0; i < total; i++) {
+      final row = TCsvRow(
+        values: mapping.mapRow(expectedColumns: widget.columns, csvHeaders: rawCsvHeaders, csvRow: rawCsvRows[i]),
+      );
+      row.validate(widget.columns);
+      built.add(row);
+
+      if (watch.elapsedMilliseconds >= 10) {
+        onProgress?.call(i / total);
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+        watch.reset();
+      }
+    }
+    if (!mounted) return;
+
+    setState(() {
+      currentMapping = mapping;
+      rows
+        ..clear()
+        ..addAll(built);
+    });
+    notifyChange();
+  }
 
   void applyMapping(TCsvHeaderMapping mapping) {
     setState(() {
@@ -118,7 +202,7 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
 
   Future<void> openPasteModal() async {
     final textController = TextEditingController();
-    final pasted = await TModalService.show<String>(
+    final pasted = await TModalService.showAdaptive<String>(
       context,
       (mContext) => Column(
         mainAxisSize: MainAxisSize.min,
@@ -164,7 +248,7 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
     );
 
     if (pasted != null && pasted.trim().isNotEmpty) {
-      processContent(pasted, fileName: 'Pasted Data (${DateTime.now().hour}:${DateTime.now().minute})');
+      await processContent(pasted, fileName: 'Pasted Data (${DateTime.now().hour}:${DateTime.now().minute})');
     }
   }
 
@@ -236,103 +320,113 @@ mixin _TCsvEditorActions on _TCsvEditorStateContract {
   // Export & Template Downloads
   // ---------------------------------------------------------------------------
 
-  Future<void> downloadTemplate({TCsvFileFormat? format, String? delimiter}) async {
-    final targetFormat = format ?? widget.defaultExportFormat;
-    final effectiveDelim = delimiter ?? targetFormat.delimiter ?? ',';
-    final template = TCsvParser.generateTemplate(
+  Future<void> openTemplateDialog() async {
+    final request = await TModalService.showAdaptive<_TCsvExportRequest>(
+      context,
+      (mContext) => _TCsvExportDialog(
+        initialFileName: 'template',
+        initialDelimiter: ',',
+        initialEncoding: TCsvEncoding.utf8,
+        initialJsonStyle: TJsonStyle.arrayOfObjects,
+        startOnJson: widget.defaultExportFormat == TCsvFileFormat.json,
+        note: 'Includes the expected columns and one sample row.',
+        actionText: 'Download',
+        onExport: (r) => Navigator.of(mContext.context).pop(r),
+        onCancel: () => Navigator.of(mContext.context).pop(),
+      ),
+      title: 'Download Template',
+      width: 480,
+      showCloseButton: true,
+    );
+    if (request != null) await downloadTemplate(request);
+  }
+
+  Future<void> downloadTemplate(_TCsvExportRequest r) async {
+    final text = TCsvParser.generateTemplate(
       widget.columns,
-      format: targetFormat,
-      delimiter: effectiveDelim,
+      format: r.isJson ? TCsvFileFormat.json : TCsvFileFormat.csv,
+      delimiter: r.delimiter,
+      jsonStyle: r.jsonStyle,
+      jsonIndent: r.jsonIndent,
+      wrapperKey: r.wrapperKey,
     );
-
-    final bytes = utf8.encode(template);
-    final ext = targetFormat.extension;
-    final mime = targetFormat.mimeType;
 
     await FileSaver.instance.saveFile(
-      name: "template_${targetFormat.shortLabel.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}",
-      bytes: Uint8List.fromList(bytes),
-      fileExtension: ext,
-      mimeType: mime,
+      name: r.fileName,
+      bytes: (r.isJson ? TCsvEncoding.utf8 : r.encoding).encode(text),
+      fileExtension: r.isJson ? 'json' : 'csv',
+      mimeType: r.isJson ? MimeType.json : MimeType.csv,
     );
 
-    if (mounted) {
-      TToastService.success(context, '${targetFormat.shortLabel} template downloaded.');
-    }
+    if (mounted) TToastService.success(context, '${r.isJson ? 'JSON' : 'CSV'} template downloaded.');
   }
 
-  Future<void> downloadJsonTemplate() async => downloadTemplate(format: TCsvFileFormat.json);
-  Future<void> downloadCsvTemplate({String delimiter = ','}) async => downloadTemplate(format: TCsvFileFormat.csv, delimiter: delimiter);
-  Future<void> downloadTsvTemplate() async => downloadTemplate(format: TCsvFileFormat.tsv, delimiter: '\t');
-  Future<void> downloadSemicolonTemplate() async => downloadTemplate(format: TCsvFileFormat.semicolon, delimiter: ';');
-  Future<void> downloadPipeTemplate() async => downloadTemplate(format: TCsvFileFormat.pipe, delimiter: '|');
-
-  Future<void> exportCurrentData({TCsvFileFormat? format, String? delimiter}) async {
+  Future<void> openExportDialog() async {
     if (rows.isEmpty) {
       TToastService.warning(context, 'No data to export.');
       return;
     }
 
-    final targetFormat = format ?? widget.defaultExportFormat;
-    final dataMaps = rows.map((r) => r.toMap()).toList();
+    final baseName = (loadedFileName ?? 'export').replaceFirst(RegExp(r'\.[A-Za-z0-9]{1,5}$'), '');
+    final style = detectedJsonStyle != null && detectedJsonStyle!.exportable ? detectedJsonStyle! : TJsonStyle.arrayOfObjects;
 
-    if (targetFormat == TCsvFileFormat.json) {
-      await exportToJson();
-      return;
-    }
+    final request = await TModalService.showAdaptive<_TCsvExportRequest>(
+      context,
+      (mContext) => _TCsvExportDialog(
+        initialFileName: baseName,
+        initialDelimiter: effectiveDelimiter,
+        initialEncoding: detectedEncoding,
+        initialJsonStyle: style,
+        startOnJson: detectedFormat == TCsvFileFormat.json,
+        note: '${rows.length} rows will be exported.',
+        onExport: (r) => Navigator.of(mContext.context).pop(r),
+        onCancel: () => Navigator.of(mContext.context).pop(),
+      ),
+      title: 'Export Data',
+      width: 480,
+      showCloseButton: true,
+    );
 
-    final effectiveDelim = delimiter ?? targetFormat.delimiter ?? ',';
-    final outputString = TCsvParser.toCsvFromMaps(
-      dataMaps,
+    if (request == null) return;
+    request.isJson ? await exportJson(request) : await exportCsv(request);
+  }
+
+  Future<void> exportCsv(_TCsvExportRequest r) async {
+    final text = TCsvParser.toCsvFromMaps(
+      rows.map((row) => row.toMap()).toList(),
       columns: widget.columns,
-      delimiter: effectiveDelim,
+      delimiter: r.delimiter,
     );
 
-    final bytes = utf8.encode(outputString);
-    final ext = targetFormat.extension;
-    final mime = targetFormat.mimeType;
-
+    // Always saved with a .csv extension, whatever the delimiter.
     await FileSaver.instance.saveFile(
-      name: "export_${targetFormat.shortLabel.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}",
-      bytes: Uint8List.fromList(bytes),
-      fileExtension: ext,
-      mimeType: mime,
+      name: r.fileName,
+      bytes: r.encoding.encode(text),
+      fileExtension: 'csv',
+      mimeType: MimeType.csv,
     );
 
-    if (mounted) {
-      TToastService.success(context, 'Exported ${rows.length} rows as ${targetFormat.shortLabel}.');
-    }
+    if (mounted) TToastService.success(context, 'Exported ${rows.length} rows as CSV (${r.encoding.label}).');
   }
 
-  Future<void> exportToJson({bool pretty = true}) async {
-    if (rows.isEmpty) {
-      TToastService.warning(context, 'No data to export.');
-      return;
-    }
-
-    final dataMaps = rows.map((r) => r.toMap()).toList();
-    final jsonString = TCsvParser.toJson(dataMaps, pretty: pretty);
-    final bytes = utf8.encode(jsonString);
+  Future<void> exportJson(_TCsvExportRequest r) async {
+    final text = TCsvParser.toJsonStyled(
+      rows.map((row) => row.toMap()).toList(),
+      style: r.jsonStyle,
+      indent: r.jsonIndent,
+      wrapperKey: r.wrapperKey,
+      keys: widget.columns.map((c) => c.key).toList(),
+    );
 
     await FileSaver.instance.saveFile(
-      name: "json_export_${DateTime.now().millisecondsSinceEpoch}",
-      bytes: Uint8List.fromList(bytes),
-      fileExtension: "json",
+      name: r.fileName,
+      bytes: TCsvEncoding.utf8.encode(text),
+      fileExtension: 'json',
       mimeType: MimeType.json,
     );
 
-    if (mounted) {
-      TToastService.success(context, 'Exported ${rows.length} records as JSON.');
-    }
+    if (mounted) TToastService.success(context, 'Exported ${rows.length} records as JSON.');
   }
-
-  Future<void> exportToCsv({String delimiter = ','}) async => exportCurrentData(format: TCsvFileFormat.csv, delimiter: delimiter);
-
-  Future<void> exportToTsv() async => exportCurrentData(format: TCsvFileFormat.tsv, delimiter: '\t');
-
-  Future<void> exportToSemicolon() async => exportCurrentData(format: TCsvFileFormat.semicolon, delimiter: ';');
-
-  Future<void> exportToPipe() async => exportCurrentData(format: TCsvFileFormat.pipe, delimiter: '|');
 
   // ---------------------------------------------------------------------------
   // Save / Upload Action

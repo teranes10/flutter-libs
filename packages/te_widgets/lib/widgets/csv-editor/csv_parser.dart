@@ -88,8 +88,81 @@ class TCsvDelimiter {
   static const String semicolon = ';';
   static const String tab = '\t';
   static const String pipe = '|';
+  static const String colon = ':';
+  static const String caret = '^';
+  static const String tilde = '~';
 
-  static const List<String> allCandidates = [comma, semicolon, tab, pipe];
+  /// Common delimiters, in detection priority order.
+  static const List<String> allCandidates = [comma, semicolon, tab, pipe, colon, caret, tilde];
+
+  /// Human-readable name for [delimiter].
+  static String nameOf(String delimiter) => switch (delimiter) {
+        comma => 'Comma (,)',
+        semicolon => 'Semicolon (;)',
+        tab => 'Tab (\\t)',
+        pipe => 'Pipe (|)',
+        colon => 'Colon (:)',
+        caret => 'Caret (^)',
+        tilde => 'Tilde (~)',
+        _ => 'Custom ($delimiter)',
+      };
+
+  /// Maps a delimiter to its [TCsvFileFormat].
+  static TCsvFileFormat formatOf(String delimiter) => switch (delimiter) {
+        comma => TCsvFileFormat.csv,
+        tab => TCsvFileFormat.tsv,
+        semicolon => TCsvFileFormat.semicolon,
+        pipe => TCsvFileFormat.pipe,
+        _ => TCsvFileFormat.custom,
+      };
+}
+
+/// JSON layouts understood on import and available on export.
+enum TJsonStyle {
+  /// `[{"a":1}, {"a":2}]`
+  arrayOfObjects('Array of objects'),
+
+  /// `[["a"], [1], [2]]` (first row = headers)
+  arrayOfArrays('Array of arrays (header row first)'),
+
+  /// `{"a":[1,2], "b":[3,4]}`
+  columns('Columns (object of arrays)'),
+
+  /// `{"data": [{"a":1}]}`
+  wrapped('Wrapped in a property'),
+
+  /// One JSON object per line (JSON Lines / NDJSON).
+  lines('JSON Lines (NDJSON)'),
+
+  /// `{"id1": {"a":1}, "id2": {"a":2}}` (import only)
+  keyed('Object keyed by id'),
+
+  /// A single object (import only).
+  single('Single object');
+
+  final String label;
+  const TJsonStyle(this.label);
+
+  /// Whether this style can be chosen for export.
+  bool get exportable => this != keyed && this != single;
+}
+
+/// Indentation used when serializing JSON.
+enum TJsonIndent {
+  minified('Minified'),
+  two('2 spaces'),
+  four('4 spaces'),
+  tab('Tab');
+
+  final String label;
+  const TJsonIndent(this.label);
+
+  String? get indent => switch (this) {
+        minified => null,
+        two => '  ',
+        four => '    ',
+        tab => '\t',
+      };
 }
 
 /// Structured result of parsing CSV, TSV, DSV, or JSON data.
@@ -109,12 +182,16 @@ class TCsvParseResult {
   /// Original JSON maps if parsed from a JSON payload.
   final List<Map<String, dynamic>>? jsonMaps;
 
+  /// Detected JSON layout (null if not JSON).
+  final TJsonStyle? jsonStyle;
+
   const TCsvParseResult({
     required this.format,
     this.delimiter,
     required this.headers,
     required this.rows,
     this.jsonMaps,
+    this.jsonStyle,
   });
 
   bool get isEmpty => headers.isEmpty && rows.isEmpty && (jsonMaps == null || jsonMaps!.isEmpty);
@@ -131,23 +208,28 @@ class TCsvParseResult {
 /// - Byte Order Mark (BOM) stripping.
 /// - Export & Template generation in CSV, TSV, Semicolon, Pipe, and JSON formats.
 class TCsvParser {
-  /// Checks whether a text string contains valid JSON data (Array or Object).
-  static bool isJson(String content) {
-    if (content.trim().isEmpty) return false;
-    String text = content;
-    if (text.startsWith('\uFEFF')) {
-      text = text.substring(1);
-    }
+  /// Checks whether a text string contains JSON data (array, object, or JSON Lines).
+  static bool isJson(String content) => _decodeJson(content) != null;
+
+  /// Decodes JSON or JSON Lines; returns null when [content] is not JSON.
+  static ({dynamic value, bool lines})? _decodeJson(String content) {
+    var text = content;
+    if (text.startsWith('\uFEFF')) text = text.substring(1);
     text = text.trim();
-    if (!((text.startsWith('[') && text.endsWith(']')) || (text.startsWith('{') && text.endsWith('}')))) {
-      return false;
-    }
+    if (text.isEmpty || !(text.startsWith('[') || text.startsWith('{'))) return null;
     try {
-      final dynamic decoded = jsonDecode(text);
-      return decoded is List || decoded is Map;
-    } catch (_) {
-      return false;
-    }
+      final v = jsonDecode(text);
+      if (v is List || v is Map) return (value: v, lines: false);
+    } catch (_) {}
+
+    // JSON Lines: every non-empty line is its own JSON value.
+    final lines = text.split(RegExp(r'\r\n|\r|\n')).where((l) => l.trim().isNotEmpty).toList();
+    if (lines.length < 2) return null;
+    try {
+      final values = lines.map((l) => jsonDecode(l.trim())).toList();
+      if (values.every((v) => v is Map || v is List)) return (value: values, lines: true);
+    } catch (_) {}
+    return null;
   }
 
   /// Auto-detects the data format (JSON, TSV, Semicolon, Pipe, CSV) from content.
@@ -156,100 +238,165 @@ class TCsvParser {
       return TCsvFileFormat.json;
     }
     final delimiter = detectDelimiter(content);
-    return switch (delimiter) {
-      '\t' => TCsvFileFormat.tsv,
-      ';' => TCsvFileFormat.semicolon,
-      '|' => TCsvFileFormat.pipe,
-      _ => TCsvFileFormat.csv,
-    };
+    return TCsvDelimiter.formatOf(delimiter);
   }
 
-  /// Auto-detects the most likely delimiter from CSV / TSV / DSV content.
+  /// Auto-detects the most likely delimiter (`,` `;` tab `|` `:` `^` `~`).
+  ///
+  /// Scores each candidate by how consistently it appears the same number of
+  /// times (outside quotes) on the first lines; rarer candidates must be fully consistent.
   static String detectDelimiter(String content) {
-    if (content.isEmpty) return ',';
+    var text = content;
+    if (text.startsWith('\uFEFF')) text = text.substring(1);
 
-    String text = content;
-    if (text.startsWith('\uFEFF')) {
-      text = text.substring(1);
-    }
-
-    // Look across the first up to 10 non-empty lines for robust detection
-    final lines = text.split(RegExp(r'\r\n|\r|\n')).where((line) => line.trim().isNotEmpty).take(10).toList();
-
+    final lines = text.split(RegExp(r'\r\n|\r|\n')).where((l) => l.trim().isNotEmpty).take(20).toList();
     if (lines.isEmpty) return ',';
 
-    final candidates = TCsvDelimiter.allCandidates;
-    final candidateScores = <String, int>{for (var c in candidates) c: 0};
+    String best = ',';
+    double bestScore = 0;
 
-    for (final delimiter in candidates) {
-      int totalCount = 0;
+    for (final (i, d) in TCsvDelimiter.allCandidates.indexed) {
+      final counts = <int>[];
       for (final line in lines) {
-        int lineCount = 0;
-        bool insideQuote = false;
-        for (int i = 0; i < line.length; i++) {
-          final char = line[i];
-          if (char == '"') {
-            insideQuote = !insideQuote;
-          } else if (!insideQuote && char == delimiter) {
-            lineCount++;
+        var n = 0;
+        var inQuote = false;
+        for (var k = 0; k < line.length; k++) {
+          final c = line[k];
+          if (c == '"') {
+            inQuote = !inQuote;
+          } else if (!inQuote && c == d) {
+            n++;
           }
         }
-        totalCount += lineCount;
+        counts.add(n);
       }
-      candidateScores[delimiter] = totalCount;
-    }
-
-    int maxScore = -1;
-    String bestDelimiter = ',';
-
-    for (final delimiter in candidates) {
-      final score = candidateScores[delimiter] ?? 0;
-      if (score > maxScore) {
-        maxScore = score;
-        bestDelimiter = delimiter;
+      // Most common non-zero count and how many lines agree with it.
+      final freq = <int, int>{};
+      for (final n in counts) {
+        if (n > 0) freq[n] = (freq[n] ?? 0) + 1;
+      }
+      if (freq.isEmpty) continue;
+      final mode = freq.entries.reduce((a, b) => b.value > a.value ? b : a);
+      final consistency = mode.value / lines.length;
+      final rare = i >= 4;
+      if (rare && consistency < 1) continue;
+      if (consistency < 0.6) continue;
+      // Prefer consistency, then more columns; earlier candidates win ties.
+      final score = consistency * 1000 + mode.key - i * 0.001;
+      if (score > bestScore) {
+        bestScore = score;
+        best = d;
       }
     }
-
-    return maxScore > 0 ? bestDelimiter : ',';
+    return best;
   }
 
-  /// Parses JSON string content into a list of typed maps: `List<Map<String, dynamic>>`.
-  static List<Map<String, dynamic>> parseJson(String content) {
-    if (content.trim().isEmpty) return [];
+  /// Parses JSON string content (any supported [TJsonStyle]) into a list of flat maps.
+  static List<Map<String, dynamic>> parseJson(String content) => parseJsonDetailed(content).maps;
 
-    String text = content;
-    if (text.startsWith('\uFEFF')) {
-      text = text.substring(1);
+  /// Like [parseJson] but also reports the detected [TJsonStyle].
+  static ({List<Map<String, dynamic>> maps, TJsonStyle style}) parseJsonDetailed(String content) {
+    final decoded = _decodeJson(content);
+    if (decoded == null) return (maps: const [], style: TJsonStyle.arrayOfObjects);
+    if (decoded.lines) {
+      final rows = decoded.value as List;
+      return (maps: rows.expand((r) => _normalize(r).maps).toList(), style: TJsonStyle.lines);
+    }
+    return _normalize(decoded.value);
+  }
+
+  static const _wrapperKeys = ['data', 'items', 'rows', 'records', 'results', 'result', 'list', 'products', 'content', 'entries'];
+
+  static ({List<Map<String, dynamic>> maps, TJsonStyle style}) _normalize(dynamic v, {int depth = 0}) {
+    if (v is List) {
+      if (v.isNotEmpty && v.every((e) => e is List)) {
+        final rows = v.cast<List>();
+        final first = rows.first;
+        final hasHeader = rows.length > 1 && first.isNotEmpty && first.every((e) => e is String);
+        final headers = hasHeader ? first.map((e) => e.toString()).toList() : List.generate(first.length, (i) => 'column_${i + 1}');
+        final body = hasHeader ? rows.skip(1) : rows;
+        return (
+          maps: body.map((r) => {for (var i = 0; i < headers.length; i++) headers[i]: i < r.length ? _cell(r[i]) : null}).toList(),
+          style: TJsonStyle.arrayOfArrays,
+        );
+      }
+      return (
+        maps: v.map((e) => e is Map ? _flatten(e) : <String, dynamic>{'value': _cell(e)}).toList(),
+        style: TJsonStyle.arrayOfObjects,
+      );
     }
 
-    final dynamic decoded = jsonDecode(text.trim());
+    if (v is Map) {
+      final values = v.values.toList();
 
-    if (decoded is List) {
-      return decoded.map((item) {
-        if (item is Map) {
-          return Map<String, dynamic>.from(item);
+      // Columns: {"a":[1,2],"b":[3,4]}
+      if (values.isNotEmpty &&
+          values.every((e) => e is List && e.every((x) => x is! Map && x is! List)) &&
+          values.map((e) => (e as List).length).toSet().length == 1 &&
+          (values.first as List).isNotEmpty) {
+        final len = (values.first as List).length;
+        final keys = v.keys.map((k) => k.toString()).toList();
+        return (
+          maps: List.generate(len, (i) => {for (var k = 0; k < keys.length; k++) keys[k]: _cell((values[k] as List)[i])}),
+          style: TJsonStyle.columns,
+        );
+      }
+
+      // Wrapped: {"data":[...]} — known keys first, then any list of objects/arrays.
+      if (depth < 3) {
+        final candidates = [
+          ..._wrapperKeys.where(v.containsKey),
+          ...v.keys.map((k) => k.toString()).where((k) => !_wrapperKeys.contains(k)),
+        ];
+        for (final key in candidates) {
+          final inner = v[key];
+          if (inner is List && inner.isNotEmpty && inner.every((e) => e is Map || e is List)) {
+            return (maps: _normalize(inner, depth: depth + 1).maps, style: TJsonStyle.wrapped);
+          }
         }
-        return <String, dynamic>{'value': item};
-      }).toList();
-    }
-
-    if (decoded is Map) {
-      // Look for standard nested list properties (e.g. { "data": [...] }, { "items": [...] })
-      for (final key in ['data', 'items', 'rows', 'records', 'results', 'list', 'products', 'content']) {
-        if (decoded[key] is List) {
-          return (decoded[key] as List).map((item) {
-            if (item is Map) {
-              return Map<String, dynamic>.from(item);
-            }
-            return <String, dynamic>{'value': item};
-          }).toList();
+        for (final key in candidates) {
+          final inner = v[key];
+          if (inner is Map) {
+            final r = _normalize(inner, depth: depth + 1);
+            if (r.style == TJsonStyle.wrapped) return r;
+          }
         }
       }
-      // Single object wrapped in a map
-      return [Map<String, dynamic>.from(decoded)];
+
+      // Keyed: {"id1": {...}, "id2": {...}}
+      if (values.length > 1 && values.every((e) => e is Map)) {
+        return (
+          maps: v.entries.map((e) => {'_key': e.key.toString(), ..._flatten(e.value as Map)}).toList(),
+          style: TJsonStyle.keyed,
+        );
+      }
+
+      return (maps: [_flatten(v)], style: TJsonStyle.single);
     }
 
-    return [];
+    return (maps: const [], style: TJsonStyle.arrayOfObjects);
+  }
+
+  /// Flattens nested objects into dot-notation keys; primitive lists are joined, others kept as JSON.
+  static Map<String, dynamic> _flatten(Map map, [String prefix = '']) {
+    final out = <String, dynamic>{};
+    map.forEach((k, v) {
+      final key = prefix.isEmpty ? k.toString() : '$prefix.$k';
+      if (v is Map && v.isNotEmpty) {
+        out.addAll(_flatten(v, key));
+      } else {
+        out[key] = _cell(v);
+      }
+    });
+    return out;
+  }
+
+  static dynamic _cell(dynamic v) {
+    if (v is List) {
+      return v.every((e) => e is! Map && e is! List) ? v.map((e) => e ?? '').join(', ') : jsonEncode(v);
+    }
+    if (v is Map) return jsonEncode(v);
+    return v;
   }
 
   /// Parses generic content (CSV, TSV, Semicolon, Pipe, or JSON) into a structured [TCsvParseResult].
@@ -268,7 +415,8 @@ class TCsvParser {
     }
 
     if (isJson(text)) {
-      final jsonMaps = parseJson(text);
+      final detailed = parseJsonDetailed(text);
+      final jsonMaps = detailed.maps;
       if (jsonMaps.isEmpty) {
         return const TCsvParseResult(
           format: TCsvFileFormat.json,
@@ -293,17 +441,13 @@ class TCsvParser {
         headers: headers,
         rows: rows,
         jsonMaps: jsonMaps,
+        jsonStyle: detailed.style,
       );
     }
 
     // Delimited file
     final effectiveDelimiter = delimiter ?? detectDelimiter(text);
-    final format = switch (effectiveDelimiter) {
-      '\t' => TCsvFileFormat.tsv,
-      ';' => TCsvFileFormat.semicolon,
-      '|' => TCsvFileFormat.pipe,
-      _ => TCsvFileFormat.csv,
-    };
+    final format = TCsvDelimiter.formatOf(effectiveDelimiter);
 
     final rawRows = parseDelimited(text, delimiter: effectiveDelimiter);
     if (rawRows.isEmpty) {
@@ -326,9 +470,60 @@ class TCsvParser {
     );
   }
 
+  /// Async [parseGeneric] that keeps the UI responsive for large delimited files.
+  static Future<TCsvParseResult> parseGenericAsync(
+    String content, {
+    String? delimiter,
+    void Function(double progress)? onProgress,
+  }) async {
+    var text = content;
+    if (text.startsWith('\uFEFF')) text = text.substring(1);
+
+    // JSON is decoded in one go (jsonDecode can't be sliced).
+    if (text.trim().isEmpty || isJson(text)) return parseGeneric(text, delimiter: delimiter);
+
+    final effectiveDelimiter = delimiter ?? detectDelimiter(text);
+    final rawRows = await parseDelimitedAsync(text, delimiter: effectiveDelimiter, onProgress: onProgress);
+    return TCsvParseResult(
+      format: TCsvDelimiter.formatOf(effectiveDelimiter),
+      delimiter: effectiveDelimiter,
+      headers: rawRows.isEmpty ? const [] : rawRows.first,
+      rows: rawRows.length > 1 ? rawRows.sublist(1) : const [],
+    );
+  }
+
   /// Parses standard delimited text (CSV, TSV, Semicolon, Pipe) into row cells.
   static List<List<String>> parseDelimited(String content, {String? delimiter}) {
-    if (content.isEmpty) return [];
+    final rows = <List<String>>[];
+    for (final _ in _parseDelimitedSteps(content, delimiter, rows)) {}
+    return rows;
+  }
+
+  /// Like [parseDelimited] but yields to the event loop regularly so the UI keeps
+  /// painting (spinners, progress) while a large file is parsed.
+  ///
+  /// [onProgress] receives a value from 0 to 1.
+  static Future<List<List<String>>> parseDelimitedAsync(
+    String content, {
+    String? delimiter,
+    void Function(double progress)? onProgress,
+  }) async {
+    final rows = <List<String>>[];
+    final watch = Stopwatch()..start();
+    for (final progress in _parseDelimitedSteps(content, delimiter, rows)) {
+      if (watch.elapsedMilliseconds >= 10) {
+        onProgress?.call(progress);
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+        watch.reset();
+      }
+    }
+    onProgress?.call(1);
+    return rows;
+  }
+
+  /// Parse loop as a generator: fills [rows] and yields progress every few thousand characters.
+  static Iterable<double> _parseDelimitedSteps(String content, String? delimiter, List<List<String>> rows) sync* {
+    if (content.isEmpty) return;
 
     // Strip BOM if present
     String text = content;
@@ -339,7 +534,6 @@ class TCsvParser {
     final effectiveDelimiter = delimiter ?? detectDelimiter(text);
     final delimiterCode = effectiveDelimiter.codeUnitAt(0);
 
-    final rows = <List<String>>[];
     final currentRow = <String>[];
     final currentCell = StringBuffer();
 
@@ -348,6 +542,7 @@ class TCsvParser {
     final length = text.length;
 
     while (i < length) {
+      if (i & 0x3FFF == 0) yield i / length;
       final charCode = text.codeUnitAt(i);
 
       if (charCode == 34) {
@@ -397,8 +592,6 @@ class TCsvParser {
         rows.add(List<String>.from(currentRow));
       }
     }
-
-    return rows;
   }
 
   /// Parses CSV / TSV / DSV / JSON text content into a list of row cells: `List<List<String>>`.
@@ -526,6 +719,35 @@ class TCsvParser {
     return jsonEncode(maps);
   }
 
+  /// Serializes [maps] as JSON in the chosen [style].
+  ///
+  /// [keys] gives the column order for array-of-arrays / columns output.
+  static String toJsonStyled(
+    List<Map<String, dynamic>> maps, {
+    TJsonStyle style = TJsonStyle.arrayOfObjects,
+    TJsonIndent indent = TJsonIndent.two,
+    String wrapperKey = 'data',
+    List<String>? keys,
+  }) {
+    final k = keys ?? (maps.isEmpty ? <String>[] : maps.first.keys.toList());
+    final encoder = indent.indent == null ? const JsonEncoder() : JsonEncoder.withIndent(indent.indent);
+
+    switch (style) {
+      case TJsonStyle.lines:
+        return maps.map((m) => jsonEncode(m)).join('\n');
+      case TJsonStyle.arrayOfArrays:
+        return encoder.convert([k, ...maps.map((m) => k.map((c) => m[c]).toList())]);
+      case TJsonStyle.columns:
+        return encoder.convert({for (final c in k) c: maps.map((m) => m[c]).toList()});
+      case TJsonStyle.wrapped:
+        return encoder.convert({wrapperKey.isEmpty ? 'data' : wrapperKey: maps});
+      case TJsonStyle.arrayOfObjects:
+      case TJsonStyle.keyed:
+      case TJsonStyle.single:
+        return encoder.convert(maps);
+    }
+  }
+
   /// Converts headers and rows to a formatted JSON string.
   static String toJsonFromRows(
     List<String> headers,
@@ -585,6 +807,9 @@ class TCsvParser {
     bool includeSampleRow = true,
     String delimiter = ',',
     TCsvFileFormat format = TCsvFileFormat.csv,
+    TJsonStyle jsonStyle = TJsonStyle.arrayOfObjects,
+    TJsonIndent jsonIndent = TJsonIndent.two,
+    String wrapperKey = 'data',
   }) {
     if (format == TCsvFileFormat.json) {
       final sampleMap = <String, dynamic>{};
@@ -603,7 +828,13 @@ class TCsvParser {
           }
         }
       }
-      return toJson(includeSampleRow ? [sampleMap] : [], pretty: true);
+      return toJsonStyled(
+        includeSampleRow ? [sampleMap] : [],
+        style: jsonStyle,
+        indent: jsonIndent,
+        wrapperKey: wrapperKey,
+        keys: columns.map((c) => c.key).toList(),
+      );
     }
 
     final headers = columns.map((c) => c.header).toList();
@@ -623,7 +854,6 @@ class TCsvParser {
       sampleRows.add(sampleRow);
     }
 
-    final effectiveDelimiter = format.delimiter ?? delimiter;
-    return toCsv(headers, sampleRows, delimiter: effectiveDelimiter);
+    return toCsv(headers, sampleRows, delimiter: delimiter);
   }
 }

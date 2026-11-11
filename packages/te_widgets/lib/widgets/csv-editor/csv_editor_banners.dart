@@ -9,78 +9,20 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         if (widget.showDownloadTemplate)
-          TDropdown(
-            triggerMode: TDropdownTriggerMode.tap,
-            items: [
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedTable,
-                text: 'CSV Template (Comma ,)',
-                onTap: () => downloadTemplate(format: TCsvFileFormat.csv),
-              ),
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedGrid,
-                text: 'CSV Template (Semicolon ;)',
-                onTap: () => downloadTemplate(format: TCsvFileFormat.semicolon),
-              ),
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedTableColumnsSplit,
-                text: 'TSV Template (Tab \\t)',
-                onTap: () => downloadTemplate(format: TCsvFileFormat.tsv),
-              ),
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedDeleteColumn,
-                text: 'PSV Template (Pipe |)',
-                onTap: () => downloadTemplate(format: TCsvFileFormat.pipe),
-              ),
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedSourceCode,
-                text: 'JSON Template (.json)',
-                onTap: () => downloadTemplate(format: TCsvFileFormat.json),
-              ),
-            ],
-            child: TButton(
-              text: 'Template',
-              icon: HugeIcons.strokeRoundedDownload01,
-              type: TButtonType.tonal,
-              size: TButtonSize.xs,
-            ),
+          TButton(
+            text: 'Template',
+            icon: HugeIcons.strokeRoundedDownload01,
+            type: TButtonType.tonal,
+            size: TButtonSize.xs,
+            onPressed: (_) => openTemplateDialog(),
           ),
         if (widget.showExport && rows.isNotEmpty)
-          TDropdown(
-            triggerMode: TDropdownTriggerMode.tap,
-            items: [
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedTable,
-                text: 'Export as CSV (Comma ,)',
-                onTap: () => exportCurrentData(format: TCsvFileFormat.csv),
-              ),
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedGrid,
-                text: 'Export as CSV (Semicolon ;)',
-                onTap: () => exportCurrentData(format: TCsvFileFormat.semicolon),
-              ),
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedTableColumnsSplit,
-                text: 'Export as TSV (Tab \\t)',
-                onTap: () => exportCurrentData(format: TCsvFileFormat.tsv),
-              ),
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedDeleteColumn,
-                text: 'Export as PSV (Pipe |)',
-                onTap: () => exportCurrentData(format: TCsvFileFormat.pipe),
-              ),
-              TDropdownItem(
-                icon: HugeIcons.strokeRoundedSourceCode,
-                text: 'Export as JSON (.json)',
-                onTap: () => exportCurrentData(format: TCsvFileFormat.json),
-              ),
-            ],
-            child: TButton(
-              text: 'Export',
-              icon: HugeIcons.strokeRoundedDownload01,
-              type: TButtonType.tonal,
-              size: TButtonSize.xs,
-            ),
+          TButton(
+            text: 'Export',
+            icon: HugeIcons.strokeRoundedDownload01,
+            type: TButtonType.tonal,
+            size: TButtonSize.xs,
+            onPressed: (_) => openExportDialog(),
           ),
         if (rows.isNotEmpty)
           TButton(
@@ -103,7 +45,41 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
     );
   }
 
+  Widget buildLoadingCard(ColorScheme colors, bool isDark) {
+    return Container(
+      constraints: BoxConstraints(minHeight: theme.dropzoneHeight),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.dropzoneColor ?? (isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.dropzoneBorderColor ?? colors.outlineVariant.withValues(alpha: 0.8), width: 1.5),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 14,
+          children: [
+            Text('Reading…', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colors.onSurface)),
+            if (loadingFileName != null) Text(loadingFileName!, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget buildDropzone(ColorScheme colors, bool isDark) {
+    return TDropzone(
+      allowedExtensions: widget.allowedExtensions,
+      onRejected: () => TToastService.warning(context, 'Unsupported file type. Allowed: ${widget.allowedExtensions.join(', ')}'),
+      onDrop: (files) {
+        final file = files.first;
+        loadBytes(file.bytes!, fileName: file.name);
+      },
+      child: _buildDropzoneBody(colors, isDark),
+    );
+  }
+
+  Widget _buildDropzoneBody(ColorScheme colors, bool isDark) {
     return InkWell(
       onTap: pickFile,
       borderRadius: BorderRadius.circular(12),

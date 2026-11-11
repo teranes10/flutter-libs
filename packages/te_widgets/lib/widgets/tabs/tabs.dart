@@ -48,7 +48,7 @@ class TTabs<T> extends StatefulWidget {
     this.disabledColor,
     this.indicatorColor,
     this.tabPadding,
-    this.tabSpacing = 2,
+    this.tabSpacing = 4,
     this.tabRunSpacing = 2,
     this.indicatorWidth = 1,
     this.inline = false,
@@ -241,7 +241,7 @@ class _TTabsState<T> extends State<TTabs<T>> {
         decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(11)),
         child: Row(
           mainAxisSize: widget.fill ? MainAxisSize.max : MainAxisSize.min,
-          spacing: 2,
+          spacing: widget.tabSpacing,
           children: [
             for (final t in tabWidgets) Flexible(fit: widget.fill ? FlexFit.tight : FlexFit.loose, child: t),
           ],

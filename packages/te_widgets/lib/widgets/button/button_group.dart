@@ -291,13 +291,20 @@ class _TButtonGroupState extends State<TButtonGroup> {
       }
     }
 
+    // Segmented groups keep one shared track but space the segments slightly apart.
+    final segmentGap = groupTheme.type == TButtonGroupType.segmented && !widget.separated ? (widget.spacing ?? 4) : 0.0;
+
     if (widget.expanded) {
       final rowChildren = <Widget>[];
       for (int p = 0; p < children.length; p++) {
         rowChildren.add(Expanded(
             flex: groupTheme.type == TButtonGroupType.segmented ? 1 : widget.items[visible[p]].text?.length ?? 1, child: children[p]));
-        if (widget.separated && p < total - 1) {
-          rowChildren.add(SizedBox(width: widget.spacing ?? 8));
+        if (p < total - 1) {
+          if (widget.separated) {
+            rowChildren.add(SizedBox(width: widget.spacing ?? 8));
+          } else if (segmentGap > 0) {
+            rowChildren.add(SizedBox(width: segmentGap));
+          }
         }
       }
       return Row(
@@ -316,7 +323,7 @@ class _TButtonGroupState extends State<TButtonGroup> {
       );
     }
 
-    return Wrap(alignment: widget.alignment, crossAxisAlignment: WrapCrossAlignment.center, children: children);
+    return Wrap(alignment: widget.alignment, crossAxisAlignment: WrapCrossAlignment.center, spacing: segmentGap, children: children);
   }
 
   Widget _buildButton(
