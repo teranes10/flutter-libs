@@ -49,7 +49,7 @@ melos:
       run: dart run melos version --yes
       description: Automatically version, generate changelogs, commit, and tag releases.
 
-    publish:
+    publish-all:
       run: dart run melos publish --no-dry-run --yes
       description: Publish te_widgets, te_map, te_editor, te_scanner to pub.dev (ignores my_app since it has publish_to none).
 
@@ -58,6 +58,6 @@ melos:
         git add .
         git commit -m "fix: automated deployment and release" || true
         dart run melos run release
-        dart run melos run publish
+        dart run melos run publish-all
         git push --follow-tags
       description: All-in-one command to commit, release, publish, and push tags.
