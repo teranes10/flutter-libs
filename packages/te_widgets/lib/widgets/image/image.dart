@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:te_widgets/helpers/image-storage/image_storage.dart';
 import 'package:te_widgets/te_widgets.dart';
 // ignore: depend_on_referenced_packages
@@ -15,7 +14,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 /// - Explicit [width], [height], and [size] controls
 /// - Aspect ratio calculation and auto-dimensions (width-only or height-only)
 /// - Custom cropping behavior and alignment ([alignment], e.g. [Alignment.topCenter], [Alignment.bottomCenter], [Alignment.center])
-/// - Click to preview with zoom (using PhotoView)
+/// - Click to preview with zoom (pinch, wheel and double-tap zoom)
 /// - Custom shapes (rounded, circle)
 /// - Title and subtitle support (inline or hover overlay)
 /// - Placeholder images
@@ -973,12 +972,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
 
     final photoView = ClipPath(
         clipper: ShapeBorderClipper(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),
-        child: PhotoView(
-          imageProvider: imageProvider,
-          minScale: PhotoViewComputedScale.contained,
-          maxScale: PhotoViewComputedScale.covered * 2,
-          backgroundDecoration: const BoxDecoration(color: Colors.transparent),
-        ));
+        child: _ZoomableImage(imageProvider: imageProvider));
 
     final previewW = widget.previewSize;
     final previewH = widget.aspectRatio != null ? widget.previewSize / widget.aspectRatio! : widget.previewSize;
@@ -986,6 +980,54 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     final content = shouldCenteredOverlay ? photoView : SizedBox(width: previewW, height: previewH, child: photoView);
 
     return content;
+  }
+}
+
+/// Pan / pinch / mouse-wheel / double-tap zoomable image, fitted to its box.
+class _ZoomableImage extends StatefulWidget {
+  final ImageProvider imageProvider;
+
+  const _ZoomableImage({required this.imageProvider});
+
+  @override
+  State<_ZoomableImage> createState() => _ZoomableImageState();
+}
+
+class _ZoomableImageState extends State<_ZoomableImage> {
+  static const double _maxScale = 4;
+  static const double _doubleTapScale = 2.5;
+
+  final TransformationController _controller = TransformationController();
+  Offset _tapPosition = Offset.zero;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggleZoom() {
+    if (_controller.value.getMaxScaleOnAxis() > 1.01) {
+      _controller.value = Matrix4.identity();
+    } else {
+      final p = _tapPosition;
+      _controller.value = Matrix4.identity()
+        ..translateByDouble(-p.dx * (_doubleTapScale - 1), -p.dy * (_doubleTapScale - 1), 0, 1)
+        ..scaleByDouble(_doubleTapScale, _doubleTapScale, 1, 1);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onDoubleTapDown: (d) => _tapPosition = d.localPosition,
+      onDoubleTap: _toggleZoom,
+      child: InteractiveViewer(
+        transformationController: _controller,
+        maxScale: _maxScale,
+        child: SizedBox.expand(child: Image(image: widget.imageProvider, fit: BoxFit.contain)),
+      ),
+    );
   }
 }
 
