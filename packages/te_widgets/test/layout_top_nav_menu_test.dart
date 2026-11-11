@@ -304,11 +304,15 @@ void main() {
       expect(find.byType(LayoutProfileButton), findsOneWidget);
       expect(find.text('John Doe'), findsOneWidget);
 
-      // Hover over profile text to open dropdown
+      // Hovering alone must not open the dropdown; clicking the profile does.
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: Offset.zero);
       await gesture.moveTo(tester.getCenter(find.text('John Doe')));
       await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpAndSettle();
+      expect(find.text('Log out'), findsNothing);
+
+      await tester.tap(find.text('John Doe'));
       await tester.pumpAndSettle();
 
       // Dropdown contains Theme, Accent Color, and Log out

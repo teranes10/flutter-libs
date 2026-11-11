@@ -221,6 +221,7 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
 
   Widget _buildMoreOptionsButton(BuildContext ctx) {
     return TDropdown(
+      triggerMode: TDropdownTriggerMode.tap,
       items: [
         // Dense/comfortable only affects table-row spacing — meaningless in Grid View (cards)
         // or on narrow screens, so it lives in this menu instead of taking toolbar space.

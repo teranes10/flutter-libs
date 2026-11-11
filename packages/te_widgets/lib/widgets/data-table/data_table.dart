@@ -115,7 +115,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
 
   /// Number of pagination buttons to show.
   ///
-  /// Defaults to 7.
+  /// Defaults to 5.
   final int paginationTotalVisible;
 
   /// Available options for items per page selection.
@@ -197,7 +197,7 @@ class TDataTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.details,
     this.selectableText = true,
     //DataTable
-    this.paginationTotalVisible = 7,
+    this.paginationTotalVisible = 5,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],
     this.beforeItemsBuilder,
     // Theme overrides

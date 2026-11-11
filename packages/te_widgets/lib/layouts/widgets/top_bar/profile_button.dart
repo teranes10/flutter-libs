@@ -190,7 +190,7 @@ class LayoutProfileButton extends ConsumerWidget {
 
     Widget dropdown(TDropdownTheme? theme) => TDropdown(
           theme: theme,
-          triggerMode: TDropdownTriggerMode.hover,
+          triggerMode: TDropdownTriggerMode.tap,
           items: items,
           child: MouseRegion(
             cursor: SystemMouseCursors.click,
