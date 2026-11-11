@@ -1,21 +1,31 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:crypto/crypto.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import 'package:http/http.dart' as http;
 import 'image_storage_stub.dart' if (dart.library.html) 'image_storage_web.dart' if (dart.library.io) 'image_storage_mobile.dart';
 
 abstract class TImageStorage {
-  static final Dio _dio = Dio();
+  /// Stable cache key: two 32-bit FNV-1a hashes with different seeds (web-safe, no multiplication overflow).
+  static String urlToKey(String url) {
+    final bytes = utf8.encode(url);
+    String fnv(int seed) {
+      var h = seed;
+      for (final b in bytes) {
+        h = (h ^ b) & 0xFFFFFFFF;
+        h = (h + (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24)) & 0xFFFFFFFF;
+      }
+      return h.toRadixString(16).padLeft(8, '0');
+    }
 
-  static String urlToKey(String url) => sha1.convert(utf8.encode(url)).toString();
+    return fnv(0x811C9DC5) + fnv(0x01000193);
+  }
 
   /// Downloads [remoteUrl] without storing it anywhere. Returns null on failure.
   static Future<Uint8List?> downloadBytes(String remoteUrl) async {
     try {
-      final response = await _dio.get<List<int>>(remoteUrl, options: Options(responseType: ResponseType.bytes));
-      if (response.data != null) return Uint8List.fromList(response.data!);
+      final response = await http.get(Uri.parse(remoteUrl));
+      if (response.statusCode >= 200 && response.statusCode < 300) return response.bodyBytes;
     } catch (e) {
       debugPrint('⚠️ [ImageDownloader] Failed to download $remoteUrl: $e');
     }
