@@ -246,7 +246,7 @@ void main() {
       );
 
       final button = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedScan);
-      expect(tester.getSize(find.ancestor(of: button, matching: find.byType(IconButton))).shortestSide, greaterThanOrEqualTo(48));
+      expect(tester.getSize(find.ancestor(of: button, matching: find.byType(TButton))).shortestSide, greaterThanOrEqualTo(48));
       await tester.tap(button);
       expect(cameraTaps, 1);
     });

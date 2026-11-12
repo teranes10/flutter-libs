@@ -256,11 +256,11 @@ class _TPageWrapperState extends State<TPageWrapper> {
         if (widget.actions != null) ...widget.actions!,
         if (isDesktop && widget.onBackPressed != null) ...[
           const SizedBox(width: 8),
-          IconButton(
-            icon: TIcon.raw(HugeIcons.strokeRoundedCancel01),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            onPressed: widget.onBackPressed,
+          TButton(
+            type: TButtonType.softText,
+            icon: HugeIcons.strokeRoundedCancel01,
+            color: colors.error,
+            onTap: widget.onBackPressed,
           ),
         ],
       ],

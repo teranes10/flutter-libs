@@ -94,22 +94,20 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
                       final buttonItems = controller == listController
                           ? _buildActiveActionButtons(theme, item)
                           : (controller == archiveListController ? _buildArchiveActionButtons(theme, item) : <TButtonGroupItem>[]);
-                      final isMobile = context.isMobile;
                       // The details panel is already the view, so its header omits the View action.
-                      return buttonItems
-                          .where((b) => b.tooltip != 'View')
-                          .map((b) => Semantics(
-                              identifier: b.semanticIdentifier,
-                              child: IconButton(
-                                icon: TIcon.raw(b.icon),
-                                iconSize: 24,
-                                padding: EdgeInsets.all(isMobile ? 4 : 8),
-                                visualDensity: isMobile ? VisualDensity.compact : VisualDensity.standard,
-                                color: b.color,
-                                tooltip: b.tooltip,
-                                onPressed: b.onPressed != null ? () => b.onPressed!(TButtonPressOptions(stopLoading: () {})) : null,
-                              )))
-                          .toList();
+                      return buttonItems.where((b) => b.tooltip != 'View').map((b) {
+                        final button = TButton(
+                          type: TButtonType.softText,
+                          icon: b.icon,
+                          color: b.color,
+                          tooltip: b.tooltip,
+                          permission: b.permission,
+                          onDenied: b.onDenied,
+                          semanticIdentifier: b.semanticIdentifier,
+                          onPressed: b.onPressed,
+                        );
+                        return b.wrap?.call(button) ?? button;
+                      }).toList();
                     },
                   ),
           );
@@ -390,6 +388,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         showFlat: true,
         permission: _perms?.archive,
         onDenied: _crudDenied(_perms?.archive),
+        onTap: () {}, // enabled so the button shows hover; the wrap popover handles the tap
         wrap: (button) => TPopoverService.confirmArchive(context,
             name: widget.itemTitle?.call(item), onConfirm: () => handleArchive(item), child: button),
       ));
@@ -470,6 +469,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         showFlat: true,
         permission: _perms?.restore,
         onDenied: _crudDenied(_perms?.restore),
+        onTap: () {}, // enabled so the button shows hover; the wrap popover handles the tap
         wrap: (button) => TPopoverService.confirmRestore(context,
             name: widget.itemTitle?.call(item), onConfirm: () => handleRestore(item), child: button),
       ));
@@ -485,6 +485,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
         showFlat: true,
         permission: _perms?.delete,
         onDenied: _crudDenied(_perms?.delete),
+        onTap: () {}, // enabled so the button shows hover; the wrap popover handles the tap
         wrap: (button) =>
             TPopoverService.confirmDelete(context, name: widget.itemTitle?.call(item), onConfirm: () => handleDelete(item), child: button),
       ));

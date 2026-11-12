@@ -541,12 +541,12 @@ class TBanner extends StatelessWidget {
                 SizedBox(
                   height: firstLineHeight,
                   child: Center(
-                    child: IconButton(
-                      icon: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 16.0, color: textColor.withValues(alpha: 0.7)),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 20.0, minHeight: 20.0),
-                      splashRadius: 16.0,
-                      onPressed: onDismiss,
+                    child: TButton(
+                      type: TButtonType.softText,
+                      size: TSize.xs,
+                      icon: HugeIcons.strokeRoundedCancel01,
+                      color: textColor.withValues(alpha: 0.7),
+                      onTap: onDismiss,
                       tooltip: 'Dismiss',
                     ),
                   ),

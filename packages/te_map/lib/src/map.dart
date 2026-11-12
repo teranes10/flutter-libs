@@ -319,18 +319,20 @@ class _TMapState extends State<TMap> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
-              icon: TIcon.raw(HugeIcons.strokeRoundedAdd01, size: 16, color: colors.onSurface),
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.all(4),
-              onPressed: onAdd,
+            TButton(
+              type: TButtonType.softText,
+              size: TSize.xs,
+              icon: HugeIcons.strokeRoundedAdd01,
+              color: colors.onSurface,
+              onTap: onAdd,
             ),
             const SizedBox(height: 2),
-            IconButton(
-              icon: TIcon.raw(HugeIcons.strokeRoundedRemove01, size: 16, color: colors.onSurface),
-              constraints: const BoxConstraints(),
-              padding: const EdgeInsets.all(4),
-              onPressed: onRemove,
+            TButton(
+              type: TButtonType.softText,
+              size: TSize.xs,
+              icon: HugeIcons.strokeRoundedRemove01,
+              color: colors.onSurface,
+              onTap: onRemove,
             ),
           ],
         ),

@@ -73,9 +73,11 @@ class TCalendarView extends StatelessWidget {
       children: [
         Row(
           children: [
-            IconButton(
-              icon: TIcon.raw(HugeIcons.strokeRoundedArrowLeft01),
-              onPressed: () => onMonthChanged?.call(DateTime(month.year, month.month - 1)),
+            TButton(
+              type: TButtonType.softText,
+              icon: HugeIcons.strokeRoundedArrowLeft01,
+              color: colors.onSurface,
+              onTap: () => onMonthChanged?.call(DateTime(month.year, month.month - 1)),
             ),
             Expanded(
               child: Text(
@@ -84,9 +86,11 @@ class TCalendarView extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: colors.onSurface),
               ),
             ),
-            IconButton(
-              icon: TIcon.raw(HugeIcons.strokeRoundedArrowRight01),
-              onPressed: () => onMonthChanged?.call(DateTime(month.year, month.month + 1)),
+            TButton(
+              type: TButtonType.softText,
+              icon: HugeIcons.strokeRoundedArrowRight01,
+              color: colors.onSurface,
+              onTap: () => onMonthChanged?.call(DateTime(month.year, month.month + 1)),
             ),
           ],
         ),

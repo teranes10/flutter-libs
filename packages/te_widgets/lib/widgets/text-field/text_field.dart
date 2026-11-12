@@ -237,11 +237,12 @@ class TTextField<T extends String?> extends StatefulWidget
       keepFocusOnSubmit: true,
       postWidget: onCameraTap == null
           ? null
-          : IconButton(
+          : TButton(
+              type: TButtonType.softText,
               tooltip: 'Scan with camera',
-              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-              icon: TIcon.raw(HugeIcons.strokeRoundedScan),
-              onPressed: disabled ? null : onCameraTap,
+              icon: HugeIcons.strokeRoundedScan,
+              size: TSize.xs,
+              onTap: disabled ? null : onCameraTap,
             ),
       onSubmitted: (text) {
         final trimmed = text.trim();

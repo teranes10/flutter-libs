@@ -50,7 +50,7 @@ void main() {
     expect(find.text('Item 0'), findsOneWidget);
 
     // Test back/close button
-    final closeOrBackIcon = find.byType(IconButton);
+    final closeOrBackIcon = find.byType(TButton);
     expect(closeOrBackIcon, findsOneWidget);
     await tester.tap(closeOrBackIcon);
     expect(backPressed, isTrue);

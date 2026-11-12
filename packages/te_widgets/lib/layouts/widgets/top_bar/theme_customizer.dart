@@ -115,9 +115,12 @@ class _ThemeCustomizer extends ConsumerWidget {
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant),
                 ),
               ),
-              TextButton(
-                onPressed: overrides.isEmpty ? null : () => notifier.resetScheme(brightness),
-                child: const Text('Reset all'),
+              TButton(
+                type: TButtonType.softText,
+                size: TSize.xs,
+                text: 'Reset all',
+                icon: Icons.restart_alt,
+                onTap: () => notifier.resetScheme(brightness),
               ),
             ],
           ),
@@ -162,12 +165,12 @@ class _ThemeCustomizer extends ConsumerWidget {
                             ),
                           ),
                           if (overridden)
-                            IconButton(
+                            TButton(
+                              type: TButtonType.softText,
+                              size: TSize.xs,
                               tooltip: 'Reset',
-                              iconSize: 16,
-                              visualDensity: VisualDensity.compact,
-                              icon: const Icon(Icons.restart_alt),
-                              onPressed: () => notifier.resetSchemeColor(brightness, key),
+                              icon: Icons.restart_alt,
+                              onTap: () => notifier.resetSchemeColor(brightness, key),
                             ),
                         ],
                       ),

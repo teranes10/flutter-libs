@@ -217,19 +217,12 @@ class _PaginationIconButton extends StatelessWidget {
     final colors = context.colors;
     final color = isEnabled ? colors.onSurface : colors.onSurface.withAlpha(75);
 
-    return IconButton(
-      icon: TIcon.raw(
-        icon,
-        size: 18,
-        color: color,
-      ),
-      onPressed: isEnabled ? onPressed : null,
-      iconSize: 18,
-      padding: EdgeInsets.zero,
-      constraints: const BoxConstraints(
-        minWidth: 36,
-        minHeight: 36,
-      ),
+    return TButton(
+      type: TButtonType.softText,
+      size: TSize.sm,
+      icon: icon,
+      color: color,
+      onTap: isEnabled ? onPressed : null,
     );
   }
 }

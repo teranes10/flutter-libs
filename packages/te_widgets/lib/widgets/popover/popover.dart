@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/services.dart';
 import 'package:te_widgets/extensions/build_context_x.dart';
 import 'package:te_widgets/helpers/popup_position.dart';
@@ -148,6 +149,7 @@ class TPopover extends StatefulWidget {
 class _TPopoverState extends State<TPopover> {
   late TPopoverController _controller;
   bool _internalController = false;
+  Offset? _downPosition;
   Timer? _hoverTimer;
   bool _isHovered = false;
 
@@ -372,9 +374,18 @@ class _TPopoverState extends State<TPopover> {
       child: MouseRegion(
         onEnter: (_) => _onEnter(),
         onExit: (_) => _onExit(),
-        child: GestureDetector(
+        // A raw pointer listener (not a GestureDetector) so the trigger still fires when the
+        // child is an enabled button whose own tap recognizer would win the gesture arena.
+        child: Listener(
           behavior: HitTestBehavior.translucent,
-          onTap: widget.triggerMode == TMenuTriggerMode.tap ? _toggle : null,
+          onPointerDown: (e) => _downPosition = e.position,
+          onPointerUp: (e) {
+            final down = _downPosition;
+            _downPosition = null;
+            if (widget.triggerMode == TMenuTriggerMode.tap && down != null && (e.position - down).distance < kTouchSlop) {
+              _toggle();
+            }
+          },
           child: widget.child,
         ),
       ),

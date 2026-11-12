@@ -177,11 +177,12 @@ class _RoundButton extends StatelessWidget {
     return Material(
       color: Colors.black.withValues(alpha: 0.5),
       shape: const CircleBorder(),
-      child: IconButton(
+      child: TButton(
+        type: TButtonType.softText,
         tooltip: tooltip,
-        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-        icon: TIcon.raw(icon, color: Colors.white),
-        onPressed: onTap,
+        icon: icon,
+        color: Colors.white,
+        onTap: onTap,
       ),
     );
   }

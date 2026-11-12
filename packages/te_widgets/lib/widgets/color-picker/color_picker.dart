@@ -466,10 +466,11 @@ class _TColorPickerPanelState extends State<TColorPickerPanel> {
               ),
             ),
             if (eyeDropperSupported)
-              IconButton(
+              TButton(
+                type: TButtonType.softText,
                 tooltip: 'Pick from screen',
-                icon: const Icon(Icons.colorize, size: 18),
-                onPressed: _eyedrop,
+                icon: Icons.colorize,
+                onTap: _eyedrop,
               ),
           ],
         ),
