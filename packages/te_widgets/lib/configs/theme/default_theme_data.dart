@@ -158,7 +158,12 @@ class TAppTheme {
       brightness: Brightness.light,
       colorScheme: lightScheme,
       scaffoldBackgroundColor: lightBackground ?? AppColors.lightBackground,
-      textTheme: ThemeData.light().textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
+      textTheme: ThemeData.light().textTheme.apply(
+            fontFamily: 'Lexend',
+            package: 'te_widgets',
+            bodyColor: lightScheme.onSurface,
+            displayColor: lightScheme.onSurface,
+          ),
       scrollbarTheme: scrollbarTheme(lightScheme),
       extensions: [widgetTheme],
     );
@@ -173,7 +178,12 @@ class TAppTheme {
       colorScheme: darkScheme,
       scaffoldBackgroundColor: darkBackground ?? AppColors.darkBackground,
       primarySwatch: widgetTheme.primary,
-      textTheme: ThemeData.dark().textTheme.apply(fontFamily: 'Lexend', package: 'te_widgets'),
+      textTheme: ThemeData.dark().textTheme.apply(
+            fontFamily: 'Lexend',
+            package: 'te_widgets',
+            bodyColor: darkScheme.onSurface,
+            displayColor: darkScheme.onSurface,
+          ),
       scrollbarTheme: scrollbarTheme(darkScheme),
       extensions: [widgetTheme],
     );

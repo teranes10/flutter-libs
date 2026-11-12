@@ -67,9 +67,9 @@ mixin TInputValueStateMixin<T, W extends StatefulWidget> on State<W> {
 
       final newValue = newNotifier?.value;
       _updateValue(newValue, fromExternal: true);
-    } else if (newNotifier == null) {
-      final newValue = _widget.value;
-      _updateValue(newValue, fromExternal: true);
+    } else if (newNotifier == null && _widget.value != oldMixin.value) {
+      // Only react to a changed `value`; an unchanged one must not wipe what the user typed.
+      _updateValue(_widget.value, fromExternal: true);
     }
   }
 

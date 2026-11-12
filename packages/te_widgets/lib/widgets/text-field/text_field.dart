@@ -381,6 +381,7 @@ class _TTextFieldState<T extends String?> extends State<TTextField<T>>
       keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,
       inputFormatters: widget.inputFormatters,
+      onTap: widget.onTap,
       onSubmitted: widget.onSubmitted == null && !widget.clearOnSubmit && !widget.keepFocusOnSubmit ? null : _onSubmitted,
       onClear: () {
         textController.clear();

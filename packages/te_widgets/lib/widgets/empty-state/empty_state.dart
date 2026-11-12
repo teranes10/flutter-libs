@@ -242,7 +242,6 @@ class TEmptyState extends StatelessWidget {
                     fontSize: 13.0,
                     color: colors.onSurfaceVariant,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (action != null) ...[
