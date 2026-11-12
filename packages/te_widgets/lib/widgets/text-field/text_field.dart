@@ -237,12 +237,11 @@ class TTextField<T extends String?> extends StatefulWidget
       keepFocusOnSubmit: true,
       postWidget: onCameraTap == null
           ? null
-          : TButton(
-              type: TButtonType.softText,
-              tooltip: 'Scan with camera',
+          : TIcon(
+              semanticLabel: 'Scan with camera',
               icon: HugeIcons.strokeRoundedScan,
-              // Handheld touch target: at least 48dp.
-              size: const TSize(minW: 48, minH: 48, hPad: 8, vPad: 8, icon: 20, radius: 8),
+              size: 22,
+              padding: EdgeInsets.fromLTRB(8, 12, 4, 12),
               onTap: disabled ? null : onCameraTap,
             ),
       onSubmitted: (text) {

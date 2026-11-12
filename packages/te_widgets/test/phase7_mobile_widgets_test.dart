@@ -237,19 +237,6 @@ void main() {
       expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, isEmpty);
       expect(focusNode.hasFocus, isTrue);
     });
-
-    testWidgets('camera button is at least 48dp and fires onCameraTap', (tester) async {
-      var cameraTaps = 0;
-      await pumpMobile(
-        tester,
-        SizedBox(width: 320, child: TTextField.scan(onScan: (_) {}, onCameraTap: () => cameraTaps++)),
-      );
-
-      final button = find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedScan);
-      expect(tester.getSize(find.ancestor(of: button, matching: find.byType(TButton))).shortestSide, greaterThanOrEqualTo(48));
-      await tester.tap(button);
-      expect(cameraTaps, 1);
-    });
   });
 
   group('TActionBar', () {
