@@ -38,6 +38,7 @@ import 'package:my_app/pages/layout_page.dart';
 import 'package:my_app/pages/list_detail_page.dart';
 import 'package:my_app/pages/lists_page.dart';
 import 'package:my_app/pages/map_sample_page.dart';
+import 'package:my_app/pages/scan_view_page.dart';
 import 'package:my_app/pages/mentions_menubar_page.dart';
 import 'package:my_app/pages/metric_tile_page.dart';
 import 'package:my_app/pages/pickers_page.dart';
@@ -307,6 +308,7 @@ final sidebarItems = [
         page: const TablesPermissionMatrixPage(),
       ),
       TSidebarItem(icon: HugeIcons.strokeRoundedMaps, text: 'Maps', route: 'maps', page: const MapSamplePage()),
+      TSidebarItem(icon: HugeIcons.strokeRoundedScan, text: 'Scan View', route: 'scan-view', page: const ScanViewPage()),
       TSidebarItem(
         icon: HugeIcons.strokeRoundedHierarchy,
         text: 'Nested Hierarchy',
