@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:te_map/te_map.dart';
+import 'package:te_widgets/te_widgets.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  pickerTests();
+  suggestionTests();
 
   group('TRouteResult and decodePolyline', () {
     test('decodePolyline decodes standard encoded polyline string', () {
@@ -32,7 +35,7 @@ void main() {
   });
 
   group('TMapPinning Two-Points Mode', () {
-    testWidgets('Renders single point mode with 100px height', (tester) async {
+    testWidgets('Single point mode renders a read-only text field', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -41,24 +44,18 @@ void main() {
         ),
       );
 
-      final containerFinder = find.byType(TMapPinning);
-      expect(containerFinder, findsOneWidget);
-
-      // Verify single point map container height is 100
-      final sizedBoxes = tester.widgetList<Container>(find.byType(Container));
-      final hasHeight100 = sizedBoxes.any((c) => c.constraints?.maxHeight == 100 || (c.constraints == null && c.child != null));
-      expect(hasHeight100, isTrue);
+      expect(find.byType(TTextField<String?>), findsOneWidget);
+      expect(find.byType(TMap), findsNothing);
+      expect(tester.widget<TTextField<String?>>(find.byType(TTextField<String?>)).readOnly, isTrue);
     });
 
-    testWidgets('Renders two points mode with stacked fields and doubled 200px height', (tester) async {
+    testWidgets('Two points mode renders two read-only fields in one container', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: TMapPinning(
               label: 'Delivery Route',
               isTwoPoints: true,
-              fromLabel: 'Pickup Location',
-              toLabel: 'Drop-off Location',
               initialFromCoordinates: const LatLng(6.9271, 79.8612),
               initialToCoordinates: const LatLng(6.9147, 79.8732),
             ),
@@ -66,9 +63,8 @@ void main() {
         ),
       );
 
-      // Should render the stacked trigger fields
-      expect(find.text('Select pickup location'), findsOneWidget);
-      expect(find.text('Select drop-off location'), findsOneWidget);
+      expect(find.byType(TInputContainer), findsOneWidget);
+      expect(find.byType(TTextField<String?>), findsNWidgets(2));
       expect(find.byType(Divider), findsWidgets);
     });
 
@@ -94,5 +90,80 @@ void main() {
       expect(selectedCoords, isNull);
       expect(selectedAddr, isNull);
     });
+  });
+}
+
+void pickerTests() {
+  for (final mobile in [true, false]) {
+    for (final two in [false, true]) {
+      testWidgets('Picker opens (${mobile ? 'mobile' : 'desktop'}, ${two ? 'two' : 'single'} points)', (tester) async {
+        tester.view.physicalSize = mobile ? const Size(400, 800) : const Size(1200, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: TMapPinning(
+                  label: 'Where',
+                  isTwoPoints: two,
+                  initialFromCoordinates: const LatLng(9.66, 80.0),
+                  initialToCoordinates: two ? const LatLng(9.7, 80.05) : null,
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.byType(TTextField<String?>).first);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(find.byType(TMap), findsOneWidget);
+        expect(find.text('Saved'), findsOneWidget);
+      });
+    }
+  }
+}
+
+void suggestionTests() {
+  testWidgets('Typing replaces saved/recent with a suggestions list', (tester) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: TMapPinning(label: 'Where', initialFromCoordinates: const LatLng(9.66, 80.0)),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byType(TTextField<String?>).first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    await tester.enterText(find.byType(TextField).first, 'Hospital');
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Suggestions'), findsOneWidget);
+    expect(find.text('Saved'), findsNothing);
+
+    await tester.enterText(find.byType(TextField).first, '');
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Suggestions'), findsNothing);
+    expect(find.text('Saved'), findsOneWidget);
+    // Typing one character at a time keeps the text (the field must not reset on rebuild).
+    await tester.enterText(find.byType(TextField).first, '');
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.enterText(find.byType(TextField).first, 'H');
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.enterText(find.byType(TextField).first, 'Ho');
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(tester.widget<TextField>(find.byType(TextField).first).controller!.text, 'Ho');
+
+    // Typing the same text again is still detected.
+    await tester.enterText(find.byType(TextField).first, 'Hospital');
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Suggestions'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'google_places_client.dart';
+import 'google_tiles.dart';
 
 class TMapConfig {
   /// Global Google Maps API Key fallback.
@@ -18,6 +19,9 @@ class TMapConfig {
   /// Google Maps web-service base (Geocoding / Directions).
   static String mapsApiBase = 'https://maps.googleapis.com/maps/api';
 
+  /// Google Map Tiles API base (official 2D tiles, needs the Map Tiles API enabled on the key).
+  static String tilesApiBase = 'https://tile.googleapis.com/v1';
+
   /// Tile url for [MapTileType.osm]. Defaults to the keyless OSM server (CARTO now requires an API key).
   /// Placeholders: {z} {x} {y}, plus {s} (see [osmSubdomains]), {style} (dark_all/light_all) and {scale} (@2x).
   /// Set this to a keyed provider (MapTiler, Stadia, CARTO...) if needed.
@@ -26,8 +30,7 @@ class TMapConfig {
 
   /// Tile type used when a map doesn't set `mapType`. Defaults to google when [googleMapApiKey] is set, else osm.
   static MapTileType? mapType;
-  static MapTileType get defaultMapType =>
-      mapType ?? ((googleMapApiKey?.isNotEmpty ?? false) ? MapTileType.google : MapTileType.osm);
+  static MapTileType get defaultMapType => mapType ?? ((googleMapApiKey?.isNotEmpty ?? false) ? MapTileType.google : MapTileType.osm);
 
   static LatLng mapCenter = LatLng(9.663812, 80.006043);
 }
@@ -74,6 +77,38 @@ class TMapPolygon {
 }
 
 enum MapTileType { google, osm, satellite }
+
+/// Inverts light map tiles for dark mode.
+Widget tintForTheme(Widget tileLayer, bool darkMode) {
+  if (!darkMode) return RepaintBoundary(child: tileLayer);
+  return RepaintBoundary(
+    child: ColorFiltered(
+      colorFilter: const ColorFilter.matrix(<double>[
+        -0.2,
+        -0.5,
+        -0.3,
+        0,
+        255,
+        -0.3,
+        -0.5,
+        -0.2,
+        0,
+        255,
+        -0.3,
+        -0.2,
+        -0.5,
+        0,
+        255,
+        0,
+        0,
+        0,
+        1,
+        0,
+      ]),
+      child: tileLayer,
+    ),
+  );
+}
 
 Widget buildTileLayer({
   required MapTileType mapType,
@@ -123,42 +158,18 @@ Widget buildTileLayer({
       }
 
     case MapTileType.google:
-      tileLayer = TileLayer(
-        urlTemplate: 'https://mt{s}.google.com/vt/lyrs=m@221097000&hl={hl}&gl={gl}&x={x}&y={y}&z={z}',
-        subdomains: const ['0', '1', '2', '3'],
-        additionalOptions: {'userAgent': packageName, 'hl': lang, 'gl': country},
-        keepBuffer: keepBuffer,
-      );
-      if (darkMode) {
-        return RepaintBoundary(
-          child: ColorFiltered(
-            colorFilter: const ColorFilter.matrix(<double>[
-              -0.2,
-              -0.5,
-              -0.3,
-              0,
-              255,
-              -0.3,
-              -0.5,
-              -0.2,
-              0,
-              255,
-              -0.3,
-              -0.2,
-              -0.5,
-              0,
-              255,
-              0,
-              0,
-              0,
-              1,
-              0,
-            ]),
-            child: tileLayer,
-          ),
-        );
+      final apiKey = TMapConfig.googleMapApiKey;
+      if (apiKey == null || apiKey.isEmpty) {
+        return buildTileLayer(mapType: MapTileType.osm, darkMode: darkMode, keepBuffer: keepBuffer, packageName: packageName);
       }
-      break;
+      return TGoogleTileLayer(
+        apiKey: apiKey,
+        language: lang,
+        region: country.toUpperCase(),
+        darkMode: darkMode,
+        keepBuffer: keepBuffer,
+        packageName: packageName,
+      );
 
     case MapTileType.satellite:
       tileLayer = TileLayer(

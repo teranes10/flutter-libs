@@ -184,7 +184,7 @@ class _TMapState extends State<TMap> {
       );
     }
     return TIcon.raw(
-      pin.icon ?? HugeIcons.strokeRoundedLocation01,
+      pin.icon ?? Icons.location_on,
       color: colors.primary,
       size: _pinSize,
       // shadows: [Shadow(color: shadowColor, blurRadius: shadowBlur, offset: shadowOffset)],
@@ -319,13 +319,7 @@ class _TMapState extends State<TMap> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TButton(
-              type: TButtonType.softText,
-              size: TSize.xs,
-              icon: HugeIcons.strokeRoundedAdd01,
-              color: colors.onSurface,
-              onTap: onAdd,
-            ),
+            TButton(type: TButtonType.softText, size: TSize.xs, icon: HugeIcons.strokeRoundedAdd01, color: colors.onSurface, onTap: onAdd),
             const SizedBox(height: 2),
             TButton(
               type: TButtonType.softText,
@@ -394,7 +388,8 @@ class _TMapState extends State<TMap> {
 
     final pinMarkers = widget.pins.map((pin) {
       final isCustom = pin.customBuilder != null || pin.assetPath != null;
-      final defaultAlignment = isCustom ? Alignment.center : Alignment.bottomCenter;
+      // flutter_map aligns the marker box relative to the point: topCenter puts the pin tip on it.
+      final defaultAlignment = isCustom ? Alignment.center : Alignment.topCenter;
       final alignment = pin.alignment ?? defaultAlignment;
       final isSelected = identical(_selectedPin, pin);
       final hasLabel = pin.label != null && pin.label!.isNotEmpty;
@@ -435,6 +430,8 @@ class _TMapState extends State<TMap> {
             buildTileLayer(mapType: widget.mapType ?? TMapConfig.defaultMapType, darkMode: isDark),
             ..._buildPolygonLayers(colors, isDark),
             ..._buildPolylineLayers(isDark),
+            if ((widget.mapType ?? TMapConfig.defaultMapType) == MapTileType.google && (TMapConfig.googleMapApiKey?.isNotEmpty ?? false))
+              const SimpleAttributionWidget(source: Text('Google Maps'), alignment: Alignment.bottomLeft),
             MarkerLayer(
               markers: [
                 ...pinMarkers,

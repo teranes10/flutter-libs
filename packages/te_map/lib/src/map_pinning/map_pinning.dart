@@ -1,52 +1,36 @@
-import 'dart:async';
-import 'package:http/http.dart' as http;
-import '../google_places_client.dart';
-import '../openstreet_client.dart';
-import '../route_result.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:te_widgets/te_widgets.dart';
 import 'package:latlong2/latlong.dart';
-import '../map.dart';
-import '../map_config.dart';
+import 'package:te_widgets/te_widgets.dart';
+
 import '../place_autocomplete.dart';
-import '../extensions/latlng_x.dart';
-import '../extensions/position_x.dart';
-import '../helpers/location/location_helper.dart';
+import '../route_result.dart';
+import 'map_picker.dart';
+import 'map_picker_controller.dart';
 
-import 'saved_locations_list.dart';
-import 'previous_selections_list.dart';
-
-part 'map_pinning_base.dart';
-
-class TMapPinning extends StatefulWidget with TPopupMixin, TInputFieldMixin {
-  @override
+/// A read-only location field. Tapping it opens a picker: a dialog on large
+/// screens, two pages (choose, then adjust on the map) on mobile.
+///
+/// With [isTwoPoints] it shows a From / To pair inside one container and the
+/// picker draws the route and distance between both points.
+class TMapPinning extends StatefulWidget {
   final String label;
 
   final String? placeholder;
 
-  @override
   final String? tag;
 
-  @override
   final String? helperText;
 
-  @override
   final bool isRequired;
 
-  @override
   final bool disabled;
 
-  @override
   final String? info;
 
-  @override
   final bool clearable;
 
-  @override
   final TInputFieldTheme? theme;
 
-  @override
   final VoidCallback? onTap;
 
   // Single Point / Primary (From)
@@ -74,10 +58,8 @@ class TMapPinning extends StatefulWidget with TPopupMixin, TInputFieldMixin {
   final ValueChanged<TRouteResult>? onRouteChanged;
   final ValueChanged<double>? onDistanceChanged;
 
-  @override
   final VoidCallback? onShow;
 
-  @override
   final VoidCallback? onHide;
 
   const TMapPinning({
@@ -120,1063 +102,212 @@ class TMapPinning extends StatefulWidget with TPopupMixin, TInputFieldMixin {
 
   @override
   State<TMapPinning> createState() => _TMapPinningState();
-
-  @override
-  TPopupAlignment get popupAlignment => TPopupAlignment.bottomCenter;
 }
 
-class _TMapPinningState extends _TMapPinningStateBase {
-  final GlobalKey<TSavedLocationsListState> _savedLocationsKey = GlobalKey<TSavedLocationsListState>();
+class _TMapPinningState extends State<TMapPinning> {
+  LatLng? _from;
+  LatLng? _to;
+  String _fromAddress = '';
+  String _toAddress = '';
+  TRouteResult? _route;
 
-  @override
-  double get contentMinWidth => 600;
-
-  @override
-  double get contentMinHeight => widget.isTwoPoints ? 720 : 650;
-
-  @override
-  double? get contentMaxWidth => 800;
-
-  @override
-  double? get contentMaxHeight => widget.isTwoPoints ? 700 : 660;
-
-  @override
-  TPopupMode get effectivePopupMode {
-    return MediaQuery.of(context).isMobile ? TPopupMode.page : TPopupMode.centered;
-  }
-
-  @override
-  void showPopup(BuildContext context) {
-    if (widget.isTwoPoints) {
-      activePoint = TMapPointType.to;
-      if (fromAddress.isEmpty) {
-        fromAddress = 'Your location';
-        fromSearchController.text = 'Your location';
-      }
-    }
-    super.showPopup(context);
-  }
-
-  void _swapPoints() {
-    if (toCoordinates == null) return;
-    setState(() {
-      final tempCoords = fromCoordinates;
-      final tempAddr = fromAddress;
-
-      fromCoordinates = toCoordinates!;
-      fromAddress = toAddress;
-      fromSearchController.text = fromAddress;
-
-      toCoordinates = tempCoords;
-      toAddress = tempAddr;
-      toSearchController.text = toAddress;
-    });
-
-    widget.onFromAddressChanged?.call(fromAddress);
-    widget.onFromCoordinatesChanged?.call(fromCoordinates);
-    widget.fromAddressController?.text = fromAddress;
-
-    widget.onToAddressChanged?.call(toAddress);
-    widget.onToCoordinatesChanged?.call(toCoordinates!);
-    widget.toAddressController?.text = toAddress;
-
-    calculateRouteIfNeeded();
-  }
+  TextEditingController? get _fromExternal => widget.fromAddressController ?? widget.addressController;
+  TextEditingController? get _toExternal => widget.toAddressController;
 
   @override
   void initState() {
     super.initState();
-    fromCoordinates = widget.initialFromCoordinates ?? widget.initialCoordinates ?? TMapConfig.mapCenter;
-    fromAddress = widget.fromAddressController?.text ?? widget.addressController?.text ?? '';
-    fromSearchController = TextEditingController(text: fromAddress);
-
-    toCoordinates = widget.initialToCoordinates;
-    toAddress = widget.toAddressController?.text ?? '';
-    toSearchController = TextEditingController(text: toAddress);
-
-    activePoint = widget.isTwoPoints ? TMapPointType.to : TMapPointType.from;
-    center = fromCoordinates;
-    pin = fromCoordinates;
-
-    getCurrentLocationAndSync();
+    _from = widget.initialFromCoordinates ?? widget.initialCoordinates;
+    _to = widget.initialToCoordinates;
+    _fromAddress = _fromExternal?.text ?? '';
+    _toAddress = _toExternal?.text ?? '';
+    _fromExternal?.addListener(_onFromExternal);
+    _toExternal?.addListener(_onToExternal);
   }
 
   @override
-  void didUpdateWidget(TMapPinning oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final newFromCoords = widget.initialFromCoordinates ?? widget.initialCoordinates;
-    final oldFromCoords = oldWidget.initialFromCoordinates ?? oldWidget.initialCoordinates;
-    if (newFromCoords != oldFromCoords && newFromCoords != null) {
-      setState(() {
-        fromCoordinates = newFromCoords;
-        if (activePoint == TMapPointType.from) {
-          center = newFromCoords;
-          pin = newFromCoords;
-        }
-      });
-      if (widget.isTwoPoints && toCoordinates != null) {
-        calculateRouteIfNeeded();
-      }
+  void didUpdateWidget(TMapPinning old) {
+    super.didUpdateWidget(old);
+    if ((old.fromAddressController ?? old.addressController) != _fromExternal) {
+      (old.fromAddressController ?? old.addressController)?.removeListener(_onFromExternal);
+      _fromExternal?.addListener(_onFromExternal);
     }
-
-    if (widget.initialToCoordinates != oldWidget.initialToCoordinates && widget.initialToCoordinates != null) {
-      setState(() {
-        toCoordinates = widget.initialToCoordinates;
-        if (activePoint == TMapPointType.to) {
-          center = widget.initialToCoordinates!;
-          pin = widget.initialToCoordinates!;
-        }
-      });
-      if (widget.isTwoPoints) {
-        calculateRouteIfNeeded();
-      }
+    if (old.toAddressController != _toExternal) {
+      old.toAddressController?.removeListener(_onToExternal);
+      _toExternal?.addListener(_onToExternal);
     }
-
-    final newFromAddr = widget.fromAddressController?.text ?? widget.addressController?.text;
-    final oldFromAddr = oldWidget.fromAddressController?.text ?? oldWidget.addressController?.text;
-    if (newFromAddr != oldFromAddr && newFromAddr != null) {
-      setState(() {
-        fromAddress = newFromAddr;
-        fromSearchController.text = newFromAddr;
-      });
-    }
-
-    if (widget.toAddressController?.text != oldWidget.toAddressController?.text && widget.toAddressController?.text != null) {
-      setState(() {
-        toAddress = widget.toAddressController!.text;
-        toSearchController.text = widget.toAddressController!.text;
-      });
-    }
+    final newFrom = widget.initialFromCoordinates ?? widget.initialCoordinates;
+    if (newFrom != null && newFrom != (old.initialFromCoordinates ?? old.initialCoordinates)) _from = newFrom;
+    if (widget.initialToCoordinates != null && widget.initialToCoordinates != old.initialToCoordinates) _to = widget.initialToCoordinates;
   }
 
   @override
   void dispose() {
-    httpClient.close();
-    fromSearchController.dispose();
-    toSearchController.dispose();
-    reverseGeocodeDebounce?.cancel();
-    routeCalculateDebounce?.cancel();
+    _fromExternal?.removeListener(_onFromExternal);
+    _toExternal?.removeListener(_onToExternal);
     super.dispose();
   }
 
-  @override
-  TInputFieldTheme get wTheme =>
-      (widget.theme ??
-              Theme.of(context).extension<TWidgetThemeExtension>()?.inputFieldTheme ??
-              TInputFieldTheme.defaultTheme(Theme.of(context).colorScheme))
-          .copyWith(labelPosition: TLabelPosition.aboveField);
+  void _onFromExternal() {
+    final text = _fromExternal?.text ?? '';
+    if (text == _fromAddress) return;
+    setState(() => _fromAddress = text);
+  }
 
-  List<TMapPin> _buildMapPins(BuildContext context) {
-    final colors = context.colors;
-    if (!widget.isTwoPoints || toCoordinates == null) {
-      return [
-        TMapPin(
-          coordinates: fromCoordinates,
-          label: fromAddress.isNotEmpty ? fromAddress : 'Your location',
-          icon: HugeIcons.strokeRoundedLocation01,
-          iconColor: colors.primary,
-        ),
-      ];
+  void _onToExternal() {
+    final text = _toExternal?.text ?? '';
+    if (text == _toAddress) return;
+    setState(() => _toAddress = text);
+  }
+
+  String _display(String address, LatLng? coords) => address.isNotEmpty ? address : (coords == null ? '' : 'Unknown');
+
+  Future<void> _open(TMapPointType focus) async {
+    if (widget.disabled) return;
+    widget.onTap?.call();
+    widget.onShow?.call();
+
+    final controller = TMapPickerController(
+      isTwoPoints: widget.isTwoPoints,
+      googleMapApiKey: widget.googleMapApiKey,
+      from: _from,
+      fromAddress: _fromAddress,
+      to: _to,
+      toAddress: _toAddress,
+      route: _route,
+      onLoad: widget.onLoad,
+      active: widget.isTwoPoints ? focus : TMapPointType.from,
+    );
+
+    final result = await showTMapPicker(
+      context,
+      controller: controller,
+      config: TMapPickerConfig(
+        title: widget.label,
+        googleMapApiKey: widget.googleMapApiKey,
+        placeholder: widget.placeholder,
+        fromLabel: widget.fromLabel,
+        toLabel: widget.toLabel,
+        fromPlaceholder: widget.fromPlaceholder,
+        toPlaceholder: widget.toPlaceholder,
+      ),
+    );
+    controller.dispose();
+    widget.onHide?.call();
+    if (result != null && mounted) _apply(result);
+  }
+
+  void _apply(TMapPickerResult r) {
+    setState(() {
+      _from = r.from;
+      _fromAddress = r.fromAddress;
+      _to = r.to;
+      _toAddress = r.toAddress;
+      _route = r.route;
+    });
+
+    widget.onAddressChanged?.call(r.fromAddress);
+    widget.onCoordinatesChanged?.call(r.from);
+    widget.addressController?.text = r.fromAddress;
+    widget.onFromAddressChanged?.call(r.fromAddress);
+    widget.onFromCoordinatesChanged?.call(r.from);
+    widget.fromAddressController?.text = r.fromAddress;
+
+    if (widget.isTwoPoints && r.to != null) {
+      widget.onToAddressChanged?.call(r.toAddress);
+      widget.onToCoordinatesChanged?.call(r.to!);
+      widget.toAddressController?.text = r.toAddress;
     }
-
-    return [
-      TMapPin(
-        coordinates: fromCoordinates,
-        label: fromAddress.isNotEmpty ? fromAddress : (widget.fromLabel ?? 'Pickup Point'),
-        icon: HugeIcons.strokeRoundedOrigami,
-        iconColor: Colors.green,
-      ),
-      TMapPin(
-        coordinates: toCoordinates!,
-        label: toAddress.isNotEmpty ? toAddress : (widget.toLabel ?? 'Drop-off Point'),
-        icon: HugeIcons.strokeRoundedLocation01,
-        iconColor: Colors.redAccent,
-      ),
-    ];
-  }
-
-  List<TMapPolyline> _buildMapPolylines(BuildContext context) {
-    if (!widget.isTwoPoints || routeResult == null || routeResult!.points.isEmpty) {
-      return const [];
+    if (r.route != null) {
+      widget.onRouteChanged?.call(r.route!);
+      widget.onDistanceChanged?.call(r.route!.distanceMeters);
     }
-    return [TMapPolyline(points: routeResult!.points, color: context.colors.primary, strokeWidth: 4.0)];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final isTwo = widget.isTwoPoints;
-    // Map container size is doubled when two points (200 vs 100)
-    final double mapHeight = isTwo ? 200.0 : 100.0;
-
-    final pins = _buildMapPins(context);
-    final polylines = _buildMapPolylines(context);
-
-    final mapWidget = Container(
-      height: mapHeight,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colors.outlineVariant.withAlpha(120)),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned.fill(
-              child: TMap(
-                initialCoordinates: isTwo && toCoordinates != null
-                    ? LatLng(
-                        (fromCoordinates.latitude + toCoordinates!.latitude) / 2,
-                        (fromCoordinates.longitude + toCoordinates!.longitude) / 2,
-                      )
-                    : fromCoordinates,
-                zoom: isTwo && toCoordinates != null ? 13 : zoomLevel,
-                interactive: false,
-                googleMapApiKey: widget.googleMapApiKey,
-                height: mapHeight,
-                borderRadius: 10,
-                pins: pins,
-                polylines: polylines,
-              ),
-            ),
-
-            // Floating Distance & Duration Badge in Two Points Mode
-            if (isTwo && routeResult != null)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: colors.surface.withAlpha(235),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
-                    border: Border.all(color: colors.outlineVariant.withAlpha(120)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TIcon.raw(HugeIcons.strokeRoundedCar05, size: 14, color: colors.primary),
-                      const SizedBox(width: 5),
-                      Text(
-                        '${routeResult!.formattedDistance} • ${routeResult!.formattedDuration}',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colors.onSurface),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-            // Bottom Input / Trigger Container
-            Positioned(
-              bottom: 4,
-              left: 4,
-              right: 4,
-              child: isTwo ? _buildTwoPointsTriggerContainer(context) : _buildSinglePointTriggerContainer(context),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    return buildWithDropdownTarget(child: buildWrapper(child: mapWidget));
-  }
-
-  Widget _buildSinglePointTriggerContainer(BuildContext context) {
-    final colors = context.colors;
-    final isDark = context.isDarkMode;
-    final displayText = fromAddress.isNotEmpty ? fromAddress : (widget.placeholder ?? 'Select location');
-    final hasAddress = fromAddress.isNotEmpty;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => showPopup(context),
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xE61E293B) : Colors.white.withAlpha(240),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: colors.outlineVariant.withAlpha(120)),
-            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-          ),
-          child: Row(
-            children: [
-              TIcon.raw(HugeIcons.strokeRoundedLocation01, size: 16, color: colors.primary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  displayText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: hasAddress ? colors.onSurface : colors.onSurfaceVariant,
-                    fontWeight: hasAddress ? FontWeight.w500 : FontWeight.normal,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 16, color: colors.onSurfaceVariant),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTwoPointsTriggerContainer(BuildContext context) {
-    final colors = context.colors;
-    final isDark = context.isDarkMode;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => showPopup(context),
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xE61E293B) : Colors.white.withAlpha(240),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: colors.outlineVariant.withAlpha(120)),
-            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // From (Pickup) Field
-              Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      fromAddress.isNotEmpty ? fromAddress : (widget.fromPlaceholder ?? 'Select pickup location'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: fromAddress.isNotEmpty ? colors.onSurface : colors.onSurfaceVariant,
-                        fontWeight: fromAddress.isNotEmpty ? FontWeight.w500 : FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              // Horizontal Separator
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Divider(height: 1, thickness: 1, color: colors.outlineVariant.withAlpha(120)),
-              ),
-
-              // To (Drop-off) Field
-              Row(
-                children: [
-                  TIcon.raw(HugeIcons.strokeRoundedLocation01, size: 14, color: Colors.redAccent),
-                  const SizedBox(width: 5),
-                  Expanded(
-                    child: Text(
-                      toAddress.isNotEmpty ? toAddress : (widget.toPlaceholder ?? 'Select drop-off location'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: toAddress.isNotEmpty ? colors.onSurface : colors.onSurfaceVariant,
-                        fontWeight: toAddress.isNotEmpty ? FontWeight.w500 : FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   @override
-  Widget getContentWidget(BuildContext context) {
-    final isMobile = MediaQuery.of(context).isMobile;
+  Widget build(BuildContext context) => widget.isTwoPoints ? _buildTwoPoints(context) : _buildSingle(context);
 
-    // 1. Top Header & Place AutoComplete Search Bar(s)
-    final headerWidgets = widget.isTwoPoints ? _buildTwoPointsHeader(context) : _buildSinglePointHeader(context);
-
-    // 2. Middle Content: Map + Saved Locations List
-    final middleWidgets = _buildMiddleContent(context);
-
-    final footer = _buildFooter(context);
-
-    // Desktop: Sticky Header + Sticky Footer + Scrollable Middle
-    // Mobile: Render only Header + Middle (Footer is passed to TPageWrapper via getPopupFooter)
-    if (isMobile) {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [headerWidgets, const SizedBox(height: 12), middleWidgets],
-        ),
-      );
-    } else {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SizedBox(
-          height: widget.isTwoPoints ? 640 : 580,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              headerWidgets,
-              const SizedBox(height: 12),
-              Expanded(child: SingleChildScrollView(child: middleWidgets)),
-              const SizedBox(height: 12),
-              footer,
-            ],
-          ),
-        ),
-      );
-    }
+  Widget _buildSingle(BuildContext context) {
+    return TTextField<String?>(
+      label: widget.label,
+      tag: widget.tag,
+      info: widget.info,
+      helperText: widget.helperText,
+      isRequired: widget.isRequired,
+      disabled: widget.disabled,
+      placeholder: widget.placeholder ?? 'Select location',
+      readOnly: true,
+      // `value` (not a controller) keeps the field's value and required validation in sync.
+      value: _display(_fromAddress, _from),
+      preWidget: Padding(
+        padding: const EdgeInsets.only(left: 4),
+        child: TIcon.raw(Icons.location_on, size: 18, color: context.colors.primary),
+      ),
+      onTap: () => _open(TMapPointType.from),
+    );
   }
 
-  LatLngBounds? _buildMapBounds() {
-    if (!widget.isTwoPoints || toCoordinates == null) return null;
-    final List<LatLng> points = [];
-    if (routeResult != null && routeResult!.points.isNotEmpty) {
-      points.addAll(routeResult!.points);
-    } else {
-      points.add(fromCoordinates);
-      points.add(toCoordinates!);
-    }
-    if (points.length < 2) return null;
-    return LatLngBounds.fromPoints(points);
-  }
-
-  Widget _buildSinglePointHeader(BuildContext context) {
+  Widget _buildTwoPoints(BuildContext context) {
     final colors = context.colors;
+    final theme = widget.theme ?? context.theme.inputFieldTheme;
+    final noStates = <WidgetState>{};
+    final showLabel = widget.label.isNotEmpty || (widget.tag?.isNotEmpty ?? false);
+
+    // The container draws the only border, so the inner fields must be fully bare.
+    final bare = context.theme.textFieldTheme.copyWith(
+      decorationType: TInputDecorationType.none,
+      backgroundColor: WidgetStateProperty.all(Colors.transparent),
+      borderColor: WidgetStateProperty.all(Colors.transparent),
+    );
+
+    Widget field(String text, String placeholder, Widget icon, TMapPointType type) => TTextField<String?>(
+      theme: bare.copyWith(
+        preWidget: Padding(padding: const EdgeInsets.only(left: 4), child: icon),
+      ),
+      readOnly: true,
+      disabled: widget.disabled,
+      value: text,
+      placeholder: placeholder,
+      onTap: () => _open(type),
+    );
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              widget.label,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colors.onSurface),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        TPlaceAutoComplete(
-          googleMapApiKey: widget.googleMapApiKey,
-          onLoad: widget.onLoad,
-          placeholder: widget.placeholder ?? 'Search location...',
-          selectedAddress: searchFieldAddress,
-          onPlaceSelected: (details) {
-            LatLng? coordinates;
-            if (details.latitude != 0.0 || details.longitude != 0.0) {
-              coordinates = LatLng(details.latitude, details.longitude);
-            } else if (details.coordinates.isNotEmpty) {
-              try {
-                coordinates = parseCoordinates(details.coordinates);
-              } catch (_) {}
-            }
-            if (coordinates == null) return;
-
-            setState(() {
-              hasInteracted = true;
-              center = coordinates!;
-              pin = coordinates;
-              fromCoordinates = coordinates;
-              fromAddress = details.address;
-              fromSearchController.text = details.address;
-            });
-            widget.onAddressChanged?.call(details.address);
-            widget.onCoordinatesChanged?.call(coordinates);
-            widget.addressController?.text = details.address;
-            widget.onFromAddressChanged?.call(details.address);
-            widget.onFromCoordinatesChanged?.call(coordinates);
-            widget.fromAddressController?.text = details.address;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTwoPointsHeader(BuildContext context) {
-    final colors = context.colors;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          widget.label,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: colors.onSurface),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTwoPointsSearchCard(BuildContext context) {
-    final colors = context.colors;
-
-    return TCard(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // From (Pickup) Section
-          InkWell(
-            onTap: () => setState(() => activePoint = TMapPointType.from),
-            borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-              child: Row(
-                children: [
-                  Container(
-                    width: 9,
-                    height: 9,
-                    decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          fromAddress.isNotEmpty ? fromAddress : 'Your location',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: activePoint == TMapPointType.from ? colors.primary : colors.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Coordinates: ${fromCoordinates.formattedString}',
-                          style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (activePoint == TMapPointType.from)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: Colors.green.withAlpha(30), borderRadius: BorderRadius.circular(10)),
-                      child: const Text(
-                        'Active',
-                        style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-
-          // Divider with Swap Action
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              children: [
-                Expanded(child: Divider(color: colors.outlineVariant.withAlpha(120), height: 1, thickness: 1)),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: InkWell(
-                    onTap: _swapPoints,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: TIcon.raw(HugeIcons.strokeRoundedArrowUpDown, size: 16, color: colors.onSurfaceVariant),
-                    ),
-                  ),
-                ),
-                Expanded(child: Divider(color: colors.outlineVariant.withAlpha(120), height: 1, thickness: 1)),
-              ],
-            ),
-          ),
-
-          // To (Drop-off) Section
-          InkWell(
-            onTap: () => setState(() => activePoint = TMapPointType.to),
-            borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-              child: Row(
-                children: [
-                  TIcon.raw(HugeIcons.strokeRoundedLocation01, size: 14, color: Colors.redAccent),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          toAddress.isNotEmpty
-                              ? toAddress
-                              : (toCoordinates != null
-                                    ? 'Coordinates: ${toCoordinates!.formattedString}'
-                                    : (widget.toLabel ?? 'Select drop-off location')),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                            color: toCoordinates != null
-                                ? (activePoint == TMapPointType.to ? colors.primary : colors.onSurface)
-                                : colors.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          toCoordinates != null
-                              ? 'Coordinates: ${toCoordinates!.formattedString}'
-                              : 'Tap map or search below to set destination',
-                          style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (activePoint == TMapPointType.to)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: Colors.redAccent.withAlpha(30), borderRadius: BorderRadius.circular(10)),
-                      child: const Text(
-                        'Active',
-                        style: TextStyle(fontSize: 10, color: Colors.redAccent, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-
-          // Route distance & duration summary row
-          if (routeResult != null) ...[
-            Divider(color: colors.outlineVariant.withAlpha(120), height: 14),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    TIcon.raw(HugeIcons.strokeRoundedRoute01, size: 15, color: colors.primary),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Estimated Route Distance:',
-                      style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant, fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-                Text(
-                  '${routeResult!.formattedDistance} (${routeResult!.formattedDuration})',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colors.primary),
-                ),
-              ],
-            ),
-          ],
+        if (showLabel) ...[
+          theme.labelBuilder.resolve(noStates)(widget.label, widget.tag, widget.isRequired, null),
+          const SizedBox(height: 8),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMiddleContent(BuildContext context) {
-    final colors = context.colors;
-    final pins = _buildMapPins(context);
-    final polylines = _buildMapPolylines(context);
-    final mapBounds = _buildMapBounds();
-    final double mapHeight = widget.isTwoPoints ? 260.0 : 220.0;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Map Viewport (Doubled height in two points mode)
-        SizedBox(
-          height: mapHeight,
-          child: Stack(
+        TInputContainer(
+          theme: theme,
+          disabled: widget.disabled,
+          padding: EdgeInsets.zero,
+          height: bare.fieldHeight * 2 + 5,
+          child: Column(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: TMap(
-                  initialCoordinates: center,
-                  bounds: mapBounds,
-                  boundsPadding: const EdgeInsets.all(52),
-                  zoom: widget.isTwoPoints && toCoordinates != null ? 13 : zoomLevel,
-                  interactive: true,
-                  googleMapApiKey: widget.googleMapApiKey,
-                  height: mapHeight,
-                  onCoordinatesChanged: onPinMoved,
-                  pins: pins,
-                  polylines: polylines,
+              SizedBox(
+                height: bare.fieldHeight,
+                child: field(
+                  _display(_fromAddress, _from),
+                  widget.fromPlaceholder ?? 'Select pickup location',
+                  const Icon(Icons.circle, size: 10, color: Colors.green),
+                  TMapPointType.from,
                 ),
               ),
-
-              // Route Info Header Overlay
-              if (widget.isTwoPoints && routeResult != null)
-                Positioned(
-                  top: 10,
-                  left: 10,
-                  right: 10,
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: colors.surface.withAlpha(240),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 2))],
-                        border: Border.all(color: colors.outlineVariant.withAlpha(150)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TIcon.raw(HugeIcons.strokeRoundedDirections02, size: 16, color: colors.primary),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Distance: ${routeResult!.formattedDistance}',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colors.onSurface),
-                          ),
-                          const SizedBox(width: 8),
-                          Text('•', style: TextStyle(color: colors.onSurfaceVariant)),
-                          const SizedBox(width: 8),
-                          Text(
-                            routeResult!.formattedDuration,
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: colors.primary),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+              Divider(height: 1, thickness: 1, color: colors.outlineVariant.withAlpha(120)),
+              SizedBox(
+                height: bare.fieldHeight,
+                child: field(
+                  _display(_toAddress, _to),
+                  widget.toPlaceholder ?? 'Select drop-off location',
+                  TIcon.raw(Icons.location_on, size: 16, color: Colors.redAccent),
+                  TMapPointType.to,
                 ),
-
-              // Active Point Hint Bar on Map
-              if (widget.isTwoPoints)
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: colors.surface.withAlpha(220),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colors.outlineVariant.withAlpha(120)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TIcon.raw(
-                          activePoint == TMapPointType.from ? HugeIcons.strokeRoundedOrigami : HugeIcons.strokeRoundedLocation01,
-                          size: 13,
-                          color: activePoint == TMapPointType.from ? Colors.green : Colors.redAccent,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          'Tap map to set ${activePoint == TMapPointType.from ? (widget.fromLabel ?? "Pickup Point") : (widget.toLabel ?? "Drop-off Point")}',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: colors.onSurface),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
-
-        // In Two-Points Mode: Summary Card + Search Bar situated below the map
-        if (widget.isTwoPoints) ...[
-          _buildTwoPointsSearchCard(context),
-          const SizedBox(height: 12),
-          TPlaceAutoComplete(
-            googleMapApiKey: widget.googleMapApiKey,
-            onLoad: widget.onLoad,
-            placeholder: activePoint == TMapPointType.from
-                ? (widget.fromPlaceholder ?? 'Search pickup location...')
-                : (widget.toPlaceholder ?? 'Search drop-off location...'),
-            selectedAddress: searchFieldAddress,
-            onPlaceSelected: (details) {
-              LatLng? coordinates;
-              if (details.latitude != 0.0 || details.longitude != 0.0) {
-                coordinates = LatLng(details.latitude, details.longitude);
-              } else if (details.coordinates.isNotEmpty) {
-                try {
-                  coordinates = parseCoordinates(details.coordinates);
-                } catch (_) {}
-              }
-              if (coordinates == null) return;
-
-              setState(() {
-                hasInteracted = true;
-                center = coordinates!;
-                pin = coordinates;
-                if (activePoint == TMapPointType.from) {
-                  fromCoordinates = coordinates;
-                  fromAddress = details.address;
-                  fromSearchController.text = details.address;
-                } else {
-                  toCoordinates = coordinates;
-                  toAddress = details.address;
-                  toSearchController.text = details.address;
-                }
-              });
-              if (activePoint == TMapPointType.from) {
-                widget.onFromAddressChanged?.call(details.address);
-                widget.onFromCoordinatesChanged?.call(coordinates);
-                widget.fromAddressController?.text = details.address;
-                widget.onAddressChanged?.call(details.address);
-                widget.onCoordinatesChanged?.call(coordinates);
-                widget.addressController?.text = details.address;
-              } else {
-                widget.onToAddressChanged?.call(details.address);
-                widget.onToCoordinatesChanged?.call(coordinates);
-                widget.toAddressController?.text = details.address;
-              }
-              if (toCoordinates != null) {
-                calculateRouteIfNeeded();
-              }
-            },
-          ),
-          const SizedBox(height: 12),
-        ],
-
-        // Saved Locations & Recent Selections
-        TSavedLocationsList(
-          key: _savedLocationsKey,
-          onLocationSelected: (coordinates) {
-            setState(() {
-              hasInteracted = false;
-              center = coordinates;
-              pin = coordinates;
-              if (!widget.isTwoPoints || activePoint == TMapPointType.from) {
-                fromCoordinates = coordinates;
-              } else {
-                toCoordinates = coordinates;
-              }
-            });
-            if (widget.isTwoPoints && toCoordinates != null) {
-              calculateRouteIfNeeded();
-            }
-          },
-          onAddressSelected: (address) {
-            setState(() {
-              if (!widget.isTwoPoints || activePoint == TMapPointType.from) {
-                fromAddress = address;
-                fromSearchController.text = address;
-                widget.onFromAddressChanged?.call(address);
-                widget.onAddressChanged?.call(address);
-                widget.fromAddressController?.text = address;
-                widget.addressController?.text = address;
-              } else {
-                toAddress = address;
-                toSearchController.text = address;
-                widget.onToAddressChanged?.call(address);
-                widget.toAddressController?.text = address;
-              }
-            });
-            if (widget.isTwoPoints && toCoordinates != null) {
-              calculateRouteIfNeeded();
-            }
-          },
-        ),
-        TPreviousSelectionsList(
-          onLocationSelected: (coordinates) {
-            setState(() {
-              hasInteracted = false;
-              center = coordinates;
-              pin = coordinates;
-              if (!widget.isTwoPoints || activePoint == TMapPointType.from) {
-                fromCoordinates = coordinates;
-              } else {
-                toCoordinates = coordinates;
-              }
-            });
-            if (widget.isTwoPoints && toCoordinates != null) {
-              calculateRouteIfNeeded();
-            }
-          },
-          onAddressSelected: (address) {
-            setState(() {
-              if (!widget.isTwoPoints || activePoint == TMapPointType.from) {
-                fromAddress = address;
-                fromSearchController.text = address;
-                widget.onFromAddressChanged?.call(address);
-                widget.onAddressChanged?.call(address);
-                widget.fromAddressController?.text = address;
-                widget.addressController?.text = address;
-              } else {
-                toAddress = address;
-                toSearchController.text = address;
-                widget.onToAddressChanged?.call(address);
-                widget.toAddressController?.text = address;
-              }
-            });
-            if (widget.isTwoPoints && toCoordinates != null) {
-              calculateRouteIfNeeded();
-            }
-          },
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget? getPopupFooter(BuildContext context) {
-    return Padding(padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0), child: _buildFooter(context));
-  }
-
-  Widget _buildFooter(BuildContext context) {
-    return widget.isTwoPoints ? _buildTwoPointsFooter(context) : _buildSinglePointFooter(context);
-  }
-
-  Widget _buildSinglePointFooter(BuildContext context) {
-    final colors = context.colors;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TCard(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              TIcon.raw(HugeIcons.strokeRoundedMapPin, color: colors.primary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      fromAddress.isNotEmpty ? fromAddress : 'Selected Address',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
-                    const SizedBox(height: 2),
-                    Text('Coordinates: ${fromCoordinates.formattedString}', style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (hasInteracted && fromAddress.isNotEmpty)
-                TButton(
-                  icon: HugeIcons.strokeRoundedBookmarkAdd01,
-                  type: TButtonType.outline,
-                  onTap: () => _savedLocationsKey.currentState?.saveCurrentLocation(fromAddress, fromCoordinates),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            TButton(text: 'Cancel', type: TButtonType.outline, onTap: () => hidePopup()),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TButton(
-                text: 'Confirm Location',
-                loading: true,
-                loadingText: 'Resolving...',
-                onPressed: (options) async {
-                  setState(() {
-                    center = fromCoordinates;
-                  });
-
-                  await resolveAddressIfNeeded(force: true, pointType: TMapPointType.from);
-
-                  if (fromAddress.isEmpty || isAddressPlaceholder(fromAddress)) {
-                    setState(() {
-                      fromAddress =
-                          'Selected Location (${fromCoordinates.latitude.toStringAsFixed(5)}, ${fromCoordinates.longitude.toStringAsFixed(5)})';
-                      fromSearchController.text = fromAddress;
-                    });
-                  }
-
-                  widget.onAddressChanged?.call(fromAddress);
-                  widget.onCoordinatesChanged?.call(fromCoordinates);
-                  widget.addressController?.text = fromAddress;
-                  widget.onFromAddressChanged?.call(fromAddress);
-                  widget.onFromCoordinatesChanged?.call(fromCoordinates);
-                  widget.fromAddressController?.text = fromAddress;
-
-                  options.stopLoading();
-                  hidePopup();
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTwoPointsFooter(BuildContext context) {
-    return Row(
-      children: [
-        TButton(text: 'Cancel', type: TButtonType.outline, onTap: () => hidePopup()),
-        const SizedBox(width: 12),
-        Expanded(
-          child: TButton(
-            text: 'Confirm Route',
-            loading: true,
-            loadingText: 'Resolving...',
-            onPressed: (options) async {
-              await resolveAddressIfNeeded(force: true, pointType: TMapPointType.from);
-              if (toCoordinates != null) {
-                await resolveAddressIfNeeded(force: true, pointType: TMapPointType.to);
-              }
-
-              if (fromAddress.isEmpty || isAddressPlaceholder(fromAddress)) {
-                setState(() {
-                  fromAddress =
-                      'Pickup Location (${fromCoordinates.latitude.toStringAsFixed(5)}, ${fromCoordinates.longitude.toStringAsFixed(5)})';
-                  fromSearchController.text = fromAddress;
-                });
-              }
-
-              if (toCoordinates != null && (toAddress.isEmpty || isAddressPlaceholder(toAddress))) {
-                setState(() {
-                  toAddress =
-                      'Drop-off Location (${toCoordinates!.latitude.toStringAsFixed(5)}, ${toCoordinates!.longitude.toStringAsFixed(5)})';
-                  toSearchController.text = toAddress;
-                });
-              }
-
-              if (toCoordinates != null && routeResult == null) {
-                await calculateRouteIfNeeded();
-              }
-
-              // Fire callbacks
-              widget.onFromAddressChanged?.call(fromAddress);
-              widget.onFromCoordinatesChanged?.call(fromCoordinates);
-              widget.fromAddressController?.text = fromAddress;
-
-              if (toCoordinates != null) {
-                widget.onToAddressChanged?.call(toAddress);
-                widget.onToCoordinatesChanged?.call(toCoordinates!);
-                widget.toAddressController?.text = toAddress;
-              }
-
-              if (routeResult != null) {
-                widget.onRouteChanged?.call(routeResult!);
-                widget.onDistanceChanged?.call(routeResult!.distanceMeters);
-              }
-
-              // Single mode compatibility
-              widget.onAddressChanged?.call(fromAddress);
-              widget.onCoordinatesChanged?.call(fromCoordinates);
-              widget.addressController?.text = fromAddress;
-
-              options.stopLoading();
-              hidePopup();
-            },
-          ),
-        ),
+        theme.helperTextBuilder.resolve(noStates)(widget.helperText),
       ],
     );
   }

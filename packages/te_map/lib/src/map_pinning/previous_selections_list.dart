@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_map/te_map.dart';
 import 'package:te_widgets/te_widgets.dart';
+import 'saved_locations_list.dart' show TLocationTile;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TPreviousSelectionsList extends StatefulWidget {
@@ -8,6 +9,20 @@ class TPreviousSelectionsList extends StatefulWidget {
   final ValueChanged<String> onAddressSelected;
 
   const TPreviousSelectionsList({super.key, required this.onLocationSelected, required this.onAddressSelected});
+
+  /// Stores [address] / [coordinates] at the top of the recent list (max 20, no duplicates).
+  static Future<void> record(String address, LatLng coordinates) async {
+    if (address.isEmpty) return;
+    final prefs = await SharedPreferences.getInstance();
+    final coords = '${coordinates.latitude},${coordinates.longitude}';
+    final list = prefs.getStringList('previous_selections') ?? [];
+    list.removeWhere((e) {
+      final parts = e.split('|');
+      return parts.length > 1 && parts[0] == address && parts[1] == coords;
+    });
+    list.insert(0, '$address|$coords|${DateTime.now().toString().substring(0, 16)}');
+    await prefs.setStringList('previous_selections', list.take(20).toList());
+  }
 
   @override
   State<TPreviousSelectionsList> createState() => TPreviousSelectionsListState();
@@ -42,81 +57,44 @@ class TPreviousSelectionsListState extends State<TPreviousSelectionsList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_previousSelections.isEmpty) return const SizedBox.shrink();
-
-    final colors = context.colors;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          'Recent Locations',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colors.onSurface),
+    if (_previousSelections.isEmpty) {
+      return const TCard(
+        margin: EdgeInsets.zero,
+        child: TEmptyState(
+          compact: true,
+          icon: HugeIcons.strokeRoundedClock01,
+          title: 'No recent locations',
+          padding: EdgeInsetsGeometry.all(12),
         ),
-        const SizedBox(height: 6),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _previousSelections.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 8),
-          itemBuilder: (context, index) {
-            final parts = _previousSelections[index].split('|');
-            final String addr = parts[0];
-            final String coords = parts.length > 1 ? parts[1] : '';
-            final String timestamp = parts.length > 2 ? parts[2] : '';
+      );
+    }
 
-            return TCard(
-              padding: const EdgeInsets.all(12),
-              margin: EdgeInsets.zero,
-              onTap: () {
-                final coordinates = TLocationHelper.parseCoordinates(coords);
-                widget.onAddressSelected(addr);
-                widget.onLocationSelected(coordinates);
-              },
-              child: Row(
-                children: [
-                  TIcon.raw(HugeIcons.strokeRoundedClock01, color: colors.onSurfaceVariant),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          addr,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                        ),
-                        if (timestamp.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          Text('Recorded: $timestamp', style: TextStyle(fontSize: 10, color: colors.onSurfaceVariant.withAlpha(160))),
-                        ],
-                        const SizedBox(height: 2),
-                        Text(
-                          coords,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 10, color: colors.onSurfaceVariant.withAlpha(180)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  TButton(
-                    icon: HugeIcons.strokeRoundedCancel01,
-                    type: TButtonType.outline,
-                    color: colors.error,
-                    onTap: () => deletePreviousSelection(index),
-                  ),
-                ],
-              ),
-            );
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _previousSelections.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 6),
+      itemBuilder: (context, index) {
+        final parts = _previousSelections[index].split('|');
+        final String addr = parts[0];
+        final String coords = parts.length > 1 ? parts[1] : '';
+        final String timestamp = parts.length > 2 ? parts[2] : '';
+
+        return TLocationTile(
+          icon: HugeIcons.strokeRoundedClock01,
+          text: addr,
+          details: [
+            if (coords.isNotEmpty) (Icons.location_on, coords),
+            if (timestamp.isNotEmpty) (HugeIcons.strokeRoundedClock01, timestamp),
+          ],
+          removeTitle: 'Remove from recent?',
+          onTap: () {
+            widget.onAddressSelected(addr);
+            widget.onLocationSelected(TLocationHelper.parseCoordinates(coords));
           },
-        ),
-        const SizedBox(height: 12),
-      ],
+          onRemove: () => deletePreviousSelection(index),
+        );
+      },
     );
   }
 }

@@ -77,102 +77,136 @@ class TSavedLocationsListState extends State<TSavedLocationsList> {
 
   @override
   Widget build(BuildContext context) {
-    if (_savedLocations.isEmpty) return const SizedBox.shrink();
-
-    final colors = context.colors;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          'Saved Locations',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colors.onSurface),
+    if (_savedLocations.isEmpty) {
+      return const TCard(
+        margin: EdgeInsets.zero,
+        child: TEmptyState(
+          compact: true,
+          icon: HugeIcons.strokeRoundedBookmark01,
+          title: 'No saved locations',
+          padding: EdgeInsetsGeometry.all(12),
         ),
-        const SizedBox(height: 6),
-        ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _savedLocations.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 8),
-          itemBuilder: (context, index) {
-            final parts = _savedLocations[index].split('|');
-            final String displayName;
-            final String addr;
-            final String coords;
-            if (parts.length >= 3) {
-              displayName = parts[0];
-              addr = parts[1];
-              coords = parts[2];
-            } else {
-              displayName = parts[0];
-              addr = parts[0];
-              coords = parts.length > 1 ? parts[1] : '';
-            }
+      );
+    }
 
-            return TCard(
-              padding: const EdgeInsets.all(12),
-              margin: EdgeInsets.zero,
-              onTap: () {
-                final coordinates = TLocationHelper.parseCoordinates(coords);
-                widget.onAddressSelected(displayName); // Use displayName for search field
-                widget.onLocationSelected(coordinates);
-              },
-              child: Row(
-                children: [
-                  TIcon.raw(HugeIcons.strokeRoundedMapPin, color: colors.primary),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          displayName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          addr,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          coords,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 10, color: colors.onSurfaceVariant.withAlpha(180)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  TButton(
-                    icon: HugeIcons.strokeRoundedBookmarkRemove01,
-                    type: TButtonType.outline,
-                    color: colors.error,
-                    onTap: () {
-                      TAlertService.show(
-                        context,
-                        title: 'Remove Saved Location',
-                        text: 'Are you sure you want to remove "$displayName"?',
-                        icon: HugeIcons.strokeRoundedDelete02,
-                        color: colors.error,
-                        confirmButton: AlertButton(text: 'Remove', onClick: () => deleteSavedLocation(index)),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            );
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _savedLocations.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 6),
+      itemBuilder: (context, index) {
+        final parts = _savedLocations[index].split('|');
+        final String displayName = parts[0];
+        final String addr = parts.length >= 3 ? parts[1] : parts[0];
+        final String coords = parts.length >= 3 ? parts[2] : (parts.length > 1 ? parts[1] : '');
+
+        return TLocationTile(
+          icon: Icons.location_on,
+          text: displayName,
+          details: [
+            if (addr != displayName) (HugeIcons.strokeRoundedMapsLocation01, addr),
+            if (coords.isNotEmpty) (Icons.location_on, coords),
+          ],
+          removeTitle: 'Remove "$displayName"?',
+          onTap: () {
+            widget.onAddressSelected(displayName);
+            widget.onLocationSelected(TLocationHelper.parseCoordinates(coords));
           },
-        ),
-        const SizedBox(height: 12),
-      ],
+          onRemove: () => deleteSavedLocation(index),
+        );
+      },
+    );
+  }
+}
+
+/// Minimal location row: icon, one-line text, info popover and remove popconfirm.
+class TLocationTile extends StatelessWidget {
+  final dynamic icon;
+  final String text;
+  final List<(dynamic, String)> details;
+  final String removeTitle;
+  final VoidCallback onTap;
+  final VoidCallback onRemove;
+
+  const TLocationTile({
+    super.key,
+    required this.icon,
+    required this.text,
+    required this.details,
+    required this.removeTitle,
+    required this.onTap,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return TCard(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      margin: EdgeInsets.zero,
+      onTap: onTap,
+      child: Row(
+        children: [
+          TIcon.raw(icon, size: 18, color: colors.onSurfaceVariant),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w300, color: colors.onSurface),
+            ),
+          ),
+          // Absorb taps so the buttons never also trigger the card's onTap.
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {},
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TPopover(
+                  alignment: TPopupAlignment.topRight,
+                  width: 260,
+                  title: text,
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final (icon, value) in details)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              TIcon.raw(icon, size: 14, color: colors.onSurfaceVariant),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: SelectableText(
+                                  value,
+                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300, color: colors.onSurface),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                  child: TButton(
+                    icon: HugeIcons.strokeRoundedInformationCircle,
+                    type: TButtonType.text,
+                    size: TSize.xs,
+                    color: AppColors.info,
+                  ),
+                ),
+                TPopConfirm.danger(
+                  title: removeTitle,
+                  confirmText: 'Remove',
+                  onConfirm: onRemove,
+                  child: TButton(icon: HugeIcons.strokeRoundedDelete02, type: TButtonType.text, size: TSize.xs, color: colors.error),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

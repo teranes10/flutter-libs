@@ -1,9 +1,6 @@
-import 'dart:math';
-import 'map_config.dart';
 import 'google_places_client.dart';
-import 'openstreet_client.dart';
+import 'place_search.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:te_widgets/te_widgets.dart';
 
 class TPlaceResult {
@@ -55,30 +52,35 @@ class TPlaceAutoComplete extends StatefulWidget {
   State<TPlaceAutoComplete> createState() => _TPlaceAutoCompleteState();
 }
 
-class _TMapConfigTemp {
-  static String? get googleMapApiKey => TMapConfig.googleMapApiKey;
-}
-
 class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
-  final http.Client _client = http.Client();
+  late final TPlaceSearch _search = TPlaceSearch();
   TPlaceResult? _selectedPlace;
-  String? _autoSessionToken;
+
+  void _syncSearch() {
+    _search
+      ..googleMapApiKey = widget.googleMapApiKey
+      ..config = widget.config
+      ..limit = widget.limit
+      ..onLoad = widget.onLoad;
+  }
 
   @override
   void initState() {
     super.initState();
+    _syncSearch();
     _applySelectedAddress(widget.selectedAddress, notify: false);
   }
 
   @override
   void dispose() {
-    _client.close();
+    _search.dispose();
     super.dispose();
   }
 
   @override
   void didUpdateWidget(TPlaceAutoComplete oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _syncSearch();
     if (widget.selectedAddress != oldWidget.selectedAddress) {
       _applySelectedAddress(widget.selectedAddress, notify: true);
     }
@@ -101,106 +103,8 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
     }
   }
 
-  String? _resolveApiKey() {
-    if (widget.googleMapApiKey != null && widget.googleMapApiKey!.isNotEmpty) {
-      return widget.googleMapApiKey;
-    }
-    return _TMapConfigTemp.googleMapApiKey;
-  }
-
-  String _generateSessionToken() {
-    final random = Random.secure();
-    final values = List<int>.generate(16, (i) => random.nextInt(256));
-    // Set version (4) and variant (10xx)
-    values[6] = (values[6] & 0x0f) | 0x40;
-    values[8] = (values[8] & 0x3f) | 0x80;
-    final hex = values.map((val) => val.toRadixString(16).padLeft(2, '0')).join();
-    return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20, 32)}';
-  }
-
-  Future<TLoadResult<TPlaceResult>> _loadGooglePlaces(String query) async {
-    if (query.isBlank) return const TLoadResult([], 0);
-
-    final apiKey = _resolveApiKey();
-    if (apiKey == null || apiKey.isEmpty) {
-      return _loadNominatimPlaces(query);
-    }
-
-    try {
-      final client = TGoogleClient(client: _client, googleMapApiKey: apiKey);
-
-      String? token = widget.config?.sessionToken;
-      if (token == null || token.isEmpty) {
-        _autoSessionToken ??= _generateSessionToken();
-        token = _autoSessionToken;
-      }
-
-      final config = (widget.config ?? const TGooglePlacesConfig()).copyWith(sessionToken: token);
-
-      final response = await client.autocomplete(query, config: config, fieldMasks: TGoogleClient.widgetAutocompleteFieldMasks);
-
-      final items = response.suggestions
-          .map((s) {
-            final p = s.placePrediction;
-            if (p == null) return null;
-            return TPlaceResult(address: p.text?.text ?? '', coordinates: '', latitude: 0.0, longitude: 0.0, placeId: p.placeId);
-          })
-          .whereType<TPlaceResult>()
-          .take(widget.limit)
-          .toList();
-
-      return TLoadResult(items, items.length);
-    } catch (_) {
-      return _loadNominatimPlaces(query);
-    }
-  }
-
-  Future<TLoadResult<TPlaceResult>> _loadNominatimPlaces(String query) async {
-    final osClient = TOpenStreetMapClient(client: _client);
-    final results = await osClient.search(query, limit: widget.limit);
-    return TLoadResult(results, results.length);
-  }
-
-  Future<void> _fetchPlaceDetails(String placeId) async {
-    final apiKey = _resolveApiKey();
-    if (apiKey == null || apiKey.isEmpty) return;
-
-    try {
-      final client = TGoogleClient(client: _client, googleMapApiKey: apiKey);
-      final token = widget.config?.sessionToken ?? _autoSessionToken;
-
-      final response = await client.fetchPlaceDetails(placeId, fields: TGoogleClient.defaultPlaceDetailsFields, sessionToken: token);
-
-      if (widget.config?.sessionToken == null || widget.config!.sessionToken!.isEmpty) {
-        setState(() {
-          _autoSessionToken = null;
-        });
-      }
-
-      final loc = response.location;
-      final address = response.formattedAddress;
-
-      if (loc != null) {
-        final placeResult = TPlaceResult(
-          address: address,
-          coordinates: '${loc.latitude}, ${loc.longitude}',
-          latitude: loc.latitude,
-          longitude: loc.longitude,
-          placeId: placeId,
-        );
-        setState(() {
-          _selectedPlace = placeResult;
-        });
-        widget.onPlaceSelected(placeResult);
-      }
-    } catch (_) {}
-  }
-
   @override
   Widget build(BuildContext context) {
-    final apiKey = _resolveApiKey();
-    final hasGoogle = apiKey != null && apiKey.isNotEmpty;
-
     final defaultTheme =
         Theme.of(context).extension<TWidgetThemeExtension>()?.textFieldTheme ?? TTextFieldTheme.defaultTheme(Theme.of(context).colorScheme);
 
@@ -215,19 +119,14 @@ class _TPlaceAutoCompleteState extends State<TPlaceAutoComplete> {
       label: widget.label,
       placeholder: widget.placeholder ?? 'Search location...',
       onTap: widget.onTap,
-      onLoad: widget.onLoad ?? (options) => _loadGooglePlaces(options.search ?? ''),
+      onLoad: (options) => _search.load(options.search ?? ''),
       itemText: (item) => item.address,
       onValueChanged: (val) async {
         if (val == null) return;
-
-        if (hasGoogle && val.placeId != null && val.placeId!.isNotEmpty && val.coordinates.isEmpty) {
-          await _fetchPlaceDetails(val.placeId!);
-        } else {
-          setState(() {
-            _selectedPlace = val;
-          });
-          widget.onPlaceSelected(val);
-        }
+        final place = await _search.resolve(val);
+        if (place == null || !mounted) return;
+        setState(() => _selectedPlace = place);
+        widget.onPlaceSelected(place);
       },
     );
   }
