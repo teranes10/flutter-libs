@@ -447,11 +447,39 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     if (open != null && navigator != null && _isOverlayMode(open.mode) && open.mode != TTableExpansionMode.page) {
       WidgetsBinding.instance.addPostFrameCallback((_) => navigator.maybePop(_kTransitionResult));
     }
+    // A full-page detail is pushed on the enclosing navigator, which outlives this table when the user
+    // navigates elsewhere (e.g. sidebar). Remove it, otherwise it lingers as a greyed, blocking route.
+    final pageRoute = _pageRoute;
+    final pageNavigator = _pageNavigator;
+    if (pageRoute != null && pageNavigator != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (pageNavigator.mounted && pageRoute.isActive) pageNavigator.removeRoute(pageRoute);
+      });
+    }
     _activeCellNotifier?.dispose();
     super.dispose();
   }
 
   _ActiveDetailTarget<K>? _currentTarget;
+
+  /// True while this table is deactivated (being removed); a lingering page route must not build from its context.
+  bool _tableInactive = false;
+
+  @override
+  void deactivate() {
+    _tableInactive = true;
+    super.deactivate();
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    _tableInactive = false;
+  }
+
+  /// The full-page detail route (and its navigator) while one is open, so it can be removed if the table is disposed.
+  Route<Object?>? _pageRoute;
+  NavigatorState? _pageNavigator;
 
   /// The root navigator holding the overlay this table presented, kept so the overlay can be closed once the table is gone.
   NavigatorState? _overlayNavigator;
