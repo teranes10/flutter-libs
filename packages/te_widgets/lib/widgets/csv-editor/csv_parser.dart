@@ -805,7 +805,7 @@ class TCsvParser {
   static String generateTemplate(
     List<TCsvColumn> columns, {
     bool includeSampleRow = true,
-    String delimiter = ',',
+    String? delimiter,
     TCsvFileFormat format = TCsvFileFormat.csv,
     TJsonStyle jsonStyle = TJsonStyle.arrayOfObjects,
     TJsonIndent jsonIndent = TJsonIndent.two,
@@ -854,6 +854,6 @@ class TCsvParser {
       sampleRows.add(sampleRow);
     }
 
-    return toCsv(headers, sampleRows, delimiter: delimiter);
+    return toCsv(headers, sampleRows, delimiter: delimiter ?? format.delimiter ?? ',');
   }
 }

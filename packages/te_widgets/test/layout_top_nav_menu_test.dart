@@ -315,9 +315,9 @@ void main() {
       await tester.tap(find.text('John Doe'));
       await tester.pumpAndSettle();
 
-      // Dropdown contains Theme, Accent Color, and Log out
+      // Dropdown contains Theme, Customize, and Log out
       expect(find.textContaining('Theme'), findsOneWidget);
-      expect(find.text('Accent Color'), findsOneWidget);
+      expect(find.text('Customize'), findsOneWidget);
       expect(find.text('Log out'), findsOneWidget);
 
       // Hover over Theme to reveal System, Light, Dark sub-options
