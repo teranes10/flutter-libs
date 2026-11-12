@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-11-13
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`te_map` - `v4.1.0`](#te_map---v410)
+ - [`te_scanner` - `v3.2.8`](#te_scanner---v328)
+ - [`te_widgets` - `v4.1.0`](#te_widgets---v410)
+ - [`te_editor` - `v3.3.5`](#te_editor---v335)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_editor` - `v3.3.5`
+
+---
+
+#### `te_map` - `v4.1.0`
+
+ - **REFACTOR**: replace Material IconButton with TButton; popover trigger fires on enabled buttons. ([70d110ce](https://github.com/teranes10/flutter-libs/commit/70d110ce1ca5b12af6c149e06d7d630ceead01a7))
+ - **FEAT**(te_map): redesign TMapPinning with read-only field and adaptive location picker. ([290d9a3d](https://github.com/teranes10/flutter-libs/commit/290d9a3d8d8b75eebf15b4a8b6fe6c770c9acf14))
+ - **FEAT**: global configs for TImage, TPhoneField and te_map. ([aa013faf](https://github.com/teranes10/flutter-libs/commit/aa013faf4d3a9475a3e04c6485f864c49a1ca69f))
+
+#### `te_scanner` - `v3.2.8`
+
+ - **REFACTOR**: replace Material IconButton with TButton; popover trigger fires on enabled buttons. ([70d110ce](https://github.com/teranes10/flutter-libs/commit/70d110ce1ca5b12af6c149e06d7d630ceead01a7))
+ - **FIX**(te_widgets): TTextField.scan camera button keeps a 48dp touch target; format scan view files. ([e7385c22](https://github.com/teranes10/flutter-libs/commit/e7385c2278219b09d4616744b451eecdb013edd9))
+
+#### `te_widgets` - `v4.1.0`
+
+ - **REFACTOR**: replace Material IconButton with TButton; popover trigger fires on enabled buttons. ([70d110ce](https://github.com/teranes10/flutter-libs/commit/70d110ce1ca5b12af6c149e06d7d630ceead01a7))
+ - **FIX**(te_widgets): TTextField.scan camera button keeps a 48dp touch target; format scan view files. ([e7385c22](https://github.com/teranes10/flutter-libs/commit/e7385c2278219b09d4616744b451eecdb013edd9))
+ - **FIX**(te_widgets): theme text uses onSurface; TTextField wires onTap and keeps typed text on rebuild. ([1cc1b680](https://github.com/teranes10/flutter-libs/commit/1cc1b68087b16e5f6690ac7384b70222288a4784))
+ - **FIX**(te_widgets): remove lingering page-mode detail route when table is disposed. ([23ea6d02](https://github.com/teranes10/flutter-libs/commit/23ea6d0265cdec445cb8810b250efca7d23f3646))
+ - **FIX**(te_widgets): size create/edit dialog by createMode; toggle View closed in bottom expansion. ([594e16f3](https://github.com/teranes10/flutter-libs/commit/594e16f3c59ec3c6a02a4157299ad275caa688ce))
+ - **FIX**(te_widgets): template honors format delimiter, key-value stacked label overflow; update stale profile menu test. ([1fba47c7](https://github.com/teranes10/flutter-libs/commit/1fba47c72ddac833db974d76fcf492caae517a36))
+ - **FEAT**: global configs for TImage, TPhoneField and te_map. ([aa013faf](https://github.com/teranes10/flutter-libs/commit/aa013faf4d3a9475a3e04c6485f864c49a1ca69f))
+
+
 ## 2026-11-12
 
 ### Changes

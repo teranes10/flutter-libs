@@ -1,3 +1,9 @@
+## 4.1.0
+
+ - **REFACTOR**: replace Material IconButton with TButton; popover trigger fires on enabled buttons. ([70d110ce](https://github.com/teranes10/flutter-libs/commit/70d110ce1ca5b12af6c149e06d7d630ceead01a7))
+ - **FEAT**(te_map): redesign TMapPinning with read-only field and adaptive location picker. ([290d9a3d](https://github.com/teranes10/flutter-libs/commit/290d9a3d8d8b75eebf15b4a8b6fe6c770c9acf14))
+ - **FEAT**: global configs for TImage, TPhoneField and te_map. ([aa013faf](https://github.com/teranes10/flutter-libs/commit/aa013faf4d3a9475a3e04c6485f864c49a1ca69f))
+
 ## 4.0.0
 
 > Note: This release has breaking changes.
