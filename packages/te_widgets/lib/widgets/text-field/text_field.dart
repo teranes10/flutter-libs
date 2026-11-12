@@ -241,7 +241,8 @@ class TTextField<T extends String?> extends StatefulWidget
               type: TButtonType.softText,
               tooltip: 'Scan with camera',
               icon: HugeIcons.strokeRoundedScan,
-              size: TSize.xs,
+              // Handheld touch target: at least 48dp.
+              size: const TSize(minW: 48, minH: 48, hPad: 8, vPad: 8, icon: 20, radius: 8),
               onTap: disabled ? null : onCameraTap,
             ),
       onSubmitted: (text) {

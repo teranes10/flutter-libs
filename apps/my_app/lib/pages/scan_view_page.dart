@@ -25,7 +25,11 @@ class _ScanViewPageState extends State<ScanViewPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Manual entry'),
-        content: TextField(controller: controller, autofocus: true, decoration: const InputDecoration(hintText: 'Barcode')),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Barcode'),
+        ),
         actions: [
           TButton(text: 'Cancel', type: TButtonType.softText, onTap: () => Navigator.pop(ctx)),
           TButton(text: 'Add', onTap: () => Navigator.pop(ctx, controller.text.trim())),
@@ -49,11 +53,7 @@ class _ScanViewPageState extends State<ScanViewPage> {
             children: [
               SizedBox(
                 height: 300,
-                child: TScanView(
-                  paused: _paused,
-                  onScan: (value, _) => _add(value),
-                  onManualEntry: _manualEntry,
-                ),
+                child: TScanView(paused: _paused, onScan: (value, _) => _add(value), onManualEntry: _manualEntry),
               ),
               const SizedBox(height: 12),
               Row(
@@ -69,7 +69,10 @@ class _ScanViewPageState extends State<ScanViewPage> {
                 ],
               ),
               const SizedBox(height: 8),
-              Text('Scans (${_scans.length})', style: TextStyle(fontWeight: FontWeight.w700, color: colors.onSurface)),
+              Text(
+                'Scans (${_scans.length})',
+                style: TextStyle(fontWeight: FontWeight.w700, color: colors.onSurface),
+              ),
               const SizedBox(height: 8),
               if (_scans.isEmpty)
                 Text('Point the camera at a barcode.', style: TextStyle(color: colors.onSurfaceVariant))
