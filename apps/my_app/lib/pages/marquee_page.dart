@@ -51,11 +51,7 @@ class MarqueePage extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 220,
-                  child: TMarquee(
-                    'Slow and relaxed: easy to read at a glance, long pause',
-                    velocity: 25,
-                    pause: Duration(seconds: 3),
-                  ),
+                  child: TMarquee('Slow and relaxed: easy to read at a glance, long pause', velocity: 25, pause: Duration(seconds: 3)),
                 ),
                 SizedBox(height: 12),
                 SizedBox(

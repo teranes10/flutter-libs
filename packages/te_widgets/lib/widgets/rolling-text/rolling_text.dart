@@ -68,8 +68,8 @@ class TRollingText extends StatelessWidget {
     this.curve = Curves.easeInOutCubic,
     this.slotDecoration,
     this.slotPadding = EdgeInsets.zero,
-  }) : listenable = null,
-       format = null;
+  })  : listenable = null,
+        format = null;
 
   const TRollingText.listenable(
     this.listenable, {

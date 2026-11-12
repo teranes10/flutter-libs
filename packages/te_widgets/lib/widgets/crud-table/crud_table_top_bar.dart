@@ -65,12 +65,10 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
         ),
       if (shouldShowFilterButton) _buildFilterButton(ctx),
       // On narrow screens search and the more-options button share one line as a single item.
-      if (ctx.isDesktop)
-        ...[
-          _buildSearchBar(ctx).size(w: 275),
-          if (activeIsServerSide) _buildRefreshButton(ctx),
-        ]
-      else
+      if (ctx.isDesktop) ...[
+        _buildSearchBar(ctx).size(w: 275),
+        if (activeIsServerSide) _buildRefreshButton(ctx),
+      ] else
         Row(
           spacing: 8,
           children: [Expanded(child: _buildSearchBar(ctx)), _buildMoreOptionsButton(ctx)],

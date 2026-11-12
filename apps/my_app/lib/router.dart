@@ -13,7 +13,7 @@ final GoRouter router = GoRouter(
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       routes: [
-        GoRoute(path: '/', redirect: (_, __) => '/forms/input-fields'),
+        GoRoute(path: '/', redirect: (_, _) => '/forms/input-fields'),
         ...sidebarItems.toGoRoutes(),
       ],
       builder: (context, state, child) {

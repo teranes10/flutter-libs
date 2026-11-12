@@ -339,8 +339,16 @@ TMultiSelect<String, String, String>(
   onCreateItem: (form) => (form as CreateOptionForm).optionName.value.trim(),
 )''',
             properties: const [
-              PropertyDoc(name: 'createForm', type: 'TFormBase Function()?', description: 'Factory for the form shown by the footer button'),
-              PropertyDoc(name: 'onCreateItem', type: 'FutureOr<T?> Function(form)?', description: 'Converts the saved form to an item; non-null results are added to the list'),
+              PropertyDoc(
+                name: 'createForm',
+                type: 'TFormBase Function()?',
+                description: 'Factory for the form shown by the footer button',
+              ),
+              PropertyDoc(
+                name: 'onCreateItem',
+                type: 'FutureOr<T?> Function(form)?',
+                description: 'Converts the saved form to an item; non-null results are added to the list',
+              ),
               PropertyDoc(name: 'createLabel', type: 'String', description: "Footer button label, defaults to 'Add New'"),
             ],
           ),

@@ -2,13 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 /// Minimal JSON-over-HTTP helper. Throws on non-2xx (like Dio did), returns the decoded body.
-Future<dynamic> httpJson(
-  http.Client client,
-  String url, {
-  Map<String, String>? query,
-  Map<String, String>? headers,
-  Object? body,
-}) async {
+Future<dynamic> httpJson(http.Client client, String url, {Map<String, String>? query, Map<String, String>? headers, Object? body}) async {
   var uri = Uri.parse(url);
   if (query != null && query.isNotEmpty) uri = uri.replace(queryParameters: {...uri.queryParameters, ...query});
   final response = body == null
