@@ -105,6 +105,9 @@ class TGooglePlacesConfig {
   final bool? includePureServiceAreaBusinesses;
   final String? sessionToken;
 
+  /// Restrict results to these countries (ISO 3166-1 alpha-2, max 15), e.g. ['lk'].
+  final List<String>? includedRegionCodes;
+
   const TGooglePlacesConfig({
     this.languageCode,
     this.regionCode,
@@ -117,6 +120,7 @@ class TGooglePlacesConfig {
     this.includeFutureOpeningBusinesses,
     this.includePureServiceAreaBusinesses,
     this.sessionToken,
+    this.includedRegionCodes,
   });
 
   Map<String, dynamic> toJson(String input) {
@@ -144,6 +148,7 @@ class TGooglePlacesConfig {
       data['includePureServiceAreaBusinesses'] = includePureServiceAreaBusinesses;
     }
     if (sessionToken != null) data['sessionToken'] = sessionToken;
+    if (includedRegionCodes != null && includedRegionCodes!.isNotEmpty) data['includedRegionCodes'] = includedRegionCodes;
     return data;
   }
 
@@ -159,6 +164,7 @@ class TGooglePlacesConfig {
     bool? includeFutureOpeningBusinesses,
     bool? includePureServiceAreaBusinesses,
     String? sessionToken,
+    List<String>? includedRegionCodes,
   }) {
     return TGooglePlacesConfig(
       languageCode: languageCode ?? this.languageCode,
@@ -172,8 +178,25 @@ class TGooglePlacesConfig {
       includeFutureOpeningBusinesses: includeFutureOpeningBusinesses ?? this.includeFutureOpeningBusinesses,
       includePureServiceAreaBusinesses: includePureServiceAreaBusinesses ?? this.includePureServiceAreaBusinesses,
       sessionToken: sessionToken ?? this.sessionToken,
+      includedRegionCodes: includedRegionCodes ?? this.includedRegionCodes,
     );
   }
+
+  /// Fills any unset field of this config from [defaults] (this config wins).
+  TGooglePlacesConfig withDefaults(TGooglePlacesConfig defaults) => defaults.copyWith(
+    languageCode: languageCode,
+    regionCode: regionCode,
+    origin: origin,
+    locationBias: locationBias,
+    locationRestriction: locationRestriction,
+    includedPrimaryTypes: includedPrimaryTypes,
+    includeQueryPredictions: includeQueryPredictions,
+    inputOffset: inputOffset,
+    includeFutureOpeningBusinesses: includeFutureOpeningBusinesses,
+    includePureServiceAreaBusinesses: includePureServiceAreaBusinesses,
+    sessionToken: sessionToken,
+    includedRegionCodes: includedRegionCodes,
+  );
 }
 
 /// Text model for Google Place predictions.
@@ -407,11 +430,11 @@ class TGoogleClient {
       throw Exception('Google Map API Key not resolved.');
     }
 
-    final data = (config ?? const TGooglePlacesConfig()).toJson(input);
+    final data = (config ?? const TGooglePlacesConfig()).withDefaults(TMapConfig.placesConfig).toJson(input);
 
     final response = await httpJson(
       _client,
-      'https://places.googleapis.com/v1/places:autocomplete',
+      '${TMapConfig.placesApiBase}/places:autocomplete',
       body: data,
       headers: {'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': fieldMasks.join(',')},
     );
@@ -437,8 +460,12 @@ class TGoogleClient {
 
     final response = await httpJson(
       _client,
-      'https://places.googleapis.com/v1/places/$id',
-      query: {if (sessionToken != null && sessionToken.isNotEmpty) 'sessionToken': sessionToken},
+      '${TMapConfig.placesApiBase}/places/$id',
+      query: {
+        if (sessionToken != null && sessionToken.isNotEmpty) 'sessionToken': sessionToken,
+        if (TMapConfig.placesConfig.languageCode != null) 'languageCode': TMapConfig.placesConfig.languageCode!,
+        if (TMapConfig.placesConfig.regionCode != null) 'regionCode': TMapConfig.placesConfig.regionCode!,
+      },
       headers: {'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': fields.join(',')},
     );
 
@@ -457,8 +484,13 @@ class TGoogleClient {
 
     final response = await httpJson(
       _client,
-      'https://maps.googleapis.com/maps/api/geocode/json',
-      query: {'latlng': '$latitude,$longitude', 'key': apiKey},
+      '${TMapConfig.mapsApiBase}/geocode/json',
+      query: {
+        'latlng': '$latitude,$longitude',
+        'key': apiKey,
+        if (TMapConfig.placesConfig.languageCode != null) 'language': TMapConfig.placesConfig.languageCode!,
+        if (TMapConfig.placesConfig.regionCode != null) 'region': TMapConfig.placesConfig.regionCode!,
+      },
     );
 
     final data = response;
@@ -485,7 +517,7 @@ class TGoogleClient {
     try {
       final response = await httpJson(
         _client,
-        'https://maps.googleapis.com/maps/api/directions/json',
+        '${TMapConfig.mapsApiBase}/directions/json',
         query: {
           'origin': '${origin.latitude},${origin.longitude}',
           'destination': '${destination.latitude},${destination.longitude}',

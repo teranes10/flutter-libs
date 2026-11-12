@@ -34,7 +34,7 @@ class _TPhoneFieldState extends State<TPhoneField> {
   @override
   void initState() {
     super.initState();
-    _selectedCountry = widget.initialCountry ?? TCountries.all.first;
+    _selectedCountry = widget.initialCountry ?? TPhoneConfig.initialCountry;
     if (widget.value != null) {
       _controller.text = widget.value!;
     }

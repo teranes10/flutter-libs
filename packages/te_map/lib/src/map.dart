@@ -14,7 +14,7 @@ class TMap extends StatefulWidget {
   final double width;
   final bool interactive;
   final ValueChanged<LatLng>? onCoordinatesChanged;
-  final MapTileType mapType;
+  final MapTileType? mapType;
   final double zoom;
   final double minZoom;
   final double maxZoom;
@@ -33,7 +33,7 @@ class TMap extends StatefulWidget {
     this.width = double.infinity,
     this.interactive = true,
     this.onCoordinatesChanged,
-    this.mapType = MapTileType.osm,
+    this.mapType,
     this.zoom = 15,
     this.minZoom = 4.0,
     this.maxZoom = 17.0,
@@ -430,7 +430,7 @@ class _TMapState extends State<TMap> {
                 : null,
           ),
           children: [
-            buildTileLayer(mapType: MapTileType.osm, darkMode: isDark),
+            buildTileLayer(mapType: widget.mapType ?? TMapConfig.defaultMapType, darkMode: isDark),
             ..._buildPolygonLayers(colors, isDark),
             ..._buildPolylineLayers(isDark),
             MarkerLayer(

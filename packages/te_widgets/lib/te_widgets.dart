@@ -160,6 +160,7 @@ export 'widgets/icon/icon.dart';
 export 'widgets/input-container/input_container.dart';
 
 export 'widgets/image/image.dart';
+export 'widgets/image/image_config.dart';
 
 export 'widgets/key-value-section/key_value.dart';
 export 'widgets/key-value-section/key_value_section.dart';
@@ -219,6 +220,7 @@ export 'widgets/number-field/number_field_theme.dart';
 export 'widgets/pagination/pagination.dart';
 
 export 'widgets/phone-field/phone_field.dart';
+export 'widgets/phone-field/phone_config.dart';
 
 export 'widgets/progress-bar/progress_bar.dart';
 export 'widgets/progress-bar/circular_progress.dart';

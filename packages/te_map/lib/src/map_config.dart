@@ -1,10 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'google_places_client.dart';
 
 class TMapConfig {
   /// Global Google Maps API Key fallback.
   static String? googleMapApiKey;
+
+  /// Global defaults for Places autocomplete / details / geocoding (language, region, country filter, bias...).
+  /// Per-widget `config` values override these. Example:
+  /// `TMapConfig.placesConfig = TGooglePlacesConfig(languageCode: 'en', regionCode: 'lk', includedRegionCodes: ['lk']);`
+  static TGooglePlacesConfig placesConfig = const TGooglePlacesConfig();
+
+  /// Google Places API (New) base, e.g. point at a proxy to hide the key.
+  static String placesApiBase = 'https://places.googleapis.com/v1';
+
+  /// Google Maps web-service base (Geocoding / Directions).
+  static String mapsApiBase = 'https://maps.googleapis.com/maps/api';
+
+  /// Tile url for [MapTileType.osm]. Defaults to the keyless OSM server (CARTO now requires an API key).
+  /// Placeholders: {z} {x} {y}, plus {s} (see [osmSubdomains]), {style} (dark_all/light_all) and {scale} (@2x).
+  /// Set this to a keyed provider (MapTiler, Stadia, CARTO...) if needed.
+  static String osmTileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static List<String> osmSubdomains = const [];
+
+  /// Tile type used when a map doesn't set `mapType`. Defaults to google when [googleMapApiKey] is set, else osm.
+  static MapTileType? mapType;
+  static MapTileType get defaultMapType =>
+      mapType ?? ((googleMapApiKey?.isNotEmpty ?? false) ? MapTileType.google : MapTileType.osm);
+
   static LatLng mapCenter = LatLng(9.663812, 80.006043);
 }
 
@@ -64,8 +88,8 @@ Widget buildTileLayer({
   switch (mapType) {
     case MapTileType.osm:
       tileLayer = TileLayer(
-        urlTemplate: 'https://{s}.basemaps.cartocdn.com/{style}/{z}/{x}/{y}{scale}.png',
-        subdomains: const ['a', 'b', 'c', 'd'],
+        urlTemplate: TMapConfig.osmTileUrl,
+        subdomains: TMapConfig.osmSubdomains.isEmpty ? const ['a', 'b', 'c'] : TMapConfig.osmSubdomains,
         additionalOptions: {'style': darkMode ? 'dark_all' : 'light_all', 'scale': '@2x'},
         userAgentPackageName: packageName,
         keepBuffer: keepBuffer,
@@ -75,9 +99,9 @@ Widget buildTileLayer({
           child: ColorFiltered(
             colorFilter: const ColorFilter.matrix(<double>[
               // dart format:off
-              1.1, 0, 0, 0, 2,
-              0, 1.3, 0, 0, 0,
-              0, 0, 1.4, 0, 4,
+              -0.6, -0.3, -0.1, 0, 235,
+              -0.2, -0.7, -0.1, 0, 235,
+              -0.2, -0.3, -0.5, 0, 240,
               0, 0, 0, 1, 0,
             ]),
             child: tileLayer,
@@ -88,9 +112,9 @@ Widget buildTileLayer({
           child: ColorFiltered(
             colorFilter: const ColorFilter.matrix(<double>[
               // dart format:off
-              1.02, 0, 0, 0, 1,
-              0, 1.06, 0, 0, -4,
-              0, 0, 1.07, 0, -2,
+              1, 0, 0, 0, 0,
+              0, 1, 0, 0, 0,
+              0, 0, 1, 0, 0,
               0, 0, 0, 1, 0,
             ]),
             child: tileLayer,

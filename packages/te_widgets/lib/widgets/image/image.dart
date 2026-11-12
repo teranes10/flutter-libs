@@ -367,14 +367,16 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   /// once and then served from memory, so later visits neither fail nor hit the server.
   static final Set<String> _bytesFallbackUrls = {};
 
-  bool get _useBytes => widget.forceCache || (widget.url != null && _bytesFallbackUrls.contains(widget.url));
+  String? get _url => TImageConfig.resolve(widget.url);
+
+  bool get _useBytes => widget.forceCache || (_url != null && _bytesFallbackUrls.contains(_url));
 
   void _fallBackToBytes() {
-    final url = widget.url;
+    final url = _url;
     if (url == null || url.isEmpty || _bytesFallbackUrls.contains(url)) return;
     _bytesFallbackUrls.add(url);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || widget.url != url) return;
+      if (!mounted || _url != url) return;
       setState(_initForceCacheFuture);
     });
   }
@@ -417,7 +419,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   @override
   void didUpdateWidget(TImage old) {
     super.didUpdateWidget(old);
-    if (old.url != widget.url || old.forceCache != widget.forceCache) {
+    if (TImageConfig.resolve(old.url) != _url || old.forceCache != widget.forceCache) {
       _initForceCacheFuture();
     }
     if (!_useBytes) {
@@ -426,8 +428,8 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   }
 
   void _initForceCacheFuture() {
-    if (_useBytes && widget.url != null && widget.url!.isNotEmpty) {
-      _forceCacheFuture = _resolveBytes(widget.url!, persist: widget.forceCache);
+    if (_useBytes && _url != null && _url!.isNotEmpty) {
+      _forceCacheFuture = _resolveBytes(_url!, persist: widget.forceCache);
     } else {
       _forceCacheFuture = null;
     }
@@ -479,7 +481,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
         } else {
           _storageMisses.add(url);
         }
-        if (!mounted || widget.url != url) return;
+        if (!mounted || _url != url) return;
         setState(() {
           _storagePending = false;
           _maybeInitPrecache();
@@ -492,7 +494,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
   }
 
   void _maybeInitPrecache() {
-    final url = widget.url;
+    final url = _url;
     if (url != null && url.isNotEmpty && _resolveFromMemoryOrStorage(url)) return;
     final identity = url != null && url.isNotEmpty ? '$url|${widget.cacheKey}' : null;
 
@@ -677,11 +679,11 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
       return _buildLoadedImage(effectiveBytes);
     }
 
-    if (widget.url == null || widget.url!.isEmpty) {
+    if (_url == null || _url!.isEmpty) {
       return KeyedSubtree(key: const ValueKey('fallback'), child: fallbackImage);
     }
 
-    final stored = _forceCacheMemory[widget.url!];
+    final stored = _forceCacheMemory[_url!];
     if (stored != null) return _buildLoadedImage(stored);
     if (_storagePending) return _ImageShimmer(key: const ValueKey('shimmer'), width: imgW, height: imgH);
 
@@ -754,7 +756,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     if (_useBytes && _forceCacheFuture != null) {
       // Synchronous hot path: bytes already decoded this session — render
       // directly, no FutureBuilder or AnimatedSwitcher needed.
-      final cachedBytes = widget.url != null ? _forceCacheMemory[widget.url!] : null;
+      final cachedBytes = _url != null ? _forceCacheMemory[_url!] : null;
       if (cachedBytes != null) {
         imageChild = _buildLoadedImage(cachedBytes);
       } else {
@@ -922,7 +924,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
           )
         : frameWithOverlay;
 
-    final bool canInteract = !widget.disabled && (!widget.url.isNullOrBlank || widget.bytes != null);
+    final bool canInteract = !widget.disabled && (!_url.isNullOrBlank || widget.bytes != null);
 
     return buildWithDropdownTarget(
       child: InkWell(
@@ -953,7 +955,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     if (widget.bytes != null) {
       imageProvider = MemoryImage(widget.bytes!);
     } else {
-      final cachedBytes = widget.forceCache && widget.url != null ? _forceCacheMemory[widget.url!] : null;
+      final cachedBytes = widget.forceCache && _url != null ? _forceCacheMemory[_url!] : null;
       if (cachedBytes != null) {
         imageProvider = MemoryImage(cachedBytes);
       } else if (!widget.forceCache && _networkProvider != null) {
@@ -963,7 +965,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
         imageProvider = _networkProvider!;
       } else {
         imageProvider = CachedNetworkImageProvider(
-          widget.url!,
+          _url!,
           cacheKey: widget.cacheKey,
           cacheManager: widget.cacheManager,
         );
