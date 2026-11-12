@@ -86,7 +86,16 @@ extension _TCrudTableActionsExt<T, K, F extends TFormBase> on _TCrudTableState<T
   }
 
   void handleView(T item, TListController<T, K> controller) {
-    if (controller.expandable) controller.expandDetail(controller.itemKey(item));
+    if (controller.expandable) {
+      final key = controller.itemKey(item);
+      final v = controller.value;
+      // Inline (bottom) expansion: pressing View again on an open row closes it.
+      if (effectiveExpansionMode == TTableExpansionMode.bottom && v.expandedDetailKey == key && !v.isEditingItem) {
+        controller.collapseDetail();
+        return;
+      }
+      controller.expandDetail(key);
+    }
     if (widget.onView == null) return;
     _performAction(() async {
       await widget.onView!(item);

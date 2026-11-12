@@ -466,7 +466,10 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     T? itemData,
     Widget child,
   ) {
-    final showLayout = details.mode != TTableExpansionMode.bottom || details.showLayoutForBottom;
+    // Create/edit may be presented differently from view (createMode), so
+    // size and layout must follow the mode actually used for this content.
+    final mode = (isCreating || isEditing) ? (details.createMode ?? details.mode) : details.mode;
+    final showLayout = mode != TTableExpansionMode.bottom || details.showLayoutForBottom;
     if (!showLayout) {
       return getCardWrapper(child);
     }
@@ -494,13 +497,13 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
           itemInfoGridInline: details.itemInfoGridInline,
           actions: [...?actions, ...extra].isEmpty ? null : [...?actions, ...extra],
           onBackPressed: () => TTableScope.of(context).close(context),
-          shrinkWrap: details.mode != TTableExpansionMode.page &&
-              (details.mode != TTableExpansionMode.sideOverlay || details.sideOverlayHeightMode == TSheetHeightMode.shrinkWrap),
+          shrinkWrap: mode != TTableExpansionMode.page &&
+              (mode != TTableExpansionMode.sideOverlay || details.sideOverlayHeightMode == TSheetHeightMode.shrinkWrap),
           child: child,
         );
     final pageWrapper = _TTableDetailsActionsHost(builder: buildWrapper);
 
-    return details.mode == TTableExpansionMode.side ? getCardWrapper(pageWrapper) : pageWrapper;
+    return mode == TTableExpansionMode.side ? getCardWrapper(pageWrapper) : pageWrapper;
   }
 
   /// Single reconciliation point, called whenever controller state changes.
@@ -563,9 +566,13 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
       final Object? result;
       if (target.mode == TTableExpansionMode.page) {
         final route = MaterialPageRoute<Object?>(
-          builder: (_) => _buildScopedContent(config.$1, config.$2),
+          builder: (_) => _tableInactive ? const SizedBox.shrink() : _buildScopedContent(config.$1, config.$2),
         );
+        _pageRoute = route;
+        _pageNavigator = navigator;
         result = await navigator.push<Object?>(route);
+        _pageRoute = null;
+        _pageNavigator = null;
       } else if (target.mode == TTableExpansionMode.sideOverlay) {
         final isCreateOrEdit = target.kind == _DetailKind.create || target.kind == _DetailKind.edit;
         final resolvedWidth = details != null
