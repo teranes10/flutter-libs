@@ -1153,7 +1153,9 @@ class TTableHeader<T, K> {
           }
 
           return TButtonGroup(
-            type: TButtonGroupType.icon,
+            type: TButtonGroupType.softText,
+            separated: true,
+            spacing: 0,
             alignment: WrapAlignment.end,
             size: isDense ? TButtonSize.sm.copyWith(hPad: 4, vPad: 2) : TButtonSize.sm,
             items: effectiveItems,
