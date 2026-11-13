@@ -185,7 +185,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap transfer to right ('>')
-      final rightBtn = find.byTooltip('Transfer Selected to Right');
+      final rightBtn = find.byWidgetPredicate((w) => w is TTooltip && w.message == 'Transfer Selected to Right');
       expect(rightBtn, findsOneWidget);
       await tester.tap(rightBtn);
       await tester.pumpAndSettle();
@@ -223,7 +223,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Tap transfer all to right ('>>')
-      final moveAllRightBtn = find.byTooltip('Transfer All to Right');
+      final moveAllRightBtn = find.byWidgetPredicate((w) => w is TTooltip && w.message == 'Transfer All to Right');
       await tester.tap(moveAllRightBtn);
       await tester.pumpAndSettle();
 

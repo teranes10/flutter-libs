@@ -173,6 +173,7 @@ export 'widgets/input-container/option_tile.dart';
 export 'widgets/signature-pad/signature_pad.dart';
 export 'widgets/lazy-indexed-stack/lazy_indexed_stack.dart';
 
+export 'widgets/list/drag_handle.dart';
 export 'widgets/list/list_animation.dart';
 export 'widgets/list/list_card_theme.dart';
 export 'widgets/list/list_card.dart';

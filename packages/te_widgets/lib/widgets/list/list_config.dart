@@ -37,6 +37,16 @@ typedef TListReorderCallback = void Function(int, int);
 typedef TListExpandedBuilder<T, K> = Widget Function(BuildContext ctx, TListItem<T, K> item, int index);
 typedef TGridDelegateBuilder = TGridDelegate Function(BuildContext context);
 
+/// Who renders the drag handle of a reorderable [TList].
+enum TListDragHandle {
+  /// The list renders a [TDragHandle] beside each item.
+  auto,
+
+  /// The list renders no handle; the item builder places a [TDragHandle] itself
+  /// (e.g. inside a card).
+  builder,
+}
+
 /// Options for loading data in the list.
 class TLoadOptions<T> {
   /// The page number to load (1-based).

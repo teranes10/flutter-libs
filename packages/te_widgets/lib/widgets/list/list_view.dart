@@ -70,6 +70,9 @@ class TListView<T, K> extends StatefulWidget {
   /// Decorator for item while dragging.
   final TListDragProxyDecorator? dragProxyDecorator;
 
+  /// Whether the list renders the drag handle or the item builder does.
+  final TListDragHandle dragHandle;
+
   /// Callback when reorder completes.
   final TListReorderCallback? onReorder;
 
@@ -121,6 +124,7 @@ class TListView<T, K> extends StatefulWidget {
     this.padding,
     this.reorderable = false,
     this.dragProxyDecorator,
+    this.dragHandle = TListDragHandle.auto,
     this.onReorder,
     this.onReorderStart,
     this.onReorderEnd,
@@ -466,18 +470,12 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
     final child = widget.itemBuilder(context, item, index);
     final keyedChild = Container(key: ValueKey('list_item_${item.key}'), child: child);
 
-    if (widget.reorderable) {
+    if (widget.reorderable && widget.dragHandle == TListDragHandle.auto) {
       return Row(
         key: keyedChild.key,
         children: [
-          ReorderableDragStartListener(
-            index: index,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: TIcon.raw(HugeIcons.strokeRoundedGripVertical, size: 12, color: context.colors.onSurfaceVariant.withAlpha(200)),
-            ),
-          ),
-          Expanded(child: child)
+          TDragHandle(index: index, size: 12, padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8)),
+          Expanded(child: child),
         ],
       );
     }

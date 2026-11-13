@@ -5,6 +5,13 @@ import 'package:te_widgets/te_widgets.dart';
 ///
 /// Ideal for admin scenarios such as role/permission assignment, user group management,
 /// column picker configurations, and batch multi-select workflows.
+///
+/// Each row has a quick action icon: `+` (turns green on hover) in the source list and
+/// `x` (turns red on hover) in the target list. When [allowReordering] is enabled the
+/// target list can be reordered by dragging the grip handle.
+///
+/// On narrow screens the two lists stack vertically and the transfer buttons become a
+/// horizontal row between them.
 class TTransferList<T> extends StatefulWidget {
   /// The collection of available items in the source pool.
   final List<T> sourceItems;
@@ -24,7 +31,7 @@ class TTransferList<T> extends StatefulWidget {
   /// Function to extract an optional secondary subtitle/description for an item.
   final String Function(T item)? itemSubtitle;
 
-  /// Custom builder for item rows.
+  /// Custom builder for the item content (replaces the title/subtitle).
   final Widget Function(BuildContext context, T item, bool isChecked)? itemBuilder;
 
   /// Function to determine if an item is disabled from transfer.
@@ -42,10 +49,12 @@ class TTransferList<T> extends StatefulWidget {
   /// Whether to show "Select All" checkboxes in the list headers. Defaults to true.
   final bool showSelectAll;
 
-  /// Whether to display Up / Down buttons to allow reordering the target list. Defaults to false.
+  /// Whether the target list can be reordered by dragging. Defaults to false.
+  ///
+  /// Dragging is disabled while the target search field is not empty.
   final bool allowReordering;
 
-  /// Fixed height of the transfer list containers. Defaults to 360.0.
+  /// Height of the scrollable area of each list. Defaults to 300.0.
   final double height;
 
   /// Width of each list card. Defaults to 260.0.
@@ -66,7 +75,7 @@ class TTransferList<T> extends StatefulWidget {
     this.showSearch = true,
     this.showSelectAll = true,
     this.allowReordering = false,
-    this.height = 360.0,
+    this.height = 300.0,
     this.boxWidth = 260.0,
   });
 
@@ -81,497 +90,286 @@ class _TTransferListState<T> extends State<TTransferList<T>> {
   String _sourceSearch = '';
   String _targetSearch = '';
 
-  late final TextEditingController _sourceSearchCtrl;
-  late final TextEditingController _targetSearchCtrl;
+  String _label(T item) => widget.itemLabel?.call(item) ?? item.toString();
 
-  @override
-  void initState() {
-    super.initState();
-    _sourceSearchCtrl = TextEditingController();
-    _targetSearchCtrl = TextEditingController();
+  bool _isDisabled(T item) => widget.itemDisabled?.call(item) ?? false;
+
+  List<T> _filter(List<T> items, String search) {
+    final q = search.trim().toLowerCase();
+    if (q.isEmpty) return items;
+    return items.where((i) => _label(i).toLowerCase().contains(q)).toList();
   }
 
-  @override
-  void dispose() {
-    _sourceSearchCtrl.dispose();
-    _targetSearchCtrl.dispose();
-    super.dispose();
-  }
+  /// Moves [moving] from one pool to the other and notifies the parent.
+  void _move(Iterable<T> moving, {required bool toTarget}) {
+    final items = moving.where((i) => !_isDisabled(i)).toList();
+    if (items.isEmpty) return;
 
-  String _getItemText(T item) {
-    if (widget.itemLabel != null) return widget.itemLabel!(item);
-    return item.toString();
-  }
-
-  bool _isItemDisabled(T item) {
-    return widget.itemDisabled?.call(item) ?? false;
-  }
-
-  List<T> _filteredSource() {
-    if (_sourceSearch.trim().isEmpty) return widget.sourceItems;
-    final q = _sourceSearch.trim().toLowerCase();
-    return widget.sourceItems.where((i) => _getItemText(i).toLowerCase().contains(q)).toList();
-  }
-
-  List<T> _filteredTarget() {
-    if (_targetSearch.trim().isEmpty) return widget.targetItems;
-    final q = _targetSearch.trim().toLowerCase();
-    return widget.targetItems.where((i) => _getItemText(i).toLowerCase().contains(q)).toList();
-  }
-
-  void _transferToTarget() {
-    if (_checkedSource.isEmpty) return;
-    final itemsToMove = _checkedSource.where((i) => !_isItemDisabled(i)).toList();
-    if (itemsToMove.isEmpty) return;
-
-    final newTarget = List<T>.from(widget.targetItems)..addAll(itemsToMove);
-    final newSource = List<T>.from(widget.sourceItems)..removeWhere((i) => itemsToMove.contains(i));
-
-    setState(() {
-      _checkedSource.clear();
-    });
-
-    widget.onTargetChanged(newTarget);
-    widget.onSourceChanged?.call(newSource);
-  }
-
-  void _transferAllToTarget() {
-    final available = widget.sourceItems.where((i) => !_isItemDisabled(i)).toList();
-    if (available.isEmpty) return;
-
-    final newTarget = List<T>.from(widget.targetItems)..addAll(available);
-    final newSource = List<T>.from(widget.sourceItems)..removeWhere((i) => available.contains(i));
-
-    setState(() {
-      _checkedSource.clear();
-    });
-
-    widget.onTargetChanged(newTarget);
-    widget.onSourceChanged?.call(newSource);
-  }
-
-  void _transferToSource() {
-    if (_checkedTarget.isEmpty) return;
-    final itemsToMove = _checkedTarget.where((i) => !_isItemDisabled(i)).toList();
-    if (itemsToMove.isEmpty) return;
-
-    final newSource = List<T>.from(widget.sourceItems)..addAll(itemsToMove);
-    final newTarget = List<T>.from(widget.targetItems)..removeWhere((i) => itemsToMove.contains(i));
-
-    setState(() {
-      _checkedTarget.clear();
-    });
-
-    widget.onTargetChanged(newTarget);
-    widget.onSourceChanged?.call(newSource);
-  }
-
-  void _transferAllToSource() {
-    final available = widget.targetItems.where((i) => !_isItemDisabled(i)).toList();
-    if (available.isEmpty) return;
-
-    final newSource = List<T>.from(widget.sourceItems)..addAll(available);
-    final newTarget = List<T>.from(widget.targetItems)..removeWhere((i) => available.contains(i));
-
-    setState(() {
-      _checkedTarget.clear();
-    });
-
-    widget.onTargetChanged(newTarget);
-    widget.onSourceChanged?.call(newSource);
-  }
-
-  void _moveTargetItemUp() {
-    if (_checkedTarget.length != 1) return;
-    final item = _checkedTarget.first;
-    final index = widget.targetItems.indexOf(item);
-    if (index > 0) {
-      final updated = List<T>.from(widget.targetItems);
-      updated.removeAt(index);
-      updated.insert(index - 1, item);
-      widget.onTargetChanged(updated);
+    final newTarget = List<T>.from(widget.targetItems);
+    final newSource = List<T>.from(widget.sourceItems);
+    if (toTarget) {
+      newSource.removeWhere(items.contains);
+      newTarget.addAll(items);
+    } else {
+      newTarget.removeWhere(items.contains);
+      newSource.addAll(items);
     }
+
+    setState(() {
+      _checkedSource.removeAll(items);
+      _checkedTarget.removeAll(items);
+    });
+
+    widget.onTargetChanged(newTarget);
+    widget.onSourceChanged?.call(newSource);
   }
 
-  void _moveTargetItemDown() {
-    if (_checkedTarget.length != 1) return;
-    final item = _checkedTarget.first;
-    final index = widget.targetItems.indexOf(item);
-    if (index >= 0 && index < widget.targetItems.length - 1) {
-      final updated = List<T>.from(widget.targetItems);
-      updated.removeAt(index);
-      updated.insert(index + 1, item);
-      widget.onTargetChanged(updated);
-    }
+  void _reorderTarget(int oldIndex, int newIndex) {
+    final updated = List<T>.from(widget.targetItems);
+    updated.insert(newIndex, updated.removeAt(oldIndex));
+    widget.onTargetChanged(updated);
+  }
+
+  void _toggleAll(Set<T> checked, List<T> visible, bool select) {
+    setState(() {
+      if (select) {
+        checked.addAll(visible.where((i) => !_isDisabled(i)));
+      } else {
+        checked.removeAll(visible);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: widget.height,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Source List Box
-          SizedBox(
-            width: widget.boxWidth,
-            child: _buildListBox(
-              title: widget.sourceTitle,
-              items: _filteredSource(),
-              totalItemsCount: widget.sourceItems.length,
-              checkedSet: _checkedSource,
-              searchController: _sourceSearchCtrl,
-              onSearchChanged: (val) => setState(() => _sourceSearch = val),
-              onToggleAll: (select) {
-                setState(() {
-                  if (select) {
-                    final valid = _filteredSource().where((i) => !_isItemDisabled(i));
-                    _checkedSource.addAll(valid);
-                  } else {
-                    _checkedSource.removeAll(_filteredSource());
-                  }
-                });
-              },
+    final source = _buildPanel(isTarget: false);
+    final target = _buildPanel(isTarget: true);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stacked = constraints.maxWidth < widget.boxWidth * 2 + 72;
+
+        if (stacked) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              source,
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: _buildActions(vertical: false),
+              ),
+              target,
+            ],
+          );
+        }
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(width: widget.boxWidth, child: source),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: _buildActions(vertical: true),
             ),
-          ),
-
-          // Central Action Buttons
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: _buildActionButtons(),
-          ),
-
-          // Target List Box
-          SizedBox(
-            width: widget.boxWidth,
-            child: _buildListBox(
-              title: widget.targetTitle,
-              items: _filteredTarget(),
-              totalItemsCount: widget.targetItems.length,
-              checkedSet: _checkedTarget,
-              searchController: _targetSearchCtrl,
-              onSearchChanged: (val) => setState(() => _targetSearch = val),
-              onToggleAll: (select) {
-                setState(() {
-                  if (select) {
-                    final valid = _filteredTarget().where((i) => !_isItemDisabled(i));
-                    _checkedTarget.addAll(valid);
-                  } else {
-                    _checkedTarget.removeAll(_filteredTarget());
-                  }
-                });
-              },
-            ),
-          ),
-
-          // Optional Reordering Controls
-          if (widget.allowReordering) ...[
-            const SizedBox(width: 8),
-            _buildReorderButtons(),
+            SizedBox(width: widget.boxWidth, child: target),
           ],
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildListBox({
-    required String title,
-    required List<T> items,
-    required int totalItemsCount,
-    required Set<T> checkedSet,
-    required TextEditingController searchController,
-    required ValueChanged<String> onSearchChanged,
-    required ValueChanged<bool> onToggleAll,
-  }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final borderColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+  Widget _buildPanel({required bool isTarget}) {
+    final colors = context.colors;
+    final all = isTarget ? widget.targetItems : widget.sourceItems;
+    final search = isTarget ? _targetSearch : _sourceSearch;
+    final checked = isTarget ? _checkedTarget : _checkedSource;
+    final visible = _filter(all, search);
 
-    final enabledFiltered = items.where((i) => !_isItemDisabled(i)).toList();
-    final allChecked = enabledFiltered.isNotEmpty && enabledFiltered.every(checkedSet.contains);
-    final someChecked = enabledFiltered.any(checkedSet.contains) && !allChecked;
+    final enabled = visible.where((i) => !_isDisabled(i)).toList();
+    final allChecked = enabled.isNotEmpty && enabled.every(checked.contains);
+    final someChecked = enabled.any(checked.contains) && !allChecked;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: borderColor),
+    final reorderable = isTarget && widget.allowReordering && search.trim().isEmpty;
+
+    return TCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(12),
+      shadowLevel: TCardShadow.md,
+      title: isTarget ? widget.targetTitle : widget.sourceTitle,
+      iconWidget: widget.showSelectAll
+          ? TCheckbox(
+              size: TInputSize.sm,
+              tristate: true,
+              disabled: enabled.isEmpty,
+              value: allChecked ? true : (someChecked ? null : false),
+              onValueChanged: (v) => _toggleAll(checked, visible, v ?? false),
+            )
+          : null,
+      trailing: TChip(
+        text: '${checked.isNotEmpty ? checked.length : visible.length}',
+        color: checked.isNotEmpty ? colors.primary : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: borderColor)),
-              color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(7)),
-            ),
-            child: Row(
-              children: [
-                if (widget.showSelectAll)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: Checkbox(
-                        value: allChecked ? true : (someChecked ? null : false),
-                        tristate: true,
-                        onChanged: (val) => onToggleAll(val ?? false),
-                      ),
-                    ),
-                  ),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                TBadge.standalone(
-                  count: checkedSet.isNotEmpty ? checkedSet.length : items.length,
-                  color: checkedSet.isNotEmpty ? theme.colorScheme.primary : Colors.grey.shade400,
-                  textColor: Colors.white,
-                ),
-              ],
-            ),
-          ),
-
-          // Search Field
           if (widget.showSearch)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: borderColor)),
-              ),
-              child: SizedBox(
-                height: 32,
-                child: TextField(
-                  controller: searchController,
-                  onChanged: onSearchChanged,
-                  style: const TextStyle(fontSize: 12),
-                  decoration: InputDecoration(
-                    hintText: 'Search items...',
-                    hintStyle: TextStyle(fontSize: 12, color: theme.hintColor),
-                    prefixIcon: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 16),
-                    prefixIconConstraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                    suffixIcon: searchController.text.isNotEmpty
-                        ? InkWell(
-                            onTap: () {
-                              searchController.clear();
-                              onSearchChanged('');
-                            },
-                            child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 14),
-                          )
-                        : null,
-                    suffixIconConstraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-                    contentPadding: EdgeInsets.zero,
-                    isDense: true,
-                    filled: true,
-                    fillColor: isDark ? Colors.grey.shade900 : Colors.grey.shade50,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: borderColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6),
-                      borderSide: BorderSide(color: borderColor),
-                    ),
-                  ),
-                ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: TTextField<String>(
+                size: TInputSize.sm,
+                placeholder: 'Search items...',
+                clearable: true,
+                preWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 16),
+                onValueChanged: (v) => setState(() {
+                  if (isTarget) {
+                    _targetSearch = v ?? '';
+                  } else {
+                    _sourceSearch = v ?? '';
+                  }
+                }),
               ),
             ),
-
-          // Item List
-          Expanded(
-            child: items.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        totalItemsCount == 0 ? 'No items' : 'No matching items',
-                        style: TextStyle(fontSize: 12, color: theme.hintColor),
+          SizedBox(
+            height: widget.height,
+            child: visible.isEmpty
+                ? (all.isEmpty
+                    ? const TEmptyState(compact: true, icon: HugeIcons.strokeRoundedInbox, title: 'No items')
+                    : TEmptyState.search(compact: true, query: search.trim()))
+                : reorderable
+                    ? ReorderableListView.builder(
+                        buildDefaultDragHandles: false,
+                        itemCount: visible.length,
+                        onReorderItem: _reorderTarget,
+                        proxyDecorator: TListTheme.buildDragProxy,
+                        itemBuilder: (context, index) => _buildRow(visible[index], index, checked, isTarget: true, reorderable: true),
+                      )
+                    : ListView.builder(
+                        itemCount: visible.length,
+                        itemBuilder: (context, index) => _buildRow(visible[index], index, checked, isTarget: isTarget),
                       ),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) {
-                      final item = items[index];
-                      final isChecked = checkedSet.contains(item);
-                      final isDisabled = _isItemDisabled(item);
-
-                      if (widget.itemBuilder != null) {
-                        return InkWell(
-                          onTap: isDisabled
-                              ? null
-                              : () {
-                                  setState(() {
-                                    if (isChecked) {
-                                      checkedSet.remove(item);
-                                    } else {
-                                      checkedSet.add(item);
-                                    }
-                                  });
-                                },
-                          child: widget.itemBuilder!(context, item, isChecked),
-                        );
-                      }
-
-                      return InkWell(
-                        onTap: isDisabled
-                            ? null
-                            : () {
-                                setState(() {
-                                  if (isChecked) {
-                                    checkedSet.remove(item);
-                                  } else {
-                                    checkedSet.add(item);
-                                  }
-                                });
-                              },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: Checkbox(
-                                  value: isChecked,
-                                  onChanged: isDisabled
-                                      ? null
-                                      : (val) {
-                                          setState(() {
-                                            if (val == true) {
-                                              checkedSet.add(item);
-                                            } else {
-                                              checkedSet.remove(item);
-                                            }
-                                          });
-                                        },
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      _getItemText(item),
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: isDisabled ? theme.disabledColor : null,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    if (widget.itemSubtitle != null) ...[
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        widget.itemSubtitle!(item),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: theme.hintColor,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionButtons() {
-    final canMoveRight = _checkedSource.isNotEmpty;
-    final canMoveAllRight = widget.sourceItems.isNotEmpty;
-    final canMoveLeft = _checkedTarget.isNotEmpty;
-    final canMoveAllLeft = widget.targetItems.isNotEmpty;
+  Widget _buildRow(
+    T item,
+    int index,
+    Set<T> checked, {
+    required bool isTarget,
+    bool reorderable = false,
+  }) {
+    final colors = context.colors;
+    final isChecked = checked.contains(item);
+    final disabled = _isDisabled(item);
+
+    void toggle() => setState(() => isChecked ? checked.remove(item) : checked.add(item));
+
+    return KeyedSubtree(
+      key: ValueKey(item),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: TTile(
+              size: TTileSize.h6,
+              padding: EdgeInsets.zero,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              leading: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 4,
+                children: [
+                  if (reorderable) TDragHandle(index: index, size: 14, padding: const EdgeInsets.all(4)),
+                  TCheckbox(
+                    size: TInputSize.sm,
+                    disabled: disabled,
+                    value: isChecked,
+                    onValueChanged: (_) => toggle(),
+                  ),
+                ],
+              ),
+              title: widget.itemBuilder == null ? _label(item) : null,
+              titleWidget: widget.itemBuilder?.call(context, item, isChecked),
+              subtitle: widget.itemBuilder == null ? widget.itemSubtitle?.call(item) : null,
+            ),
+          ),
+          TTooltip(
+            message: isTarget ? 'Remove' : 'Add',
+            child: TIcon(
+              icon: isTarget ? HugeIcons.strokeRoundedCancel01 : HugeIcons.strokeRoundedAdd01,
+              size: 16,
+              padding: const EdgeInsets.fromLTRB(6, 6, 3, 6),
+              themeType: isTarget ? TThemeType.error : TThemeType.success,
+              onTap: disabled ? null : () => _move([item], toTarget: !isTarget),
+            ),
+          ),
+        ],
+      ).card(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        margin: const EdgeInsets.only(bottom: 6),
+        backgroundColor: isChecked ? colors.primary.withAlpha(18) : null,
+        onTap: disabled ? null : toggle,
+      ),
+    );
+  }
+
+  Widget _buildActions({required bool vertical}) {
+    final buttons = [
+      _actionButton(
+        icon: vertical ? HugeIcons.strokeRoundedArrowRight01 : HugeIcons.strokeRoundedArrowDown01,
+        tooltip: 'Transfer Selected to Right',
+        enabled: _checkedSource.isNotEmpty,
+        onTap: () => _move(_checkedSource.toList(), toTarget: true),
+      ),
+      _actionButton(
+        icon: vertical ? HugeIcons.strokeRoundedSquareArrowRightDouble : HugeIcons.strokeRoundedSquareArrowDownDouble,
+        tooltip: 'Transfer All to Right',
+        enabled: widget.sourceItems.isNotEmpty,
+        onTap: () => _move(widget.sourceItems.toList(), toTarget: true),
+      ),
+      _actionButton(
+        icon: vertical ? HugeIcons.strokeRoundedArrowLeft01 : HugeIcons.strokeRoundedArrowUp01,
+        tooltip: 'Transfer Selected to Left',
+        enabled: _checkedTarget.isNotEmpty,
+        onTap: () => _move(_checkedTarget.toList(), toTarget: false),
+      ),
+      _actionButton(
+        icon: vertical ? HugeIcons.strokeRoundedSquareArrowLeftDouble : HugeIcons.strokeRoundedSquareArrowUpDouble,
+        tooltip: 'Transfer All to Left',
+        enabled: widget.targetItems.isNotEmpty,
+        onTap: () => _move(widget.targetItems.toList(), toTarget: false),
+      ),
+    ];
+
+    if (!vertical) return TAlignedRow(left: buttons);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildTransferBtn(
-          icon: HugeIcons.strokeRoundedArrowRight01,
-          tooltip: 'Transfer Selected to Right',
-          enabled: canMoveRight,
-          onPressed: _transferToTarget,
-        ),
-        const SizedBox(height: 6),
-        _buildTransferBtn(
-          icon: HugeIcons.strokeRoundedSquareArrowRightDouble,
-          tooltip: 'Transfer All to Right',
-          enabled: canMoveAllRight,
-          onPressed: _transferAllToTarget,
-        ),
-        const SizedBox(height: 12),
-        _buildTransferBtn(
-          icon: HugeIcons.strokeRoundedArrowLeft01,
-          tooltip: 'Transfer Selected to Left',
-          enabled: canMoveLeft,
-          onPressed: _transferToSource,
-        ),
-        const SizedBox(height: 6),
-        _buildTransferBtn(
-          icon: HugeIcons.strokeRoundedSquareArrowUpLeft,
-          tooltip: 'Transfer All to Left',
-          enabled: canMoveAllLeft,
-          onPressed: _transferAllToSource,
-        ),
+        for (final (i, b) in buttons.indexed) ...[
+          if (i > 0) SizedBox(height: i == 2 ? 12 : 6),
+          b,
+        ],
       ],
     );
   }
 
-  Widget _buildReorderButtons() {
-    final canReorder = _checkedTarget.length == 1;
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildTransferBtn(
-          icon: HugeIcons.strokeRoundedArrowUp01,
-          tooltip: 'Move Up',
-          enabled: canReorder,
-          onPressed: _moveTargetItemUp,
-        ),
-        const SizedBox(height: 6),
-        _buildTransferBtn(
-          icon: HugeIcons.strokeRoundedArrowDown01,
-          tooltip: 'Move Down',
-          enabled: canReorder,
-          onPressed: _moveTargetItemDown,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTransferBtn({
-    required dynamic icon,
+  Widget _actionButton({
+    required List<List<dynamic>> icon,
     required String tooltip,
     required bool enabled,
-    required VoidCallback onPressed,
+    required VoidCallback onTap,
   }) {
-    return Tooltip(
-      message: tooltip,
-      child: TButton(
-        icon: icon,
-        onTap: enabled ? onPressed : null,
-        size: TSize.sm,
-        type: TButtonType.outline,
-      ),
+    return TButton(
+      icon: icon,
+      tooltip: tooltip,
+      onTap: enabled ? onTap : null,
+      size: TSize.sm,
+      type: TButtonType.outline,
     );
   }
 }

@@ -28,6 +28,7 @@ class TListTheme {
   final TListFooterBuilder infiniteScrollFooterBuilder;
   final TListSeparatorBuilder? listSeparatorBuilder;
   final TListDragProxyDecorator? dragProxyDecorator;
+  final TListDragHandle dragHandle;
   final TGridMode? grid;
   final TGridDelegateBuilder? gridDelegate;
 
@@ -49,6 +50,7 @@ class TListTheme {
     required this.infiniteScrollFooterBuilder,
     this.listSeparatorBuilder,
     this.dragProxyDecorator,
+    this.dragHandle = TListDragHandle.auto,
     this.grid,
     this.gridDelegate,
   })  : assert(
@@ -74,6 +76,7 @@ class TListTheme {
     TListFooterBuilder? infiniteScrollFooterBuilder,
     TListSeparatorBuilder? listSeparatorBuilder,
     TListDragProxyDecorator? dragProxyDecorator,
+    TListDragHandle? dragHandle,
     TGridMode? grid,
     TGridDelegateBuilder? gridDelegate,
   }) {
@@ -95,6 +98,7 @@ class TListTheme {
       infiniteScrollFooterBuilder: infiniteScrollFooterBuilder ?? this.infiniteScrollFooterBuilder,
       listSeparatorBuilder: listSeparatorBuilder ?? this.listSeparatorBuilder,
       dragProxyDecorator: dragProxyDecorator ?? this.dragProxyDecorator,
+      dragHandle: dragHandle ?? this.dragHandle,
       grid: grid ?? this.grid,
       gridDelegate: gridDelegate ?? this.gridDelegate,
     );
@@ -141,27 +145,29 @@ class TListTheme {
         }
         return hasMoreItems ? const SizedBox(height: 40) : SizedBox.fromSize();
       },
-      dragProxyDecorator: (Widget child, int index, Animation<double> animation) {
-        return AnimatedBuilder(
-          animation: animation,
-          builder: (BuildContext context, Widget? child) {
-            final animValue = Curves.easeInOut.transform(animation.value);
-            final elevation = lerpDouble(0, 8, animValue) ?? 0;
-            final scale = lerpDouble(1.0, 1.01, animValue) ?? 1.0;
+      dragProxyDecorator: buildDragProxy,
+    );
+  }
 
-            return Transform.scale(
-              scale: scale,
-              child: Material(
-                elevation: elevation,
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-                child: child,
-              ),
-            );
-          },
-          child: child,
+  /// Default drag proxy: a gentle lift with a soft [TCardShadow] that fades in
+  /// as the item is picked up (no harsh Material elevation shadow).
+  static Widget buildDragProxy(Widget child, int index, Animation<double> animation) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (BuildContext context, Widget? child) {
+        final t = Curves.easeInOut.transform(animation.value);
+        final shadows = [
+          for (final s in TCardShadow.md.resolve(TCardShadow.baseColor)) s.copyWith(color: s.color.withValues(alpha: s.color.a * t)),
+        ];
+        return Transform.scale(
+          scale: lerpDouble(1.0, 1.01, t) ?? 1.0,
+          child: DecoratedBox(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), boxShadow: shadows),
+            child: Material(type: MaterialType.transparency, child: child),
+          ),
         );
       },
+      child: child,
     );
   }
 

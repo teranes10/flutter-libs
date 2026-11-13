@@ -486,6 +486,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               padding: wTheme.padding,
               reorderable: listController.reorderable,
               dragProxyDecorator: wTheme.dragProxyDecorator,
+              dragHandle: wTheme.dragHandle,
               onReorder: listController.reorder,
               onReorderEnd: widget.onReorderEnd != null ? (_) => widget.onReorderEnd!() : null,
               grid: wTheme.grid,
