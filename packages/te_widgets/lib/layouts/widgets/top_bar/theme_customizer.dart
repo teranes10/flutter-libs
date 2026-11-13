@@ -30,7 +30,7 @@ class _ThemeCustomizer extends ConsumerWidget {
     final overrides = brightness == Brightness.dark ? state.darkOverrides : state.lightOverrides;
     final colors = context.colors;
 
-    Widget swatch(Color c, {required bool selected, required VoidCallback onTap, String? tooltip}) => Tooltip(
+    Widget swatch(Color c, {required bool selected, required VoidCallback onTap, String? tooltip}) => TTooltip(
           message: tooltip ?? '',
           child: GestureDetector(
             onTap: onTap,
