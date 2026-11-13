@@ -219,20 +219,12 @@ class _KanbanPageState extends State<KanbanPage> {
           // Kanban Board Card
           TCard(
             title: 'Sprint 42 Agile Board',
-            child: Container(
-              height: 540,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: theme.dividerColor),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: TKanbanBoard<String>(
-                columns: _columns,
-                columnWidth: 290,
-                onCardMoved: _handleCardMoved,
-                onAddCard: _addNewCard,
-                onCardTap: (item) => setState(() => _lastEvent = 'Tapped card: "${item.title}"'),
-              ),
+            child: TKanbanBoard<String>(
+              columns: _columns,
+              columnWidth: 290,
+              onCardMoved: _handleCardMoved,
+              onAddCard: _addNewCard,
+              onCardTap: (item) => setState(() => _lastEvent = 'Tapped card: "${item.title}"'),
             ),
           ),
         ],

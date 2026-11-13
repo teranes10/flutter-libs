@@ -2,6 +2,16 @@ import 'package:te_widgets/te_widgets.dart';
 
 /// Predefined size configurations for [TChip].
 abstract final class TChipSize {
+  /// Extra small chip size for dense cards and headers (fontSize: 10, icon: 10, hPad: 5, vPad: 0).
+  static const TSize xs = TSize(
+    hPad: 5.0,
+    vPad: 0.0,
+    font: 10.0,
+    icon: 10.0,
+    radius: 6.0,
+    spacing: 3.0,
+  );
+
   /// Small compact chip size (fontSize: 10.5, icon: 11, radius: 4, hPad: 6, vPad: 2).
   static const TSize sm = TSize(
     hPad: 6.0,

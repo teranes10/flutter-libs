@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// Preset shadow depths for [TCard] (and the `Widget.card()` extension).
+/// Edge of a [TCard] that carries the accent strip.
+enum TCardAccentSide { start, top, end, bottom }
+
 enum TCardShadow {
   /// Flat card with the default 1px hairline shadow.
   none,
@@ -74,6 +77,15 @@ enum TCardShadow {
 /// - [Material] for the underlying Material widget
 /// - [InkWell] for tap interaction
 class TCard extends StatelessWidget {
+  /// Color of the accent strip along one edge of the card. No strip when null.
+  final Color? accentColor;
+
+  /// Which edge the accent strip sits on. Defaults to [TCardAccentSide.top].
+  final TCardAccentSide accentSide;
+
+  /// Thickness of the accent strip. Defaults to 3.
+  final double accentWidth;
+
   /// The widget to display inside the card body.
   final Widget? child;
 
@@ -163,6 +175,9 @@ class TCard extends StatelessWidget {
   /// Creates a Material Design card widget.
   const TCard({
     super.key,
+    this.accentColor,
+    this.accentSide = TCardAccentSide.top,
+    this.accentWidth = 3,
     this.child,
     this.title,
     this.subtitle,
@@ -263,20 +278,35 @@ class TCard extends StatelessWidget {
         elevation: elevation ?? 0,
         color: backgroundColor ?? Colors.transparent,
         shadowColor: resShadowColor,
-        clipBehavior: clipBehavior ?? Clip.none,
+        clipBehavior: clipBehavior ?? (accentColor != null ? Clip.antiAlias : Clip.none),
         shape: RoundedRectangleBorder(
           borderRadius: defaultBorderRadius,
           side: BorderSide(color: borderColor ?? colors.outlineVariant.withAlpha(60)),
         ),
         child: TBackgroundColorScope(
           backgroundColor: backgroundColor ?? colors.surface,
-          child: InkWell(
-            borderRadius: defaultBorderRadius,
-            onTap: onTap,
-            hoverColor: hoverColor,
-            splashColor: splashColor,
-            highlightColor: highlightColor,
-            child: Padding(padding: padding, child: content),
+          child: Stack(
+            children: [
+              InkWell(
+                borderRadius: defaultBorderRadius,
+                onTap: onTap,
+                hoverColor: hoverColor,
+                splashColor: splashColor,
+                highlightColor: highlightColor,
+                child: Padding(padding: padding, child: content),
+              ),
+              if (accentColor != null)
+                Positioned.directional(
+                  textDirection: Directionality.of(context),
+                  start: accentSide == TCardAccentSide.end ? null : 0,
+                  end: accentSide == TCardAccentSide.start ? null : 0,
+                  top: accentSide == TCardAccentSide.bottom ? null : 0,
+                  bottom: accentSide == TCardAccentSide.top ? null : 0,
+                  width: accentSide == TCardAccentSide.start || accentSide == TCardAccentSide.end ? accentWidth : null,
+                  height: accentSide == TCardAccentSide.top || accentSide == TCardAccentSide.bottom ? accentWidth : null,
+                  child: IgnorePointer(child: ColoredBox(color: accentColor!)),
+                ),
+            ],
           ),
         ),
       ),
