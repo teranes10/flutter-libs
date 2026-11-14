@@ -27,6 +27,14 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
   @override
   final TAuthMode? onDenied;
 
+  /// Render as a text label with [children] inline (shadcn group) instead of a
+  /// collapsible section / popup submenu.
+  final bool group;
+
+  /// Draw a divider above this group's label (only used when [group] is true).
+  @override
+  final bool showDivider;
+
   const TSidebarItem({
     this.page,
     this.builder,
@@ -43,6 +51,8 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
     this.bottomBarPosition,
     this.permission,
     this.onDenied,
+    this.group = false,
+    this.showDivider = false,
   });
 
   TSidebarItem copyWith({
@@ -61,6 +71,8 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
     int? bottomBarPosition,
     Object? permission,
     TAuthMode? onDenied,
+    bool? group,
+    bool? showDivider,
   }) {
     return TSidebarItem(
       page: page ?? this.page,
@@ -78,6 +90,8 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
       bottomBarPosition: bottomBarPosition ?? this.bottomBarPosition,
       permission: permission ?? this.permission,
       onDenied: onDenied ?? this.onDenied,
+      group: group ?? this.group,
+      showDivider: showDivider ?? this.showDivider,
     );
   }
 
@@ -95,6 +109,9 @@ class TSidebarItem extends TMenuItemData<TSidebarItem> {
     if (route == null && !hasVisibleChildren) return true;
     return false;
   }
+
+  @override
+  bool get isGroup => group;
 
   @override
   bool get isClickable => route != null || onTap != null;

@@ -24,6 +24,7 @@ import 'package:my_app/pages/cursor_pagination_page.dart';
 import 'package:my_app/pages/delivery_page.dart';
 import 'package:my_app/pages/diff_viewer_page.dart';
 import 'package:my_app/pages/dropdown_sample_page.dart';
+import 'package:my_app/pages/menu_groups_page.dart';
 import 'package:my_app/pages/editor_page.dart';
 import 'package:my_app/pages/empty_state_page.dart';
 import 'package:my_app/pages/feedback_page.dart';
@@ -346,6 +347,14 @@ final sidebarItems = [
   ),
 
   // ── Hidden / Dynamic Routes ──────────────────────────────────────────────
+  // ── shadcn-style group: a text label with children inline (no popup / collapse) ──
+  TSidebarItem(
+    text: 'Menus',
+    group: true,
+    children: [
+      TSidebarItem(icon: HugeIcons.strokeRoundedMenu01, text: 'Menu Groups', route: 'menu-groups', page: const MenuGroupsPage()),
+    ],
+  ),
   TSidebarItem(
     icon: HugeIcons.strokeRoundedCompass,
     text: 'Explorer',

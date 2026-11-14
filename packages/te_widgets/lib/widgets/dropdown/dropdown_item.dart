@@ -25,6 +25,13 @@ class TDropdownItem extends TMenuItemData<TDropdownItem> {
   @override
   final TAuthMode? onDenied;
 
+  /// Render as a text label with [children] inline (shadcn group) instead of a submenu popup.
+  final bool group;
+
+  /// Draw a divider above this group's label (only used when [group] is true).
+  @override
+  final bool showDivider;
+
   const TDropdownItem({
     this.icon,
     this.text,
@@ -38,7 +45,12 @@ class TDropdownItem extends TMenuItemData<TDropdownItem> {
     this.customContent,
     this.permission,
     this.onDenied,
+    this.group = false,
+    this.showDivider = false,
   });
+
+  @override
+  bool get isGroup => group;
 
   @override
   bool get isClickable => onTap != null;

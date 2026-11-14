@@ -173,6 +173,8 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   Widget build(BuildContext context) {
     if (widget.item.isHiddenIn(context)) return const SizedBox.shrink();
 
+    if (widget.item.isGroup) return _buildGroup();
+
     final currentRoute = _getCurrentRoute();
     final isCurrentRoute = widget.item.route == currentRoute;
     final containsCurrentRoute = widget.item.containsRoute(currentRoute);
@@ -187,6 +189,38 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
           if (widget.item.hasVisibleChildrenIn(context) && !widget.isMinimized) _buildChildren(),
         ],
       ),
+    );
+  }
+
+  /// shadcn-style group: a text label with children always listed inline
+  /// (no collapse, no popup). When the sidebar is minimized the label becomes
+  /// a thin divider and children stay as icons.
+  Widget _buildGroup() {
+    final children = widget.item.visibleChildrenIn(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.item.showDivider)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+            child: Divider(height: 1, color: widget.theme.borderColor),
+          ),
+        if (!widget.isMinimized)
+          TMenuGroupLabel(
+            text: widget.item.text,
+            theme: widget.theme,
+            padding: EdgeInsets.fromLTRB(widget.theme.itemPadding.left + 8, 12, 12, 4),
+          ),
+        for (final child in children)
+          TSidebarItemWidget(
+            item: child,
+            maxWidth: widget.maxWidth,
+            isMinimized: widget.isMinimized,
+            level: widget.level,
+            theme: widget.theme,
+            onTap: widget.onTap,
+          ),
+      ],
     );
   }
 

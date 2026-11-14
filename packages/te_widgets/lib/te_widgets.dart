@@ -194,6 +194,7 @@ export 'widgets/measure-size/measure_size.dart';
 export 'widgets/metric-tile/metric_grid.dart';
 export 'widgets/metric-tile/metric_tile.dart';
 
+export 'widgets/menu/menu_group_label.dart';
 export 'widgets/menu/menu_item_data.dart';
 export 'widgets/menu/menu_overlay_controller.dart';
 export 'widgets/menu/menu_overlay_item.dart';

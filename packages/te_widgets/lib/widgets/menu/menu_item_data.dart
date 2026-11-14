@@ -45,12 +45,21 @@ abstract class TMenuItemData<T extends TMenuItemData<T>> {
   /// Whether a route-less group with no visible children should disappear.
   bool get hidesWhenEmpty => false;
 
+  /// shadcn-style group: instead of opening a submenu popup (or a collapsible
+  /// section), this item renders as a non-interactive text label with its
+  /// [children] listed inline right beneath it. Leave `false` (default) to keep
+  /// the nested popup / collapsible behaviour, so groups and popups can be mixed.
+  bool get isGroup => false;
+
+  /// For a [isGroup] item: draw a divider above its label. Off by default.
+  bool get showDivider => false;
+
   TAuthResult authResult(BuildContext context) => context.authResolve(permission, target: authTarget, onDenied: onDenied);
 
   /// Context-aware [isHidden]: also honours permissions, recursively.
   bool isHiddenIn(BuildContext context) {
     if (isHidden || authResult(context).isHidden) return true;
-    return hidesWhenEmpty && !hasVisibleChildrenIn(context);
+    return (hidesWhenEmpty || isGroup) && !hasVisibleChildrenIn(context);
   }
 
   List<T> visibleChildrenIn(BuildContext context) => children?.where((c) => !c.isHiddenIn(context)).toList() ?? const [];

@@ -97,6 +97,7 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
               child: SingleChildScrollView(
                 padding: widget.theme.overlayPadding,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: _buildRows(effectiveRootId),
                 ),
@@ -108,13 +109,27 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
     );
   }
 
+  /// Group items ([TMenuItemData.isGroup]) are flattened: a text label followed
+  /// by their children inline, instead of a nested popup.
   List<Widget> _buildRows(Object? effectiveRootId) {
-    final visible = widget.items.where((i) => !i.isHiddenIn(context)).toList();
+    final rows = <Widget>[];
+    _addRows(rows, widget.items, effectiveRootId);
+    return rows;
+  }
 
-    return List.generate(visible.length, (index) {
-      final item = visible[index];
+  void _addRows(List<Widget> rows, List<T> items, Object? effectiveRootId) {
+    final visible = items.where((i) => !i.isHiddenIn(context)).toList();
+
+    for (final item in visible) {
+      if (item.isGroup) {
+        if (item.showDivider && rows.isNotEmpty) rows.add(Divider(height: 9, thickness: 1, color: widget.theme.borderColor.withAlpha(40)));
+        rows.add(TMenuGroupLabel(text: item.text, theme: widget.theme));
+        _addRows(rows, item.visibleChildrenIn(context), effectiveRootId);
+        continue;
+      }
       if (item.customContent != null) {
-        return item.customContent!;
+        rows.add(item.customContent!);
+        continue;
       }
       final row = TMenuOverlayItem<T>(
         item: item,
@@ -128,18 +143,21 @@ class _TMenuOverlayPanelState<T extends TMenuItemData<T>> extends State<TMenuOve
         onTap: widget.onItemTap,
       );
 
-      if (!widget.staggerItemEntrance) return row;
+      if (!widget.staggerItemEntrance) {
+        rows.add(row);
+        continue;
+      }
 
-      return TweenAnimationBuilder<double>(
+      rows.add(TweenAnimationBuilder<double>(
         tween: Tween(begin: 0.0, end: 1.0),
-        duration: Duration(milliseconds: 220 + (index * 45)),
+        duration: Duration(milliseconds: 220 + (rows.length * 45)),
         curve: Curves.easeOutCubic,
         builder: (context, t, child) => Transform.translate(
           offset: Offset((1 - t) * 12, 0),
           child: Opacity(opacity: t, child: child),
         ),
         child: row,
-      );
-    });
+      ));
+    }
   }
 }
