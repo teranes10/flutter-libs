@@ -63,6 +63,9 @@ class TTableMobileCard<T, K> extends StatelessWidget {
   /// Callback when selection toggles.
   final VoidCallback? onSelectionChanged;
 
+  /// When non-null, a trailing delete icon is shown and calls this.
+  final VoidCallback? onRemove;
+
   /// Callback when card is tapped.
   final VoidCallback? onTap;
 
@@ -99,6 +102,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     this.isSelected = false,
     this.onSelectionChanged,
     this.onTap,
+    this.onRemove,
     this.backgroundColor,
     this.bare = false,
   });
@@ -188,18 +192,42 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     final content = _buildContent(context, wTheme, colors, mappedKeyValues, isDense);
     if (bare) return content;
 
-    return TCard(
-      margin: cardMargin,
-      elevation: wTheme.elevation,
-      borderRadius: wTheme.borderRadius,
-      backgroundColor: resolvedBgColor,
-      shadowLevel: TCardShadow.sm,
-      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-      onTap: onTap,
-      hoverColor: colors.onSurface.withAlpha(12),
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      child: content,
+    final hover = colors.onSurface.withAlpha(12);
+    final activeTint = colors.onSurface.withAlpha(6); // lighter than hover
+    final active = TTableCellScope.maybeOf(context);
+
+    Widget buildCard(Color bg) => TCard(
+          margin: cardMargin,
+          elevation: wTheme.elevation,
+          borderRadius: wTheme.borderRadius,
+          backgroundColor: bg,
+          shadowLevel: TCardShadow.sm,
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+          // A non-null tap keeps the InkWell enabled; the tint itself is painted via [bg].
+          onTap: () {
+            // Editable tables: tapping the card switches every editable field to its input.
+            if (active != null && !(active.value?.startsWith('${item.key}_') ?? false)) active.value = '${item.key}_';
+            onTap?.call();
+          },
+          mouseCursor: onTap == null && active == null ? SystemMouseCursors.basic : null,
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          splashColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: content,
+        );
+
+    return TTableRowHover(
+      builder: (hovered) {
+        if (active == null) return buildCard(hovered ? Color.alphaBlend(hover, resolvedBgColor) : resolvedBgColor);
+        return ValueListenableBuilder<String?>(
+          valueListenable: active,
+          builder: (_, v, __) {
+            final isActive = v?.startsWith('${item.key}_') ?? false;
+            return buildCard(Color.alphaBlend(hovered ? hover : (isActive ? activeTint : Colors.transparent), resolvedBgColor));
+          },
+        );
+      },
     );
   }
 
@@ -214,6 +242,12 @@ class TTableMobileCard<T, K> extends StatelessWidget {
             theme: wTheme,
             mode: wTheme.mode,
             values: [
+              if (TTableScope.maybeOf(context)?.controller.reorderable ?? false)
+                TKeyValue(
+                  "",
+                  widget: TDragHandle(index: index, size: 14, padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6)),
+                  alignment: Alignment.topLeft,
+                ),
               if (selectable)
                 TKeyValue(
                   "",
@@ -224,6 +258,18 @@ class TTableMobileCard<T, K> extends StatelessWidget {
                   alignment: Alignment.topLeft,
                 ),
               ...mappedKeyValues,
+              if (onRemove != null)
+                TKeyValue(
+                  "",
+                  widget: TIcon(
+                    icon: HugeIcons.strokeRoundedDelete02,
+                    size: isDense ? 16 : 18,
+                    padding: const EdgeInsets.all(4),
+                    color: colors.error,
+                    onTap: onRemove,
+                  ),
+                  alignment: Alignment.bottomRight,
+                ),
               if (expandable && showExpandIcon)
                 TKeyValue(
                   "",

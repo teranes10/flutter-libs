@@ -335,7 +335,10 @@ class _KeyValueLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveBottomSpacing = theme.gridInline ? (theme.narrowItemBottomSpacing / 2) : theme.narrowItemBottomSpacing;
+    // Explicit vSpacing/gap (set on the section or its theme) win over the narrow-layout defaults.
+    final itemSpacing = theme.rawVSpacing ?? theme.narrowItemBottomSpacing;
+    final keyGap = theme.rawGap ?? theme.narrowGap;
+    final effectiveBottomSpacing = theme.gridInline ? (itemSpacing / 2) : itemSpacing;
     Widget content = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -354,7 +357,7 @@ class _KeyValueLayout extends StatelessWidget {
                 if (valueAfterKey || theme.gridInline) ...[
                   // Natural width: a Flexible here would reserve half the row, wrapping the value early.
                   Text(theme.gridInline ? '${values[i].key}:' : values[i].key, style: theme.keyStyle).when(!values[i].key.isNullOrBlank),
-                  const SizedBox(width: 8).when(!values[i].key.isNullOrBlank),
+                  SizedBox(width: theme.rawGap ?? 8).when(!values[i].key.isNullOrBlank),
                   Flexible(
                     child: Align(
                       alignment: Alignment.topLeft,
@@ -366,7 +369,7 @@ class _KeyValueLayout extends StatelessWidget {
                     flex: theme.narrowKeyFlex,
                     child: Text(values[i].key, style: theme.keyStyle),
                   ).when(!values[i].key.isNullOrBlank),
-                  SizedBox(width: theme.narrowGap).when(!values[i].key.isNullOrBlank),
+                  SizedBox(width: keyGap).when(!values[i].key.isNullOrBlank),
                   Expanded(
                     flex: theme.narrowValueFlex,
                     child: Align(
@@ -642,16 +645,16 @@ class _GridCell extends StatelessWidget {
       } else {
         keyWidget = keyContent;
       }
+    } else if (hasFixedKeyWidth) {
+      // Empty placeholder keeps the value aligned with its siblings' values.
+      keyWidget = SizedBox(width: effectiveKeyWidth);
     }
 
     Widget cell = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (keyWidget != null) ...[
-          keyWidget,
-          SizedBox(width: theme.gap),
-        ],
+        if (keyWidget != null) Padding(padding: EdgeInsetsGeometry.only(bottom: theme.gap), child: keyWidget),
         Flexible(
           child: Align(
             alignment: Alignment.topLeft,
@@ -668,21 +671,31 @@ class _GridCell extends StatelessWidget {
   }
 
   Widget _buildStackedCell() {
+    // A keyless, iconless item with its own alignment (action icon, handle) is placed within its whole slot,
+    // so e.g. a delete icon lands at the slot's bottom-right instead of right under an empty label.
+    if (kv.key.isNullOrBlank && kv.icon == null && kv.alignment != null) {
+      final aligned = Align(alignment: kv.alignment!, child: _CellContent(kv: kv, theme: theme));
+      return aligned;
+    }
     Widget cell = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (!kv.key.isNullOrBlank || kv.icon != null)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (kv.icon != null) ...[_kvIcon(kv.icon, theme.labelStyle), if (!kv.key.isNullOrBlank) const SizedBox(width: _kIconGap)],
-              if (!kv.key.isNullOrBlank) Flexible(child: Text(kv.key, style: theme.labelStyle)),
-            ],
-          ),
-        if (!kv.key.isNullOrBlank || kv.icon != null) SizedBox(height: theme.gap + (kv.widget != null ? 2 : 0)),
+        Padding(
+          padding: EdgeInsetsGeometry.only(bottom: theme.gap + (kv.widget != null ? 2 : 0)),
+          child: kv.key.isNullOrBlank && kv.icon == null
+              // Empty placeholder keeps the value on the same line as its siblings' values.
+              ? Text(' ', style: theme.labelStyle)
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (kv.icon != null) ...[_kvIcon(kv.icon, theme.labelStyle), if (!kv.key.isNullOrBlank) const SizedBox(width: _kIconGap)],
+                    if (!kv.key.isNullOrBlank) Flexible(child: Text(kv.key, style: theme.labelStyle)),
+                  ],
+                ),
+        ),
         Align(
           alignment: Alignment.topLeft,
           child: _CellContent(kv: kv, theme: theme),
@@ -785,6 +798,9 @@ class _RenderKeyValueGrid extends RenderBox
     }
   }
 
+  /// Keyless, iconless items with their own alignment (delete icon, handle): kept compact and never wrapped onto a row of their own.
+  bool _isAction(int i) => _kvItems[i].key.isNullOrBlank && _kvItems[i].icon == null && _kvItems[i].alignment != null;
+
   double get _horizontalSpacing => _theme.hSpacing;
   double get _verticalSpacing => _theme.vSpacing;
   double get _maxColWidthFraction => _theme.maxColWidthFraction;
@@ -824,7 +840,7 @@ class _RenderKeyValueGrid extends RenderBox
       } catch (_) {
         intrinsicWidth = child.size.width;
       }
-      double naturalW = math.min(intrinsicWidth, constrainedMaxWidth) + _additionalNaturalWidth;
+      double naturalW = math.min(intrinsicWidth, constrainedMaxWidth) + (_isAction(index) ? 0 : _additionalNaturalWidth);
 
       if (kv.minWidth != null) naturalW = math.max(naturalW, kv.minWidth!);
       if (kv.maxWidth != null) naturalW = math.min(naturalW, kv.maxWidth!);
@@ -848,7 +864,12 @@ class _RenderKeyValueGrid extends RenderBox
     final items = <({Size natural, _ContentPriority priority})>[
       for (int i = 0; i < children.length; i++) (natural: children[i].natural, priority: _classifyContent(_kvItems[i], i)),
     ];
-    return _balancedRows(items, maxWidth, _theme.maxItemsPerRow);
+    final starts = _balancedRows(items, maxWidth, _theme.maxItemsPerRow);
+    // An action item stays at the end of the previous row instead of wrapping alone.
+    return [
+      for (final start in starts)
+        if (start == 0 || !_isAction(start)) start,
+    ];
   }
 
   // ── Column widths for fixed-column ("columnar") mode ───────────────────
@@ -971,24 +992,39 @@ class _RenderKeyValueGrid extends RenderBox
   ) {
     final count = end - start;
     final totalSpacing = _horizontalSpacing * (count - 1);
-    final available = maxWidth - totalSpacing;
+    var available = maxWidth - totalSpacing;
 
+    // Action items (keyless, iconless, aligned: delete icon, handle) keep their natural width;
+    // the other items share the rest.
+    bool isAction(int i) => _isAction(i);
+    var lastFlex = -1;
     double totalFlex = 0;
     for (int i = start; i < end; i++) {
-      totalFlex += children[i].natural.width;
+      if (isAction(i)) {
+        available -= children[i].natural.width;
+      } else {
+        totalFlex += children[i].natural.width;
+        lastFlex = i;
+      }
     }
 
     double allocated = 0;
     for (int i = start; i < end; i++) {
-      final isLast = i == end - 1;
       final natural = children[i].natural.width;
       final kv = _kvItems[i];
 
-      double slotW = isLast ? (available - allocated) : ((natural / totalFlex) * available).floorToDouble();
+      double slotW;
+      if (isAction(i)) {
+        slotW = natural;
+      } else if (i == lastFlex) {
+        slotW = available - allocated;
+      } else {
+        slotW = ((natural / totalFlex) * available).floorToDouble();
+      }
 
       if (kv.minWidth != null) slotW = math.max(slotW, kv.minWidth!);
       if (kv.maxWidth != null) slotW = math.min(slotW, kv.maxWidth!);
-      allocated += slotW;
+      if (!isAction(i)) allocated += slotW;
 
       children[i].box.layout(
             BoxConstraints(minWidth: slotW, maxWidth: slotW),

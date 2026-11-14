@@ -128,7 +128,7 @@ TKeyValueSection.columnsInline(values: values, columns: 2);''',
           buildCard(
             title: '4. Stacked Columns (Aligned Grid)',
             subtitle: 'TKeyValueSection.columnsStacked() — multi-column grid with width-based proportional flex.',
-            child: TKeyValueSection.columnsStacked(values: sampleValues, gap: 4, hSpacing: 20, vSpacing: 14),
+            child: TKeyValueSection.columnsStacked(values: sampleValues),
           ),
 
           // 5. Split (Key Left, Value Right List)
