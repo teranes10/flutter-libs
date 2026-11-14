@@ -50,7 +50,7 @@ melos:
       description: Automatically version, generate changelogs, commit, and tag releases.
 
     publish-all:
-      run: dart run melos publish --no-dry-run --yes
+      run: dart run melos exec -c 1 --no-private -- flutter pub publish --force
       description: Publish te_widgets, te_map, te_editor, te_scanner to pub.dev (ignores my_app since it has publish_to none).
 
     deploy:
