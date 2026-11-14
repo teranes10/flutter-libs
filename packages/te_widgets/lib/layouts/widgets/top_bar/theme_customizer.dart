@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// Opens the live theme customizer as a non-blocking side panel.
-Future<void> showThemeCustomizer(BuildContext context) {
+Future<void> showThemeCustomizer(BuildContext context, {bool showNavigation = true}) {
   return TSheetService.showSideSheet<void>(
     context,
-    (_) => const _ThemeCustomizer(),
+    (_) => _ThemeCustomizer(showNavigation: showNavigation),
     title: 'Customize theme',
     width: 340,
     barrierColor: Colors.transparent,
@@ -19,7 +19,10 @@ String _label(String key) {
 }
 
 class _ThemeCustomizer extends ConsumerWidget {
-  const _ThemeCustomizer();
+  const _ThemeCustomizer({this.showNavigation = true});
+
+  /// Show the left sidebar / top bar placement switch (desktop only).
+  final bool showNavigation;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,6 +55,30 @@ class _ThemeCustomizer extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (showNavigation && context.isDesktop) ...[
+            Text('Navigation', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
+            const SizedBox(height: 8),
+            TTabs<bool>(
+              style: TTabStyle.segmented,
+              fill: true,
+              selectedValue: ref.watch(sidebarNotifierProvider).isNone,
+              onTabChanged: (top) {
+                final sidebar = ref.read(sidebarNotifierProvider.notifier);
+                if (top) {
+                  // Top bar mode only exists in Layout 1.
+                  notifier.setLayoutStyle(TLayoutStyle.layout1);
+                  sidebar.setMode(TSidebarMode.none);
+                } else if (ref.read(sidebarNotifierProvider).isNone) {
+                  sidebar.setMode(TSidebarMode.full);
+                }
+              },
+              tabs: const [
+                TTab(value: false, text: 'Left', icon: HugeIcons.strokeRoundedSidebarLeft),
+                TTab(value: true, text: 'Top', icon: HugeIcons.strokeRoundedLayoutTop),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
           TTabs<Brightness>(
             style: TTabStyle.segmented,
             fill: true,

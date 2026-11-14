@@ -21,7 +21,7 @@ class LayoutProfileButton extends ConsumerWidget {
   /// Fill the available width and push the dropdown arrow to the far end.
   final bool expand;
 
-  /// Show the "Layout (Sidebar / Top bar)" switch in the dropdown.
+  /// Show the navigation placement (left sidebar / top bar) option in the theme customizer.
   final bool showLayoutSwitch;
 
   const LayoutProfileButton({
@@ -41,11 +41,7 @@ class LayoutProfileButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeNotifierProvider);
-    final themeNotifier = ref.read(themeNotifierProvider.notifier);
-    final currentThemeMode = themeState.themeMode;
     final isFullscreen = TFullscreen.isFullscreen;
-    final sidebarMode = ref.watch(sidebarNotifierProvider);
-    final sidebarNotifier = ref.read(sidebarNotifierProvider.notifier);
     final colors = context.colors;
 
     final source = profile;
@@ -83,39 +79,16 @@ class LayoutProfileButton extends ConsumerWidget {
         ),
       if (showThemeToggle)
         TDropdownItem(
-          icon: switch (currentThemeMode) {
-            ThemeMode.light => HugeIcons.strokeRoundedSun02,
-            ThemeMode.dark => HugeIcons.strokeRoundedMoon02,
-            ThemeMode.system => HugeIcons.strokeRoundedAiVisionRecognition,
-          },
-          text: 'Theme (${currentThemeMode.name[0].toUpperCase()}${currentThemeMode.name.substring(1)})',
-          children: [
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedAiVisionRecognition,
-              text: 'System',
-              color: currentThemeMode == ThemeMode.system ? colors.primary : null,
-              onTap: () => themeNotifier.setThemeMode(ThemeMode.system),
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedSun02,
-              text: 'Light',
-              color: currentThemeMode == ThemeMode.light ? colors.primary : null,
-              onTap: () => themeNotifier.setThemeMode(ThemeMode.light),
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedMoon02,
-              text: 'Dark',
-              color: currentThemeMode == ThemeMode.dark ? colors.primary : null,
-              onTap: () => themeNotifier.setThemeMode(ThemeMode.dark),
-            ),
-          ],
+          text: 'Theme',
+          group: true,
+          children: const [TDropdownItem(customContent: _ThemeModeSegment())],
         ),
       if (showColorToggle)
         TDropdownItem(
           icon: HugeIcons.strokeRoundedPaintBoard,
           color: themeState.primaryColor,
           text: 'Customize',
-          onTap: () => showThemeCustomizer(context),
+          onTap: () => showThemeCustomizer(context, showNavigation: showLayoutSwitch),
         ),
       if (TFullscreen.isSupported && showFullscreenToggle)
         TDropdownItem(
@@ -137,31 +110,6 @@ class LayoutProfileButton extends ConsumerWidget {
       //         ),
       //     ],
       //   ),
-      if (showLayoutSwitch && context.isDesktop)
-        TDropdownItem(
-          icon: sidebarMode.isNone ? HugeIcons.strokeRoundedLayoutTop : HugeIcons.strokeRoundedSidebarLeft,
-          text: 'Sidebar (${sidebarMode.isNone ? 'Top bar' : 'Sidebar'})',
-          children: [
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedSidebarLeft,
-              text: 'Sidebar',
-              color: !sidebarMode.isNone ? colors.primary : null,
-              onTap: () {
-                if (sidebarMode.isNone) sidebarNotifier.setMode(TSidebarMode.full);
-              },
-            ),
-            TDropdownItem(
-              icon: HugeIcons.strokeRoundedLayoutTop,
-              text: 'Top bar',
-              color: sidebarMode.isNone ? colors.primary : null,
-              onTap: () {
-                // Top bar mode only exists in Layout 1.
-                themeNotifier.setLayoutStyle(TLayoutStyle.layout1);
-                sidebarNotifier.setMode(TSidebarMode.none);
-              },
-            ),
-          ],
-        ),
       if (actions != null)
         for (final action in actions!)
           TDropdownItem(
@@ -201,7 +149,7 @@ class LayoutProfileButton extends ConsumerWidget {
         );
 
     // Sidebar profile: the overlay spans the trigger (sidebar width minus its padding).
-    if (!expand) return dropdown(null);
+    if (!expand) return dropdown(TDropdownTheme.defaultTheme(colors).copyWith(boxConstraints: const BoxConstraints(minWidth: 200)));
     // Not a LayoutBuilder: the sidebar wraps this in IntrinsicWidth, which LayoutBuilder can't answer.
     return _WidthProbe(
       builder: (width) => dropdown(
@@ -233,4 +181,45 @@ class _WidthProbeState extends State<_WidthProbe> {
     });
     return widget.builder(_width);
   }
+}
+
+/// Segmented picker shown under the "Theme" group header. Watches the provider
+/// itself because the dropdown overlay doesn't rebuild with the profile button.
+class _ThemeModeSegment extends ConsumerWidget {
+  const _ThemeModeSegment();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(themeNotifierProvider).themeMode;
+    final notifier = ref.read(themeNotifierProvider.notifier);
+    const modes = [ThemeMode.light, ThemeMode.dark, ThemeMode.system];
+    const icons = [HugeIcons.strokeRoundedSun02, HugeIcons.strokeRoundedMoon02, HugeIcons.strokeRoundedAiVisionRecognition];
+    const labels = ['Light', 'Dark', 'System'];
+
+    return _SegmentPad(
+      child: TButtonGroup(
+        type: TButtonGroupType.segmented,
+        size: TButtonSize.sm,
+        expanded: true,
+        items: [
+          for (var i = 0; i < modes.length; i++)
+            TButtonGroupItem(
+              icon: icons[i],
+              tooltip: labels[i],
+              active: mode == modes[i],
+              onTap: () => notifier.setThemeMode(modes[i]),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SegmentPad extends StatelessWidget {
+  const _SegmentPad({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.fromLTRB(6, 0, 6, 6), child: child);
 }
