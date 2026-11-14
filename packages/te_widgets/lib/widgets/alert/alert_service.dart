@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
@@ -72,6 +74,37 @@ class TAlertService {
     });
 
     return controller;
+  }
+
+  /// Asks for confirmation and completes with whether the user confirmed (cancel resolves to false).
+  ///
+  /// Use it where the flow reads `if (!await confirm(...)) return;` instead of nesting the action in
+  /// a callback. For delete/archive/restore keep using [confirmDelete], [confirmArchive] and [confirmRestore].
+  static Future<bool> confirm(
+    BuildContext context, {
+    required String title,
+    dynamic text,
+    String confirmText = 'Confirm',
+    String cancelText = 'Cancel',
+    dynamic icon,
+    Color? color,
+  }) {
+    final completer = Completer<bool>();
+    show(
+      context,
+      title: title,
+      text: text,
+      icon: icon ?? HugeIcons.strokeRoundedHelpCircle,
+      color: color ?? context.theme.warning,
+      confirmButton: AlertButton(text: confirmText, onClick: () => completer.complete(true)),
+      closeButton: AlertButton(
+        text: cancelText,
+        onClick: () {
+          if (!completer.isCompleted) completer.complete(false);
+        },
+      ),
+    );
+    return completer.future;
   }
 
   /// Shows an informational alert.
