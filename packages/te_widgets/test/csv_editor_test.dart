@@ -396,21 +396,13 @@ void main() {
       expect(find.byType(TTextField<String>), findsOneWidget);
       expect(find.byType(TNumberField<num>), findsNothing);
 
-      // Tap on 'Keyboard' to activate inline editor for product name
+      // Tap on 'Keyboard' to activate the inline editors for that row
       await tester.tap(find.text('Keyboard'));
       await tester.pumpAndSettle();
 
-      // Now 2 TTextFields exist (search bar + the active name cell)
+      // The whole row becomes editable: search bar + the row's name cell, and the price cell as a number field
       expect(find.byType(TTextField<String>), findsNWidgets(2));
-      expect(find.byType(TNumberField<num>), findsNothing);
-
-      // Tap on '89.99' to switch active editor to the price cell
-      await tester.tap(find.text('89.99'));
-      await tester.pumpAndSettle();
-
-      // Price cell is now active as TNumberField, and name cell went back to display text
       expect(find.byType(TNumberField<num>), findsOneWidget);
-      expect(find.byType(TTextField<String>), findsOneWidget); // Only search bar is TTextField
     });
 
     testWidgets('switches filter tab between All, Valid, and Errors using TTabs', (tester) async {

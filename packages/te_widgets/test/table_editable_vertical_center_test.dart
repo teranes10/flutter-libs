@@ -63,10 +63,7 @@ void main() {
     );
     expect((textFieldAlign.alignment as Alignment).y, equals(0.0)); // vertically centered
 
-    // Tap on '42' to enter number editing mode
-    await tester.tap(find.text('42'));
-    await tester.pumpAndSettle();
-
+    // Editing is row-wide: the number cell is an editor too once the row is active
     // Verify TNumberField is rendered and centered
     expect(find.byType(TNumberField<num>), findsOneWidget);
     final numberFieldAlign = tester.widget<Align>(

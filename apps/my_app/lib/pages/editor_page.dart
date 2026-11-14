@@ -32,7 +32,10 @@ class _EditorPageState extends State<EditorPage> {
     formHeaders = ProductForm(0).toTableHeaders<int>();
     formController = TListController<ProductForm, int>(
       reorderable: true,
-      items: [for (var i = 1; i <= 4; i++) ProductForm(i, sku: 'sku $i', title: 'Item $i', category: 'category', price: 10.0 * i, discount: 5.0 * i, rating: 3)],
+      items: [
+        for (var i = 1; i <= 4; i++)
+          ProductForm(i, sku: 'sku $i', title: 'Item $i', category: 'category', price: 10.0 * i, discount: 5.0 * i, rating: 3),
+      ],
       itemKey: (item) => item.id,
     );
 

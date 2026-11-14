@@ -320,15 +320,8 @@ void main() {
       expect(find.text('Customize'), findsOneWidget);
       expect(find.text('Log out'), findsOneWidget);
 
-      // Hover over Theme to reveal System, Light, Dark sub-options
-      final themeItem = find.textContaining('Theme');
-      await gesture.moveTo(tester.getCenter(themeItem));
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.pumpAndSettle();
-
-      expect(find.text('System'), findsOneWidget);
-      expect(find.text('Light'), findsOneWidget);
-      expect(find.text('Dark'), findsOneWidget);
+      // Theme group holds the System / Light / Dark segmented picker
+      expect(find.byType(TButtonGroup), findsOneWidget);
 
       // Tap Log out triggers callback
       await tester.tap(find.text('Log out'));

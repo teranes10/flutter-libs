@@ -691,7 +691,10 @@ class _GridCell extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (kv.icon != null) ...[_kvIcon(kv.icon, theme.labelStyle), if (!kv.key.isNullOrBlank) const SizedBox(width: _kIconGap)],
+                    if (kv.icon != null) ...[
+                      _kvIcon(kv.icon, theme.labelStyle),
+                      if (!kv.key.isNullOrBlank) const SizedBox(width: _kIconGap)
+                    ],
                     if (!kv.key.isNullOrBlank) Flexible(child: Text(kv.key, style: theme.labelStyle)),
                   ],
                 ),

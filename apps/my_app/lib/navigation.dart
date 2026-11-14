@@ -351,9 +351,7 @@ final sidebarItems = [
   TSidebarItem(
     text: 'Menus',
     group: true,
-    children: [
-      TSidebarItem(icon: HugeIcons.strokeRoundedMenu01, text: 'Menu Groups', route: 'menu-groups', page: const MenuGroupsPage()),
-    ],
+    children: [TSidebarItem(icon: HugeIcons.strokeRoundedMenu01, text: 'Menu Groups', route: 'menu-groups', page: const MenuGroupsPage())],
   ),
   TSidebarItem(
     icon: HugeIcons.strokeRoundedCompass,
