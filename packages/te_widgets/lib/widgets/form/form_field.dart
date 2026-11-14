@@ -105,6 +105,7 @@ class TFormField<T> {
     TextEditingController? textController,
     List<String? Function(T?)>? rules,
     int rows = 1,
+    bool obscureText = false,
   }) {
     return TFormField<T>(
       prop: prop,
@@ -125,6 +126,7 @@ class TFormField<T> {
         textController: textController,
         rules: rules,
         rows: rows,
+        obscureText: obscureText,
         value: prop.value,
         valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,

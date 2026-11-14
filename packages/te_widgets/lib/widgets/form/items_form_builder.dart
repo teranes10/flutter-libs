@@ -86,20 +86,25 @@ class TItemsFormBuilder<T extends TFormBase> extends StatefulWidget with TInputV
 class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuilder<T>>
     with TInputValueStateMixin<List<T>, TItemsFormBuilder<T>> {
   late TListController<T, int> _listController;
+  late final ValueNotifier<String?> _activeRow = ValueNotifier<String?>(null);
+  late final List<TTableHeader<T, int>> _headers;
+  int _lastCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _listController = TListController(
-      items: widget.value != null ? List.from(widget.value!) : List.empty(),
-      itemKey: (item) => identityHashCode(item),
-    );
+    final initial = widget.value != null ? List<T>.from(widget.value!) : <T>[];
+    _lastCount = initial.length;
+    _listController = TListController(items: initial, itemKey: (item) => identityHashCode(item));
+    _listController.addListener(_onListChanged);
+    _headers = widget.onNewItem().toTableHeaders<int>(onChanged: _update);
   }
 
   @override
-  @override
   void dispose() {
+    _listController.removeListener(_onListChanged);
     _listController.dispose();
+    _activeRow.dispose();
     super.dispose();
   }
 
@@ -107,65 +112,71 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
   Widget build(BuildContext context) {
     final colors = context.colors;
     final backgroundColor = context.getBackgroundColor();
-    final borderColor = Colors.transparent;
 
-    final content = TList<T, int>(
+    final content = TTable<T, int>(
+      headers: _headers,
       controller: _listController,
-      itemBuilder: (ctx, item, i) => TCard(
-        backgroundColor: backgroundColor,
-        borderColor: borderColor,
-        padding: EdgeInsets.zero,
-        margin: EdgeInsets.only(bottom: 10),
-        child: Stack(
-          children: [
-            Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 16), child: TFormBuilder(input: item.data, onValueChanged: _update)),
-            Positioned(top: -9, right: -9, child: TIcon.close(size: 16, onTap: () => _removeItem(item.data)))
-          ],
-        ),
-      ),
-      theme: context.theme.listTheme.copyWith(
+      editable: true,
+      removable: true,
+      selectableText: false,
+      activeCellNotifier: _activeRow,
+      theme: context.theme.tableTheme.copyWith(
         shrinkWrap: true,
         infiniteScroll: false,
-        padding: EdgeInsets.zero,
-        animationBuilder: TListAnimationBuilders.slideInDown,
-        animationDuration: Duration(microseconds: 100),
-        emptyStateBuilder: (ctx) {
-          return TCard(
-            backgroundColor: backgroundColor,
-            borderColor: borderColor,
-            child: Center(
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 2,
-                children: [
-                  Text(
-                    'No items yet.',
-                    style: TextStyle(color: colors.onSurfaceVariant),
+        emptyStateBuilder: (ctx) => TCard(
+          backgroundColor: backgroundColor,
+          borderColor: Colors.transparent,
+          child: Center(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 2,
+              children: [
+                Text('No items yet.', style: TextStyle(color: colors.onSurfaceVariant)),
+                TextButton(
+                  onPressed: _onNewItem,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
                   ),
-                  TextButton(
-                    onPressed: _onNewItem,
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    child: const Text('Add your first item'),
-                  ),
-                ],
-              ),
+                  child: const Text('Add your first item'),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
 
-    return widget.layoutBuilder?.call(context, content, _onNewItem) ??
+    // Bottom bar appends to the end of the list; the header button adds to the start.
+    final withBottomBar = ValueListenableBuilder(
+      valueListenable: _listController,
+      builder: (ctx, _, __) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          content,
+          if (_listController.localItems.isNotEmpty)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TButton(
+                type: TButtonType.text,
+                size: TButtonSize.sm.copyWith(hPad: 0),
+                text: widget.buttonLabel,
+                icon: HugeIcons.strokeRoundedAdd01,
+                onTap: () => _onNewItem(first: false),
+              ),
+            ),
+        ],
+      ),
+    );
+
+    return widget.layoutBuilder?.call(context, withBottomBar, _onNewItem) ??
         TAccordion(
           title: widget.label ?? 'Items',
           initiallyExpanded: true,
-          content: content,
+          content: withBottomBar,
           footer: widget.footer,
           builder: (context, isExpanded, toggleExpand) {
             return TButton(
@@ -174,28 +185,29 @@ class _TItemsFormBuilderState<T extends TFormBase> extends State<TItemsFormBuild
               text: widget.buttonLabel,
               icon: HugeIcons.strokeRoundedAdd01,
               onTap: () {
-                if (!isExpanded) {
-                  toggleExpand();
-                }
-                _onNewItem();
+                if (!isExpanded) toggleExpand();
+                _onNewItem(first: true);
               },
             );
           },
         );
   }
 
-  void _update() {
-    final value = _listController.localItems;
-    widget.onValueChanged?.call(value);
-  }
+  void _update() => widget.onValueChanged?.call(_listController.localItems);
 
-  void _onNewItem() {
-    _listController.addItem(widget.onNewItem(), prepend: widget.itemAddPosition == TItemAddPosition.first);
+  // Rows removed through the table's own delete icon only surface here.
+  void _onListChanged() {
+    final count = _listController.localItems.length;
+    if (count == _lastCount) return;
+    _lastCount = count;
     _update();
   }
 
-  void _removeItem(T item) {
-    _listController.removeItem(item);
-    _update();
+  /// Adds a new item; [first] overrides [TItemsFormBuilder.itemAddPosition].
+  void _onNewItem({bool? first}) {
+    final item = widget.onNewItem();
+    _listController.addItem(item, prepend: first ?? widget.itemAddPosition == TItemAddPosition.first);
+    // The new row opens straight in edit mode.
+    _activeRow.value = TTable.rowCellKey(identityHashCode(item));
   }
 }

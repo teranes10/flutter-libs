@@ -9,6 +9,7 @@ part 'form_field.dart';
 part 'form_builder_config.dart';
 part 'form_tab.dart';
 part 'form_type.dart';
+part 'form_table_headers.dart';
 
 /// A responsive form builder with grid and tab layouts.
 ///
