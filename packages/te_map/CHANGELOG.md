@@ -1,3 +1,7 @@
+## 4.1.1
+
+ - Update a dependency to the latest release.
+
 ## 4.1.0
 
  - **REFACTOR**: replace Material IconButton with TButton; popover trigger fires on enabled buttons. ([70d110ce](https://github.com/teranes10/flutter-libs/commit/70d110ce1ca5b12af6c149e06d7d630ceead01a7))

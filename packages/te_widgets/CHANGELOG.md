@@ -1,3 +1,16 @@
+## 4.2.0
+
+ - **REFACTOR**(te_widgets): move layout and theme options into the theme customizer. ([5d9883c7](https://github.com/teranes10/flutter-libs/commit/5d9883c776a67bb4b7160f17e4f14bdb357ece1f))
+ - **REFACTOR**(te_widgets): theme customizer swatches use TTooltip. ([2cb1c470](https://github.com/teranes10/flutter-libs/commit/2cb1c47062d3b6519ab8c6fe38e2ed8033b95592))
+ - **FEAT**(te_widgets): add TAlertService.confirm. ([5e49fb89](https://github.com/teranes10/flutter-libs/commit/5e49fb89ba4367738dbd1214efa7ee3b85014112))
+ - **FEAT**(te_widgets): crud table top bar metrics builder. ([2b7ccf34](https://github.com/teranes10/flutter-libs/commit/2b7ccf34c214f61cf0e6b72b03c4643d0c1bb00d))
+ - **FEAT**(te_widgets): render TItemsFormBuilder as an editable table with top and bottom add. ([d69ed107](https://github.com/teranes10/flutter-libs/commit/d69ed107cfee6ab537eda7bb7adc74f1f0f7e1d4))
+ - **FEAT**(te_widgets): form-driven editable table rows with activateFirstRow and activeCellNotifier. ([44bce9ed](https://github.com/teranes10/flutter-libs/commit/44bce9eddb62cb0bfdb8f63ac9ed8ac663776f9d))
+ - **FEAT**(te_widgets): compact aligned action items and key placeholders in key-value section. ([fa64ef4d](https://github.com/teranes10/flutter-libs/commit/fa64ef4d88f20dbba4d34e2339ba6dc140cb2d62))
+ - **FEAT**(te_widgets): shadcn-style group labels for sidebar, dropdown and menus. ([584b2198](https://github.com/teranes10/flutter-libs/commit/584b2198988f76e65dac70cd0654f3754248b507))
+ - **FEAT**(te_widgets): rework TKanbanBoard with te_widgets components, add TCard accent strip and TChipSize.xs. ([a97d9408](https://github.com/teranes10/flutter-libs/commit/a97d9408cc05a0b050db35fda0666d4e33c90908))
+ - **FEAT**(te_widgets): rework TTransferList with te_widgets components, row cards, drag reorder, and TDragHandle. ([d0f35ccc](https://github.com/teranes10/flutter-libs/commit/d0f35ccc66c276ebe4d6819b857bd3f20a96f240))
+
 ## 4.1.0
 
  - **REFACTOR**: replace Material IconButton with TButton; popover trigger fires on enabled buttons. ([70d110ce](https://github.com/teranes10/flutter-libs/commit/70d110ce1ca5b12af6c149e06d7d630ceead01a7))
