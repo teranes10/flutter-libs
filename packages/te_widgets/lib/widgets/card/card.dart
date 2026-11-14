@@ -160,7 +160,16 @@ class TCard extends StatelessWidget {
   final Color? shadowColor;
   final Color? borderColor;
   final Color? hoverColor;
+
+  /// Mouse cursor shown over the card. Defaults to InkWell's behavior.
+  final MouseCursor? mouseCursor;
   final Color? splashColor;
+
+  /// Overlay color when the card's InkWell has keyboard focus.
+  final Color? focusColor;
+
+  /// Overrides the InkWell overlay (hover/focus/pressed) colors entirely.
+  final WidgetStateProperty<Color?>? overlayColor;
   final Color? highlightColor;
 
   final List<BoxShadow>? shadow;
@@ -200,7 +209,10 @@ class TCard extends StatelessWidget {
     this.shadowColor,
     this.borderColor,
     this.hoverColor,
+    this.mouseCursor,
     this.splashColor,
+    this.focusColor,
+    this.overlayColor,
     this.highlightColor,
     this.shadow,
     this.shadowLevel = TCardShadow.none,
@@ -291,7 +303,10 @@ class TCard extends StatelessWidget {
                 borderRadius: defaultBorderRadius,
                 onTap: onTap,
                 hoverColor: hoverColor,
+                mouseCursor: mouseCursor,
                 splashColor: splashColor,
+                focusColor: focusColor,
+                overlayColor: overlayColor,
                 highlightColor: highlightColor,
                 child: Padding(padding: padding, child: content),
               ),

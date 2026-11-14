@@ -198,6 +198,12 @@ class TTableTheme extends TListTheme {
     return width + 24.0; // cell padding + a little breathing room
   }
 
+  /// Width of the trailing delete-icon column of a removable table.
+  static const double removeColumnWidth = 36;
+
+  /// Width of the leading drag-handle column of a reorderable table.
+  static const double reorderColumnWidth = 32;
+
   /// Measures the width of a text string using [TextPainter].
   static double measureTextWidth(String text, [TextStyle style = fallbackTextStyle]) {
     final painter = TextPainter(
@@ -229,10 +235,18 @@ class TTableTheme extends TListTheme {
     TextStyle? contentTextStyle,
     double treeIndentPerLevel = 16.0,
     double treeBaseWidth = 36.0,
+    bool reorderable = false,
+    bool removable = false,
   }) {
     final fixedWidths = <int, TableColumnWidth>{};
     int columnIndex = 0;
     double fixedTotal = 0;
+
+    if (reorderable) {
+      fixedWidths[columnIndex] = const FixedColumnWidth(reorderColumnWidth);
+      fixedTotal += reorderColumnWidth;
+      columnIndex++;
+    }
 
     if (selectable) {
       fixedWidths[columnIndex] = const FixedColumnWidth(50);
@@ -296,6 +310,11 @@ class TTableTheme extends TListTheme {
       autoMaxWidths.add(max);
     }
 
+    if (removable) {
+      fixedWidths[columnIndex + headers.length] = const FixedColumnWidth(removeColumnWidth);
+      fixedTotal += removeColumnWidth;
+    }
+
     return TTableColumnMeasurements(
       fixedWidths: fixedWidths,
       fixedTotal: fixedTotal,
@@ -318,6 +337,7 @@ class TTableTheme extends TListTheme {
     TextStyle? headerTextStyle,
     TextStyle? contentTextStyle,
     double availableWidth = double.infinity,
+    bool reorderable = false,
   }) {
     return measureColumns<T, K>(
       headers,
@@ -328,6 +348,7 @@ class TTableTheme extends TListTheme {
       sampleItems: sampleItems,
       headerTextStyle: headerTextStyle,
       contentTextStyle: contentTextStyle,
+      reorderable: reorderable,
     ).resolve(availableWidth);
   }
 
@@ -343,6 +364,7 @@ class TTableTheme extends TListTheme {
     List<T> sampleItems = const [],
     TextStyle? headerTextStyle,
     TextStyle? contentTextStyle,
+    bool reorderable = false,
   }) {
     return measureColumns<T, K>(
       headers,
@@ -353,6 +375,7 @@ class TTableTheme extends TListTheme {
       sampleItems: sampleItems,
       headerTextStyle: headerTextStyle,
       contentTextStyle: contentTextStyle,
+      reorderable: reorderable,
     ).requiredWidth;
   }
 }

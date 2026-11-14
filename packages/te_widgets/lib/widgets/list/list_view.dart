@@ -467,7 +467,12 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
   /// Builds a single list item helper.
   Widget _buildItem(BuildContext context, int index) {
     final item = widget.items[index];
-    final child = widget.itemBuilder(context, item, index);
+    var child = widget.itemBuilder(context, item, index);
+    // SliverReorderableList has no separated variant, so append the separator to each item itself.
+    final separator = widget.reorderable && index < widget.items.length - 1 ? widget.listSeparatorBuilder?.call(context, index) : null;
+    if (separator != null) {
+      child = Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [child, separator]);
+    }
     final keyedChild = Container(key: ValueKey('list_item_${item.key}'), child: child);
 
     if (widget.reorderable && widget.dragHandle == TListDragHandle.auto) {

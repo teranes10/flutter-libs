@@ -75,6 +75,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     FloatingLabelAlignment? labelAlignment,
   }) {
     final infoIcon = _widget.info != null ? wTheme.buildInfoIcon(_widget.info!, colors) : null;
+    final hideLabel = THideInputLabel.of(context);
 
     return wTheme.buildInputDecoration(
       context,
@@ -82,9 +83,9 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
       expands: expands,
       beforePreWidget: beforePreWidget,
       beforePostWidget: beforePostWidget,
-      label: _widget.label,
+      label: hideLabel ? null : _widget.label,
       placeholder: _tagsFieldMixin != null ? null : placeholder ?? _textFieldMixin?.placeholder,
-      tag: _widget.tag,
+      tag: hideLabel ? null : _widget.tag,
       helperText: _widget.helperText,
       errors: validationMixin?.errorsNotifier.value,
       isRequired: _widget.isRequired,
@@ -96,7 +97,7 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
 
   Widget buildWrapper({required Widget child}) {
     final infoIcon = _widget.info != null ? wTheme.buildInfoIcon(_widget.info!, colors) : null;
-    final showLabel = !_widget.label.isNullOrBlank || !_widget.tag.isNullOrBlank || infoIcon != null;
+    final showLabel = !THideInputLabel.of(context) && (!_widget.label.isNullOrBlank || !_widget.tag.isNullOrBlank || infoIcon != null);
 
     return switch (wTheme.labelPosition) {
       TLabelPosition.aboveField => Column(
@@ -185,4 +186,19 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
       ),
     );
   }
+}
+
+/// Hides the label/tag of every input field below it.
+///
+/// Used when a field is embedded where the label is already shown elsewhere,
+/// e.g. as a table cell editor.
+class THideInputLabel extends InheritedWidget {
+  /// Creates a scope that hides input labels.
+  const THideInputLabel({super.key, required super.child});
+
+  /// Whether labels are hidden for [context].
+  static bool of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<THideInputLabel>() != null;
+
+  @override
+  bool updateShouldNotify(THideInputLabel oldWidget) => false;
 }

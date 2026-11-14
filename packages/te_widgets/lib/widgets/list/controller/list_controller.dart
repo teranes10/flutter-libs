@@ -145,6 +145,12 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
   /// Whether to only load data when a search query is present.
   final bool loadOnSearchOnly;
 
+  /// Selected filter-tab value, passed to [onLoad] as [TLoadOptions.tab].
+  ///
+  /// Set by [TCrudTable] when [TCrudConfig.tabs] are used as filter tabs; change it with
+  /// [selectTab] so the list reloads from page 1.
+  Object? tab;
+
   List<TFilterDef<T>>? _filterDefs;
 
   bool _disposed = false;

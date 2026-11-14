@@ -77,6 +77,23 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Whether specific cells are editable.
   final bool editable;
 
+  /// Whether the first row opens in edit mode (all its cells as inputs) when items first appear.
+  ///
+  /// Makes it obvious the table is editable, e.g. for generated variants. Requires [editable].
+  final bool activateFirstRow;
+
+  /// Optional external notifier for the active (editing) row.
+  ///
+  /// Use [TTable.rowCellKey] to activate a row: `notifier.value = TTable.rowCellKey(item.key)`.
+  /// When omitted the table owns an internal one. Requires [editable].
+  final ValueNotifier<String?>? activeCellNotifier;
+
+  /// The [activeCellNotifier] value that puts the row with [itemKey] in edit mode.
+  static String rowCellKey(Object? itemKey) => '${itemKey}_';
+
+  /// Whether each row shows a trailing delete icon that removes it from the controller.
+  final bool removable;
+
   /// Whether tapping on a row expands its details.
   /// If not specified, defaults to [details.expandOnRowTap] (which defaults to true).
   final bool? expandOnRowTap;
@@ -168,6 +185,9 @@ class TTable<T, K> extends StatefulWidget with TListMixin<T, K> {
     //Details
     this.details,
     this.editable = false,
+    this.activateFirstRow = false,
+    this.activeCellNotifier,
+    this.removable = false,
     this.cellErrorBuilder,
     this.cellErrors,
     this.cellErrorsNotifier,
@@ -270,6 +290,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   /// [TTableColumnMeasurements.resolve] — so resizing doesn't re-measure text.
   TTableColumnMeasurements? _cachedMeasurements;
   List<TTableHeader<T, K>>? _cachedMeasurementsForHeaders;
+  bool? _cachedMeasurementsRemovable;
+  bool? _cachedMeasurementsReorderable;
   bool? _cachedMeasurementsSelectable;
   bool? _cachedMeasurementsExpandable;
   int? _cachedMeasurementsMaxLevel;
@@ -301,6 +323,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   TTableColumnMeasurements _getMeasurements() {
     final headers = _effectiveHeaders;
     final selectable = listController.selectable;
+    final reorderable = listController.reorderable;
+    final removable = widget.removable;
     final expandable = listController.expandable && _showExpandIcon;
     final maxLevel = _getMaxTreeLevel();
     final isHierarchical = listController.isHierarchical;
@@ -310,6 +334,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         _cachedMeasurementsForHeaders != null &&
         _headersEquals(_cachedMeasurementsForHeaders!, headers) &&
         _cachedMeasurementsSelectable == selectable &&
+        _cachedMeasurementsReorderable == reorderable &&
+        _cachedMeasurementsRemovable == removable &&
         _cachedMeasurementsExpandable == expandable &&
         _cachedMeasurementsMaxLevel == maxLevel &&
         _cachedMeasurementsIndent == _treeIndent &&
@@ -325,6 +351,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       expandable,
       maxTreeLevel: maxLevel,
       isHierarchical: isHierarchical,
+      reorderable: reorderable,
+      removable: removable,
       sampleItems: sampleItems,
       headerTextStyle: wTheme.headerTheme.textStyle,
       contentTextStyle: wTheme.rowCardTheme.contentTextStyle,
@@ -336,6 +364,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     _cachedMeasurements = measurements;
     _cachedMeasurementsForHeaders = headers;
     _cachedMeasurementsSelectable = selectable;
+    _cachedMeasurementsReorderable = reorderable;
+    _cachedMeasurementsRemovable = removable;
     _cachedMeasurementsExpandable = expandable;
     _cachedMeasurementsMaxLevel = maxLevel;
     _cachedMeasurementsIndent = _treeIndent;
@@ -352,6 +382,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     TTableTheme theme = widget.theme ?? context.theme.tableTheme;
 
     theme = theme.copyWith(
+      dragHandle: TListDragHandle.builder,
       grid: widget.grid,
       gridDelegate: widget.gridDelegate,
       shrinkWrap: widget.shrinkWrap,
@@ -397,6 +428,19 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   double _cardGap = 0;
 
   late final ValueNotifier<String?>? _activeCellNotifier;
+  bool _ownsActiveCellNotifier = false;
+  bool _firstRowActivated = false;
+
+  void _activateFirstRowIfNeeded() {
+    if (!widget.activateFirstRow || _firstRowActivated || _activeCellNotifier == null) return;
+    final items = listController.value.displayItems;
+    if (items.isEmpty) return;
+    _firstRowActivated = true;
+    final key = TTable.rowCellKey(items.first.key);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _activeCellNotifier.value = key;
+    });
+  }
 
   @override
   TListController<T, K> buildController() {
@@ -417,8 +461,10 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   @override
   void initState() {
     super.initState();
-    _activeCellNotifier = widget.editable ? ValueNotifier<String?>(null) : null;
+    _ownsActiveCellNotifier = widget.editable && widget.activeCellNotifier == null;
+    _activeCellNotifier = widget.editable ? (widget.activeCellNotifier ?? ValueNotifier<String?>(null)) : null;
     _validateExpansionMode();
+    _activateFirstRowIfNeeded();
   }
 
   @override
@@ -456,7 +502,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         if (pageNavigator.mounted && pageRoute.isActive) pageNavigator.removeRoute(pageRoute);
       });
     }
-    _activeCellNotifier?.dispose();
+    if (_ownsActiveCellNotifier) _activeCellNotifier?.dispose();
     super.dispose();
   }
 
@@ -487,6 +533,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   @override
   void onListStateChanged() {
     super.onListStateChanged();
+    _activateFirstRowIfNeeded();
     _syncDetailFlow();
     refresh();
   }
@@ -619,7 +666,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
               headers: widget.headers,
               controller: listController,
               columnWidths: columnWidths,
-              showExpandIcon: _showExpandIcon),
+              showExpandIcon: _showExpandIcon,
+              removable: widget.removable),
         ],
       ),
       itemBuilder: (ctx, item, index) {
@@ -796,6 +844,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       selectable: listController.selectable,
       isSelected: listController.isSelected(item.key),
       onSelectionChanged: () => listController.toggleSelection(item.key),
+      onRemove: widget.removable ? () => listController.removeItemByKey(item.key) : null,
       onTap: onRowTap,
       expandIcon: widget.details?.expandIcon,
       collapseIcon: widget.details?.collapseIcon,
@@ -832,6 +881,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
           selectable: listController.selectable,
           isSelected: listController.isSelected(item.key),
           onSelectionChanged: () => listController.toggleSelection(item.key),
+          onRemove: widget.removable ? () => listController.removeItemByKey(item.key) : null,
           expandIcon: widget.details?.expandIcon,
           collapseIcon: widget.details?.collapseIcon,
         ),
@@ -844,7 +894,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
   /// column gives up that indent. Every other column keeps its exact width and stays straight.
   Widget _buildRowTree(BuildContext ctx, TListItem<T, K> item, int index, double maxWidth, {int depth = 0}) {
     final columnWidths = Map<int, TableColumnWidth>.from(_getColumnWidths(maxWidth));
-    final firstDataColumn = (listController.selectable ? 1 : 0) + (listController.expandable && _showExpandIcon ? 1 : 0);
+    final firstDataColumn =
+        (listController.reorderable ? 1 : 0) + (listController.selectable ? 1 : 0) + (listController.expandable && _showExpandIcon ? 1 : 0);
     final first = columnWidths[firstDataColumn];
     if (first is FixedColumnWidth) {
       final minFirst = _effectiveHeaders.first.minWidth ?? 50;
@@ -879,6 +930,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         selectable: listController.selectable,
         isSelected: selected,
         onSelectionChanged: () => listController.toggleSelection(item.key),
+        onRemove: widget.removable ? () => listController.removeItemByKey(item.key) : null,
         expandIcon: widget.details?.expandIcon,
         collapseIcon: widget.details?.collapseIcon,
       ),
@@ -960,6 +1012,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       selectable: listController.selectable,
       isSelected: listController.isSelected(item.key),
       onSelectionChanged: () => listController.toggleSelection(item.key),
+      onRemove: widget.removable ? () => listController.removeItemByKey(item.key) : null,
       onTap: onRowTap,
       expandIcon: widget.details?.expandIcon,
       collapseIcon: widget.details?.collapseIcon,

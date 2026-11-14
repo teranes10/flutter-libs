@@ -2,6 +2,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
+part 'table_header_cells.dart';
+part 'table_header_editable.dart';
+part 'table_header_filters.dart';
+
 /// Defines a column in [TTable].
 ///
 /// `TTableHeader` configures how a column renders, including:
@@ -330,58 +334,19 @@ class TTableHeader<T, K> {
     this.keyValuesBuilder,
   })  : estimatedHeight = null,
         map = ((data) => builder(data).map((c) => c.text).where((s) => s != null && s.isNotEmpty).join(', ')),
-        widthEstimator = widthEstimator ??
-            ((data) {
-              final items = builder(data);
-              if (items.isEmpty) return 0.0;
-              double totalWidth = 0.0;
-              for (int i = 0; i < items.length; i++) {
-                final chip = items[i];
-                final text = chip.text ?? '';
-                final hasIcon = chip.icon != null || (icon != null && icon(data, text) != null);
-                final hasTrailing = chip.trailing != null;
-                final textWidth = text.isNotEmpty ? TTableTheme.measureTextWidth(text) : 0.0;
-                final iconWidth = hasIcon ? 18.0 : 0.0;
-                final trailingWidth = hasTrailing ? 18.0 : 0.0;
-                totalWidth += textWidth + 24.0 + iconWidth + trailingWidth;
-              }
-              if (items.length > 1) {
-                totalWidth += (items.length - 1) * spacing;
-              }
-              return totalWidth;
-            }),
-        builder = ((ctx, item, __) {
-          final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
-          final items = builder(item.data);
-          if (items.isEmpty) return const SizedBox.shrink();
-
-          final effectiveSpacing = isDense ? spacing * 0.75 : spacing;
-          final effectiveRunSpacing = isDense ? runSpacing * 0.75 : runSpacing;
-
-          return Wrap(
-            spacing: effectiveSpacing,
-            runSpacing: effectiveRunSpacing,
+        widthEstimator = widthEstimator ?? _chipsWidthEstimator<T>(builder: builder, icon: icon, spacing: spacing),
+        builder = _chipsCellBuilder<T, K>(
+            builder: builder,
+            spacing: spacing,
+            runSpacing: runSpacing,
             crossAxisAlignment: crossAxisAlignment,
-            alignment: wrapAlignment,
-            children: [
-              for (final chip in items)
-                TChip(
-                  key: chip.key,
-                  text: chip.text,
-                  icon: chip.icon ?? icon?.call(item.data, chip.text ?? ''),
-                  trailing: chip.trailing,
-                  color: chip.color ?? color?.call(item.data, chip.text ?? ''),
-                  background: chip.background,
-                  textColor: chip.textColor,
-                  type: chip.type ?? typeBuilder?.call(item.data, chip.text ?? '') ?? type,
-                  size: chip.size != TChipSize.md ? chip.size : size,
-                  onTap: chip.onTap ?? (onTap?.call(item.data) != null ? () => onTap!(item.data)!(chip.text ?? '') : null),
-                  padding: isDense ? const EdgeInsets.symmetric(horizontal: 6, vertical: 2) : chip.padding,
-                  borderRadius: chip.borderRadius,
-                ),
-            ],
-          );
-        });
+            wrapAlignment: wrapAlignment,
+            icon: icon,
+            color: color,
+            typeBuilder: typeBuilder,
+            type: type,
+            size: size,
+            onTap: onTap);
 
   /// Creates a header for displaying hex colors using [TColor].
   TTableHeader.color(
@@ -494,46 +459,19 @@ class TTableHeader<T, K> {
               valuePosition: valuePosition,
               progressMaxWidth: progressMaxWidth,
             ),
-        builder = ((ctx, item, __) {
-          final scope = TTableScope.maybeOf(ctx);
-          final isDense = scope?.dense ?? false;
-          final val = map(item.data) ?? 0.0;
-          final customValueText = valueText?.call(item.data);
-
-          final contentStyle = scope?.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
-          final fallbackValStyle = TextStyle(
-            fontSize: isDense ? 10 : 11.0,
-            fontWeight: FontWeight.w400,
-          );
-          final defaultValStyle = contentStyle?.adjust(sizeMultiplier: 0.8, weightStep: 1, clearColor: true) ?? fallbackValStyle;
-          final effectiveValueStyle = valueStyle != null ? defaultValStyle.merge(valueStyle) : defaultValStyle;
-
-          final effectiveEstimator = widthEstimator ??
-              _defaultProgressWidthEstimator(
-                map: map,
-                valueText: valueText,
-                showPercentage: showPercentage,
-                valuePosition: valuePosition,
-                progressMaxWidth: progressMaxWidth,
-              );
-          final estimatedWidth = effectiveEstimator(item.data);
-
-          return ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: estimatedWidth),
-            child: TProgressBar(
-              value: val,
-              height: isDense ? (height * 0.75).clamp(3.0, 12.0) : height,
-              showPercentage: showPercentage,
-              valueText: customValueText,
-              valuePosition: valuePosition,
-              color: color,
-              colorBuilder: colorBuilder,
-              backgroundColor: backgroundColor,
-              flowing: flowing,
-              valueStyle: effectiveValueStyle,
-            ),
-          );
-        });
+        builder = _progressCellBuilder<T, K>(
+            map: map,
+            valueText: valueText,
+            showPercentage: showPercentage,
+            valuePosition: valuePosition,
+            progressMaxWidth: progressMaxWidth,
+            widthEstimator: widthEstimator,
+            height: height,
+            color: color,
+            colorBuilder: colorBuilder,
+            backgroundColor: backgroundColor,
+            flowing: flowing,
+            valueStyle: valueStyle);
 
   /// Creates a header for displaying multiple widgets in a horizontal row/wrap in table cells.
   TTableHeader.row(
@@ -690,91 +628,10 @@ class TTableHeader<T, K> {
   })  : estimatedHeight = 36,
         map = null,
         keyValuesBuilder = builder,
-        widthEstimator = widthEstimator ??
-            ((data) {
-              final items = builder(data);
-              if (items.isEmpty) return 0.0;
-              final effectiveKeyStyle = keyStyle ??
-                  TTableTheme.fallbackTextStyle.adjust(
-                    sizeMultiplier: 0.8,
-                    weightStep: 1,
-                  );
-              final effectiveValueStyle = valueStyle ?? TTableTheme.fallbackTextStyle;
-              double maxWidth = 0.0;
-              for (int i = 0; i < items.length; i++) {
-                final item = items[i];
-                final keyText = inline ? '${item.key}: ' : item.key;
-                final valText = item.value ?? '—';
-                final keyWidth = TTableTheme.measureTextWidth(keyText, effectiveKeyStyle);
-                final valWidth = TTableTheme.measureTextWidth(valText, effectiveValueStyle);
-                final iconWidth = item.icon != null ? 20.0 : 0.0;
-                final rowWidth = inline ? (iconWidth + keyWidth + valWidth) : math.max(iconWidth + keyWidth, valWidth);
-                if (rowWidth > maxWidth) maxWidth = rowWidth;
-              }
-              return maxWidth;
-            }),
-        builder = ((ctx, item, __) {
-          final scope = TTableScope.maybeOf(ctx);
-          final isDense = scope?.dense ?? false;
-          final items = builder(item.data);
-          if (items.isEmpty) return const SizedBox.shrink();
-
-          final defaultValueStyle = scope?.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
-          final defaultKeyStyle = defaultValueStyle?.adjust(
-            sizeMultiplier: 0.8,
-            color: defaultValueStyle.color?.adaptiveContrast(ctx, -0.35),
-            weightStep: 1,
-          );
-
-          final effectiveSpacing = isDense ? spacing * 0.75 : spacing;
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (int i = 0; i < items.length; i++) ...[
-                if (i > 0) SizedBox(height: effectiveSpacing),
-                if (inline)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (items[i].icon != null) ...[
-                        items[i].icon!,
-                        const SizedBox(width: 4),
-                      ],
-                      Text(
-                        '${items[i].key}: ',
-                        style: keyStyle ?? defaultKeyStyle,
-                      ),
-                      if (items[i].widget != null)
-                        Flexible(child: items[i].widget!)
-                      else
-                        Flexible(
-                          child: Text(
-                            items[i].value ?? '—',
-                            style: valueStyle ?? defaultValueStyle,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                    ],
-                  )
-                else ...[
-                  Text(
-                    items[i].key,
-                    style: keyStyle ?? defaultKeyStyle,
-                  ),
-                  if (items[i].widget != null)
-                    items[i].widget!
-                  else
-                    Text(
-                      items[i].value ?? '—',
-                      style: valueStyle ?? defaultValueStyle,
-                    ),
-                ],
-              ],
-            ],
-          );
-        });
+        widthEstimator =
+            widthEstimator ?? _keyValuesWidthEstimator<T>(builder: builder, keyStyle: keyStyle, valueStyle: valueStyle, inline: inline),
+        builder =
+            _keyValuesCellBuilder<T, K>(builder: builder, inline: inline, spacing: spacing, keyStyle: keyStyle, valueStyle: valueStyle);
 
   /// Creates a header for displaying a list of values with hierarchical font sizes
   /// and adaptive contrast in table cells, automatically flattened on mobile card views.
@@ -807,115 +664,9 @@ class TTableHeader<T, K> {
   })  : estimatedHeight = 36,
         map = null,
         keyValuesBuilder = builder,
-        widthEstimator = widthEstimator ??
-            ((data) {
-              final items = builder(data);
-              if (items.isEmpty) return 0.0;
-              double maxWidth = 0.0;
-              for (int i = 0; i < items.length; i++) {
-                final kv = items[i];
-                final displayValue = kv.value ?? kv.key;
-                final double sizeMultiplier = switch (i) {
-                  0 => 1.015,
-                  1 => 0.85,
-                  2 => 0.7,
-                  _ => 0.55,
-                };
-                final style = TTableTheme.fallbackTextStyle.adjust(sizeMultiplier: sizeMultiplier);
-                var itemWidth = TTableTheme.measureTextWidth(displayValue, style);
-                if (kv.icon != null) itemWidth += 20.0;
-                if (itemWidth > maxWidth) maxWidth = itemWidth;
-              }
-              return maxWidth;
-            }),
-        builder = ((ctx, item, __) {
-          final scope = TTableScope.maybeOf(ctx);
-          final isDense = scope?.dense ?? false;
-          final items = builder(item.data);
-          if (items.isEmpty) return const SizedBox.shrink();
-
-          final contentStyle =
-              scope?.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle ?? const TextStyle(fontSize: 13.6);
-
-          final effectiveSpacing = isDense ? spacing * 0.75 : spacing;
-
-          TextStyle? getLevelStyle(int index) {
-            final double sizeMultiplier;
-            final double? contrast;
-
-            switch (index) {
-              case 0:
-                sizeMultiplier = 1.015;
-                contrast = null;
-                break;
-              case 1:
-                sizeMultiplier = 0.85;
-                contrast = -0.5;
-                break;
-              case 2:
-                sizeMultiplier = 0.7;
-                contrast = -0.85;
-                break;
-              default:
-                sizeMultiplier = 0.55;
-                contrast = -1.0;
-                break;
-            }
-
-            final baseColor = contentStyle.color;
-            final targetColor = (contrast != null && baseColor != null) ? baseColor.adaptiveContrast(ctx, contrast) : baseColor;
-
-            return contentStyle.adjust(
-              sizeMultiplier: sizeMultiplier,
-              color: targetColor,
-            );
-          }
-
-          Widget buildItemWidget(TKeyValue kv, int index) {
-            final levelStyle = getLevelStyle(index);
-            final displayValue = kv.value ?? kv.key;
-
-            Widget content;
-            if (kv.widget != null) {
-              content = DefaultTextStyle(
-                style: levelStyle ?? const TextStyle(),
-                child: kv.widget!,
-              );
-            } else {
-              content = Text(
-                displayValue,
-                style: levelStyle,
-                overflow: TextOverflow.ellipsis,
-              );
-            }
-
-            if (kv.icon != null) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  kv.icon!,
-                  const SizedBox(width: 4),
-                  Flexible(child: content),
-                ],
-              );
-            }
-
-            return content;
-          }
-
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: mainAxisAlignment,
-            crossAxisAlignment: crossAxisAlignment,
-            children: [
-              for (int i = 0; i < items.length; i++) ...[
-                if (i > 0) SizedBox(height: effectiveSpacing),
-                buildItemWidget(items[i], i),
-              ],
-            ],
-          );
-        });
+        widthEstimator = widthEstimator ?? _valuesWidthEstimator<T>(builder: builder),
+        builder = _valuesCellBuilder<T, K>(
+            builder: builder, spacing: spacing, crossAxisAlignment: crossAxisAlignment, mainAxisAlignment: mainAxisAlignment);
 
   /// Creates a header for displaying a title and optional subtitle with leading icon using [TTile].
   TTableHeader.tile(
@@ -954,62 +705,32 @@ class TTableHeader<T, K> {
   })  : estimatedHeight = 40,
         map = title,
         widthEstimator = widthEstimator ??
-            ((data) {
-              final t = title(data);
-              final sub = subtitle?.call(data);
-              final d = desc?.call(data);
-              final tWidth = t != null ? TTableTheme.measureTextWidth(t) : 0.0;
-              final sWidth = sub != null ? TTableTheme.measureTextWidth(sub) * 0.85 : 0.0;
-              final dWidth = d != null ? TTableTheme.measureTextWidth(d) * 0.8 : 0.0;
-              final textWidth = math.max(math.max(tWidth, sWidth), dWidth);
-              final lead = leading?.call(data) ?? icon?.call(data);
-              final hasIcon = lead != null;
-              final iconWidth = hasIcon ? ((iconSize ?? (lead is Widget ? 80.0 : 20.0)) + 12.0 + spacing) : 0.0;
-              final trailingWidth = trailing != null ? 30.0 : 0.0;
-              return iconWidth + textWidth + trailingWidth;
-            }),
-        builder = ((ctx, item, __) {
-          final scope = TTableScope.maybeOf(ctx);
-          final isDense = scope?.dense ?? false;
-          final t = title(item.data);
-          final sub = subtitle?.call(item.data);
-          final d = desc?.call(item.data);
-          final lead = leading?.call(item.data) ?? icon?.call(item.data);
-          final icColor = iconColor?.call(item.data);
-          final icBgColor = iconBackgroundColor?.call(item.data);
-          final tr = trailing?.call(item.data);
-
-          final contentStyle = scope?.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
-          final defaultTitleStyle = contentStyle?.adjust(
-            sizeMultiplier: 1.015,
-          );
-          final defaultSubtitleStyle = contentStyle?.adjust(
-            color: contentStyle.color?.adaptiveContrast(ctx, -0.5),
-            sizeMultiplier: 0.85,
-          );
-          final defaultDescStyle = contentStyle?.adjust(
-            color: contentStyle.color?.adaptiveContrast(ctx, -0.6),
-            sizeMultiplier: 0.8,
-          );
-
-          return TTile(
-            title: t,
-            subtitle: sub,
-            desc: d,
-            icon: lead,
-            iconColor: icColor,
-            iconBackgroundColor: icBgColor,
-            iconSize: isDense ? (iconSize != null ? iconSize * 0.8 : 16.0) : (iconSize ?? 20.0),
-            iconPadding: isDense ? const EdgeInsets.all(6) : iconPadding,
+            _tileWidthEstimator<T>(
+                title: title,
+                subtitle: subtitle,
+                desc: desc,
+                leading: leading,
+                icon: icon,
+                iconSize: iconSize,
+                spacing: spacing,
+                trailing: trailing),
+        builder = _tileCellBuilder<T, K>(
+            title: title,
+            subtitle: subtitle,
+            desc: desc,
+            leading: leading,
+            icon: icon,
+            iconColor: iconColor,
+            iconBackgroundColor: iconBackgroundColor,
+            trailing: trailing,
+            iconSize: iconSize,
+            iconPadding: iconPadding,
             iconBorderRadius: iconBorderRadius,
-            spacing: isDense ? spacing * 0.75 : spacing,
+            spacing: spacing,
             crossAxisAlignment: crossAxisAlignment,
-            titleStyle: titleStyle ?? defaultTitleStyle,
-            subtitleStyle: subtitleStyle ?? defaultSubtitleStyle,
-            descStyle: descStyle ?? defaultDescStyle,
-            trailing: tr,
-          );
-        });
+            titleStyle: titleStyle,
+            subtitleStyle: subtitleStyle,
+            descStyle: descStyle);
 
   /// Create an date formatter
   TTableHeader.datetime(
@@ -1113,54 +834,7 @@ class TTableHeader<T, K> {
             : count != null
                 ? (40.0 * count + 36.0).clamp(75.0, 300.0)
                 : null,
-        builder = ((ctx, item, __) {
-          final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
-          final allItems = builder(item);
-          if (allItems.isEmpty) return const SizedBox.shrink();
-
-          final hasExplicitFlat = allItems.any((b) => b.showFlat);
-          final hasExplicitChild = allItems.any((b) => b.child != null);
-
-          final List<TButtonGroupItem> effectiveItems;
-          if (!hasExplicitFlat && !hasExplicitChild && allItems.length <= 2) {
-            effectiveItems = allItems;
-          } else if (!hasExplicitFlat && !hasExplicitChild && allItems.length > 2) {
-            effectiveItems = [
-              TButtonGroupItem(
-                child: _buildActionDropdownMenu(ctx, allItems, isDense),
-              ),
-            ];
-          } else {
-            final flatButtons = <TButtonGroupItem>[];
-            final menuButtons = <TButtonGroupItem>[];
-
-            for (final btn in allItems) {
-              if (btn.showFlat || btn.child != null) {
-                flatButtons.add(btn);
-              } else {
-                menuButtons.add(btn);
-              }
-            }
-
-            effectiveItems = <TButtonGroupItem>[...flatButtons];
-            if (menuButtons.length == 1) {
-              effectiveItems.add(menuButtons.first);
-            } else if (menuButtons.isNotEmpty) {
-              effectiveItems.add(TButtonGroupItem(
-                child: _buildActionDropdownMenu(ctx, menuButtons, isDense),
-              ));
-            }
-          }
-
-          return TButtonGroup(
-            type: TButtonGroupType.softText,
-            separated: true,
-            spacing: 0,
-            alignment: WrapAlignment.end,
-            size: isDense ? TButtonSize.sm.copyWith(hPad: 4, vPad: 2) : TButtonSize.sm,
-            items: effectiveItems,
-          );
-        });
+        builder = _actionsCellBuilder<T, K>(builder: builder);
 
   /// Creates an editable cell header.
   TTableHeader.editable(
@@ -1187,104 +861,8 @@ class TTableHeader<T, K> {
     this.keyValuesBuilder,
   })  : estimatedHeight = null,
         map = get,
-        builder = ((ctx, item, index) {
-          final cellScope = TTableCellScope.maybeScopeOf(ctx);
-          final activeCursor = cellScope?.activeCellNotifier ?? TTableCellScope.maybeOf(ctx);
-          final data = item.data;
-          final cellKey = "${item.key}_$text";
-          final colors = ctx.colors;
-          final cellError = error?.call(data) ?? cellScope?.getError(data, text, cellKey);
-          final hasError = cellError != null && cellError.isNotEmpty;
-          final textStyle = TTableScope.maybeOf(ctx)?.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
-          Widget buildDisplay() {
-            if (displayBuilder != null) {
-              return displayBuilder(ctx, data);
-            }
-
-            final rawVal = get(data);
-            final displayStr = rawVal?.toString() ?? '';
-            final isEmpty = displayStr.trim().isEmpty;
-
-            if (hasError) {
-              return TTooltip(
-                message: cellError,
-                waitDuration: const Duration(milliseconds: 200),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        isEmpty ? (placeholder ?? '—') : displayStr,
-                        style: textStyle?.copyWith(
-                              color: colors.error,
-                              fontWeight: FontWeight.w600,
-                            ) ??
-                            TextStyle(
-                              color: colors.error,
-                              fontWeight: FontWeight.w600,
-                            ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    TIcon.raw(
-                      HugeIcons.strokeRoundedAlert02,
-                      size: 14,
-                      color: colors.error,
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            if (isEmpty && placeholder != null) {
-              return Text(
-                placeholder,
-                style: textStyle?.copyWith(
-                      color: colors.onSurfaceVariant.withAlpha(100),
-                      fontStyle: FontStyle.italic,
-                    ) ??
-                    TextStyle(
-                      color: colors.onSurfaceVariant.withAlpha(100),
-                      fontStyle: FontStyle.italic,
-                    ),
-                overflow: TextOverflow.ellipsis,
-              );
-            }
-
-            return Text(
-              displayStr,
-              style: textStyle,
-              overflow: TextOverflow.ellipsis,
-            );
-          }
-
-          Widget buildEditor() {
-            final editorWidget = builder(ctx, data);
-            if (hasError) {
-              return TTooltip(
-                message: cellError,
-                waitDuration: const Duration(milliseconds: 200),
-                child: editorWidget,
-              );
-            }
-            return editorWidget;
-          }
-
-          if (activeCursor != null) {
-            return InkWell(
-              focusColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              onTap: () => activeCursor.value = cellKey,
-              child: ValueListenableBuilder(
-                valueListenable: activeCursor,
-                builder: (ctx, active, _) => active == cellKey ? buildEditor() : buildDisplay(),
-              ),
-            );
-          }
-          return buildDisplay();
-        });
+        builder = _editableCellBuilder<T, K>(
+            text: text, get: get, builder: builder, displayBuilder: displayBuilder, error: error, placeholder: placeholder);
 
   /// Creates an editable text field header.
   TTableHeader.textField(
@@ -1305,6 +883,8 @@ class TTableHeader<T, K> {
     List<dynamic>? filterItems,
     TFilterDef<T>? filterDef,
     double Function(T data)? widthEstimator,
+    TInputDecorationType decorationType = TInputDecorationType.outline,
+    TInputSize size = TInputSize.sm,
   }) : this.editable(
           text,
           get: get,
@@ -1328,23 +908,7 @@ class TTableHeader<T, K> {
                 final w = str.isNotEmpty ? TTableTheme.measureTextWidth(str) : 0.0;
                 return math.max(w, 80.0);
               }),
-          builder: (ctx, data) {
-            final style = TTableScope.maybeOf(ctx)?.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
-            final fontSize = style?.fontSize ?? 13.6;
-            return TTextField<String>(
-              theme: ctx.theme.textFieldTheme.copyWith(
-                decorationType: TInputDecorationType.none,
-                labelPosition: TLabelPosition.aboveField,
-                padding: EdgeInsets.zero,
-                fontSize: fontSize,
-                height: fontSize + 6,
-              ),
-              placeholder: placeholder,
-              autoFocus: true,
-              value: get(data),
-              onValueChanged: (v) => set(data, v),
-            );
-          },
+          builder: _textFieldEditor<T>(decorationType: decorationType, size: size, placeholder: placeholder, get: get, set: set),
         );
 
   /// Creates an editable number field header.
@@ -1366,6 +930,8 @@ class TTableHeader<T, K> {
     List<dynamic>? filterItems,
     TFilterDef<T>? filterDef,
     double Function(T data)? widthEstimator,
+    TInputDecorationType decorationType = TInputDecorationType.outline,
+    TInputSize size = TInputSize.sm,
   }) : this.editable(
           text,
           get: get,
@@ -1389,24 +955,7 @@ class TTableHeader<T, K> {
                 final w = str.isNotEmpty ? TTableTheme.measureTextWidth(str) : 0.0;
                 return math.max(w + 56.0, 90.0);
               }),
-          builder: (ctx, data) {
-            final style = TTableScope.maybeOf(ctx)?.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
-            final fontSize = style?.fontSize ?? 13.6;
-            return TNumberField<num>(
-              theme: ctx.theme.numberFieldTheme.copyWith(
-                decorationType: TInputDecorationType.none,
-                labelPosition: TLabelPosition.aboveField,
-                padding: EdgeInsets.zero,
-                fontSize: fontSize,
-                height: fontSize + 6,
-                splitStepper: true,
-              ),
-              placeholder: placeholder,
-              autoFocus: true,
-              value: get(data),
-              onValueChanged: (v) => set(data, v),
-            );
-          },
+          builder: _numberFieldEditor<T>(decorationType: decorationType, size: size, placeholder: placeholder, get: get, set: set),
         );
 
   /// Automatically generates a list of [TFilterDef]s from the given [headers]
@@ -1414,238 +963,6 @@ class TTableHeader<T, K> {
   static List<TFilterDef<T>> autoGenerateFilterDefs<T, K>(
     List<TTableHeader<T, K>> headers, {
     List<T>? sampleItems,
-  }) {
-    final defs = <TFilterDef<T>>[];
-
-    for (final header in headers) {
-      if (!header.filterable || header.map == null) continue;
-
-      if (header.filterDef != null) {
-        final def = header.filterDef!;
-        final effectiveLabel = def.label.isNotEmpty ? def.label : header.text;
-        final effectiveKey = def.key.isNotEmpty ? def.key : (header.key ?? _toCamelCase(header.text));
-        defs.add(def.copyWith(
-          label: effectiveLabel,
-          key: effectiveKey,
-          getter: def.map ?? (x) => header.map?.call(x),
-        ));
-        continue;
-      }
-
-      final key = header.key ?? _toCamelCase(header.text);
-      TFilterType type = header.filterType ?? TFilterType.text;
-
-      // If filterType was not explicitly provided on header, infer from sample items
-      if (header.filterType == null && sampleItems != null && sampleItems.isNotEmpty) {
-        dynamic sampleVal;
-        for (final item in sampleItems) {
-          try {
-            sampleVal = header.map!(item);
-            if (sampleVal != null) break;
-          } catch (_) {}
-        }
-
-        if (sampleVal is int || sampleVal is double || sampleVal is num) {
-          type = TFilterType.number;
-        } else if (sampleVal is bool) {
-          type = TFilterType.boolean;
-        } else if (sampleVal is DateTime) {
-          type = TFilterType.dateTime;
-        } else if (sampleVal is Enum) {
-          type = TFilterType.enumFilter;
-        } else {
-          type = TFilterType.text;
-        }
-      }
-
-      switch (type) {
-        case TFilterType.text:
-          defs.add(TFilter.text<T>(
-            header.text,
-            key: key,
-            getter: (x) => header.map?.call(x),
-            operators: header.filterOperators,
-          ));
-        case TFilterType.number:
-          defs.add(TFilter.number<T>(
-            header.text,
-            key: key,
-            getter: (x) => header.map?.call(x),
-            operators: header.filterOperators,
-          ));
-        case TFilterType.dateTime:
-          defs.add(TFilter.dateTime<T>(
-            header.text,
-            key: key,
-            getter: (x) => header.map?.call(x),
-            operators: header.filterOperators,
-          ));
-        case TFilterType.date:
-          defs.add(TFilter.date<T>(
-            header.text,
-            key: key,
-            getter: (x) => header.map?.call(x),
-            operators: header.filterOperators,
-          ));
-        case TFilterType.boolean:
-          defs.add(TFilter.boolean<T>(
-            header.text,
-            key: key,
-            getter: (x) => header.map?.call(x),
-            operators: header.filterOperators,
-          ));
-        case TFilterType.enumFilter:
-          if (header.filterItems != null && header.filterItems is List<Enum>) {
-            defs.add(TFilter.enumFilter<T>(
-              header.text,
-              key: key,
-              values: header.filterItems as List<Enum>,
-              getter: (x) => header.map?.call(x),
-              operators: header.filterOperators,
-            ));
-          } else {
-            defs.add(TFilter.text<T>(
-              header.text,
-              key: key,
-              getter: (x) => header.map?.call(x),
-              operators: header.filterOperators,
-            ));
-          }
-        case TFilterType.select:
-          if (header.filterItems != null) {
-            defs.add(TFilter.select<T>(
-              header.text,
-              key: key,
-              items: header.filterItems,
-              itemText: (x) => x.toString(),
-              itemValue: (x) => x,
-              getter: (x) => header.map?.call(x),
-              operators: header.filterOperators,
-            ));
-          } else {
-            defs.add(TFilter.text<T>(
-              header.text,
-              key: key,
-              getter: (x) => header.map?.call(x),
-              operators: header.filterOperators,
-            ));
-          }
-        case TFilterType.guid:
-          defs.add(TFilter.guid<T>(
-            header.text,
-            key: key,
-            items: header.filterItems,
-            getter: (x) => header.map?.call(x),
-            operators: header.filterOperators,
-          ));
-      }
-    }
-
-    return defs;
-  }
-
-  static String _toCamelCase(String text) {
-    final words = text.trim().split(RegExp(r'[\s_\-]+'));
-    if (words.isEmpty) return '';
-    final first = words.first.toLowerCase();
-    final rest = words.skip(1).map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}').join();
-    return '$first$rest';
-  }
-
-  static double Function(T data) _defaultProgressWidthEstimator<T>({
-    required double? Function(T) map,
-    required String? Function(T)? valueText,
-    required bool showPercentage,
-    required TProgressValuePosition valuePosition,
-    required double progressMaxWidth,
-  }) {
-    return (data) {
-      final val = map(data) ?? 0.0;
-      final customValText = valueText?.call(data);
-      String displayVal = '';
-      if (customValText != null && showPercentage) {
-        displayVal = '$customValText (${(val * 100).toInt()}%)';
-      } else if (customValText != null) {
-        displayVal = customValText;
-      } else if (showPercentage) {
-        displayVal = '${(val * 100).toInt()}%';
-      }
-      final valWidth = displayVal.isNotEmpty ? TTableTheme.measureTextWidth(displayVal) : 0.0;
-      final isInline = valuePosition == TProgressValuePosition.afterProgress || valuePosition == TProgressValuePosition.beforeProgress;
-      final minBarWidth = isInline ? 60.0 : 80.0;
-      return math.min(progressMaxWidth, isInline ? (valWidth + minBarWidth + 16.0) : math.max(valWidth, minBarWidth));
-    };
-  }
-
-  static Widget _buildActionDropdownMenu(BuildContext ctx, List<TButtonGroupItem> buttons, bool isDense) {
-    final dropdownItems = buttons.map((button) {
-      return TDropdownItem(
-        icon: button.icon,
-        text: button.tooltip ?? button.text ?? '',
-        color: button.color,
-        onTap: () {
-          if (button.onPressed != null) {
-            button.onPressed!(TButtonPressOptions(stopLoading: () {}));
-          } else if (button.onTap != null) {
-            button.onTap!();
-          }
-        },
-      );
-    }).toList();
-
-    return TDropdown(
-      items: dropdownItems,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: TIcon.raw(
-            HugeIcons.strokeRoundedMoreVertical,
-            size: isDense ? 16 : 18,
-            color: ctx.colors.onSurfaceVariant,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TStackedTableHeader<T, K> extends TTableHeader<T, K> {
-  @override
-  bool get fullBleedCell => true;
-
-  _TStackedTableHeader(
-    super.text,
-    List<Widget> Function(T) rows, {
-    super.flex,
-    super.minWidth,
-    super.maxWidth,
-    super.alignment,
-    required double rowHeight,
-    required bool showDividers,
-    Color? dividerColor,
-    required EdgeInsetsGeometry contentPadding,
-    super.key,
-    super.widthEstimator,
-    super.flattenOnMobile,
-    super.showInDetails,
-    super.mobileKeyPrefixBuilder,
-  }) : super(
-          estimatedHeight: rowHeight * 2,
-          filterable: false,
-          builder: (ctx, item, _) {
-            final isDense = TTableScope.maybeOf(ctx)?.dense ?? false;
-            return TSubRows(
-              rowHeight: isDense ? rowHeight * 0.85 : rowHeight,
-              showDividers: showDividers,
-              dividerColor: dividerColor,
-              padding: contentPadding,
-              alignment: alignment ?? Alignment.centerLeft,
-              children: rows(item.data),
-            );
-          },
-        );
+  }) =>
+      autoGenerateTableFilterDefs<T, K>(headers, sampleItems: sampleItems);
 }

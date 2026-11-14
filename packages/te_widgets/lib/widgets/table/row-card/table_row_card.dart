@@ -65,6 +65,9 @@ class TTableRowCard<T, K> extends StatelessWidget {
   /// Callback when selection toggles.
   final VoidCallback? onSelectionChanged;
 
+  /// When non-null, a trailing delete icon is shown and calls this.
+  final VoidCallback? onRemove;
+
   /// Callback when row card tapped.
   final VoidCallback? onTap;
 
@@ -102,6 +105,7 @@ class TTableRowCard<T, K> extends StatelessWidget {
     this.isSelected = false,
     this.onSelectionChanged,
     this.onTap,
+    this.onRemove,
     this.backgroundColor,
     this.bare = false,
   });
@@ -139,18 +143,44 @@ class TTableRowCard<T, K> extends StatelessWidget {
     final content = _buildContent(context, colors, wTheme, controller, isDense, indentWidth);
     if (bare) return content;
 
-    return TCard(
-      margin: wTheme.margin,
-      elevation: wTheme.elevation,
-      borderRadius: wTheme.borderRadius,
-      borderColor: Colors.transparent,
-      backgroundColor: resolvedBgColor,
-      padding: wTheme.padding,
-      onTap: onTap,
-      hoverColor: colors.onSurface.withAlpha(12),
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      child: content,
+    final hover = colors.onSurface.withAlpha(12);
+    final activeTint = colors.onSurface.withAlpha(6); // lighter than hover
+    final active = TTableCellScope.maybeOf(context);
+
+    Widget buildCard(Color bg) => TCard(
+          margin: wTheme.margin,
+          elevation: wTheme.elevation,
+          borderRadius: wTheme.borderRadius,
+          borderColor: Colors.transparent,
+          backgroundColor: bg,
+          padding: wTheme.padding,
+          // A non-null tap keeps the InkWell enabled; the tint itself is painted via [bg] below.
+          onTap: () {
+            // Editable tables: tapping anywhere on the row switches every editable cell to its input.
+            if (active != null && !(active.value?.startsWith('${item.key}_') ?? false)) active.value = '${item.key}_';
+            onTap?.call();
+          },
+          mouseCursor: onTap == null && active == null ? SystemMouseCursors.basic : null,
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          splashColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          child: content,
+        );
+
+    // Hover tint is painted on the background so it can persist while the row is in input mode
+    // (focus inside the row's inputs never darkens the whole row).
+    return TTableRowHover(
+      builder: (hovered) {
+        if (active == null) return buildCard(hovered ? Color.alphaBlend(hover, resolvedBgColor) : resolvedBgColor);
+        return ValueListenableBuilder<String?>(
+          valueListenable: active,
+          builder: (_, v, __) {
+            final isActive = v?.startsWith('${item.key}_') ?? false;
+            return buildCard(Color.alphaBlend(hovered ? hover : (isActive ? activeTint : Colors.transparent), resolvedBgColor));
+          },
+        );
+      },
     );
   }
 
@@ -164,6 +194,11 @@ class TTableRowCard<T, K> extends StatelessWidget {
           defaultVerticalAlignment: TableCellVerticalAlignment.middle,
           children: [
             TableRow(children: [
+              if (controller?.reorderable ?? false)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TDragHandle(index: index, size: 14, padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6)),
+                ),
               if (expandable && showExpandIcon)
                 Builder(builder: (context) {
                   return Align(
@@ -264,9 +299,8 @@ class TTableRowCard<T, K> extends StatelessWidget {
                 );
 
                 if (activeCursor != null) {
-                  return InkWell(
-                    focusColor: Colors.transparent,
-                    splashColor: Colors.transparent,
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () => activeCursor.value = cellKey,
                     child: cellContainer,
                   );
@@ -274,6 +308,17 @@ class TTableRowCard<T, K> extends StatelessWidget {
 
                 return cellContainer;
               }),
+              if (onRemove != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TIcon(
+                    icon: HugeIcons.strokeRoundedDelete02,
+                    size: isDense ? 16 : 18,
+                    padding: const EdgeInsets.all(4),
+                    color: colors.error,
+                    onTap: onRemove,
+                  ),
+                ),
             ])
           ],
         ),
@@ -290,6 +335,31 @@ class TTableRowCard<T, K> extends StatelessWidget {
                 : const SizedBox.shrink(),
           )
       ],
+    );
+  }
+}
+
+/// Tracks pointer hover for a table row/card so the tint can be painted on its background.
+class TTableRowHover extends StatefulWidget {
+  /// Builds the row; [hovered] is true while the pointer is over it.
+  final Widget Function(bool hovered) builder;
+
+  /// Creates a hover tracker.
+  const TTableRowHover({super.key, required this.builder});
+
+  @override
+  State<TTableRowHover> createState() => TTableRowHoverState();
+}
+
+class TTableRowHoverState extends State<TTableRowHover> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: widget.builder(_hovered),
     );
   }
 }

@@ -64,6 +64,11 @@ class TLoadOptions<T> {
   /// Advanced search filters as a generic map for endpoint-specific parameters.
   final Map<String, dynamic>? advancedSearch;
 
+  /// Value of the selected filter tab ([TCrudConfig.tabs] without an archive), e.g. a status enum.
+  ///
+  /// Null when the list has no filter tabs.
+  final Object? tab;
+
   /// Calculated offset for pagination.
   int get offset => (page - 1) * itemsPerPage;
 
@@ -77,6 +82,7 @@ class TLoadOptions<T> {
     this.search,
     this.cursor,
     this.advancedSearch,
+    this.tab,
   });
 
   /// Creates a copy with updated properties.
@@ -86,6 +92,7 @@ class TLoadOptions<T> {
     String? search,
     String? cursor,
     Map<String, dynamic>? advancedSearch,
+    Object? tab,
   }) {
     return TLoadOptions<T>(
       page: page ?? this.page,
@@ -93,12 +100,13 @@ class TLoadOptions<T> {
       search: search ?? this.search,
       cursor: cursor ?? this.cursor,
       advancedSearch: advancedSearch ?? this.advancedSearch,
+      tab: tab ?? this.tab,
     );
   }
 
   @override
   String toString() =>
-      'TLoadOptions<$T>(page: $page, itemsPerPage: $itemsPerPage, search: $search, cursor: $cursor, advancedSearch: $advancedSearch)';
+      'TLoadOptions<$T>(page: $page, itemsPerPage: $itemsPerPage, search: $search, cursor: $cursor, advancedSearch: $advancedSearch, tab: $tab)';
 
   @override
   bool operator ==(Object other) =>
@@ -109,10 +117,11 @@ class TLoadOptions<T> {
           itemsPerPage == other.itemsPerPage &&
           search == other.search &&
           cursor == other.cursor &&
-          advancedSearch == other.advancedSearch;
+          advancedSearch == other.advancedSearch &&
+          tab == other.tab;
 
   @override
-  int get hashCode => Object.hash(page, itemsPerPage, search, cursor, advancedSearch);
+  int get hashCode => Object.hash(page, itemsPerPage, search, cursor, advancedSearch, tab);
 }
 
 /// Result of a data load operation.

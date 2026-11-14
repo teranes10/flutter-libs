@@ -150,6 +150,13 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     _executePaginationAction('handleRefresh', page: 1);
   }
 
+  /// Selects the filter tab [value] and reloads from page 1; [TLoadOptions.tab] carries it to `onLoad`.
+  void selectTab(Object? value) {
+    if (tab == value) return;
+    tab = value;
+    handleRefresh();
+  }
+
   void handleSearchChange(String search) {
     _debouncer.run(() {
       if (value.search != search) {
@@ -342,6 +349,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       search: value.search.isEmpty ? null : value.search,
       cursor: value.currentCursor,
       advancedSearch: value.advancedSearch,
+      tab: tab,
     );
 
     try {

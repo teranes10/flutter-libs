@@ -21,6 +21,9 @@ class TTableRowHeader<T, K> extends StatelessWidget {
   /// Whether to reserve the leading expand-icon column.
   final bool showExpandIcon;
 
+  /// Whether to reserve the trailing delete-icon column.
+  final bool removable;
+
   /// Creates a table header row.
   const TTableRowHeader({
     super.key,
@@ -29,6 +32,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
     this.columnWidths,
     this.theme,
     this.showExpandIcon = true,
+    this.removable = false,
   });
 
   @override
@@ -64,12 +68,13 @@ class TTableRowHeader<T, K> extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: controller.reorderable ? wTheme.padding.copyWith(left: wTheme.padding.left + 25) : wTheme.padding,
+      padding: wTheme.padding,
       decoration: wTheme.decoration,
       child: Table(
         columnWidths: columnWidths,
         children: [
           TableRow(children: [
+            if (controller.reorderable) const SizedBox.shrink(),
             if (controller.expandable && showExpandIcon) SizedBox(width: 20),
             if (controller.selectable)
               Align(
@@ -95,6 +100,7 @@ class TTableRowHeader<T, K> extends StatelessWidget {
               final treeExtraWidth = (headerIndex == 0 && (controller.isHierarchical || maxLevel > 0)) ? (maxLevel * 16.0 + 36.0) : 0.0;
               return buildHeaderCell(wTheme, header, extraWidth: treeExtraWidth);
             }),
+            if (removable) const SizedBox.shrink(),
           ])
         ],
       ),
