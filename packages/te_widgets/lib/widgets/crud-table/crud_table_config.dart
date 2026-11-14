@@ -62,7 +62,28 @@ class TCrudConfig<T, K> {
   final String addButtonText;
 
   /// Tab definitions for the table view.
-  final List<TTab<int>>? tabs;
+  ///
+  /// With an archive (`archivedItems` / `onArchiveLoad` / `archiveController`) or [tabContents]
+  /// the tab values are indexes: `0` is the active list, `1` the archive, `2+` the [tabContents].
+  ///
+  /// Without either they are **filter tabs**: one list, one controller. The tab `value` can be any
+  /// object (a status enum, a string...). It reaches `onLoad` as `TLoadOptions.tab`, and selecting a
+  /// tab reloads from page 1. The first tab is selected initially. Use this for record states
+  /// (Draft / Approved / Rejected...) instead of chips or a custom `header:`.
+  ///
+  /// ```dart
+  /// config: TCrudConfig(
+  ///   tabs: [
+  ///     TTab(text: 'All', value: null),
+  ///     for (final s in OrderStatus.values) TTab(text: s.label, value: s),
+  ///   ],
+  /// ),
+  /// onLoad: (o) => api.page(status: o.tab as OrderStatus?, cursor: o.cursor),
+  /// ```
+  final List<TTab<dynamic>>? tabs;
+
+  /// Index into [tabs] selected initially when they are filter tabs. Defaults to the first.
+  final int initialTabIndex;
 
   /// Content definitions for each tab.
   final List<TCrudTableContent<T, K>> tabContents;
@@ -105,9 +126,18 @@ class TCrudConfig<T, K> {
   /// Subtitle / info text of the page header (see [pageIcon]).
   final String? pageInfo;
 
+  /// Widget shown before the page header, e.g. a back button when the table drills into a parent
+  /// record. Counts as a page header field.
+  final Widget? pageLeading;
+
   /// Optional metric tiles rendered between the page header row and the search row. They wrap
   /// in fixed-width slots and the search row fills the space left on the last line. Only used together with the page header fields.
   final List<Widget> topBarMetrics;
+
+  /// Builds metric tiles from the active list's loaded rows. They follow [topBarMetrics] and
+  /// recompute whenever the list changes, so the screen needs no `ListenableBuilder`. Return the
+  /// same number of tiles on every call.
+  final List<Widget> Function(List<T> items)? topBarMetricsBuilder;
 
   /// Whether rows can be multi-selected via checkboxes, enabling bulk actions.
   ///
@@ -186,6 +216,7 @@ class TCrudConfig<T, K> {
     this.canRestoreFlat = false,
     this.addButtonText = 'Add New',
     this.tabs,
+    this.initialTabIndex = 0,
     this.tabContents = const [],
     this.searchPlaceholder = 'Search...',
     this.showActions = true,
@@ -197,7 +228,9 @@ class TCrudConfig<T, K> {
     this.pageIcon,
     this.pageTitle,
     this.pageInfo,
+    this.pageLeading,
     this.topBarMetrics = const [],
+    this.topBarMetricsBuilder,
     this.enableBulkActions = false,
     this.bulkActionsBuilder,
     this.actionButtonWidth = 50.0,

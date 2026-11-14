@@ -13,11 +13,28 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
     );
   }
 
+  List<Widget> _metrics(TListController<T, K> controller) {
+    final builder = widget.config.topBarMetricsBuilder;
+    if (builder == null) return widget.config.topBarMetrics;
+    final count = builder(controller.flatItems).length;
+    return [
+      ...widget.config.topBarMetrics,
+      for (var i = 0; i < count; i++)
+        ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) {
+            final tiles = builder(controller.flatItems);
+            return i < tiles.length ? tiles[i] : const SizedBox.shrink();
+          },
+        ),
+    ];
+  }
+
   Widget _buildTopBarContent(BuildContext ctx, {required bool hasSelection}) {
     final activeController = currentTab == 0 ? _listController : _archiveListController;
 
     final config = widget.config;
-    final hasHeader = config.pageTitle != null || config.pageIcon != null || config.pageInfo != null;
+    final hasHeader = config.pageTitle != null || config.pageIcon != null || config.pageInfo != null || config.pageLeading != null;
 
     final createAndActions = [
       if (canCreate && _crudVisible(_perms?.create))
@@ -56,10 +73,16 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
           wrap: true,
           // Narrow screens put the tabs on their own line; let them stretch across it.
           fill: !ctx.isDesktop,
-          selectedValue: currentTab,
-          onTabChanged: (i) {
-            currentTab = i;
-            config.onTabChange?.call(i);
+          selectedValue: isFilterTabs ? filterTab : currentTab,
+          onTabChanged: (value) {
+            if (isFilterTabs) {
+              filterTab = value;
+              _listController.selectTab(value);
+              if (value is int) config.onTabChange?.call(value);
+              return;
+            }
+            currentTab = value;
+            config.onTabChange?.call(value);
           },
           tabs: tabs,
         ),
@@ -97,16 +120,23 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
       child: !hasHeader
           ? searchRow(hasSelection ? selectionActions : createAndActions)
           : _CrudHeaderBar(
-              header: TTile.h4(
-                icon: config.pageIcon,
-                iconBackgroundColor: Colors.transparent,
-                title: config.pageTitle,
-                subtitle: config.pageInfo,
+              header: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 4,
+                children: [
+                  if (config.pageLeading != null) config.pageLeading!,
+                  TTile.h4(
+                    icon: config.pageIcon,
+                    iconBackgroundColor: Colors.transparent,
+                    title: config.pageTitle,
+                    subtitle: config.pageInfo,
+                  ),
+                ],
               ),
               // While rows are selected the selection actions take over the search row, and
               // the header row keeps only the page info.
               actions: hasSelection ? const [] : createAndActions,
-              metrics: config.topBarMetrics,
+              metrics: _metrics(activeController),
               searchRowBuilder: (leading, overflow) => searchRow([...leading, ...(hasSelection ? selectionActions : overflow)]),
             ),
     );

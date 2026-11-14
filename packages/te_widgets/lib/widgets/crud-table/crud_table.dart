@@ -319,6 +319,9 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   late final bool _isArchiveControllerOwned;
 
   int _currentTab = 0;
+
+  /// Selected value of the filter tabs (see [TCrudConfig.tabs]).
+  Object? _filterTab;
   final Map<T, Map<String, bool>> _permissionCache = {};
 
   bool _hasInitializedRouteSettings = false;
@@ -578,6 +581,11 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
       );
     }
 
+    if (isFilterTabs && tabs.isNotEmpty) {
+      _filterTab = tabs[widget.config.initialTabIndex.clamp(0, tabs.length - 1)].value;
+      _listController.tab = _filterTab;
+    }
+
     widget.onControllerReady?.call(_listController);
 
     _archiveListController = widget.archiveController ??
@@ -708,6 +716,9 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   // Getters for child classes
   bool get hasArchive => widget.archivedItems != null || widget.onArchiveLoad != null || widget.archiveController != null;
   bool get showTabs => hasArchive || widget.config.tabs != null;
+
+  /// Whether [TCrudConfig.tabs] filter one list (no archive, no per-tab contents).
+  bool get isFilterTabs => widget.config.tabs != null && !hasArchive && widget.config.tabContents.isEmpty;
   List<TTab> get tabs => widget.config.tabs ?? const [TTab(text: "Active", value: 0), TTab(text: "Archive", value: 1)];
   bool get canCreate => widget.createForm != null && widget.onCreate != null;
 
@@ -767,4 +778,6 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   TListController<T, K> get archiveListController => _archiveListController;
   int get currentTab => _currentTab;
   set currentTab(int value) => setState(() => _currentTab = value);
+  Object? get filterTab => _filterTab;
+  set filterTab(Object? value) => setState(() => _filterTab = value);
 }
