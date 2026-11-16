@@ -239,6 +239,17 @@ class TButton extends StatefulWidget {
   /// for filled buttons (solid and tonal) to provide tactile depth.
   final Gradient? gradient;
 
+  /// Renders the button in its enabled look although it has no tap handler of its own.
+  ///
+  /// For triggers wrapped by a [TDropdown] / popover that handles the tap itself: giving such a button an
+  /// `onPressed` would swallow the tap, while leaving it null makes it look disabled.
+  final bool asTrigger;
+
+  /// Preset drop shadow drawn around the button (see [TShadow]).
+  ///
+  /// Null uses [TShadow.xs] for solid and tonal buttons (unless an [elevation] is set) and no shadow otherwise.
+  final TShadow? shadow;
+
   /// The elevation of the button.
   ///
   /// Defaults to null, resolving to minimal elevation (resting 1.0, hover 2.0, pressed 0.5)
@@ -297,6 +308,8 @@ class TButton extends StatefulWidget {
     this.duration = const Duration(milliseconds: 400),
     this.throttleDuration,
     this.gradient,
+    this.shadow,
+    this.asTrigger = false,
     this.elevation,
     this.shadowColor,
     this.semanticLabel,
@@ -458,6 +471,9 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     }
   }
 
+  Set<WidgetState> get _visualStates =>
+      widget.asTrigger ? ({..._statesController.value}..remove(WidgetState.disabled)) : _statesController.value;
+
   Gradient? _resolveGradient({
     required TWidgetTheme baseTheme,
     required bool isFill,
@@ -494,8 +510,14 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     final activeColor = _isActive ? (widget.activeColor ?? widget.color) : widget.color;
     final icon = _isActive ? (widget.activeIcon ?? widget.icon) : widget.icon;
     final text = widget.text;
-    final baseTheme =
-        widget.baseTheme ?? widget.theme?.baseTheme ?? defaultTheme.baseTheme.rebuild(color: activeColor, type: widget.type?.colorType);
+    final isSurface = widget.type == TButtonType.surface && widget.baseTheme == null && widget.theme?.baseTheme == null;
+    final colors = context.colors;
+    final border = colors.outline.withAlpha(80);
+    final baseTheme = widget.baseTheme ??
+        widget.theme?.baseTheme ??
+        (isSurface
+            ? TWidgetTheme.surfaceTheme(colors).copyWith(container: colors.surface, outline: border, outlineVariant: border)
+            : defaultTheme.baseTheme.rebuild(color: activeColor, type: widget.type?.colorType));
     final theme = widget.theme ??
         defaultTheme.copyWith(
           size: size,
@@ -517,7 +539,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
           height: size.icon,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            valueColor: AlwaysStoppedAnimation(theme.baseTheme.foregroundState.resolve(_statesController.value)),
+            valueColor: AlwaysStoppedAnimation(theme.baseTheme.foregroundState.resolve(_visualStates)),
           ),
         )
       else if (hasIcon)
@@ -528,7 +550,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
                 active: _isActive,
                 size: size.icon,
                 padding: EdgeInsets.zero,
-                color: theme.baseTheme.foregroundState.resolve(_statesController.value),
+                color: theme.baseTheme.foregroundState.resolve(_visualStates),
                 turns: widget.turns,
                 animationMilliseconds: widget.duration.inMilliseconds,
               )
@@ -540,7 +562,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
                   icon: icon,
                   size: size.icon,
                   padding: EdgeInsets.zero,
-                  color: theme.baseTheme.foregroundState.resolve(_statesController.value),
+                  color: theme.baseTheme.foregroundState.resolve(_visualStates),
                   animationMilliseconds: widget.duration.inMilliseconds,
                 ),
               )
@@ -578,11 +600,13 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
 
     Widget buildButton() {
       final isExpandedOrBlock = size.minW.isInfinite;
+      // xs / xxs buttons are too small for a check mark: the selected state is a small filled dot instead.
+      final compactTick = size.minH <= TButtonSize.xs.minH;
 
       final buttonContent = AnimatedContainer(
         duration: widget.duration,
         curve: Curves.easeInOut,
-        padding: widget.showTick ? const EdgeInsets.symmetric(horizontal: 8, vertical: 2) : EdgeInsets.zero,
+        padding: widget.showTick ? EdgeInsets.symmetric(horizontal: compactTick ? 4 : 8, vertical: 2) : EdgeInsets.zero,
         child: theme.shape.vertical
             ? Column(
                 mainAxisSize: MainAxisSize.min,
@@ -601,12 +625,24 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       final isCustomChildOnly =
           widget.child != null && widget.text == null && widget.icon == null && widget.imageUrl == null && size == TButtonSize.zero;
 
-      final isFill = baseTheme.type == TVariant.solid ||
-          (!baseTheme.container.isTransparent && baseTheme.type != TVariant.outline && baseTheme.type != TVariant.text);
+      final isFill = !isSurface &&
+          (baseTheme.type == TVariant.solid ||
+              (!baseTheme.container.isTransparent && baseTheme.type != TVariant.outline && baseTheme.type != TVariant.text));
 
       final isDisabled = _authDisabled || (widget.onPressed == null && widget.onTap == null && widget.onChanged == null);
-      final states = _statesController.value;
-      final effectiveElevation = widget.elevation ?? theme.elevation ?? (isFill ? (baseTheme.type == TVariant.solid ? 1.0 : 0.5) : 0.0);
+      final states = _visualStates;
+      // Solid and tonal buttons get a soft TShadow.xs by default instead of Material elevation.
+      final defaultShadow = widget.shadow == null &&
+              widget.elevation == null &&
+              theme.elevation == null &&
+              !isCustomChildOnly &&
+              (baseTheme.type == TVariant.solid || baseTheme.type == TVariant.tonal)
+          ? TShadow.xs
+          : null;
+      final effectiveShadow = widget.shadow ?? defaultShadow;
+      final effectiveElevation = widget.elevation ??
+          theme.elevation ??
+          (defaultShadow != null ? 0.0 : (isFill ? (baseTheme.type == TVariant.solid ? 1.0 : 0.5) : 0.0));
 
       final effectiveShadowColor =
           (widget.shadowColor ?? theme.shadowColor ?? baseTheme.shadow ?? baseTheme.color.shade(900)).withValues(alpha: 0.18);
@@ -618,20 +654,24 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
         _ => size.paddingState.resolve(states),
       };
 
-      final effectiveGradient = (isCustomChildOnly || isDisabled)
+      final looksDisabled = isDisabled && !widget.asTrigger;
+
+      final effectiveGradient = (isCustomChildOnly || looksDisabled)
           ? widget.gradient
           : _resolveGradient(
               baseTheme: baseTheme,
               isFill: isFill,
             );
 
-      final effectiveButtonStyle = theme.buttonStyle.copyWith(
+      final builtStyle = theme.buttonStyle.copyWith(
         padding: WidgetStateProperty.all(EdgeInsets.zero),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         backgroundColor: WidgetStateProperty.resolveWith((s) {
           if (effectiveGradient != null && !s.contains(WidgetState.disabled)) {
             return Colors.transparent;
           }
+          // A disabled surface button sinks to a tinted background so it reads as inactive, not just faded.
+          if (isSurface && s.contains(WidgetState.disabled)) return context.colors.surfaceContainer;
           return baseTheme.backgroundState.resolve(s);
         }),
         elevation: WidgetStateProperty.resolveWith((s) {
@@ -647,12 +687,27 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
         }),
       );
 
+      // A trigger (no handler of its own) must not pick up the disabled look Material applies to a null onPressed.
+      WidgetStateProperty<R?>? enabledOf<R>(WidgetStateProperty<R?>? p) =>
+          p == null ? null : WidgetStateProperty.resolveWith((s) => p.resolve({...s}..remove(WidgetState.disabled)));
+      final effectiveButtonStyle = widget.asTrigger
+          ? builtStyle.copyWith(
+              backgroundColor: enabledOf(builtStyle.backgroundColor),
+              foregroundColor: enabledOf(builtStyle.foregroundColor),
+              iconColor: enabledOf(builtStyle.iconColor),
+              side: enabledOf(builtStyle.side),
+              elevation: enabledOf(builtStyle.elevation),
+              shadowColor: enabledOf(builtStyle.shadowColor),
+              overlayColor: enabledOf(builtStyle.overlayColor),
+            )
+          : builtStyle;
+
       final decorationBorder = effectiveBorder.copyWith(side: BorderSide.none);
 
       final Widget innerWidget = isCustomChildOnly
           ? buttonContent
           : Ink(
-              decoration: effectiveGradient != null && !isDisabled
+              decoration: effectiveGradient != null && !looksDisabled
                   ? ShapeDecoration(
                       shape: decorationBorder,
                       gradient: effectiveGradient,
@@ -681,6 +736,16 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
           ),
         ),
       );
+
+      if (effectiveShadow != null && !looksDisabled) {
+        resultButton = DecoratedBox(
+          decoration: ShapeDecoration(
+            shape: effectiveBorder.copyWith(side: BorderSide.none),
+            shadows: effectiveShadow.resolve(TShadow.baseColor),
+          ),
+          child: resultButton,
+        );
+      }
 
       if (!isDisabled &&
           !_isLoading &&
@@ -723,7 +788,8 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
         final isRight = widget.tickAlignment.x > 0;
 
         final tickColor = widget.activeColor ?? widget.color ?? context.colors.primary;
-        final offset = theme.shape.vertical ? 5.0 : 4.0;
+        final offset = compactTick ? 4.0 : (theme.shape.vertical ? 5.0 : 4.0);
+        final dotSize = size.minH <= TButtonSize.xxs.minH ? 5.0 : 6.0;
 
         final tickPositioned = Positioned(
           top: isTop ? offset : null,
@@ -731,14 +797,20 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
           left: isLeft ? offset : null,
           right: isRight ? offset : null,
           child: widget.tickWidget ??
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: tickColor,
-                ),
-                child: TIcon.raw(HugeIcons.strokeRoundedCheck, size: 9, color: Colors.white),
-              ),
+              (compactTick
+                  ? Container(
+                      width: dotSize,
+                      height: dotSize,
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: tickColor),
+                    )
+                  : Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: tickColor,
+                      ),
+                      child: TIcon.raw(HugeIcons.strokeRoundedCheck, size: 9, color: Colors.white),
+                    )),
         );
 
         resultButton = Stack(

@@ -147,7 +147,7 @@ class _TLayout2State extends ConsumerState<TLayout2> with SingleTickerProviderSt
                                     actions: widget.actions,
                                   ),
                         ),
-                        Expanded(child: LayoutMainContent(isMobile: false, framed: false, child: widget.child)),
+                        Expanded(child: LayoutMainContent(isMobile: false, child: widget.child)),
                       ],
                     ),
             ),

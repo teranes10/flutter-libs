@@ -6,6 +6,9 @@ const double kMobileBreakpoint = 600;
 /// Minimum width (inclusive) for desktop/large screens.
 const double kDesktopBreakpoint = 1024;
 
+/// Width from which a screen counts as a large desktop (a subset of desktop).
+const double kLargeDesktopBreakpoint = 1440;
+
 /// Screen width breakpoints for responsive layouts.
 enum TBreakpoint {
   sm,
@@ -80,7 +83,7 @@ class TGridRow extends StatelessWidget {
         final breakpoint = TBreakpoint.getBreakpoint(constraints.maxWidth);
         final totalWidth = constraints.maxWidth;
         // 12 column system: totalWidth = 12 * unitWidth + 11 * gapX
-        final unitWidth = (totalWidth - (gapX * 11)) / 12;
+        final unitWidth = ((totalWidth - (gapX * 11)) / 12).clamp(0.0, double.infinity);
 
         return Wrap(
           spacing: gapX,

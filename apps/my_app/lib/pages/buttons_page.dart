@@ -65,6 +65,39 @@ class _ButtonsPageState extends State<ButtonsPage> {
             ],
           ),
 
+          // Surface Buttons
+          WidgetDocCard(
+            title: 'Surface Buttons',
+            description: 'Neutral buttons with a surface to surfaceContainerLow gradient and an outlineVariant border',
+            icon: HugeIcons.strokeRoundedLayers01,
+            preview: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                TButton(type: TButtonType.surface, text: 'Surface', onTap: () {}),
+                TButton(type: TButtonType.surface, icon: HugeIcons.strokeRoundedSettings01, text: 'Settings', onTap: () {}),
+                TButton(type: TButtonType.surface, icon: HugeIcons.strokeRoundedAdd01, onTap: () {}),
+                TButton(type: TButtonType.surface, shape: TButtonShape.pill, text: 'Pill', onTap: () {}),
+                TButton(type: TButtonType.surface, shadow: TShadow.md, text: 'Shadow', onTap: () {}),
+                const TButton(type: TButtonType.surface, text: 'Disabled'),
+              ],
+            ),
+            code: '''TButton(
+  type: TButtonType.surface,
+  icon: HugeIcons.strokeRoundedSettings01,
+  text: 'Settings',
+  onTap: () {},
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'type',
+                type: 'TButtonType',
+                defaultValue: 'TButtonType.solid',
+                description: 'Use TButtonType.surface for a neutral surface gradient with an outlineVariant border',
+              ),
+            ],
+          ),
+
           // Tonal Buttons
           WidgetDocCard(
             title: 'Tonal Buttons',

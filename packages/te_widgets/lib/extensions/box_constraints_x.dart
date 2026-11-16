@@ -6,6 +6,9 @@ extension BoxConstraintsX on BoxConstraints {
   bool get isTablet => maxWidth >= kMobileBreakpoint && maxWidth < kDesktopBreakpoint;
   bool get isDesktop => maxWidth >= kDesktopBreakpoint;
 
+  /// Desktop at or above [kLargeDesktopBreakpoint]; also true for [isDesktop].
+  bool get isLargeDesktop => maxWidth >= kLargeDesktopBreakpoint;
+
   double? get resolvedWidth {
     final maxW = maxWidth;
     final minW = minWidth;

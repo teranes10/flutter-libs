@@ -90,7 +90,12 @@ class TButtonGroupTheme {
       enableBoxedMode: enableBoxedMode || type == TButtonGroupType.boxed || type == TButtonGroupType.segmented,
       boxedPadding: EdgeInsets.all(type == TButtonGroupType.segmented ? 3 : 2),
       boxedDecoration: type == TButtonGroupType.segmented
-          ? BoxDecoration(color: context.getTonalBackground().tonal, borderRadius: BorderRadius.circular(borderRadius + 3))
+          ? BoxDecoration(
+              color: colors.surfaceDim,
+              // border: Border.all(color: colors.outline.withAlpha(30)),
+              borderRadius: BorderRadius.circular(borderRadius + 3),
+              boxShadow: TShadow.xs.resolve(TShadow.baseColor),
+            )
           : BoxDecoration(
               border: Border.all(color: colors.outline),
               borderRadius: BorderRadius.circular(borderRadius + 2),

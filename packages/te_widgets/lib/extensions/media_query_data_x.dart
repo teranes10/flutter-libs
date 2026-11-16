@@ -9,6 +9,9 @@ extension MediaQueryDataX on MediaQueryData {
   bool get isTablet => screenWidth >= kMobileBreakpoint && screenWidth < kDesktopBreakpoint;
   bool get isDesktop => screenWidth >= kDesktopBreakpoint;
 
+  /// Desktop at or above [kLargeDesktopBreakpoint]; also true for [isDesktop].
+  bool get isLargeDesktop => screenWidth >= kLargeDesktopBreakpoint;
+
   TextScaler scaleText({double? sm, double? md, double? lg}) {
     final current = textScaler;
 

@@ -157,7 +157,9 @@ class _TRadioState<T> extends State<TRadio<T>>
   }
 
   List<BoxShadow>? getShadow(ColorScheme colors, bool isFocused) {
-    return isFocused ? [BoxShadow(color: colors.shadow, blurRadius: 4.0, spreadRadius: 1.5, offset: const Offset(0, 0))] : null;
+    return isFocused
+        ? [BoxShadow(color: colors.shadow.withAlpha(15), blurRadius: 4.0, spreadRadius: -2, offset: const Offset(0, 0))]
+        : null;
   }
 
   @override
@@ -172,6 +174,10 @@ class _TRadioState<T> extends State<TRadio<T>>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
           onTap: widget.disabled ? null : () => _onRadioChanged(widget.radioValue),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -188,6 +194,7 @@ class _TRadioState<T> extends State<TRadio<T>>
                       focusNode: focusNode,
                       autofocus: widget.autoFocus,
                       splashRadius: 0,
+                      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
                       value: widget.radioValue,
                       // ignore: deprecated_member_use
                       groupValue: currentValue,

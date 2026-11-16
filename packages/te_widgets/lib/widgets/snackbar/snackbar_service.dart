@@ -104,7 +104,7 @@ class TSnackbarService {
             child: Material(
               elevation: elevation ?? 6,
               color: wTheme.container,
-              shadowColor: wTheme.shadow ?? context.colors.shadow,
+              shadowColor: wTheme.shadow ?? context.colors.shadow.withAlpha(30),
               shape: effectiveShape,
               child: Padding(
                 padding: padding ?? EdgeInsets.symmetric(horizontal: 16, vertical: title != null ? 10 : 14),

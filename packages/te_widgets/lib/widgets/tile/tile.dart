@@ -788,7 +788,9 @@ class TTile extends StatelessWidget {
     final colors = context.colors;
     final effectiveIcon = leading ?? ((imageUrl != null && imageUrl!.isNotEmpty) ? null : icon);
     final effectiveIconSize = iconSize ?? size.icon;
-    final effectiveIconPadding = iconPadding ?? (size.hPad > 0 || size.vPad > 0 ? size.padding : const EdgeInsets.all(8));
+    final effectiveIconPadding = iconBackgroundColor?.a == 0
+        ? EdgeInsets.zero
+        : (iconPadding ?? (size.hPad > 0 || size.vPad > 0 ? size.padding : const EdgeInsets.all(8)));
     final effectiveSpacing = spacing ?? size.spacing;
 
     final subtitleStyle = TextStyle(
@@ -827,12 +829,24 @@ class TTile extends StatelessWidget {
     final effectiveIcon = leading ?? ((imageUrl != null && imageUrl!.isNotEmpty) ? null : icon);
 
     final effectiveIconSize = iconSize ?? size.icon;
-    final effectiveIconPadding = iconPadding ?? (size.hPad > 0 || size.vPad > 0 ? size.padding : const EdgeInsets.all(8));
     final effectiveIconBorderRadius = iconBorderRadius ?? BorderRadius.circular(size.radius);
     final effectiveSpacing = spacing ?? size.spacing;
 
     final defaultBg = (isHovered || isExpanded) ? colors.primaryContainer.withAlpha(128) : colors.onSurface.withAlpha(13);
     final defaultIconColor = (isHovered || isExpanded) ? colors.primary : colors.onSurfaceVariant;
+
+    final Color resolvedBg;
+    if (isExpanded && expandedIconBackgroundColor != null) {
+      resolvedBg = expandedIconBackgroundColor!;
+    } else if (isHovered && hoveredIconBackgroundColor != null) {
+      resolvedBg = hoveredIconBackgroundColor!;
+    } else {
+      resolvedBg = iconBackgroundColor ?? defaultBg;
+    }
+
+    // Without a visible background the padding is just dead space, so drop it.
+    final effectiveIconPadding =
+        resolvedBg.a == 0 ? EdgeInsets.zero : (iconPadding ?? (size.hPad > 0 || size.vPad > 0 ? size.padding : const EdgeInsets.all(8)));
 
     Color resolvedIconColor;
     if (isExpanded && expandedIconColor != null) {
@@ -854,15 +868,6 @@ class TTile extends StatelessWidget {
           child: effectiveIcon,
         );
       } else {
-        Color resolvedBg;
-        if (isExpanded && expandedIconBackgroundColor != null) {
-          resolvedBg = expandedIconBackgroundColor!;
-        } else if (isHovered && hoveredIconBackgroundColor != null) {
-          resolvedBg = hoveredIconBackgroundColor!;
-        } else {
-          resolvedBg = iconBackgroundColor ?? defaultBg;
-        }
-
         leadingWidget = Container(
           padding: effectiveIconPadding,
           decoration: BoxDecoration(

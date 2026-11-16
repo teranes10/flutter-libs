@@ -10,6 +10,9 @@ enum TButtonType {
   text,
   softText,
   filledText,
+
+  /// Neutral surface button: surface to surfaceContainerLow gradient with an outlineVariant border.
+  surface,
   icon;
 
   /// Maps the button type to a [TVariant] color scheme.
@@ -22,6 +25,7 @@ enum TButtonType {
       TButtonType.filledOutline => TVariant.filledOutline,
       TButtonType.softText => TVariant.softText,
       TButtonType.filledText => TVariant.filledText,
+      TButtonType.surface => TVariant.tonal,
       TButtonType.text || TButtonType.icon => TVariant.text,
     };
   }

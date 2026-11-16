@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -32,6 +33,8 @@ part 'table_header_filters.dart';
 /// - [TTableHeader.values]: Renders a hierarchical list of values (cascading font size & contrast)
 /// - [TTableHeader.image]: Renders an image from URL
 /// - [TTableHeader.chip]: Renders a [TChip]
+/// - [TTableHeader.statusChip]: Renders a [TChip] that opens a dropdown of [TStatusOption]s and reports the pick
+/// - [TTableHeader.statusEnum]: [TTableHeader.statusChip] quick setup from an enum's values plus color/icon getters
 /// - [TTableHeader.chips]: Renders multiple [TChip] widgets in a [Wrap] with auto-calculated width estimation
 /// - [TTableHeader.color]: Renders a [TColor] swatch badge
 /// - [TTableHeader.rating]: Renders a [TRating]
@@ -297,6 +300,170 @@ class TTableHeader<T, K> {
             padding: isDense ? const EdgeInsets.symmetric(horizontal: 6, vertical: 2) : null,
           );
         });
+
+  /// Creates a status column: a [TChip] showing the current value's text, icon and color, which opens a dropdown
+  /// of every [TStatusOption] when pressed.
+  ///
+  /// [options] maps each enum value to its text, icon and color. [get] reads the current value from the row and
+  /// [onChanged] receives the row and the newly picked value so the caller can patch it (e.g. send a PATCH request).
+  /// It returns (or completes with) true to accept the change, which updates the chip immediately; false keeps the
+  /// old value. The chip is disabled while a returned future is pending. When [onChanged] is null, or [disabled]/[isDisabled] is true, the chip is read-only.
+  ///
+  /// ```dart
+  /// TTableHeader.statusChip<Order, int, OrderStatus>(
+  ///   'Status',
+  ///   (o) => o.status,
+  ///   [
+  ///     TStatusOption(OrderStatus.pending, 'Pending', icon: HugeIcons.strokeRoundedClock01, color: Colors.orange),
+  ///     TStatusOption(OrderStatus.done, 'Done', icon: HugeIcons.strokeRoundedCheckmarkCircle02, color: Colors.green),
+  ///   ],
+  ///   onChanged: (order, status) => api.patchStatus(order.id, status), // Future<bool>
+  /// )
+  /// ```
+  static TTableHeader<T, K> statusChip<T, K, V>(
+    String text,
+    V? Function(T) get,
+    List<TStatusOption<V>> options, {
+    FutureOr<bool> Function(T data, V value)? onChanged,
+    bool disabled = false,
+    bool Function(T data)? isDisabled,
+    TVariant? type,
+    TSize size = TChipSize.sm,
+    int? flex,
+    double? minWidth,
+    double? maxWidth,
+    Alignment? alignment,
+    String? key,
+    TFilterType? filterType = TFilterType.enumFilter,
+    bool filterable = true,
+    List<TFilterOperator>? filterOperators,
+    List<V>? filterItems,
+    TFilterDef<T>? filterDef,
+    double Function(T data)? widthEstimator,
+    bool flattenOnMobile = false,
+    bool showInDetails = true,
+    String Function(String headerText, String childKey)? mobileKeyPrefixBuilder,
+    List<TKeyValue> Function(T data)? keyValuesBuilder,
+  }) =>
+      TTableHeader<T, K>._statusChip(
+        text,
+        get,
+        [for (final o in options) TStatusOption<dynamic>(o.value, o.text, icon: o.icon, color: o.color)],
+        onChanged: onChanged == null ? null : (data, value) => onChanged(data, value as V),
+        disabled: disabled,
+        isDisabled: isDisabled,
+        type: type,
+        size: size,
+        flex: flex,
+        minWidth: minWidth,
+        maxWidth: maxWidth,
+        alignment: alignment,
+        key: key,
+        filterType: filterType,
+        filterable: filterable,
+        filterOperators: filterOperators,
+        filterItems: filterItems ?? [for (final o in options) o.value],
+        filterDef: filterDef,
+        widthEstimator: widthEstimator,
+        flattenOnMobile: flattenOnMobile,
+        showInDetails: showInDetails,
+        mobileKeyPrefixBuilder: mobileKeyPrefixBuilder,
+        keyValuesBuilder: keyValuesBuilder,
+      );
+
+  /// Quick setup of [statusChip] for an enum: pass `MyEnum.values` and read text, icon and color from
+  /// getters (usually an extension on the enum). [label] defaults to the humanized enum name.
+  ///
+  /// ```dart
+  /// extension OrderStatusX on OrderStatus {
+  ///   Color get color => switch (this) { OrderStatus.pending => Colors.orange, OrderStatus.done => Colors.green };
+  ///   IconData get icon => switch (this) { OrderStatus.pending => Icons.schedule, OrderStatus.done => Icons.check };
+  /// }
+  ///
+  /// TTableHeader.statusEnum<Order, int, OrderStatus>(
+  ///   'Status', (o) => o.status, OrderStatus.values,
+  ///   color: (s) => s.color, icon: (s) => s.icon,
+  ///   onChanged: (o, s) => api.patchStatus(o.id, s),
+  /// )
+  /// ```
+  static TTableHeader<T, K> statusEnum<T, K, V extends Enum>(
+    String text,
+    V? Function(T) get,
+    List<V> values, {
+    String Function(V value)? label,
+    dynamic Function(V value)? icon,
+    Color? Function(V value)? color,
+    FutureOr<bool> Function(T data, V value)? onChanged,
+    bool disabled = false,
+    bool Function(T data)? isDisabled,
+    TVariant? type,
+    TSize size = TChipSize.sm,
+    int? flex,
+    double? minWidth,
+    double? maxWidth,
+    Alignment? alignment,
+    String? key,
+    bool filterable = true,
+  }) =>
+      statusChip<T, K, V>(
+        text,
+        get,
+        TStatusOption.fromValues<V>(values, text: label, icon: icon, color: color),
+        onChanged: onChanged,
+        disabled: disabled,
+        isDisabled: isDisabled,
+        type: type,
+        size: size,
+        flex: flex,
+        minWidth: minWidth,
+        maxWidth: maxWidth,
+        alignment: alignment,
+        key: key,
+        filterable: filterable,
+      );
+
+  TTableHeader._statusChip(
+    this.text,
+    Object? Function(T) get,
+    List<TStatusOption<dynamic>> options, {
+    FutureOr<bool> Function(T data, dynamic value)? onChanged,
+    bool disabled = false,
+    bool Function(T data)? isDisabled,
+    TVariant? type,
+    TSize size = TChipSize.sm,
+    this.flex,
+    this.minWidth,
+    this.maxWidth,
+    this.alignment,
+    this.key,
+    this.filterType = TFilterType.enumFilter,
+    this.filterable = true,
+    this.filterOperators,
+    this.filterItems,
+    this.filterDef,
+    double Function(T data)? widthEstimator,
+    this.flattenOnMobile = false,
+    this.showInDetails = true,
+    this.mobileKeyPrefixBuilder,
+    this.keyValuesBuilder,
+  })  : estimatedHeight = null,
+        map = ((data) => TStatusOption.find(options, get(data))?.text ?? get(data)),
+        widthEstimator = widthEstimator ??
+            ((data) {
+              final option = TStatusOption.find(options, get(data));
+              final label = option?.text ?? '';
+              final hasPicker = onChanged != null && !disabled && !(isDisabled?.call(data) ?? false);
+              return TTableTheme.measureTextWidth(label) + 24.0 + (option?.icon != null ? 18.0 : 0.0) + (hasPicker ? 18.0 : 0.0);
+            }),
+        builder = _statusChipCellBuilder<T, K>(
+          get: get,
+          options: options,
+          onChanged: onChanged,
+          disabled: disabled,
+          isDisabled: isDisabled,
+          type: type,
+          size: size,
+        );
 
   /// Creates a header for displaying multiple chips in a [Wrap] with auto-calculated width estimation.
   ///

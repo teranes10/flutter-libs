@@ -202,7 +202,9 @@ class _TCheckboxState<T> extends State<TCheckbox>
   }
 
   List<BoxShadow>? getShadow(ColorScheme colors, bool isFocused) {
-    return isFocused ? [BoxShadow(color: colors.shadow, blurRadius: 4.0, spreadRadius: 1.5, offset: const Offset(0, 0))] : null;
+    return isFocused
+        ? [BoxShadow(color: colors.shadow.withAlpha(15), blurRadius: 4.0, spreadRadius: -2, offset: const Offset(0, 0))]
+        : null;
   }
 
   @override

@@ -2,6 +2,16 @@ import 'package:te_widgets/te_widgets.dart';
 
 /// Predefined size configurations for [TChip].
 abstract final class TChipSize {
+  /// Tiny chip for annotations inside dense rows, e.g. add-on tags in a bill line (fontSize: 9, icon: 9, hPad: 4, vPad: 0).
+  static const TSize xxs = TSize(
+    hPad: 4.0,
+    vPad: 0.0,
+    font: 9.0,
+    icon: 9.0,
+    radius: 4.0,
+    spacing: 2.0,
+  );
+
   /// Extra small chip size for dense cards and headers (fontSize: 10, icon: 10, hPad: 5, vPad: 0).
   static const TSize xs = TSize(
     hPad: 5.0,

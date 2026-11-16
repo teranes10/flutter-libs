@@ -13,6 +13,13 @@ class TTabs<T> extends StatefulWidget {
   final Color? unselectedColor;
   final Color? disabledColor;
   final Color? indicatorColor;
+
+  /// Color of the line under tabs that aren't selected, forming a continuous baseline the indicator sits on.
+  /// Transparent (no baseline) when null.
+  final Color? baselineColor;
+
+  /// Font weight of the selected tab's text. Defaults to a light w400.
+  final FontWeight? selectedFontWeight;
   final EdgeInsets? tabPadding;
   final double tabSpacing;
   final double tabRunSpacing;
@@ -47,6 +54,8 @@ class TTabs<T> extends StatefulWidget {
     this.unselectedColor,
     this.disabledColor,
     this.indicatorColor,
+    this.baselineColor,
+    this.selectedFontWeight,
     this.tabPadding,
     this.tabSpacing = 4,
     this.tabRunSpacing = 2,
@@ -214,6 +223,8 @@ class _TTabsState<T> extends State<TTabs<T>> {
       unselectedColor: widget.unselectedColor,
       disabledColor: widget.disabledColor,
       indicatorColor: widget.indicatorColor,
+      baselineColor: widget.baselineColor,
+      selectedFontWeight: widget.selectedFontWeight,
       controller: widget.controller,
       onTab: onTap,
       style: widget.style,

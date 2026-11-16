@@ -102,12 +102,15 @@ class _LayoutDesktopSidebarState extends State<LayoutDesktopSidebar> {
           );
 
     // Left edge 20 lines the logo up with the sidebar icons (item margin + padding).
+    // Without a profile, match the desktop top bar height (12 + 48 + 7) so the rows line up.
+    final matchTopBar = profile == null;
     return Padding(
-      padding: EdgeInsets.fromLTRB(minified ? 8 : 20, 18, minified ? 8 : 12, 18),
+      padding: EdgeInsets.fromLTRB(minified ? 8 : 20, matchTopBar ? 0 : 18, minified ? 8 : 12, matchTopBar ? 0 : 18),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          top,
+          if (matchTopBar) SizedBox(height: 67, child: Center(child: top)) else top,
           if (profile != null) ...[
             const SizedBox(height: 12),
             minified ? Center(child: profile) : profile,
@@ -139,7 +142,6 @@ class _LayoutDesktopSidebarState extends State<LayoutDesktopSidebar> {
           DecoratedBox(
             decoration: BoxDecoration(
               color: widget.backgroundColor ?? colors.surface,
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
             ),
             child: Sidebar(
               items: widget.items,

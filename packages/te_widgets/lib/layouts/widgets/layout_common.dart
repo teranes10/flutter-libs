@@ -60,51 +60,30 @@ ResolvedLayoutItems resolveLayoutItems(
 // ─────────────────────────────────────────────────────────────────────────
 
 class LayoutMainContent extends StatelessWidget {
-  const LayoutMainContent({super.key, required this.isMobile, required this.child, this.framed = true});
+  const LayoutMainContent({super.key, required this.isMobile, required this.child, this.backgroundColor});
 
   final bool isMobile;
-  final bool framed;
+  final Color? backgroundColor;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final background = context.scaffoldBackgroundColor;
+    final fill = backgroundColor ?? background;
 
     return TBackgroundColorScope(
       backgroundColor: background,
       child: DecoratedBox(
         decoration: isMobile
             ? BoxDecoration(
-                color: background,
+                color: fill,
                 border: Border(
                   top: BorderSide(color: colors.shadow, width: 0.5),
                   bottom: BorderSide(color: colors.shadow, width: 0.5),
                 ),
               )
-            : !framed
-                ? BoxDecoration(color: background)
-                : BoxDecoration(
-                    color: background,
-                    border: Border(
-                      top: BorderSide(color: colors.outlineVariant.withAlpha(60), width: 1),
-                      left: BorderSide(color: colors.outlineVariant.withAlpha(60), width: 1),
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
-                      bottomLeft: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        offset: const Offset(-2, -4),
-                        blurRadius: 20,
-                        spreadRadius: -4,
-                        color: colors.shadow.withAlpha(15),
-                      ),
-                    ],
-                  ),
+            : BoxDecoration(color: fill),
         child: Column(
           children: [
             SizedBox(height: isMobile ? 4 : 8),

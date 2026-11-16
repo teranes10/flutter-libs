@@ -11,6 +11,7 @@ class TablesPage extends StatefulWidget {
 
 class _TablesPageState extends State<TablesPage> {
   late final TListController<Product, String> reorderableController;
+  final Map<String, ProductStatus> _statuses = {};
 
   @override
   void initState() {
@@ -182,6 +183,32 @@ class _TablesPageState extends State<TablesPage> {
             ),
             Text('Chips in Tables (Icons, Text & TVariant Variants)', style: context.textTheme.titleMedium),
             TTable<Product, int>(shrinkWrap: true, headers: chipsTableHeaders, items: products),
+            Text('Status Chip with Dropdown (onChanged patches the row)', style: context.textTheme.titleMedium),
+            TTable<Product, int>(
+              shrinkWrap: true,
+              headers: [
+                TTableHeader.map("Name", (x) => x.name),
+                TTableHeader.statusEnum<Product, int, ProductStatus>(
+                  "Status (enum + extension)",
+                  (x) => _statuses[x.id] ?? ProductStatus.draft,
+                  ProductStatus.values,
+                  color: (s) => s.color,
+                  icon: (s) => s.icon,
+                  onChanged: (product, status) async {
+                    await Future<void>.delayed(const Duration(milliseconds: 300)); // e.g. PATCH request
+                    setState(() => _statuses[product.id] = status);
+                    return true; // accepted -> chip shows the new value
+                  },
+                ),
+                TTableHeader.statusEnum<Product, int, ProductStatus>(
+                  "Read-only",
+                  (x) => _statuses[x.id] ?? ProductStatus.draft,
+                  ProductStatus.values,
+                  color: (s) => s.color,
+                ),
+              ],
+              items: products,
+            ),
             Text('Reorderable Table', style: context.textTheme.titleMedium),
             TTable<Product, String>(
               shrinkWrap: true,
@@ -197,6 +224,22 @@ class _TablesPageState extends State<TablesPage> {
       ),
     );
   }
+}
+
+enum ProductStatus { draft, active, archived }
+
+extension ProductStatusX on ProductStatus {
+  Color get color => switch (this) {
+    ProductStatus.draft => Colors.grey,
+    ProductStatus.active => Colors.green,
+    ProductStatus.archived => Colors.orange,
+  };
+
+  dynamic get icon => switch (this) {
+    ProductStatus.draft => HugeIcons.strokeRoundedEdit02,
+    ProductStatus.active => HugeIcons.strokeRoundedCheckmarkCircle02,
+    ProductStatus.archived => HugeIcons.strokeRoundedArchive,
+  };
 }
 
 class User {

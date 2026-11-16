@@ -17,6 +17,8 @@ class TabRenderer<T> {
     Color? unselectedColor,
     Color? disabledColor,
     Color? indicatorColor,
+    Color? baselineColor,
+    FontWeight? selectedFontWeight,
     TTabController<T>? controller,
     VoidCallback? onTab,
     TTabStyle style = TTabStyle.underline,
@@ -48,8 +50,8 @@ class TabRenderer<T> {
             ? Border(bottom: BorderSide(color: defaultIndicatorColor, width: effectiveIndicatorWidth))
             : Border(right: BorderSide(color: defaultIndicatorColor, width: effectiveIndicatorWidth)))
         : (axis == Axis.horizontal
-            ? Border(bottom: BorderSide(color: Colors.transparent, width: effectiveIndicatorWidth))
-            : Border(right: BorderSide(color: Colors.transparent, width: effectiveIndicatorWidth)));
+            ? Border(bottom: BorderSide(color: baselineColor ?? Colors.transparent, width: effectiveIndicatorWidth))
+            : Border(right: BorderSide(color: baselineColor ?? Colors.transparent, width: effectiveIndicatorWidth)));
 
     // For vertical tabs on mobile, show only icons to prevent overflow unless icon is null
     final isMobile = context.isMobile;
@@ -62,6 +64,7 @@ class TabRenderer<T> {
             isSelected: isSelected,
             defaultIndicatorColor: defaultIndicatorColor,
             colors: colors,
+            selectedFontWeight: selectedFontWeight,
           )
         : _buildVerticalTabContent(
             tab: tab,
@@ -69,6 +72,7 @@ class TabRenderer<T> {
             isSelected: isSelected,
             defaultIndicatorColor: defaultIndicatorColor,
             showText: showTextInVertical,
+            selectedFontWeight: selectedFontWeight,
           );
 
     return Container(
@@ -149,6 +153,7 @@ class TabRenderer<T> {
     required bool isSelected,
     required Color defaultIndicatorColor,
     required ColorScheme colors,
+    FontWeight? selectedFontWeight,
   }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -164,7 +169,7 @@ class TabRenderer<T> {
             style: TextStyle(
               color: color,
               fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w400 : FontWeight.w300,
+              fontWeight: isSelected ? (selectedFontWeight ?? FontWeight.w400) : FontWeight.w300,
             ),
           ),
         if (tab.count != null)
@@ -205,6 +210,7 @@ class TabRenderer<T> {
     required bool isSelected,
     required Color defaultIndicatorColor,
     required bool showText,
+    FontWeight? selectedFontWeight,
   }) {
     return Column(
       crossAxisAlignment: showText ? CrossAxisAlignment.start : CrossAxisAlignment.center,
@@ -219,7 +225,7 @@ class TabRenderer<T> {
             style: TextStyle(
               color: color,
               fontSize: 13,
-              fontWeight: isSelected ? FontWeight.w400 : FontWeight.w300,
+              fontWeight: isSelected ? (selectedFontWeight ?? FontWeight.w400) : FontWeight.w300,
             ),
           ),
         if (tab.isActive)

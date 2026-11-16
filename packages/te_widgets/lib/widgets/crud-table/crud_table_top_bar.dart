@@ -36,19 +36,20 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
     final config = widget.config;
     final hasHeader = config.pageTitle != null || config.pageIcon != null || config.pageInfo != null || config.pageLeading != null;
 
-    final createAndActions = [
-      if (canCreate && _crudVisible(_perms?.create))
-        TButton(
-          key: const ValueKey('crud_table_add_button'),
-          type: TButtonType.tonal,
-          icon: HugeIcons.strokeRoundedAdd01,
-          text: config.addButtonText,
-          onPressed: (_) => handleCreate(),
-          permission: _perms?.create,
-          onDenied: _crudDenied(_perms?.create),
-        ),
-      ...config.topBarActions,
-    ];
+    // "Add new" is pinned to the right end of the header row; the other actions sit before it, in order, and
+    // the ones that don't fit move down to the search row.
+    final addButton = canCreate && _crudVisible(_perms?.create)
+        ? TButton(
+            key: const ValueKey('crud_table_add_button'),
+            type: TButtonType.solid,
+            icon: HugeIcons.strokeRoundedAdd01,
+            text: config.effectiveAddButtonText,
+            onPressed: (_) => handleCreate(),
+            permission: _perms?.create,
+            onDenied: _crudDenied(_perms?.create),
+          )
+        : null;
+    final createAndActions = [...config.topBarActions, if (addButton != null) addButton];
 
     final selectionActions = [
       TButton(
@@ -61,41 +62,66 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
     ];
 
     final activeIsServerSide = activeController.isServerSide;
+    // Large desktop three-row layout: the tabs go to the left of the filters/search row.
+    final tabsLeft = showTabs && hasHeader && ctx.isLargeDesktop;
+    // TAlignedRow always lays this child out at the row's own maxWidth to measure it,
+    // then uses the resulting size to decide row placement. Wrapping TTabs in a
+    // LayoutBuilder/ConstrainedBox that stretches to fill that width makes it measure
+    // as "full row width" even when the tabs only need their natural content width,
+    // which forces it onto its own row every time. Pass TTabs straight through so it
+    // reports its real content size and wraps only when it actually overflows.
+    final tabsBar = !showTabs
+        ? null
+        : TTabs(
+            wrap: true,
+            // Underline tabs on a baseline; the active one is bolder, in the primary color.
+            selectedColor: ctx.colors.primary,
+            selectedFontWeight: FontWeight.w600,
+            indicatorWidth: 2,
+            // Narrow screens put the tabs on their own line; let them stretch across it.
+            fill: !ctx.isDesktop,
+            selectedValue: isFilterTabs ? filterTab : currentTab,
+            onTabChanged: (value) {
+              if (isFilterTabs) {
+                filterTab = value;
+                _listController.selectTab(value);
+                if (value is int) config.onTabChange?.call(value);
+                return;
+              }
+              currentTab = value;
+              config.onTabChange?.call(value);
+            },
+            tabs: tabs,
+          );
+    // One continuous, light line under all tabs; the active indicator (2px) is drawn over it.
+    final tabsWidget = tabsBar == null
+        ? null
+        : Stack(
+            children: [
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 1,
+                child: ColoredBox(color: ctx.colors.outlineVariant.withValues(alpha: 0.5)),
+              ),
+              tabsBar,
+            ],
+          );
     final rightItems = [
-      if (showTabs)
-        // TAlignedRow always lays this child out at the row's own maxWidth to measure it,
-        // then uses the resulting size to decide row placement. Wrapping TTabs in a
-        // LayoutBuilder/ConstrainedBox that stretches to fill that width makes it measure
-        // as "full row width" even when the tabs only need their natural content width,
-        // which forces it onto its own row every time. Pass TTabs straight through so it
-        // reports its real content size and wraps only when it actually overflows.
-        TTabs(
-          wrap: true,
-          // Narrow screens put the tabs on their own line; let them stretch across it.
-          fill: !ctx.isDesktop,
-          selectedValue: isFilterTabs ? filterTab : currentTab,
-          onTabChanged: (value) {
-            if (isFilterTabs) {
-              filterTab = value;
-              _listController.selectTab(value);
-              if (value is int) config.onTabChange?.call(value);
-              return;
-            }
-            currentTab = value;
-            config.onTabChange?.call(value);
-          },
-          tabs: tabs,
-        ),
-      if (shouldShowFilterButton) _buildFilterButton(ctx),
+      if (tabsWidget != null && !tabsLeft) tabsWidget,
       // On narrow screens search and the more-options button share one line as a single item.
       if (ctx.isDesktop) ...[
-        _buildSearchBar(ctx).size(w: 275),
+        _buildSearchBar(ctx).size(w: 300),
+        if (shouldShowFilterButton) _buildFilterButton(ctx),
         if (activeIsServerSide) _buildRefreshButton(ctx),
-      ] else
+      ] else ...[
         Row(
           spacing: 8,
           children: [Expanded(child: _buildSearchBar(ctx)), _buildMoreOptionsButton(ctx)],
         ),
+        if (shouldShowFilterButton) _buildFilterButton(ctx),
+      ],
       // Card layout is forced automatically once the table can't fit as a table (narrow
       // screen or overflowing columns) regardless of viewMode, so these manual toggles are
       // meaningless there — only offer them when there's room for them to matter.
@@ -125,19 +151,29 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
                 spacing: 4,
                 children: [
                   if (config.pageLeading != null) config.pageLeading!,
-                  TTile.h4(
-                    icon: config.pageIcon,
-                    iconBackgroundColor: Colors.transparent,
-                    title: config.pageTitle,
-                    subtitle: config.pageInfo,
+                  // Flexible: the pinned "Add new" never overflows, so a long title must shrink instead.
+                  Flexible(
+                    child: TTile.h3(
+                      icon: config.pageIcon,
+                      iconBackgroundColor: Colors.transparent,
+                      title: config.pageTitle,
+                      subtitle: config.pageInfo,
+                    ),
                   ),
                 ],
               ),
               // While rows are selected the selection actions take over the search row, and
               // the header row keeps only the page info.
-              actions: hasSelection ? const [] : createAndActions,
+              actions: hasSelection ? const [] : config.topBarActions,
+              endAction: hasSelection ? null : addButton,
               metrics: _metrics(activeController),
-              searchRowBuilder: (leading, overflow) => searchRow([...leading, ...(hasSelection ? selectionActions : overflow)]),
+              // Large desktop screens (>= kLargeDesktopBreakpoint): header + actions / metrics row / filters + search each get their own row.
+              metricsOwnRow: ctx.isLargeDesktop,
+              searchRowBuilder: (leading, overflow) => searchRow([
+                ...leading,
+                if (tabsLeft && tabsWidget != null) tabsWidget,
+                ...(hasSelection ? selectionActions : overflow),
+              ]),
             ),
     );
   }
@@ -216,23 +252,51 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
           final hasActiveFilters = activeCount > 0;
 
           return TButton(
-            baseTheme: TWidgetTheme.fieldTheme(
-              context,
-              variant: hasActiveFilters ? TVariant.tonal : TVariant.outline,
-            ),
+            type: TButtonType.surface,
+            asTrigger: true,
             size: TButtonSize.fromInputSize(TInputSize.sm),
             icon: HugeIcons.strokeRoundedFilter,
             badge: hasActiveFilters ? activeCount : null,
-            tooltip: hasActiveFilters ? 'Filters ($activeCount active)' : 'Filter',
+            tooltip: hasActiveFilters ? _filterTooltip(state.advancedSearch!, defs) : 'Filter',
           );
         },
       ),
     );
   }
 
+  /// One line per active filter, e.g. `Price >= 10` or `Category in A, B, C`, using the operator's short symbol.
+  String _filterTooltip(Map<String, dynamic> filters, List<TFilterDef<T>> defs) {
+    const maxLines = 8;
+    const maxListItems = 5;
+
+    String value(dynamic v) {
+      if (v is List) {
+        final shown = v.take(maxListItems).map((e) => '$e').join(', ');
+        return v.length > maxListItems ? '$shown +${v.length - maxListItems}' : shown;
+      }
+      return '$v';
+    }
+
+    final lines = <String>[];
+    for (final MapEntry(key: field, value: ops) in filters.entries) {
+      if (ops is! Map) continue;
+      final label = defs.where((d) => d.key == field).map((d) => d.label).firstOrNull ?? field;
+      for (final MapEntry(key: opId, value: val) in ops.entries) {
+        if (opId == 'isNull') {
+          lines.add('$label ${val == false ? 'is not null' : 'is null'}');
+          continue;
+        }
+        final op = TFilterOperator.fromId('$opId');
+        lines.add('$label ${op.shortLabel ?? op.label} ${value(val)}');
+      }
+    }
+    if (lines.length <= maxLines) return lines.join('\n');
+    return '${lines.take(maxLines).join('\n')}\n+${lines.length - maxLines} more';
+  }
+
   Widget _buildRefreshButton(BuildContext ctx) {
     return TButton(
-      baseTheme: TWidgetTheme.fieldTheme(ctx, variant: TVariant.outline),
+      type: TButtonType.surface,
       size: TButtonSize.fromInputSize(TInputSize.sm),
       icon: HugeIcons.strokeRoundedRefresh01,
       tooltip: 'Refresh',
@@ -247,10 +311,11 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
       theme: ctx.theme.textFieldTheme.copyWith(
         size: TInputSize.sm,
         labelPosition: TLabelPosition.aboveField,
-        decorationType: TInputDecorationType.filled,
+        decorationType: TInputDecorationType.outline,
+        backgroundColor: WidgetStatePropertyAll(ctx.colors.surface),
         preWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: ctx.colors.onSurface),
       ),
-      placeholder: widget.config.searchPlaceholder,
+      placeholder: widget.config.effectiveSearchPlaceholder,
       onValueChanged: (String? input) {
         if (currentTab == 0) {
           listController.handleSearchChange(input ?? '');
@@ -452,10 +517,10 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
         ),
       ],
       child: TButton(
-        type: TButtonType.text,
-        color: ctx.colors.onSurfaceVariant,
-        size: TButtonSize.sm,
-        icon: HugeIcons.strokeRoundedMoreVertical,
+        type: TButtonType.surface,
+        asTrigger: true,
+        size: TButtonSize.fromInputSize(TInputSize.sm),
+        icon: HugeIcons.strokeRoundedSettings01,
       ),
     );
   }
@@ -647,16 +712,23 @@ class _ColumnVisibilityMenuState extends State<_ColumnVisibilityMenu> {
   }
 }
 
-/// Page header row: [header] on the left with [actions] at the right end of the same row.
+/// Page header row: [header] on the left with [actions] and, pinned at the far right, [endAction] on the same row.
 ///
 /// Widths of the header and every action are measured once (off-stage, unconstrained) and cached;
 /// from then on the split is pure arithmetic against the available width, so resizing never
 /// re-measures. Actions that don't fit are handed to [searchRowBuilder] as `overflow`, which
-/// places them left of the search. [metrics] sits between the two rows.
+/// places them left of the search; [endAction] never overflows. [metrics] sits between the two rows.
 class _CrudHeaderBar extends StatefulWidget {
   final Widget header;
   final List<Widget> actions;
+
+  /// Always shown at the right end of the header row (e.g. "Add new"), after [actions].
+  final Widget? endAction;
   final List<Widget> metrics;
+
+  /// Large desktop screens: show [metrics] on their own left-aligned row between the header row and the search row. When
+  /// false (smaller screens) they share the search row's left group to use the space.
+  final bool metricsOwnRow;
 
   /// [leading] are the metric tiles, placed first in the row's left group.
   final Widget Function(List<Widget> leading, List<Widget> overflow) searchRowBuilder;
@@ -665,7 +737,9 @@ class _CrudHeaderBar extends StatefulWidget {
     required this.header,
     required this.actions,
     required this.searchRowBuilder,
+    this.endAction,
     this.metrics = const [],
+    this.metricsOwnRow = false,
   });
 
   @override
@@ -676,10 +750,13 @@ class _CrudHeaderBarState extends State<_CrudHeaderBar> {
   static const double _gap = 8;
 
   List<GlobalKey> _keys = [];
-  List<double>? _widths; // [header, ...actions]
+  List<double>? _widths; // [header, ...actions, endAction?]
 
   /// Width of each metric tile; they sit in the search row's left group, the controls on the right.
   static const double _tileWidth = 220;
+
+  /// Upper bound a metric tile grows to on the metrics row.
+  static const double _maxTileWidth = 300;
 
   @override
   void initState() {
@@ -690,11 +767,11 @@ class _CrudHeaderBarState extends State<_CrudHeaderBar> {
   @override
   void didUpdateWidget(_CrudHeaderBar old) {
     super.didUpdateWidget(old);
-    if (old.actions.length != widget.actions.length) _resetMeasure();
+    if (old.actions.length != widget.actions.length || (old.endAction == null) != (widget.endAction == null)) _resetMeasure();
   }
 
   void _resetMeasure() {
-    _keys = List.generate(widget.actions.length + 1, (_) => GlobalKey());
+    _keys = List.generate(widget.actions.length + 1 + (widget.endAction != null ? 1 : 0), (_) => GlobalKey());
     _widths = null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -706,9 +783,34 @@ class _CrudHeaderBarState extends State<_CrudHeaderBar> {
     });
   }
 
-  Widget _buildBody(List<Widget> overflow) => widget.searchRowBuilder([
-        for (final m in widget.metrics) SizedBox(width: _tileWidth, child: m),
-      ], overflow);
+  Widget _buildBody(List<Widget> overflow) {
+    if (!widget.metricsOwnRow || widget.metrics.isEmpty) {
+      return widget.searchRowBuilder([for (final m in widget.metrics) SizedBox(width: _tileWidth, child: m)], overflow);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Tiles share the row, growing from _tileWidth up to _maxTileWidth when there is room.
+        LayoutBuilder(
+          builder: (context, constraints) {
+            const gap = _gap + 4;
+            final count = widget.metrics.length;
+            final share = (constraints.maxWidth - gap * (count - 1)) / count;
+            final tileWidth = share.isFinite ? share.clamp(_tileWidth, _maxTileWidth) : _tileWidth;
+            return Wrap(
+              alignment: WrapAlignment.start,
+              spacing: gap,
+              runSpacing: gap,
+              children: [for (final m in widget.metrics) SizedBox(width: tileWidth, child: m)],
+            );
+          },
+        ),
+        const SizedBox(height: 16),
+        widget.searchRowBuilder(const [], overflow),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -725,6 +827,7 @@ class _CrudHeaderBarState extends State<_CrudHeaderBar> {
                 children: [
                   SizedBox(key: _keys[0], child: widget.header),
                   for (var i = 0; i < actions.length; i++) SizedBox(key: _keys[i + 1], child: actions[i]),
+                  if (widget.endAction != null) SizedBox(key: _keys[actions.length + 1], child: widget.endAction),
                 ],
               ),
             ),
@@ -735,6 +838,8 @@ class _CrudHeaderBarState extends State<_CrudHeaderBar> {
         var fitCount = 0;
         if (widths != null) {
           var used = widths[0];
+          // The end action always stays; reserve its room first.
+          if (widget.endAction != null) used += _gap + widths[actions.length + 1];
           for (var i = 0; i < actions.length; i++) {
             used += _gap + widths[i + 1];
             if (used > constraints.maxWidth) break;
@@ -758,6 +863,10 @@ class _CrudHeaderBarState extends State<_CrudHeaderBar> {
                   for (var i = 0; i < fitCount; i++) ...[
                     if (i > 0) const SizedBox(width: _gap),
                     actions[i],
+                  ],
+                  if (widget.endAction != null) ...[
+                    if (fitCount > 0) const SizedBox(width: _gap),
+                    widget.endAction!,
                   ],
                 ],
               ),

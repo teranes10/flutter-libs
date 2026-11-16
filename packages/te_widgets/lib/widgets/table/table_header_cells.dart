@@ -2,6 +2,214 @@ part of 'table_header.dart';
 
 // Cell builders and width estimators for the specialized [TTableHeader] constructors.
 
+/// One selectable status for [TTableHeader.statusChip]: maps an enum [value] to its display [text], [icon] and
+/// [color].
+class TStatusOption<V> {
+  /// The underlying value (typically an enum constant).
+  final V value;
+
+  /// Label shown in the chip and in the dropdown.
+  final String text;
+
+  /// Optional icon ([IconData], HugeIcon data or [Widget]).
+  final dynamic icon;
+
+  /// Accent color of the chip and the dropdown entry. Defaults to the theme's primary color.
+  final Color? color;
+
+  const TStatusOption(this.value, this.text, {this.icon, this.color});
+
+  /// Builds one option per entry of [values], reading text, icon and color through the given callbacks
+  /// (typically getters from an extension on your enum). [text] defaults to the humanized enum name.
+  static List<TStatusOption<V>> fromValues<V>(
+    Iterable<V> values, {
+    String Function(V value)? text,
+    dynamic Function(V value)? icon,
+    Color? Function(V value)? color,
+  }) =>
+      [
+        for (final v in values)
+          TStatusOption<V>(
+            v,
+            text?.call(v) ?? (v is Enum ? humanize(v.name) : '$v'),
+            icon: icon?.call(v),
+            color: color?.call(v),
+          ),
+      ];
+
+  /// `inProgress` -> `In Progress`, `done` -> `Done`.
+  static String humanize(String name) {
+    final spaced = name.replaceAllMapped(RegExp(r'(?<=[a-z0-9])(?=[A-Z])|_+'), (_) => ' ').trim();
+    return spaced.isEmpty ? spaced : spaced[0].toUpperCase() + spaced.substring(1);
+  }
+
+  /// The option in [options] whose value equals [value], or null.
+  static TStatusOption<dynamic>? find(List<TStatusOption<dynamic>> options, Object? value) {
+    for (final o in options) {
+      if (o.value == value) return o;
+    }
+    return null;
+  }
+}
+
+Widget Function(BuildContext, TListItem<T, K>, int) _statusChipCellBuilder<T, K>({
+  required Object? Function(T) get,
+  required List<TStatusOption<dynamic>> options,
+  required FutureOr<bool> Function(T data, dynamic value)? onChanged,
+  required bool disabled,
+  required bool Function(T data)? isDisabled,
+  required TVariant? type,
+  required TSize size,
+}) =>
+    (ctx, item, _) => _StatusChipCell<T>(
+          data: item.data,
+          get: get,
+          options: options,
+          onChanged: onChanged,
+          readOnly: onChanged == null || disabled || (isDisabled?.call(item.data) ?? false),
+          type: type,
+          size: size,
+        );
+
+/// Cell of [TTableHeader.statusChip]. After [onChanged] returns true the picked value is shown right away (until
+/// the row's own value changes), so the caller only needs to persist the change.
+class _StatusChipCell<T> extends StatefulWidget {
+  const _StatusChipCell({
+    required this.data,
+    required this.get,
+    required this.options,
+    required this.onChanged,
+    required this.readOnly,
+    required this.type,
+    required this.size,
+  });
+
+  final T data;
+  final Object? Function(T) get;
+  final List<TStatusOption<dynamic>> options;
+  final FutureOr<bool> Function(T data, dynamic value)? onChanged;
+  final bool readOnly;
+  final TVariant? type;
+  final TSize size;
+
+  @override
+  State<_StatusChipCell<T>> createState() => _StatusChipCellState<T>();
+}
+
+class _StatusChipCellState<T> extends State<_StatusChipCell<T>> {
+  /// Accepted value not yet reflected by the row's own value.
+  TStatusOption<dynamic>? _accepted;
+  bool _busy = false;
+
+  @override
+  void didUpdateWidget(_StatusChipCell<T> old) {
+    super.didUpdateWidget(old);
+    // The row now reports its own value (or another row), so stop overriding it.
+    if (widget.get(widget.data) != old.get(old.data) || !identical(widget.data, old.data)) _accepted = null;
+  }
+
+  Future<void> _pick(TStatusOption<dynamic> option) async {
+    setState(() => _busy = true);
+    var ok = false;
+    try {
+      ok = await widget.onChanged!(widget.data, option.value);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          if (ok) _accepted = option;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final options = widget.options;
+    final isDense = TTableScope.maybeOf(context)?.dense ?? false;
+    final current = _accepted ?? TStatusOption.find(options, widget.get(widget.data));
+    final readOnly = widget.readOnly || _busy;
+    final accent = current?.color ?? context.colors.primary;
+
+    final chip = TChip(
+      text: current?.text ?? '—',
+      icon: current?.icon,
+      color: current?.color,
+      type: widget.type,
+      size: widget.size,
+      padding: isDense ? const EdgeInsets.symmetric(horizontal: 6, vertical: 2) : null,
+      trailing: widget.readOnly ? null : TIcon.raw(HugeIcons.strokeRoundedArrowDown01, size: 12, color: accent),
+    );
+    if (readOnly) return Opacity(opacity: _busy ? 0.6 : 1, child: chip);
+
+    // TPopover stretches its content to the popover width, so size the popover to the widest option:
+    // row padding (10 + 10) + icon (16 + 8) + check (8 + 14) + popover padding (6 + 6) + border.
+    final textWidth = options.fold<double>(0, (m, o) => math.max(m, TTableTheme.measureTextWidth(o.text)));
+    final hasIcon = options.any((o) => o.icon != null);
+    final width = (textWidth + 20 + (hasIcon ? 24 : 0) + 22 + 12 + 4).ceilToDouble();
+
+    return TPopover(
+      padding: const EdgeInsets.all(6),
+      width: width,
+      builder: (popCtx, close) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final o in options)
+            _StatusOptionRow(
+              option: o,
+              selected: o == current,
+              onTap: () {
+                close();
+                if (o != current) _pick(o);
+              },
+            ),
+        ],
+      ),
+      child: chip,
+    );
+  }
+}
+
+class _StatusOptionRow extends StatelessWidget {
+  const _StatusOptionRow({required this.option, required this.selected, required this.onTap});
+
+  final TStatusOption<dynamic> option;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = option.color ?? context.colors.primary;
+    return InkWell(
+      borderRadius: BorderRadius.circular(6),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? color.withAlpha(25) : null,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          children: [
+            if (option.icon != null) ...[
+              TIcon.raw(option.icon, size: 16, color: color),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: Text(
+                option.text,
+                style: TextStyle(color: color, fontWeight: selected ? FontWeight.w400 : FontWeight.w300),
+              ),
+            ),
+            if (selected) TIcon.raw(HugeIcons.strokeRoundedTick02, size: 14, color: color),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 double Function(T data) _chipsWidthEstimator<T>({
   required List<TChip> Function(T) builder,
   required dynamic Function(T data, String chipText)? icon,

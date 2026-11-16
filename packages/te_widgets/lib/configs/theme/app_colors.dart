@@ -169,7 +169,7 @@ class AppColors {
     950: Color(0xFF2E1065),
   });
 
-  static const lightBackground = Color(0xFFFFFFFF);
+  static const lightBackground = Color(0xFFFDFDFD);
   static const lightSurface = Color(0xFFFFFFFF);
 
   static const darkBackground = Color(0xFF1D1D1D);

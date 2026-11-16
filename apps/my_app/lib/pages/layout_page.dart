@@ -44,33 +44,7 @@ class LayoutPage extends StatelessWidget {
               children: [
                 TCard(
                   padding: const EdgeInsets.all(16),
-                  child: Column(
-                    spacing: 20,
-                    children: [
-                      TAlignedRow(
-                        wrapperModeThreshold: 1,
-                        left: [
-                          TIcon.raw(HugeIcons.strokeRoundedInformationCircle),
-                          Text('Basic Left Aligned', style: TextStyle(fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      const Divider(),
-                      TAlignedRow(
-                        wrapperModeThreshold: 1,
-                        right: [Text('Basic Right Aligned'), TIcon.raw(HugeIcons.strokeRoundedArrowRight01)],
-                        mainAxisAlignment: MainAxisAlignment.end,
-                      ),
-                      const Divider(),
-                      TAlignedRow(
-                        wrapperModeThreshold: 1,
-                        left: [TButton(type: TButtonType.softText, text: 'Back', icon: HugeIcons.strokeRoundedArrowLeft01, onTap: () {})],
-                        right: [
-                          TButton(text: 'Save Changes', icon: HugeIcons.strokeRoundedFloppyDisk, onTap: () {}),
-                          TButton(type: TButtonType.tonal, text: 'Publish', icon: HugeIcons.strokeRoundedBlinds, onTap: () {}),
-                        ],
-                      ),
-                    ],
-                  ),
+                  child: Column(spacing: 20, children: [..._alignedRowSamples()]),
                 ),
               ],
             ),
@@ -79,6 +53,92 @@ class LayoutPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static Widget _chip(String t) => TChip(text: t);
+
+  static Widget _sample(String title, double? width, Widget row) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: 8,
+    children: [
+      Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      Container(
+        width: width,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.withValues(alpha: .4)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: row,
+      ),
+    ],
+  );
+
+  static List<Widget> _alignedRowSamples() {
+    List<Widget> items(String p, int n) => [for (var i = 1; i <= n; i++) _chip('$p $i')];
+    return [
+      _sample('Left only', null, TAlignedRow(left: items('L', 2))),
+      _sample('Right only', null, TAlignedRow(right: items('R', 2))),
+      _sample('Center only', null, TAlignedRow(center: items('C', 2))),
+      _sample('Left + Right (fits one row)', null, TAlignedRow(left: items('L', 2), right: items('R', 2))),
+      _sample('Left + Center', null, TAlignedRow(left: items('L', 2), center: items('C', 2))),
+      _sample('Center + Right', null, TAlignedRow(center: items('C', 2), right: items('R', 2))),
+      _sample('Left + Center + Right (fits one row)', null, TAlignedRow(left: items('L', 2), center: items('C', 2), right: items('R', 2))),
+      _sample(
+        'Left + Right, narrow, moveAllToSecondRow: true (all right items move down)',
+        200,
+        TAlignedRow(moveAllToSecondRow: true, left: items('Left', 2), right: items('Right', 2)),
+      ),
+      _sample(
+        'Left + Right, narrow, moveAllToSecondRow: false (default, only overflow moves down)',
+        200,
+        TAlignedRow(moveAllToSecondRow: false, left: items('Left', 2), right: items('Right', 2)),
+      ),
+      _sample(
+        'Left + Center + Right, narrow (3 rows, one per group)',
+        200,
+        TAlignedRow(left: items('Left', 1), center: items('Center', 1), right: items('Right', 1)),
+      ),
+      _sample(
+        'Left only, too narrow -> wrapper mode (threshold 1)',
+        200,
+        TAlignedRow(left: items('Item', 5), wrapperAlignment: MainAxisAlignment.start),
+      ),
+      _sample('Left + Right, many items -> wrapper mode (threshold 2)', 200, TAlignedRow(left: items('Left', 3), right: items('Right', 3))),
+      _sample(
+        'Wrapper mode, expanded (ratio based)',
+        200,
+        TAlignedRow(wrapperExpanded: true, left: items('Left', 3), center: items('Mid', 2), right: items('Right', 2)),
+      ),
+      _sample(
+        'Wrapper mode, expanded (equal slots)',
+        200,
+        TAlignedRow(
+          wrapperExpanded: true,
+          wrapperExpandedRatioBased: false,
+          left: items('Left', 3),
+          center: items('Mid', 2),
+          right: items('Right', 2),
+        ),
+      ),
+      _sample(
+        'Explicit wrapperModeThreshold: 1 on left + right',
+        200,
+        TAlignedRow(wrapperModeThreshold: 1, left: items('Left', 2), right: items('Right', 2)),
+      ),
+      _sample(
+        'Buttons: Back / title / actions',
+        null,
+        TAlignedRow(
+          left: [TButton(type: TButtonType.softText, text: 'Back', icon: HugeIcons.strokeRoundedArrowLeft01, onTap: () {})],
+          center: [const Text('Edit profile', style: TextStyle(fontWeight: FontWeight.bold))],
+          right: [
+            TButton(text: 'Save Changes', icon: HugeIcons.strokeRoundedFloppyDisk, onTap: () {}),
+            TButton(type: TButtonType.tonal, text: 'Publish', icon: HugeIcons.strokeRoundedBlinds, onTap: () {}),
+          ],
+        ),
+      ),
+    ];
   }
 
   Widget _buildSection(String title, String description, Widget content) {

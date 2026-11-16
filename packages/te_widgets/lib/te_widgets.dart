@@ -85,6 +85,7 @@ export 'widgets/button/button.dart';
 
 export 'widgets/breadcrumbs/breadcrumbs.dart';
 
+export 'widgets/shadow/shadow.dart';
 export 'widgets/card/card.dart';
 export 'widgets/card/background_color_scope.dart';
 

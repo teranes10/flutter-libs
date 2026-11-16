@@ -52,6 +52,7 @@ extension BuildContextX on BuildContext {
   bool get isMobile => mediaQuery.isMobile;
   bool get isTablet => mediaQuery.isTablet;
   bool get isDesktop => mediaQuery.isDesktop;
+  bool get isLargeDesktop => mediaQuery.isLargeDesktop;
 
   bool get isMobilePlatform {
     final p = Theme.of(this).platform;

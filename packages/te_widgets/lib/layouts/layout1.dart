@@ -122,9 +122,8 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final theme = context.theme;
     final isMobile = !context.isDesktop;
-    final cardColor = colors.surface.adaptiveContrast(context, 0.007);
+    final cardColor = context.scaffoldBackgroundColor;
 
     final resolved = resolveLayoutItems(
       context,
@@ -134,7 +133,7 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
     );
 
     return Scaffold(
-      backgroundColor: theme.layoutFrame,
+      backgroundColor: cardColor,
       bottomNavigationBar: isMobile && resolved.bottomBarItems.isNotEmpty
           ? LayoutBottomBar(
               items: resolved.bottomBarItems,
@@ -144,14 +143,12 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
           : null,
       body: SafeArea(
         child: Stack(
+          fit: StackFit.expand,
           children: [
-            Padding(
-              padding: EdgeInsets.all(isMobile ? 0.0 : widget.mainCardRadius / 2.4),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(isMobile ? 0 : widget.mainCardRadius),
-                ),
+            Positioned.fill(
+              child: _CloudyBackground(
+                base: cardColor,
+                tint: colors.primary,
                 child: isMobile
                     ? Column(
                         children: [
@@ -161,7 +158,7 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
                             isSidebarOpen: _isMobileSidebarOpen,
                             onToggleSidebar: _toggleMobileSidebar,
                           ),
-                          Expanded(child: LayoutMainContent(isMobile: true, child: widget.child)),
+                          Expanded(child: LayoutMainContent(isMobile: true, backgroundColor: Colors.transparent, child: widget.child)),
                         ],
                       )
                     : Builder(
@@ -171,8 +168,8 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
                           return Row(
                             children: [
                               LayoutDesktopSidebar(
-                                showDivider: false,
-                                backgroundColor: cardColor, // same as the top bar
+                                showDivider: true,
+                                backgroundColor: Colors.transparent,
                                 items: resolved.sidebarItems,
                                 minWidth: widget.minWidth,
                                 maxWidth: widget.maxWidth,
@@ -189,22 +186,27 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
                               Expanded(
                                 child: Column(
                                   children: [
-                                    LayoutDesktopTopBar(
-                                      logo: widget.logo,
-                                      minifiedLogo: widget.minifiedLogo,
-                                      homeItem: resolved.homeItem,
-                                      resolvedItems: resolved.allItems,
-                                      sidebarItems: resolved.sidebarItems,
-                                      profile: widget.profile,
-                                      showThemeToggle: widget.showThemeToggle,
-                                      showColorToggle: widget.showColorToggle,
-                                      actions: widget.actions,
-                                      showFullscreenToggle: widget.showFullscreenToggle,
-                                      showLogout: widget.showLogout,
-                                      onLogout: widget.onLogout,
-                                      sidebarTheme: widget.sidebarTheme,
+                                    DecoratedBox(
+                                      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: colors.outlineVariant))),
+                                      child: LayoutDesktopTopBar(
+                                        logo: widget.logo,
+                                        minifiedLogo: widget.minifiedLogo,
+                                        homeItem: resolved.homeItem,
+                                        resolvedItems: resolved.allItems,
+                                        sidebarItems: resolved.sidebarItems,
+                                        profile: widget.profile,
+                                        showThemeToggle: widget.showThemeToggle,
+                                        showColorToggle: widget.showColorToggle,
+                                        actions: widget.actions,
+                                        showFullscreenToggle: widget.showFullscreenToggle,
+                                        showLogout: widget.showLogout,
+                                        onLogout: widget.onLogout,
+                                        sidebarTheme: widget.sidebarTheme,
+                                      ),
                                     ),
-                                    Expanded(child: LayoutMainContent(isMobile: false, child: widget.child)),
+                                    Expanded(
+                                        child:
+                                            LayoutMainContent(isMobile: false, backgroundColor: Colors.transparent, child: widget.child)),
                                   ],
                                 ),
                               ),
@@ -238,6 +240,47 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Base colour with soft, overlapping radial patches of [tint] that read as clouds.
+class _CloudyBackground extends StatelessWidget {
+  const _CloudyBackground({required this.base, required this.tint, required this.child});
+
+  final Color base;
+  final Color tint;
+  final Widget child;
+
+  static const _clouds = <(Alignment, double, int)>[
+    (Alignment(-0.9, -0.8), 1.0, 6),
+    (Alignment(0.8, -0.5), 0.8, 4),
+    (Alignment(-0.3, 0.9), 0.9, 2),
+    (Alignment(1.0, 0.9), 0.7, 4),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned.fill(
+          child: ColoredBox(color: base),
+        ),
+        for (final (alignment, radius, alpha) in _clouds)
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: alignment,
+                  radius: radius,
+                  colors: [tint.withAlpha(alpha), tint.withAlpha(0)],
+                ),
+              ),
+            ),
+          ),
+        child,
+      ],
     );
   }
 }

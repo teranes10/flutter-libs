@@ -53,16 +53,21 @@ class CrudPage extends StatelessWidget {
             : AppColors.success,
       ),
       TTableHeader.rating('Rating', (x) => x.rating.toDouble()),
-      TTableHeader.row(
-        'Badges',
-        (x) => [
-          TChip.tonal(text: x.category, size: TChipSize.sm),
-          TChip.solid(
-            text: x.stock > 50 ? 'In Stock' : 'Low',
-            color: x.stock > 50 ? context.theme.success : context.theme.warning,
-            size: TChipSize.sm,
-          ),
-        ],
+      // Stock state badge with a dropdown; picking a state patches the product's stock.
+      TTableHeader.statusEnum<ProductDto, int, StockStatus>(
+        'Stock',
+        (x) => StockStatus.of(x.stock),
+        StockStatus.values,
+        label: (s) => s.label,
+        color: (s) => s.color(context),
+        icon: (s) => s.icon,
+        onChanged: (product, status) {
+          final updated = product.copyWith(stock: status.stockFor(product.stock));
+          for (final c in [controller, archiveController, otherController]) {
+            if (c.flatItems.any((p) => p.id == product.id)) c.updateItem(product, updated);
+          }
+          return true;
+        },
       ),
     ];
 
@@ -156,7 +161,7 @@ class CrudPage extends StatelessWidget {
         // Note: The order of [tabContents] follows the order of this list,
         tabContents: [TCrudTableContent(headers: headers, controller: otherController)],
         topBarActions: [
-          TButton(type: TButtonType.tonal, icon: HugeIcons.strokeRoundedFileUpload, text: 'Upload File', onPressed: (_) => {}),
+          TButton(type: TButtonType.outline, icon: HugeIcons.strokeRoundedFileUpload, text: 'Upload File', onPressed: (_) => {}),
         ],
       ),
       itemTitle: (item) => item.title,
@@ -325,6 +330,43 @@ class CrudPage extends StatelessWidget {
       archiveController: archiveController,
     );
   }
+}
+
+/// Stock state shown in the Stock column; derived from the stock count.
+enum StockStatus {
+  inStock('In Stock'),
+  low('Low'),
+  outOfStock('Out of Stock');
+
+  const StockStatus(this.label);
+  final String label;
+
+  static StockStatus of(int stock) => stock <= 0
+      ? outOfStock
+      : stock > 50
+      ? inStock
+      : low;
+
+  Color color(BuildContext context) => switch (this) {
+    inStock => context.theme.success,
+    low => context.theme.warning,
+    outOfStock => context.theme.danger,
+  };
+
+  dynamic get icon => switch (this) {
+    inStock => HugeIcons.strokeRoundedCheckmarkCircle02,
+    low => HugeIcons.strokeRoundedAlert02,
+    outOfStock => HugeIcons.strokeRoundedCancelCircle,
+  };
+
+  /// Stock count that represents this state, keeping [current] when it already does.
+  int stockFor(int current) => StockStatus.of(current) == this
+      ? current
+      : switch (this) {
+          inStock => 100,
+          low => 20,
+          outOfStock => 0,
+        };
 }
 
 var productId = 1000;

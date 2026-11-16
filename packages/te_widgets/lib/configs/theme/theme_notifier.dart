@@ -76,7 +76,10 @@ class TThemeState {
   Color? _background(Map<String, int> overrides, Color base) {
     final o = overrides[kScaffoldBackgroundKey];
     if (o != null) return Color(o);
-    return tintByAccent ? Color.lerp(base, primaryColor.shade500, 0.02) : null;
+    if (!tintByAccent) return null;
+    final tinted = Color.lerp(base, primaryColor.shade500, 0.02)!;
+    // Nudge a bit lighter than the plain tint.
+    return Color.lerp(tinted, Colors.white, ThemeData.estimateBrightnessForColor(base) == Brightness.dark ? 0.03 : 0.5);
   }
 
   static const _tintedKeys = <String, double>{

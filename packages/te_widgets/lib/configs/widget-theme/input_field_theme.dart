@@ -342,7 +342,8 @@ class TInputFieldTheme {
         onClear: onClear,
         infoIcon: labelPosition == TLabelPosition.floating || labelPosition == TLabelPosition.inlineFloating ? infoIcon : null,
       ),
-      filled: isFilled,
+      // An explicit backgroundColor must apply to every decoration type, not only `filled`.
+      filled: isFilled || backgroundColor != null,
       fillColor: fillColor,
       focusColor: fillColor,
       hoverColor: fillColor,

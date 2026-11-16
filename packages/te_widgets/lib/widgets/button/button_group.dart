@@ -408,7 +408,7 @@ class _TButtonGroupState extends State<TButtonGroup> {
         color: item.color ?? groupTheme.color,
         type: effectiveButtonType.colorType,
       ),
-      size: widget.size,
+      size: widget.size ?? groupTheme.size,
       shape: groupTheme.shape,
     );
 
@@ -427,7 +427,7 @@ class _TButtonGroupState extends State<TButtonGroup> {
       final segTheme = defaultTheme.copyWith(
         baseTheme:
             isActive ? activeBase : TWidgetTheme.surfaceTheme(colors, variant: TVariant.text).copyWith(container: Colors.transparent),
-        size: widget.size,
+        size: widget.size ?? groupTheme.size,
         shape: groupTheme.shape,
         elevation: isActive ? 1 : 0,
       );

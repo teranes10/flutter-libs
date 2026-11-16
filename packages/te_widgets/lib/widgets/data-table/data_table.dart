@@ -336,7 +336,7 @@ class _TDataTableState<T, K> extends State<TDataTable<T, K>> with TListStateMixi
               mainAxisSize: MainAxisSize.min,
               spacing: 8,
               children: [
-                _buildPaginationInfo(colors, 'Items per page'),
+                _buildPaginationInfo(colors, 'Rows per page'),
                 _buildItemsPerPage(80),
               ],
             )

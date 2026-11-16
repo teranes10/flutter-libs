@@ -209,7 +209,7 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
   Widget build(BuildContext context) {
     final colors = context.colors;
     final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor();
-    final effectiveCardBg = widget.cardBackgroundColor ?? effectiveBg;
+    final effectiveCardBg = widget.cardBackgroundColor ?? Colors.transparent;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -217,8 +217,8 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
 
         return TListScope(
           controller: listController,
-          child: Container(
-            color: effectiveBg,
+          child: ColoredBox(
+            color: widget.backgroundColor ?? Colors.transparent,
             child: TBackgroundColorScope(
               backgroundColor: effectiveBg,
               child: ListenableBuilder(
@@ -308,16 +308,20 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
             final leading = widget.itemLeading?.call(item.data);
             final isSelected = listController.isDetailExpanded(item.key);
 
-            return TListCard(
-              title: title,
-              subTitle: subTitle,
-              imageUrl: imageUrl,
-              icon: icon,
-              leading: leading,
-              isSelected: isSelected,
-              onTap: () {
-                listController.expandDetail(item.key);
-              },
+            return TCard(
+              margin: const EdgeInsets.only(bottom: 8, right: 12),
+              padding: const EdgeInsets.all(4),
+              backgroundColor: isSelected ? colors.primaryContainer : null,
+              hoverColor: colors.primary.withAlpha(20),
+              onTap: () => listController.expandDetail(item.key),
+              child: TTile.sm(
+                title: title,
+                subtitle: subTitle,
+                imageUrl: imageUrl,
+                icon: icon,
+                leading: leading,
+                isExpanded: isSelected,
+              ),
             );
           },
     );
@@ -337,8 +341,8 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
                     theme: context.theme.textFieldTheme.copyWith(
                       size: TInputSize.sm,
                       labelPosition: TLabelPosition.aboveField,
-                      decorationType: TInputDecorationType.filled,
-                      postWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: colors.onSurface),
+                      decorationType: TInputDecorationType.outline,
+                      preWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: colors.onSurface),
                     ),
                     placeholder: widget.searchPlaceholder,
                     onValueChanged: (String? input) {
@@ -349,8 +353,9 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
                 if (widget.createBuilder != null) ...[
                   const SizedBox(width: 8),
                   TButton(
-                    type: TButtonType.tonal,
-                    size: TButtonSize.sm,
+                    type: TButtonType.surface,
+                    shadow: TShadow.xs,
+                    size: TButtonSize.md,
                     icon: HugeIcons.strokeRoundedAdd01,
                     onPressed: (_) => listController.beginCreateItem(),
                   ),
@@ -446,24 +451,11 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
       );
     }
 
-    final effectiveRadius = widget.detailBorderRadius ?? widget.borderRadius ?? BorderRadius.circular(16);
-    final effectiveBorderColor = widget.detailBorderColor ?? widget.borderColor ?? colors.outlineVariant.o(0.5);
+    final effectiveBorderColor = widget.detailBorderColor ?? widget.borderColor ?? colors.outlineVariant;
 
-    return Container(
-      margin: EdgeInsets.only(right: 6),
-      decoration:
-          BoxDecoration(color: effectiveCardBg, borderRadius: effectiveRadius, border: Border.all(color: effectiveBorderColor), boxShadow: [
-        BoxShadow(
-          blurRadius: 6,
-          spreadRadius: 0,
-          color: colors.shadow.withAlpha(75),
-          offset: Offset(-2, 0),
-        ),
-      ]),
-      child: ClipRRect(
-        borderRadius: effectiveRadius,
-        child: content,
-      ),
+    return DecoratedBox(
+      decoration: BoxDecoration(border: Border(left: BorderSide(color: effectiveBorderColor))),
+      child: content,
     );
   }
 }

@@ -20,8 +20,9 @@ void main() {
       );
 
       final elevatedButton = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      // Solid buttons use a TShadow.xs drop shadow instead of Material elevation at rest.
       final elevation = elevatedButton.style?.elevation?.resolve({});
-      expect(elevation, equals(1.0));
+      expect(elevation, equals(0.0));
 
       final ink = tester.widget<Ink>(
         find.descendant(of: find.byType(ElevatedButton), matching: find.byType(Ink)),
@@ -131,11 +132,11 @@ void main() {
       final style = elevatedButton.style!;
 
       // Normal resting
-      expect(style.elevation?.resolve({}), equals(1.0));
+      expect(style.elevation?.resolve({}), equals(0.0));
       // Hovered lifts
-      expect(style.elevation?.resolve({WidgetState.hovered}), equals(2.0));
+      expect(style.elevation?.resolve({WidgetState.hovered}), equals(1.0));
       // Pressed depresses
-      expect(style.elevation?.resolve({WidgetState.pressed}), equals(0.5));
+      expect(style.elevation?.resolve({WidgetState.pressed}), equals(0.0));
       // Disabled is flat
       expect(style.elevation?.resolve({WidgetState.disabled}), equals(0.0));
     });

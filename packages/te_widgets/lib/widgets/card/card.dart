@@ -1,45 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-/// Preset shadow depths for [TCard] (and the `Widget.card()` extension).
 /// Edge of a [TCard] that carries the accent strip.
 enum TCardAccentSide { start, top, end, bottom }
 
-enum TCardShadow {
-  /// Flat card with the default 1px hairline shadow.
-  none,
-
-  /// Subtle lift, for list rows and dense groups.
-  sm,
-
-  /// Standard raised card.
-  md,
-
-  /// Prominent card, for hero blocks and floating panels.
-  lg;
-
-  /// Neutral base colour for [sm]..[lg]; the theme's `shadow` colour is a
-  /// light, low-alpha grey that is too faint to differentiate levels.
-  static const Color baseColor = Color(0xFF0F172A);
-
-  /// Resolves the layered [BoxShadow]s for this level using [color] (only its
-  /// RGB is used for [sm]..[lg]).
-  List<BoxShadow> resolve(Color color) => switch (this) {
-        none => [BoxShadow(color: color.withAlpha(15), offset: const Offset(0, 1))],
-        sm => [
-            BoxShadow(color: color.withAlpha(15), offset: const Offset(0, 2), blurRadius: 8, spreadRadius: -1),
-            BoxShadow(color: color.withAlpha(30), offset: const Offset(0, 1), blurRadius: 3, spreadRadius: -1),
-          ],
-        md => [
-            BoxShadow(color: color.withAlpha(15), offset: const Offset(0, 4), blurRadius: 14, spreadRadius: -2),
-            BoxShadow(color: color.withAlpha(30), offset: const Offset(0, 2), blurRadius: 5, spreadRadius: -1),
-          ],
-        lg => [
-            BoxShadow(color: color.withAlpha(15), offset: const Offset(0, 8), blurRadius: 20, spreadRadius: -4),
-            BoxShadow(color: color.withAlpha(30), offset: const Offset(0, 4), blurRadius: 9, spreadRadius: -2),
-          ],
-      };
-}
+/// Backwards-compatible alias for [TShadow].
+typedef TCardShadow = TShadow;
 
 /// A Material Design card widget with customizable styling and tap interaction.
 ///
@@ -298,6 +264,8 @@ class TCard extends StatelessWidget {
         child: TBackgroundColorScope(
           backgroundColor: backgroundColor ?? colors.surface,
           child: Stack(
+            // Pass the card's tight width down so the InkWell (hover/splash) spans the whole card, not just its content.
+            fit: StackFit.passthrough,
             children: [
               InkWell(
                 borderRadius: defaultBorderRadius,

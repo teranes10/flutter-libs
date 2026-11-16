@@ -58,8 +58,9 @@ class TCrudConfig<T, K> {
   final Future<bool> Function(T)? canRestore;
 
   // UI Labels
-  /// Text for the "Add New" button.
-  final String addButtonText;
+  /// Text for the add button. When null it is derived from [pageTitle]: "Products" -> "Add New Product", or
+  /// "Add New" without a title.
+  final String? addButtonText;
 
   /// Tab definitions for the table view.
   ///
@@ -88,8 +89,9 @@ class TCrudConfig<T, K> {
   /// Content definitions for each tab.
   final List<TCrudTableContent<T, K>> tabContents;
 
-  /// Placeholder text for the search bar.
-  final String searchPlaceholder;
+  /// Placeholder text for the search bar. When null it is derived from [pageTitle]: "Products" ->
+  /// "Search Products...", or "Search..." without a title.
+  final String? searchPlaceholder;
 
   // Action visibility
   /// Whether to show the actions column.
@@ -202,6 +204,31 @@ class TCrudConfig<T, K> {
   final bool? persistSettings;
 
   /// Creates a CRUD configuration.
+  /// [addButtonText], or "Add New" plus the singular page title.
+  String get effectiveAddButtonText {
+    if (addButtonText != null) return addButtonText!;
+    final title = pageTitle?.trim();
+    return title == null || title.isEmpty ? 'Add New' : 'Add New ${_singular(title)}';
+  }
+
+  /// [searchPlaceholder], or "Search" plus the page title.
+  String get effectiveSearchPlaceholder {
+    if (searchPlaceholder != null) return searchPlaceholder!;
+    final title = pageTitle?.trim();
+    return title == null || title.isEmpty ? 'Search...' : 'Search $title...';
+  }
+
+  /// Naive English singular of the last word: Categories -> Category, Boxes -> Box, Products -> Product.
+  static String _singular(String title) {
+    final lower = title.toLowerCase();
+    if (lower.endsWith('ies') && title.length > 3) return '${title.substring(0, title.length - 3)}${_keepCase(title, 'y')}';
+    if (RegExp(r'(sses|shes|ches|xes|zes)$').hasMatch(lower)) return title.substring(0, title.length - 2);
+    if (lower.endsWith('s') && !lower.endsWith('ss') && title.length > 1) return title.substring(0, title.length - 1);
+    return title;
+  }
+
+  static String _keepCase(String title, String suffix) => title == title.toUpperCase() ? suffix.toUpperCase() : suffix;
+
   const TCrudConfig({
     this.permissions,
     this.canView,
@@ -214,11 +241,11 @@ class TCrudConfig<T, K> {
     this.canDeleteFlat = false,
     this.canArchiveFlat = false,
     this.canRestoreFlat = false,
-    this.addButtonText = 'Add New',
+    this.addButtonText,
     this.tabs,
     this.initialTabIndex = 0,
     this.tabContents = const [],
-    this.searchPlaceholder = 'Search...',
+    this.searchPlaceholder,
     this.showActions = true,
     this.itemsPerPage = 0,
     this.itemsPerPageOptions = const [5, 10, 15, 25, 50],

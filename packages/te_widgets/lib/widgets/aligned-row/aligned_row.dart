@@ -5,12 +5,12 @@ import 'package:flutter/rendering.dart';
 // TAlignedRow
 // ─────────────────────────────────────────────────────────────────────────────
 //
-// A custom layout widget that places "left" and "right" children on the same
+// A custom layout widget that places "left", optional "center" and "right" children on the same
 // row when space allows, and wraps gracefully when it doesn't.
 //
 // New behaviour (on top of the original):
 //
-//  moveAllToSecondRow (default true)
+//  moveAllToSecondRow (default false)
 //    When the right group doesn't fit beside the last left row:
 //    • If ALL right items fit on one row → honour moveAllToSecondRow.
 //        true  → put all right items on a new row (right-aligned).
@@ -19,7 +19,7 @@ import 'package:flutter/rendering.dart';
 //    • This logic only applies when the total row-count would be ≤ 2.
 //      If rows > wrapperModeThreshold the widget enters wrapper mode instead.
 //
-//  wrapperModeThreshold (default 2)
+//  wrapperModeThreshold (default: number of non-empty groups, 1-3)
 //    When the number of rows required exceeds this value the widget switches
 //    to "wrapper mode": left/right metadata is ignored and all items flow
 //    together as a flat list, identical to a Wrap.
@@ -50,7 +50,10 @@ class TAlignedRow extends MultiChildRenderObjectWidget {
 
   // ── new props ──────────────────────────────────────────────────────────────
   final bool moveAllToSecondRow;
-  final int wrapperModeThreshold;
+
+  /// Rows allowed before switching to wrapper mode. When null it equals the
+  /// number of non-empty groups (left / center / right): 1, 2 or 3.
+  final int? wrapperModeThreshold;
   final bool wrapperExpanded;
   final bool wrapperExpandedRatioBased;
   final MainAxisAlignment wrapperAlignment;
@@ -58,6 +61,7 @@ class TAlignedRow extends MultiChildRenderObjectWidget {
   TAlignedRow({
     super.key,
     List<Widget> left = const [],
+    List<Widget> center = const [],
     List<Widget> right = const [],
     this.spacing = 8.0,
     this.rowSpacing = 8.0,
@@ -66,23 +70,20 @@ class TAlignedRow extends MultiChildRenderObjectWidget {
     this.expandBelowWidth,
     // new
     this.moveAllToSecondRow = false,
-    this.wrapperModeThreshold = 2,
+    this.wrapperModeThreshold,
     this.wrapperExpanded = false,
     this.wrapperExpandedRatioBased = true,
     this.wrapperAlignment = MainAxisAlignment.center,
   }) : super(children: [
-          ...left.map((w) => _wrapSide(w, false)),
-          ...right.map((w) => _wrapSide(w, true)),
+          ...left.map((w) => _wrapSide(w, 0)),
+          ...center.map((w) => _wrapSide(w, 1)),
+          ...right.map((w) => _wrapSide(w, 2)),
         ]);
 
-  static Widget _wrapSide(Widget w, bool isRight) {
-    if (w is Expanded) {
-      return _Side(isRight: isRight, child: w.child);
-    }
-    if (w is Flexible) {
-      return _Side(isRight: isRight, child: w.child);
-    }
-    return _Side(isRight: isRight, child: w);
+  static Widget _wrapSide(Widget w, int side) {
+    if (w is Expanded) return _Side(side: side, child: w.child);
+    if (w is Flexible) return _Side(side: side, child: w.child);
+    return _Side(side: side, child: w);
   }
 
   @override
@@ -120,7 +121,8 @@ class TAlignedRow extends MultiChildRenderObjectWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _AlignedRowParentData extends ContainerBoxParentData<RenderBox> {
-  bool isRight = false;
+  /// 0 = left, 1 = center, 2 = right.
+  int side = 0;
 
   // Populated during _measure() when the child is a Text widget.
   double? measuredTextWidth;
@@ -131,14 +133,14 @@ class _AlignedRowParentData extends ContainerBoxParentData<RenderBox> {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _Side extends ParentDataWidget<_AlignedRowParentData> {
-  final bool isRight;
-  const _Side({required this.isRight, required super.child});
+  final int side;
+  const _Side({required this.side, required super.child});
 
   @override
   void applyParentData(RenderObject renderObject) {
     final pd = renderObject.parentData as _AlignedRowParentData;
-    if (pd.isRight != isRight) {
-      pd.isRight = isRight;
+    if (pd.side != side) {
+      pd.side = side;
       (renderObject.parent as RenderObject).markNeedsLayout();
     }
   }
@@ -154,7 +156,7 @@ class _Side extends ParentDataWidget<_AlignedRowParentData> {
 typedef _Child = ({
   RenderBox box,
   Size size,
-  bool isRight,
+  int side,
   // intrinsic width used for row-building decisions (may differ from size.width
   // when the child is a Text that has been laid out with tight constraints).
   double intrinsicWidth,
@@ -174,7 +176,7 @@ class RenderAlignedRow extends RenderBox
   MainAxisAlignment _mainAxisAlignment;
   double? _expandBelowWidth;
   bool _moveAllToSecondRow;
-  int _wrapperModeThreshold;
+  int? _wrapperModeThreshold;
   bool _wrapperExpanded;
   bool _wrapperExpandedRatioBased;
   MainAxisAlignment _wrapperAlignment;
@@ -186,7 +188,7 @@ class RenderAlignedRow extends RenderBox
     required MainAxisAlignment mainAxisAlignment,
     double? expandBelowWidth,
     required bool moveAllToSecondRow,
-    required int wrapperModeThreshold,
+    required int? wrapperModeThreshold,
     required bool wrapperExpanded,
     required bool wrapperExpandedRatioBased,
     required MainAxisAlignment wrapperAlignment,
@@ -245,7 +247,7 @@ class RenderAlignedRow extends RenderBox
     }
   }
 
-  set wrapperModeThreshold(int v) {
+  set wrapperModeThreshold(int? v) {
     if (_wrapperModeThreshold != v) {
       _wrapperModeThreshold = v;
       markNeedsLayout();
@@ -402,7 +404,7 @@ class RenderAlignedRow extends RenderBox
       out.add((
         box: child,
         size: childSize,
-        isRight: pd.isRight,
+        side: pd.side,
         intrinsicWidth: intrinsicWidth,
       ));
       child = pd.nextSibling;
@@ -505,9 +507,15 @@ class RenderAlignedRow extends RenderBox
       // In legacy-expanded mode every child gets its own slot on the same row.
       return _buildRows(children, maxWidth).length;
     }
-    final left = children.where((c) => !c.isRight).toList();
-    final right = children.where((c) => c.isRight).toList();
-    if (left.isEmpty && right.isEmpty) return 0;
+    final left = children.where((c) => c.side == 0).toList();
+    final center = children.where((c) => c.side == 1).toList();
+    final right = children.where((c) => c.side == 2).toList();
+    if (left.isEmpty && center.isEmpty && right.isEmpty) return 0;
+    if (center.isNotEmpty) {
+      return _fitsOneRow(children, maxWidth)
+          ? 1
+          : [left, center, right].where((g) => g.isNotEmpty).fold(0, (s, g) => s + _buildRows(g, maxWidth).length);
+    }
     if (right.isEmpty) return _buildRows(left, maxWidth).length;
     if (left.isEmpty) return _buildRows(right, maxWidth).length;
 
@@ -521,6 +529,56 @@ class RenderAlignedRow extends RenderBox
     return leftRows.length + rightRows.length;
   }
 
+  // ── Center support ────────────────────────────────────────────────────────
+
+  /// Wrapper threshold: explicit value, else the number of non-empty groups.
+  int _threshold(List<_Child> children) => _wrapperModeThreshold ?? {for (final c in children) c.side}.length;
+
+  bool _fitsOneRow(List<_Child> children, double maxWidth) => _rowWidth(children) <= maxWidth;
+
+  /// Left / center / right where at least center is present.
+  double _flowWithCenter(List<_Child> left, List<_Child> center, List<_Child> right, double maxWidth, bool dry) {
+    final all = [...left, ...center, ...right];
+    if (_fitsOneRow(all, maxWidth)) {
+      final rh = _rowHeight(all);
+      if (!dry) {
+        _placeRow(left, 0, rh, maxWidth, MainAxisAlignment.start, dry);
+        _placeRow(right, 0, rh, maxWidth, MainAxisAlignment.end, dry);
+        // Center in the full width when possible, else between its neighbours.
+        final cw = _rowWidth(center);
+        final minX = left.isEmpty ? 0.0 : _rowWidth(left) + _spacing;
+        final maxX = (right.isEmpty ? maxWidth : maxWidth - _rowWidth(right) - _spacing) - cw;
+        final x = ((maxWidth - cw) / 2).clamp(minX, maxX < minX ? minX : maxX);
+        double cx = x;
+        for (final c in center) {
+          final cy = _childY(0, rh, _sizeOf(c.box).height);
+          (c.box.parentData as _AlignedRowParentData).offset = Offset(cx, cy);
+          cx += c.intrinsicWidth + _spacing;
+        }
+      }
+      return rh;
+    }
+    // Otherwise each group gets its own row(s).
+    double y = 0;
+    var first = true;
+    for (final (group, align) in [
+      (left, MainAxisAlignment.start),
+      (center, MainAxisAlignment.center),
+      (right, MainAxisAlignment.end),
+    ]) {
+      if (group.isEmpty) continue;
+      if (!first) y += _rowSpacing;
+      first = false;
+      final rows = _buildRows(group, maxWidth);
+      for (int i = 0; i < rows.length; i++) {
+        final rh = _rowHeight(rows[i]);
+        _placeRow(rows[i], y, rh, maxWidth, align, dry);
+        y += rh + (i < rows.length - 1 ? _rowSpacing : 0);
+      }
+    }
+    return y;
+  }
+
   // ── Main flow ─────────────────────────────────────────────────────────────
 
   double _flow(List<_Child> children, double maxWidth, bool dry) {
@@ -531,16 +589,19 @@ class RenderAlignedRow extends RenderBox
       return _flowLegacyExpanded(children, maxWidth, dry);
     }
 
-    final left = children.where((c) => !c.isRight).toList();
-    final right = children.where((c) => c.isRight).toList();
+    final left = children.where((c) => c.side == 0).toList();
+    final center = children.where((c) => c.side == 1).toList();
+    final right = children.where((c) => c.side == 2).toList();
 
-    if (left.isEmpty && right.isEmpty) return 0;
+    if (left.isEmpty && center.isEmpty && right.isEmpty) return 0;
 
     // ── Estimate total rows to decide whether to enter wrapper mode ──────────
     final estimatedRows = _estimateRows(children, maxWidth);
-    if (estimatedRows > _wrapperModeThreshold) {
+    if (estimatedRows > _threshold(children)) {
       return _flowWrapper(children, maxWidth, dry);
     }
+
+    if (center.isNotEmpty) return _flowWithCenter(left, center, right, maxWidth, dry);
 
     // ── Normal two-sided flow ─────────────────────────────────────────────────
     if (right.isEmpty) return _flowLeft(left, maxWidth, 0, dry);
@@ -829,7 +890,7 @@ class RenderAlignedRow extends RenderBox
     final maxWidth = constraints.maxWidth;
     final children = _measure(maxWidth);
 
-    final slotsChildren = _isLegacyExpanded || (_wrapperExpanded && _estimateRows(children, maxWidth) > _wrapperModeThreshold);
+    final slotsChildren = _isLegacyExpanded || (_wrapperExpanded && _estimateRows(children, maxWidth) > _threshold(children));
     if (!slotsChildren) {
       for (final c in children) {
         c.box.layout(BoxConstraints(maxWidth: maxWidth), parentUsesSize: true);

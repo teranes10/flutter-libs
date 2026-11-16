@@ -298,14 +298,14 @@ class _RenderTGrid extends RenderBox
         // Equal columns filling the whole width; every row (incl. a partial
         // last one) keeps the same tile width so columns stay aligned.
         final cols = rows.first.length;
-        final w = ((available - _gapX * (cols - 1)) / cols).floorToDouble();
+        final w = math.max(0.0, ((available - _gapX * (cols - 1)) / cols).floorToDouble());
         widths.fillRange(0, count, w);
       } else {
         // Share each row's leftover space equally between its tiles.
         for (final row in rows) {
           final extra = (available - _rowWidth(row, widths)) / row.length;
           for (final i in row) {
-            widths[i] = (widths[i] + extra).floorToDouble();
+            widths[i] = math.max(0.0, (widths[i] + extra).floorToDouble());
           }
         }
       }

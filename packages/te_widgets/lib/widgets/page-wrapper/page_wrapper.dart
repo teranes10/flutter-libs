@@ -332,7 +332,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
         return false;
       },
       child: Stack(
-        clipBehavior: Clip.none,
+        clipBehavior: Clip.hardEdge,
         children: [
           Positioned.fill(child: scrollView),
           // Top vertical shadow (casts downward when scrolled down from top)
