@@ -127,13 +127,7 @@ class _ThemeCustomizer extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          TSwitch(
-            label: 'Tint other colors with accent',
-            value: state.tintByAccent,
-            onValueChanged: (v) => notifier.setTintByAccent(v ?? false),
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(

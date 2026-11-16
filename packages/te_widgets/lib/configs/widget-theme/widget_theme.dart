@@ -152,7 +152,7 @@ class TWidgetTheme {
       isDarkMode: isDarkMode,
       type: TVariant.solid,
       color: m,
-      container: m.shade(400),
+      container: isDarkMode ? m.shade(500) : m.shade(400),
       containerVariant: m.shade(400).darken(0.2),
       onContainer: m.shade(50),
       onContainerVariant: m.shade(50),

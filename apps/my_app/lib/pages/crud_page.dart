@@ -321,11 +321,11 @@ class CrudPage extends StatelessWidget {
           ),
         );
       },
-      // rowColorBuilder: (item, index) {
-      //   if (item.data.stock < 5) return Colors.red.withAlpha(15);
-      //   if (item.data.stock < 10) return Colors.orange.withAlpha(15);
-      //   return null; // Use default background color
-      // },
+      rowColorBuilder: (item, index) {
+        if (item.data.stock < 5) return Colors.red.withAlpha(15);
+        if (item.data.stock < 10) return Colors.orange.withAlpha(15);
+        return null; // Use default background color
+      },
       controller: controller,
       archiveController: archiveController,
     );

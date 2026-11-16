@@ -243,18 +243,18 @@ class TCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: defaultBorderRadius,
         border: border,
-        gradient: backgroundColor == null
-            ? LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [colors.surface, colors.surface, colors.surfaceContainerLowest],
-              )
-            : null,
+        // gradient: backgroundColor == null
+        //     ? LinearGradient(
+        //         begin: Alignment.topCenter,
+        //         end: Alignment.bottomCenter,
+        //         colors: [colors.surface, colors.surface, colors.surfaceContainerLowest],
+        //       )
+        //     : null,
         boxShadow: shadow ?? shadowLevel.resolve(resShadowColor),
       ),
       child: Material(
         elevation: elevation ?? 0,
-        color: backgroundColor ?? Colors.transparent,
+        color: backgroundColor ?? colors.surface,
         shadowColor: resShadowColor,
         clipBehavior: clipBehavior ?? (accentColor != null ? Clip.antiAlias : Clip.none),
         shape: RoundedRectangleBorder(

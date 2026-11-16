@@ -184,17 +184,15 @@ class TMetricTile extends StatelessWidget {
 
     final iconPadding = EdgeInsets.all(compact ? 6 : 8);
 
-    final effectiveColor = color ?? colors.primary;
-
     final effectiveGradient = gradient ??
         (accentGradient
-            ? RadialGradient(
-                colors: [
-                  effectiveColor.withAlpha(2),
-                  effectiveColor.withAlpha(6),
-                ],
-                center: Alignment.topRight,
-                radius: 0.0,
+            // Tinted with the theme accent (not the semantic [color]) so warm colours such as warning
+            // don't turn the card cream; [color] only accents the icon and trend.
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                // Opaque surface -> surface mixed with the accent, so the card lifts off the tinted page background.
+                colors: [colors.surface, Color.lerp(colors.surface, color, 0.03)!],
               )
             : null);
 
@@ -205,6 +203,7 @@ class TMetricTile extends StatelessWidget {
         gradient: effectiveGradient,
         borderRadius: radius,
         border: Border.all(color: effectiveBorderColor),
+        boxShadow: [BoxShadow(color: colors.shadow.withAlpha(14), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: TTile(
         size: TTileSize.h7,

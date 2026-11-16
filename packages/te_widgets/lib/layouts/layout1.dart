@@ -148,7 +148,7 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
             Positioned.fill(
               child: _CloudyBackground(
                 base: cardColor,
-                tint: colors.primary,
+                tint: colors.primary.toMaterial().shade800,
                 child: isMobile
                     ? Column(
                         children: [
@@ -253,9 +253,9 @@ class _CloudyBackground extends StatelessWidget {
   final Widget child;
 
   static const _clouds = <(Alignment, double, int)>[
-    (Alignment(-0.9, -0.8), 1.0, 6),
-    (Alignment(0.8, -0.5), 0.8, 4),
-    (Alignment(-0.3, 0.9), 0.9, 2),
+    (Alignment(-0.9, -0.8), 1.0, 4),
+    (Alignment(0.8, -0.5), 0.8, 3),
+    (Alignment(-0.3, 0.9), 0.9, 6),
     (Alignment(1.0, 0.9), 0.7, 4),
   ];
 

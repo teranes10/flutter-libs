@@ -131,8 +131,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
     final wTheme = theme ?? TTableScope.maybeOf(context)?.theme?.mobileCardTheme ?? context.theme.tableTheme.mobileCardTheme;
 
     final states = <WidgetState>{if (isSelected) WidgetState.selected};
-    final themeBgColor = wTheme.backgroundColor.resolve(states);
-    final resolvedBgColor = backgroundColor ?? (themeBgColor == colors.surface ? context.getBackgroundColor(colors.surface) : themeBgColor);
+    final resolvedBgColor = backgroundColor ?? wTheme.backgroundColor.resolve(states);
 
     final controller = TTableScope.maybeOf(context)?.controller;
     final isDense = TTableScope.maybeOf(context)?.dense ?? false;

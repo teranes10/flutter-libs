@@ -67,8 +67,8 @@ class _TRatingState extends State<TRating>
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final ratedColor = widget.color ?? Colors.amber;
-    final unratedColor = widget.unratedColor ?? colors.surfaceContainerHighest;
+    final ratedColor = widget.color ?? Colors.amber.shade600;
+    final unratedColor = widget.unratedColor ?? colors.outlineVariant;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

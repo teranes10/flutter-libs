@@ -169,9 +169,16 @@ class AppColors {
     950: Color(0xFF2E1065),
   });
 
-  static const lightBackground = Color(0xFFFDFDFD);
+  static const lightBackground = Color(0xFFFFFFFF);
   static const lightSurface = Color(0xFFFFFFFF);
 
-  static const darkBackground = Color(0xFF1D1D1D);
-  static const darkSurface = Color(0xFF1D1D1D);
+  static const darkBackground = darker2;
+  static const darkSurface = darker2;
+
+  // 0xFF1D1D1D -> 0xFF0B0B0B
+  static const darker1 = Color(0xFF191919);
+  static const darker2 = Color(0xFF171717);
+  static const darker3 = Color(0xFF141414);
+  static const darker4 = Color(0xFF0F0F0F);
+  static const darker5 = Color(0xFF0B0B0B);
 }

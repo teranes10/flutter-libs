@@ -9,7 +9,6 @@ final themeModeKey = 'te_theme_mode';
 final sidebarMinifiedKey = 'te_sidebar_minified';
 final sidebarModeKey = 'te_sidebar_mode';
 final primaryColorIndexKey = 'te_primary_color_index';
-final tintByAccentKey = 'te_tint_by_accent';
 final customColorKey = 'te_custom_color';
 final schemeOverridesKey = 'te_scheme_overrides';
 final layoutStyleKey = 'te_layout_style';
@@ -18,7 +17,6 @@ ThemeMode _initialTheme = ThemeMode.light;
 TSidebarMode _initialSidebarMode = TSidebarMode.full;
 int _initialPrimaryColorIndex = 0;
 Color? _initialCustomColor;
-bool _initialTintByAccent = false;
 Map<String, int> _initialLightOverrides = {};
 Map<String, int> _initialDarkOverrides = {};
 TLayoutStyle _initialLayoutStyle = TLayoutStyle.layout1;
@@ -57,9 +55,6 @@ class TThemeState {
   final Map<String, int> lightOverrides;
   final Map<String, int> darkOverrides;
 
-  /// When true, surfaces/outlines are subtly tinted with the accent.
-  final bool tintByAccent;
-
   MaterialColor get primaryColor => customColor != null ? _swatchFrom(customColor!) : primaryColorOptions[primaryColorIndex].color;
 
   /// Values derived from a custom accent (e.g. a readable `onPrimary`); user overrides win over these.
@@ -67,19 +62,34 @@ class TThemeState {
     final accent = primaryColor.shade500;
     return {
       if (customColor != null) 'onPrimary': (customColor!.computeLuminance() > 0.5 ? Colors.black : Colors.white).toARGB32(),
-      if (tintByAccent) ..._tintedKeys.map((k, t) => MapEntry(k, Color.lerp(schemeColor(base, k), accent, t)!.toARGB32())),
-      if (tintByAccent) 'surfaceTint': accent.withValues(alpha: 0.1).toARGB32(),
+      ..._tintedKeys.map((k, t) => MapEntry(k, Color.lerp(schemeColor(base, k), accent, t)!.toARGB32())),
+      'surfaceTint': accent.withValues(alpha: 0.1).toARGB32(),
+      // Text colour: a deep shade of the accent in light mode, a pale shade in dark mode (keeps contrast).
+      'onSurface': (base.brightness == Brightness.dark
+                ? Color.lerp(base.onSurface, primaryColor.shade100, 0.6)!
+                : Color.lerp(Colors.black, primaryColor.shade900, 0.25)!)
+            .toARGB32(),
+      // Outlines: clearly accent-coloured rather than grey; the variant is a bit darker than before.
+      'outline': Color.lerp(Color.lerp(base.outline, accent, 0.4)!, Colors.black, 0.04)!.toARGB32(),
+      'outlineVariant': Color.lerp(Color.lerp(base.outlineVariant, accent, 0.3)!, Colors.black, 0.05)!.toARGB32(),
+      // Shadow / scrim: near-black with an accent undertone (opacity is applied by the widgets using them).
+      'shadow': Color.lerp(Colors.black, primaryColor.shade900, 0.3)!.toARGB32(),
+      'scrim': Color.lerp(Colors.black, primaryColor.shade900, 0.2)!.toARGB32(),
+      // Secondary text: light grey with a hint of accent, clearly lighter than onSurface for hierarchy.
+      'onSurfaceVariant': (base.brightness == Brightness.dark
+                ? Color.lerp(Colors.grey.shade500, primaryColor.shade200, 0.15)!
+                : Color.lerp(Colors.grey.shade600, primaryColor.shade500, 0.12)!)
+            .toARGB32(),
     };
   }
 
-  /// Scaffold background: user override, else the accent-tinted default when [tintByAccent], else null (default).
+  /// Scaffold background: user override, else the theme default (white in light mode, accent-tinted in dark).
   Color? _background(Map<String, int> overrides, Color base) {
     final o = overrides[kScaffoldBackgroundKey];
     if (o != null) return Color(o);
-    if (!tintByAccent) return null;
-    final tinted = Color.lerp(base, primaryColor.shade500, 0.02)!;
-    // Nudge a bit lighter than the plain tint.
-    return Color.lerp(tinted, Colors.white, ThemeData.estimateBrightnessForColor(base) == Brightness.dark ? 0.03 : 0.5);
+    // Same hue as the accent so ground and accent read as one palette; cards (near-white surfaces) sit above it.
+    final dark = ThemeData.estimateBrightnessForColor(base) == Brightness.dark;
+    return dark ? Color.lerp(base, primaryColor.shade500, 0.06) : Colors.white;
   }
 
   static const _tintedKeys = <String, double>{
@@ -89,16 +99,13 @@ class TThemeState {
     'surfaceContainer': 0.05,
     'surfaceContainerHigh': 0.06,
     'surfaceContainerHighest': 0.08,
-    'outline': 0.12,
-    'outlineVariant': 0.12,
-    'onSurfaceVariant': 0.1,
   };
 
   TAppTheme get theme {
     final base = layoutStyle == TLayoutStyle.layout2
         ? TAppTheme.defaultTheme2(primary: primaryColor)
         : TAppTheme.defaultTheme(primary: primaryColor);
-    if (lightOverrides.isEmpty && darkOverrides.isEmpty && customColor == null && !tintByAccent) return base;
+    if (lightOverrides.isEmpty && darkOverrides.isEmpty && customColor == null) return base;
     return TAppTheme(
       lightScheme: applySchemeOverrides(base.lightScheme, {..._accentDerived(base.lightScheme), ...lightOverrides}),
       darkScheme: applySchemeOverrides(base.darkScheme, {..._accentDerived(base.darkScheme), ...darkOverrides}),
@@ -113,7 +120,6 @@ class TThemeState {
     required this.primaryColorIndex,
     this.layoutStyle = TLayoutStyle.layout1,
     this.customColor,
-    this.tintByAccent = false,
     this.lightOverrides = const {},
     this.darkOverrides = const {},
   });
@@ -124,12 +130,10 @@ class TThemeState {
     TLayoutStyle? layoutStyle,
     Color? customColor,
     bool clearCustomColor = false,
-    bool? tintByAccent,
     Map<String, int>? lightOverrides,
     Map<String, int>? darkOverrides,
   }) {
     return TThemeState(
-      tintByAccent: tintByAccent ?? this.tintByAccent,
       lightOverrides: lightOverrides ?? this.lightOverrides,
       darkOverrides: darkOverrides ?? this.darkOverrides,
       customColor: clearCustomColor ? null : (customColor ?? this.customColor),
@@ -163,7 +167,6 @@ Future<void> initializeApp([SharedPreferences? prefs]) async {
   }
 
   _initialPrimaryColorIndex = p.getInt(primaryColorIndexKey) ?? 0;
-  _initialTintByAccent = p.getBool(tintByAccentKey) ?? false;
   final customValue = p.getInt(customColorKey);
   _initialCustomColor = customValue == null ? null : Color(customValue);
   Map<String, int> readOverrides(String mode) {
@@ -191,7 +194,6 @@ class ThemeNotifier extends Notifier<TThemeState> {
       themeMode: _initialTheme,
       primaryColorIndex: _initialPrimaryColorIndex,
       customColor: _initialCustomColor,
-      tintByAccent: _initialTintByAccent,
       lightOverrides: _initialLightOverrides,
       darkOverrides: _initialDarkOverrides,
       layoutStyle: _initialLayoutStyle,
@@ -226,11 +228,6 @@ class ThemeNotifier extends Notifier<TThemeState> {
       _savePrimaryColor(index);
       SharedPreferences.getInstance().then((p) => p.remove(customColorKey));
     }
-  }
-
-  void setTintByAccent(bool value) {
-    state = state.copyWith(tintByAccent: value);
-    SharedPreferences.getInstance().then((p) => p.setBool(tintByAccentKey, value));
   }
 
   void setCustomColor(Color color) {
