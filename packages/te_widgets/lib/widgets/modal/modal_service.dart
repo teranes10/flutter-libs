@@ -31,6 +31,8 @@ class TModalService {
     return showDialog<T>(
       context: context,
       barrierDismissible: persistent,
+      // Glass + light: a faint cool tint; the default black54 greys the page, a white veil makes the modal vanish.
+      barrierColor: TGlassStyle.resolve(context) != null && !context.colors.isDarkMode ? context.colors.primary.withAlpha(38) : null,
       builder: (BuildContext dialogContext) {
         final mContext = TModalContext<T>(dialogContext);
 

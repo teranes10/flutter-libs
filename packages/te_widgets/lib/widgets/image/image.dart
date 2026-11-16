@@ -1067,8 +1067,11 @@ class _ImageShimmerState extends State<_ImageShimmer> with SingleTickerProviderS
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isDark = scheme.brightness == Brightness.dark;
-    final base = isDark ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow;
-    final highlight = isDark ? scheme.surfaceContainerHighest : scheme.surfaceContainerHighest;
+    final glass = TGlassStyle.resolve(context);
+    // Glass: translucent frosted wash with a bright sweeping sheen instead of opaque grey blocks.
+    final base =
+        glass != null ? Colors.white.withAlpha(isDark ? 18 : 90) : (isDark ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow);
+    final highlight = glass != null ? Colors.white.withAlpha(isDark ? 60 : 190) : scheme.surfaceContainerHighest;
 
     return AnimatedBuilder(
       animation: _controller,
@@ -1082,6 +1085,7 @@ class _ImageShimmerState extends State<_ImageShimmer> with SingleTickerProviderS
           width: widget.width ?? 80,
           height: widget.height ?? 80,
           decoration: BoxDecoration(
+            border: glass == null ? null : Border.all(color: glass.edgeOf(context)),
             gradient: LinearGradient(
               begin: start,
               end: end,

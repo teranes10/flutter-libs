@@ -93,10 +93,9 @@ class _ThemeCustomizer extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: Text('Liquid glass',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
+                child: Text('Liquid glass', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
               ),
-              Switch(value: ref.watch(themeNotifierProvider).glass, onChanged: notifier.setGlass),
+              TSwitch(value: ref.watch(themeNotifierProvider).glass, onValueChanged: (v) => notifier.setGlass(v!)),
             ],
           ),
           const SizedBox(height: 8),

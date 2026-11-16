@@ -172,12 +172,12 @@ class TOptionTile extends StatelessWidget {
         );
       case TOptionIndicator.toggle:
         return IgnorePointer(
-          child: Switch(
+          child: TSwitch(
             value: selected,
-            onChanged: (_) {},
-            activeThumbColor: Colors.white,
-            activeTrackColor: accent,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            // onChanged: (_) {},
+            // activeThumbColor: Colors.white,
+            // activeTrackColor: accent,
+            // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         );
     }

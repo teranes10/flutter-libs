@@ -279,7 +279,8 @@ class TChip extends StatelessWidget {
           color: mBackgroundColor,
           borderRadius: effectiveBorderRadius,
           border: Border.all(
-              color: glassStyle != null ? (wTheme.outline ?? glassStyle.edge) : (wTheme.outline ?? Colors.transparent), width: 1),
+              color: glassStyle != null ? (wTheme.outline ?? glassStyle.edgeOf(context)) : (wTheme.outline ?? Colors.transparent),
+              width: 1),
         ),
         child: Align(
           widthFactor: 1,

@@ -106,13 +106,20 @@ class TActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final primarySize = TSize.xl.copyWith(minW: double.infinity);
+    final glassStyle = TGlassStyle.resolve(context);
+    // Glass: a floating pane with slimmer buttons whose corners are concentric with the pane (pane radius - padding).
+    const paneRadius = 26.0;
+    const panePadding = 8.0;
+    final primarySize = glassStyle == null ? TSize.xl.copyWith(minW: double.infinity) : TSize.lg.copyWith(minW: double.infinity, minH: 48);
+    // TButton takes its corners from the shape, not TSize.radius.
+    final buttonShape = glassStyle == null ? null : TButtonShape.custom(paneRadius - panePadding);
     final hasPrimaryAction = onPrimary != null || onPrimaryPressed != null;
 
     TButton buildPrimary(TSize size) => TButton(
           key: const ValueKey('t-action-bar-primary'),
           type: TButtonType.solid,
           size: size,
+          shape: buttonShape,
           color: primaryColor,
           text: primaryText,
           icon: primaryIcon,
@@ -125,8 +132,18 @@ class TActionBar extends StatelessWidget {
 
     TButton buildSecondary(TSize size) => TButton(
           key: const ValueKey('t-action-bar-secondary'),
-          baseTheme: TWidgetTheme.surfaceTheme(context.colors),
+          // Glass: a frosted fill + visible edge instead of the opaque tonal surface (a dark slab over the backdrop).
+          baseTheme: TGlassStyle.resolve(context) == null
+              ? TWidgetTheme.surfaceTheme(context.colors)
+              : TWidgetTheme.surfaceTheme(context.colors).copyWith(
+                  container: Colors.white.withAlpha(context.colors.isDarkMode ? 14 : 150),
+                  containerVariant: Colors.white.withAlpha(context.colors.isDarkMode ? 36 : 205),
+                  // Quiet edge: Save stays the one clear action.
+                  outline: TGlassStyle.resolve(context)!.edge.withAlpha(60),
+                  outlineVariant: TGlassStyle.resolve(context)!.edge.withAlpha(60),
+                ),
           size: size,
+          shape: buttonShape,
           text: secondaryText,
           icon: secondaryIcon,
           onTap: onSecondary,
@@ -140,7 +157,7 @@ class TActionBar extends StatelessWidget {
     } else {
       buttons = LayoutBuilder(
         builder: (context, constraints) {
-          const gap = 10.0;
+          final gap = glassStyle == null ? 10.0 : panePadding;
           final availableWidth = constraints.hasBoundedWidth ? constraints.maxWidth : MediaQuery.sizeOf(context).width - 32;
 
           final rowPrimary = buildPrimary(primarySize);
@@ -170,7 +187,7 @@ class TActionBar extends StatelessWidget {
             return Row(
               children: [
                 Expanded(flex: secondaryFlex, child: rowSecondary),
-                const SizedBox(width: gap),
+                SizedBox(width: gap),
                 Expanded(flex: primaryFlex, child: rowPrimary),
               ],
             );
@@ -186,7 +203,7 @@ class TActionBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               buildPrimary(primarySize),
-              const SizedBox(height: gap),
+              SizedBox(height: gap),
               buildSecondary(stackedSecondarySize),
             ],
           );
@@ -194,16 +211,18 @@ class TActionBar extends StatelessWidget {
       );
     }
 
-    return DecoratedBox(
+    final glass = TGlassStyle.resolve(context) != null;
+    final bar = DecoratedBox(
       decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(top: BorderSide(color: colors.outlineVariant)),
+        // Glass: the blurred translucent bar below replaces the opaque fill and divider.
+        color: glass ? null : colors.surface,
+        border: glass ? null : Border(top: BorderSide(color: colors.outlineVariant)),
       ),
       child: SafeArea(
         top: false,
         bottom: safeArea,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          padding: glass ? const EdgeInsets.all(panePadding) : const EdgeInsets.fromLTRB(16, 12, 16, 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -226,6 +245,18 @@ class TActionBar extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+    if (glassStyle == null) return bar;
+    // Floating glass pane inset from the edges (no hard divider); the bottom inset comes from the SafeArea.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 2),
+      child: TGlassSurface(
+        style: glassStyle,
+        borderRadius: BorderRadius.circular(paneRadius),
+        color: Colors.white,
+        alpha: colors.isDarkMode ? 22 : null,
+        child: bar,
       ),
     );
   }

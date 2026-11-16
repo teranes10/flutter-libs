@@ -22,13 +22,17 @@ class TGlassStyle {
   /// Alpha (0-255) of the top-left sheen gradient.
   final int highlightAlpha;
 
-  const TGlassStyle({this.blur = 18, this.fillAlpha = 120, this.lightFillAlpha = 200, this.borderAlpha = 90, this.highlightAlpha = 50});
+  const TGlassStyle({this.blur = 18, this.fillAlpha = 120, this.lightFillAlpha = 120, this.borderAlpha = 90, this.highlightAlpha = 50});
 
   /// Translucent version of [c] for small widgets (chips) that sit on a glass surface and skip the costly blur.
   Color tint(Color c) => c.withAlpha((c.a * 255 * fillAlpha / 255 + 40).clamp(0, 255).round());
 
   /// Light-catching edge colour for tinted small widgets.
   Color get edge => Colors.white.withAlpha(borderAlpha);
+
+  /// Edge colour for the current brightness: a bright specular white in light mode (stronger than dark mode's so it
+  /// still shines over pale backdrops), the regular [edge] in dark mode.
+  Color edgeOf(BuildContext context) => context.colors.isDarkMode ? edge : Colors.white.withAlpha(235);
 
   /// [c] made translucent when glass is active (for fields, buttons and other small surfaces that sit on glass
   /// without their own blur). Returns [c] unchanged when glass is off or [c] is already transparent.
@@ -46,9 +50,9 @@ class TGlassStyle {
     final toward = dark ? Colors.white : Colors.black;
     Color mix(Color c, double t) => Color.lerp(c, toward, t)!;
     return s.copyWith(
-      onSurfaceVariant: mix(s.onSurfaceVariant, dark ? 0.45 : 0.4),
-      outline: mix(s.outline, dark ? 0.45 : 0.3),
-      outlineVariant: mix(s.outlineVariant, dark ? 0.35 : 0.2),
+      onSurfaceVariant: mix(s.onSurfaceVariant, dark ? 0.45 : 0.5),
+      outline: mix(s.outline, dark ? 0.45 : 0.25),
+      outlineVariant: mix(s.outlineVariant, dark ? 0.35 : 0.15),
     );
   }
 
@@ -76,7 +80,7 @@ class TGlassStyle {
   Color fieldEdge(BuildContext context) {
     final colors = context.colors;
     // The glass scheme's outline (see [scheme]) already carries the contrast; keep it near-opaque.
-    return colors.outline.withAlpha(colors.isDarkMode ? 200 : 210);
+    return colors.outline.withAlpha(colors.isDarkMode ? 200 : 170);
   }
 
   /// Resolves whether glass is active: [override] true/false wins, null follows the app theme
@@ -122,20 +126,25 @@ class TGlassSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final white = Colors.white;
+    final dark = context.colors.isDarkMode;
     return ClipRRect(
       borderRadius: borderRadius,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: style.blur, sigmaY: style.blur),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: color.withAlpha(alpha ?? (context.colors.isDarkMode ? style.fillAlpha : style.lightFillAlpha)),
+            color: (dark ? color : Color.lerp(color, white, 0.5)!).withAlpha(alpha ?? (dark ? style.fillAlpha : style.lightFillAlpha)),
             borderRadius: borderRadius,
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [white.withAlpha(style.highlightAlpha), white.withAlpha(0)],
+              // Light mode: glossy sheen, bright at the top-left, a clear band in the middle, a soft reflection at the bottom-right.
+              colors: dark
+                  ? [white.withAlpha(style.highlightAlpha), white.withAlpha(0)]
+                  : [white.withAlpha(190), white.withAlpha(20), white.withAlpha(80)],
+              stops: dark ? null : const [0.0, 0.55, 1.0],
             ),
-            border: Border.all(color: white.withAlpha(style.borderAlpha)),
+            border: Border.all(color: style.edgeOf(context), width: dark ? 1 : 1.4),
           ),
           child: child,
         ),
@@ -170,13 +179,15 @@ class _TGlassBackgroundState extends State<TGlassBackground> with SingleTickerPr
     final scheme = context.colors;
     final theme = context.theme;
     final dark = scheme.isDarkMode;
-    final blobs = widget.colors ?? [scheme.primary, theme.secondary, theme.info, theme.success, theme.warning];
-    final base = Color.lerp(scheme.surface, scheme.primary, dark ? 0.12 : 0.06)!;
+    final raw = widget.colors ?? [scheme.primary, theme.secondary, theme.info, theme.success, theme.warning];
+    // Light mode: the full palette, lifted slightly toward white; the low blob alpha keeps it pastel instead of muddy.
+    final blobs = dark ? raw : [for (final c in raw) Color.lerp(c, Colors.white, 0.3)!];
+    final base = dark ? Color.lerp(scheme.surface, scheme.primary, 0.12)! : Colors.white;
     return Stack(
       fit: StackFit.expand,
       children: [
         RepaintBoundary(
-          child: CustomPaint(painter: _BlobPainter(_c, blobs, base, dark ? 110 : 150)),
+          child: CustomPaint(painter: _BlobPainter(_c, blobs, base, dark ? 110 : 30)),
         ),
         widget.child,
       ],
@@ -226,13 +237,17 @@ class TGlassBar extends StatelessWidget {
   /// Draw the divider on the top edge (bottom bars) rather than the bottom edge.
   final bool dividerOnTop;
 
-  const TGlassBar({super.key, required this.style, required this.color, required this.child, this.dividerOnTop = true});
+  /// Dark mode: a light frosted wash instead of the (dark) [color], which would read as a dark slab over the backdrop.
+  final bool frosted;
+
+  const TGlassBar(
+      {super.key, required this.style, required this.color, required this.child, this.dividerOnTop = true, this.frosted = false});
 
   /// [child] wrapped in a glass bar when glass is active, else [fallback] built around it.
-  static Widget wrap(BuildContext context, {required Color color, required Widget child, bool dividerOnTop = true}) {
+  static Widget wrap(BuildContext context, {required Color color, required Widget child, bool dividerOnTop = true, bool frosted = false}) {
     final style = TGlassStyle.resolve(context);
     if (style == null) return child;
-    return TGlassBar(style: style, color: color, dividerOnTop: dividerOnTop, child: child);
+    return TGlassBar(style: style, color: color, dividerOnTop: dividerOnTop, frosted: frosted, child: child);
   }
 
   @override
@@ -244,7 +259,7 @@ class TGlassBar extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: style.blur, sigmaY: style.blur),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: color.withAlpha(dark ? style.fillAlpha : style.lightFillAlpha),
+            color: frosted && dark ? Colors.white.withAlpha(22) : color.withAlpha(dark ? style.fillAlpha : style.lightFillAlpha),
             border: dividerOnTop ? Border(top: edge) : Border(bottom: edge),
           ),
           child: child,

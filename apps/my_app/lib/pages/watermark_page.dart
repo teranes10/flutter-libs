@@ -76,7 +76,7 @@ class _WatermarkPageState extends State<WatermarkPage> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Switch(value: _enabled, onChanged: (val) => setState(() => _enabled = val)),
+                        TSwitch(value: _enabled, onValueChanged: (val) => setState(() => _enabled = val!)),
                         const SizedBox(width: 4),
                         Text(_enabled ? 'Enabled' : 'Disabled', style: const TextStyle(fontSize: 13)),
                       ],

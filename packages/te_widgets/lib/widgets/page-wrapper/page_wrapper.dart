@@ -412,7 +412,8 @@ class _TPageWrapperState extends State<TPageWrapper> {
       decoration: BoxDecoration(
         // Glass: no opaque strip; a faint divider separates the footer from the content instead.
         color: glass ? null : effectiveBg,
-        border: glass ? Border(top: BorderSide(color: colors.outlineVariant.withAlpha(120))) : null,
+        // A floating TActionBar needs no divider.
+        border: glass && widget.footer is! TActionBar ? Border(top: BorderSide(color: colors.outlineVariant.withAlpha(120))) : null,
       ),
       child: widget.footer!,
     );

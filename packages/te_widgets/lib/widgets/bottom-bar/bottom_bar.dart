@@ -137,7 +137,7 @@ class TBottomBar extends StatelessWidget {
       ),
     );
 
-    return TGlassBar.wrap(context, color: mBackground, child: bar);
+    return TGlassBar.wrap(context, color: mBackground, frosted: true, child: bar);
   }
 
   Widget _buildItem(BuildContext context, int index, double mBorderRadius) {

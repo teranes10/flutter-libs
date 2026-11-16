@@ -21,7 +21,7 @@ Color? _initialCustomColor;
 Map<String, int> _initialLightOverrides = {};
 Map<String, int> _initialDarkOverrides = {};
 TLayoutStyle _initialLayoutStyle = TLayoutStyle.layout1;
-bool _initialGlass = false;
+bool _initialGlass = true;
 
 /// Which `TLayout` implementation the app renders.
 enum TLayoutStyle {
@@ -47,6 +47,10 @@ enum TSidebarMode {
 
 class TThemeState {
   final ThemeMode themeMode;
+
+  /// Mode to hand to MaterialApp. Glass currently ships dark-only: with glass on, light and dark both render dark
+  /// (the light glass look isn't finished). The stored [themeMode] is kept, so it applies again when glass is off.
+  ThemeMode get effectiveThemeMode => glass ? ThemeMode.dark : themeMode;
   final int primaryColorIndex;
   final TLayoutStyle layoutStyle;
 
@@ -71,9 +75,9 @@ class TThemeState {
       'surfaceTint': accent.withValues(alpha: 0.1).toARGB32(),
       // Text colour: a deep shade of the accent in light mode, a pale shade in dark mode (keeps contrast).
       'onSurface': (base.brightness == Brightness.dark
-                ? Color.lerp(base.onSurface, primaryColor.shade100, 0.6)!
-                : Color.lerp(Colors.black, primaryColor.shade900, 0.25)!)
-            .toARGB32(),
+              ? Color.lerp(base.onSurface, primaryColor.shade100, 0.6)!
+              : Color.lerp(Colors.black, primaryColor.shade900, 0.25)!)
+          .toARGB32(),
       // Outlines: clearly accent-coloured rather than grey; the variant is a bit darker than before.
       'outline': Color.lerp(Color.lerp(base.outline, accent, 0.4)!, Colors.black, 0.04)!.toARGB32(),
       'outlineVariant': Color.lerp(Color.lerp(base.outlineVariant, accent, 0.3)!, Colors.black, 0.05)!.toARGB32(),
@@ -82,9 +86,9 @@ class TThemeState {
       'scrim': Color.lerp(Colors.black, primaryColor.shade900, 0.2)!.toARGB32(),
       // Secondary text: light grey with a hint of accent, clearly lighter than onSurface for hierarchy.
       'onSurfaceVariant': (base.brightness == Brightness.dark
-                ? Color.lerp(Colors.grey.shade500, primaryColor.shade200, 0.15)!
-                : Color.lerp(Colors.grey.shade600, primaryColor.shade500, 0.12)!)
-            .toARGB32(),
+              ? Color.lerp(Colors.grey.shade500, primaryColor.shade200, 0.15)!
+              : Color.lerp(Colors.grey.shade600, primaryColor.shade500, 0.12)!)
+          .toARGB32(),
     };
   }
 
@@ -143,7 +147,7 @@ class TThemeState {
     required this.themeMode,
     required this.primaryColorIndex,
     this.layoutStyle = TLayoutStyle.layout1,
-    this.glass = false,
+    this.glass = true,
     this.customColor,
     this.lightOverrides = const {},
     this.darkOverrides = const {},
@@ -212,7 +216,7 @@ Future<void> initializeApp([SharedPreferences? prefs]) async {
     (l) => l.name == p.getString(layoutStyleKey),
     orElse: () => TLayoutStyle.layout1,
   );
-  _initialGlass = p.getBool(glassKey) ?? false;
+  _initialGlass = p.getBool(glassKey) ?? true;
 }
 
 class ThemeNotifier extends Notifier<TThemeState> {

@@ -255,7 +255,8 @@ class TCard extends StatelessWidget {
         //         colors: [colors.surface, colors.surface, colors.surfaceContainerLowest],
         //       )
         //     : null,
-        boxShadow: shadow ?? shadowLevel.resolve(resShadowColor),
+        // Glass: the shadow would be painted inside the glass clip and grey the pane out, so it is dropped.
+        boxShadow: glassStyle != null ? null : (shadow ?? shadowLevel.resolve(resShadowColor)),
       ),
       child: Material(
         elevation: elevation ?? 0,
@@ -302,9 +303,8 @@ class TCard extends StatelessWidget {
 
     return Padding(
       padding: margin ?? const EdgeInsets.only(bottom: 8),
-      child: glassStyle == null
-          ? card
-          : TGlassSurface(style: glassStyle, borderRadius: defaultBorderRadius, color: surfaceColor, child: card),
+      child:
+          glassStyle == null ? card : TGlassSurface(style: glassStyle, borderRadius: defaultBorderRadius, color: surfaceColor, child: card),
     );
   }
 }

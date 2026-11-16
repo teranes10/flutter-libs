@@ -28,6 +28,7 @@ class TMobileDeviceFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final glass = TGlassStyle.resolve(context) != null;
 
     final bodyContent = Column(
       mainAxisSize: MainAxisSize.min,
@@ -57,16 +58,26 @@ class TMobileDeviceFrame extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
         boxShadow: [BoxShadow(color: Colors.black.withAlpha(40), blurRadius: 20, offset: const Offset(0, 10))],
-        border: Border.all(color: colors.surfaceContainer, width: 8),
+        border: Border.all(color: glass ? Colors.white.withAlpha(colors.isDarkMode ? 40 : 160) : colors.surfaceContainer, width: 8),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
         // Fake a phone-sized viewport so descendants' context.isMobile is true.
         child: MediaQuery(
-          data: MediaQuery.of(context).copyWith(size: Size(width ?? 375, height ?? MediaQuery.sizeOf(context).height)),
+          data: MediaQuery.of(context).copyWith(
+            size: Size(width ?? 375, height ?? MediaQuery.sizeOf(context).height),
+            // Home-indicator inset: bottom bars pad above it through their SafeArea, like on a real phone.
+            padding: const EdgeInsets.only(bottom: 8),
+          ),
           child: Theme(
             data: Theme.of(context).copyWith(platform: TargetPlatform.iOS),
-            child: Material(child: bodyContent),
+            // Glass: the phone screen gets its own liquid background instead of an opaque Material surface.
+            child: glass && height != null
+                ? Material(
+                    type: MaterialType.transparency,
+                    child: TGlassBackground(child: bodyContent),
+                  )
+                : Material(child: bodyContent),
           ),
         ),
       ),

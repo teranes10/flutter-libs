@@ -147,6 +147,8 @@ class TModal extends StatelessWidget {
               context,
               radius: mBorderRadius,
               color: colors.surface,
+              // Modals sit over a busy page, so they are more opaque than inline panels.
+              alpha: colors.isDarkMode ? null : 200,
               child: Material(
                 color: TGlassStyle.resolve(context) != null ? Colors.transparent : colors.surface,
                 borderRadius: mBorderRadius,
@@ -155,6 +157,9 @@ class TModal extends StatelessWidget {
                   width: mWidth,
                   height: mHeight,
                   constraints: mConstraints,
+                  foregroundDecoration: TGlassStyle.resolve(context) == null || colors.isDarkMode
+                      ? null
+                      : BoxDecoration(borderRadius: mBorderRadius, border: Border.all(color: colors.outline.withAlpha(70))),
                   child: layoutBuilder?.call(context, child) ?? _layout(context, colors, child),
                 ),
               ),

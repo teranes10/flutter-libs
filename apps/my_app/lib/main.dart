@@ -25,7 +25,7 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: theme.lightTheme,
       darkTheme: theme.darkTheme,
-      themeMode: themeState.themeMode,
+      themeMode: themeState.effectiveThemeMode,
       routerConfig: _router,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

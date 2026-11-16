@@ -213,7 +213,8 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
         final screenWidth = MediaQuery.of(dropdownCtx).size.width;
         final panelWidth = (screenWidth * 0.9).clamp(420.0, 580.0);
 
-        return Container(
+        return TContainer(
+          glassMode: TGlassMode.surface,
           width: panelWidth,
           constraints: const BoxConstraints(maxHeight: 520),
           decoration: BoxDecoration(

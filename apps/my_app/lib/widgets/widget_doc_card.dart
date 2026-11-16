@@ -174,7 +174,9 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                 final tabsSection = Container(
                   decoration: BoxDecoration(
                     // Glass: a faint light overlay; a half-opaque surface reads as a dark slab over the colourful backdrop.
-                    color: glass ? colors.onSurface.withAlpha(14) : colors.surface.withAlpha(128),
+                    color: glass
+                        ? (colors.isDarkMode ? colors.onSurface.withAlpha(14) : Colors.white.withAlpha(90))
+                        : colors.surface.withAlpha(128),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: ValueListenableBuilder(
