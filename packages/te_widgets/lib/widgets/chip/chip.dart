@@ -271,11 +271,12 @@ class TChip extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: effectiveBorderRadius,
-      child: Container(
+      child: TContainer(
         padding: effectivePadding,
         constraints: BoxConstraints(minHeight: effectiveSize.minH),
+        glassColor: glassStyle != null && !mBackgroundColor.isTransparent ? glassStyle.tint(mBackgroundColor) : null,
         decoration: BoxDecoration(
-          color: glassStyle != null && !mBackgroundColor.isTransparent ? glassStyle.tint(mBackgroundColor) : mBackgroundColor,
+          color: mBackgroundColor,
           borderRadius: effectiveBorderRadius,
           border: Border.all(
               color: glassStyle != null ? (wTheme.outline ?? glassStyle.edge) : (wTheme.outline ?? Colors.transparent), width: 1),

@@ -288,13 +288,15 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               customBorder: const CircleBorder(),
-              child: Container(
+              child: TContainer(
                 width: 40,
                 height: 40,
                 alignment: Alignment.center,
+                // The active colour is already glass-tuned; the idle one is made translucent by TContainer.
+                glassColor: isCurrentRoute ? _activeBg(context) : null,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isCurrentRoute ? _activeBg(context) : TGlassStyle.surface(context, colors.surfaceContainerHigh),
+                  color: isCurrentRoute ? _activeBg(context) : colors.surfaceContainerHigh,
                 ),
                 child: widget.item.icon != null
                     ? TIcon(icon: widget.item.icon, size: widget.theme.iconSize, color: color)
