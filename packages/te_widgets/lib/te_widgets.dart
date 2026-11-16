@@ -7,6 +7,7 @@ export 'configs/theme/theme_notifier.dart';
 export 'package:hugeicons/hugeicons.dart';
 
 export 'configs/widget-theme/widget_theme.dart';
+export 'widgets/surface/container.dart';
 export 'widgets/surface/glass.dart';
 export 'configs/widget-theme/input_field_theme.dart';
 

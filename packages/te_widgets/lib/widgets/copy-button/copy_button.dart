@@ -267,13 +267,12 @@ class _TCopyableState extends State<TCopyable> {
     );
 
     if (widget.monospace) {
-      content = Container(
+      content = TContainer(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+        // Glass: a light wash instead of a half-opaque dark surface.
+        glassColor: colors.onSurface.withAlpha(colors.isDarkMode ? 24 : 16),
         decoration: BoxDecoration(
-          // Glass: a light wash instead of a half-opaque dark surface.
-          color: TGlassStyle.resolve(context) != null
-              ? colors.onSurface.withAlpha(colors.isDarkMode ? 24 : 16)
-              : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+          color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(6.0),
           border: Border.all(
             color: TGlassStyle.resolve(context)?.fieldEdge(context).withAlpha(140) ?? colors.outlineVariant.withValues(alpha: 0.4),
