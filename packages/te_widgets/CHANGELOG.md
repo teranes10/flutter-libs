@@ -1,3 +1,11 @@
+## 4.4.0
+
+ - **REFACTOR**(te_widgets): use TContainer in chip and sidebar item. ([634efff2](https://github.com/teranes10/flutter-libs/commit/634efff268c7f63670b6bbe89f004c594558d032))
+ - **REFACTOR**(te_widgets): theme color tweaks across card, metric tile, rating and theme customizer. ([af85190a](https://github.com/teranes10/flutter-libs/commit/af85190ac28269212e6873881c392992afd5519b))
+ - **FEAT**(te_widgets): glass by default, dark-only glass, floating action bar and glass fixes. ([d0673f22](https://github.com/teranes10/flutter-libs/commit/d0673f227991a48c498fbbafbcb450805ca222d7))
+ - **FEAT**(te_widgets): add TContainer with glass-aware fill and TGlassMode. ([567b857b](https://github.com/teranes10/flutter-libs/commit/567b857b48d33c0eff5ff825364143a8b52e02d2))
+ - **FEAT**(te_widgets): glass style updates across widgets, layouts and demo app. ([f8510787](https://github.com/teranes10/flutter-libs/commit/f851078766790efd1eebd2e047c43dec02a82b08))
+
 ## 4.3.0
 
  - **FEAT**(te_widgets): TAlignedRow center, status chip column, CRUD top bar layout. ([e15c2ef9](https://github.com/teranes10/flutter-libs/commit/e15c2ef9eb4a6b6bb92ed129874f84739750575b))
