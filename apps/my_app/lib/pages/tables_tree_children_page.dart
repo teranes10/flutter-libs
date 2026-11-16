@@ -113,25 +113,23 @@ class _TablesTreeChildrenPageState extends State<TablesTreeChildrenPage> {
       ),
     ];
 
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hierarchical Tree Table & Row Expanded Content',
-              style: context.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.onSurface),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Demonstrates multi-level tree children (indented with expand icons & child count badges) '
-              'and separated row detail content expansion with active key precedence.',
-              style: context.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
-            ),
-            const SizedBox(height: 24),
-            TTable<CategoryTreeItem, String>(
-              shrinkWrap: true,
+    // Side-mode details (TListDetail) need a bounded height, so the table fills the page below its header instead of
+    // sitting in a scrolling TPageWrapper.
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const TTile.h4(
+            title: 'Hierarchical Tree Table & Row Expanded Content',
+            subtitle:
+                'Demonstrates multi-level tree children (indented with expand icons & child count badges) '
+                'and separated row detail content expansion with active key precedence.',
+            padding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: TTable<CategoryTreeItem, String>(
               headers: headers,
               controller: _controller,
 
@@ -139,25 +137,12 @@ class _TablesTreeChildrenPageState extends State<TablesTreeChildrenPage> {
                 mode: TTableExpansionMode.side,
                 itemTitle: (item) => item.name,
                 itemSubTitle: (item) => item.code,
+                itemHighlights: (item) => [TChip(text: '${item.itemCount} items', type: TVariant.tonal)],
                 builder: (ctx, item, index) {
                   final data = item.data;
 
                   return TRowExpandedBuilder.tabs(
                     ctx,
-                    header: Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(data.name, style: context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Code: ${data.code} • Total: ${data.itemCount} items',
-                            style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
                     tabs: [
                       TTab(
                         value: 'overview',
@@ -185,24 +170,11 @@ class _TablesTreeChildrenPageState extends State<TablesTreeChildrenPage> {
                               )
                             else
                               ...data.children!.map(
-                                (c) => Container(
-                                  margin: const EdgeInsets.only(bottom: 6),
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: colors.surfaceContainerLowest,
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: colors.outlineVariant),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      TIcon.raw(HugeIcons.strokeRoundedFolder01, size: 18, color: colors.primary),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(c.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                      ),
-                                      Text('${c.itemCount} items', style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12)),
-                                    ],
-                                  ),
+                                (c) => TTile.h5(
+                                  icon: HugeIcons.strokeRoundedFolder01,
+                                  title: c.name,
+                                  subtitle: c.code,
+                                  trailing: TChip(text: '${c.itemCount} items', type: TVariant.tonal, size: TChipSize.sm),
                                 ),
                               ),
                           ],
@@ -214,13 +186,9 @@ class _TablesTreeChildrenPageState extends State<TablesTreeChildrenPage> {
                 createBuilder: (ctx, item, index) {
                   if (item == null) return const SizedBox.shrink();
                   final data = item.data;
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: colors.surfaceContainerLowest,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colors.primary.withAlpha(120)),
-                    ),
+                  return TCard(
+                    borderColor: colors.primary.withAlpha(120),
+                    margin: EdgeInsets.zero,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -249,8 +217,8 @@ class _TablesTreeChildrenPageState extends State<TablesTreeChildrenPage> {
                 },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

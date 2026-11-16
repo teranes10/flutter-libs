@@ -433,7 +433,7 @@ TTabs<int>(
                     padding: const EdgeInsets.only(top: 16),
                     child: Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                       child: Text('Showing all items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
@@ -446,7 +446,7 @@ TTabs<int>(
                     padding: const EdgeInsets.only(top: 16),
                     child: Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                       child: Text('Showing active items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
@@ -458,7 +458,7 @@ TTabs<int>(
                     padding: const EdgeInsets.only(top: 16),
                     child: Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                       child: Text('Showing pending items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
@@ -470,7 +470,7 @@ TTabs<int>(
                     padding: const EdgeInsets.only(top: 16),
                     child: Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                       child: Text('Showing completed items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
@@ -482,7 +482,7 @@ TTabs<int>(
                     padding: const EdgeInsets.only(top: 16),
                     child: Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                       child: Text('Showing archived items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
@@ -494,7 +494,7 @@ TTabs<int>(
                     padding: const EdgeInsets.only(top: 16),
                     child: Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                       child: Text('Showing deleted items', style: TextStyle(color: context.colors.onSurface)),
                     ),
                   ),
@@ -544,7 +544,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                         child: Text('Design View', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -557,7 +557,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                         child: Text('Code View', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -570,7 +570,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                         child: Text('Preview View', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -583,7 +583,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                         child: Text('Preview View', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -598,7 +598,7 @@ TTabs<int>(
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: isSelected ? context.colors.primaryContainer : context.colors.surfaceContainerHighest,
+                          color: isSelected ? context.colors.primaryContainer : null,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: isSelected ? context.colors.primary : Colors.transparent, width: 2),
                         ),
@@ -690,7 +690,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                         child: Text('Overview Content', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -703,7 +703,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                         child: Text('Details Content', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -716,7 +716,7 @@ TTabs<int>(
                       padding: const EdgeInsets.only(top: 16),
                       child: Container(
                         padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                         child: Text('History Content', style: TextStyle(color: context.colors.onSurface)),
                       ),
                     ),
@@ -878,8 +878,8 @@ TTabs<int>(
                 children: [
                   // Tabs at top
                   Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: context.colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                     child: TTabs<int>(
                       controller: _separatedController,
                       tabs: [

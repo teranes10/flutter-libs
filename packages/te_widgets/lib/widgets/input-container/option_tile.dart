@@ -78,13 +78,34 @@ class TOptionTile extends StatelessWidget {
 
     final resolvedIconColor = selected ? accent : colors.onSurfaceVariant;
 
+    final glass = TGlassStyle.resolve(context);
+    final dark = colors.isDarkMode;
+    // Glass: idle tiles are a light frosted overlay (a dark translucent surface reads as a slab), selected ones carry
+    // an accent wash, and disabled ones are flat and quiet: barely-there fill, faint edge, muted text.
+    final glassFill = selected
+        ? accent.withValues(alpha: dark ? 0.22 : 0.16)
+        : disabled
+            ? colors.onSurface.withAlpha(dark ? 8 : 10)
+            : Colors.white.withAlpha(dark ? 22 : 140);
+    final glassEdge = selected
+        ? accent.withValues(alpha: 0.75)
+        : disabled
+            ? colors.onSurface.withAlpha(dark ? 40 : 45)
+            : glass?.fieldEdge(context);
+
     return Opacity(
-      opacity: disabled ? 0.5 : 1,
+      opacity: disabled ? (glass != null ? 0.6 : 0.5) : 1,
       child: Material(
-        color: selected ? accent.withValues(alpha: 0.06) : colors.surface,
+        color: glass != null ? glassFill : (selected ? accent.withValues(alpha: 0.06) : colors.surface),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: selected ? accent.withValues(alpha: 0.5) : colors.outlineVariant.o(0.75), width: 1),
+          side: BorderSide(
+              color: glass != null && glassEdge != null
+                  ? glassEdge
+                  : selected
+                      ? accent.withValues(alpha: 0.5)
+                      : (glassEdge ?? colors.outlineVariant.o(0.75)),
+              width: 1),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -96,16 +117,23 @@ class TOptionTile extends StatelessWidget {
                 }
               : null,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 48),
+            constraints: const BoxConstraints(minHeight: 56),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               child: Center(
-                child: TTile.h5(
-                  title: label,
-                  subtitle: description,
-                  leading: leading,
-                  iconColor: resolvedIconColor,
-                  trailing: _buildIndicator(colors, accent),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TTile.h5(
+                        title: label,
+                        subtitle: description,
+                        leading: leading,
+                        iconColor: resolvedIconColor,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    _buildIndicator(colors, accent),
+                  ],
                 ),
               ),
             ),

@@ -249,7 +249,14 @@ class _TTabsState<T> extends State<TTabs<T>> {
     if (widget.style == TTabStyle.segmented && widget.axis == Axis.horizontal) {
       return Container(
         padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(11)),
+        decoration: TGlassStyle.resolve(context) != null
+            // Glass: a faint wash with a visible edge; the opaque dim track reads as a slab over the backdrop.
+            ? BoxDecoration(
+                color: colors.onSurface.withAlpha(colors.isDarkMode ? 22 : 18),
+                border: Border.all(color: TGlassStyle.resolve(context)!.fieldEdge(context).withAlpha(120)),
+                borderRadius: BorderRadius.circular(11),
+              )
+            : BoxDecoration(color: colors.surfaceDim, borderRadius: BorderRadius.circular(11)),
         child: Row(
           mainAxisSize: widget.fill ? MainAxisSize.max : MainAxisSize.min,
           spacing: widget.tabSpacing,

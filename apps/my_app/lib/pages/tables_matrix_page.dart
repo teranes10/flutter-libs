@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/models/permission_scope.dart';
 import 'package:te_widgets/te_widgets.dart';
-
-enum _Scope { all, shop, own, none }
 
 class _Role {
   final String name;
   final String shortName;
   final Color color;
 
-  /// Scope per permission; missing permissions resolve to [_Scope.none]. Ignored when [all] is set.
-  final Map<String, _Scope> scopes;
+  /// Scope per permission; missing permissions resolve to [PermissionScope.none]. Ignored when [all] is set.
+  final Map<String, PermissionScope> scopes;
   final bool all;
 
   const _Role(this.name, this.shortName, this.color, this.scopes, {this.all = false});
 
-  _Scope scopeOf(String permission) => all ? _Scope.all : scopes[permission] ?? _Scope.none;
+  PermissionScope scopeOf(String permission) => all ? PermissionScope.all : scopes[permission] ?? PermissionScope.none;
 }
 
 class _Module {
@@ -38,28 +37,28 @@ const _modules = [
 const _roles = [
   _Role('Shop Manager', 'Manager', Colors.blue, {}, all: true),
   _Role('Cashier', 'Cashier', Colors.green, {
-    'View Orders': _Scope.shop,
-    'Create Orders': _Scope.shop,
-    'Cancel Orders': _Scope.shop,
-    'View Products': _Scope.shop,
-    'Update Products': _Scope.shop,
-    'View Customers': _Scope.shop,
-    'Create Customers': _Scope.shop,
-    'View Reports': _Scope.shop,
+    'View Orders': PermissionScope.shop,
+    'Create Orders': PermissionScope.shop,
+    'Cancel Orders': PermissionScope.shop,
+    'View Products': PermissionScope.shop,
+    'Update Products': PermissionScope.shop,
+    'View Customers': PermissionScope.shop,
+    'Create Customers': PermissionScope.shop,
+    'View Reports': PermissionScope.shop,
   }),
   _Role('Salesperson', 'Sales', Colors.purple, {
-    'View Orders': _Scope.own,
-    'Create Orders': _Scope.own,
-    'View Products': _Scope.own,
-    'View Customers': _Scope.own,
-    'View Reports': _Scope.own,
+    'View Orders': PermissionScope.own,
+    'Create Orders': PermissionScope.own,
+    'View Products': PermissionScope.own,
+    'View Customers': PermissionScope.own,
+    'View Reports': PermissionScope.own,
   }),
   _Role('Warehouse Operator', 'Warehouse', Colors.orange, {
-    'View Products': _Scope.shop,
-    'Create Products': _Scope.shop,
-    'Update Products': _Scope.shop,
-    'View Customers': _Scope.shop,
-    'Create Customers': _Scope.shop,
+    'View Products': PermissionScope.shop,
+    'Create Products': PermissionScope.shop,
+    'Update Products': PermissionScope.shop,
+    'View Customers': PermissionScope.shop,
+    'Create Customers': PermissionScope.shop,
   }),
 ];
 
@@ -97,7 +96,7 @@ class TablesMatrixPage extends StatelessWidget {
       for (final role in _roles)
         TTableHeader<_Module, String>.stacked(
           role.name,
-          (m) => [for (final p in m.permissions) _ScopeChip(role.scopeOf(p))],
+          (m) => [for (final p in m.permissions) role.scopeOf(p).toChip(context)],
           flex: 2,
           rowHeight: _rowHeight,
           alignment: Alignment.center,
@@ -105,32 +104,30 @@ class TablesMatrixPage extends StatelessWidget {
         ),
     ];
 
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Grouped Rows: Matrix',
-              style: context.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.onSurface),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'One card per module, with permissions stacked as sub-rows via TTableHeader.stacked. '
-              'Role columns are generated from data.',
-              style: context.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
-            ),
-            const SizedBox(height: 24),
-            TTable<_Module, String>(
-              shrinkWrap: true,
-              headers: headers,
-              items: _modules,
-              itemKey: (m) => m.id,
-              mobileCardBuilder: (ctx, item, index, onTap) => _MatrixCard(item.data),
-            ),
-          ],
-        ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Grouped Rows: Matrix',
+            style: context.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.onSurface),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'One card per module, with permissions stacked as sub-rows via TTableHeader.stacked. '
+            'Role columns are generated from data.',
+            style: context.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
+          ),
+          const SizedBox(height: 24),
+          TTable<_Module, String>(
+            shrinkWrap: true,
+            headers: headers,
+            items: _modules,
+            itemKey: (m) => m.id,
+            mobileCardBuilder: (ctx, item, index, onTap) => _MatrixCard(item.data),
+          ),
+        ],
       ),
     );
   }
@@ -155,23 +152,6 @@ class _ModuleTitle extends StatelessWidget {
         Text(module.name),
       ],
     );
-  }
-}
-
-class _ScopeChip extends StatelessWidget {
-  final _Scope scope;
-
-  const _ScopeChip(this.scope);
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, color) = switch (scope) {
-      _Scope.all => ('All', context.theme.success),
-      _Scope.shop => ('Shop', context.theme.info),
-      _Scope.own => ('Own', Colors.purple),
-      _Scope.none => ('None', context.colors.onSurfaceVariant),
-    };
-    return TChip.tonal(text: label, color: color, size: TChipSize.sm);
   }
 }
 
@@ -231,7 +211,7 @@ class _MatrixCard extends StatelessWidget {
                   Text(p),
                   const SizedBox(height: 6),
                   Row(
-                    children: [for (final role in _roles) Expanded(child: Center(child: _ScopeChip(role.scopeOf(p))))],
+                    children: [for (final role in _roles) Expanded(child: Center(child: role.scopeOf(p).toChip(context)))],
                   ),
                 ],
               ),

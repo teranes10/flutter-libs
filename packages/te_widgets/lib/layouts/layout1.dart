@@ -146,7 +146,8 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
           fit: StackFit.expand,
           children: [
             Positioned.fill(
-              child: _CloudyBackground(
+              child: _background(
+                context,
                 base: cardColor,
                 tint: colors.primary.toMaterial().shade800,
                 child: isMobile
@@ -242,6 +243,12 @@ class _TLayout1State extends ConsumerState<TLayout1> with SingleTickerProviderSt
       ),
     );
   }
+}
+
+Widget _background(BuildContext context, {required Color base, required Color tint, required Widget child}) {
+  // Glass mode swaps the quiet clouds for a flowing colourful gradient the glass surfaces can blur.
+  if (TGlassStyle.resolve(context) != null) return TGlassBackground(child: child);
+  return _CloudyBackground(base: base, tint: tint, child: child);
 }
 
 /// Base colour with soft, overlapping radial patches of [tint] that read as clouds.

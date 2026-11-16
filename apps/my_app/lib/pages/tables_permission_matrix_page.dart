@@ -1,18 +1,18 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:my_app/models/permission_scope.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-enum _Scope { all, shop, own, none }
 
 class _Role {
   final String name;
   final Color color;
 
-  /// Scope per permission; missing permissions resolve to [_Scope.none]. Ignored when [all] is set.
-  final Map<String, _Scope> scopes;
+  /// Scope per permission; missing permissions resolve to [PermissionScope.none]. Ignored when [all] is set.
+  final Map<String, PermissionScope> scopes;
 
-  /// Grants every permission with [_Scope.all].
+  /// Grants every permission with [PermissionScope.all].
   final bool all;
 
   const _Role(this.name, this.color, this.scopes, {this.all = false});
@@ -37,69 +37,69 @@ const _modules = [
 ];
 
 const _roles = [
-  _Role('Customer', Colors.pink, {'View Products': _Scope.all}),
-  _Role('Picker', Colors.amber, {'View Orders': _Scope.shop, 'View Products': _Scope.shop}),
+  _Role('Customer', Colors.pink, {'View Products': PermissionScope.all}),
+  _Role('Picker', Colors.amber, {'View Orders': PermissionScope.shop, 'View Products': PermissionScope.shop}),
   _Role('Salesperson', Colors.purple, {
-    'View Orders': _Scope.own,
-    'Create Orders': _Scope.own,
-    'View Products': _Scope.own,
-    'View Customers': _Scope.own,
-    'View Reports': _Scope.own,
+    'View Orders': PermissionScope.own,
+    'Create Orders': PermissionScope.own,
+    'View Products': PermissionScope.own,
+    'View Customers': PermissionScope.own,
+    'View Reports': PermissionScope.own,
   }),
   _Role('Counter', Colors.teal, {
-    'View Orders': _Scope.shop,
-    'Create Orders': _Scope.shop,
-    'View Products': _Scope.shop,
-    'View Customers': _Scope.shop,
-    'Create Customers': _Scope.shop,
+    'View Orders': PermissionScope.shop,
+    'Create Orders': PermissionScope.shop,
+    'View Products': PermissionScope.shop,
+    'View Customers': PermissionScope.shop,
+    'Create Customers': PermissionScope.shop,
   }),
-  _Role('Packer', Colors.brown, {'View Orders': _Scope.shop, 'View Products': _Scope.shop}),
+  _Role('Packer', Colors.brown, {'View Orders': PermissionScope.shop, 'View Products': PermissionScope.shop}),
   _Role('Cashier', Colors.green, {
-    'View Orders': _Scope.shop,
-    'Create Orders': _Scope.shop,
-    'Cancel Orders': _Scope.shop,
-    'View Products': _Scope.shop,
-    'Update Products': _Scope.shop,
-    'View Customers': _Scope.shop,
-    'Create Customers': _Scope.shop,
-    'View Reports': _Scope.shop,
+    'View Orders': PermissionScope.shop,
+    'Create Orders': PermissionScope.shop,
+    'Cancel Orders': PermissionScope.shop,
+    'View Products': PermissionScope.shop,
+    'Update Products': PermissionScope.shop,
+    'View Customers': PermissionScope.shop,
+    'Create Customers': PermissionScope.shop,
+    'View Reports': PermissionScope.shop,
   }),
-  _Role('Receiver', Colors.orange, {'View Products': _Scope.shop, 'Create Products': _Scope.shop, 'Update Products': _Scope.shop}),
+  _Role('Receiver', Colors.orange, {'View Products': PermissionScope.shop, 'Create Products': PermissionScope.shop, 'Update Products': PermissionScope.shop}),
   _Role('Admin', Colors.indigo, {}, all: true),
-  _Role('Driver', Colors.cyan, {'View Orders': _Scope.own}),
-  _Role('Staff', Colors.grey, {'View Orders': _Scope.shop, 'View Products': _Scope.shop, 'View Customers': _Scope.shop}),
+  _Role('Driver', Colors.cyan, {'View Orders': PermissionScope.own}),
+  _Role('Staff', Colors.grey, {'View Orders': PermissionScope.shop, 'View Products': PermissionScope.shop, 'View Customers': PermissionScope.shop}),
   _Role('Manager', Colors.blue, {
-    'View Orders': _Scope.all,
-    'Create Orders': _Scope.all,
-    'Cancel Orders': _Scope.all,
-    'View Products': _Scope.all,
-    'Create Products': _Scope.all,
-    'Update Products': _Scope.all,
-    'View Customers': _Scope.all,
-    'Create Customers': _Scope.all,
-    'View Reports': _Scope.all,
-    'Export Reports': _Scope.all,
-    'Manage Users': _Scope.shop,
+    'View Orders': PermissionScope.all,
+    'Create Orders': PermissionScope.all,
+    'Cancel Orders': PermissionScope.all,
+    'View Products': PermissionScope.all,
+    'Create Products': PermissionScope.all,
+    'Update Products': PermissionScope.all,
+    'View Customers': PermissionScope.all,
+    'Create Customers': PermissionScope.all,
+    'View Reports': PermissionScope.all,
+    'Export Reports': PermissionScope.all,
+    'Manage Users': PermissionScope.shop,
   }),
   _Role('Pharmacist', Colors.lightGreen, {
-    'View Orders': _Scope.shop,
-    'Create Orders': _Scope.shop,
-    'View Products': _Scope.shop,
-    'Update Products': _Scope.shop,
-    'View Customers': _Scope.shop,
+    'View Orders': PermissionScope.shop,
+    'Create Orders': PermissionScope.shop,
+    'View Products': PermissionScope.shop,
+    'Update Products': PermissionScope.shop,
+    'View Customers': PermissionScope.shop,
   }),
   _Role('SuperAdmin', Colors.red, {}, all: true),
   _Role('QA Officer', Colors.deepPurple, {
-    'View Orders': _Scope.all,
-    'View Products': _Scope.all,
-    'View Customers': _Scope.all,
-    'View Reports': _Scope.all,
-    'Export Reports': _Scope.all,
+    'View Orders': PermissionScope.all,
+    'View Products': PermissionScope.all,
+    'View Customers': PermissionScope.all,
+    'View Reports': PermissionScope.all,
+    'Export Reports': PermissionScope.all,
   }),
 ];
 
 /// Resolves a role's scope for a permission.
-_Scope _scopeOf(_Role role, String permission) => role.all ? _Scope.all : role.scopes[permission] ?? _Scope.none;
+PermissionScope _scopeOf(_Role role, String permission) => role.all ? PermissionScope.all : role.scopes[permission] ?? PermissionScope.none;
 
 /// Sample: a grouped permission matrix built with [TTableHeader.stacked].
 ///
@@ -148,7 +148,7 @@ class _TablesPermissionMatrixPageState extends State<TablesPermissionMatrixPage>
     for (final role in _visibleRoles)
       TTableHeader<_Module, String>.stacked(
         role.name,
-        (m) => [for (final p in m.permissions) _ScopeChip(_scopeOf(role, p))],
+        (m) => [for (final p in m.permissions) _scopeOf(role, p).toChip(context)],
         flex: 2,
         rowHeight: _rowHeight,
         alignment: Alignment.center,
@@ -255,25 +255,6 @@ class _ModuleTitle extends StatelessWidget {
   }
 }
 
-class _ScopeChip extends StatelessWidget {
-  final _Scope scope;
-
-  const _ScopeChip(this.scope);
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, color) = _scopeStyle(scope, context);
-    return TChip.tonal(text: label, color: color, size: TChipSize.sm);
-  }
-}
-
-(String, Color) _scopeStyle(_Scope scope, BuildContext context) => switch (scope) {
-  _Scope.all => ('All', context.theme.success),
-  _Scope.shop => ('Shop', context.theme.info),
-  _Scope.own => ('Own', Colors.purple),
-  _Scope.none => ('None', context.colors.onSurfaceVariant),
-};
-
 /// Shared card shell: module title, then one block per permission.
 class _CardShell extends StatelessWidget {
   final _Module module;
@@ -319,7 +300,7 @@ class _RoleCard extends StatelessWidget {
       permissionBuilder: (p) => Row(
         children: [
           Expanded(child: Text(p)),
-          _ScopeChip(_scopeOf(role, p)),
+          _scopeOf(role, p).toChip(context),
         ],
       ),
     );
@@ -342,7 +323,7 @@ class _ScopeCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(p),
-          for (final scope in const [_Scope.all, _Scope.shop, _Scope.own])
+          for (final scope in const [PermissionScope.all, PermissionScope.shop, PermissionScope.own])
             if (_roles.any((r) => _scopeOf(r, p) == scope))
               Padding(
                 padding: const EdgeInsets.only(top: 6),
@@ -351,7 +332,7 @@ class _ScopeCard extends StatelessWidget {
                   children: [
                     SizedBox(
                       width: 52,
-                      child: Align(alignment: Alignment.centerLeft, child: _ScopeChip(scope)),
+                      child: Align(alignment: Alignment.centerLeft, child: scope.toChip(context)),
                     ),
                     Expanded(
                       child: Wrap(

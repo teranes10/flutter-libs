@@ -129,31 +129,36 @@ class _TMentionsFieldState extends State<TMentionsField> {
             offset: const Offset(0, -8),
             followerAnchor: Alignment.bottomLeft,
             targetAnchor: Alignment.topLeft,
-            child: Material(
-              elevation: 6,
-              borderRadius: BorderRadius.circular(10),
+            child: TGlassSurface.wrap(
+              overlayContext,
+              radius: BorderRadius.circular(10),
               color: colors.surface,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 220),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  itemCount: _matches.length,
-                  itemBuilder: (context, i) {
-                    final option = _matches[i];
-                    return InkWell(
-                      onTap: () => _insertMention(option),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Row(
-                          children: [
-                            if (option.avatar != null) ...[option.avatar!, const SizedBox(width: 8)],
-                            Text(option.label, style: TextStyle(fontSize: 13.5, color: colors.onSurface)),
-                          ],
+              child: Material(
+                elevation: TGlassStyle.resolve(overlayContext) != null ? 0 : 6,
+                borderRadius: BorderRadius.circular(10),
+                color: TGlassStyle.resolve(overlayContext) != null ? Colors.transparent : colors.surface,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 220),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    itemCount: _matches.length,
+                    itemBuilder: (context, i) {
+                      final option = _matches[i];
+                      return InkWell(
+                        onTap: () => _insertMention(option),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          child: Row(
+                            children: [
+                              if (option.avatar != null) ...[option.avatar!, const SizedBox(width: 8)],
+                              Text(option.label, style: TextStyle(fontSize: 13.5, color: colors.onSurface)),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

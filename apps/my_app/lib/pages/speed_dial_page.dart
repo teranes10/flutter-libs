@@ -58,13 +58,9 @@ class _SpeedDialPageState extends State<SpeedDialPage> {
           // Interactive Simulation Container
           TCard(
             title: 'Interactive Speed Dial Canvas (Bottom-Right FAB)',
-            child: Container(
+            child: SizedBox(
               height: 440,
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: theme.dividerColor),
-              ),
+
               child: Stack(
                 children: [
                   Center(

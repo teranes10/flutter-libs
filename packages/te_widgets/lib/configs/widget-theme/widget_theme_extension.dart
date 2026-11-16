@@ -31,6 +31,9 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
   final TDropdownTheme dropdownTheme;
   final TAccordionTheme accordionTheme;
 
+  /// Liquid-glass look for cards and tiles. Null (default) keeps solid surfaces.
+  final TGlassStyle? glass;
+
   const TWidgetThemeExtension({
     this.primary = AppColors.primary,
     this.secondary = AppColors.secondary,
@@ -57,6 +60,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
     required this.alertTheme,
     required this.dropdownTheme,
     required this.accordionTheme,
+    this.glass,
   });
 
   @override
@@ -85,6 +89,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
     TAlertTheme? alertTheme,
     TDropdownTheme? dropdownTheme,
     TAccordionTheme? accordionTheme,
+    TGlassStyle? glass,
   }) {
     return TWidgetThemeExtension(
       primary: primary ?? this.primary,
@@ -111,6 +116,7 @@ class TWidgetThemeExtension extends ThemeExtension<TWidgetThemeExtension> {
       alertTheme: alertTheme ?? this.alertTheme,
       dropdownTheme: dropdownTheme ?? this.dropdownTheme,
       accordionTheme: accordionTheme ?? this.accordionTheme,
+      glass: glass ?? this.glass,
     );
   }
 

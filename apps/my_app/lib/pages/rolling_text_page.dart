@@ -97,6 +97,18 @@ class _RollingTextPageState extends State<RollingTextPage> {
     super.dispose();
   }
 
+  /// A dark display panel; in glass mode it becomes a translucent blurred panel with a visible edge.
+  Widget _screen(BuildContext context, Color color, EdgeInsets padding, {required Widget child}) {
+    final radius = BorderRadius.circular(12);
+    final glass = TGlassStyle.resolve(context) != null;
+    final panel = Container(
+      padding: padding,
+      decoration: glass ? null : BoxDecoration(color: color, borderRadius: radius),
+      child: child,
+    );
+    return TGlassSurface.wrap(context, radius: radius, color: color, alpha: 190, child: panel);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -125,9 +137,10 @@ class _RollingTextPageState extends State<RollingTextPage> {
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(12)),
+                _screen(
+                  context,
+                  const Color(0xFF0F172A),
+                  const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -204,7 +217,10 @@ runs.value += 4; // only changed digits roll, one after another''',
               stagger: Duration.zero,
               style: mono.copyWith(fontSize: 44, fontWeight: FontWeight.bold, color: Colors.white),
               slotPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-              slotDecoration: BoxDecoration(color: const Color(0xFF1E293B), borderRadius: BorderRadius.circular(6)),
+              slotDecoration: BoxDecoration(
+                color: TGlassStyle.resolve(context) != null ? const Color(0xFF1E293B).withAlpha(200) : const Color(0xFF1E293B),
+                borderRadius: BorderRadius.circular(6),
+              ),
             ),
             code: '''TRollingText.listenable(
   clock, // ValueNotifier<String> updated every second
@@ -227,9 +243,10 @@ runs.value += 4; // only changed digits roll, one after another''',
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(12)),
+                _screen(
+                  context,
+                  Colors.black,
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

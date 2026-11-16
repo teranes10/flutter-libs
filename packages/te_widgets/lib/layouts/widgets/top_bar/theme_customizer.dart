@@ -89,7 +89,17 @@ class _ThemeCustomizer extends ConsumerWidget {
               TTab(value: Brightness.dark, text: 'Dark', icon: HugeIcons.strokeRoundedMoon02),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text('Liquid glass',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
+              ),
+              Switch(value: ref.watch(themeNotifierProvider).glass, onChanged: notifier.setGlass),
+            ],
+          ),
+          const SizedBox(height: 8),
           Text('Accent', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
           const SizedBox(height: 8),
           Wrap(

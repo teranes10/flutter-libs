@@ -500,6 +500,23 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     );
   }
 
+  /// Base theme of [TButtonType.surface]. Glass: a frosted fill (brighter on hover) and a visible edge, instead of an
+  /// opaque surface block.
+  TWidgetTheme _surfaceBaseTheme(BuildContext context, ColorScheme colors, Color border) {
+    final glass = TGlassStyle.resolve(context);
+    if (glass == null) {
+      return TWidgetTheme.surfaceTheme(colors).copyWith(container: colors.surface, outline: border, outlineVariant: border);
+    }
+    final dark = colors.isDarkMode;
+    final edge = glass.fieldEdge(context);
+    return TWidgetTheme.surfaceTheme(colors).copyWith(
+      container: Colors.white.withAlpha(dark ? 24 : 150),
+      containerVariant: Colors.white.withAlpha(dark ? 48 : 205),
+      outline: edge,
+      outlineVariant: edge,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.authResolve(widget.permission, target: TAuthTarget.button, onDenied: widget.onDenied);
@@ -516,7 +533,7 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     final baseTheme = widget.baseTheme ??
         widget.theme?.baseTheme ??
         (isSurface
-            ? TWidgetTheme.surfaceTheme(colors).copyWith(container: colors.surface, outline: border, outlineVariant: border)
+            ? _surfaceBaseTheme(context, colors, border)
             : defaultTheme.baseTheme.rebuild(color: activeColor, type: widget.type?.colorType));
     final theme = widget.theme ??
         defaultTheme.copyWith(
@@ -671,7 +688,9 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             return Colors.transparent;
           }
           // A disabled surface button sinks to a tinted background so it reads as inactive, not just faded.
-          if (isSurface && s.contains(WidgetState.disabled)) return context.colors.surfaceContainer;
+          if (isSurface && s.contains(WidgetState.disabled)) {
+            return TGlassStyle.resolve(context) != null ? context.colors.onSurface.withAlpha(12) : context.colors.surfaceContainer;
+          }
           return baseTheme.backgroundState.resolve(s);
         }),
         elevation: WidgetStateProperty.resolveWith((s) {

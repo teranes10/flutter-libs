@@ -169,9 +169,14 @@ class _WidgetDocCardState extends State<WidgetDocCard> with SingleTickerProvider
                   ],
                 );
 
+                // Sized to its tabs (no fixed width), so a missing Properties tab doesn't leave empty space.
+                final glass = TGlassStyle.resolve(context) != null;
                 final tabsSection = Container(
-                  constraints: BoxConstraints(minWidth: isSmallScreen ? 100 : 125, maxWidth: 125),
-                  decoration: BoxDecoration(color: colors.surface.withAlpha(128), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(
+                    // Glass: a faint light overlay; a half-opaque surface reads as a dark slab over the colourful backdrop.
+                    color: glass ? colors.onSurface.withAlpha(14) : colors.surface.withAlpha(128),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: ValueListenableBuilder(
                     valueListenable: _tabController,
                     builder: (ctx, value, _) {

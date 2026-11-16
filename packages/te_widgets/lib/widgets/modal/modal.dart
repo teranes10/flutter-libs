@@ -143,15 +143,20 @@ class TModal extends StatelessWidget {
           delegate: _ModalPositionDelegate(preferredTopRatio: preferredTopRatio),
           child: GestureDetector(
             onTap: () {}, // Prevent tap propagation
-            child: Material(
+            child: TGlassSurface.wrap(
+              context,
+              radius: mBorderRadius,
               color: colors.surface,
-              borderRadius: mBorderRadius,
-              clipBehavior: Clip.antiAlias,
-              child: Container(
-                width: mWidth,
-                height: mHeight,
-                constraints: mConstraints,
-                child: layoutBuilder?.call(context, child) ?? _layout(context, colors, child),
+              child: Material(
+                color: TGlassStyle.resolve(context) != null ? Colors.transparent : colors.surface,
+                borderRadius: mBorderRadius,
+                clipBehavior: Clip.antiAlias,
+                child: Container(
+                  width: mWidth,
+                  height: mHeight,
+                  constraints: mConstraints,
+                  child: layoutBuilder?.call(context, child) ?? _layout(context, colors, child),
+                ),
               ),
             ),
           ),

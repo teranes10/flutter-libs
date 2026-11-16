@@ -139,7 +139,7 @@ class _TPopconfirmState extends State<TPopConfirm> {
                   children: [
                     TButton(
                       text: widget.cancelText,
-                      baseTheme: TWidgetTheme.surfaceTheme(colors),
+                      baseTheme: TWidgetTheme.surfaceTheme(colors).copyWith(container: TGlassStyle.surface(context, colors.surfaceContainerLow)),
                       size: TButtonSize.xs,
                       onTap: () {
                         widget.onCancel?.call();

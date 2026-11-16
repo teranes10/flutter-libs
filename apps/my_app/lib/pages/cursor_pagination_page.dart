@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/clients/mock_cursor_client.dart';
+import 'package:my_app/models/user_status.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// Demo page showcasing cursor-based pagination with TDataTable
@@ -10,19 +11,11 @@ class CursorPaginationPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return TDataTable<User, int>(
       headers: [
-        TTableHeader.map('ID', (user) => user.id),
-        TTableHeader.map('Name', (user) => user.name),
-        TTableHeader.map('Email', (user) => user.email),
-        TTableHeader.map('Role', (user) => user.role),
-        TTableHeader<User, int>.chip(
-          'Status',
-          (user) => user.status,
-          color: (user) => user.status == 'Active'
-              ? Colors.green
-              : user.status == 'Inactive'
-              ? Colors.red
-              : Colors.orange,
-        ),
+        TTableHeader<User, int>.map('ID', (user) => user.id),
+        TTableHeader<User, int>.map('Name', (user) => user.name),
+        TTableHeader<User, int>.map('Email', (user) => user.email),
+        TTableHeader<User, int>.map('Role', (user) => user.role),
+        TTableHeader<User, int>.chip('Status', (user) => user.status, color: (user) => user.statusColor(context)),
       ],
       itemKey: (user) => user.id,
       onLoad: (options) async {

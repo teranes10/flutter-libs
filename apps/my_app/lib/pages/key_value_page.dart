@@ -46,7 +46,6 @@ class KeyValuePage extends StatelessWidget {
           Card(
             elevation: 0,
             margin: EdgeInsets.zero,
-            color: context.colors.surfaceContainerLowest,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
               side: BorderSide(color: context.colors.outlineVariant.withAlpha(80)),

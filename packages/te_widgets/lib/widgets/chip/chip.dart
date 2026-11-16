@@ -266,6 +266,8 @@ class TChip extends StatelessWidget {
     final effectiveIconSize = effectiveSize.iconSize;
     final effectiveSpacing = effectiveSize.spacing;
 
+    final glassStyle = TGlassStyle.resolve(context);
+
     return InkWell(
       onTap: onTap,
       borderRadius: effectiveBorderRadius,
@@ -273,9 +275,10 @@ class TChip extends StatelessWidget {
         padding: effectivePadding,
         constraints: BoxConstraints(minHeight: effectiveSize.minH),
         decoration: BoxDecoration(
-          color: mBackgroundColor,
+          color: glassStyle != null && !mBackgroundColor.isTransparent ? glassStyle.tint(mBackgroundColor) : mBackgroundColor,
           borderRadius: effectiveBorderRadius,
-          border: Border.all(color: wTheme.outline ?? Colors.transparent, width: 1),
+          border: Border.all(
+              color: glassStyle != null ? (wTheme.outline ?? glassStyle.edge) : (wTheme.outline ?? Colors.transparent), width: 1),
         ),
         child: Align(
           widthFactor: 1,

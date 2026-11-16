@@ -101,9 +101,14 @@ class TSnackbarService {
                   ? [BoxShadow(color: wTheme.shadow!, blurRadius: 12, spreadRadius: 2)]
                   : [BoxShadow(color: context.colors.shadow, offset: const Offset(0, 1), blurRadius: 0, spreadRadius: 0)],
             ),
-            child: Material(
-              elevation: elevation ?? 6,
+            child: TGlassSurface.wrap(
+              context,
+              radius: defaultBorderRadius,
               color: wTheme.container,
+              alpha: 225,
+              child: Material(
+              elevation: elevation ?? 6,
+              color: TGlassStyle.resolve(context) != null ? Colors.transparent : wTheme.container,
               shadowColor: wTheme.shadow ?? context.colors.shadow.withAlpha(30),
               shape: effectiveShape,
               child: Padding(
@@ -158,6 +163,7 @@ class TSnackbarService {
                   ],
                 ),
               ),
+            ),
             ),
           ),
         ),

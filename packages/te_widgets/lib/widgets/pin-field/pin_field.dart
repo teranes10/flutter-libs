@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:te_widgets/configs/theme/app_colors.dart';
 import 'package:te_widgets/extensions/build_context_x.dart';
+import 'package:te_widgets/widgets/surface/glass.dart';
 
 /// A segmented PIN / OTP verification code input field.
 ///
@@ -177,9 +178,16 @@ class _TPinFieldState extends State<TPinField> {
               borderColor = colors.outlineVariant.withValues(alpha: 0.5);
             }
 
+            final glass = TGlassStyle.resolve(context);
+            if (glass != null && !hasError && !isFocused) borderColor = glass.fieldEdge(context);
+
             final bgColor = isDark
                 ? (isFocused ? colors.surfaceContainerHighest : colors.surfaceContainerHigh)
                 : (isFocused ? colors.surface : colors.surfaceContainerLow);
+            final radius = BorderRadius.circular(widget.borderRadius);
+            // Glass: blurred frosted box; the glass edge is its resting border, focus/error/filled keep a coloured one.
+            final restingGlass = glass != null && !hasError && !isFocused && !isFilled;
+            final frost = Colors.white.withAlpha(isDark ? 24 : 150);
 
             return KeyboardListener(
               focusNode: FocusNode(),
@@ -194,50 +202,58 @@ class _TPinFieldState extends State<TPinField> {
                   widget.onChanged?.call(_currentPin);
                 }
               },
-              child: Container(
-                width: widget.boxWidth,
-                height: widget.boxHeight,
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(widget.borderRadius),
-                  border: Border.all(
-                    color: borderColor,
-                    width: isFocused || hasError ? 2.0 : 1.0,
-                  ),
-                  boxShadow: isFocused
-                      ? [
-                          BoxShadow(
-                            color: colors.primary.withValues(alpha: 0.15),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
+              child: TGlassSurface.wrap(
+                context,
+                radius: radius,
+                color: frost,
+                alpha: isDark ? 24 : 150,
+                child: Container(
+                  width: widget.boxWidth,
+                  height: widget.boxHeight,
+                  decoration: BoxDecoration(
+                    color: glass != null ? null : bgColor,
+                    borderRadius: radius,
+                    border: restingGlass
+                        ? null
+                        : Border.all(
+                            color: borderColor,
+                            width: isFocused || hasError ? 2.0 : 1.0,
                           ),
-                        ]
-                      : null,
-                ),
-                alignment: Alignment.center,
-                child: TextField(
-                  controller: _controllers[index],
-                  focusNode: _focusNodes[index],
-                  enabled: widget.enabled,
-                  obscureText: widget.obscureText,
-                  obscuringCharacter: widget.obscureCharacter,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: colors.onSurface,
+                    boxShadow: isFocused
+                        ? [
+                            BoxShadow(
+                              color: colors.primary.withValues(alpha: 0.15),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
                   ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(widget.length),
-                  ],
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    counterText: '',
-                    contentPadding: EdgeInsets.zero,
+                  alignment: Alignment.center,
+                  child: TextField(
+                    controller: _controllers[index],
+                    focusNode: _focusNodes[index],
+                    enabled: widget.enabled,
+                    obscureText: widget.obscureText,
+                    obscuringCharacter: widget.obscureCharacter,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: colors.onSurface,
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(widget.length),
+                    ],
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      counterText: '',
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    onChanged: (val) => _onDigitChanged(index, val),
                   ),
-                  onChanged: (val) => _onDigitChanged(index, val),
                 ),
               ),
             );

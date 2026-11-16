@@ -207,10 +207,13 @@ class TFormTypeToggleSwitch extends StatelessWidget {
         );
 
         if (cycle) {
+          final glass = TGlassStyle.resolve(context);
           return Container(
             decoration: BoxDecoration(
-              color: colors.surfaceContainerLowest,
+              // Glass: a frosted disc with a visible edge instead of an opaque near-white one.
+              color: glass != null ? Colors.white.withAlpha(colors.isDarkMode ? 24 : 150) : colors.surfaceContainerLowest,
               shape: BoxShape.circle,
+              border: glass != null ? Border.all(color: glass.fieldEdge(context)) : null,
             ),
             child: buttonGroup,
           );

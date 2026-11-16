@@ -228,7 +228,6 @@ TBanner.info(variant: TVariant.solid, message: 'Solid variant')''',
                 Container(
                   padding: _stickyOffline ? EdgeInsets.zero : const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: colors.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
                   ),

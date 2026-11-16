@@ -111,8 +111,9 @@ class _TLayout2State extends ConsumerState<TLayout2> with SingleTickerProviderSt
       body: SafeArea(
         child: Stack(
           children: [
+            if (TGlassStyle.resolve(context) != null) const Positioned.fill(child: TGlassBackground(child: SizedBox.shrink())),
             ColoredBox(
-              color: isMobile ? colors.surface.adaptiveContrast(context, 0.007) : Colors.transparent,
+              color: isMobile && TGlassStyle.resolve(context) == null ? colors.surface.adaptiveContrast(context, 0.007) : Colors.transparent,
               child: isMobile
                   ? Column(
                       children: [

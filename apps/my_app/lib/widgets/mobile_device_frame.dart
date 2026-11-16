@@ -55,7 +55,6 @@ class TMobileDeviceFrame extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: colors.surface,
         borderRadius: BorderRadius.circular(40),
         boxShadow: [BoxShadow(color: Colors.black.withAlpha(40), blurRadius: 20, offset: const Offset(0, 10))],
         border: Border.all(color: colors.surfaceContainer, width: 8),
@@ -67,7 +66,7 @@ class TMobileDeviceFrame extends StatelessWidget {
           data: MediaQuery.of(context).copyWith(size: Size(width ?? 375, height ?? MediaQuery.sizeOf(context).height)),
           child: Theme(
             data: Theme.of(context).copyWith(platform: TargetPlatform.iOS),
-            child: Material(color: colors.surface, child: bodyContent),
+            child: Material(child: bodyContent),
           ),
         ),
       ),

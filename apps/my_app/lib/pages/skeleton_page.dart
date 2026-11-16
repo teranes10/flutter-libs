@@ -156,13 +156,7 @@ TSkeleton.rect(width: 100, height: 60)''',
                 TGridCol(
                   sm: 12,
                   md: 6,
-                  child: Card(
-                    elevation: 0,
-                    color: colors.surface,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.3)),
-                    ),
+                  child: TCard(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Column(
@@ -217,7 +211,6 @@ TSkeleton.tile(size: TTileSize.h4, hasTrailing: true)''',
               width: 360,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.4)),
               ),

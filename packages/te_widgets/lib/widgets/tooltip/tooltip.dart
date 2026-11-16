@@ -477,10 +477,19 @@ class _TooltipContent extends StatelessWidget {
                 onExit: onPointerExit,
                 child: GestureDetector(
                   onTap: onTap,
-                  child: Container(
+                  child: TGlassSurface.wrap(
+                    context,
+                    radius: BorderRadius.circular(8),
+                    color: wTheme.container,
+                    alpha: 215,
+                    child: Container(
                     constraints: BoxConstraints(maxWidth: maxWidth),
                     padding: effectivePadding,
-                    decoration: decoration ?? BoxDecoration(color: wTheme.container, borderRadius: BorderRadius.circular(8)),
+                    decoration: decoration ??
+                        BoxDecoration(
+                          color: TGlassStyle.resolve(context) != null ? null : wTheme.container,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                     child: IntrinsicWidth(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -507,6 +516,7 @@ class _TooltipContent extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
                     ),
                   ),
                 ),

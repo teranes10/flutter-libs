@@ -107,14 +107,13 @@ class _BottomBarPageState extends State<BottomBarPage> {
     TBottomBarItem(icon: HugeIcons.strokeRoundedSettings01, label: 'Config'),
   ];
 
+  /// Phone-like frame around a bar. A [TCard] so it follows glass mode (an opaque box would hide the bar's blur).
   Widget _buildMockContainer({required BuildContext context, required Widget child, required String activeLabel, String? subtitle}) {
     final colors = context.colors;
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
-      ),
+    return TCard(
+      padding: EdgeInsets.zero,
+      margin: EdgeInsets.zero,
+      borderRadius: BorderRadius.circular(16),
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -122,19 +121,19 @@ class _BottomBarPageState extends State<BottomBarPage> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              children: [
+            child: TAlignedRow(
+              spacing: 8,
+              left: [
                 TIcon.raw(HugeIcons.strokeRoundedTouch10, size: 18, color: colors.primary),
-                const SizedBox(width: 8),
                 Text(
                   'Active: $activeLabel',
                   style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface, fontSize: 13),
                 ),
-                if (subtitle != null) ...[const Spacer(), Text(subtitle, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant))],
               ],
+              right: [if (subtitle != null) Text(subtitle, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant))],
             ),
           ),
-          const Divider(height: 1),
+          const TDivider(),
           // Pad slightly on top so emphasized button has space to pop upwards
           Padding(padding: const EdgeInsets.only(top: 8), child: child),
         ],
@@ -172,42 +171,41 @@ class _BottomBarPageState extends State<BottomBarPage> {
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Text Position',
-                  style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface, fontSize: 13),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: TBottomBarTextPosition.values.map((pos) {
-                    return ChoiceChip(
-                      label: Text(pos.name),
-                      selected: _textPosition == pos,
-                      onSelected: (selected) {
-                        if (selected) setState(() => _textPosition = pos);
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Highlight Variant',
-                  style: TextStyle(fontWeight: FontWeight.w600, color: colors.onSurface, fontSize: 13),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: TVariant.values.map((v) {
-                    return ChoiceChip(
-                      label: Text(v.name),
-                      selected: _variant == v,
-                      onSelected: (selected) {
-                        if (selected) setState(() => _variant = v);
-                      },
-                    );
-                  }).toList(),
+                TGridRow(
+                  gapX: 12,
+                  gapY: 12,
+                  children: [
+                    TGridCol(
+                      sm: 12,
+                      md: 6,
+                      child: TSelect<TBottomBarTextPosition, String, String>(
+                        label: 'Text Position',
+                        items: TBottomBarTextPosition.values,
+                        itemKey: (p) => p.name,
+                        itemValue: (p) => p.name,
+                        itemText: (p) => p.name,
+                        value: _textPosition.name,
+                        onValueChanged: (v) {
+                          if (v != null) setState(() => _textPosition = TBottomBarTextPosition.values.byName(v));
+                        },
+                      ),
+                    ),
+                    TGridCol(
+                      sm: 12,
+                      md: 6,
+                      child: TSelect<TVariant, String, String>(
+                        label: 'Highlight Variant',
+                        items: TVariant.values,
+                        itemKey: (v) => v.name,
+                        itemValue: (v) => v.name,
+                        itemText: (v) => v.name,
+                        value: _variant.name,
+                        onValueChanged: (v) {
+                          if (v != null) setState(() => _variant = TVariant.values.byName(v));
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 _buildMockContainer(

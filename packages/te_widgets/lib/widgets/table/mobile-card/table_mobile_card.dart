@@ -173,7 +173,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
                     size: isDense ? 18 : 20,
                     padding: const EdgeInsets.all(1),
                     color: colors.onSurfaceVariant,
-                    background: colors.surfaceContainerLow,
+                    background: TGlassStyle.frost(context, colors.surfaceContainerLow),
                     active: isTreeExpanded,
                   ),
                 );
@@ -277,7 +277,7 @@ class TTableMobileCard<T, K> extends StatelessWidget {
                       icon: _getDetailExpandIcon(expansionMode, isDetailExpanded),
                       size: isDense ? 18 : 20,
                       color: colors.onSurfaceVariant,
-                      background: colors.surfaceContainerLow,
+                      background: TGlassStyle.frost(context, colors.surfaceContainerLow),
                       padding: isDense ? const EdgeInsets.all(2) : const EdgeInsets.all(3),
                       borderRadius: BorderRadius.circular(20),
                       active: isDetailExpanded,

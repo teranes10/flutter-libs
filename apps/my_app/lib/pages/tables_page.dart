@@ -230,9 +230,9 @@ enum ProductStatus { draft, active, archived }
 
 extension ProductStatusX on ProductStatus {
   Color get color => switch (this) {
-    ProductStatus.draft => Colors.grey,
-    ProductStatus.active => Colors.green,
-    ProductStatus.archived => Colors.orange,
+    ProductStatus.draft => AppColors.grey,
+    ProductStatus.active => AppColors.success,
+    ProductStatus.archived => AppColors.warning,
   };
 
   dynamic get icon => switch (this) {

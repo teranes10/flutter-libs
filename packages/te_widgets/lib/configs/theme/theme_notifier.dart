@@ -12,6 +12,7 @@ final primaryColorIndexKey = 'te_primary_color_index';
 final customColorKey = 'te_custom_color';
 final schemeOverridesKey = 'te_scheme_overrides';
 final layoutStyleKey = 'te_layout_style';
+final glassKey = 'te_glass';
 
 ThemeMode _initialTheme = ThemeMode.light;
 TSidebarMode _initialSidebarMode = TSidebarMode.full;
@@ -20,6 +21,7 @@ Color? _initialCustomColor;
 Map<String, int> _initialLightOverrides = {};
 Map<String, int> _initialDarkOverrides = {};
 TLayoutStyle _initialLayoutStyle = TLayoutStyle.layout1;
+bool _initialGlass = false;
 
 /// Which `TLayout` implementation the app renders.
 enum TLayoutStyle {
@@ -47,6 +49,9 @@ class TThemeState {
   final ThemeMode themeMode;
   final int primaryColorIndex;
   final TLayoutStyle layoutStyle;
+
+  /// Global liquid-glass mode for cards and tiles (see [TWidgetThemeExtension.glass]).
+  final bool glass;
 
   /// User-picked accent; overrides [primaryColorIndex] when set.
   final Color? customColor;
@@ -101,15 +106,34 @@ class TThemeState {
     'surfaceContainerHighest': 0.08,
   };
 
+  /// The app theme; with glass on, its schemes are swapped for glass-tuned ones ([TGlassStyle.scheme]) so
+  /// the regular (non-glass) palette stays untouched.
   TAppTheme get theme {
+    final t = _solidTheme;
+    if (!glass) return t;
+    return TAppTheme(
+      lightScheme: TGlassStyle.scheme(t.lightScheme),
+      darkScheme: TGlassStyle.scheme(t.darkScheme),
+      widgetThemeBuilder: t.widgetThemeBuilder,
+      lightBackground: t.lightBackground,
+      darkBackground: t.darkBackground,
+    );
+  }
+
+  TAppTheme get _solidTheme {
     final base = layoutStyle == TLayoutStyle.layout2
         ? TAppTheme.defaultTheme2(primary: primaryColor)
         : TAppTheme.defaultTheme(primary: primaryColor);
-    if (lightOverrides.isEmpty && darkOverrides.isEmpty && customColor == null) return base;
+    // Glass is a global switch: stamped onto every widget theme the builder produces.
+    final baseBuilder = base.widgetThemeBuilder;
+    final builder = glass ? (ColorScheme c) => baseBuilder(c).copyWith(glass: const TGlassStyle()) : baseBuilder;
+    if (lightOverrides.isEmpty && darkOverrides.isEmpty && customColor == null) {
+      return glass ? base.copyWith(widgetThemeBuilder: builder) : base;
+    }
     return TAppTheme(
       lightScheme: applySchemeOverrides(base.lightScheme, {..._accentDerived(base.lightScheme), ...lightOverrides}),
       darkScheme: applySchemeOverrides(base.darkScheme, {..._accentDerived(base.darkScheme), ...darkOverrides}),
-      widgetThemeBuilder: base.widgetThemeBuilder,
+      widgetThemeBuilder: builder,
       lightBackground: _background(lightOverrides, AppColors.lightBackground),
       darkBackground: _background(darkOverrides, AppColors.darkBackground),
     );
@@ -119,6 +143,7 @@ class TThemeState {
     required this.themeMode,
     required this.primaryColorIndex,
     this.layoutStyle = TLayoutStyle.layout1,
+    this.glass = false,
     this.customColor,
     this.lightOverrides = const {},
     this.darkOverrides = const {},
@@ -128,6 +153,7 @@ class TThemeState {
     ThemeMode? themeMode,
     int? primaryColorIndex,
     TLayoutStyle? layoutStyle,
+    bool? glass,
     Color? customColor,
     bool clearCustomColor = false,
     Map<String, int>? lightOverrides,
@@ -140,6 +166,7 @@ class TThemeState {
       themeMode: themeMode ?? this.themeMode,
       primaryColorIndex: primaryColorIndex ?? this.primaryColorIndex,
       layoutStyle: layoutStyle ?? this.layoutStyle,
+      glass: glass ?? this.glass,
     );
   }
 }
@@ -185,6 +212,7 @@ Future<void> initializeApp([SharedPreferences? prefs]) async {
     (l) => l.name == p.getString(layoutStyleKey),
     orElse: () => TLayoutStyle.layout1,
   );
+  _initialGlass = p.getBool(glassKey) ?? false;
 }
 
 class ThemeNotifier extends Notifier<TThemeState> {
@@ -197,6 +225,7 @@ class ThemeNotifier extends Notifier<TThemeState> {
       lightOverrides: _initialLightOverrides,
       darkOverrides: _initialDarkOverrides,
       layoutStyle: _initialLayoutStyle,
+      glass: _initialGlass,
     );
   }
 
@@ -260,6 +289,11 @@ class ThemeNotifier extends Notifier<TThemeState> {
   void resetSchemeColor(Brightness b, String key) => _setOverrides(b, {..._overridesOf(b)}..remove(key));
 
   void resetScheme(Brightness b) => _setOverrides(b, {});
+
+  void setGlass(bool value) {
+    state = state.copyWith(glass: value);
+    SharedPreferences.getInstance().then((p) => p.setBool(glassKey, value));
+  }
 
   void setLayoutStyle(TLayoutStyle style) {
     state = state.copyWith(layoutStyle: style);

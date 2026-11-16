@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:te_widgets/helpers/popup_position.dart';
+import 'package:te_widgets/widgets/surface/glass.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
 import 'package:te_widgets/widgets/image/image.dart';
 import 'package:te_widgets/widgets/menu/menu_item_data.dart';
@@ -204,7 +205,9 @@ class _TMenuOverlayItemState<T extends TMenuItemData<T>> extends State<TMenuOver
             width: double.infinity,
             padding: widget.theme.itemPadding,
             decoration: BoxDecoration(
-              color: widget.isActive ? widget.theme.activeBackgroundColor : (_isHovered ? widget.theme.hoverBackgroundColor : null),
+              color: TGlassStyle.resolve(context) != null
+                  ? (widget.isActive ? TGlassStyle.activeOverlay(context) : (_isHovered ? TGlassStyle.hoverOverlay(context) : null))
+                  : (widget.isActive ? widget.theme.activeBackgroundColor : (_isHovered ? widget.theme.hoverBackgroundColor : null)),
               borderRadius: widget.theme.itemBorderRadius,
             ),
             child: Opacity(

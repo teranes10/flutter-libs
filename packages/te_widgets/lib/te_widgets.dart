@@ -7,6 +7,7 @@ export 'configs/theme/theme_notifier.dart';
 export 'package:hugeicons/hugeicons.dart';
 
 export 'configs/widget-theme/widget_theme.dart';
+export 'widgets/surface/glass.dart';
 export 'configs/widget-theme/input_field_theme.dart';
 
 export 'enum/file_type.dart';
@@ -113,7 +114,9 @@ export 'widgets/divider/divider.dart';
 
 export 'widgets/data-table/data_table.dart';
 
+export 'widgets/calendar-picker/calendar_picker.dart';
 export 'widgets/date-picker/date_picker.dart';
+export 'widgets/date-range-picker/date_range_picker.dart';
 
 export 'widgets/date-time-picker/date_time_picker.dart';
 export 'widgets/date-time-text/date_time_text.dart';

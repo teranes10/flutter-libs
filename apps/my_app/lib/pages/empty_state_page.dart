@@ -41,7 +41,6 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
             preview: Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.3)),
               ),
@@ -92,7 +91,6 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
             preview: Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.3)),
               ),
@@ -118,7 +116,6 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
             preview: Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.3)),
               ),
@@ -156,7 +153,6 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
             preview: Container(
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: colors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.3)),
               ),
@@ -182,7 +178,6 @@ class _EmptyStatePageState extends State<EmptyStatePage> {
             preview: Container(
               width: 380,
               decoration: BoxDecoration(
-                color: colors.surface,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.4)),
               ),

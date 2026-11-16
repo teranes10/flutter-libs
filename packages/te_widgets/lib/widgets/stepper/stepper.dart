@@ -324,14 +324,20 @@ class TStepper extends StatelessWidget {
     final step = steps[index];
     final isActive = index == currentStep;
     final isCompleted = index < currentStep;
+    final glass = TGlassStyle.resolve(context);
 
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isCompleted || isActive ? mColor : colors.surfaceContainerHighest,
-        border: isActive ? Border.all(color: mColor.withAlpha(50), width: size >= 32 ? 4 : 3) : null,
+        // Glass: upcoming steps are a frosted circle with a visible edge; the opaque surface reads as a dark disc.
+        color: isCompleted || isActive
+            ? mColor
+            : (glass != null ? Colors.white.withAlpha(colors.isDarkMode ? 28 : 150) : colors.surfaceContainerHighest),
+        border: isActive
+            ? Border.all(color: mColor.withAlpha(50), width: size >= 32 ? 4 : 3)
+            : (glass != null && !isCompleted ? Border.all(color: glass.fieldEdge(context)) : null),
       ),
       child: Center(
         child: step.icon ??

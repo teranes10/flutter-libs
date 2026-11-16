@@ -27,11 +27,16 @@ class TBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Container(
+    const radius = BorderRadius.vertical(top: Radius.circular(20));
+    return TGlassSurface.wrap(
+      context,
+      radius: radius,
+      color: colors.surface,
+      child: Container(
       height: height,
       decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        color: TGlassStyle.resolve(context) != null ? null : colors.surface,
+        borderRadius: radius,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -45,7 +50,7 @@ class TBottomSheet extends StatelessWidget {
           if (footer != null) footer!,
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildHandle(BuildContext context, ColorScheme colors) {

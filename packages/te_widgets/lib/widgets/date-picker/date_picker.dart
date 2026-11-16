@@ -1,4 +1,3 @@
-import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:te_widgets/te_widgets.dart';
@@ -164,15 +163,11 @@ class _TDatePickerState extends State<TDatePicker>
   Widget getContentWidget(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(6, 16, 6, 0),
-      child: CalendarDatePicker2(
-        config: CalendarDatePicker2Config(
-          firstDate: widget.firstDate,
-          lastDate: widget.lastDate,
-        ),
-        value: [currentValue],
-        onValueChanged: (v) {
-          _onDateSelected(v.first);
-        },
+      child: TCalendarPicker.single(
+        value: currentValue,
+        firstDate: widget.firstDate,
+        lastDate: widget.lastDate,
+        onChanged: _onDateSelected,
       ),
     );
   }

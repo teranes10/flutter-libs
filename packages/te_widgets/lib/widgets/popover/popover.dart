@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart' show kTouchSlop;
 import 'package:flutter/services.dart';
 import 'package:te_widgets/extensions/build_context_x.dart';
+import 'package:te_widgets/widgets/surface/glass.dart';
 import 'package:te_widgets/helpers/popup_position.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
 import 'package:te_widgets/widgets/menu/menu_root_trigger.dart';
@@ -303,12 +304,16 @@ class _TPopoverState extends State<TPopover> {
                   },
                   child: Material(
                     type: MaterialType.transparency,
-                    child: Container(
+                    child: TGlassSurface.wrap(
+                      context,
+                      radius: effectiveRadius.resolve(Directionality.of(context)),
+                      color: effectiveBg,
+                      child: Container(
                       constraints: constraints.contentBox,
                       decoration: BoxDecoration(
-                        color: effectiveBg,
+                        color: TGlassStyle.resolve(context) != null ? null : effectiveBg,
                         borderRadius: effectiveRadius,
-                        border: Border.all(color: effectiveBorder),
+                        border: TGlassStyle.resolve(context) != null ? null : Border.all(color: effectiveBorder),
                         boxShadow: [
                           BoxShadow(
                             color: colors.shadow.withValues(alpha: isDark ? 0.35 : 0.12),
@@ -363,6 +368,7 @@ class _TPopoverState extends State<TPopover> {
                           ],
                         ),
                       ),
+                    ),
                     ),
                   ),
                 ),

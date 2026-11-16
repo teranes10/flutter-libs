@@ -97,6 +97,34 @@ class _PickersPageState extends State<PickersPage> {
             ],
           ),
 
+          // Date Range Picker
+          WidgetDocCard(
+            title: 'Date Range Picker',
+            description: 'Pick a start and end date: first tap sets the start, second the end',
+            icon: HugeIcons.strokeRoundedCalendar01,
+            preview: TDateRangePicker(
+              label: 'Stay',
+              placeholder: 'Select check-in and check-out',
+              clearable: true,
+              firstDate: DateTime.now(),
+              lastDate: DateTime.now().add(const Duration(days: 365)),
+            ),
+            code: '''TDateRangePicker(
+  label: 'Stay',
+  clearable: true,
+  firstDate: DateTime.now(),
+  onValueChanged: (range) {
+    print('\${range?.start} - \${range?.end}');
+  },
+)''',
+            properties: const [
+              PropertyDoc(name: 'value / valueNotifier', type: 'DateTimeRange?', description: 'Selected range (controlled or via notifier)'),
+              PropertyDoc(name: 'firstDate / lastDate', type: 'DateTime?', description: 'Selectable bounds'),
+              PropertyDoc(name: 'format', type: 'DateFormat?', defaultValue: "DateFormat('MMM dd, yyyy')", description: 'Format of each end'),
+              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<DateTimeRange?>?', description: 'Fired when a complete range is picked or cleared'),
+            ],
+          ),
+
           // Date Picker with Range
           WidgetDocCard(
             title: 'Date Picker with Range Constraints',

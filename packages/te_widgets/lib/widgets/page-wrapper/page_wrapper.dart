@@ -152,7 +152,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
             TImage(
               url: widget.imageUrl,
               size: widget.subTitle != null ? 45 : 36,
-              color: colors.surfaceContainerLow,
+              color: TGlassStyle.resolve(context) != null ? Colors.transparent : colors.surfaceContainerLow,
               disabled: true,
               border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
@@ -182,7 +182,7 @@ class _TPageWrapperState extends State<TPageWrapper> {
           TImage(
             url: widget.imageUrl,
             size: iconSize,
-            color: colors.surfaceContainerLow,
+            color: TGlassStyle.resolve(context) != null ? Colors.transparent : colors.surfaceContainerLow,
             disabled: true,
             border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
@@ -407,9 +407,12 @@ class _TPageWrapperState extends State<TPageWrapper> {
 
     final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor();
 
+    final glass = TGlassStyle.resolve(context) != null && widget.backgroundColor == null;
     return Container(
       decoration: BoxDecoration(
-        color: effectiveBg,
+        // Glass: no opaque strip; a faint divider separates the footer from the content instead.
+        color: glass ? null : effectiveBg,
+        border: glass ? Border(top: BorderSide(color: colors.outlineVariant.withAlpha(120))) : null,
       ),
       child: widget.footer!,
     );
@@ -419,7 +422,9 @@ class _TPageWrapperState extends State<TPageWrapper> {
   Widget build(BuildContext context) {
     final isDark = context.isDarkMode;
     final colors = context.colors;
-    final effectiveBg = widget.backgroundColor ?? context.getBackgroundColor();
+    // Glass: the page is transparent so the glass surface/backdrop behind it shows (unless a background is forced).
+    final glass = TGlassStyle.resolve(context) != null && widget.backgroundColor == null;
+    final effectiveBg = glass ? Colors.transparent : (widget.backgroundColor ?? context.getBackgroundColor());
 
     return LayoutBuilder(
       builder: (context, constraints) {

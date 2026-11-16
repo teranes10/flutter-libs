@@ -14,13 +14,21 @@ Widget buildSelectCreateFooter<T, K>({
   required String label,
   void Function(T item)? onCreated,
 }) {
+  final colors = context.colors;
+  final glass = TGlassStyle.resolve(context) != null;
+  // Glass: a filled primary button (a tinted outline looked like a text box); text is onPrimary for contrast.
+  final base = TWidgetTheme.surfaceTheme(colors).copyWith(
+    container: glass ? colors.primary.withAlpha(colors.isDarkMode ? 190 : 225) : colors.surfaceContainerLowest,
+    containerVariant: glass ? colors.primary : null,
+    outline: glass ? Colors.white.withAlpha(90) : null,
+    outlineVariant: glass ? Colors.white.withAlpha(140) : null,
+    onContainer: glass ? colors.onPrimary : colors.primary,
+    onContainerVariant: glass ? colors.onPrimary : colors.primary.withAlpha(160),
+  );
   return Padding(
     padding: const EdgeInsets.all(8),
     child: TButton(
-      baseTheme: TWidgetTheme.surfaceTheme(context.colors).copyWith(
-          container: context.colors.surfaceContainerLowest,
-          onContainer: context.colors.primary,
-          onContainerVariant: context.colors.primary.withAlpha(160)),
+      baseTheme: base,
       size: TButtonSize.block,
       icon: HugeIcons.strokeRoundedAdd01,
       text: label,

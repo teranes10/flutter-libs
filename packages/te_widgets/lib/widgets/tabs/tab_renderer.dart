@@ -116,14 +116,22 @@ class TabRenderer<T> {
             ? (selectedColor ?? colors.onSurface)
             : (unselectedColor ?? colors.onSurfaceVariant);
     final radius = BorderRadius.circular(8);
+    final glass = TGlassStyle.resolve(context);
 
     return Container(
       key: tabKey,
-      decoration: BoxDecoration(
-        color: isSelected ? colors.surface : Colors.transparent,
-        borderRadius: radius,
-        boxShadow: isSelected ? [BoxShadow(color: colors.shadow.o(0.12), blurRadius: 3, offset: const Offset(0, 1))] : null,
-      ),
+      decoration: glass != null
+          // Glass: the active pill is a bright frosted chip with a visible edge instead of an opaque raised surface.
+          ? BoxDecoration(
+              color: isSelected ? Colors.white.withAlpha(colors.isDarkMode ? 52 : 235) : Colors.transparent,
+              borderRadius: radius,
+              border: isSelected ? Border.all(color: glass.fieldEdge(context)) : null,
+            )
+          : BoxDecoration(
+              color: isSelected ? colors.surface : Colors.transparent,
+              borderRadius: radius,
+              boxShadow: isSelected ? [BoxShadow(color: colors.shadow.o(0.12), blurRadius: 3, offset: const Offset(0, 1))] : null,
+            ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(

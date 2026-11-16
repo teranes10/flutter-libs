@@ -287,6 +287,9 @@ class TImage extends StatefulWidget with TPopupMixin {
 final Map<String, Uint8List> _forceCacheMemory = {};
 
 class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
+  /// Transparent PNGs should show the glass behind them, not a solid surface frame.
+  Color _frameBackground(BuildContext context, Color solid) => TGlassStyle.resolve(context) != null ? Colors.transparent : solid;
+
   @override
   double get contentMinWidth => widget.aspectRatio != null ? (widget.previewSize / widget.aspectRatio!) : widget.previewSize;
   @override
@@ -606,7 +609,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     return Container(
       width: w,
       height: h,
-      color: widget.color ?? (isDark ? colors.surfaceContainer : colors.surfaceContainerLow),
+      color: widget.color ?? _frameBackground(context, isDark ? colors.surfaceContainer : colors.surfaceContainerLow),
       alignment: Alignment.center,
       child: TIcon.raw(
         HugeIcons.strokeRoundedImageNotFound02,
@@ -812,7 +815,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final frameColor = widget.color ?? (isDark ? colors.surfaceContainer : colors.surfaceContainerLow);
+    final frameColor = widget.color ?? _frameBackground(context, isDark ? colors.surfaceContainer : colors.surfaceContainerLow);
 
     final imageFrame = Container(
       width: effectiveWidth,

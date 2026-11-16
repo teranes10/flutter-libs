@@ -414,22 +414,32 @@ class _TButtonGroupState extends State<TButtonGroup> {
 
     if (groupTheme.type == TButtonGroupType.segmented) {
       final colors = context.colors;
+      final glass = TGlassStyle.resolve(context);
+      // Glass: the active pill is a bright frosted chip with a visible edge instead of an opaque raised surface.
+      final pillFill = Colors.white.withAlpha(colors.isDarkMode ? 52 : 235);
       final activeBase = TWidgetTheme(
         isDarkMode: colors.isDarkMode,
         type: TVariant.tonal,
         color: colors.onSurface.toMaterial(),
-        container: colors.surface,
-        containerVariant: colors.surface,
+        container: glass != null ? pillFill : colors.surface,
+        containerVariant: glass != null ? pillFill : colors.surface,
+        outline: glass?.fieldEdge(context),
+        outlineVariant: glass?.fieldEdge(context),
         onContainer: colors.onSurface,
         onContainerVariant: colors.onSurface,
-        shadow: colors.shadow,
+        shadow: glass != null ? null : colors.shadow,
       );
       final segTheme = defaultTheme.copyWith(
-        baseTheme:
-            isActive ? activeBase : TWidgetTheme.surfaceTheme(colors, variant: TVariant.text).copyWith(container: Colors.transparent),
+        baseTheme: isActive
+            ? activeBase
+            : TWidgetTheme.surfaceTheme(colors, variant: TVariant.text).copyWith(
+                container: Colors.transparent,
+                // Glass: hover is a light wash; the default hover colour is an opaque surface that shows as a dark block.
+                containerVariant: glass != null ? colors.onSurface.withAlpha(colors.isDarkMode ? 28 : 20) : null,
+              ),
         size: widget.size ?? groupTheme.size,
         shape: groupTheme.shape,
-        elevation: isActive ? 1 : 0,
+        elevation: isActive && glass == null ? 1 : 0,
       );
       final pill = RoundedRectangleBorder(borderRadius: BorderRadius.circular(groupTheme.borderRadius));
       return button.copyWith(theme: segTheme.copyWith(buttonStyle: segTheme.buttonStyle.copyWith(shape: WidgetStateProperty.all(pill))));

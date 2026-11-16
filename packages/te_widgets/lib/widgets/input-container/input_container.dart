@@ -101,7 +101,11 @@ class _TInputContainerState extends State<TInputContainer> {
     final borderRadius =
         inputBorder is OutlineInputBorder ? inputBorder.borderRadius : BorderRadius.circular(effectiveTheme.borderRadius.resolve(states));
 
-    final borderColor = effectiveTheme.borderColor.resolve(states);
+    final glassStyle = TGlassStyle.resolve(context);
+    final plainState = !states.contains(WidgetState.focused) && !states.contains(WidgetState.error);
+    final borderColor = glassStyle != null && plainState && !states.contains(WidgetState.disabled)
+        ? glassStyle.fieldEdge(context)
+        : effectiveTheme.borderColor.resolve(states);
     final borderWidth = effectiveTheme.borderWidth.resolve(states);
 
     final bool hasBorderSide =
@@ -124,21 +128,27 @@ class _TInputContainerState extends State<TInputContainer> {
       onExit: (_) => setState(() => _isHovering = false),
       child: GestureDetector(
         onTap: widget.disabled ? null : widget.onTap,
-        child: Container(
-          width: widget.width,
-          height: effectiveHeight,
-          constraints: BoxConstraints(
-            minHeight: effectiveHeight,
-            minWidth: widget.block ? double.infinity : 0,
+        child: TGlassSurface.wrap(
+          context,
+          radius: effectiveTheme.decorationType == TInputDecorationType.underline ? BorderRadius.zero : borderRadius,
+          color: backgroundColor,
+          alpha: backgroundColor.a == 0 ? 0 : (backgroundColor.a * 255).round(),
+          child: Container(
+            width: widget.width,
+            height: effectiveHeight,
+            constraints: BoxConstraints(
+              minHeight: effectiveHeight,
+              minWidth: widget.block ? double.infinity : 0,
+            ),
+            alignment: widget.alignment,
+            padding: effectivePadding,
+            decoration: BoxDecoration(
+              color: glassStyle != null ? null : backgroundColor,
+              borderRadius: effectiveTheme.decorationType == TInputDecorationType.underline ? BorderRadius.zero : borderRadius,
+              border: border,
+            ),
+            child: widget.child,
           ),
-          alignment: widget.alignment,
-          padding: effectivePadding,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: effectiveTheme.decorationType == TInputDecorationType.underline ? BorderRadius.zero : borderRadius,
-            border: border,
-          ),
-          child: widget.child,
         ),
       ),
     );

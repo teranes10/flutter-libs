@@ -125,7 +125,6 @@ class _ResultsPageState extends State<ResultsPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: colors.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
                   ),
@@ -191,7 +190,6 @@ class _ResultsPageState extends State<ResultsPage> {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: colors.surfaceContainerLowest,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
                             ),
@@ -234,7 +232,6 @@ class _ResultsPageState extends State<ResultsPage> {
                           // Code Snippet Box
                           Container(
                             decoration: BoxDecoration(
-                              color: colors.surfaceContainerLowest,
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
                             ),
@@ -244,7 +241,6 @@ class _ResultsPageState extends State<ResultsPage> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                   decoration: BoxDecoration(
-                                    color: colors.surfaceContainerLow,
                                     borderRadius: const BorderRadius.vertical(top: Radius.circular(9)),
                                     border: Border(bottom: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.4))),
                                   ),
@@ -337,7 +333,6 @@ class _ResultsPageState extends State<ResultsPage> {
           extra: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: colors.surfaceContainerLow,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
             ),

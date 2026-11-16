@@ -173,7 +173,15 @@ class _TFormContentState<T extends TFormBase> extends State<_TFormContent<T>> {
               spacing: 10,
               children: [
                 TButton(
-                  baseTheme: TWidgetTheme.surfaceTheme(context.colors),
+                  // Glass: a frosted button with a visible edge instead of an opaque surface block.
+                  baseTheme: TGlassStyle.resolve(context) == null
+                      ? TWidgetTheme.surfaceTheme(context.colors)
+                      : TWidgetTheme.surfaceTheme(context.colors).copyWith(
+                          container: Colors.white.withAlpha(context.colors.isDarkMode ? 24 : 150),
+                          containerVariant: Colors.white.withAlpha(context.colors.isDarkMode ? 45 : 200),
+                          outline: TGlassStyle.resolve(context)!.fieldEdge(context),
+                          outlineVariant: TGlassStyle.resolve(context)!.fieldEdge(context),
+                        ),
                   size: TButtonSize.md.copyWith(minW: 125),
                   text: 'Cancel',
                   onPressed: (_) => widget.onClose(null),

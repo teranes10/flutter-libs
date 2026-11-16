@@ -281,13 +281,11 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
+                    // TCard follows the app's glass mode (an opaque Container would not).
+                    TCard(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: theme.colorScheme.outlineVariant),
-                      ),
+                      margin: EdgeInsets.zero,
+                      borderRadius: BorderRadius.circular(8),
                       child: TFilterField<ProductFilter>(
                         label: 'Product Filter Rules',
                         helperText: 'Add filter conditions to filter products by name, brand, category, price, and status.',
@@ -309,13 +307,10 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
+                    TCard(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: theme.colorScheme.outlineVariant),
-                      ),
+                      margin: EdgeInsets.zero,
+                      borderRadius: BorderRadius.circular(8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -331,9 +326,13 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.surface,
+                              // Glass: a faint wash with a visible edge instead of an opaque code box.
+                              color: TGlassStyle.resolve(context) != null ? theme.colorScheme.onSurface.withAlpha(14) : theme.colorScheme.surface,
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: theme.colorScheme.outlineVariant.withAlpha(100)),
+                              border: Border.all(
+                                color: TGlassStyle.resolve(context)?.fieldEdge(context).withAlpha(120) ??
+                                    theme.colorScheme.outlineVariant.withAlpha(100),
+                              ),
                             ),
                             child: SelectableText(jsonString, style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
                           ),
@@ -343,24 +342,21 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
 
                     const SizedBox(height: 16),
 
-                    Container(
+                    TCard(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: theme.colorScheme.outlineVariant),
-                      ),
+                      margin: EdgeInsets.zero,
+                      borderRadius: BorderRadius.circular(8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Supported Filter Types', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
                           const SizedBox(height: 10),
-                          _buildTypeRow('StringFilter', 'eq, ne, startsWith, endsWith, contains, in, notIn, isNull'),
-                          _buildTypeRow('NumberFilter<T>', 'eq, ne, gt, gte, lt, lte, in, notIn, isNull'),
-                          _buildTypeRow('DateTimeFilter', 'eq, ne, gt, gte, lt, lte, in, notIn, isNull'),
-                          _buildTypeRow('BoolFilter', 'eq, ne, isNull'),
-                          _buildTypeRow('GuidFilter', 'eq, ne, in, notIn, isNull'),
-                          _buildTypeRow('EnumFilter<T>', 'eq, ne, gt, gte, lt, lte, in, notIn, isNull'),
+                          _buildTypeRow(context, 'StringFilter', 'eq, ne, startsWith, endsWith, contains, in, notIn, isNull'),
+                          _buildTypeRow(context, 'NumberFilter<T>', 'eq, ne, gt, gte, lt, lte, in, notIn, isNull'),
+                          _buildTypeRow(context, 'DateTimeFilter', 'eq, ne, gt, gte, lt, lte, in, notIn, isNull'),
+                          _buildTypeRow(context, 'BoolFilter', 'eq, ne, isNull'),
+                          _buildTypeRow(context, 'GuidFilter', 'eq, ne, in, notIn, isNull'),
+                          _buildTypeRow(context, 'EnumFilter<T>', 'eq, ne, gt, gte, lt, lte, in, notIn, isNull'),
                         ],
                       ),
                     ),
@@ -380,14 +376,10 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
     final rules = _currentFilter != null ? TFilterRule.fromFilterJson(json, defs) : <TFilterRule>[];
 
     if (rules.isEmpty) {
-      return Container(
-        width: double.infinity,
+      return TCard(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest.withAlpha(50),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: theme.colorScheme.outlineVariant.withAlpha(100)),
-        ),
+        margin: EdgeInsets.zero,
+        borderRadius: BorderRadius.circular(8),
         child: Row(
           children: [
             TIcon.raw(HugeIcons.strokeRoundedFilterReset, size: 16, color: theme.colorScheme.onSurfaceVariant),
@@ -398,14 +390,10 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
       );
     }
 
-    return Container(
-      width: double.infinity,
+    return TCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
+      margin: EdgeInsets.zero,
+      borderRadius: BorderRadius.circular(8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -500,7 +488,7 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
     _filterNotifier.value = ProductFilter.fromJson(newJson);
   }
 
-  Widget _buildTypeRow(String typeName, String operators) {
+  Widget _buildTypeRow(BuildContext context, String typeName, String operators) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
@@ -516,7 +504,7 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(operators, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+            child: Text(operators, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ),
         ],
       ),

@@ -105,19 +105,24 @@ class TBottomBar extends StatelessWidget {
     final mBorderRadius =
         borderRadius ?? (textPosition == TBottomBarTextPosition.rightActive || textPosition == TBottomBarTextPosition.none ? 24 : 14);
 
-    return Container(
+    final glass = TGlassStyle.resolve(context) != null;
+
+    final bar = Container(
       margin: margin,
       padding: padding,
       height: height,
       decoration: BoxDecoration(
-        color: mBackground,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        // Glass: the blurred translucent bar (below) replaces the opaque fill and shadow.
+        color: glass ? null : mBackground,
+        boxShadow: glass
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
       ),
       child: SafeArea(
         top: false,
@@ -131,6 +136,8 @@ class TBottomBar extends StatelessWidget {
         ),
       ),
     );
+
+    return TGlassBar.wrap(context, color: mBackground, child: bar);
   }
 
   Widget _buildItem(BuildContext context, int index, double mBorderRadius) {
@@ -193,7 +200,11 @@ class _BottomBarItemWidget extends StatelessWidget {
     final mColor = color ?? colors.primary;
     final wTheme = context.getWidgetTheme(variant, mColor);
 
-    final highlightColor = isActive ? wTheme.container : Colors.transparent;
+    // Glass: the active highlight is a translucent accent wash; tonal/solid containers are opaque.
+    final glass = TGlassStyle.resolve(context) != null;
+    final highlightColor = !isActive
+        ? Colors.transparent
+        : (glass && wTheme.container.a != 0 ? mColor.withAlpha(colors.isDarkMode ? 80 : 50) : wTheme.container);
     final contentColor = isActive ? wTheme.onContainer : colors.onSurfaceVariant;
     final icon = isActive ? (item.activeIcon ?? item.icon) : item.icon;
     final mTextStyle = textStyle ??

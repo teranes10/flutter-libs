@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:te_widgets/widgets/surface/glass.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -122,6 +123,7 @@ class _TSpeedDialState extends State<TSpeedDial> with SingleTickerProviderStateM
     final colors = theme.colorScheme;
     final mainBg = widget.backgroundColor ?? colors.primary;
     final mainFg = widget.foregroundColor ?? colors.onPrimary;
+    final glass = TGlassStyle.resolve(context) != null;
 
     final actionColumn = Column(
       mainAxisSize: MainAxisSize.min,
@@ -142,21 +144,26 @@ class _TSpeedDialState extends State<TSpeedDial> with SingleTickerProviderStateM
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (child.label != null) ...[
-                        Material(
-                          elevation: 3,
-                          borderRadius: BorderRadius.circular(6),
+                        TGlassSurface.wrap(
+                          context,
+                          radius: BorderRadius.circular(6),
                           color: theme.cardColor,
-                          child: InkWell(
-                            onTap: () {
-                              _close();
-                              child.onTap();
-                            },
+                          child: Material(
+                            elevation: glass ? 0 : 3,
                             borderRadius: BorderRadius.circular(6),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                              child: Text(
-                                child.label!,
-                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                            color: glass ? Colors.transparent : theme.cardColor,
+                            child: InkWell(
+                              onTap: () {
+                                _close();
+                                child.onTap();
+                              },
+                              borderRadius: BorderRadius.circular(6),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                child: Text(
+                                  child.label!,
+                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                                ),
                               ),
                             ),
                           ),
@@ -165,8 +172,12 @@ class _TSpeedDialState extends State<TSpeedDial> with SingleTickerProviderStateM
                       ],
                       FloatingActionButton.small(
                         heroTag: null,
-                        backgroundColor: child.backgroundColor ?? theme.cardColor,
+                        // Glass: a frosted chip with a visible edge; an opaque card colour breaks the effect.
+                        backgroundColor: child.backgroundColor ??
+                            (glass ? Colors.white.withAlpha(colors.brightness == Brightness.dark ? 36 : 215) : theme.cardColor),
                         foregroundColor: child.foregroundColor ?? colors.primary,
+                        elevation: glass ? 0 : null,
+                        shape: glass ? CircleBorder(side: BorderSide(color: TGlassStyle.resolve(context)!.fieldEdge(context))) : null,
                         onPressed: () {
                           _close();
                           child.onTap();

@@ -147,6 +147,9 @@ class TCard extends StatelessWidget {
   /// The clip behavior of the card.
   final Clip? clipBehavior;
 
+  /// Liquid-glass mode: true forces it, false disables it, null follows [TWidgetThemeExtension.glass].
+  final bool? glass;
+
   /// Creates a Material Design card widget.
   const TCard({
     super.key,
@@ -184,6 +187,7 @@ class TCard extends StatelessWidget {
     this.shadowLevel = TCardShadow.none,
     this.border,
     this.clipBehavior,
+    this.glass,
   });
 
   Widget? _buildHeader(BuildContext context) {
@@ -222,6 +226,8 @@ class TCard extends StatelessWidget {
     final defaultBorderRadius = borderRadius ?? BorderRadius.circular(12);
     final headerNode = _buildHeader(context);
     final resShadowColor = shadowColor ?? colors.shadow;
+    final glassStyle = TGlassStyle.resolve(context, glass);
+    final surfaceColor = backgroundColor ?? colors.surface;
 
     Widget content;
     if (headerNode != null) {
@@ -237,9 +243,8 @@ class TCard extends StatelessWidget {
       content = child ?? const SizedBox.shrink();
     }
 
-    return Container(
+    final card = Container(
       width: double.infinity,
-      margin: margin ?? const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         borderRadius: defaultBorderRadius,
         border: border,
@@ -254,15 +259,15 @@ class TCard extends StatelessWidget {
       ),
       child: Material(
         elevation: elevation ?? 0,
-        color: backgroundColor ?? colors.surface,
+        color: glassStyle != null ? Colors.transparent : surfaceColor,
         shadowColor: resShadowColor,
         clipBehavior: clipBehavior ?? (accentColor != null ? Clip.antiAlias : Clip.none),
         shape: RoundedRectangleBorder(
           borderRadius: defaultBorderRadius,
-          side: BorderSide(color: borderColor ?? colors.outlineVariant.withAlpha(60)),
+          side: glassStyle != null ? BorderSide.none : BorderSide(color: borderColor ?? colors.outlineVariant.withAlpha(60)),
         ),
         child: TBackgroundColorScope(
-          backgroundColor: backgroundColor ?? colors.surface,
+          backgroundColor: surfaceColor,
           child: Stack(
             // Pass the card's tight width down so the InkWell (hover/splash) spans the whole card, not just its content.
             fit: StackFit.passthrough,
@@ -293,6 +298,13 @@ class TCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+
+    return Padding(
+      padding: margin ?? const EdgeInsets.only(bottom: 8),
+      child: glassStyle == null
+          ? card
+          : TGlassSurface(style: glassStyle, borderRadius: defaultBorderRadius, color: surfaceColor, child: card),
     );
   }
 }

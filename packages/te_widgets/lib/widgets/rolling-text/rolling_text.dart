@@ -137,7 +137,9 @@ class _RollingCoreState extends State<_RollingCore> {
   Widget build(BuildContext context) {
     final c = widget.config;
     final chars = _padded(widget.text, _slots);
-    final style = c.style ?? DefaultTextStyle.of(context).style;
+    // Merge with the inherited style: slots are measured with this, but rendered by Text (which merges), so an
+    // unmerged style measures in the wrong font and crops wider glyphs (the zeros).
+    final style = DefaultTextStyle.of(context).style.merge(c.style);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -153,6 +155,18 @@ class _RollingCoreState extends State<_RollingCore> {
       ],
     );
   }
+}
+
+/// Clip rect inflated sideways: bold/tabular glyphs overshoot their advance width, and a tight clip shaves them.
+class _InflatedClipper extends CustomClipper<Rect> {
+  final double dx;
+  const _InflatedClipper(this.dx);
+
+  @override
+  Rect getClip(Size size) => Rect.fromLTRB(-dx, 0, size.width + dx, size.height);
+
+  @override
+  bool shouldReclip(_InflatedClipper old) => old.dx != dx;
 }
 
 class _Slot extends StatefulWidget {
@@ -220,7 +234,8 @@ class _SlotState extends State<_Slot> with SingleTickerProviderStateMixin {
 
         final p = cfg.curve.transform(_c.value);
         final sf = _measure(_from, context), st = _measure(_to, context);
-        final h = math.max(sf.height, st.height);
+        // Breathing room above/below: glyph ascent/descent can exceed the measured line height (tight clip cut tops).
+        final h = math.max(sf.height, st.height) + (widget.style.fontSize ?? 14) * 0.16;
         final w = settled ? st.width : sf.width + (st.width - sf.width) * p;
 
         Widget content = SizedBox(
@@ -251,6 +266,7 @@ class _SlotState extends State<_Slot> with SingleTickerProviderStateMixin {
         final a = int.parse(_from), b = int.parse(_to);
         final steps = (b - a) % 10;
         return ClipRect(
+          clipper: _InflatedClipper((widget.style.fontSize ?? 14) * 0.12),
           child: OverflowBox(
             alignment: Alignment.topCenter,
             maxHeight: double.infinity,
@@ -277,6 +293,7 @@ class _SlotState extends State<_Slot> with SingleTickerProviderStateMixin {
         );
       default: // slide, and odometer for non-digits
         return ClipRect(
+          clipper: _InflatedClipper((widget.style.fontSize ?? 14) * 0.12),
           child: Stack(
             children: [
               Positioned.fill(

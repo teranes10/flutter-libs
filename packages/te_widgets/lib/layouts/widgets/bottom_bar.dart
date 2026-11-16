@@ -45,63 +45,69 @@ class LayoutBottomBar extends StatelessWidget {
     final isActive = item.containsRoute(currentRoute);
     final contentColor = isActive ? colors.primary : colors.onSurfaceVariant;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
+    final glass = TGlassStyle.resolve(context) != null;
+
+    return TGlassBar.wrap(context,
         color: colors.surface,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2)),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  if (logo != null)
-                    SizedBox(
-                      height: 32,
-                      child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: logo),
-                    ),
-                ],
-              ),
-            ),
-            InkWell(
-              onTap: () => item.tap(context),
-              borderRadius: BorderRadius.circular(24),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TIcon.raw(item.icon ?? HugeIcons.strokeRoundedCircle, color: contentColor, size: 24),
-                    const SizedBox(height: 4),
-                    Text(item.text ?? '',
-                        style: TextStyle(color: contentColor, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: glass
+              ? null
+              : BoxDecoration(
+                  color: colors.surface,
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2)),
                   ],
                 ),
-              ),
-            ),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  InkWell(
-                    onTap: onOpenMore,
-                    borderRadius: BorderRadius.circular(24),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: TIcon.raw(HugeIcons.strokeRoundedMoreHorizontal, color: colors.onSurfaceVariant, size: 24),
+          child: SafeArea(
+            top: false,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      if (logo != null)
+                        SizedBox(
+                          height: 32,
+                          child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: logo),
+                        ),
+                    ],
+                  ),
+                ),
+                InkWell(
+                  onTap: () => item.tap(context),
+                  borderRadius: BorderRadius.circular(24),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TIcon.raw(item.icon ?? HugeIcons.strokeRoundedCircle, color: contentColor, size: 24),
+                        const SizedBox(height: 4),
+                        Text(item.text ?? '',
+                            style: TextStyle(color: contentColor, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      InkWell(
+                        onTap: onOpenMore,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: TIcon.raw(HugeIcons.strokeRoundedMoreHorizontal, color: colors.onSurfaceVariant, size: 24),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }

@@ -235,7 +235,13 @@ class TInputFieldTheme {
   }
 
   Color resolveBackgroundColor(BuildContext context, Set<WidgetState> states) {
-    return backgroundColor != null ? backgroundColor!.resolve(states) : _defaultBackgroundColor(decorationType, states, context);
+    final c = backgroundColor != null ? backgroundColor!.resolve(states) : _defaultBackgroundColor(decorationType, states, context);
+    // Glass: fields get a light, frosted overlay instead of a (dark) translucent tonal surface.
+    if (TGlassStyle.resolve(context) != null && c.a != 0) {
+      final dark = context.colors.isDarkMode;
+      return states.contains(WidgetState.error) ? TGlassStyle.surface(context, c) : Colors.white.withAlpha(dark ? 24 : 150);
+    }
+    return c;
   }
 
   static Color _defaultBackgroundColor(TInputDecorationType decorationType, Set<WidgetState> states, BuildContext context) {

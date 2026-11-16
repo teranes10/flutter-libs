@@ -134,11 +134,7 @@ TCopyable.text(
             icon: HugeIcons.strokeRoundedKey01,
             preview: Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.3)),
-              ),
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

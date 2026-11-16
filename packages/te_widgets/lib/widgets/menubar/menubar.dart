@@ -55,37 +55,46 @@ class TMenubar extends StatelessWidget {
       offset: 0,
     );
 
-    return Container(
-      height: 36,
-      decoration: BoxDecoration(
+    final glass = TGlassStyle.resolve(context) != null;
+
+    // Glass: a blurred translucent bar with a light bottom divider replaces the opaque strip.
+    return TGlassBar.wrap(context,
         color: colors.surface,
-        border: Border(bottom: BorderSide(color: colors.outlineVariant)),
-      ),
-      child: Row(
-        children: [
-          for (final menu in menus)
-            if (!context.authResolve(menu.permission, target: TAuthTarget.menuItem, onDenied: menu.onDenied).isHidden)
-              Opacity(
-                opacity: context.authResolve(menu.permission, target: TAuthTarget.menuItem, onDenied: menu.onDenied).isDisabled ? 0.45 : 1,
-                child: TMenuRootTrigger<TDropdownItem>(
-                  items: context.authResolve(menu.permission, target: TAuthTarget.menuItem, onDenied: menu.onDenied).isDisabled
-                      ? const []
-                      : menu.items,
-                  theme: menuTheme,
-                  triggerMode: TMenuTriggerMode.hover,
-                  child: Container(
-                    height: 36,
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    alignment: Alignment.center,
-                    child: Text(
-                      menu.label,
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurface),
+        dividerOnTop: false,
+        child: Container(
+          height: 36,
+          decoration: glass
+              ? null
+              : BoxDecoration(
+                  color: colors.surface,
+                  border: Border(bottom: BorderSide(color: colors.outlineVariant)),
+                ),
+          child: Row(
+            children: [
+              for (final menu in menus)
+                if (!context.authResolve(menu.permission, target: TAuthTarget.menuItem, onDenied: menu.onDenied).isHidden)
+                  Opacity(
+                    opacity:
+                        context.authResolve(menu.permission, target: TAuthTarget.menuItem, onDenied: menu.onDenied).isDisabled ? 0.45 : 1,
+                    child: TMenuRootTrigger<TDropdownItem>(
+                      items: context.authResolve(menu.permission, target: TAuthTarget.menuItem, onDenied: menu.onDenied).isDisabled
+                          ? const []
+                          : menu.items,
+                      theme: menuTheme,
+                      triggerMode: TMenuTriggerMode.hover,
+                      child: Container(
+                        height: 36,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                        alignment: Alignment.center,
+                        child: Text(
+                          menu.label,
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurface),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-        ],
-      ),
-    );
+            ],
+          ),
+        ));
   }
 }

@@ -73,11 +73,13 @@ class _TRichTextFieldState extends State<TRichTextField>
 
   int _tab = 0;
 
-  QuillSimpleToolbarConfig _toolbarConfig() {
+  QuillSimpleToolbarConfig _toolbarConfig(BuildContext context) {
     final text = _tab == 0;
     final paragraph = _tab == 1;
     final insert = _tab == 2;
     return QuillSimpleToolbarConfig(
+      // Glass: the toolbar's default opaque canvas colour would cover the glass field behind it.
+      color: TGlassStyle.resolve(context) != null ? Colors.transparent : null,
       multiRowsDisplay: false,
       toolbarRunSpacing: 0,
       toolbarSectionSpacing: 0,
@@ -159,10 +161,10 @@ class _TRichTextFieldState extends State<TRichTextField>
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: QuillSimpleToolbar(controller: quillController, config: _toolbarConfig()),
+              child: QuillSimpleToolbar(controller: quillController, config: _toolbarConfig(context)),
             ),
           ],
-          const Divider(height: 1),
+          Divider(height: 1, color: TGlassStyle.resolve(context) != null ? context.colors.outlineVariant : null),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             child: QuillEditor.basic(

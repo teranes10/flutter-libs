@@ -270,10 +270,13 @@ class _TCopyableState extends State<TCopyable> {
       content = Container(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
         decoration: BoxDecoration(
-          color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+          // Glass: a light wash instead of a half-opaque dark surface.
+          color: TGlassStyle.resolve(context) != null
+              ? colors.onSurface.withAlpha(colors.isDarkMode ? 24 : 16)
+              : colors.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(6.0),
           border: Border.all(
-            color: colors.outlineVariant.withValues(alpha: 0.4),
+            color: TGlassStyle.resolve(context)?.fieldEdge(context).withAlpha(140) ?? colors.outlineVariant.withValues(alpha: 0.4),
             width: 1.0,
           ),
         ),

@@ -50,9 +50,9 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
       constraints: BoxConstraints(minHeight: theme.dropzoneHeight),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: theme.dropzoneColor ?? (isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
+        color: theme.dropzoneColor ?? TGlassStyle.surface(context, isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.dropzoneBorderColor ?? colors.outlineVariant.withValues(alpha: 0.8), width: 1.5),
+        border: Border.all(color: theme.dropzoneBorderColor ?? TGlassStyle.resolve(context)?.fieldEdge(context) ?? colors.outlineVariant.withValues(alpha: 0.8), width: 1.5),
       ),
       child: Center(
         child: Column(
@@ -87,10 +87,10 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
         constraints: BoxConstraints(minHeight: theme.dropzoneHeight),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         decoration: BoxDecoration(
-          color: theme.dropzoneColor ?? (isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
+          color: theme.dropzoneColor ?? TGlassStyle.surface(context, isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: theme.dropzoneBorderColor ?? colors.outlineVariant.withValues(alpha: 0.8),
+            color: theme.dropzoneBorderColor ?? TGlassStyle.resolve(context)?.fieldEdge(context) ?? colors.outlineVariant.withValues(alpha: 0.8),
             width: 1.5,
             strokeAlign: BorderSide.strokeAlignCenter,
           ),
@@ -166,7 +166,7 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow,
+        color: TGlassStyle.surface(context, isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
       ),

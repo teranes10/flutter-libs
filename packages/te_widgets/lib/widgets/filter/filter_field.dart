@@ -581,65 +581,76 @@ class _TFilterFieldState<T> extends State<TFilterField<T>>
       onTap: (widget.disabled || widget.readOnly) ? null : () => _removeRule(index),
     );
 
-    return Container(
-      key: ValueKey('filter_rule_${index}_${rule.fieldKey}'),
-      margin: EdgeInsets.only(bottom: filterTheme.rowGap),
-      padding: filterTheme.rulePadding,
-      decoration: hasRuleDecoration
-          ? BoxDecoration(
-              color: ruleBg,
-              borderRadius: BorderRadius.circular(filterTheme.ruleBorderRadius),
-              border: ruleBorder != null ? Border.all(color: ruleBorder) : null,
-            )
-          : null,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isNarrow = constraints.maxWidth < 380;
+    final ruleGlass = TGlassStyle.resolve(context) != null;
+    final ruleRadius = BorderRadius.circular(filterTheme.ruleBorderRadius);
+    return Padding(
+        key: ValueKey('filter_rule_${index}_${rule.fieldKey}'),
+        padding: EdgeInsets.only(bottom: filterTheme.rowGap),
+        child: _glassPanel(
+            context,
+            ruleBg,
+            ruleRadius,
+            Container(
+              padding: filterTheme.rulePadding,
+              decoration: hasRuleDecoration
+                  ? BoxDecoration(
+                      color: ruleGlass ? null : ruleBg,
+                      borderRadius: ruleRadius,
+                      border: ruleBorder != null && !ruleGlass ? Border.all(color: ruleBorder) : null,
+                    )
+                  : null,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isNarrow = constraints.maxWidth < 380;
 
-          if (isNarrow) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(child: fieldSelect),
-                    SizedBox(width: filterTheme.fieldGap),
-                    operatorDropdown,
-                    SizedBox(width: filterTheme.fieldGap),
-                    deleteButton,
-                  ],
-                ),
-                if (!op.isNullOperator) ...[
-                  SizedBox(height: filterTheme.fieldGap),
-                  _buildValueInput(index, rule, def, smallTextTheme, smallTagsTheme, themeData),
-                ],
-              ],
-            );
-          }
+                  if (isNarrow) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(child: fieldSelect),
+                            SizedBox(width: filterTheme.fieldGap),
+                            operatorDropdown,
+                            SizedBox(width: filterTheme.fieldGap),
+                            deleteButton,
+                          ],
+                        ),
+                        if (!op.isNullOperator) ...[
+                          SizedBox(height: filterTheme.fieldGap),
+                          _buildValueInput(index, rule, def, smallTextTheme, smallTagsTheme, themeData),
+                        ],
+                      ],
+                    );
+                  }
 
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(flex: 5, child: fieldSelect),
-              SizedBox(width: filterTheme.fieldGap),
-              operatorDropdown,
-              if (!op.isNullOperator) ...[
-                SizedBox(width: filterTheme.fieldGap),
-                Expanded(
-                  flex: 6,
-                  child: _buildValueInput(index, rule, def, smallTextTheme, smallTagsTheme, themeData),
-                ),
-              ],
-              SizedBox(width: filterTheme.fieldGap),
-              deleteButton,
-            ],
-          );
-        },
-      ),
-    );
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(flex: 5, child: fieldSelect),
+                      SizedBox(width: filterTheme.fieldGap),
+                      operatorDropdown,
+                      if (!op.isNullOperator) ...[
+                        SizedBox(width: filterTheme.fieldGap),
+                        Expanded(
+                          flex: 6,
+                          child: _buildValueInput(index, rule, def, smallTextTheme, smallTagsTheme, themeData),
+                        ),
+                      ],
+                      SizedBox(width: filterTheme.fieldGap),
+                      deleteButton,
+                    ],
+                  );
+                },
+              ),
+            )));
   }
+
+  /// Glass mode: a configured [bg] becomes a blurred glass panel; without one (or with glass off) [child] is returned as is.
+  Widget _glassPanel(BuildContext context, Color? bg, BorderRadius radius, Widget child) =>
+      bg == null ? child : TGlassSurface.wrap(context, radius: radius, color: bg, child: child);
 
   @override
   Widget build(BuildContext context) {
@@ -650,123 +661,133 @@ class _TFilterFieldState<T> extends State<TFilterField<T>>
     final cardBorder = filterTheme.borderColor;
     final hasCardDecoration = cardBg != null || cardBorder != null;
 
-    return Container(
-      decoration: hasCardDecoration
-          ? BoxDecoration(
-              color: cardBg,
-              borderRadius: BorderRadius.circular(filterTheme.borderRadius),
-              border: cardBorder != null ? Border.all(color: cardBorder) : null,
-            )
-          : null,
-      padding: filterTheme.padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Header Bar
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final glass = TGlassStyle.resolve(context);
+    final cardRadius = BorderRadius.circular(filterTheme.borderRadius);
+
+    // Glass: a configured background becomes a blurred glass panel (its own edge replaces the border).
+    return _glassPanel(
+        context,
+        cardBg,
+        cardRadius,
+        Container(
+          decoration: hasCardDecoration
+              ? BoxDecoration(
+                  color: glass != null ? null : cardBg,
+                  borderRadius: cardRadius,
+                  border: cardBorder != null && glass == null ? Border.all(color: cardBorder) : null,
+                )
+              : null,
+          padding: filterTheme.padding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TBadge.count(
-                count: _rules.length,
-                offset: Offset(14, 4),
-                size: TBadgeSize.sm,
-                child: widget.label == null || widget.label!.isEmpty
-                    ? SizedBox.shrink()
-                    : Text(
-                        widget.label!,
-                        style: themeData.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: themeData.colorScheme.onSurface,
+              // Header Bar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TBadge.count(
+                    count: _rules.length,
+                    offset: Offset(14, 4),
+                    size: TBadgeSize.sm,
+                    child: widget.label == null || widget.label!.isEmpty
+                        ? SizedBox.shrink()
+                        : Text(
+                            widget.label!,
+                            style: themeData.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: themeData.colorScheme.onSurface,
+                            ),
+                          ),
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.showClearAll && _rules.isNotEmpty && !widget.disabled && !widget.readOnly) ...[
+                        TButton(
+                          type: TButtonType.softText,
+                          size: TButtonSize.xs,
+                          text: widget.clearAllLabel,
+                          icon: HugeIcons.strokeRoundedCancel01,
+                          color: themeData.colorScheme.onSurfaceVariant,
+                          onTap: _clearAllRules,
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      if (!widget.disabled && !widget.readOnly)
+                        TButton(
+                          type: TButtonType.tonal,
+                          size: TButtonSize.xs,
+                          text: widget.addFilterLabel,
+                          icon: HugeIcons.strokeRoundedAdd01,
+                          onTap: _addRule,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+
+              if (widget.helperText != null) ...[
+                const SizedBox(height: 3),
+                Text(
+                  widget.helperText!,
+                  style: themeData.textTheme.bodySmall?.copyWith(
+                    color: themeData.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 20),
+
+              // Rules List or Empty State
+              if (_rules.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: TGlassStyle.resolve(context) != null
+                        ? themeData.colorScheme.onSurface.withAlpha(18)
+                        : themeData.colorScheme.surfaceContainerHighest.withAlpha(50),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TIcon.raw(
+                        HugeIcons.strokeRoundedFilter,
+                        size: 28,
+                        color: themeData.colorScheme.onSurfaceVariant.withAlpha(150),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.emptyLabel,
+                        style: themeData.textTheme.bodyMedium?.copyWith(
+                          color: themeData.colorScheme.onSurfaceVariant,
                         ),
                       ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.showClearAll && _rules.isNotEmpty && !widget.disabled && !widget.readOnly) ...[
-                    TButton(
-                      type: TButtonType.softText,
-                      size: TButtonSize.xs,
-                      text: widget.clearAllLabel,
-                      icon: HugeIcons.strokeRoundedCancel01,
-                      color: themeData.colorScheme.onSurfaceVariant,
-                      onTap: _clearAllRules,
-                    ),
-                    const SizedBox(width: 8),
+                      if (!widget.disabled && !widget.readOnly) ...[
+                        const SizedBox(height: 12),
+                        TButton(
+                          type: TButtonType.text,
+                          size: TButtonSize.sm,
+                          icon: HugeIcons.strokeRoundedAdd01,
+                          text: widget.addFilterLabel,
+                          onTap: _addRule,
+                        ),
+                      ],
+                    ],
+                  ),
+                )
+              else
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < _rules.length; i++) _buildRuleRow(i, _rules[i], themeData, filterTheme),
                   ],
-                  if (!widget.disabled && !widget.readOnly)
-                    TButton(
-                      type: TButtonType.tonal,
-                      size: TButtonSize.xs,
-                      text: widget.addFilterLabel,
-                      icon: HugeIcons.strokeRoundedAdd01,
-                      onTap: _addRule,
-                    ),
-                ],
-              ),
+                ),
             ],
           ),
-
-          if (widget.helperText != null) ...[
-            const SizedBox(height: 3),
-            Text(
-              widget.helperText!,
-              style: themeData.textTheme.bodySmall?.copyWith(
-                color: themeData.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 20),
-
-          // Rules List or Empty State
-          if (_rules.isEmpty)
-            Container(
-              padding: const EdgeInsets.all(12),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: themeData.colorScheme.surfaceContainerHighest.withAlpha(50),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TIcon.raw(
-                    HugeIcons.strokeRoundedFilter,
-                    size: 28,
-                    color: themeData.colorScheme.onSurfaceVariant.withAlpha(150),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.emptyLabel,
-                    style: themeData.textTheme.bodyMedium?.copyWith(
-                      color: themeData.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  if (!widget.disabled && !widget.readOnly) ...[
-                    const SizedBox(height: 12),
-                    TButton(
-                      type: TButtonType.text,
-                      size: TButtonSize.sm,
-                      icon: HugeIcons.strokeRoundedAdd01,
-                      text: widget.addFilterLabel,
-                      onTap: _addRule,
-                    ),
-                  ],
-                ],
-              ),
-            )
-          else
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (var i = 0; i < _rules.length; i++) _buildRuleRow(i, _rules[i], themeData, filterTheme),
-              ],
-            ),
-        ],
-      ),
-    );
+        ));
   }
 }

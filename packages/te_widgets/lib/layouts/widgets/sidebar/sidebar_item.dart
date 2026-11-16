@@ -169,6 +169,10 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
     TMenuOverlayController.show(1, _overlayController);
   }
 
+  /// Glass mode: a primary tint instead of the opaque container, so the backdrop shows through.
+  Color _activeBg(BuildContext context) =>
+      TGlassStyle.resolve(context) != null ? context.colors.primary.withAlpha(context.colors.isDarkMode ? 90 : 48) : widget.theme.activeBackgroundColor;
+
   @override
   Widget build(BuildContext context) {
     if (widget.item.isHiddenIn(context)) return const SizedBox.shrink();
@@ -290,7 +294,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isCurrentRoute ? widget.theme.activeBackgroundColor : colors.surfaceContainerHigh,
+                  color: isCurrentRoute ? _activeBg(context) : TGlassStyle.surface(context, colors.surfaceContainerHigh),
                 ),
                 child: widget.item.icon != null
                     ? TIcon(icon: widget.item.icon, size: widget.theme.iconSize, color: color)
@@ -315,7 +319,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
           padding: widget.level == 0 ? widget.theme.itemPadding : widget.theme.childPadding,
           margin: isCurrentRoute ? const EdgeInsets.fromLTRB(8, 8, 12, 8) : const EdgeInsets.only(left: 8, right: 12),
           decoration: BoxDecoration(
-            color: isCurrentRoute ? widget.theme.activeBackgroundColor : null,
+            color: isCurrentRoute ? _activeBg(context) : null,
             borderRadius: BorderRadius.circular(8),
           ),
           child: _buildItemContent(isCurrentRoute, containsCurrentRoute),

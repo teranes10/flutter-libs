@@ -62,7 +62,7 @@ class TSideSheet extends StatelessWidget {
       height: heightMode == TSheetHeightMode.shrinkWrap ? null : double.infinity,
       constraints: heightMode == TSheetHeightMode.shrinkWrap ? BoxConstraints(maxHeight: screenSize.height) : null,
       decoration: BoxDecoration(
-        color: effectiveBg,
+        color: TGlassStyle.resolve(context) != null ? null : effectiveBg,
         borderRadius: defaultBorderRadius,
         boxShadow: [
           BoxShadow(
@@ -76,11 +76,16 @@ class TSideSheet extends StatelessWidget {
           right: fromLeft ? BorderSide(color: colors.outlineVariant.withValues(alpha: 0.5)) : BorderSide.none,
         ),
       ),
-      child: ClipRRect(
-        borderRadius: defaultBorderRadius,
-        child: TBackgroundColorScope(
-          backgroundColor: effectiveBg,
-          child: layoutBuilder != null ? layoutBuilder!(context, child) : _layout(context, colors),
+      child: TGlassSurface.wrap(
+        context,
+        radius: defaultBorderRadius,
+        color: effectiveBg,
+        child: ClipRRect(
+          borderRadius: defaultBorderRadius,
+          child: TBackgroundColorScope(
+            backgroundColor: effectiveBg,
+            child: layoutBuilder != null ? layoutBuilder!(context, child) : _layout(context, colors),
+          ),
         ),
       ),
     );

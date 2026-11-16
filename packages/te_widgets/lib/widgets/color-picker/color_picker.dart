@@ -92,7 +92,7 @@ class _TColorPickerState extends State<TColorPicker>
         shape: BoxShape.circle,
         color: hasValue ? selectedColor : null,
         border: Border.all(
-          color: hasValue ? colors.primary : colors.outlineVariant,
+          color: hasValue ? colors.primary : (TGlassStyle.resolve(context)?.fieldEdge(context) ?? colors.outlineVariant),
           width: hasValue ? 3 : 1,
         ),
         gradient: !hasValue
@@ -444,7 +444,7 @@ class _TColorPickerPanelState extends State<TColorPickerPanel> {
               height: 36,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: colors.outlineVariant),
+                border: Border.all(color: TGlassStyle.resolve(context)?.fieldEdge(context) ?? colors.outlineVariant),
                 color: _color,
               ),
             ),
@@ -460,7 +460,16 @@ class _TColorPickerPanelState extends State<TColorPickerPanel> {
                 decoration: InputDecoration(
                   isDense: true,
                   prefixText: '#',
+                  // Glass: frosted fill and a visible edge, like the other glass fields.
+                  filled: TGlassStyle.resolve(context) != null,
+                  fillColor: Colors.white.withAlpha(colors.isDarkMode ? 24 : 150),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  enabledBorder: TGlassStyle.resolve(context) == null
+                      ? null
+                      : OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: TGlassStyle.resolve(context)!.fieldEdge(context)),
+                        ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 ),
               ),
@@ -497,7 +506,9 @@ class _TColorPickerPanelState extends State<TColorPickerPanel> {
                       color: c,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: c.toARGB32() == _color.toARGB32() ? colors.onSurface : colors.outlineVariant,
+                        color: c.toARGB32() == _color.toARGB32()
+                            ? colors.onSurface
+                            : (TGlassStyle.resolve(context)?.fieldEdge(context) ?? colors.outlineVariant),
                         width: c.toARGB32() == _color.toARGB32() ? 2 : 1,
                       ),
                     ),

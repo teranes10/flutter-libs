@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/models/demo_product.dart';
 import 'package:te_widgets/te_widgets.dart';
-import 'tables_bottom_page.dart';
 
 class TablesSidePage extends StatefulWidget {
   const TablesSidePage({super.key});
@@ -26,40 +26,24 @@ class _TablesSidePageState extends State<TablesSidePage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    final headers = [
-      TTableHeader<DemoProduct, String>.image("Image", (x) => x.imageUrl, width: 60),
-      TTableHeader<DemoProduct, String>.map("Name", (x) => x.name),
-      TTableHeader<DemoProduct, String>.map("Category", (x) => x.category),
-      TTableHeader<DemoProduct, String>.rating("Rating", (x) => x.rating),
-      TTableHeader<DemoProduct, String>.chip(
-        "StockStatus",
-        (x) => x.stock > 10 ? 'In Stock (${x.stock})' : 'Low Stock (${x.stock})',
-        color: (x) => x.stock > 10 ? context.theme.success : context.theme.danger,
-      ),
-      TTableHeader<DemoProduct, String>.map("Price", (x) => '\$${x.price.toStringAsFixed(2)}'),
-    ];
-
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        key: const ValueKey('tables_side_container'),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Row Expansion: Side Mode',
-              style: context.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: colors.onSurface),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Expands the row details into a dedicated side panel drawer. Ideal for desktop views when inspecting complex data objects with multiple tabs.',
-              style: context.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
-            ),
-            const SizedBox(height: 24),
-            TTable<DemoProduct, String>(
-              headers: headers,
+    // The side panel needs the table to fill the page height, so this page lays out its own header instead of using a
+    // scrolling TPageWrapper.
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      key: const ValueKey('tables_side_container'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const TTile.h4(
+            title: 'Row Expansion: Side Mode',
+            subtitle:
+                'Expands the row details into a dedicated side panel drawer. Ideal for desktop views when inspecting complex data objects with multiple tabs.',
+            padding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: TTable<DemoProduct, String>(
+              headers: demoProductHeaders(context),
               controller: _controller,
               details: TTableDetails(
                 mode: TTableExpansionMode.side,
@@ -67,6 +51,7 @@ class _TablesSidePageState extends State<TablesSidePage> {
                 itemSubTitle: (x) => x.category,
                 itemImageUrl: (x) => x.imageUrl,
                 itemDescription: (x) => x.description,
+                itemHighlights: (x) => [x.stockStatus.toChip(context, stock: x.stock)],
                 builder: (ctx, item, index) {
                   final product = item.data;
                   return TRowExpandedBuilder.tabs(
@@ -91,9 +76,7 @@ class _TablesSidePageState extends State<TablesSidePage> {
                         text: 'Specs',
                         content: (ctx) => SingleChildScrollView(
                           padding: const EdgeInsets.all(16),
-                          child: TKeyValueSection(
-                            values: [TKeyValue.text('Warranty', product.warranty), TKeyValue.text('Description', product.description)],
-                          ),
+                          child: TKeyValueSection(values: [TKeyValue.text('Warranty', product.warranty)]),
                         ),
                       ),
                     ],
@@ -101,8 +84,8 @@ class _TablesSidePageState extends State<TablesSidePage> {
                 },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

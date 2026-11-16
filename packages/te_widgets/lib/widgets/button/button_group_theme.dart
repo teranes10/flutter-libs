@@ -89,17 +89,24 @@ class TButtonGroupTheme {
       borderRadius: borderRadius,
       enableBoxedMode: enableBoxedMode || type == TButtonGroupType.boxed || type == TButtonGroupType.segmented,
       boxedPadding: EdgeInsets.all(type == TButtonGroupType.segmented ? 3 : 2),
-      boxedDecoration: type == TButtonGroupType.segmented
+      boxedDecoration: type == TButtonGroupType.segmented && TGlassStyle.resolve(context) != null
+          // Glass: a faint dark/light wash with a visible edge; the opaque dim track reads as a slab over the backdrop.
           ? BoxDecoration(
-              color: colors.surfaceDim,
-              // border: Border.all(color: colors.outline.withAlpha(30)),
+              color: colors.onSurface.withAlpha(colors.isDarkMode ? 22 : 18),
+              border: Border.all(color: TGlassStyle.resolve(context)!.fieldEdge(context).withAlpha(120)),
               borderRadius: BorderRadius.circular(borderRadius + 3),
-              boxShadow: TShadow.xs.resolve(TShadow.baseColor),
             )
-          : BoxDecoration(
-              border: Border.all(color: colors.outline),
-              borderRadius: BorderRadius.circular(borderRadius + 2),
-            ),
+          : type == TButtonGroupType.segmented
+              ? BoxDecoration(
+                  color: colors.surfaceDim,
+                  // border: Border.all(color: colors.outline.withAlpha(30)),
+                  borderRadius: BorderRadius.circular(borderRadius + 3),
+                  boxShadow: TShadow.xs.resolve(TShadow.baseColor),
+                )
+              : BoxDecoration(
+                  border: Border.all(color: colors.outline),
+                  borderRadius: BorderRadius.circular(borderRadius + 2),
+                ),
       separatorWidth: 0.25,
       separatorColor: colors.outline,
     );

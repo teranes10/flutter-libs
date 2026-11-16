@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/clients/products_client.dart';
 import 'package:my_app/models/product_dto.dart';
+import 'package:my_app/pages/crud/product_detail_panel.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 class CrudPage extends StatelessWidget {
@@ -175,155 +176,10 @@ class CrudPage extends StatelessWidget {
         TKeyValue.text('Price', '\$${item.price.toStringAsFixed(2)}'),
         TKeyValue.text('Rating', '${item.rating} / 5.0'),
       ],
-      expandedBuilder: (ctx, item, index) {
-        final data = item.data;
-        final mockReviews = const [
-          _Review('John Doe', 5, 'Excellent product, highly recommended!'),
-          _Review('Jane Smith', 4, 'Very good quality, but shipping took a while.'),
-          _Review('Bob Johnson', 3, 'Decent, but a bit overpriced.'),
-        ];
-
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 1. General Product Information Card
-              TCard(
-                title: 'Product Information',
-                icon: HugeIcons.strokeRoundedInformationCircle,
-                trailing: TChip(text: data.category.toUpperCase(), type: TVariant.tonal),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TKeyValueSection.columnsInline(
-                      gap: 12,
-                      hSpacing: 20,
-                      vSpacing: 10,
-                      values: [
-                        TKeyValue.text('Title', data.title),
-                        TKeyValue.text('SKU', data.sku),
-                        TKeyValue.text('Category', data.category),
-                        TKeyValue.text('Price', '\$${data.price.toStringAsFixed(2)}'),
-                        TKeyValue.text('Discount', '${data.discountPercentage}%'),
-                        TKeyValue.text('Rating', '${data.rating} / 5.0'),
-                        TKeyValue.text('Barcode', data.meta?.barcode),
-                        TKeyValue.datetime('Created At', data.meta?.createdAt),
-                        TKeyValue.datetime('Updated At', data.meta?.updatedAt),
-                      ],
-                    ),
-                    if (data.description.isNotEmpty || data.meta?.qrCode != null) ...[
-                      const SizedBox(height: 12),
-                      Divider(height: 1, color: ctx.colors.outlineVariant.withAlpha(80)),
-                      const SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (data.meta?.qrCode != null) ...[
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'QR Code',
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: ctx.colors.onSurfaceVariant),
-                                ),
-                                const SizedBox(height: 6),
-                                TImage(
-                                  url: data.meta!.qrCode,
-                                  size: 64,
-                                  border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 16),
-                          ],
-                          if (data.description.isNotEmpty)
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Description',
-                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: ctx.colors.onSurfaceVariant),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(data.description, style: TextStyle(fontSize: 13, color: ctx.colors.onSurface, height: 1.4)),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 2. Inventory & Stock Distribution Card
-              TCard(
-                title: 'Stock & Warehouses',
-                icon: HugeIcons.strokeRoundedWarehouse,
-                trailing: TChip(
-                  text: '${data.stock} Units',
-                  type: TVariant.tonal,
-                  color: data.stock > 0 ? ctx.colors.primary : ctx.colors.error,
-                ),
-                child: TKeyValueSection.columnsInline(
-                  values: [
-                    TKeyValue.text('Total Stock', '${data.stock} units'),
-                    TKeyValue.text('SKU', data.sku),
-                    TKeyValue.text('Warehouse A (60%)', '${(data.stock * 0.6).round()} units'),
-                    TKeyValue.text('Warehouse B (40%)', '${(data.stock * 0.4).round()} units'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 3. Product Gallery Card
-              TCard(
-                title: 'Product Gallery',
-                subtitle: (data.images != null && data.images!.isNotEmpty) ? '${data.images!.length} images' : 'No images available',
-                icon: HugeIcons.strokeRoundedLibrary,
-                child: data.images == null || data.images!.isEmpty
-                    ? Text('No images available', style: TextStyle(color: ctx.colors.onSurfaceVariant))
-                    : Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: data.images!
-                            .map(
-                              (img) => TImage(
-                                url: img,
-                                size: 100,
-                                border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                            )
-                            .toList(),
-                      ),
-              ),
-              const SizedBox(height: 16),
-
-              // 4. Customer Reviews Card
-              TCard(
-                title: 'Customer Reviews',
-                subtitle: '${mockReviews.length} reviews',
-                icon: HugeIcons.strokeRoundedChatPreview,
-                child: TDataTable<_Review, int>(
-                  shrinkWrap: true,
-                  headers: [
-                    TTableHeader('Reviewer', map: (r) => r.reviewer),
-                    TTableHeader.rating('Rating', (r) => r.rating.toDouble()),
-                    TTableHeader('Comment', map: (r) => r.comment),
-                  ],
-                  items: mockReviews,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+      expandedBuilder: (ctx, item, index) => ProductDetailPanel(product: item.data),
       rowColorBuilder: (item, index) {
-        if (item.data.stock < 5) return Colors.red.withAlpha(15);
-        if (item.data.stock < 10) return Colors.orange.withAlpha(15);
+        if (item.data.stock < 5) return AppColors.danger.withAlpha(15);
+        if (item.data.stock < 10) return AppColors.warning.withAlpha(15);
         return null; // Use default background color
       },
       controller: controller,
@@ -411,11 +267,4 @@ class ProductForm extends TFormBase {
       TFormField.text(description, 'Description', rows: 3),
     ];
   }
-}
-
-class _Review {
-  final String reviewer;
-  final int rating;
-  final String comment;
-  const _Review(this.reviewer, this.rating, this.comment);
 }

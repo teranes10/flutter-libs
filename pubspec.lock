@@ -161,14 +161,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.5"
-  calendar_date_picker2:
-    dependency: transitive
-    description:
-      name: calendar_date_picker2
-      sha256: d500d9a1c950d388232c0fe612cbcfe225e0f3e3acea2119a531e5800773146f
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0"
   characters:
     dependency: transitive
     description:

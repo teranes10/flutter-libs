@@ -162,71 +162,75 @@ class _TSignaturePadState extends State<TSignaturePad> {
       .._penColor = pen
       .._penWidth = widget.penWidth;
 
-    return Container(
-      height: widget.height,
-      decoration: BoxDecoration(
+    final glass = TGlassStyle.resolve(context) != null;
+    return TGlassSurface.wrap(context,
+        radius: BorderRadius.circular(12),
         color: colors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.outlineVariant),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          _controller._size = constraints.biggest;
+        child: Container(
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: glass ? null : colors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: glass ? null : Border.all(color: colors.outlineVariant),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              _controller._size = constraints.biggest;
 
-          return Stack(
-            children: [
-              RawGestureDetector(
-                behavior: HitTestBehavior.opaque,
-                gestures: {
-                  EagerGestureRecognizer: GestureRecognizerFactoryWithHandlers<EagerGestureRecognizer>(
-                    EagerGestureRecognizer.new,
-                    (_) {},
-                  ),
-                },
-                child: Listener(
-                  onPointerDown: (e) => _controller._startStroke(e.localPosition),
-                  onPointerMove: (e) => _controller._extendStroke(e.localPosition),
-                  child: CustomPaint(
-                    size: Size.infinite,
-                    painter: _SignaturePainter(
-                      strokes: _controller._strokes,
-                      color: pen,
-                      width: widget.penWidth,
-                      repaint: _controller,
+              return Stack(
+                children: [
+                  RawGestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    gestures: {
+                      EagerGestureRecognizer: GestureRecognizerFactoryWithHandlers<EagerGestureRecognizer>(
+                        EagerGestureRecognizer.new,
+                        (_) {},
+                      ),
+                    },
+                    child: Listener(
+                      onPointerDown: (e) => _controller._startStroke(e.localPosition),
+                      onPointerMove: (e) => _controller._extendStroke(e.localPosition),
+                      child: CustomPaint(
+                        size: Size.infinite,
+                        painter: _SignaturePainter(
+                          strokes: _controller._strokes,
+                          color: pen,
+                          width: widget.penWidth,
+                          repaint: _controller,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              if (_controller.isEmpty)
-                IgnorePointer(
-                  child: Center(
-                    child: Text(widget.hint, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: colors.outline)),
+                  if (_controller.isEmpty)
+                    IgnorePointer(
+                      child: Center(
+                        child: Text(widget.hint, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: colors.outline)),
+                      ),
+                    ),
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 30,
+                    child: IgnorePointer(child: Divider(height: 1, color: colors.outlineVariant)),
                   ),
-                ),
-              Positioned(
-                left: 16,
-                right: 16,
-                bottom: 30,
-                child: IgnorePointer(child: Divider(height: 1, color: colors.outlineVariant)),
-              ),
-              if (widget.showClear && _controller.isNotEmpty)
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: TButton(
-                    text: 'Clear',
-                    icon: HugeIcons.strokeRoundedRefresh,
-                    type: TButtonType.text,
-                    color: context.theme.danger,
-                    onTap: _controller.clear,
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
-    );
+                  if (widget.showClear && _controller.isNotEmpty)
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: TButton(
+                        text: 'Clear',
+                        icon: HugeIcons.strokeRoundedRefresh,
+                        type: TButtonType.text,
+                        color: context.theme.danger,
+                        onTap: _controller.clear,
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ));
   }
 }
 

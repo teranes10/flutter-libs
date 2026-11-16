@@ -101,6 +101,9 @@ class TMetricTile extends StatelessWidget {
   /// If true, renders a more compact horizontal layout.
   final bool compact;
 
+  /// Liquid-glass mode: true forces it, false disables it, null follows [TWidgetThemeExtension.glass].
+  final bool? glass;
+
   /// Optional tooltip message.
   final String? tooltip;
 
@@ -123,6 +126,7 @@ class TMetricTile extends StatelessWidget {
     this.borderColor,
     this.gradient,
     this.accentGradient = true,
+    this.glass,
     this.labelStyle,
     this.valueStyle,
     this.subtitleStyle,
@@ -196,15 +200,19 @@ class TMetricTile extends StatelessWidget {
               )
             : null);
 
+    final glassStyle = TGlassStyle.resolve(context, glass);
+
     Widget content = Container(
       padding: effectivePadding,
-      decoration: BoxDecoration(
-        color: effectiveGradient == null ? effectiveBgColor : (backgroundColor ?? colors.surface),
-        gradient: effectiveGradient,
-        borderRadius: radius,
-        border: Border.all(color: effectiveBorderColor),
-        boxShadow: [BoxShadow(color: colors.shadow.withAlpha(14), blurRadius: 8, offset: const Offset(0, 2))],
-      ),
+      decoration: glassStyle != null
+          ? null
+          : BoxDecoration(
+              color: effectiveGradient == null ? effectiveBgColor : (backgroundColor ?? colors.surface),
+              gradient: effectiveGradient,
+              borderRadius: radius,
+              border: Border.all(color: effectiveBorderColor),
+              boxShadow: [BoxShadow(color: colors.shadow.withAlpha(14), blurRadius: 8, offset: const Offset(0, 2))],
+            ),
       child: TTile(
         size: TTileSize.h7,
         spacing: compact ? 8 : 12,
@@ -256,6 +264,10 @@ class TMetricTile extends StatelessWidget {
                 : null),
       ),
     );
+
+    if (glassStyle != null) {
+      content = TGlassSurface(style: glassStyle, borderRadius: radius, color: effectiveBgColor, child: content);
+    }
 
     if (onTap != null) {
       content = Material(

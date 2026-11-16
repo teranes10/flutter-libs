@@ -226,27 +226,35 @@ class TTagsFieldTheme extends TTextFieldTheme {
 
   static TagBuilder buildTagBuilder(ColorScheme colors, {double fontSize = 14}) {
     return (tag, onRemove) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.0),
-        decoration: BoxDecoration(color: colors.surfaceContainer, borderRadius: BorderRadius.circular(5.0)),
-        child: IntrinsicWidth(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Text(
-                  tag,
-                  style: TextStyle(color: colors.onSurface, fontSize: fontSize, fontWeight: FontWeight.w400),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
+      return Builder(
+          builder: (context) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 1.0),
+                decoration: BoxDecoration(
+                  // Glass: a light overlay lifts the chip off the backdrop; a dark translucent surface reads as a muddy slab.
+                  color: TGlassStyle.resolve(context) != null
+                      ? colors.onSurface.withAlpha(colors.isDarkMode ? 30 : 22)
+                      : colors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: TGlassStyle.resolve(context) != null ? Border.all(color: TGlassStyle.resolve(context)!.fieldEdge(context)) : null,
                 ),
-              ),
-              const SizedBox(width: 5.0),
-              InkWell(onTap: onRemove, child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 14, color: colors.onSurface)),
-            ],
-          ),
-        ),
-      );
+                child: IntrinsicWidth(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          tag,
+                          style: TextStyle(color: colors.onSurface, fontSize: fontSize, fontWeight: FontWeight.w400),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                      const SizedBox(width: 5.0),
+                      InkWell(onTap: onRemove, child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 14, color: colors.onSurface)),
+                    ],
+                  ),
+                ),
+              ));
     };
   }
 }

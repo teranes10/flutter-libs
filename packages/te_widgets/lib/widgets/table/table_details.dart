@@ -444,16 +444,27 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
     final newBackground = background.adaptiveContrast(context, 0.01);
     final newBorder = newBackground.adaptiveContrast(context, 0.015);
 
-    return Container(
-      padding: EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: newBackground,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: newBorder),
-      ),
-      child: TBackgroundColorScope(
-        backgroundColor: newBackground,
-        child: child,
+    final glass = TGlassStyle.resolve(context) != null;
+    final radius = BorderRadius.circular(12);
+
+    // Glass: a blurred translucent panel (its own edge replaces the border) instead of an opaque dark card.
+    return TGlassSurface.wrap(
+      context,
+      radius: radius,
+      color: background,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: glass
+            ? null
+            : BoxDecoration(
+                color: newBackground,
+                borderRadius: radius,
+                border: Border.all(color: newBorder),
+              ),
+        child: TBackgroundColorScope(
+          backgroundColor: newBackground,
+          child: child,
+        ),
       ),
     );
   }
@@ -730,7 +741,7 @@ extension _TTableDetailsExt<T, K> on _TTableState<T, K> {
               content = TImage(
                 url: imageUrl,
                 size: 45,
-                color: context.colors.surfaceContainerLow,
+                color: TGlassStyle.frost(context, context.colors.surfaceContainerLow),
                 disabled: true,
                 border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                 title: title,
