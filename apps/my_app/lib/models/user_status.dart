@@ -7,8 +7,8 @@ extension UserStatusX on User {
   bool get isActive => status == 'Active';
 
   Color statusColor(BuildContext context) => switch (status) {
-        'Active' => context.theme.success,
-        'Inactive' => context.theme.danger,
-        _ => context.theme.warning,
-      };
+    'Active' => context.theme.success,
+    'Inactive' => context.theme.danger,
+    _ => context.theme.warning,
+  };
 }

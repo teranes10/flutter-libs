@@ -118,10 +118,23 @@ class _PickersPageState extends State<PickersPage> {
   },
 )''',
             properties: const [
-              PropertyDoc(name: 'value / valueNotifier', type: 'DateTimeRange?', description: 'Selected range (controlled or via notifier)'),
+              PropertyDoc(
+                name: 'value / valueNotifier',
+                type: 'DateTimeRange?',
+                description: 'Selected range (controlled or via notifier)',
+              ),
               PropertyDoc(name: 'firstDate / lastDate', type: 'DateTime?', description: 'Selectable bounds'),
-              PropertyDoc(name: 'format', type: 'DateFormat?', defaultValue: "DateFormat('MMM dd, yyyy')", description: 'Format of each end'),
-              PropertyDoc(name: 'onValueChanged', type: 'ValueChanged<DateTimeRange?>?', description: 'Fired when a complete range is picked or cleared'),
+              PropertyDoc(
+                name: 'format',
+                type: 'DateFormat?',
+                defaultValue: "DateFormat('MMM dd, yyyy')",
+                description: 'Format of each end',
+              ),
+              PropertyDoc(
+                name: 'onValueChanged',
+                type: 'ValueChanged<DateTimeRange?>?',
+                description: 'Fired when a complete range is picked or cleared',
+              ),
             ],
           ),
 

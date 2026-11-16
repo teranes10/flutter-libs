@@ -49,7 +49,10 @@ class ProductDetailPanel extends StatelessWidget {
                 ),
                 if (product.meta?.qrCode != null) ...[
                   const TDivider(space: 24),
-                  Text('QR Code', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: colors.onSurfaceVariant)),
+                  Text(
+                    'QR Code',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: colors.onSurfaceVariant),
+                  ),
                   const SizedBox(height: 6),
                   TImage(
                     url: product.meta!.qrCode,
@@ -84,7 +87,11 @@ class ProductDetailPanel extends StatelessWidget {
                     runSpacing: 10,
                     children: [
                       for (final img in images)
-                        TImage(url: img, size: 100, border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                        TImage(
+                          url: img,
+                          size: 100,
+                          border: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
                     ],
                   ),
           ),

@@ -327,10 +327,13 @@ class _FilterFieldPageState extends State<FilterFieldPage> {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               // Glass: a faint wash with a visible edge instead of an opaque code box.
-                              color: TGlassStyle.resolve(context) != null ? theme.colorScheme.onSurface.withAlpha(14) : theme.colorScheme.surface,
+                              color: TGlassStyle.resolve(context) != null
+                                  ? theme.colorScheme.onSurface.withAlpha(14)
+                                  : theme.colorScheme.surface,
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
-                                color: TGlassStyle.resolve(context)?.fieldEdge(context).withAlpha(120) ??
+                                color:
+                                    TGlassStyle.resolve(context)?.fieldEdge(context).withAlpha(120) ??
                                     theme.colorScheme.outlineVariant.withAlpha(100),
                               ),
                             ),

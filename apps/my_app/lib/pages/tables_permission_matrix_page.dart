@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:my_app/models/permission_scope.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-
 class _Role {
   final String name;
   final Color color;
@@ -64,10 +63,18 @@ const _roles = [
     'Create Customers': PermissionScope.shop,
     'View Reports': PermissionScope.shop,
   }),
-  _Role('Receiver', Colors.orange, {'View Products': PermissionScope.shop, 'Create Products': PermissionScope.shop, 'Update Products': PermissionScope.shop}),
+  _Role('Receiver', Colors.orange, {
+    'View Products': PermissionScope.shop,
+    'Create Products': PermissionScope.shop,
+    'Update Products': PermissionScope.shop,
+  }),
   _Role('Admin', Colors.indigo, {}, all: true),
   _Role('Driver', Colors.cyan, {'View Orders': PermissionScope.own}),
-  _Role('Staff', Colors.grey, {'View Orders': PermissionScope.shop, 'View Products': PermissionScope.shop, 'View Customers': PermissionScope.shop}),
+  _Role('Staff', Colors.grey, {
+    'View Orders': PermissionScope.shop,
+    'View Products': PermissionScope.shop,
+    'View Customers': PermissionScope.shop,
+  }),
   _Role('Manager', Colors.blue, {
     'View Orders': PermissionScope.all,
     'Create Orders': PermissionScope.all,

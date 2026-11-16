@@ -28,29 +28,28 @@ class TBottomSheet extends StatelessWidget {
     final colors = context.colors;
 
     const radius = BorderRadius.vertical(top: Radius.circular(20));
-    return TGlassSurface.wrap(
-      context,
-      radius: radius,
-      color: colors.surface,
-      child: Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: TGlassStyle.resolve(context) != null ? null : colors.surface,
-        borderRadius: radius,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (showHandle) _buildHandle(context, colors),
-          if (header != null) header!,
-          if (header == null && (title != null || showCloseButton == true)) _buildHeader(context, colors),
-          Flexible(
-            child: child,
+    return TGlassSurface.wrap(context,
+        radius: radius,
+        color: colors.surface,
+        child: Container(
+          height: height,
+          decoration: BoxDecoration(
+            color: TGlassStyle.resolve(context) != null ? null : colors.surface,
+            borderRadius: radius,
           ),
-          if (footer != null) footer!,
-        ],
-      ),
-    ));
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showHandle) _buildHandle(context, colors),
+              if (header != null) header!,
+              if (header == null && (title != null || showCloseButton == true)) _buildHeader(context, colors),
+              Flexible(
+                child: child,
+              ),
+              if (footer != null) footer!,
+            ],
+          ),
+        ));
   }
 
   Widget _buildHandle(BuildContext context, ColorScheme colors) {

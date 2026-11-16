@@ -52,7 +52,11 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
       decoration: BoxDecoration(
         color: theme.dropzoneColor ?? TGlassStyle.surface(context, isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.dropzoneBorderColor ?? TGlassStyle.resolve(context)?.fieldEdge(context) ?? colors.outlineVariant.withValues(alpha: 0.8), width: 1.5),
+        border: Border.all(
+            color: theme.dropzoneBorderColor ??
+                TGlassStyle.resolve(context)?.fieldEdge(context) ??
+                colors.outlineVariant.withValues(alpha: 0.8),
+            width: 1.5),
       ),
       child: Center(
         child: Column(
@@ -90,7 +94,9 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
           color: theme.dropzoneColor ?? TGlassStyle.surface(context, isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: theme.dropzoneBorderColor ?? TGlassStyle.resolve(context)?.fieldEdge(context) ?? colors.outlineVariant.withValues(alpha: 0.8),
+            color: theme.dropzoneBorderColor ??
+                TGlassStyle.resolve(context)?.fieldEdge(context) ??
+                colors.outlineVariant.withValues(alpha: 0.8),
             width: 1.5,
             strokeAlign: BorderSide.strokeAlignCenter,
           ),

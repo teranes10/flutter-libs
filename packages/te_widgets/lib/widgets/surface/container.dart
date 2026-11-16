@@ -60,20 +60,20 @@ class TContainer extends StatelessWidget {
   }) : assert(color == null || decoration == null, 'Provide either color or decoration, not both.');
 
   Container _build({Widget? child, Color? color, Decoration? decoration, bool pad = true}) => Container(
-    alignment: alignment,
-    padding: pad ? padding : null,
-    margin: margin,
-    color: color,
-    decoration: decoration,
-    foregroundDecoration: foregroundDecoration,
-    width: width,
-    height: height,
-    constraints: constraints,
-    transform: transform,
-    transformAlignment: transformAlignment,
-    clipBehavior: clipBehavior,
-    child: child,
-  );
+        alignment: alignment,
+        padding: pad ? padding : null,
+        margin: margin,
+        color: color,
+        decoration: decoration,
+        foregroundDecoration: foregroundDecoration,
+        width: width,
+        height: height,
+        constraints: constraints,
+        transform: transform,
+        transformAlignment: transformAlignment,
+        clipBehavior: clipBehavior,
+        child: child,
+      );
 
   @override
   Widget build(BuildContext context) {

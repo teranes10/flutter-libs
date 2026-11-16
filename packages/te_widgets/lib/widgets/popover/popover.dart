@@ -309,66 +309,66 @@ class _TPopoverState extends State<TPopover> {
                       radius: effectiveRadius.resolve(Directionality.of(context)),
                       color: effectiveBg,
                       child: Container(
-                      constraints: constraints.contentBox,
-                      decoration: BoxDecoration(
-                        color: TGlassStyle.resolve(context) != null ? null : effectiveBg,
-                        borderRadius: effectiveRadius,
-                        border: TGlassStyle.resolve(context) != null ? null : Border.all(color: effectiveBorder),
-                        boxShadow: [
-                          BoxShadow(
-                            color: colors.shadow.withValues(alpha: isDark ? 0.35 : 0.12),
-                            blurRadius: widget.elevation * 2,
-                            offset: Offset(0, widget.elevation / 2),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: effectiveRadius,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Optional Header
-                            if (widget.title != null || widget.titleWidget != null || widget.showCloseButton) ...[
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(14, 10, 10, 8),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: widget.titleWidget ??
-                                          Text(
-                                            widget.title ?? '',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 13,
-                                              color: colors.onSurface,
-                                            ),
-                                          ),
-                                    ),
-                                    if (widget.showCloseButton)
-                                      InkWell(
-                                        onTap: _hide,
-                                        borderRadius: BorderRadius.circular(4),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 16, color: colors.onSurfaceVariant),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              Divider(height: 1, color: colors.outlineVariant.withValues(alpha: 0.5)),
-                            ],
-
-                            // Content Body
-                            Padding(
-                              padding: widget.padding,
-                              child: widget.builder != null ? widget.builder!(context, _hide) : widget.content!,
+                        constraints: constraints.contentBox,
+                        decoration: BoxDecoration(
+                          color: TGlassStyle.resolve(context) != null ? null : effectiveBg,
+                          borderRadius: effectiveRadius,
+                          border: TGlassStyle.resolve(context) != null ? null : Border.all(color: effectiveBorder),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colors.shadow.withValues(alpha: isDark ? 0.35 : 0.12),
+                              blurRadius: widget.elevation * 2,
+                              offset: Offset(0, widget.elevation / 2),
                             ),
                           ],
                         ),
+                        child: ClipRRect(
+                          borderRadius: effectiveRadius,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Optional Header
+                              if (widget.title != null || widget.titleWidget != null || widget.showCloseButton) ...[
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(14, 10, 10, 8),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: widget.titleWidget ??
+                                            Text(
+                                              widget.title ?? '',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 13,
+                                                color: colors.onSurface,
+                                              ),
+                                            ),
+                                      ),
+                                      if (widget.showCloseButton)
+                                        InkWell(
+                                          onTap: _hide,
+                                          borderRadius: BorderRadius.circular(4),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(4.0),
+                                            child: TIcon.raw(HugeIcons.strokeRoundedCancel01, size: 16, color: colors.onSurfaceVariant),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                Divider(height: 1, color: colors.outlineVariant.withValues(alpha: 0.5)),
+                              ],
+
+                              // Content Body
+                              Padding(
+                                padding: widget.padding,
+                                child: widget.builder != null ? widget.builder!(context, _hide) : widget.content!,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
                     ),
                   ),
                 ),

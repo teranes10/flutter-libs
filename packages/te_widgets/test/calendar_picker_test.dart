@@ -14,7 +14,8 @@ void main() {
       value: DateTime(2024, 3, 10),
       onChanged: (d) => picked = d,
     )));
-    expect(find.text('March 2024'), findsOneWidget);
+    expect(find.text('March'), findsOneWidget);
+    expect(find.text('2024'), findsOneWidget);
     await tester.tap(find.text('15'));
     expect(picked, DateTime(2024, 3, 15));
   });
@@ -38,13 +39,15 @@ void main() {
     await tester.pumpWidget(_wrap(TCalendarPicker.single(value: DateTime(2024, 3, 10), onChanged: (_) {})));
     await tester.tap(find.byIcon(Icons.chevron_right).evaluate().isEmpty ? find.byType(TIcon).last : find.byIcon(Icons.chevron_right));
     await tester.pump();
-    expect(find.text('April 2024'), findsOneWidget);
-    await tester.tap(find.text('April 2024'));
+    expect(find.text('April'), findsOneWidget);
+    expect(find.text('2024'), findsOneWidget);
+    await tester.tap(find.text('April'));
     await tester.pump();
     expect(find.text('Jun'), findsOneWidget);
     await tester.tap(find.text('Jun'));
     await tester.pump();
-    expect(find.text('June 2024'), findsOneWidget);
+    expect(find.text('June'), findsOneWidget);
+    expect(find.text('2024'), findsOneWidget);
   });
 
   testWidgets('range: start, end, restart and tap-before-start', (tester) async {

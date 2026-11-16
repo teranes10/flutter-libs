@@ -222,7 +222,9 @@ class _TSwitchState<T> extends State<TSwitch>
             inactiveThumbColor: Colors.white,
             activeTrackColor: widgetTheme.container,
             inactiveTrackColor: widget.inactiveColor ??
-                (TGlassStyle.resolve(context) != null ? colors.onSurface.withAlpha(colors.isDarkMode ? 70 : 60) : colors.surfaceContainerHighest),
+                (TGlassStyle.resolve(context) != null
+                    ? colors.onSurface.withAlpha(colors.isDarkMode ? 70 : 60)
+                    : colors.surfaceContainerHighest),
             trackOutlineWidth: WidgetStateProperty.all(TGlassStyle.resolve(context) != null ? 1 : 0.1),
             trackOutlineColor: WidgetStateProperty.all(TGlassStyle.resolve(context)?.fieldEdge(context) ?? colors.outlineVariant),
           ),

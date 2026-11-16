@@ -170,8 +170,9 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
   }
 
   /// Glass mode: a primary tint instead of the opaque container, so the backdrop shows through.
-  Color _activeBg(BuildContext context) =>
-      TGlassStyle.resolve(context) != null ? context.colors.primary.withAlpha(context.colors.isDarkMode ? 90 : 48) : widget.theme.activeBackgroundColor;
+  Color _activeBg(BuildContext context) => TGlassStyle.resolve(context) != null
+      ? context.colors.primary.withAlpha(context.colors.isDarkMode ? 90 : 48)
+      : widget.theme.activeBackgroundColor;
 
   @override
   Widget build(BuildContext context) {

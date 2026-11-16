@@ -54,11 +54,7 @@ class _TablesSubItemPageState extends State<TablesSubItemPage> {
                 headers: [
                   TTableHeader<_ProductVariant, String>.map('SKU Code', (v) => v.sku),
                   TTableHeader<_ProductVariant, String>.map('Variant Description', (v) => v.name),
-                  TTableHeader<_ProductVariant, String>.chip(
-                    'Stock',
-                    (v) => '${v.stock} units',
-                    color: (v) => v.stockStatus.color(ctx),
-                  ),
+                  TTableHeader<_ProductVariant, String>.chip('Stock', (v) => '${v.stock} units', color: (v) => v.stockStatus.color(ctx)),
                   TTableHeader<_ProductVariant, String>.map('Price', (v) => '\$${v.price.toStringAsFixed(2)}'),
                 ],
                 items: variants,

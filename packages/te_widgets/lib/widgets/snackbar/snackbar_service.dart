@@ -107,63 +107,63 @@ class TSnackbarService {
               color: wTheme.container,
               alpha: 225,
               child: Material(
-              elevation: elevation ?? 6,
-              color: TGlassStyle.resolve(context) != null ? Colors.transparent : wTheme.container,
-              shadowColor: wTheme.shadow ?? context.colors.shadow.withAlpha(30),
-              shape: effectiveShape,
-              child: Padding(
-                padding: padding ?? EdgeInsets.symmetric(horizontal: 16, vertical: title != null ? 10 : 14),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (icon != null) ...[
-                      TIcon.raw(icon, color: wTheme.onContainer, size: 20),
-                      const SizedBox(width: 12),
-                    ],
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (title != null) ...[
+                elevation: elevation ?? 6,
+                color: TGlassStyle.resolve(context) != null ? Colors.transparent : wTheme.container,
+                shadowColor: wTheme.shadow ?? context.colors.shadow.withAlpha(30),
+                shape: effectiveShape,
+                child: Padding(
+                  padding: padding ?? EdgeInsets.symmetric(horizontal: 16, vertical: title != null ? 10 : 14),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (icon != null) ...[
+                        TIcon.raw(icon, color: wTheme.onContainer, size: 20),
+                        const SizedBox(width: 12),
+                      ],
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (title != null) ...[
+                              Text(
+                                title,
+                                style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w500, fontSize: 14),
+                              ),
+                              const SizedBox(height: 2),
+                            ],
                             Text(
-                              title,
-                              style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w500, fontSize: 14),
+                              message,
+                              style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w400, fontSize: 13),
                             ),
-                            const SizedBox(height: 2),
                           ],
-                          Text(
-                            message,
-                            style: TextStyle(color: wTheme.onContainer, fontWeight: FontWeight.w400, fontSize: 13),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                    if (actionText != null && onTap != null) ...[
-                      const SizedBox(width: 12),
-                      TButton(
-                        type: TButtonType.text,
-                        size: TButtonSize.xs,
-                        color: wTheme.onContainer,
-                        text: actionText,
-                        onTap: onTap,
-                      ),
+                      if (actionText != null && onTap != null) ...[
+                        const SizedBox(width: 12),
+                        TButton(
+                          type: TButtonType.text,
+                          size: TButtonSize.xs,
+                          color: wTheme.onContainer,
+                          text: actionText,
+                          onTap: onTap,
+                        ),
+                      ],
+                      if (showCloseBtn) const SizedBox(width: 8),
+                      if (showCloseBtn)
+                        TButton(
+                          type: TButtonType.text,
+                          size: TButtonSize.xxs,
+                          icon: HugeIcons.strokeRoundedCancel01,
+                          color: wTheme.onContainer,
+                          onTap: () {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          },
+                        ),
                     ],
-                    if (showCloseBtn) const SizedBox(width: 8),
-                    if (showCloseBtn)
-                      TButton(
-                        type: TButtonType.text,
-                        size: TButtonSize.xxs,
-                        icon: HugeIcons.strokeRoundedCancel01,
-                        color: wTheme.onContainer,
-                        onTap: () {
-                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                        },
-                      ),
-                  ],
+                  ),
                 ),
               ),
-            ),
             ),
           ),
         ),

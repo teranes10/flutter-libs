@@ -483,40 +483,40 @@ class _TooltipContent extends StatelessWidget {
                     color: wTheme.container,
                     alpha: 215,
                     child: Container(
-                    constraints: BoxConstraints(maxWidth: maxWidth),
-                    padding: effectivePadding,
-                    decoration: decoration ??
-                        BoxDecoration(
-                          color: TGlassStyle.resolve(context) != null ? null : wTheme.container,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                    child: IntrinsicWidth(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (icon != null) ...[
-                                TIcon.raw(icon, size: fontSize + 2, color: wTheme.onContainer),
-                                const SizedBox(width: 8),
-                              ],
-                              Flexible(
-                                child: richMessage ??
-                                    Text(
-                                      message,
-                                      style: effectiveTextStyle,
-                                      textAlign: textAlign,
-                                      softWrap: true,
-                                    ),
-                              ),
-                            ],
+                      constraints: BoxConstraints(maxWidth: maxWidth),
+                      padding: effectivePadding,
+                      decoration: decoration ??
+                          BoxDecoration(
+                            color: TGlassStyle.resolve(context) != null ? null : wTheme.container,
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ],
+                      child: IntrinsicWidth(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                if (icon != null) ...[
+                                  TIcon.raw(icon, size: fontSize + 2, color: wTheme.onContainer),
+                                  const SizedBox(width: 8),
+                                ],
+                                Flexible(
+                                  child: richMessage ??
+                                      Text(
+                                        message,
+                                        style: effectiveTextStyle,
+                                        textAlign: textAlign,
+                                        softWrap: true,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                     ),
                   ),
                 ),
