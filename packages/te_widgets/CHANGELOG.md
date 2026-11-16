@@ -1,3 +1,7 @@
+## 4.3.0
+
+ - **FEAT**(te_widgets): TAlignedRow center, status chip column, CRUD top bar layout. ([e15c2ef9](https://github.com/teranes10/flutter-libs/commit/e15c2ef9eb4a6b6bb92ed129874f84739750575b))
+
 ## 4.2.0
 
  - **REFACTOR**(te_widgets): move layout and theme options into the theme customizer. ([5d9883c7](https://github.com/teranes10/flutter-libs/commit/5d9883c776a67bb4b7160f17e4f14bdb357ece1f))

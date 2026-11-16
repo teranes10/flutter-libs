@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-11-16
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`te_widgets` - `v4.3.0`](#te_widgets---v430)
+ - [`te_editor` - `v3.3.7`](#te_editor---v337)
+ - [`te_map` - `v4.1.2`](#te_map---v412)
+ - [`te_scanner` - `v3.2.10`](#te_scanner---v3210)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_editor` - `v3.3.7`
+ - `te_map` - `v4.1.2`
+ - `te_scanner` - `v3.2.10`
+
+---
+
+#### `te_widgets` - `v4.3.0`
+
+ - **FEAT**(te_widgets): TAlignedRow center, status chip column, CRUD top bar layout. ([e15c2ef9](https://github.com/teranes10/flutter-libs/commit/e15c2ef9eb4a6b6bb92ed129874f84739750575b))
+
+
 ## 2026-11-15
 
 ### Changes
