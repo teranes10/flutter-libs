@@ -1,3 +1,7 @@
+## 3.5.0
+
+ - **FEAT**(te_widgets): glass style updates across widgets, layouts and demo app. ([f8510787](https://github.com/teranes10/flutter-libs/commit/f851078766790efd1eebd2e047c43dec02a82b08))
+
 ## 3.4.0
 
  - **FEAT**(te_widgets): glass style updates across widgets, layouts and demo app. ([f8510787](https://github.com/teranes10/flutter-libs/commit/f851078766790efd1eebd2e047c43dec02a82b08))
