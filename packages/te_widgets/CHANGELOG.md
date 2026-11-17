@@ -1,3 +1,7 @@
+## 4.6.0
+
+ - **FEAT**(te_widgets): image background effects, thumbnail stage, TImage full-screen preview and new demo pages. ([1ef698bb](https://github.com/teranes10/flutter-libs/commit/1ef698bb0bd58262be48b35cce24839f8b1ac0aa))
+
 ## 4.5.0
 
  - **REFACTOR**(te_widgets): use TContainer in chip and sidebar item. ([634efff2](https://github.com/teranes10/flutter-libs/commit/634efff268c7f63670b6bbe89f004c594558d032))

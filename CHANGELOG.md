@@ -15,6 +15,38 @@ Packages with breaking changes:
 
 Packages with other changes:
 
+ - [`te_widgets` - `v4.6.0`](#te_widgets---v460)
+ - [`te_editor` - `v3.5.1`](#te_editor---v351)
+ - [`te_map` - `v4.1.5`](#te_map---v415)
+ - [`te_scanner` - `v3.2.13`](#te_scanner---v3213)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_editor` - `v3.5.1`
+ - `te_map` - `v4.1.5`
+ - `te_scanner` - `v3.2.13`
+
+---
+
+#### `te_widgets` - `v4.6.0`
+
+ - **FEAT**(te_widgets): image background effects, thumbnail stage, TImage full-screen preview and new demo pages. ([1ef698bb](https://github.com/teranes10/flutter-libs/commit/1ef698bb0bd58262be48b35cce24839f8b1ac0aa))
+
+
+## 2026-11-17
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
  - [`te_editor` - `v3.5.0`](#te_editor---v350)
  - [`te_widgets` - `v4.5.0`](#te_widgets---v450)
  - [`te_map` - `v4.1.4`](#te_map---v414)
