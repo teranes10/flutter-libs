@@ -1,9 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:te_widgets/te_widgets.dart';
+import '../../helpers/image-storage/image_storage.dart';
 
 final themeModeKey = 'te_theme_mode';
 final sidebarMinifiedKey = 'te_sidebar_minified';
@@ -13,6 +17,14 @@ final customColorKey = 'te_custom_color';
 final schemeOverridesKey = 'te_scheme_overrides';
 final layoutStyleKey = 'te_layout_style';
 final glassKey = 'te_glass';
+final glassColorsKey = 'te_glass_colors';
+final glassAnimatedKey = 'te_glass_animated';
+final glassStaticKey = 'te_glass_static';
+final glassLookKey = 'te_glass_look';
+final glassImageBlurKey = 'te_glass_image_blur';
+final glassImageDimKey = 'te_glass_image_dim';
+final glassImageHashKey = 'te_glass_image_hash';
+final glassIdleKey = 'te_glass_idle_seconds';
 
 ThemeMode _initialTheme = ThemeMode.light;
 TSidebarMode _initialSidebarMode = TSidebarMode.full;
@@ -22,6 +34,16 @@ Map<String, int> _initialLightOverrides = {};
 Map<String, int> _initialDarkOverrides = {};
 TLayoutStyle _initialLayoutStyle = TLayoutStyle.layout1;
 bool _initialGlass = true;
+List<Color>? _initialGlassColors;
+bool _initialGlassAnimated = true;
+bool _initialGlassStatic = false;
+int _initialGlassIdle = 10;
+double _initialGlassImageBlur = 3;
+int _initialGlassImageDim = 30;
+String? _initialGlassImageHash;
+String? _initialGlassAsset;
+String? _initialGlassAssetHash;
+TGlassLook _initialGlassLook = TGlassLook.liquid;
 
 /// Which `TLayout` implementation the app renders.
 enum TLayoutStyle {
@@ -56,6 +78,42 @@ class TThemeState {
 
   /// Global liquid-glass mode for cards and tiles (see [TWidgetThemeExtension.glass]).
   final bool glass;
+
+  /// Custom colour mix for the glass background blobs; null uses the theme palette.
+  final List<Color>? glassColors;
+
+  /// Glass background reacts to the pointer and drifts on its own after 30s idle. Turn off to save resources.
+  final bool glassAnimated;
+
+  /// Frosted (flat) or liquid (raised, thick) glass.
+  final TGlassLook glassLook;
+
+  /// Seconds the pointer must rest before the background starts drifting on its own.
+  final int glassIdleSeconds;
+
+  /// Use a static image instead of the animated blobs (see [glassImageBytes] / [glassImageAsset]).
+  final bool glassStatic;
+
+  /// Blur (sigma 0-30) applied to the static background image, so photos don't compete with the content.
+  final double glassImageBlur;
+
+  /// Darkening (0-80 %) laid over the static background image.
+  final int glassImageDim;
+
+  /// BlurHash of the user's image: shown as an instant preview while the stored image loads.
+  final String? glassImageHash;
+
+  /// Image picked by the user, kept in IndexedDB. Wins over [glassImageAsset].
+  final Uint8List? glassImageBytes;
+
+  /// Local copy of [glassImageAsset] (stored on first load, so later launches skip the download).
+  final Uint8List? glassAssetBytes;
+
+  /// BlurHash of [glassImageAsset].
+  final String? glassAssetHash;
+
+  /// Asset path set from code, used when the user has not picked an image.
+  final String? glassImageAsset;
 
   /// User-picked accent; overrides [primaryColorIndex] when set.
   final Color? customColor;
@@ -130,7 +188,7 @@ class TThemeState {
         : TAppTheme.defaultTheme(primary: primaryColor);
     // Glass is a global switch: stamped onto every widget theme the builder produces.
     final baseBuilder = base.widgetThemeBuilder;
-    final builder = glass ? (ColorScheme c) => baseBuilder(c).copyWith(glass: const TGlassStyle()) : baseBuilder;
+    final builder = glass ? (ColorScheme c) => baseBuilder(c).copyWith(glass: TGlassStyle(look: glassLook)) : baseBuilder;
     if (lightOverrides.isEmpty && darkOverrides.isEmpty && customColor == null) {
       return glass ? base.copyWith(widgetThemeBuilder: builder) : base;
     }
@@ -148,6 +206,18 @@ class TThemeState {
     required this.primaryColorIndex,
     this.layoutStyle = TLayoutStyle.layout1,
     this.glass = true,
+    this.glassColors,
+    this.glassAnimated = true,
+    this.glassLook = TGlassLook.liquid,
+    this.glassIdleSeconds = 10,
+    this.glassStatic = false,
+    this.glassImageBlur = 3,
+    this.glassImageDim = 30,
+    this.glassImageHash,
+    this.glassImageBytes,
+    this.glassImageAsset,
+    this.glassAssetBytes,
+    this.glassAssetHash,
     this.customColor,
     this.lightOverrides = const {},
     this.darkOverrides = const {},
@@ -158,6 +228,20 @@ class TThemeState {
     int? primaryColorIndex,
     TLayoutStyle? layoutStyle,
     bool? glass,
+    List<Color>? glassColors,
+    bool clearGlassColors = false,
+    bool? glassAnimated,
+    TGlassLook? glassLook,
+    int? glassIdleSeconds,
+    bool? glassStatic,
+    double? glassImageBlur,
+    int? glassImageDim,
+    String? glassImageHash,
+    Uint8List? glassImageBytes,
+    bool clearGlassImage = false,
+    String? glassImageAsset,
+    Uint8List? glassAssetBytes,
+    String? glassAssetHash,
     Color? customColor,
     bool clearCustomColor = false,
     Map<String, int>? lightOverrides,
@@ -171,11 +255,65 @@ class TThemeState {
       primaryColorIndex: primaryColorIndex ?? this.primaryColorIndex,
       layoutStyle: layoutStyle ?? this.layoutStyle,
       glass: glass ?? this.glass,
+      glassColors: clearGlassColors ? null : (glassColors ?? this.glassColors),
+      glassAnimated: glassAnimated ?? this.glassAnimated,
+      glassLook: glassLook ?? this.glassLook,
+      glassIdleSeconds: glassIdleSeconds ?? this.glassIdleSeconds,
+      glassStatic: glassStatic ?? this.glassStatic,
+      glassImageBlur: glassImageBlur ?? this.glassImageBlur,
+      glassImageDim: glassImageDim ?? this.glassImageDim,
+      glassImageHash: clearGlassImage ? null : (glassImageHash ?? this.glassImageHash),
+      glassImageBytes: clearGlassImage ? null : (glassImageBytes ?? this.glassImageBytes),
+      glassImageAsset: glassImageAsset ?? this.glassImageAsset,
+      glassAssetBytes: glassAssetBytes ?? this.glassAssetBytes,
+      glassAssetHash: glassAssetHash ?? this.glassAssetHash,
     );
   }
 }
 
-Future<void> initializeApp([SharedPreferences? prefs]) async {
+/// Key under which the asset's bytes and BlurHash are kept locally (see `ThemeNotifier._prepareGlassAsset`).
+String _glassAssetKey(String asset) => 'te_glass_asset_${TImageStorage.urlToKey(asset)}';
+
+/// Call before `runApp`. Every parameter is a *default from code*: it applies until the user changes that setting
+/// in the customizer (their saved choice always wins), so you can ship your own look without locking it.
+///
+/// ```dart
+/// await initializeApp(
+///   themeMode: ThemeMode.dark,
+///   primaryColor: const Color(0xFF3B82C4),
+///   glassColors: [Color(0xFF3B6EA5), Color(0xFF5B8DB8), Color(0xFF7AA5C9)],
+///   glassImageAsset: 'assets/bg.jpg',
+/// );
+/// ```
+///
+/// - [prefs]: pass your own `SharedPreferences` instance (e.g. in tests).
+/// - [themeMode], [sidebarMode], [layoutStyle]: basic layout and theme defaults.
+/// - [primaryColor] (any colour) or [primaryColorIndex] (an entry of the built-in accent list): the accent.
+/// - [glass]: liquid-glass mode on/off. [glassLook]: frosted or liquid.
+/// - [glassColors]: colour mix of the animated glass background. [glassAnimated]: pointer reaction and auto drift.
+///   [glassIdleSeconds]: pointer rest time before auto drift starts.
+/// - [glassStatic]: use a static image instead of the animated blobs. [glassImageBlur] (0-30) and [glassImageDim]
+///   (0-80 %) soften and darken that image.
+/// - [glassImageAsset] (e.g. `assets/bg.jpg`): the static background image. It implies [glassStatic] unless you set it.
+///   On web an asset is a network download, so it is fetched once, stored locally (IndexedDB) and read from there on
+///   later launches; the first time it also produces a BlurHash and the matching accent colours.
+Future<void> initializeApp({
+  SharedPreferences? prefs,
+  ThemeMode? themeMode,
+  TSidebarMode? sidebarMode,
+  TLayoutStyle? layoutStyle,
+  Color? primaryColor,
+  int? primaryColorIndex,
+  bool? glass,
+  TGlassLook? glassLook,
+  List<Color>? glassColors,
+  bool? glassAnimated,
+  int? glassIdleSeconds,
+  bool? glassStatic,
+  double? glassImageBlur,
+  int? glassImageDim,
+  String? glassImageAsset,
+}) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final p = prefs ?? await SharedPreferences.getInstance();
@@ -183,23 +321,27 @@ Future<void> initializeApp([SharedPreferences? prefs]) async {
   _initialTheme = switch (p.getString(themeModeKey)) {
     'light' => ThemeMode.light,
     'dark' => ThemeMode.dark,
-    _ => ThemeMode.light,
+    'system' => ThemeMode.system,
+    _ => themeMode ?? ThemeMode.light,
   };
 
   final savedMode = p.getString(sidebarModeKey);
   if (savedMode != null) {
     _initialSidebarMode = TSidebarMode.values.firstWhere(
       (m) => m.name == savedMode,
-      orElse: () => TSidebarMode.full,
+      orElse: () => sidebarMode ?? TSidebarMode.full,
     );
+  } else if (p.containsKey(sidebarMinifiedKey)) {
+    _initialSidebarMode = (p.getBool(sidebarMinifiedKey) ?? false) ? TSidebarMode.minified : TSidebarMode.full;
   } else {
-    final oldMinified = p.getBool(sidebarMinifiedKey) ?? false;
-    _initialSidebarMode = oldMinified ? TSidebarMode.minified : TSidebarMode.full;
+    _initialSidebarMode = sidebarMode ?? TSidebarMode.full;
   }
 
-  _initialPrimaryColorIndex = p.getInt(primaryColorIndexKey) ?? 0;
+  _initialPrimaryColorIndex = p.getInt(primaryColorIndexKey) ?? primaryColorIndex ?? 0;
   final customValue = p.getInt(customColorKey);
-  _initialCustomColor = customValue == null ? null : Color(customValue);
+  // A code-set primaryColor applies only while the user has not picked an accent (swatch or custom) themselves.
+  _initialCustomColor =
+      customValue != null ? Color(customValue) : (p.containsKey(primaryColorIndexKey) || primaryColorIndex != null ? null : primaryColor);
   Map<String, int> readOverrides(String mode) {
     try {
       final raw = p.getString('${schemeOverridesKey}_$mode');
@@ -214,15 +356,29 @@ Future<void> initializeApp([SharedPreferences? prefs]) async {
   _initialDarkOverrides = readOverrides('dark');
   _initialLayoutStyle = TLayoutStyle.values.firstWhere(
     (l) => l.name == p.getString(layoutStyleKey),
-    orElse: () => TLayoutStyle.layout1,
+    orElse: () => layoutStyle ?? TLayoutStyle.layout1,
   );
-  _initialGlass = p.getBool(glassKey) ?? true;
+  _initialGlass = p.getBool(glassKey) ?? glass ?? true;
+  _initialGlassColors = p.getStringList(glassColorsKey)?.map((e) => Color(int.parse(e))).toList() ?? glassColors;
+  _initialGlassAnimated = p.getBool(glassAnimatedKey) ?? glassAnimated ?? true;
+  _initialGlassAsset = glassImageAsset;
+  _initialGlassAssetHash = glassImageAsset == null ? null : p.getString('${_glassAssetKey(glassImageAsset)}_hash');
+  // An asset given with no saved choice starts on the static image.
+  _initialGlassStatic = p.getBool(glassStaticKey) ?? glassStatic ?? (glassImageAsset != null);
+  _initialGlassIdle = p.getInt(glassIdleKey) ?? glassIdleSeconds ?? 10;
+  _initialGlassImageBlur = p.getDouble(glassImageBlurKey) ?? glassImageBlur ?? 3;
+  _initialGlassImageDim = p.getInt(glassImageDimKey) ?? glassImageDim ?? 30;
+  _initialGlassImageHash = p.getString(glassImageHashKey);
+  _initialGlassLook = TGlassLook.values.firstWhere(
+    (l) => l.name == p.getString(glassLookKey),
+    orElse: () => glassLook ?? TGlassLook.liquid,
+  );
 }
 
 class ThemeNotifier extends Notifier<TThemeState> {
   @override
   TThemeState build() {
-    return TThemeState(
+    final s = TThemeState(
       themeMode: _initialTheme,
       primaryColorIndex: _initialPrimaryColorIndex,
       customColor: _initialCustomColor,
@@ -230,7 +386,24 @@ class ThemeNotifier extends Notifier<TThemeState> {
       darkOverrides: _initialDarkOverrides,
       layoutStyle: _initialLayoutStyle,
       glass: _initialGlass,
+      glassColors: _initialGlassColors,
+      glassAnimated: _initialGlassAnimated,
+      glassLook: _initialGlassLook,
+      glassIdleSeconds: _initialGlassIdle,
+      glassStatic: _initialGlassStatic,
+      glassImageBlur: _initialGlassImageBlur,
+      glassImageDim: _initialGlassImageDim,
+      glassImageHash: _initialGlassImageHash,
+      glassImageAsset: _initialGlassAsset,
+      glassAssetHash: _initialGlassAssetHash,
     );
+    // The user's stored image loads after the first state is in place.
+    Future.microtask(() async {
+      final bytes = await TGlassImageStore.load();
+      if (bytes != null) state = state.copyWith(glassImageBytes: bytes);
+    });
+    Future.microtask(_prepareGlassAsset);
+    return s;
   }
 
   void toggleTheme() {
@@ -297,6 +470,126 @@ class ThemeNotifier extends Notifier<TThemeState> {
   void setGlass(bool value) {
     state = state.copyWith(glass: value);
     SharedPreferences.getInstance().then((p) => p.setBool(glassKey, value));
+  }
+
+  /// Gets the code-set asset's bytes: from local storage when stored before, else from the asset bundle (a network
+  /// download on web), storing them. The first time only, it also makes the BlurHash and the matching accent colours
+  /// (unless the user already has their own image).
+  Future<void> _prepareGlassAsset() async {
+    final asset = state.glassImageAsset;
+    if (asset == null) return;
+    final key = _glassAssetKey(asset);
+    Uint8List? bytes;
+    try {
+      bytes = await TImageStorage.loadImageByKey(key);
+    } catch (_) {}
+    if (bytes != null) {
+      state = state.copyWith(glassAssetBytes: bytes);
+      return;
+    }
+    try {
+      bytes = (await rootBundle.load(asset)).buffer.asUint8List();
+    } catch (_) {
+      return;
+    }
+    state = state.copyWith(glassAssetBytes: bytes);
+    try {
+      await TImageStorage.storeImage(key, bytes);
+    } catch (_) {}
+
+    final hash = await TBlurHash.fromImageBytes(bytes);
+    if (hash != null) {
+      state = state.copyWith(glassAssetHash: hash);
+      unawaited(SharedPreferences.getInstance().then((p) => p.setString('${key}_hash', hash)));
+    }
+    if (state.glassImageHash == null && state.customColor == null) {
+      final palette = await TGlassImagePalette.fromBytes(bytes);
+      if (palette != null) {
+        setCustomColor(palette.primary);
+        for (final b in Brightness.values) {
+          setSchemeColor(b, 'secondary', palette.secondary);
+        }
+        setGlassColors(palette.mix);
+      }
+    }
+  }
+
+  void setGlassColors(List<Color> colors) {
+    state = state.copyWith(glassColors: colors);
+    SharedPreferences.getInstance().then((p) => p.setStringList(glassColorsKey, [for (final c in colors) '${c.toARGB32()}']));
+  }
+
+  void resetGlassColors() {
+    state = state.copyWith(clearGlassColors: true);
+    SharedPreferences.getInstance().then((p) => p.remove(glassColorsKey));
+  }
+
+  void setGlassAnimated(bool value) {
+    state = state.copyWith(glassAnimated: value);
+    SharedPreferences.getInstance().then((p) => p.setBool(glassAnimatedKey, value));
+  }
+
+  void setGlassImageBlur(double v) {
+    state = state.copyWith(glassImageBlur: v);
+    SharedPreferences.getInstance().then((p) => p.setDouble(glassImageBlurKey, v));
+  }
+
+  void setGlassImageDim(int v) {
+    state = state.copyWith(glassImageDim: v);
+    SharedPreferences.getInstance().then((p) => p.setInt(glassImageDimKey, v));
+  }
+
+  void setGlassLook(TGlassLook look) {
+    state = state.copyWith(glassLook: look);
+    SharedPreferences.getInstance().then((p) => p.setString(glassLookKey, look.name));
+  }
+
+  void setGlassIdleSeconds(int seconds) {
+    state = state.copyWith(glassIdleSeconds: seconds);
+    SharedPreferences.getInstance().then((p) => p.setInt(glassIdleKey, seconds));
+  }
+
+  /// Switches between the animated blobs and a static image.
+  void setGlassStatic(bool value) {
+    state = state.copyWith(glassStatic: value);
+    SharedPreferences.getInstance().then((p) => p.setBool(glassStaticKey, value));
+  }
+
+  /// Static background from an asset (e.g. `assets/bg.jpg`); call from code at startup. Also switches to image mode.
+  void setGlassImageAsset(String asset) {
+    state = state.copyWith(glassImageAsset: asset, glassStatic: true);
+    unawaited(_prepareGlassAsset());
+  }
+
+  /// Stores [bytes] in IndexedDB and uses them as the static glass background.
+  Future<void> setGlassImageBytes(Uint8List bytes) async {
+    state = state.copyWith(glassImageBytes: bytes, glassStatic: true);
+    unawaited(SharedPreferences.getInstance().then((p) => p.setBool(glassStaticKey, true)));
+    await TGlassImageStore.save(bytes);
+
+    // BlurHash for an instant preview on the next load.
+    final hash = await TBlurHash.fromImageBytes(bytes);
+    if (hash != null) {
+      state = state.copyWith(glassImageHash: hash);
+      unawaited(SharedPreferences.getInstance().then((p) => p.setString(glassImageHashKey, hash)));
+    }
+
+    // Matching theme colours: accent from the image's strongest colour, secondary from the next distinct one, and
+    // the whole mix for the animated blobs.
+    final palette = await TGlassImagePalette.fromBytes(bytes);
+    if (palette != null) {
+      setCustomColor(palette.primary);
+      for (final b in Brightness.values) {
+        setSchemeColor(b, 'secondary', palette.secondary);
+      }
+      setGlassColors(palette.mix);
+    }
+  }
+
+  Future<void> clearGlassImage() async {
+    state = state.copyWith(clearGlassImage: true);
+    unawaited(SharedPreferences.getInstance().then((p) => p.remove(glassImageHashKey)));
+    await TGlassImageStore.clear();
   }
 
   void setLayoutStyle(TLayoutStyle style) {

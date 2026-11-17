@@ -31,3 +31,13 @@ Future<Uint8List?> loadImageMobileByKey(String key) async {
   final dir = await getApplicationDocumentsDirectory();
   return await loadImageMobile('${dir.path}/$key');
 }
+
+Future<void> deleteImageWeb(String key) {
+  throw UnimplementedError();
+}
+
+Future<void> deleteImageMobile(String key) async {
+  final dir = await getApplicationDocumentsDirectory();
+  final file = io.File('${dir.path}/$key');
+  if (await file.exists()) await file.delete();
+}

@@ -9,6 +9,10 @@ export 'package:hugeicons/hugeicons.dart';
 export 'configs/widget-theme/widget_theme.dart';
 export 'widgets/surface/container.dart';
 export 'widgets/surface/glass.dart';
+export 'widgets/surface/glass_image_store.dart';
+export 'widgets/surface/glass_image_palette.dart';
+export 'helpers/blurhash/blurhash.dart';
+export 'helpers/blurhash/blurhash_view.dart';
 export 'configs/widget-theme/input_field_theme.dart';
 
 export 'enum/file_type.dart';

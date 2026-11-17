@@ -517,6 +517,27 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     );
   }
 
+  /// Glass: outline, softOutline and filledOutline buttons get a frosted fill so they read as glass panes, keeping
+  /// their coloured outline. The hover state keeps each variant's meaning, just translucent: a brighter frost
+  /// (outline), a colour tint (softOutline) or a strong colour fill (filledOutline). Other variants and non-glass
+  /// mode are returned unchanged.
+  TWidgetTheme _glassOutlineTheme(BuildContext context, TWidgetTheme base) {
+    final isOutline = base.type == TVariant.outline || base.type == TVariant.softOutline || base.type == TVariant.filledOutline;
+    if (!isOutline || !base.container.isTransparent || TGlassStyle.resolve(context) == null) return base;
+    final dark = context.colors.isDarkMode;
+    final m = base.color;
+    final hover = switch (base.type) {
+      TVariant.softOutline => m.shade(dark ? 400 : 300).withAlpha(dark ? 70 : 60),
+      TVariant.filledOutline => m.shade(dark ? 500 : 400).withAlpha(dark ? 210 : 230),
+      _ => Colors.white.withAlpha(dark ? 40 : 190),
+    };
+    return base.copyWith(
+      container: Colors.white.withAlpha(dark ? 20 : 130),
+      containerVariant: hover,
+      outline: m.shade(dark ? 400 : 500).withAlpha(dark ? 230 : 210),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = context.authResolve(widget.permission, target: TAuthTarget.button, onDenied: widget.onDenied);
@@ -530,11 +551,12 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     final isSurface = widget.type == TButtonType.surface && widget.baseTheme == null && widget.theme?.baseTheme == null;
     final colors = context.colors;
     final border = colors.outline.withAlpha(80);
-    final baseTheme = widget.baseTheme ??
+    final resolvedBase = widget.baseTheme ??
         widget.theme?.baseTheme ??
         (isSurface
             ? _surfaceBaseTheme(context, colors, border)
             : defaultTheme.baseTheme.rebuild(color: activeColor, type: widget.type?.colorType));
+    final baseTheme = _glassOutlineTheme(context, resolvedBase);
     final theme = widget.theme ??
         defaultTheme.copyWith(
           size: size,

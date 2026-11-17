@@ -59,3 +59,15 @@ Future<Uint8List?> loadImageMobile(String localRef) {
 Future<Uint8List?> loadImageMobileByKey(String key) {
   throw UnimplementedError();
 }
+
+Future<void> deleteImageWeb(String key) async {
+  final db = await _getWebDb();
+  if (db == null) return;
+  final tx = db.transaction(_storeName, 'readwrite');
+  await tx.objectStore(_storeName).delete(key);
+  await tx.completed;
+}
+
+Future<void> deleteImageMobile(String key) {
+  throw UnimplementedError();
+}

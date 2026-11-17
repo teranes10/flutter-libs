@@ -19,3 +19,11 @@ Future<Uint8List?> loadImageMobile(String localRef) {
 Future<Uint8List?> loadImageMobileByKey(String key) {
   throw UnimplementedError('Mobile/Desktop storage stub');
 }
+
+Future<void> deleteImageWeb(String key) {
+  throw UnimplementedError('IndexedDB Blob storage stub');
+}
+
+Future<void> deleteImageMobile(String key) {
+  throw UnimplementedError('Mobile/Desktop storage stub');
+}

@@ -61,4 +61,13 @@ abstract class TImageStorage {
       return await loadImageMobileByKey(key);
     }
   }
+
+  /// Removes the image stored under [key], if any.
+  static Future<void> deleteImage(String key) async {
+    if (kIsWeb) {
+      await deleteImageWeb(key);
+    } else {
+      await deleteImageMobile(key);
+    }
+  }
 }

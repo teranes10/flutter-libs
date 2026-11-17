@@ -10,6 +10,8 @@ class ColorsPage extends StatefulWidget {
 }
 
 class _ColorsPageState extends State<ColorsPage> {
+  Color _picked = const Color(0xFF3B82F6);
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -32,6 +34,7 @@ class _ColorsPageState extends State<ColorsPage> {
             ],
           ),
 
+          buildPicker(context),
           buildColorShades(context.theme.grey, label: 'grey'),
           buildColorShades(context.theme.primary, label: 'primary'),
           buildColorShades(context.theme.secondary, label: 'secondary'),
@@ -41,6 +44,34 @@ class _ColorsPageState extends State<ColorsPage> {
           buildColorShades(context.theme.danger, label: 'danger'),
         ],
       ),
+    );
+  }
+
+  /// Pick any colour; its generated palette (via [toMaterial]) is shown below the picker.
+  Widget buildPicker(BuildContext context) {
+    final hex = '#${_picked.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+    return Column(
+      children: [
+        TColorPickerPopover(
+          title: 'Pick a color',
+          color: _picked,
+          onChanged: (c) => setState(() => _picked = c),
+          child: Container(
+            width: 200,
+            height: 50,
+            decoration: BoxDecoration(
+              color: _picked,
+              border: Border.all(color: context.colors.outlineVariant),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              'Pick color  $hex',
+              style: TextStyle(color: _picked.computeLuminance() > 0.5 ? Colors.black : Colors.white, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ),
+        buildColorShades(_picked.toMaterial(), label: 'picked'),
+      ],
     );
   }
 
