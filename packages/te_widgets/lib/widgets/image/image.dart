@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:te_widgets/helpers/image-storage/image_storage.dart';
 import 'package:te_widgets/te_widgets.dart';
 // ignore: depend_on_referenced_packages
@@ -175,6 +176,10 @@ class TImage extends StatefulWidget with TPopupMixin {
 
   final VoidCallback? onTap;
 
+  /// When `true`, tapping opens the image full screen (zoomable, closes on tap outside, the close button or Esc)
+  /// instead of the small popup preview.
+  final bool fullScreenPreview;
+
   /// Creates an image widget.
   const TImage({
     super.key,
@@ -206,6 +211,7 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.showTitleSubtitleOverlayOnHover = false,
     this.overlayTitleSubtitle = false,
     this.onTap,
+    this.fullScreenPreview = false,
   });
 
   /// Creates a circular image widget.
@@ -239,6 +245,7 @@ class TImage extends StatefulWidget with TPopupMixin {
     this.showTitleSubtitleOverlayOnHover = false,
     this.overlayTitleSubtitle = false,
     this.onTap,
+    this.fullScreenPreview = false,
   });
 
   /// Creates a profile image with default styling.
@@ -940,7 +947,7 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
                   setState(() => _isTappedVisible = !_isTappedVisible);
                 }
                 if (canInteract) {
-                  showPopup(context);
+                  widget.fullScreenPreview ? _openFullScreen(context) : showPopup(context);
                 }
                 widget.onTap?.call();
               },
@@ -952,8 +959,53 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
     );
   }
 
-  @override
-  Widget getContentWidget(BuildContext context) {
+  /// Full-screen viewer: dimmed backdrop, zoomable image, closes on a tap outside the image, the button or Esc.
+  void _openFullScreen(BuildContext context) {
+    final provider = _resolveImageProvider();
+    widget.onShow?.call();
+    showGeneralDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Close preview',
+      barrierColor: Colors.black.withAlpha(235),
+      transitionDuration: const Duration(milliseconds: 220),
+      transitionBuilder: (context, animation, _, child) =>
+          FadeTransition(opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut), child: child),
+      pageBuilder: (dialogContext, _, __) => CallbackShortcuts(
+        bindings: {const SingleActivator(LogicalKeyboardKey.escape): () => Navigator.of(dialogContext).pop()},
+        child: Focus(
+          autofocus: true,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Stack(
+              children: [
+                Positioned.fill(child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: () => Navigator.of(dialogContext).pop())),
+                Positioned.fill(
+                    child: SafeArea(child: Padding(padding: const EdgeInsets.all(24), child: _ZoomableImage(imageProvider: provider)))),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: IconButton(
+                        tooltip: 'Close',
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        style: IconButton.styleFrom(backgroundColor: Colors.white.withAlpha(30)),
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ).whenComplete(() => widget.onHide?.call());
+  }
+
+  ImageProvider _resolveImageProvider() {
     ImageProvider imageProvider;
     if (widget.bytes != null) {
       imageProvider = MemoryImage(widget.bytes!);
@@ -974,6 +1026,12 @@ class _TImageState extends State<TImage> with TPopupStateMixin<TImage> {
         );
       }
     }
+    return imageProvider;
+  }
+
+  @override
+  Widget getContentWidget(BuildContext context) {
+    final imageProvider = _resolveImageProvider();
 
     final photoView = ClipPath(
         clipper: ShapeBorderClipper(shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8)))),

@@ -78,8 +78,19 @@ abstract final class TGlassTuning {
   static const List<Color> defaultBlobColors = [Color(0xFF3B6EA5), Color(0xFF5B8DB8), Color(0xFF7AA5C9), Color(0xFF4A5F8A)];
 
   /// Blob alpha behind the glass.
-  static const int blobAlphaDark = 110;
-  static const int blobAlphaLight = 30;
+  static const int blobAlphaDark = 38; // 15 %
+  static const int blobAlphaLight = 10;
+
+  /// Image background: alpha of the colour blobs laid over the photo (the photo's own palette; they follow the pointer
+  /// and drift when idle). Lower = the photo shows more.
+  static const int imageBlobAlphaDark = 26; // 10 %
+  static const int imageBlobAlphaLight = 13;
+
+  /// Image background: blob size as a fraction of the screen's longer side.
+  static const double imageBlobRadius = 0.5;
+
+  /// Image background: how the blobs blend with the photo (srcOver = plain tint, softLight/overlay = punchier colour).
+  static const BlendMode imageBlobBlend = BlendMode.srcOver;
 
   /// Seconds for one auto-drift loop.
   static const double autoDriftLoopSeconds = 40;
@@ -506,6 +517,14 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
     super.dispose();
   }
 
+  /// Blurred (or plain) photo. Kept in its own repaint boundary so the parallax moves a cached layer instead of
+  /// re-blurring the photo every frame.
+  Widget photo(double blur, Widget image) => RepaintBoundary(
+        child: blur > 0
+            ? ImageFiltered(imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur, tileMode: TileMode.mirror), child: image)
+            : image,
+      );
+
   @override
   Widget build(BuildContext context) {
     final scheme = context.colors;
@@ -514,23 +533,40 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
     // One stable layer stack for the whole load: BlurHash preview (always the same keyed element, so it is never
     // rebuilt or re-decoded) with the real image fading in on top once it has decoded. Changing the tree shape between
     // "loading" and "loaded" is what used to restart the preview and flash empty frames.
-    Widget frame(BuildContext c, Widget child, int? frame, bool sync) => AnimatedOpacity(
+    ImageFrameBuilder fade(int ms) => (c, child, frame, sync) => AnimatedOpacity(
           opacity: frame == null ? 0 : 1,
-          duration: const Duration(milliseconds: 700),
+          duration: Duration(milliseconds: ms),
           curve: Curves.easeInOut,
           child: child,
         );
+    final frame = fade(700);
     // Image source: the user's image, else the code-set asset (kept locally after its first download).
     final hash = state.glassImageHash ?? state.glassAssetHash;
-    final bytes = state.glassImageBytes ?? state.glassAssetBytes;
+    // A user image that is still loading from storage must not be preceded by the code asset: its own BlurHash and
+    // thumbnail hold the place until the bytes arrive.
+    final userImage = state.glassImageHash != null || state.glassImageThumb != null;
+    final bytes = state.glassImageBytes ?? (userImage ? null : state.glassAssetBytes);
     final Widget? real = state.glassStatic && bytes != null
-        ? Image.memory(bytes, key: const ValueKey('glass-image'), fit: BoxFit.cover, gaplessPlayback: true, frameBuilder: frame)
+        ? Image.memory(bytes,
+            key: ValueKey('glass-image-${identityHashCode(bytes)}'), fit: BoxFit.cover, gaplessPlayback: true, frameBuilder: frame)
         : null;
     // An asset that is still being fetched counts as loading: show the preview (or nothing), never the animated blobs.
     final loading = state.glassStatic && bytes == null && state.glassImageAsset != null;
-    final image = state.glassStatic && (real != null || hash != null || loading)
+    // Middle stage: the code-supplied tiny thumbnail, stretched (so naturally soft) and faded in over the BlurHash.
+    // The user's own thumbnail replaces the one from code as soon as they have their own image.
+    final thumbBytes = state.glassImageThumb ?? (state.glassImageHash != null ? null : state.glassThumbBytes);
+    final thumb = state.glassStatic && thumbBytes != null
+        ? Image.memory(thumbBytes,
+            key: ValueKey('glass-thumb-${identityHashCode(thumbBytes)}'),
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+            filterQuality: FilterQuality.medium,
+            frameBuilder: fade(450))
+        : null;
+    final image = state.glassStatic && (real != null || hash != null || thumb != null || loading)
         ? Stack(fit: StackFit.expand, children: [
             if (hash != null) TBlurHashView(key: const ValueKey('glass-blurhash'), hash: hash),
+            if (thumb != null) thumb,
             if (real != null) real,
           ])
         : null;
@@ -539,19 +575,38 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
       _idle = idle;
       if (_enabled && !_auto) _restartIdle();
     }
-    _sync(image == null && state.glassAnimated);
+    // The pointer reaction and auto drift drive both the blobs and the image's parallax.
+    _sync(state.glassAnimated);
 
     if (image != null) {
       final blur = state.glassImageBlur;
       return Stack(fit: StackFit.expand, children: [
         // Blur softens photo detail so it doesn't fight the content; the clip stops blurred edges bleeding in.
-        ClipRect(
-          child: blur > 0
-              ? ImageFiltered(imageFilter: ImageFilter.blur(sigmaX: blur, sigmaY: blur, tileMode: TileMode.mirror), child: image)
-              : image,
-        ),
+        ClipRect(child: photo(blur, image)),
         // Scrim so glass surfaces and text stay readable over any photo.
         ColoredBox(color: Colors.black.withAlpha((state.glassImageDim * 2.55).round())),
+        // Colour blobs from the photo's palette drift over it: pulled by the pointer, wandering on their own when idle.
+        // No RepaintBoundary: the blend mode has to blend with the photo below.
+        if (state.glassAnimated)
+          IgnorePointer(
+            child: CustomPaint(
+              size: Size.infinite,
+              painter: _BlobPainter(
+                _phase,
+                _pointer,
+                state.glassColors ?? TGlassTuning.defaultBlobColors,
+                Colors.transparent,
+                dark
+                    ? state.glassImageBlobAlpha
+                    : (state.glassImageBlobAlpha * TGlassTuning.imageBlobAlphaLight / TGlassTuning.imageBlobAlphaDark)
+                        .round()
+                        .clamp(0, 255),
+                drawBase: false,
+                radiusFactor: TGlassTuning.imageBlobRadius,
+                blend: TGlassTuning.imageBlobBlend,
+              ),
+            ),
+          ),
         widget.child,
       ]);
     }
@@ -565,7 +620,14 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
       children: [
         RepaintBoundary(
           child: CustomPaint(
-              painter: _BlobPainter(_phase, _pointer, blobs, base, dark ? TGlassTuning.blobAlphaDark : TGlassTuning.blobAlphaLight)),
+              painter: _BlobPainter(
+                  _phase,
+                  _pointer,
+                  blobs,
+                  base,
+                  dark
+                      ? state.glassBlobAlpha
+                      : (state.glassBlobAlpha * TGlassTuning.blobAlphaLight / TGlassTuning.blobAlphaDark).round().clamp(0, 255))),
         ),
         widget.child,
       ],
@@ -579,13 +641,18 @@ class _BlobPainter extends CustomPainter {
   final List<Color> colors;
   final Color base;
   final int alpha;
+  final bool drawBase;
+  final double radiusFactor;
+  final BlendMode blend;
 
-  _BlobPainter(this.phase, this.pointer, this.colors, this.base, this.alpha) : super(repaint: Listenable.merge([phase, pointer]));
+  _BlobPainter(this.phase, this.pointer, this.colors, this.base, this.alpha,
+      {this.drawBase = true, this.radiusFactor = 0.45, this.blend = BlendMode.srcOver})
+      : super(repaint: Listenable.merge([phase, pointer]));
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size, Paint()..color = base);
-    final radius = size.longestSide * 0.45;
+    if (drawBase) canvas.drawRect(Offset.zero & size, Paint()..color = base);
+    final radius = size.longestSide * radiusFactor;
     final p = pointer.value - const Offset(0.5, 0.5);
     for (var i = 0; i < colors.length; i++) {
       // Each blob follows its own Lissajous path (advanced only by auto drift) and is pulled by the pointer by its
@@ -600,7 +667,12 @@ class _BlobPainter extends CustomPainter {
       final shader = RadialGradient(
         colors: [colors[i].withAlpha(alpha), colors[i].withAlpha(0)],
       ).createShader(Rect.fromCircle(center: center, radius: radius));
-      canvas.drawCircle(center, radius, Paint()..shader = shader);
+      canvas.drawCircle(
+          center,
+          radius,
+          Paint()
+            ..shader = shader
+            ..blendMode = blend);
     }
   }
 

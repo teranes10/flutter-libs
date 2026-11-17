@@ -7,7 +7,13 @@ import 'package:my_app/router.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 void main() async {
-  await initializeApp();
+  await initializeApp(
+    glass: true,
+    glassLook: TGlassLook.liquid,
+    glassStatic: true,
+    glassImageThumbnail:
+        'UklGRmYBAABXRUJQVlA4IFoBAADwDgCdASqAAFYAPtFYoUuoLachr1m70bAaCWcAy50Jj/QUFrin/8j7iFfjhFGQ5J7yVoDMS15ujjcBpZcw/P3unZkQcFOeMNN8ja28S1vCoccwNBdgLWzn04f6/Z/42M+oFpdTrbqRYNtkZLmwrJUsNPuWcN2mBIEA4+rGbXlIgAD+8G7MAwsWjiAxw/SSY1r4H2HmctMPlXs4HYcv95eyPICOidS9smcz9of5r/saiMpd/7H+4rYLcbO6WUlwgwN2+U1KW7QSFceYZ+raUGUbbZfDJqkjOsVxZ2xz0ASx7N3hULZPpbEXq8BtzlzXFWYmqLDh+ws+CGvUqj/WxVAcVf7ER0+fLLGbNGQfp5eUWH+RhGcQP/cCt4IzEy0aTrBOCi+NVPAFArAqfHdLDIgIjrSzQduPl4fYUdmIUICz7KbuutBmXCYtv1k/oKDs8oBBL0+VFxw7QAAA',
+  );
   runApp(ProviderScope(child: MyApp()));
 }
 

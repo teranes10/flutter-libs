@@ -50,10 +50,12 @@ class _ThemeCustomizer extends ConsumerWidget {
           ),
         );
 
-    return Padding(
+    // The whole panel scrolls: the glass options make the top section taller than many screens.
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           if (showNavigation && context.isDesktop) ...[
             Text('Navigation', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
@@ -155,61 +157,61 @@ class _ThemeCustomizer extends ConsumerWidget {
               ),
             ],
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: kSchemeColorKeys.length + 1,
-              itemBuilder: (context, i) {
-                final key = i == 0 ? kScaffoldBackgroundKey : kSchemeColorKeys[i - 1];
-                final color = i == 0 ? Theme.of(context).scaffoldBackgroundColor : schemeColor(scheme, key);
-                final overridden = overrides.containsKey(key);
-                return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  TColorPickerPopover(
-                    title: _label(key),
-                    color: color,
-                    enableAlpha: key == 'scrim' || key == 'surfaceTint' || key == 'shadow',
-                    alignment: TPopupAlignment.leftCenter,
-                    onChanged: (c) => notifier.setSchemeColor(brightness, key, c),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: color,
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: colors.outlineVariant),
-                            ),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: kSchemeColorKeys.length + 1,
+            itemBuilder: (context, i) {
+              final key = i == 0 ? kScaffoldBackgroundKey : kSchemeColorKeys[i - 1];
+              final color = i == 0 ? Theme.of(context).scaffoldBackgroundColor : schemeColor(scheme, key);
+              final overridden = overrides.containsKey(key);
+              return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                TColorPickerPopover(
+                  title: _label(key),
+                  color: color,
+                  enableAlpha: key == 'scrim' || key == 'surfaceTint' || key == 'shadow',
+                  alignment: TPopupAlignment.leftCenter,
+                  onChanged: (c) => notifier.setSchemeColor(brightness, key, c),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: colors.outlineVariant),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(_label(key),
-                                    style: TextStyle(
-                                        fontSize: 13, color: colors.onSurface, fontWeight: overridden ? FontWeight.w600 : FontWeight.w400)),
-                                Text('#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
-                                    style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
-                              ],
-                            ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(_label(key),
+                                  style: TextStyle(
+                                      fontSize: 13, color: colors.onSurface, fontWeight: overridden ? FontWeight.w600 : FontWeight.w400)),
+                              Text('#${color.toARGB32().toRadixString(16).substring(2).toUpperCase()}',
+                                  style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
+                            ],
                           ),
-                          if (overridden)
-                            TButton(
-                              type: TButtonType.softText,
-                              size: TSize.xs,
-                              tooltip: 'Reset',
-                              icon: Icons.restart_alt,
-                              onTap: () => notifier.resetSchemeColor(brightness, key),
-                            ),
-                        ],
-                      ),
+                        ),
+                        if (overridden)
+                          TButton(
+                            type: TButtonType.softText,
+                            size: TSize.xs,
+                            tooltip: 'Reset',
+                            icon: Icons.restart_alt,
+                            onTap: () => notifier.resetSchemeColor(brightness, key),
+                          ),
+                      ],
                     ),
                   ),
-                ]);
-              },
-            ),
+                ),
+              ]);
+            },
           ),
         ],
       ),
@@ -220,6 +222,8 @@ class _ThemeCustomizer extends ConsumerWidget {
 List<Widget> _glassOptions(BuildContext context, ThemeNotifier notifier, TThemeState state, ColorScheme colors) {
   final label = TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant);
   final mix = state.glassColors ?? TGlassTuning.defaultBlobColors;
+  // One slider, bound to whichever background is active (the image one is tuned much lower by default).
+  final blobAlpha = state.glassStatic ? state.glassImageBlobAlpha : state.glassBlobAlpha;
 
   Widget switchRow(String text, bool value, ValueChanged<bool> onChanged) => Padding(
         padding: const EdgeInsets.only(bottom: 8),
@@ -245,7 +249,7 @@ List<Widget> _glassOptions(BuildContext context, ThemeNotifier notifier, TThemeS
       tabs: [for (final l in TGlassLook.values) TTab(value: l, text: l.label)],
     ),
     const SizedBox(height: 8),
-    switchRow('Static image background', state.glassStatic, notifier.setGlassStatic),
+    switchRow('Image background', state.glassStatic, notifier.setGlassStatic),
     if (state.glassStatic) ...[
       Padding(
         padding: const EdgeInsets.only(bottom: 8),
@@ -263,7 +267,9 @@ List<Widget> _glassOptions(BuildContext context, ThemeNotifier notifier, TThemeS
       Text('Image dim ${state.glassImageDim}%', style: label),
       TSlider(value: state.glassImageDim.toDouble(), min: 0, max: 80, onValueChanged: (v) => notifier.setGlassImageDim(v!.round())),
       const SizedBox(height: 8),
-    ] else ...[
+    ],
+    // Animation and colours apply to both backgrounds: blobs flow behind the glass, or tint the photo.
+    ...[
       switchRow('Animate (mouse + auto drift)', state.glassAnimated, notifier.setGlassAnimated),
       if (state.glassAnimated) ...[
         Text('Auto drift after ${state.glassIdleSeconds}s idle', style: label),
@@ -272,6 +278,20 @@ List<Widget> _glassOptions(BuildContext context, ThemeNotifier notifier, TThemeS
           min: 3,
           max: 60,
           onValueChanged: (v) => notifier.setGlassIdleSeconds(v!.round()),
+        ),
+        const SizedBox(height: 8),
+      ],
+      // Over a photo the blobs only exist while animating.
+      if (!state.glassStatic || state.glassAnimated) ...[
+        Text('Blob opacity ${(blobAlpha / 255 * 100).round()}%', style: label),
+        TSlider(
+          value: blobAlpha / 255 * 100,
+          min: 0,
+          max: 100,
+          onValueChanged: (v) {
+            final alpha = (v! / 100 * 255).round();
+            state.glassStatic ? notifier.setGlassImageBlobAlpha(alpha) : notifier.setGlassBlobAlpha(alpha);
+          },
         ),
         const SizedBox(height: 8),
       ],

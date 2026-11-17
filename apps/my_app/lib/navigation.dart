@@ -10,7 +10,9 @@ import 'package:my_app/pages/buttons_page.dart';
 import 'package:my_app/pages/calendar_view_page.dart';
 import 'package:my_app/pages/carousel_page.dart';
 import 'package:my_app/pages/chips_page.dart';
+import 'package:my_app/pages/blurhash_page.dart';
 import 'package:my_app/pages/colors_page.dart';
+import 'package:my_app/pages/thumbnail_page.dart';
 import 'package:my_app/pages/command_palette_page.dart';
 import 'package:my_app/pages/context_menu_page.dart';
 import 'package:my_app/pages/copy_button_page.dart';
@@ -285,7 +287,11 @@ final sidebarItems = [
     icon: HugeIcons.strokeRoundedPaintBoard,
     text: 'Foundations',
     route: '/foundations',
-    children: [TSidebarItem(icon: HugeIcons.strokeRoundedHierarchy, text: 'Colors', route: 'colors', page: const ColorsPage())],
+    children: [
+      TSidebarItem(icon: HugeIcons.strokeRoundedHierarchy, text: 'Colors', route: 'colors', page: const ColorsPage()),
+      TSidebarItem(icon: HugeIcons.strokeRoundedImage01, text: 'BlurHash', route: 'blurhash', page: const BlurHashPage()),
+      TSidebarItem(icon: HugeIcons.strokeRoundedImage02, text: 'Thumbnail', route: 'thumbnail', page: const ThumbnailPage()),
+    ],
   ),
 
   // ── Samples & Demos ──────────────────────────────────────────────────────

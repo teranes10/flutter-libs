@@ -23,6 +23,9 @@ final glassStaticKey = 'te_glass_static';
 final glassLookKey = 'te_glass_look';
 final glassImageBlurKey = 'te_glass_image_blur';
 final glassImageDimKey = 'te_glass_image_dim';
+final glassBlobAlphaKey = 'te_glass_blob_alpha';
+final glassImageBlobAlphaKey = 'te_glass_image_blob_alpha';
+final glassImageThumbKey = 'te_glass_image_thumb';
 final glassImageHashKey = 'te_glass_image_hash';
 final glassIdleKey = 'te_glass_idle_seconds';
 
@@ -41,8 +44,12 @@ int _initialGlassIdle = 10;
 double _initialGlassImageBlur = 3;
 int _initialGlassImageDim = 30;
 String? _initialGlassImageHash;
+int _initialGlassBlobAlpha = TGlassTuning.blobAlphaDark;
+int _initialGlassImageBlobAlpha = TGlassTuning.imageBlobAlphaDark;
 String? _initialGlassAsset;
 String? _initialGlassAssetHash;
+Uint8List? _initialGlassThumb;
+Uint8List? _initialGlassImageThumb;
 TGlassLook _initialGlassLook = TGlassLook.liquid;
 
 /// Which `TLayout` implementation the app renders.
@@ -100,6 +107,12 @@ class TThemeState {
   /// Darkening (0-80 %) laid over the static background image.
   final int glassImageDim;
 
+  /// Opacity (alpha 0-255, dark mode) of the animated glass blobs; light mode scales it down.
+  final int glassBlobAlpha;
+
+  /// Opacity (alpha 0-255, dark mode) of the colour blobs laid over the image background.
+  final int glassImageBlobAlpha;
+
   /// BlurHash of the user's image: shown as an instant preview while the stored image loads.
   final String? glassImageHash;
 
@@ -111,6 +124,12 @@ class TThemeState {
 
   /// BlurHash of [glassImageAsset].
   final String? glassAssetHash;
+
+  /// Thumbnail of the user's own image; replaces [glassThumbBytes] (from code) while they have an image.
+  final Uint8List? glassImageThumb;
+
+  /// Tiny thumbnail (PNG) shown blurred between the BlurHash and the full image; set from code.
+  final Uint8List? glassThumbBytes;
 
   /// Asset path set from code, used when the user has not picked an image.
   final String? glassImageAsset;
@@ -214,10 +233,14 @@ class TThemeState {
     this.glassImageBlur = 3,
     this.glassImageDim = 30,
     this.glassImageHash,
+    this.glassBlobAlpha = TGlassTuning.blobAlphaDark,
+    this.glassImageBlobAlpha = TGlassTuning.imageBlobAlphaDark,
     this.glassImageBytes,
     this.glassImageAsset,
     this.glassAssetBytes,
     this.glassAssetHash,
+    this.glassThumbBytes,
+    this.glassImageThumb,
     this.customColor,
     this.lightOverrides = const {},
     this.darkOverrides = const {},
@@ -237,11 +260,15 @@ class TThemeState {
     double? glassImageBlur,
     int? glassImageDim,
     String? glassImageHash,
+    int? glassBlobAlpha,
+    int? glassImageBlobAlpha,
     Uint8List? glassImageBytes,
     bool clearGlassImage = false,
     String? glassImageAsset,
     Uint8List? glassAssetBytes,
     String? glassAssetHash,
+    Uint8List? glassThumbBytes,
+    Uint8List? glassImageThumb,
     Color? customColor,
     bool clearCustomColor = false,
     Map<String, int>? lightOverrides,
@@ -263,10 +290,14 @@ class TThemeState {
       glassImageBlur: glassImageBlur ?? this.glassImageBlur,
       glassImageDim: glassImageDim ?? this.glassImageDim,
       glassImageHash: clearGlassImage ? null : (glassImageHash ?? this.glassImageHash),
+      glassBlobAlpha: glassBlobAlpha ?? this.glassBlobAlpha,
+      glassImageBlobAlpha: glassImageBlobAlpha ?? this.glassImageBlobAlpha,
       glassImageBytes: clearGlassImage ? null : (glassImageBytes ?? this.glassImageBytes),
       glassImageAsset: glassImageAsset ?? this.glassImageAsset,
       glassAssetBytes: glassAssetBytes ?? this.glassAssetBytes,
       glassAssetHash: glassAssetHash ?? this.glassAssetHash,
+      glassThumbBytes: glassThumbBytes ?? this.glassThumbBytes,
+      glassImageThumb: clearGlassImage ? null : (glassImageThumb ?? this.glassImageThumb),
     );
   }
 }
@@ -294,6 +325,10 @@ String _glassAssetKey(String asset) => 'te_glass_asset_${TImageStorage.urlToKey(
 ///   [glassIdleSeconds]: pointer rest time before auto drift starts.
 /// - [glassStatic]: use a static image instead of the animated blobs. [glassImageBlur] (0-30) and [glassImageDim]
 ///   (0-80 %) soften and darken that image.
+/// - [glassImageThumbnail]: base64 of a tiny thumbnail of the background image (make one with the Thumbnail page or
+///   `TImageThumbnail.generateBase64`). It is the blurred "fade" stage between the BlurHash and the full image, and
+///   it is already in memory at startup, so it shows instantly with no storage or network read.
+/// - [glassBlobAlpha] / [glassImageBlobAlpha] (0-255): opacity of the animated blobs, and of the blobs over the image.
 /// - [glassImageAsset] (e.g. `assets/bg.jpg`): the static background image. It implies [glassStatic] unless you set it.
 ///   On web an asset is a network download, so it is fetched once, stored locally (IndexedDB) and read from there on
 ///   later launches; the first time it also produces a BlurHash and the matching accent colours.
@@ -312,7 +347,10 @@ Future<void> initializeApp({
   bool? glassStatic,
   double? glassImageBlur,
   int? glassImageDim,
+  int? glassBlobAlpha,
+  int? glassImageBlobAlpha,
   String? glassImageAsset,
+  String? glassImageThumbnail,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -362,13 +400,17 @@ Future<void> initializeApp({
   _initialGlassColors = p.getStringList(glassColorsKey)?.map((e) => Color(int.parse(e))).toList() ?? glassColors;
   _initialGlassAnimated = p.getBool(glassAnimatedKey) ?? glassAnimated ?? true;
   _initialGlassAsset = glassImageAsset;
+  _initialGlassThumb = TImageThumbnail.fromBase64(glassImageThumbnail);
+  _initialGlassImageThumb = TImageThumbnail.fromBase64(p.getString(glassImageThumbKey));
   _initialGlassAssetHash = glassImageAsset == null ? null : p.getString('${_glassAssetKey(glassImageAsset)}_hash');
-  // An asset given with no saved choice starts on the static image.
-  _initialGlassStatic = p.getBool(glassStaticKey) ?? glassStatic ?? (glassImageAsset != null);
+  // An asset or thumbnail given with no saved choice starts on the static image (a lone thumbnail is a blurred shade).
+  _initialGlassStatic = p.getBool(glassStaticKey) ?? glassStatic ?? (glassImageAsset != null || _initialGlassThumb != null);
   _initialGlassIdle = p.getInt(glassIdleKey) ?? glassIdleSeconds ?? 10;
   _initialGlassImageBlur = p.getDouble(glassImageBlurKey) ?? glassImageBlur ?? 3;
   _initialGlassImageDim = p.getInt(glassImageDimKey) ?? glassImageDim ?? 30;
   _initialGlassImageHash = p.getString(glassImageHashKey);
+  _initialGlassBlobAlpha = p.getInt(glassBlobAlphaKey) ?? glassBlobAlpha ?? TGlassTuning.blobAlphaDark;
+  _initialGlassImageBlobAlpha = p.getInt(glassImageBlobAlphaKey) ?? glassImageBlobAlpha ?? TGlassTuning.imageBlobAlphaDark;
   _initialGlassLook = TGlassLook.values.firstWhere(
     (l) => l.name == p.getString(glassLookKey),
     orElse: () => glassLook ?? TGlassLook.liquid,
@@ -394,8 +436,12 @@ class ThemeNotifier extends Notifier<TThemeState> {
       glassImageBlur: _initialGlassImageBlur,
       glassImageDim: _initialGlassImageDim,
       glassImageHash: _initialGlassImageHash,
+      glassBlobAlpha: _initialGlassBlobAlpha,
+      glassImageBlobAlpha: _initialGlassImageBlobAlpha,
       glassImageAsset: _initialGlassAsset,
       glassAssetHash: _initialGlassAssetHash,
+      glassThumbBytes: _initialGlassThumb,
+      glassImageThumb: _initialGlassImageThumb,
     );
     // The user's stored image loads after the first state is in place.
     Future.microtask(() async {
@@ -539,6 +585,16 @@ class ThemeNotifier extends Notifier<TThemeState> {
     SharedPreferences.getInstance().then((p) => p.setInt(glassImageDimKey, v));
   }
 
+  void setGlassBlobAlpha(int v) {
+    state = state.copyWith(glassBlobAlpha: v);
+    SharedPreferences.getInstance().then((p) => p.setInt(glassBlobAlphaKey, v));
+  }
+
+  void setGlassImageBlobAlpha(int v) {
+    state = state.copyWith(glassImageBlobAlpha: v);
+    SharedPreferences.getInstance().then((p) => p.setInt(glassImageBlobAlphaKey, v));
+  }
+
   void setGlassLook(TGlassLook look) {
     state = state.copyWith(glassLook: look);
     SharedPreferences.getInstance().then((p) => p.setString(glassLookKey, look.name));
@@ -563,20 +619,18 @@ class ThemeNotifier extends Notifier<TThemeState> {
 
   /// Stores [bytes] in IndexedDB and uses them as the static glass background.
   Future<void> setGlassImageBytes(Uint8List bytes) async {
-    state = state.copyWith(glassImageBytes: bytes, glassStatic: true);
-    unawaited(SharedPreferences.getInstance().then((p) => p.setBool(glassStaticKey, true)));
-    await TGlassImageStore.save(bytes);
+    // Everything that describes the image is made first and swapped in together, so the old image's BlurHash,
+    // thumbnail and colours (or the ones from code) never show under the new image.
+    final results = await Future.wait<Object?>([
+      TBlurHash.fromImageBytes(bytes),
+      TImageThumbnail.generate(bytes),
+      TGlassImagePalette.fromBytes(bytes),
+    ]);
+    final hash = results[0] as String?;
+    final thumb = results[1] as Uint8List?;
+    final palette = results[2] as TGlassImagePalette?;
 
-    // BlurHash for an instant preview on the next load.
-    final hash = await TBlurHash.fromImageBytes(bytes);
-    if (hash != null) {
-      state = state.copyWith(glassImageHash: hash);
-      unawaited(SharedPreferences.getInstance().then((p) => p.setString(glassImageHashKey, hash)));
-    }
-
-    // Matching theme colours: accent from the image's strongest colour, secondary from the next distinct one, and
-    // the whole mix for the animated blobs.
-    final palette = await TGlassImagePalette.fromBytes(bytes);
+    state = state.copyWith(glassImageBytes: bytes, glassImageHash: hash, glassImageThumb: thumb, glassStatic: true);
     if (palette != null) {
       setCustomColor(palette.primary);
       for (final b in Brightness.values) {
@@ -584,11 +638,20 @@ class ThemeNotifier extends Notifier<TThemeState> {
       }
       setGlassColors(palette.mix);
     }
+
+    final p = await SharedPreferences.getInstance();
+    await p.setBool(glassStaticKey, true);
+    hash == null ? await p.remove(glassImageHashKey) : await p.setString(glassImageHashKey, hash);
+    thumb == null ? await p.remove(glassImageThumbKey) : await p.setString(glassImageThumbKey, base64Encode(thumb));
+    await TGlassImageStore.save(bytes);
   }
 
   Future<void> clearGlassImage() async {
     state = state.copyWith(clearGlassImage: true);
-    unawaited(SharedPreferences.getInstance().then((p) => p.remove(glassImageHashKey)));
+    unawaited(SharedPreferences.getInstance().then((p) {
+      p.remove(glassImageHashKey);
+      p.remove(glassImageThumbKey);
+    }));
     await TGlassImageStore.clear();
   }
 

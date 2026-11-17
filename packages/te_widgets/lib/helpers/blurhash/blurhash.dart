@@ -133,12 +133,12 @@ abstract final class TBlurHash {
   }
 
   /// Hash of encoded image [bytes] (any format Flutter can decode), or null if decoding fails.
-  static Future<String?> fromImageBytes(Uint8List bytes) async {
+  static Future<String?> fromImageBytes(Uint8List bytes, {int componentsX = 4, int componentsY = 3}) async {
     try {
       final img = await _decodeSmall(bytes, 32);
       final data = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
       if (data == null) return null;
-      return encode(data.buffer.asUint8List(), img.width, img.height);
+      return encode(data.buffer.asUint8List(), img.width, img.height, componentsX: componentsX, componentsY: componentsY);
     } catch (_) {
       return null;
     }

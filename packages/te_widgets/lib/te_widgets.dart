@@ -12,6 +12,7 @@ export 'widgets/surface/glass.dart';
 export 'widgets/surface/glass_image_store.dart';
 export 'widgets/surface/glass_image_palette.dart';
 export 'helpers/blurhash/blurhash.dart';
+export 'helpers/thumbnail/image_thumbnail.dart';
 export 'helpers/blurhash/blurhash_view.dart';
 export 'configs/widget-theme/input_field_theme.dart';
 
