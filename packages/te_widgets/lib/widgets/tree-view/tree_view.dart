@@ -327,6 +327,7 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
     final shouldAutoExpand = query.isNotEmpty && _nodeMatchesSearch(node, query);
     final isExpanded = _expandedKeys.contains(node.key) || shouldAutoExpand;
     final isSelected = _selectedKeys.contains(node.key);
+    final glass = TGlassStyle.resolve(context) != null;
     final checkboxState = _getCheckboxState(node);
 
     final defaultIcon =
@@ -350,10 +351,13 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
                   }
                 },
           borderRadius: BorderRadius.circular(6.0),
+          hoverColor: glass ? TGlassStyle.hoverOverlay(context) : null,
           child: Container(
             padding: EdgeInsets.only(left: depth * widget.indentWidth, right: 8.0, top: 4.0, bottom: 4.0),
             decoration: BoxDecoration(
-              color: isSelected ? (colors.primaryContainer.withValues(alpha: isDark ? 0.35 : 0.5)) : Colors.transparent,
+              color: isSelected
+                  ? (glass ? TGlassStyle.activeOverlay(context) : colors.primaryContainer.withValues(alpha: isDark ? 0.35 : 0.5))
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(6.0),
             ),
             child: Row(
@@ -439,7 +443,7 @@ class _TTreeViewState<T> extends State<TTreeView<T>> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                     decoration: BoxDecoration(
-                      color: colors.surfaceContainerHighest,
+                      color: TGlassStyle.frost(context, colors.surfaceContainerHighest),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(

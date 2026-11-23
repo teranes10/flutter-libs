@@ -207,7 +207,17 @@ class _TButtonGroupState extends State<TButtonGroup> {
 
     Widget buttonGroup = _buildButtonRow(context, effectiveTheme);
 
-    if (effectiveTheme.enableBoxedMode) {
+    final glass = TGlassStyle.resolve(context);
+    if (effectiveTheme.enableBoxedMode && glass != null && glass.isLiquid && effectiveTheme.type == TButtonGroupType.segmented) {
+      // Liquid: the segmented track is a liquid pane rather than a flat frosted wash.
+      final radius = (effectiveTheme.boxedDecoration?.borderRadius ?? BorderRadius.circular(12)).resolve(Directionality.of(context));
+      buttonGroup = TGlassSurface.wrap(
+        context,
+        radius: radius,
+        color: context.colors.surface,
+        child: Padding(padding: effectiveTheme.boxedPadding ?? EdgeInsets.zero, child: buttonGroup),
+      );
+    } else if (effectiveTheme.enableBoxedMode) {
       buttonGroup = Container(
         padding: effectiveTheme.boxedPadding,
         decoration: effectiveTheme.boxedDecoration,
@@ -307,9 +317,11 @@ class _TButtonGroupState extends State<TButtonGroup> {
           }
         }
       }
-      return Row(
-        mainAxisSize: MainAxisSize.max,
-        children: rowChildren,
+      return _glassJoined(
+        context,
+        groupTheme,
+        visible,
+        Row(mainAxisSize: MainAxisSize.max, children: rowChildren),
       );
     }
 
@@ -323,7 +335,26 @@ class _TButtonGroupState extends State<TButtonGroup> {
       );
     }
 
-    return Wrap(alignment: widget.alignment, crossAxisAlignment: WrapCrossAlignment.center, spacing: segmentGap, children: children);
+    final row = Wrap(alignment: widget.alignment, crossAxisAlignment: WrapCrossAlignment.center, spacing: segmentGap, children: children);
+
+    return _glassJoined(context, groupTheme, visible, row);
+  }
+
+  /// Glass: a joined group of bare icon buttons shares one glass pill (or the segmented track) instead of a pill per button.
+  Widget _glassJoined(BuildContext context, TButtonGroupTheme groupTheme, List<int> visible, Widget row) {
+    final allIconOnly = visible.every((i) {
+      final it = widget.items[i];
+      return it.icon != null && it.text.isNullOrBlank && it.child == null;
+    });
+    if (allIconOnly && TGlassStyle.resolve(context) != null) {
+      // Segmented groups already have a glass track from the boxed wrapper, so only the scope is added.
+      return _TButtonGlassScope(
+        child: groupTheme.type == TButtonGroupType.segmented
+            ? row
+            : TGlassSurface.wrap(context, radius: BorderRadius.circular(999), color: context.colors.surface, child: row),
+      );
+    }
+    return row;
   }
 
   Widget _buildButton(
@@ -402,6 +433,7 @@ class _TButtonGroupState extends State<TButtonGroup> {
     // Separated filled-text buttons: only the active one keeps its background.
     final dropBackground =
         widget.separated && !isActive && (groupTheme.type == TButtonGroupType.filledText || groupTheme.type == TButtonGroupType.boxed);
+    final hasSelection = !widget.cycle && (widget.items.any((i) => i.active) || (isStateful && _currentIndex >= 0));
     final effectiveButtonType = dropBackground ? TButtonType.text : groupTheme.type.buttonType;
     final buttonTheme = defaultTheme.copyWith(
       baseTheme: defaultTheme.baseTheme.rebuild(
@@ -416,15 +448,16 @@ class _TButtonGroupState extends State<TButtonGroup> {
       final colors = context.colors;
       final glass = TGlassStyle.resolve(context);
       // Glass: the active pill is a bright frosted chip with a visible edge instead of an opaque raised surface.
-      final pillFill = Colors.white.withAlpha(colors.isDarkMode ? 52 : 235);
+      final liquid = glass != null && glass.isLiquid;
+      final pillFill = liquid ? Colors.transparent : Colors.white.withAlpha(colors.isDarkMode ? 52 : 235);
       final activeBase = TWidgetTheme(
         isDarkMode: colors.isDarkMode,
         type: TVariant.tonal,
         color: colors.onSurface.toMaterial(),
         container: glass != null ? pillFill : colors.surface,
         containerVariant: glass != null ? pillFill : colors.surface,
-        outline: glass?.fieldEdge(context),
-        outlineVariant: glass?.fieldEdge(context),
+        outline: liquid ? Colors.transparent : glass?.fieldEdge(context),
+        outlineVariant: liquid ? Colors.transparent : glass?.fieldEdge(context),
         onContainer: colors.onSurface,
         onContainerVariant: colors.onSurface,
         shadow: glass != null ? null : colors.shadow,
@@ -442,12 +475,54 @@ class _TButtonGroupState extends State<TButtonGroup> {
         elevation: isActive && glass == null ? 1 : 0,
       );
       final pill = RoundedRectangleBorder(borderRadius: BorderRadius.circular(groupTheme.borderRadius));
-      return button.copyWith(theme: segTheme.copyWith(buttonStyle: segTheme.buttonStyle.copyWith(shape: WidgetStateProperty.all(pill))));
+      final segButton =
+          button.copyWith(theme: segTheme.copyWith(buttonStyle: segTheme.buttonStyle.copyWith(shape: WidgetStateProperty.all(pill))));
+      // Liquid: only the selected segment is a liquid glass pane; the others stay plain icons on the track.
+      if (liquid) {
+        return _TButtonGlassScope(
+          child: isActive
+              ? TGlassSurface.wrap(context, radius: BorderRadius.circular(groupTheme.borderRadius), color: colors.surface, child: segButton)
+              : segButton,
+        );
+      }
+      return segButton;
     }
+
+    final emphasize = hasSelection && isActive && (groupTheme.type == TButtonGroupType.outline || groupTheme.type == TButtonGroupType.text);
+    final dark = buttonTheme.baseTheme.isDarkMode;
+    final accent = buttonTheme.baseTheme.color;
+    final strongText = dark ? accent.shade(200) : accent.shade(700);
+    final strongBorder = dark ? accent.shade(300) : accent.shade(600);
+    // Active button keeps the group variant; it only moves to the theme's variant colours (a mid-level step, not a type change).
+    final deepen = hasSelection && isActive && (groupTheme.type == TButtonGroupType.solid || groupTheme.type == TButtonGroupType.tonal);
+    final themed = deepen
+        ? buttonTheme.copyWith(
+            baseTheme: buttonTheme.baseTheme.copyWith(
+              container: buttonTheme.baseTheme.containerVariant,
+              onContainer: buttonTheme.baseTheme.onContainerVariant,
+            ),
+          )
+        : !emphasize
+            ? buttonTheme
+            : buttonTheme.copyWith(
+                baseTheme: buttonTheme.baseTheme.copyWith(
+                  onContainer: strongText,
+                  onContainerVariant: strongText,
+                  // Only the outline group gets a (bolder) border; text mode stays borderless.
+                  outline: groupTheme.type == TButtonGroupType.outline ? strongBorder : null,
+                  outlineVariant: groupTheme.type == TButtonGroupType.outline ? strongBorder : null,
+                ),
+              );
+    final emphasizedStyle = !emphasize
+        ? themed.buttonStyle
+        : themed.buttonStyle.copyWith(
+            side: groupTheme.type == TButtonGroupType.outline ? WidgetStateProperty.all(BorderSide(color: strongBorder, width: 1.5)) : null,
+            textStyle: WidgetStateProperty.all(TextStyle(fontSize: themed.size.font, fontWeight: FontWeight.w700, letterSpacing: 0.65)),
+          );
 
     final isSingle = total == 1 || widget.separated;
     if (isSingle) {
-      return button.copyWith(theme: buttonTheme);
+      return button.copyWith(theme: themed.copyWith(buttonStyle: emphasizedStyle));
     }
 
     final isFirst = position == 0;
@@ -464,9 +539,17 @@ class _TButtonGroupState extends State<TButtonGroup> {
     );
 
     return button.copyWith(
-      theme: buttonTheme.copyWith(
-        buttonStyle: buttonTheme.buttonStyle.copyWith(shape: WidgetStateProperty.all(shape)),
+      theme: themed.copyWith(
+        buttonStyle: emphasizedStyle.copyWith(shape: WidgetStateProperty.all(shape)),
       ),
     );
   }
+}
+
+/// Tells descendant icon [TButton]s not to paint their own glass surface (the enclosing group already does).
+class _TButtonGlassScope extends InheritedWidget {
+  const _TButtonGlassScope({required super.child});
+
+  @override
+  bool updateShouldNotify(_TButtonGlassScope oldWidget) => false;
 }

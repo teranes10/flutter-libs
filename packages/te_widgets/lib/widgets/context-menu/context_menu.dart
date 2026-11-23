@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:te_widgets/configs/theme/app_colors.dart';
 import 'package:te_widgets/extensions/build_context_x.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
+import 'package:te_widgets/widgets/surface/glass.dart';
 
 /// Base class for items inside a [TContextMenu].
 abstract class TContextMenuEntry {
@@ -201,6 +202,7 @@ class _TContextMenuState extends State<TContextMenu> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glass = TGlassStyle.resolve(context) != null;
 
     return OverlayPortal(
       controller: _portalController,
@@ -257,50 +259,55 @@ class _TContextMenuState extends State<TContextMenu> {
                     },
                     child: Material(
                       type: MaterialType.transparency,
-                      child: Container(
-                        constraints: BoxConstraints(minWidth: widget.minWidth, maxWidth: widget.maxWidth),
-                        padding: const EdgeInsets.symmetric(vertical: 6.0),
-                        decoration: BoxDecoration(
-                          color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                          borderRadius: BorderRadius.circular(10.0),
-                          border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.6)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: colors.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
-                              blurRadius: 18,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: widget.items.map((entry) {
-                            if (entry is TContextMenuDivider) {
-                              return Divider(
-                                height: 9,
-                                thickness: 1,
-                                color: colors.outlineVariant.withValues(alpha: 0.4),
+                      child: TGlassSurface.wrap(
+                        context,
+                        radius: BorderRadius.circular(10.0),
+                        color: colors.surface,
+                        child: Container(
+                          constraints: BoxConstraints(minWidth: widget.minWidth, maxWidth: widget.maxWidth),
+                          padding: const EdgeInsets.symmetric(vertical: 6.0),
+                          decoration: BoxDecoration(
+                            color: glass ? null : (isDark ? colors.surfaceContainerHigh : colors.surface),
+                            borderRadius: BorderRadius.circular(10.0),
+                            border: glass ? null : Border.all(color: colors.outlineVariant.withValues(alpha: 0.6)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: colors.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
+                                blurRadius: 18,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: widget.items.map((entry) {
+                              if (entry is TContextMenuDivider) {
+                                return Divider(
+                                  height: 9,
+                                  thickness: 1,
+                                  color: colors.outlineVariant.withValues(alpha: 0.4),
+                                );
+                              }
+
+                              final item = entry as TContextMenuItem;
+                              final itemColor = !item.isEnabled
+                                  ? colors.onSurfaceVariant.withValues(alpha: 0.4)
+                                  : (item.isDestructive ? AppColors.danger : colors.onSurface);
+
+                              return _ContextMenuItemRow(
+                                item: item,
+                                itemColor: itemColor,
+                                onTap: () {
+                                  if (item.isEnabled) {
+                                    _hideMenu();
+                                    item.onTap?.call();
+                                  }
+                                },
                               );
-                            }
-
-                            final item = entry as TContextMenuItem;
-                            final itemColor = !item.isEnabled
-                                ? colors.onSurfaceVariant.withValues(alpha: 0.4)
-                                : (item.isDestructive ? AppColors.danger : colors.onSurface);
-
-                            return _ContextMenuItemRow(
-                              item: item,
-                              itemColor: itemColor,
-                              onTap: () {
-                                if (item.isEnabled) {
-                                  _hideMenu();
-                                  item.onTap?.call();
-                                }
-                              },
-                            );
-                          }).toList(),
+                            }).toList(),
+                          ),
                         ),
                       ),
                     ),
@@ -360,7 +367,9 @@ class _ContextMenuItemRowState extends State<_ContextMenuItemRow> {
     if (_isHovered && isInteractive) {
       bg = widget.item.isDestructive
           ? AppColors.danger.withValues(alpha: 0.1)
-          : (isDark ? colors.surfaceContainerHighest : colors.surfaceContainerLow);
+          : (TGlassStyle.resolve(context) != null
+              ? Colors.white.withAlpha(isDark ? 28 : 120)
+              : (isDark ? colors.surfaceContainerHighest : colors.surfaceContainerLow));
     }
 
     return MouseRegion(

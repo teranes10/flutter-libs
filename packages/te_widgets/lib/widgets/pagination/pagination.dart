@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:te_widgets/te_widgets.dart';
 
 /// A pagination component for navigating through pages.
@@ -7,8 +8,9 @@ import 'package:te_widgets/te_widgets.dart';
 /// - First/last page buttons
 /// - Previous/next page buttons
 /// - Numbered page buttons
-/// - Ellipsis for skipped pages
-/// - Configurable visible pages
+/// - Sliding window of pages around the current one (stable width)
+/// - Tap the ellipsis to jump to any page
+/// - Animated active-page highlight, tooltips and keyboard (arrow/Home/End) support
 ///
 /// ## Basic Usage
 ///
@@ -43,7 +45,7 @@ class TPagination extends StatefulWidget {
   /// The total number of pages.
   final int totalPages;
 
-  /// Number of page buttons to show (must be odd).
+  /// Number of page slots to show (must be odd, minimum 5).
   ///
   /// Defaults to 9.
   final int totalVisible;
@@ -58,13 +60,17 @@ class TPagination extends StatefulWidget {
     required this.totalPages,
     this.totalVisible = 9,
     required this.onPageChanged,
-  }) : assert(totalVisible % 2 == 1, 'totalVisible must be an odd number');
+  }) : assert(totalVisible % 2 == 1 && totalVisible >= 5, 'totalVisible must be an odd number >= 5');
 
   @override
   State<TPagination> createState() => _PaginationState();
 }
 
 class _PaginationState extends State<TPagination> {
+  static const double _slot = 36;
+  static const double _gap = 4;
+  static const double _radius = 6;
+
   late int _currentPage;
 
   @override
@@ -76,193 +82,203 @@ class _PaginationState extends State<TPagination> {
   @override
   void didUpdateWidget(TPagination oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentPage != widget.currentPage) {
-      _currentPage = widget.currentPage;
+    if (oldWidget.currentPage != widget.currentPage) _currentPage = widget.currentPage;
+  }
+
+  /// Page numbers; `null` marks an ellipsis. Length is stable once totalPages > totalVisible.
+  List<int?> get _items {
+    final total = widget.totalPages;
+    final slots = widget.totalVisible;
+    if (total <= slots) return [for (var i = 1; i <= total; i++) i];
+
+    final half = (slots - 4) ~/ 2;
+    if (_currentPage <= half + 3) {
+      return [for (var i = 1; i <= slots - 2; i++) i, null, total];
+    }
+    if (_currentPage >= total - half - 2) {
+      return [1, null, for (var i = total - slots + 3; i <= total; i++) i];
+    }
+    return [1, null, for (var i = _currentPage - half; i <= _currentPage + half; i++) i, null, total];
+  }
+
+  void _goto(int page) {
+    final p = page.clamp(1, widget.totalPages);
+    if (p != _currentPage) {
+      setState(() => _currentPage = p);
+      widget.onPageChanged(p);
     }
   }
 
-  List<dynamic> get _visiblePages {
-    int startPage = 1;
-    int endPage = widget.totalPages;
-
-    if (widget.totalPages > widget.totalVisible) {
-      final half = widget.totalVisible ~/ 2;
-      if (_currentPage <= half) {
-        endPage = widget.totalVisible;
-      } else if (_currentPage + half >= widget.totalPages) {
-        startPage = widget.totalPages - widget.totalVisible + 1;
-      } else {
-        startPage = _currentPage - half;
-        endPage = _currentPage + half;
-      }
-
-      if (startPage > 1) {
-        startPage += 2;
-      }
-
-      if (endPage < widget.totalPages) {
-        endPage -= 2;
-      }
-    }
-
-    final pages = <dynamic>[];
-
-    if (startPage > 1) {
-      pages.addAll([1, '...']);
-    }
-
-    for (int i = startPage; i <= endPage; i++) {
-      pages.add(i);
-    }
-
-    if (endPage < widget.totalPages) {
-      pages.addAll(['...', widget.totalPages]);
-    }
-
-    return pages.isNotEmpty ? pages : [1];
-  }
-
-  bool get _hasFirstPage => _currentPage > 1;
-  bool get _hasLastPage => _currentPage < widget.totalPages;
-  bool get _hasNextPage => _currentPage < widget.totalPages;
-  bool get _hasPreviousPage => _currentPage > 1;
-
-  void _gotoFirstPage() {
-    _updatePage(1);
-  }
-
-  void _gotoLastPage() {
-    _updatePage(widget.totalPages);
-  }
-
-  void _gotoPage(int pageNumber) {
-    _updatePage(pageNumber);
-  }
-
-  void _gotoNextPage() {
-    _updatePage(_currentPage + 1);
-  }
-
-  void _gotoPreviousPage() {
-    _updatePage(_currentPage - 1);
-  }
-
-  void _updatePage(int newPage) {
-    if (newPage != _currentPage && newPage >= 1 && newPage <= widget.totalPages) {
-      setState(() {
-        _currentPage = newPage;
-      });
-      widget.onPageChanged(newPage);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 4,
-      runSpacing: 4,
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        // First page button
-        _PaginationIconButton(
-          icon: HugeIcons.strokeRoundedArrowLeftDouble,
-          isEnabled: _hasFirstPage,
-          onPressed: _gotoFirstPage,
-        ),
-        // Previous page button
-        _PaginationIconButton(
-          icon: HugeIcons.strokeRoundedArrowLeft01,
-          isEnabled: _hasPreviousPage,
-          onPressed: _gotoPreviousPage,
-        ),
-        // Page numbers
-        ..._visiblePages.map((page) {
-          if (page == '...') {
-            return const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Text('...'));
-          } else {
-            return _PaginationNumberButton(number: page, isActive: page == _currentPage, onPressed: () => _gotoPage(page));
-          }
-        }),
-        // Next page button
-        _PaginationIconButton(
-          icon: HugeIcons.strokeRoundedArrowRight01,
-          isEnabled: _hasNextPage,
-          onPressed: _gotoNextPage,
-        ),
-        // Last page button
-        _PaginationIconButton(
-          icon: HugeIcons.strokeRoundedArrowRightDouble,
-          isEnabled: _hasLastPage,
-          onPressed: _gotoLastPage,
-        ),
-      ],
+  void _promptPage() {
+    TAlertService.prompt(
+      context,
+      title: 'Go to page',
+      placeholder: '1 - ${widget.totalPages}',
+      confirmButtonText: 'Go',
+      width: 360,
+      onConfirm: (v) {
+        final page = int.tryParse(v.trim());
+        if (page != null) _goto(page);
+      },
     );
   }
-}
 
-class _PaginationIconButton extends StatelessWidget {
-  final dynamic icon;
-  final bool isEnabled;
-  final VoidCallback onPressed;
-
-  const _PaginationIconButton({
-    required this.icon,
-    required this.isEnabled,
-    required this.onPressed,
-  });
+  KeyEventResult _onKey(FocusNode node, KeyEvent e) {
+    if (e is! KeyDownEvent) return KeyEventResult.ignored;
+    final k = e.logicalKey;
+    if (k == LogicalKeyboardKey.arrowLeft) {
+      _goto(_currentPage - 1);
+    } else if (k == LogicalKeyboardKey.arrowRight) {
+      _goto(_currentPage + 1);
+    } else if (k == LogicalKeyboardKey.home) {
+      _goto(1);
+    } else if (k == LogicalKeyboardKey.end) {
+      _goto(widget.totalPages);
+    } else {
+      return KeyEventResult.ignored;
+    }
+    return KeyEventResult.handled;
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final color = isEnabled ? colors.onSurface : colors.onSurface.withAlpha(75);
+    final items = _items;
+    final hasPrev = _currentPage > 1;
+    final hasNext = _currentPage < widget.totalPages;
+    final activeIndex = items.indexOf(_currentPage);
 
-    return TButton(
-      type: TButtonType.softText,
-      size: TSize.sm,
-      icon: icon,
-      color: color,
-      onTap: isEnabled ? onPressed : null,
-    );
-  }
-}
-
-class _PaginationNumberButton extends StatelessWidget {
-  final int number;
-  final bool isActive;
-  final VoidCallback onPressed;
-
-  const _PaginationNumberButton({
-    required this.number,
-    required this.isActive,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Material(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-        side: isActive ? BorderSide(color: colors.onPrimaryContainer.withAlpha(100)) : BorderSide.none,
-      ),
-      color: isActive ? colors.primaryContainer : colors.surface,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(6),
-        onTap: onPressed,
-        child: IntrinsicWidth(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            child: Padding(
-              padding: EdgeInsets.all(7.5),
-              child: Center(
-                  child: Text(number.toString(),
-                      style: TextStyle(
-                        fontSize: 13.6,
-                        fontWeight: FontWeight.normal,
-                        color: isActive ? colors.onPrimaryContainer : colors.onSurface,
-                      ))),
+    final numbers = SizedBox(
+      width: items.length * _slot + (items.length - 1) * _gap,
+      height: _slot,
+      child: Stack(
+        children: [
+          if (activeIndex >= 0)
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              left: activeIndex * (_slot + _gap),
+              width: _slot,
+              top: 0,
+              bottom: 0,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: colors.primary,
+                  borderRadius: BorderRadius.circular(_radius),
+                ),
+              ),
             ),
+          for (var i = 0; i < items.length; i++)
+            Positioned(
+              left: i * (_slot + _gap),
+              width: _slot,
+              top: 0,
+              bottom: 0,
+              child: items[i] == null
+                  ? _Cell(
+                      tooltip: 'Jump to page',
+                      onTap: _promptPage,
+                      child: Text('…', style: TextStyle(color: colors.onSurface.withAlpha(150))),
+                    )
+                  : _Cell(
+                      tooltip: 'Page ${items[i]}',
+                      selected: items[i] == _currentPage,
+                      onTap: () => _goto(items[i]!),
+                      child: Text(
+                        '${items[i]}',
+                        style: TextStyle(
+                          fontSize: 13.6,
+                          fontWeight: items[i] == _currentPage ? FontWeight.w600 : FontWeight.normal,
+                          color: items[i] == _currentPage ? colors.onPrimary : colors.onSurface,
+                        ),
+                      ),
+                    ),
+            ),
+        ],
+      ),
+    );
+
+    return Focus(
+      onKeyEvent: _onKey,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: _gap,
+          children: [
+            _ArrowButton(_Arrow(HugeIcons.strokeRoundedArrowLeftDouble, 'First page', hasPrev, () => _goto(1))),
+            _ArrowButton(_Arrow(HugeIcons.strokeRoundedArrowLeft01, 'Previous page', hasPrev, () => _goto(_currentPage - 1))),
+            numbers,
+            _ArrowButton(_Arrow(HugeIcons.strokeRoundedArrowRight01, 'Next page', hasNext, () => _goto(_currentPage + 1))),
+            _ArrowButton(_Arrow(HugeIcons.strokeRoundedArrowRightDouble, 'Last page', hasNext, () => _goto(widget.totalPages))),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Cell extends StatelessWidget {
+  final Widget child;
+  final String tooltip;
+  final VoidCallback onTap;
+  final bool selected;
+
+  const _Cell({required this.child, required this.tooltip, required this.onTap, this.selected = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: tooltip,
+      excludeSemantics: true,
+      child: TTooltip(
+        message: tooltip,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(_PaginationState._radius),
+          onTap: onTap,
+          child: Center(
+            child: DefaultTextStyle.merge(
+              style: const TextStyle(height: 1),
+              textHeightBehavior: const TextHeightBehavior(
+                  applyHeightToFirstAscent: false, applyHeightToLastDescent: false, leadingDistribution: TextLeadingDistribution.even),
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Arrow {
+  final dynamic icon;
+  final String tooltip;
+  final bool enabled;
+  final VoidCallback onTap;
+  const _Arrow(this.icon, this.tooltip, this.enabled, this.onTap);
+}
+
+/// Plain arrow button, same footprint and look as an inactive page number.
+class _ArrowButton extends StatelessWidget {
+  final _Arrow arrow;
+  const _ArrowButton(this.arrow);
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: arrow.enabled ? 1 : 0.35,
+      child: SizedBox(
+        width: _PaginationState._slot,
+        height: _PaginationState._slot,
+        child: TTooltip(
+          message: arrow.tooltip,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(_PaginationState._radius),
+            onTap: arrow.enabled ? arrow.onTap : null,
+            mouseCursor: arrow.enabled ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
+            child: Center(child: HugeIcon(icon: arrow.icon, size: 20, color: context.colors.onSurface)),
           ),
         ),
       ),

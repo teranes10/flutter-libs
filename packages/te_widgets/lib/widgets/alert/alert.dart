@@ -121,11 +121,16 @@ class TAlert extends StatelessWidget {
     final colors = context.colors;
     final wTheme = theme ?? context.theme.alertTheme;
 
+    final glass = TGlassStyle.resolve(context) != null;
+
     return AlertDialog(
-      // Dialog Material can't host a backdrop blur, so glass mode uses a strong translucent fill.
-      backgroundColor: TGlassStyle.resolve(context) != null ? colors.surface.withAlpha(colors.isDarkMode ? 215 : 235) : colors.surface,
-      surfaceTintColor: TGlassStyle.resolve(context) != null ? Colors.transparent : null,
-      insetPadding: wTheme.insetPadding,
+      // The hosting TModal already paints the glass surface; in glass mode the dialog must be transparent and flat,
+      // otherwise it renders as a second opaque box inside the glass frame.
+      backgroundColor: glass ? Colors.transparent : colors.surface,
+      surfaceTintColor: glass ? Colors.transparent : null,
+      elevation: glass ? 0 : null,
+      shadowColor: glass ? Colors.transparent : null,
+      insetPadding: glass ? EdgeInsets.zero : wTheme.insetPadding,
       contentPadding: wTheme.contentPadding,
       actionsPadding: wTheme.actionsPadding,
       actionsAlignment: wTheme.actionsAlignment,

@@ -237,94 +237,101 @@ class _TTourState extends State<TTour> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isLastStep = widget.controller.currentStep == widget.controller.stepCount - 1;
+    final glass = TGlassStyle.resolve(context) != null;
 
     return Positioned(
       left: left,
       top: top,
       width: cardWidth,
       child: Material(
-        elevation: 8,
+        // Glass: the pane (and its own depth) comes from the glass surface, not a Material fill and elevation.
+        elevation: glass ? 0 : 8,
         borderRadius: BorderRadius.circular(10),
-        color: theme.cardColor,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: colors.primary.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header: Icon, Title, and Step Indicator
-              Row(
-                children: [
-                  if (step.icon != null) ...[
-                    TIcon.raw(step.icon, size: 18, color: colors.primary),
-                    const SizedBox(width: 8),
+        color: glass ? Colors.transparent : theme.cardColor,
+        child: TGlassSurface.wrap(
+          context,
+          radius: BorderRadius.circular(10),
+          color: colors.surface,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: glass ? null : Border.all(color: colors.primary.withValues(alpha: 0.3)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header: Icon, Title, and Step Indicator
+                Row(
+                  children: [
+                    if (step.icon != null) ...[
+                      TIcon.raw(step.icon, size: 18, color: colors.primary),
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: Text(
+                        step.title,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Text(
+                      '${widget.controller.currentStep + 1} / ${widget.controller.stepCount}',
+                      style: TextStyle(fontSize: 11, color: theme.hintColor, fontWeight: FontWeight.w600),
+                    ),
                   ],
-                  Expanded(
-                    child: Text(
-                      step.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Text(
-                    '${widget.controller.currentStep + 1} / ${widget.controller.stepCount}',
-                    style: TextStyle(fontSize: 11, color: theme.hintColor, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
+                ),
+                const SizedBox(height: 8),
 
-              // Description
-              Text(
-                step.description,
-                style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant, height: 1.4),
-              ),
-              const SizedBox(height: 16),
+                // Description
+                Text(
+                  step.description,
+                  style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant, height: 1.4),
+                ),
+                const SizedBox(height: 16),
 
-              // Action Buttons: Skip, Previous, Next / Finish
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      widget.controller.skip();
-                      widget.onSkip?.call();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                      child: Text('Skip Tour', style: TextStyle(fontSize: 12, color: theme.hintColor)),
+                // Action Buttons: Skip, Previous, Next / Finish
+                Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        widget.controller.skip();
+                        widget.onSkip?.call();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                        child: Text('Skip Tour', style: TextStyle(fontSize: 12, color: theme.hintColor)),
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  if (widget.controller.currentStep > 0) ...[
+                    const Spacer(),
+                    if (widget.controller.currentStep > 0) ...[
+                      TButton(
+                        text: 'Back',
+                        size: TSize.xs,
+                        type: TButtonType.outline,
+                        onTap: () => widget.controller.previous(),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     TButton(
-                      text: 'Back',
+                      text: isLastStep ? 'Got It' : 'Next',
                       size: TSize.xs,
-                      type: TButtonType.outline,
-                      onTap: () => widget.controller.previous(),
+                      type: TButtonType.solid,
+                      color: colors.primary,
+                      onTap: () {
+                        if (isLastStep) {
+                          widget.controller.finish();
+                          widget.onFinish?.call();
+                        } else {
+                          widget.controller.next();
+                        }
+                      },
                     ),
-                    const SizedBox(width: 8),
                   ],
-                  TButton(
-                    text: isLastStep ? 'Got It' : 'Next',
-                    size: TSize.xs,
-                    type: TButtonType.solid,
-                    color: colors.primary,
-                    onTap: () {
-                      if (isLastStep) {
-                        widget.controller.finish();
-                        widget.onFinish?.call();
-                      } else {
-                        widget.controller.next();
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

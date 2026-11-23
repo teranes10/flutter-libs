@@ -459,11 +459,23 @@ class _TSkeletonState extends State<TSkeleton> with SingleTickerProviderStateMix
     final colors = context.colors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Glass: light translucent washes so the shapes read as frosted pieces of the pane, not dark slabs.
+    final glass = TGlassStyle.resolve(context);
+    final glassBase = Colors.white.withAlpha(isDark ? 26 : 90);
+    final glassHighlight = Colors.white.withAlpha(isDark ? 56 : 170);
     final baseColor = widget.color ??
-        (isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.45) : colors.surfaceContainerHighest.withValues(alpha: 0.65));
+        (glass != null
+            ? glassBase
+            : isDark
+                ? colors.surfaceContainerHighest.withValues(alpha: 0.45)
+                : colors.surfaceContainerHighest.withValues(alpha: 0.65));
 
-    final highlightColor =
-        widget.highlightColor ?? (isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.8) : colors.surfaceContainerLowest);
+    final highlightColor = widget.highlightColor ??
+        (glass != null
+            ? glassHighlight
+            : isDark
+                ? colors.surfaceContainerHighest.withValues(alpha: 0.8)
+                : colors.surfaceContainerLowest);
 
     return AnimatedBuilder(
       animation: _animation,

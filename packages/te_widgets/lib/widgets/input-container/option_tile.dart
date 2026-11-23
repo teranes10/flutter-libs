@@ -82,18 +82,23 @@ class TOptionTile extends StatelessWidget {
     final dark = colors.isDarkMode;
     // Glass: idle tiles are a light frosted overlay (a dark translucent surface reads as a slab), selected ones carry
     // an accent wash, and disabled ones are flat and quiet: barely-there fill, faint edge, muted text.
+    final liquid = glass != null && glass.isLiquid;
     final glassFill = selected
         ? accent.withValues(alpha: dark ? 0.22 : 0.16)
         : disabled
             ? colors.onSurface.withAlpha(dark ? 8 : 10)
-            : Colors.white.withAlpha(dark ? 22 : 140);
+            : liquid
+                ? Colors.transparent
+                : Colors.white.withAlpha(dark ? 22 : 140);
     final glassEdge = selected
         ? accent.withValues(alpha: 0.75)
         : disabled
             ? colors.onSurface.withAlpha(dark ? 40 : 45)
-            : glass?.fieldEdge(context);
+            : liquid
+                ? Colors.transparent
+                : glass?.fieldEdge(context);
 
-    return Opacity(
+    final tile = Opacity(
       opacity: disabled ? (glass != null ? 0.6 : 0.5) : 1,
       child: Material(
         color: glass != null ? glassFill : (selected ? accent.withValues(alpha: 0.06) : colors.surface),
@@ -141,6 +146,10 @@ class TOptionTile extends StatelessWidget {
         ),
       ),
     );
+
+    // Liquid: idle tiles are liquid glass panes (their rim is the edge); selected ones add the accent wash and edge on top.
+    if (!liquid) return tile;
+    return TGlassSurface.wrap(context, radius: BorderRadius.circular(12), color: colors.surface, child: tile);
   }
 
   Widget _buildIndicator(ColorScheme colors, Color accent) {

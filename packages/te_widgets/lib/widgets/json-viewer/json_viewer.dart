@@ -129,6 +129,11 @@ class _TJsonViewerState extends State<TJsonViewer> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final glass = TGlassStyle.resolve(context) != null;
+    final colors = context.colors;
+    final edge = colors.outlineVariant.withAlpha(glass ? 60 : 120);
+    final headerFill = glass ? Colors.white.withAlpha(isDark ? 20 : 110) : colors.surfaceContainerHigh;
+    final bodyFill = glass ? colors.onSurface.withAlpha(isDark ? 16 : 8) : colors.surfaceContainerLowest;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -138,9 +143,9 @@ class _TJsonViewerState extends State<TJsonViewer> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
+            color: headerFill,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-            border: Border.all(color: theme.dividerColor),
+            border: Border.all(color: edge),
           ),
           child: Row(
             children: [
@@ -149,7 +154,7 @@ class _TJsonViewerState extends State<TJsonViewer> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.grey.shade300 : Colors.grey.shade700,
+                  color: colors.onSurfaceVariant,
                 ),
               ),
               const Spacer(),
@@ -157,7 +162,7 @@ class _TJsonViewerState extends State<TJsonViewer> {
                 onTap: _expandAll,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  child: Text('Expand All', style: TextStyle(fontSize: 11, color: theme.colorScheme.primary)),
+                  child: Text('Expand All', style: TextStyle(fontSize: 11, color: colors.primary)),
                 ),
               ),
               const SizedBox(width: 8),
@@ -165,7 +170,7 @@ class _TJsonViewerState extends State<TJsonViewer> {
                 onTap: _collapseAll,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  child: Text('Collapse All', style: TextStyle(fontSize: 11, color: theme.colorScheme.primary)),
+                  child: Text('Collapse All', style: TextStyle(fontSize: 11, color: colors.primary)),
                 ),
               ),
               if (widget.showCopyButton) ...[
@@ -183,12 +188,12 @@ class _TJsonViewerState extends State<TJsonViewer> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1A1A1A) : const Color(0xFFFAFAFA),
+            color: bodyFill,
             borderRadius: const BorderRadius.vertical(bottom: Radius.circular(6)),
             border: Border(
-              left: BorderSide(color: theme.dividerColor),
-              right: BorderSide(color: theme.dividerColor),
-              bottom: BorderSide(color: theme.dividerColor),
+              left: BorderSide(color: edge),
+              right: BorderSide(color: edge),
+              bottom: BorderSide(color: edge),
             ),
           ),
           child: SingleChildScrollView(

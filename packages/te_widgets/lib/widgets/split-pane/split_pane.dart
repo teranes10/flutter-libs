@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:te_widgets/widgets/icon/icon.dart';
+import 'package:te_widgets/widgets/surface/glass.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 /// Controller for [TSplitPane] to programmatically control split ratio and collapse states.
@@ -314,13 +315,14 @@ class _TSplitPaneState extends State<TSplitPane> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final dividerColor = theme.dividerColor;
+    final glass = TGlassStyle.resolve(context);
+    final dividerColor = glass?.fieldEdge(context).withAlpha(120) ?? theme.dividerColor;
     final primaryColor = theme.colorScheme.primary;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalSize = widget.axis == Axis.horizontal ? constraints.maxWidth : constraints.maxHeight;
-        final availableSize = math.max(0.0, totalSize - widget.dividerThickness);
+        final availableSize = math.max(0.0, totalSize - _dividerThickness);
 
         final leadingExtent = _calculateLeadingExtent(availableSize);
         final trailingExtent = math.max(0.0, availableSize - leadingExtent);
@@ -378,7 +380,9 @@ class _TSplitPaneState extends State<TSplitPane> {
     if (_isDragging) {
       handleBg = activeColor.withValues(alpha: 0.15);
     } else if (_isHovered) {
-      handleBg = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04);
+      handleBg = TGlassStyle.resolve(context) != null
+          ? TGlassStyle.hoverOverlay(context)
+          : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04));
     }
 
     final lineIndicator = Container(
@@ -399,14 +403,14 @@ class _TSplitPaneState extends State<TSplitPane> {
         onPanEnd: (_) => setState(() => _isDragging = false),
         onPanCancel: () => setState(() => _isDragging = false),
         child: Container(
-          width: isHorizontal ? widget.dividerThickness : double.infinity,
-          height: isHorizontal ? double.infinity : widget.dividerThickness,
+          width: isHorizontal ? _dividerThickness : double.infinity,
+          height: isHorizontal ? double.infinity : _dividerThickness,
           color: handleBg,
           child: Stack(
             alignment: Alignment.center,
             children: [
               lineIndicator,
-              if (widget.showGrip) _buildGrip(isHorizontal, isDark),
+              if (widget.showGrip && !widget.showCollapseButtons) _buildGrip(isHorizontal, isDark),
               if (widget.showCollapseButtons) _buildCollapseButtons(isHorizontal, activeColor),
             ],
           ),
@@ -415,8 +419,12 @@ class _TSplitPaneState extends State<TSplitPane> {
     );
   }
 
+  /// Divider thickness, widened when collapse chevrons are shown so they fit.
+  double get _dividerThickness => widget.showCollapseButtons ? math.max(widget.dividerThickness, 22.0) : widget.dividerThickness;
+
   Widget _buildGrip(bool isHorizontal, bool isDark) {
-    final gripColor = isDark ? Colors.grey.shade600 : Colors.grey.shade400;
+    final glass = TGlassStyle.resolve(context);
+    final gripColor = glass?.fieldEdge(context) ?? (isDark ? Colors.grey.shade600 : Colors.grey.shade400);
     if (isHorizontal) {
       return Center(
         child: Container(
@@ -446,23 +454,27 @@ class _TSplitPaneState extends State<TSplitPane> {
     final isLeadingCollapsed = _controller.isLeadingCollapsed;
     final isTrailingCollapsed = _controller.isTrailingCollapsed;
 
+    final glass = TGlassStyle.resolve(context);
     return Center(
       child: Material(
         color: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: glass != null ? TGlassStyle.frost(context, Theme.of(context).cardColor) : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Theme.of(context).dividerColor),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
+            border: Border.all(color: glass?.fieldEdge(context) ?? Theme.of(context).dividerColor),
+            boxShadow: glass != null
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
           ),
-          child: Row(
+          child: Flex(
+            direction: isHorizontal ? Axis.vertical : Axis.horizontal,
             mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.collapsibleLeading)

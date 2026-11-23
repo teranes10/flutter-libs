@@ -209,7 +209,9 @@ class TAlertService {
     Color? color,
     double? width = 500,
   }) {
-    final controller = TextEditingController(text: initialValue);
+    // The field owns its own controller: the old code disposed a shared controller the moment a button was pressed, while the (closing) dialog's TextField
+    // was still mounted, which asserts "TextEditingController used after being disposed".
+    var text = initialValue ?? '';
 
     return show(
       context,
@@ -227,7 +229,8 @@ class TAlertService {
           TTextField(
             labelPosition: TLabelPosition.aboveField,
             clearable: true,
-            textController: controller,
+            value: initialValue,
+            onValueChanged: (v) => text = v ?? '',
             placeholder: placeholder ?? 'Enter value...',
             autoFocus: true,
           )
@@ -235,17 +238,11 @@ class TAlertService {
       ),
       confirmButton: AlertButton(
         text: confirmButtonText,
-        onClick: () {
-          onConfirm(controller.text);
-          controller.dispose();
-        },
+        onClick: () => onConfirm(text),
       ),
       closeButton: AlertButton(
         text: cancelButtonText,
-        onClick: () {
-          onCancel?.call();
-          controller.dispose();
-        },
+        onClick: () => onCancel?.call(),
       ),
     );
   }

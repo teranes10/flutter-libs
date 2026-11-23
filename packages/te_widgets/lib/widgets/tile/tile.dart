@@ -832,7 +832,7 @@ class TTile extends StatelessWidget {
     final effectiveIconBorderRadius = iconBorderRadius ?? BorderRadius.circular(size.radius);
     final effectiveSpacing = spacing ?? size.spacing;
 
-    final defaultBg = (isHovered || isExpanded) ? colors.primaryContainer.withAlpha(128) : colors.onSurface.withAlpha(13);
+    final defaultBg = (isHovered || isExpanded) ? colors.primaryContainer.withAlpha(128) : colors.onSurfaceVariant.withAlpha(20);
     final defaultIconColor = (isHovered || isExpanded) ? colors.primary : colors.onSurfaceVariant;
 
     final Color resolvedBg;

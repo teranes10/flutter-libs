@@ -102,6 +102,116 @@ abstract final class TGlassTuning {
   static const double pointerPull = 0.35;
 }
 
+/// User-adjustable glass settings (the customizer's Glass sections). Scales are relative to the look's default,
+/// so 1 always means "as designed" for both frosted and liquid.
+@immutable
+class TGlassTweaks {
+  /// Backdrop blur sigma behind glass surfaces.
+  final double blur;
+
+  /// Backdrop colour saturation scale.
+  final double saturation;
+
+  /// Backdrop brightness scale (below 1 dims what is behind the glass).
+  final double brightness;
+
+  /// Alpha (0-255) of the surface fill.
+  final int fillAlpha;
+
+  /// Alpha (0-255) of the specular edge.
+  final int shine;
+
+  /// Saturation scale of the background photo.
+  final double imageSaturation;
+
+  /// Brightness scale of the background photo.
+  final double imageBrightness;
+
+  /// How strongly the pointer pulls the blobs / parallax (scale).
+  final double pointerPull;
+
+  /// Auto-drift speed (scale).
+  final double driftSpeed;
+
+  /// Defaults of each look (liquid is the constructor default).
+  static TGlassTweaks defaults(TGlassLook look) =>
+      look == TGlassLook.liquid ? const TGlassTweaks() : const TGlassTweaks(fillAlpha: 107, shine: 77);
+
+  const TGlassTweaks({
+    this.blur = 24,
+    this.saturation = 0.9,
+    this.brightness = 1,
+    this.fillAlpha = 61,
+    this.shine = 61,
+    this.imageSaturation = 1,
+    this.imageBrightness = 1,
+    this.pointerPull = 1,
+    this.driftSpeed = 1,
+  });
+
+  TGlassTweaks copyWith({
+    double? blur,
+    double? saturation,
+    double? brightness,
+    int? fillAlpha,
+    int? shine,
+    double? imageSaturation,
+    double? imageBrightness,
+    double? pointerPull,
+    double? driftSpeed,
+  }) =>
+      TGlassTweaks(
+        blur: blur ?? this.blur,
+        saturation: saturation ?? this.saturation,
+        brightness: brightness ?? this.brightness,
+        fillAlpha: fillAlpha ?? this.fillAlpha,
+        shine: shine ?? this.shine,
+        imageSaturation: imageSaturation ?? this.imageSaturation,
+        imageBrightness: imageBrightness ?? this.imageBrightness,
+        pointerPull: pointerPull ?? this.pointerPull,
+        driftSpeed: driftSpeed ?? this.driftSpeed,
+      );
+
+  Map<String, num> toJson() => {
+        'blur': blur,
+        'saturation': saturation,
+        'brightness': brightness,
+        'fillAlpha': fillAlpha,
+        'shine': shine,
+        'imageSaturation': imageSaturation,
+        'imageBrightness': imageBrightness,
+        'pointerPull': pointerPull,
+        'driftSpeed': driftSpeed,
+      };
+
+  factory TGlassTweaks.fromJson(Map<String, dynamic> j) {
+    const d = TGlassTweaks();
+    double n(String k, double def) => (j[k] as num?)?.toDouble() ?? def;
+    return TGlassTweaks(
+      blur: n('blur', d.blur),
+      saturation: n('saturation', d.saturation),
+      brightness: n('brightness', d.brightness),
+      fillAlpha: n('fillAlpha', d.fillAlpha.toDouble()).round(),
+      shine: n('shine', d.shine.toDouble()).round(),
+      imageSaturation: n('imageSaturation', d.imageSaturation),
+      imageBrightness: n('imageBrightness', d.imageBrightness),
+      pointerPull: n('pointerPull', d.pointerPull),
+      driftSpeed: n('driftSpeed', d.driftSpeed),
+    );
+  }
+}
+
+/// Colour matrix with saturation [s] and brightness (RGB scale) [k].
+ColorFilter _satBrightFilter(double s, double k) {
+  final r = 0.2126 * (1 - s), g = 0.7152 * (1 - s), b = 0.0722 * (1 - s);
+  return ColorFilter.matrix(<double>[
+    (r + s) * k, g * k, b * k, 0, 0, //
+    r * k, (g + s) * k, b * k, 0, 0,
+    r * k, g * k, (b + s) * k, 0, 0,
+    0, 0, 0, 1, 0,
+  ]);
+}
+
 /// Visual flavour of glass surfaces.
 enum TGlassLook {
   /// Flat frosted glass: blur, translucent fill, light border.
@@ -134,6 +244,10 @@ class TGlassStyle {
   /// Frosted (flat) or liquid (raised, thick) rendering.
   final TGlassLook look;
 
+  /// Scales on the look's default backdrop saturation / brightness (see [TGlassTweaks]).
+  final double saturationScale;
+  final double brightnessScale;
+
   bool get isLiquid => look == TGlassLook.liquid;
 
   const TGlassStyle({
@@ -143,6 +257,8 @@ class TGlassStyle {
     this.borderAlpha = 90,
     this.highlightAlpha = 50,
     this.look = TGlassLook.frosted,
+    this.saturationScale = 1,
+    this.brightnessScale = 1,
   });
 
   /// Backdrop filter: blur, plus a saturation boost in liquid mode so the colour behind the glass stays vivid.
@@ -150,19 +266,11 @@ class TGlassStyle {
   /// which keeps text on the glass readable wherever the background drifts.
   ImageFilter backdropFilterFor(bool dark) {
     final blurFilter = ImageFilter.blur(sigmaX: blur, sigmaY: blur);
-    if (!isLiquid) return blurFilter;
-    const s = TGlassTuning.saturation;
-    const r = 0.2126 * (1 - s), g = 0.7152 * (1 - s), b = 0.0722 * (1 - s);
-    final k = dark ? TGlassTuning.dimDark : TGlassTuning.dimLight;
-    return ImageFilter.compose(
-      outer: ColorFilter.matrix(<double>[
-        (r + s) * k, g * k, b * k, 0, 0, //
-        r * k, (g + s) * k, b * k, 0, 0,
-        r * k, g * k, (b + s) * k, 0, 0,
-        0, 0, 0, 1, 0,
-      ]),
-      inner: blurFilter,
-    );
+    final liquidBase = isLiquid;
+    final sat = (liquidBase ? TGlassTuning.saturation : 1.0) * saturationScale;
+    final k = (liquidBase ? (dark ? TGlassTuning.dimDark : TGlassTuning.dimLight) : 1.0) * brightnessScale;
+    if (sat == 1 && k == 1) return blurFilter;
+    return ImageFilter.compose(outer: _satBrightFilter(sat, k), inner: blurFilter);
   }
 
   /// Translucent version of [c] for small widgets (chips) that sit on a glass surface and skip the costly blur.
@@ -191,7 +299,8 @@ class TGlassStyle {
     final toward = dark ? Colors.white : Colors.black;
     Color mix(Color c, double t) => Color.lerp(c, toward, t)!;
     return s.copyWith(
-      onSurfaceVariant: mix(s.onSurfaceVariant, dark ? 0.45 : 0.5),
+      // Clearly muted next to onSurface (secondary text, table keys) yet still readable over the blurred backdrop.
+      onSurfaceVariant: Color.lerp(s.onSurface, s.surface, 0.125)!,
       outline: mix(s.outline, dark ? 0.45 : 0.25),
       outlineVariant: mix(s.outlineVariant, dark ? 0.35 : 0.15),
     );
@@ -306,6 +415,20 @@ class TGlassSurface extends StatelessWidget {
       foregroundPainter: _LiquidRimPainter(borderRadius, dark),
       child: CustomPaint(foregroundPainter: _LiquidShadowPainter(borderRadius, dark), child: glass),
     );
+  }
+}
+
+/// Liquid-glass rim (inner glow, lens bands and edge ring) painted over [child], for nested panels that sit on a glass
+/// surface and skip the blur. Returns [child] unchanged unless the active glass look is liquid.
+class TGlassRim extends StatelessWidget {
+  final BorderRadius borderRadius;
+  final Widget child;
+  const TGlassRim({super.key, required this.borderRadius, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    if (TGlassStyle.resolve(context)?.isLiquid != true) return child;
+    return CustomPaint(foregroundPainter: _LiquidRimPainter(borderRadius, context.colors.isDarkMode), child: child);
   }
 }
 
@@ -438,7 +561,14 @@ class TGlassBackground extends ConsumerStatefulWidget {
   /// Overrides the theme's colour mix.
   final List<Color>? colors;
 
-  const TGlassBackground({super.key, required this.child, this.colors});
+  /// Non-glass mode: soft tinted blobs over [base] that drift and follow the pointer like the glass background,
+  /// but ignore glass images and the glass colour/alpha settings (the animation switches still apply).
+  final bool plain;
+
+  /// Flat colour under the blobs in [plain] mode.
+  final Color? base;
+
+  const TGlassBackground({super.key, required this.child, this.colors, this.plain = false, this.base});
 
   @override
   ConsumerState<TGlassBackground> createState() => _TGlassBackgroundState();
@@ -456,6 +586,7 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
   Duration _last = Duration.zero;
   bool _auto = false;
   bool _enabled = false;
+  double _speedScale = 1;
 
   void _sync(bool enabled) {
     if (enabled == _enabled) return;
@@ -504,7 +635,7 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
     final next = Offset.lerp(_pointer.value, _target, k)!;
     final moving = (next - _target).distance > 0.001;
     _pointer.value = moving ? next : _target;
-    if (_auto) _phase.value += dt * _autoSpeed;
+    if (_auto) _phase.value += dt * _autoSpeed * _speedScale;
     if (!_auto && !moving) _ticker.stop();
   }
 
@@ -570,6 +701,8 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
             if (real != null) real,
           ])
         : null;
+    final tweaks = state.glassTweaks;
+    _speedScale = tweaks.driftSpeed;
     final idle = Duration(seconds: state.glassIdleSeconds);
     if (idle != _idle) {
       _idle = idle;
@@ -578,11 +711,29 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
     // The pointer reaction and auto drift drive both the blobs and the image's parallax.
     _sync(state.glassAnimated);
 
+    if (widget.plain) {
+      return Stack(fit: StackFit.expand, children: [
+        RepaintBoundary(
+          child: CustomPaint(
+            painter: _BlobPainter(_phase, _pointer, widget.colors ?? [scheme.primary, scheme.primary], widget.base ?? scheme.surface, 10),
+          ),
+        ),
+        widget.child,
+      ]);
+    }
+
     if (image != null) {
       final blur = state.glassImageBlur;
       return Stack(fit: StackFit.expand, children: [
         // Blur softens photo detail so it doesn't fight the content; the clip stops blurred edges bleeding in.
-        ClipRect(child: photo(blur, image)),
+        ClipRect(
+          child: photo(
+            blur,
+            tweaks.imageSaturation == 1 && tweaks.imageBrightness == 1
+                ? image
+                : ColorFiltered(colorFilter: _satBrightFilter(tweaks.imageSaturation, tweaks.imageBrightness), child: image),
+          ),
+        ),
         // Scrim so glass surfaces and text stay readable over any photo.
         ColoredBox(color: Colors.black.withAlpha((state.glassImageDim * 2.55).round())),
         // Colour blobs from the photo's palette drift over it: pulled by the pointer, wandering on their own when idle.
@@ -604,6 +755,7 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
                 drawBase: false,
                 radiusFactor: TGlassTuning.imageBlobRadius,
                 blend: TGlassTuning.imageBlobBlend,
+                pull: tweaks.pointerPull,
               ),
             ),
           ),
@@ -627,7 +779,8 @@ class _TGlassBackgroundState extends ConsumerState<TGlassBackground> with Single
                   base,
                   dark
                       ? state.glassBlobAlpha
-                      : (state.glassBlobAlpha * TGlassTuning.blobAlphaLight / TGlassTuning.blobAlphaDark).round().clamp(0, 255))),
+                      : (state.glassBlobAlpha * TGlassTuning.blobAlphaLight / TGlassTuning.blobAlphaDark).round().clamp(0, 255),
+                  pull: tweaks.pointerPull)),
         ),
         widget.child,
       ],
@@ -644,9 +797,10 @@ class _BlobPainter extends CustomPainter {
   final bool drawBase;
   final double radiusFactor;
   final BlendMode blend;
+  final double pull;
 
   _BlobPainter(this.phase, this.pointer, this.colors, this.base, this.alpha,
-      {this.drawBase = true, this.radiusFactor = 0.45, this.blend = BlendMode.srcOver})
+      {this.drawBase = true, this.radiusFactor = 0.45, this.blend = BlendMode.srcOver, this.pull = 1})
       : super(repaint: Listenable.merge([phase, pointer]));
 
   @override
@@ -659,7 +813,7 @@ class _BlobPainter extends CustomPainter {
       // own signed amount, so blobs spread and swirl as the pointer moves.
       final a = phase.value * (1 + i % 2) + i * 1.7;
       final b = phase.value * (1 + (i + 1) % 2) + i * 2.3;
-      final pull = (i.isEven ? 1 : -1) * (TGlassTuning.pointerPull + 0.15 * (i % 3));
+      final pull = (i.isEven ? 1 : -1) * (TGlassTuning.pointerPull + 0.15 * (i % 3)) * this.pull;
       final center = Offset(
         size.width * (0.5 + 0.4 * sin(a) + p.dx * pull),
         size.height * (0.5 + 0.4 * cos(b) + p.dy * pull),
@@ -677,7 +831,7 @@ class _BlobPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_BlobPainter old) => old.colors != colors || old.base != base || old.alpha != alpha;
+  bool shouldRepaint(_BlobPainter old) => old.colors != colors || old.base != base || old.alpha != alpha || old.pull != pull || old.radiusFactor != radiusFactor;
 }
 
 /// Edge-to-edge glass for bars (bottom bars, top bars): blurs the backdrop, fills translucently and draws a

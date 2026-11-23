@@ -226,7 +226,9 @@ class TCard extends StatelessWidget {
     final defaultBorderRadius = borderRadius ?? BorderRadius.circular(12);
     final headerNode = _buildHeader(context);
     final resShadowColor = shadowColor ?? colors.shadow;
-    final glassStyle = TGlassStyle.resolve(context, glass);
+    // Dark mode cards always get the glass effect (over the app's drifting background), even with glass mode off;
+    // `glass: false` still opts a card out.
+    final glassStyle = TGlassStyle.resolve(context, glass) ?? (glass == null && colors.isDarkMode ? const TGlassStyle() : null);
     final surfaceColor = backgroundColor ?? colors.surface;
 
     Widget content;

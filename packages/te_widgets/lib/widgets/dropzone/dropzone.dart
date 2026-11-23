@@ -121,6 +121,8 @@ class _TDropzoneState extends State<TDropzone> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final glass = TGlassStyle.resolve(context);
+    final overlayFg = colors.onPrimaryContainer;
 
     return DropTarget(
       enable: widget.enabled,
@@ -150,82 +152,92 @@ class _TDropzoneState extends State<TDropzone> with TickerProviderStateMixin {
 
                     return Opacity(
                       opacity: t,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              colors.primaryContainer.withValues(alpha: 0.8 + 0.05 * ripple),
-                              colors.primaryContainer.withValues(alpha: 0.9 + 0.06 * ripple),
-                            ],
-                          ),
-                          borderRadius: widget.borderRadius,
-                          border: Border.all(color: colors.primary.withAlpha(60), width: 1),
-                        ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            if (_dropping && !compact)
-                              Container(
-                                width: 60 + 260 * ripple,
-                                height: 60 + 260 * ripple,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: colors.onPrimaryContainer.withValues(alpha: 0.6 * (1 - ripple)), width: 3),
-                                ),
-                              ),
-                            if (compact)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                spacing: 8,
-                                children: [
-                                  Transform.scale(
-                                    scale: scale,
-                                    child: TIcon.raw(
-                                      _dropping && d >= 0.25
-                                          ? HugeIcons.strokeRoundedCheckmarkCircle01
-                                          : HugeIcons.strokeRoundedFileDownload,
-                                      size: 20,
-                                      color: colors.onPrimaryContainer,
-                                    ),
-                                  ),
-                                  Text(
-                                    _dropping && d >= 0.25 ? widget.dropText : widget.hoverText,
-                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: colors.onPrimaryContainer),
-                                  ),
+                      child: TGlassRim(
+                        borderRadius: widget.borderRadius,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: glass?.isLiquid == true ? Alignment.topCenter : Alignment.topLeft,
+                              end: glass?.isLiquid == true ? Alignment.bottomCenter : Alignment.bottomRight,
+                              colors: [
+                                if (glass == null) ...[
+                                  colors.primaryContainer.withValues(alpha: 0.8 + 0.05 * ripple),
+                                  colors.primaryContainer.withValues(alpha: 0.9 + 0.06 * ripple),
+                                ] else ...[
+                                  // Glass: translucent primary wash; liquid adds a lit top and bottom like thick glass.
+                                  colors.primary.withAlpha(glass.isLiquid ? 70 : 55),
+                                  colors.primary.withAlpha(glass.isLiquid ? 28 : 55),
+                                  if (glass.isLiquid) colors.primary.withAlpha(55),
                                 ],
-                              )
-                            else
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    height: 60,
-                                    child: Center(
-                                      child: Transform.translate(
-                                        offset: Offset(0, bob + fall),
-                                        child: Transform.scale(
-                                          scale: scale,
-                                          child: TIcon.raw(
-                                            _dropping && d >= 0.25
-                                                ? HugeIcons.strokeRoundedCheckmarkCircle01
-                                                : HugeIcons.strokeRoundedFileDownload,
-                                            size: 44,
-                                            color: colors.onPrimaryContainer,
+                              ],
+                            ),
+                            borderRadius: widget.borderRadius,
+                            border: Border.all(color: glass != null ? glass.edgeOf(context) : colors.primary.withAlpha(60), width: 1),
+                          ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              if (_dropping && !compact)
+                                Container(
+                                  width: 60 + 260 * ripple,
+                                  height: 60 + 260 * ripple,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: overlayFg.withValues(alpha: 0.6 * (1 - ripple)), width: 3),
+                                  ),
+                                ),
+                              if (compact)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  spacing: 8,
+                                  children: [
+                                    Transform.scale(
+                                      scale: scale,
+                                      child: TIcon.raw(
+                                        _dropping && d >= 0.25
+                                            ? HugeIcons.strokeRoundedCheckmarkCircle01
+                                            : HugeIcons.strokeRoundedFileDownload,
+                                        size: 20,
+                                        color: overlayFg,
+                                      ),
+                                    ),
+                                    Text(
+                                      _dropping && d >= 0.25 ? widget.dropText : widget.hoverText,
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: overlayFg),
+                                    ),
+                                  ],
+                                )
+                              else
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      height: 60,
+                                      child: Center(
+                                        child: Transform.translate(
+                                          offset: Offset(0, bob + fall),
+                                          child: Transform.scale(
+                                            scale: scale,
+                                            child: TIcon.raw(
+                                              _dropping && d >= 0.25
+                                                  ? HugeIcons.strokeRoundedCheckmarkCircle01
+                                                  : HugeIcons.strokeRoundedFileDownload,
+                                              size: 44,
+                                              color: overlayFg,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    _dropping && d >= 0.25 ? widget.dropText : widget.hoverText,
-                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: colors.onPrimaryContainer),
-                                  ),
-                                ],
-                              ),
-                          ],
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      _dropping && d >= 0.25 ? widget.dropText : widget.hoverText,
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: overlayFg),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     );

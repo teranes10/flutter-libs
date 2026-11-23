@@ -177,7 +177,11 @@ class _TProgressBarState extends State<TProgressBar> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final colors = context.colors;
     final progressColor = widget.colorBuilder?.call(widget.value, widget.value * 100) ?? (widget.color ?? colors.primary);
-    final trackColor = widget.backgroundColor ?? colors.surfaceContainerHighest;
+    // Glass: a recessed translucent track instead of an opaque surface block.
+    final trackColor = widget.backgroundColor ??
+        (TGlassStyle.resolve(context) != null
+            ? colors.onSurface.withAlpha(colors.isDarkMode ? 40 : 26)
+            : colors.surfaceContainerHighest);
 
     String formatPercent(double v) {
       final pct = v * 100;

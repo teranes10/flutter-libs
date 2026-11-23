@@ -509,8 +509,9 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
     }
     final dark = colors.isDarkMode;
     final edge = glass.fieldEdge(context);
+    // Liquid: the pane is painted by a TGlassSurface around the button (see build), so the idle fill is transparent.
     return TWidgetTheme.surfaceTheme(colors).copyWith(
-      container: Colors.white.withAlpha(dark ? 24 : 150),
+      container: glass.isLiquid ? Colors.transparent : Colors.white.withAlpha(dark ? 24 : 150),
       containerVariant: Colors.white.withAlpha(dark ? 48 : 205),
       outline: edge,
       outlineVariant: edge,
@@ -531,8 +532,10 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
       TVariant.filledOutline => m.shade(dark ? 500 : 400).withAlpha(dark ? 210 : 230),
       _ => Colors.white.withAlpha(dark ? 40 : 190),
     };
+    // Liquid: the pane itself is painted by a TGlassSurface around the button, so the idle fill stays transparent.
+    final liquid = TGlassStyle.resolve(context)!.isLiquid;
     return base.copyWith(
-      container: Colors.white.withAlpha(dark ? 20 : 130),
+      container: liquid ? Colors.transparent : Colors.white.withAlpha(dark ? 20 : 130),
       containerVariant: hover,
       outline: m.shade(dark ? 400 : 500).withAlpha(dark ? 230 : 210),
     );
@@ -784,6 +787,41 @@ class _TButtonState extends State<TButton> with SingleTickerProviderStateMixin {
             shape: effectiveBorder.copyWith(side: BorderSide.none),
             shadows: effectiveShadow.resolve(TShadow.baseColor),
           ),
+          child: resultButton,
+        );
+      }
+
+      // Liquid glass: outline buttons are a liquid pane (not a flat frosted fill) that follows the button shape.
+      var paneWrapped = false;
+      final glassStyle = TGlassStyle.resolve(context);
+      final isOutlineType =
+          baseTheme.type == TVariant.outline || baseTheme.type == TVariant.softOutline || baseTheme.type == TVariant.filledOutline;
+      if (glassStyle != null &&
+          glassStyle.isLiquid &&
+          (isOutlineType || isSurface) &&
+          !looksDisabled &&
+          widget.child == null &&
+          context.getInheritedWidgetOfExactType<_TButtonGlassScope>() == null) {
+        final shape = effectiveBorder;
+        final radius =
+            shape is RoundedRectangleBorder ? shape.borderRadius.resolve(Directionality.of(context)) : BorderRadius.circular(999);
+        resultButton = TGlassSurface.wrap(context, radius: radius, color: colors.surface, child: resultButton);
+        paneWrapped = true;
+      }
+
+      // Glass: a bare icon button (transparent, no text) gets a circular glass surface so it reads as a glass pill.
+      if (!paneWrapped &&
+          TGlassStyle.resolve(context) != null &&
+          context.getInheritedWidgetOfExactType<_TButtonGlassScope>() == null &&
+          icon != null &&
+          text.isNullOrBlank &&
+          widget.child == null &&
+          widget.imageUrl == null &&
+          baseTheme.container.isTransparent) {
+        resultButton = TGlassSurface.wrap(
+          context,
+          radius: BorderRadius.circular(999),
+          color: colors.surface,
           child: resultButton,
         );
       }

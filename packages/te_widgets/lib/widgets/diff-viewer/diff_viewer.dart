@@ -76,8 +76,6 @@ class _TDiffViewerState extends State<TDiffViewer> {
   late TDiffViewMode _activeMode;
   late List<TDiffLine> _unifiedLines;
   late List<_SideBySideRow> _sideBySideRows;
-  int _additions = 0;
-  int _deletions = 0;
 
   @override
   void initState() {
@@ -105,8 +103,6 @@ class _TDiffViewerState extends State<TDiffViewer> {
 
     _unifiedLines = [];
     _sideBySideRows = [];
-    _additions = 0;
-    _deletions = 0;
 
     int oldIdx = 0;
     int newIdx = 0;
@@ -142,7 +138,6 @@ class _TDiffViewerState extends State<TDiffViewer> {
             oldLineNumber: oldLineNum++,
           );
           _unifiedLines.add(delLine);
-          _deletions++;
 
           // Check if there is an adjacent addition for side-by-side row pairing
           if (newIdx < newLines.length && (lcsIdx >= lcs.length || newLines[newIdx] != lcs[lcsIdx])) {
@@ -152,7 +147,6 @@ class _TDiffViewerState extends State<TDiffViewer> {
               newLineNumber: newLineNum++,
             );
             _unifiedLines.add(addLine);
-            _additions++;
             _sideBySideRows.add(_SideBySideRow(left: delLine, right: addLine));
             newIdx++;
           } else {
@@ -169,7 +163,6 @@ class _TDiffViewerState extends State<TDiffViewer> {
             newLineNumber: newLineNum++,
           );
           _unifiedLines.add(addLine);
-          _additions++;
           _sideBySideRows.add(_SideBySideRow(left: null, right: addLine));
           newIdx++;
         }
@@ -215,12 +208,15 @@ class _TDiffViewerState extends State<TDiffViewer> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final colors = theme.colorScheme;
+    final glass = TGlassStyle.resolve(context) != null;
+    final headerFill = glass ? Colors.white.withAlpha(isDark ? 20 : 110) : colors.surfaceContainerHigh;
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        // Glass: the enclosing card already provides the pane, so the canvas stays see-through.
+        color: glass ? Colors.transparent : colors.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: theme.dividerColor),
+        border: Border.all(color: glass ? colors.outlineVariant.withAlpha(60) : theme.dividerColor),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -229,7 +225,7 @@ class _TDiffViewerState extends State<TDiffViewer> {
           // Header Bar
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            color: isDark ? Colors.grey.shade900 : Colors.grey.shade100,
+            color: headerFill,
             child: Row(
               children: [
                 TIcon.raw(HugeIcons.strokeRoundedNotEqualSignSquare, size: 16),
@@ -239,35 +235,6 @@ class _TDiffViewerState extends State<TDiffViewer> {
                       ? '${widget.oldTitle} ⟷ ${widget.newTitle}'
                       : 'Unified Diff (${widget.oldTitle} → ${widget.newTitle})',
                   style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                ),
-                const Spacer(),
-                // Additions / Deletions count badges
-                TBadge.standalone(
-                  label: '+$_additions',
-                  color: Colors.green.shade700,
-                  textColor: Colors.white,
-                ),
-                const SizedBox(width: 6),
-                TBadge.standalone(
-                  label: '-$_deletions',
-                  color: Colors.red.shade700,
-                  textColor: Colors.white,
-                ),
-                const SizedBox(width: 14),
-                // Mode switcher
-                SegmentedButton<TDiffViewMode>(
-                  segments: const [
-                    ButtonSegment(
-                      value: TDiffViewMode.sideBySide,
-                      label: Text('Split', style: TextStyle(fontSize: 11)),
-                    ),
-                    ButtonSegment(
-                      value: TDiffViewMode.inline,
-                      label: Text('Unified', style: TextStyle(fontSize: 11)),
-                    ),
-                  ],
-                  selected: {_activeMode},
-                  onSelectionChanged: (val) => setState(() => _activeMode = val.first),
                 ),
               ],
             ),
@@ -322,7 +289,7 @@ class _TDiffViewerState extends State<TDiffViewer> {
     if (line == null) {
       return Container(
         height: 24,
-        color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.grey.shade100,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: isDark ? 0.08 : 0.05),
       );
     }
 
