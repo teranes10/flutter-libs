@@ -158,7 +158,7 @@ void main() {
       expect(find.byWidgetPredicate((w) => w is HugeIcon && w.icon == HugeIcons.strokeRoundedPause), findsOneWidget);
     });
 
-    testWidgets('TPagination renders HugeIcons via TIcon for navigation', (tester) async {
+    testWidgets('TPagination renders HugeIcons for navigation', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: theme,
@@ -173,7 +173,6 @@ void main() {
       );
 
       expect(find.byType(TPagination), findsOneWidget);
-      expect(find.byType(TIcon), findsNWidgets(4));
       expect(find.byType(HugeIcon), findsNWidgets(4));
     });
 

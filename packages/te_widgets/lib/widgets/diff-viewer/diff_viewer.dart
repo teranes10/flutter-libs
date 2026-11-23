@@ -95,6 +95,9 @@ class _TDiffViewerState extends State<TDiffViewer> {
     }
   }
 
+  int get _additions => _unifiedLines.where((l) => l.type == TDiffLineType.added).length;
+  int get _deletions => _unifiedLines.where((l) => l.type == TDiffLineType.deleted).length;
+
   void _computeDiff() {
     final oldLines = widget.oldText.split('\n');
     final newLines = widget.newText.split('\n');
@@ -235,6 +238,21 @@ class _TDiffViewerState extends State<TDiffViewer> {
                       ? '${widget.oldTitle} ⟷ ${widget.newTitle}'
                       : 'Unified Diff (${widget.oldTitle} → ${widget.newTitle})',
                   style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                ),
+                const Spacer(),
+                // Additions / Deletions count badges
+                TBadge.standalone(label: '+$_additions', color: Colors.green.shade700, textColor: Colors.white),
+                const SizedBox(width: 6),
+                TBadge.standalone(label: '-$_deletions', color: Colors.red.shade700, textColor: Colors.white),
+                const SizedBox(width: 14),
+                // Mode switcher
+                SegmentedButton<TDiffViewMode>(
+                  segments: const [
+                    ButtonSegment(value: TDiffViewMode.sideBySide, label: Text('Split', style: TextStyle(fontSize: 11))),
+                    ButtonSegment(value: TDiffViewMode.inline, label: Text('Unified', style: TextStyle(fontSize: 11))),
+                  ],
+                  selected: {_activeMode},
+                  onSelectionChanged: (val) => setState(() => _activeMode = val.first),
                 ),
               ],
             ),
