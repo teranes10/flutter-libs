@@ -209,6 +209,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
     K? parentKey,
     List<K>? childrenKeys,
     int level = 0,
+    K? key,
   }) {
     final resolvedChildrenKeys = childrenKeys ??
         (() {
@@ -217,7 +218,7 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
         })();
 
     return TListItem<T, K>(
-      key: itemKey(data),
+      key: key ?? itemKey(data),
       data: data,
       parentKey: parentKey,
       childrenKeys: resolvedChildrenKeys,
@@ -293,8 +294,13 @@ class TListController<T, K> extends ValueNotifier<TListState<T, K>> {
       return item as K;
     }
 
-    return identityHashCode(item) as K;
+    return (_keyAlias[item as Object] ?? identityHashCode(item)) as K;
   }
+
+  /// Keeps an updated item's identity-based key stable: the replacement object resolves to the key of the item it replaced.
+  static void aliasKey(Object item, Object key) => _keyAlias[item] = key;
+
+  static final Expando<Object> _keyAlias = Expando<Object>();
 
   static String _defaultItemToString<T>(T item) => item.toString();
 

@@ -910,6 +910,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       index,
       padding: rowTheme.padding,
       alignLeaves: true,
+      // Children sit as far apart as the root cards, not at the tree card's roomier default.
+      gap: _rowGap > 0 ? _rowGap : 4,
       background: rowTheme.backgroundColor.resolve({if (selected) WidgetState.selected}),
       header: (expanded, onRowTap) => TTableRowCard<T, K>(
         index: index,
@@ -946,6 +948,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     required Widget Function(bool expanded, VoidCallback? onRowTap) header,
     required Widget Function(BuildContext ctx, TListItem<T, K> child, int index) childBuilder,
     bool alignLeaves = false,
+    double? gap,
     Color? background,
   }) {
     final expanded = listController.isExpanded(item.key);
@@ -966,6 +969,7 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
     return TTreeCard(
       key: ValueKey('tree_${item.key}'),
       padding: padding,
+      gap: gap,
       backgroundColor: widget.rowColorBuilder?.call(item, index) ?? background,
       alignLeaves: alignLeaves,
       centerChevron: !_isInlineExpanded(item),

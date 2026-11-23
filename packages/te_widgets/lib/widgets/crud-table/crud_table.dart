@@ -15,6 +15,7 @@ part 'crud_table_actions.dart';
 part 'crud_table_export.dart';
 part 'crud_table_form.dart';
 part 'crud_table_settings.dart';
+part 'crud_table_row_fx.dart';
 
 const double _kMobilePageInset = 12;
 const double _kDesktopPageInset = 6;
@@ -323,6 +324,12 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
   /// Selected value of the filter tabs (see [TCrudConfig.tabs]).
   Object? _filterTab;
   final Map<T, Map<String, bool>> _permissionCache = {};
+
+  /// Pending row animations per controller (added / updated / removing), keyed by item key.
+  final Map<TListController<T, K>, Map<K, _RowFx>> _rowFx = {};
+
+  /// Bumped whenever [_rowFx] changes so mounted rows pick it up without a table rebuild.
+  final ValueNotifier<int> _rowFxTick = ValueNotifier(0);
 
   bool _hasInitializedRouteSettings = false;
 
@@ -669,6 +676,7 @@ class _TCrudTableState<T, K, F extends TFormBase> extends State<TCrudTable<T, K,
     _listController.removeListener(_onFiltersMaybeChanged);
     _archiveListController.removeListener(_onFiltersMaybeChanged);
     _settingsDebouncer.dispose();
+    _rowFxTick.dispose();
     _permissionCache.clear();
     if (_isControllerOwned) {
       _listController.dispose();

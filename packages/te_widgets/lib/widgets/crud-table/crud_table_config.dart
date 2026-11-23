@@ -203,6 +203,9 @@ class TCrudConfig<T, K> {
   /// Whether to persist table layout settings (dense layout, view mode, card layout) per route or [storageKey]. Defaults to true.
   final bool? persistSettings;
 
+  /// Whether row changes are animated: new rows grow in, edited rows flash, archived / restored / deleted rows shrink out. Defaults to true.
+  final bool animateChanges;
+
   /// Creates a CRUD configuration.
   /// [addButtonText], or "Add New" plus the singular page title.
   String get effectiveAddButtonText {
@@ -270,6 +273,7 @@ class TCrudConfig<T, K> {
     this.showFilter = true,
     this.storageKey,
     this.persistSettings = true,
+    this.animateChanges = true,
   });
 }
 

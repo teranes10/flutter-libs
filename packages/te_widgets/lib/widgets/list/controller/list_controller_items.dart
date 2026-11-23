@@ -167,7 +167,9 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     final rawChildren = getChildren(newItem);
     final newChildKeys = rawChildren != null && rawChildren.isNotEmpty ? rawChildren.map(itemKey).toList() : null;
 
-    _itemsMap[key] = itemFactory(newItem, parentKey: existing.parentKey, childrenKeys: newChildKeys, level: existing.level);
+    // The row keeps its key across an update so its widgets (and animations) survive the data swap.
+    if (newItem != null && !TListController.allowedKeyTypes.contains(T)) TListController.aliasKey(newItem as Object, key as Object);
+    _itemsMap[key] = itemFactory(newItem, parentKey: existing.parentKey, childrenKeys: newChildKeys, level: existing.level, key: key);
 
     final oldChildKeys = existing.childrenKeys ?? const [];
     final newKeysSet = (newChildKeys ?? const []).toSet();

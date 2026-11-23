@@ -306,16 +306,21 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
   }
 
   Widget _buildSearchBar(BuildContext ctx) {
-    return TTextField(
+    final glass = TGlassStyle.resolve(ctx);
+    final liquid = glass != null && glass.isLiquid;
+    final theme = ctx.theme.textFieldTheme.copyWith(
+      size: TInputSize.sm,
+      labelPosition: TLabelPosition.aboveField,
+      decorationType: TInputDecorationType.outline,
+      // Liquid: the field is transparent and borderless; the liquid pane around it provides the surface and edge.
+      backgroundColor: WidgetStatePropertyAll(liquid ? Colors.transparent : ctx.colors.surface),
+      borderColor: liquid ? const WidgetStatePropertyAll(Colors.transparent) : null,
+      preWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: ctx.colors.onSurface),
+    );
+    final field = TTextField(
       key: const ValueKey('crud_table_search_field'),
       value: listController.value.search,
-      theme: ctx.theme.textFieldTheme.copyWith(
-        size: TInputSize.sm,
-        labelPosition: TLabelPosition.aboveField,
-        decorationType: TInputDecorationType.outline,
-        backgroundColor: WidgetStatePropertyAll(ctx.colors.surface),
-        preWidget: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18, color: ctx.colors.onSurface),
-      ),
+      theme: theme,
       placeholder: widget.config.effectiveSearchPlaceholder,
       onValueChanged: (String? input) {
         if (currentTab == 0) {
@@ -324,6 +329,13 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
           archiveListController.handleSearchChange(input ?? '');
         }
       },
+    );
+    if (!liquid) return field;
+    return TGlassSurface.wrap(
+      ctx,
+      radius: BorderRadius.circular(theme.borderRadius.resolve(const {})),
+      color: ctx.colors.surface,
+      child: field,
     );
   }
 

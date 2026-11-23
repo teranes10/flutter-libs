@@ -977,7 +977,7 @@ class TTableHeader<T, K> {
   TTableHeader.actions(
     List<TButtonGroupItem> Function(TListItem<T, K>) builder, {
     this.text = "Actions",
-    this.alignment = Alignment.center,
+    this.alignment = Alignment.centerRight,
     this.flex,
     this.minWidth,
     double? maxWidth,

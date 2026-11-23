@@ -84,81 +84,92 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
   }
 
   Widget _buildDropzoneBody(ColorScheme colors, bool isDark) {
+    final glass = TGlassStyle.resolve(context);
+    final wash = Colors.white.withAlpha(glass?.isLiquid == true ? (isDark ? 10 : 40) : (isDark ? 24 : 90));
     return InkWell(
       onTap: pickFile,
       borderRadius: BorderRadius.circular(12),
-      child: Container(
-        constraints: BoxConstraints(minHeight: theme.dropzoneHeight),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        decoration: BoxDecoration(
-          color: theme.dropzoneColor ?? TGlassStyle.surface(context, isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: theme.dropzoneBorderColor ??
-                TGlassStyle.resolve(context)?.fieldEdge(context) ??
-                colors.outlineVariant.withValues(alpha: 0.8),
-            width: 1.5,
-            strokeAlign: BorderSide.strokeAlignCenter,
-          ),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: TIcon.raw(HugeIcons.strokeRoundedCloudUpload, size: 32, color: colors.primary),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Click or Drag & Drop File here',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colors.onSurface),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Supports CSV (,), Semicolon (;), TSV (Tab), Pipe (|), and JSON (.json) files with auto-detection',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                alignment: WrapAlignment.center,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  TButton(
-                    text: 'Browse File',
-                    icon: HugeIcons.strokeRoundedFolderOpen,
-                    type: TButtonType.tonal,
-                    size: TButtonSize.xs,
-                    onPressed: (_) => pickFile(),
+      child: TGlassRim(
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          constraints: BoxConstraints(minHeight: theme.dropzoneHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          decoration: BoxDecoration(
+            color: glass != null ? null : (theme.dropzoneColor ?? (isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow)),
+            // Frosted: flat light wash. Liquid: a clearer, more transparent fill; the rim (see below) gives the thick-glass look.
+            gradient: glass == null
+                ? null
+                : LinearGradient(
+                    colors: [wash, wash],
                   ),
-                  if (widget.allowPaste) ...[
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: theme.dropzoneBorderColor ??
+                  (glass == null ? null : (glass.isLiquid ? Colors.transparent : glass.edgeOf(context).withAlpha(90))) ??
+                  colors.outlineVariant.withValues(alpha: 0.8),
+              width: 1.5,
+              strokeAlign: BorderSide.strokeAlignCenter,
+            ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colors.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: TIcon.raw(HugeIcons.strokeRoundedCloudUpload, size: 32, color: colors.primary),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Click or Drag & Drop File here',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colors.onSurface),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Supports CSV (,), Semicolon (;), TSV (Tab), Pipe (|), and JSON (.json) files with auto-detection',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
                     TButton(
-                      text: 'Paste Data',
-                      icon: HugeIcons.strokeRoundedFilePaste,
-                      type: TButtonType.softText,
+                      text: 'Browse File',
+                      icon: HugeIcons.strokeRoundedFolderOpen,
+                      type: TButtonType.tonal,
                       size: TButtonSize.xs,
-                      onPressed: (_) => openPasteModal(),
+                      onPressed: (_) => pickFile(),
                     ),
+                    if (widget.allowPaste) ...[
+                      TButton(
+                        text: 'Paste Data',
+                        icon: HugeIcons.strokeRoundedFilePaste,
+                        type: TButtonType.softText,
+                        size: TButtonSize.xs,
+                        onPressed: (_) => openPasteModal(),
+                      ),
+                    ],
+                    if (widget.allowAddRow) ...[
+                      TButton(
+                        text: 'Add Row Manually',
+                        icon: HugeIcons.strokeRoundedAdd01,
+                        type: TButtonType.softText,
+                        size: TButtonSize.xs,
+                        onPressed: (_) => addNewRow(),
+                      ),
+                    ],
                   ],
-                  if (widget.allowAddRow) ...[
-                    TButton(
-                      text: 'Add Row Manually',
-                      icon: HugeIcons.strokeRoundedAdd01,
-                      type: TButtonType.softText,
-                      size: TButtonSize.xs,
-                      onPressed: (_) => addNewRow(),
-                    ),
-                  ],
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -169,72 +180,82 @@ mixin _TCsvEditorBanners on _TCsvEditorStateContract, _TCsvEditorActions {
     final validCount = rows.where((r) => r.isValid).length;
     final errorCount = rows.length - validCount;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: TGlassStyle.surface(context, isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
-      ),
-      child: TAlignedRow(
-        wrapperModeThreshold: 1,
-        left: [
-          TIcon.raw(detectedFormat.icon, color: colors.primary, size: 20),
-          Text(
-            loadedFileName ?? 'Manual Dataset',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colors.onSurface),
-          ),
-          TChip(
-            text: detectedFormat.shortLabel,
-            type: TVariant.tonal,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          ),
-          TChip(
-            text: '${rows.length} rows',
-            type: TVariant.tonal,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          ),
-          if (loadedFileSize != null)
-            TChip(
-              text: TFormatter.fileSize(loadedFileSize!),
-              type: TVariant.tonal,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+    final glass = TGlassStyle.resolve(context);
+    final radius = BorderRadius.circular(10);
+    final wash = Colors.white.withAlpha(glass?.isLiquid == true ? (isDark ? 10 : 40) : (isDark ? 24 : 90));
+    // Glass: light wash (frosted) or clearer fill plus lens rim (liquid); no blur, the card already blurs.
+    return TGlassRim(
+        borderRadius: radius,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: glass != null ? wash : (isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow),
+            borderRadius: radius,
+            border: Border.all(
+              color: glass == null
+                  ? colors.outlineVariant.withValues(alpha: 0.5)
+                  : (glass.isLiquid ? Colors.transparent : glass.edgeOf(context).withAlpha(90)),
             ),
-          if (errorCount > 0)
-            TChip(
-              text: '$errorCount invalid',
-              color: AppColors.danger,
-              type: TVariant.tonal,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            ),
-        ],
-        right: [
-          if (rawCsvHeaders.isNotEmpty)
-            TButton(
-              text: 'Map Headers',
-              icon: HugeIcons.strokeRoundedRoute03,
-              type: TButtonType.tonal,
-              size: TButtonSize.xs,
-              onPressed: (_) => openMappingDialog(),
-            ),
-          TButton(
-            text: 'Replace File',
-            icon: HugeIcons.strokeRoundedReplay,
-            type: TButtonType.softText,
-            size: TButtonSize.xs,
-            onPressed: (_) => pickFile(),
           ),
-          if (widget.allowPaste)
-            TButton(
-              text: 'Paste Data',
-              icon: HugeIcons.strokeRoundedFilePaste,
-              type: TButtonType.softText,
-              size: TButtonSize.xs,
-              onPressed: (_) => openPasteModal(),
-            ),
-        ],
-      ),
-    );
+          child: TAlignedRow(
+            wrapperModeThreshold: 1,
+            left: [
+              TIcon.raw(detectedFormat.icon, color: colors.primary, size: 20),
+              Text(
+                loadedFileName ?? 'Manual Dataset',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colors.onSurface),
+              ),
+              TChip(
+                text: detectedFormat.shortLabel,
+                type: TVariant.tonal,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              ),
+              TChip(
+                text: '${rows.length} rows',
+                type: TVariant.tonal,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              ),
+              if (loadedFileSize != null)
+                TChip(
+                  text: TFormatter.fileSize(loadedFileSize!),
+                  type: TVariant.tonal,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                ),
+              if (errorCount > 0)
+                TChip(
+                  text: '$errorCount invalid',
+                  color: AppColors.danger,
+                  type: TVariant.tonal,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                ),
+            ],
+            right: [
+              if (rawCsvHeaders.isNotEmpty)
+                TButton(
+                  text: 'Map Headers',
+                  icon: HugeIcons.strokeRoundedRoute03,
+                  type: TButtonType.tonal,
+                  size: TButtonSize.xs,
+                  onPressed: (_) => openMappingDialog(),
+                ),
+              TButton(
+                text: 'Replace File',
+                icon: HugeIcons.strokeRoundedReplay,
+                type: TButtonType.softText,
+                size: TButtonSize.xs,
+                onPressed: (_) => pickFile(),
+              ),
+              if (widget.allowPaste)
+                TButton(
+                  text: 'Paste Data',
+                  icon: HugeIcons.strokeRoundedFilePaste,
+                  type: TButtonType.softText,
+                  size: TButtonSize.xs,
+                  onPressed: (_) => openPasteModal(),
+                ),
+            ],
+          ),
+        ));
   }
 
   Widget buildDiffHeadersBanner(ColorScheme colors) {

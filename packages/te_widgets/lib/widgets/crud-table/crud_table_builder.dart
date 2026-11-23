@@ -46,7 +46,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
             headers: headers,
             controller: controller,
             itemsPerPageOptions: widget.config.itemsPerPageOptions,
-            rowBuilder: widget.rowBuilder,
+            rowBuilder: _fxRowBuilder(controller),
             rowColorBuilder: widget.rowColorBuilder,
             mobileCardBuilder: widget.mobileCardBuilder, //_defaultMobileCard
             details: (widget.expandedDetails != null)

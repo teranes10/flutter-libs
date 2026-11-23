@@ -378,10 +378,13 @@ Widget Function(BuildContext, TListItem<T, K>, int) _keyValuesCellBuilder<T, K>(
       final items = builder(item.data);
       if (items.isEmpty) return const SizedBox.shrink();
 
-      final defaultValueStyle = scope?.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
-      final defaultKeyStyle = defaultValueStyle?.adjust(
+      // Keys are the quieter label (onSurfaceVariant), values the prominent text (onSurface).
+      final colors = ctx.colors;
+      final baseStyle = scope?.contentTextStyle ?? ctx.theme.tableTheme.rowCardTheme.contentTextStyle;
+      final defaultValueStyle = baseStyle?.copyWith(color: colors.onSurface);
+      final defaultKeyStyle = baseStyle?.adjust(
         sizeMultiplier: 0.8,
-        color: defaultValueStyle.color?.adaptiveContrast(ctx, -0.35),
+        color: Color.lerp(colors.onSurfaceVariant, colors.surface, 0.06),
         weightStep: 1,
       );
 
@@ -681,13 +684,17 @@ Widget Function(BuildContext, TListItem<T, K>, int) _actionsCellBuilder<T, K>({
         }
       }
 
-      return TButtonGroup(
-        type: TButtonGroupType.softText,
-        separated: true,
-        spacing: 0,
-        alignment: WrapAlignment.end,
-        size: isDense ? TButtonSize.sm.copyWith(hPad: 4, vPad: 2) : TButtonSize.sm,
-        items: effectiveItems,
+      // The row card already pads its content, so cancel the cell's end padding to line the buttons up with the header text.
+      return Transform.translate(
+        offset: const Offset(5, 0),
+        child: TButtonGroup(
+          type: TButtonGroupType.softText,
+          separated: true,
+          spacing: 2,
+          alignment: WrapAlignment.end,
+          size: isDense ? TButtonSize.sm.copyWith(hPad: 3, vPad: 2) : TButtonSize.sm.copyWith(hPad: 6),
+          items: effectiveItems,
+        ),
       );
     };
 

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
@@ -291,11 +294,19 @@ class TTableRowCard<T, K> extends StatelessWidget {
                 final cellScope = TTableCellScope.maybeScopeOf(context);
                 final activeCursor = cellScope?.activeCellNotifier ?? TTableCellScope.maybeOf(context);
 
+                // Per-value scoreboard flip: the cell flips to its new content whenever the value it shows changes.
+                final Object? valueSignature = header.map != null
+                    ? header.getValue(item.data)
+                    : header.keyValuesBuilder != null
+                        ? header.keyValuesBuilder!(item.data).map((e) => '${e.key}=${e.value}').join('|')
+                        : item.data;
+
                 final cellContainer = Container(
                   constraints: BoxConstraints(minWidth: cellMinWidth, maxWidth: cellMaxWidth),
                   padding: header.fullBleedCell ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 5),
                   alignment: header.alignment ?? Alignment.centerLeft,
-                  child: cellWidget,
+                  // Action columns (showInDetails: false) never flip.
+                  child: _TCellFlip(signature: header.showInDetails ? valueSignature : null, child: cellWidget),
                 );
 
                 if (activeCursor != null) {
@@ -360,6 +371,90 @@ class TTableRowHoverState extends State<TTableRowHover> {
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: widget.builder(_hovered),
+    );
+  }
+}
+
+/// Flips its content like a scoreboard card whenever [signature] changes: the old content folds away, the new one folds in.
+class _TCellFlip extends StatefulWidget {
+  final Object? signature;
+  final Widget child;
+
+  const _TCellFlip({required this.signature, required this.child});
+
+  @override
+  State<_TCellFlip> createState() => _TCellFlipState();
+}
+
+class _TCellFlipState extends State<_TCellFlip> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
+  Widget? _before;
+  Timer? _wait;
+
+  /// True while a dialog / overlay / detail panel covers the table, so a flip would play unseen.
+  bool get _obscured {
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isCurrent) return true;
+    final v = TTableScope.maybeOf(context)?.controller.value;
+    return v != null && (v.isEditingItem || v.expandedDetailKey != null);
+  }
+
+  @override
+  void didUpdateWidget(covariant _TCellFlip old) {
+    super.didUpdateWidget(old);
+    if (old.signature == widget.signature) return;
+    // Keep the oldest content when several changes arrive while waiting.
+    if (_wait == null) _before = old.child;
+    if (!_obscured) {
+      _wait?.cancel();
+      _wait = null;
+      _c.forward(from: 0);
+      return;
+    }
+    // Hold the flip until the cover closes (bounded, so it never waits forever).
+    var polls = 0;
+    _wait?.cancel();
+    _wait = Timer.periodic(const Duration(milliseconds: 80), (t) {
+      if (!mounted) return t.cancel();
+      if (_obscured && ++polls < 150) return;
+      t.cancel();
+      _wait = null;
+      _c.forward(from: 0);
+    });
+  }
+
+  @override
+  void dispose() {
+    _wait?.cancel();
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _c,
+      child: widget.child,
+      builder: (context, child) {
+        final t = _c.value;
+        if (_before == null || !_c.isAnimating) return child!;
+        final accent = Theme.of(context).colorScheme.primary;
+        final showOld = t < 0.5;
+        final angle =
+            showOld ? Curves.easeIn.transform(t * 2) * (math.pi / 2) : -(1 - Curves.easeOutBack.transform((t - 0.5) * 2)) * (math.pi / 2);
+        // The accent tint peaks right after the new value lands and fades out.
+        final tint = t < 0.5 ? 0.0 : (1 - (t - 0.5) * 2) * 0.22;
+        return Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.004)
+            ..rotateX(angle),
+          child: DecoratedBox(
+            decoration: BoxDecoration(color: accent.withValues(alpha: tint), borderRadius: BorderRadius.circular(6)),
+            child: showOld ? _before : child,
+          ),
+        );
+      },
     );
   }
 }
