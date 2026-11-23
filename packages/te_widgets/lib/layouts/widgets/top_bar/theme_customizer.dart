@@ -67,20 +67,35 @@ class _ThemeCustomizer extends ConsumerWidget {
               onTabChanged: (top) {
                 final sidebar = ref.read(sidebarNotifierProvider.notifier);
                 if (top) {
-                  // Top bar mode only exists in Layout 1.
-                  notifier.setLayoutStyle(TLayoutStyle.layout1);
                   sidebar.setMode(TSidebarMode.none);
                 } else if (ref.read(sidebarNotifierProvider).isNone) {
                   sidebar.setMode(TSidebarMode.full);
                 }
               },
               tabs: const [
-                TTab(value: false, text: 'Left', icon: HugeIcons.strokeRoundedSidebarLeft),
-                TTab(value: true, text: 'Top', icon: HugeIcons.strokeRoundedLayoutTop),
+                TTab(value: false, text: 'Left bar', icon: HugeIcons.strokeRoundedSidebarLeft),
+                TTab(value: true, text: 'Top bar', icon: HugeIcons.strokeRoundedLayoutTop),
               ],
             ),
+            if (!ref.watch(sidebarNotifierProvider).isNone) ...[
+              const SizedBox(height: 12),
+              Text('Profile', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
+              const SizedBox(height: 8),
+              TTabs<TProfilePosition>(
+                style: TTabStyle.segmented,
+                fill: true,
+                selectedValue: state.profilePosition,
+                onTabChanged: notifier.setProfilePosition,
+                tabs: const [
+                  TTab(value: TProfilePosition.sidebar, text: 'Left bar', icon: HugeIcons.strokeRoundedSidebarLeft),
+                  TTab(value: TProfilePosition.topBar, text: 'Top bar', icon: HugeIcons.strokeRoundedLayoutTop),
+                ],
+              ),
+            ],
             const SizedBox(height: 16),
           ],
+          Text('Theme', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
+          const SizedBox(height: 8),
           TTabs<Brightness>(
             style: TTabStyle.segmented,
             fill: true,
@@ -91,7 +106,7 @@ class _ThemeCustomizer extends ConsumerWidget {
               TTab(value: Brightness.dark, text: 'Dark', icon: HugeIcons.strokeRoundedMoon02),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -101,7 +116,7 @@ class _ThemeCustomizer extends ConsumerWidget {
             ],
           ),
           if (state.glass) ..._glassOptions(context, notifier, state, colors),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text('Accent', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: colors.onSurfaceVariant)),
           const SizedBox(height: 8),
           Wrap(
@@ -119,7 +134,9 @@ class _ThemeCustomizer extends ConsumerWidget {
                 title: 'Accent color',
                 alignment: TPopupAlignment.leftCenter,
                 color: state.primaryColor,
-                onChanged: notifier.setCustomColor,
+                onChanged: (c) {
+                  notifier.setCustomColor(c);
+                },
                 child: Container(
                   width: 28,
                   height: 28,
@@ -239,62 +256,102 @@ List<Widget> _glassOptions(BuildContext context, ThemeNotifier notifier, TThemeS
     await notifier.setGlassImageBytes(await files.first.readAsBytes());
   }
 
+  final t = state.glassTweaks;
+  void tweak(TGlassTweaks v) => notifier.setGlassTweaks(v);
+
+  Widget slider(String text, String value, double v, double min, double max, ValueChanged<double> onChanged) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Expanded(child: Text(text, style: label)),
+            Text(value, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
+          ]),
+          TSlider(value: v.clamp(min, max), min: min, max: max, onValueChanged: (x) => onChanged(x!)),
+        ]),
+      );
+
+  String pct(double v) => '${(v * 100).round()}%';
+
+  Widget group(String title, IconData icon, List<Widget> children, {bool open = false}) => Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: TAccordion(
+          title: title,
+          icon: icon,
+          initiallyExpanded: open,
+          content: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+        ),
+      );
+
+  final hasImage = state.glassStatic;
   return [
     const SizedBox(height: 8),
-    TTabs<TGlassLook>(
-      style: TTabStyle.segmented,
-      fill: true,
-      selectedValue: state.glassLook,
-      onTabChanged: notifier.setGlassLook,
-      tabs: [for (final l in TGlassLook.values) TTab(value: l, text: l.label)],
-    ),
-    const SizedBox(height: 8),
-    switchRow('Image background', state.glassStatic, notifier.setGlassStatic),
-    if (state.glassStatic) ...[
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Row(children: [
-          TButton(type: TButtonType.softText, size: TSize.xs, text: 'Choose image', icon: Icons.image_outlined, onTap: pick),
-          const SizedBox(width: 8),
-          if (state.glassImageBytes != null)
-            TButton(
-                type: TButtonType.softText, size: TSize.xs, text: 'Remove', icon: Icons.delete_outline, onTap: notifier.clearGlassImage),
-        ]),
-      ),
-      Text('Image blur ${state.glassImageBlur.round()}', style: label),
-      TSlider(value: state.glassImageBlur, min: 0, max: 30, onValueChanged: (v) => notifier.setGlassImageBlur(v!)),
-      const SizedBox(height: 8),
-      Text('Image dim ${state.glassImageDim}%', style: label),
-      TSlider(value: state.glassImageDim.toDouble(), min: 0, max: 80, onValueChanged: (v) => notifier.setGlassImageDim(v!.round())),
-      const SizedBox(height: 8),
-    ],
-    // Animation and colours apply to both backgrounds: blobs flow behind the glass, or tint the photo.
-    ...[
-      switchRow('Animate (mouse + auto drift)', state.glassAnimated, notifier.setGlassAnimated),
-      if (state.glassAnimated) ...[
-        Text('Auto drift after ${state.glassIdleSeconds}s idle', style: label),
-        TSlider(
-          value: state.glassIdleSeconds.toDouble(),
-          min: 3,
-          max: 60,
-          onValueChanged: (v) => notifier.setGlassIdleSeconds(v!.round()),
+    group(
+        'Glass surface',
+        Icons.blur_on,
+        [
+          TTabs<TGlassLook>(
+            style: TTabStyle.segmented,
+            fill: true,
+            selectedValue: state.glassLook,
+            onTabChanged: notifier.setGlassLook,
+            tabs: [for (final l in TGlassLook.values) TTab(value: l, text: l.label)],
+          ),
+          const SizedBox(height: 12),
+          slider('Blur', t.blur.round().toString(), t.blur, 0, 40, (v) => tweak(t.copyWith(blur: v))),
+          slider('Saturation', pct(t.saturation), t.saturation, 0, 2.5, (v) => tweak(t.copyWith(saturation: v))),
+          slider('Brightness', pct(t.brightness), t.brightness, 0.5, 1.5, (v) => tweak(t.copyWith(brightness: v))),
+          slider('Fill opacity', pct(t.fillAlpha / 255), t.fillAlpha.toDouble(), 0, 255, (v) => tweak(t.copyWith(fillAlpha: v.round()))),
+          slider('Edge shine', pct(t.shine / 255), t.shine.toDouble(), 0, 255, (v) => tweak(t.copyWith(shine: v.round()))),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TButton(
+                type: TButtonType.softText,
+                size: TSize.xs,
+                text: 'Reset',
+                icon: Icons.restart_alt,
+                onTap: () {
+                  final d = TGlassTweaks.defaults(state.glassLook);
+                  tweak(
+                      t.copyWith(blur: d.blur, saturation: d.saturation, brightness: d.brightness, fillAlpha: d.fillAlpha, shine: d.shine));
+                }),
+          ),
+        ],
+        open: true),
+    group('Background', Icons.wallpaper, [
+      switchRow('Image background', state.glassStatic, notifier.setGlassStatic),
+      if (hasImage) ...[
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Row(children: [
+            TButton(type: TButtonType.softText, size: TSize.xs, text: 'Choose image', icon: Icons.image_outlined, onTap: pick),
+            const SizedBox(width: 8),
+            if (state.glassImageBytes != null)
+              TButton(
+                  type: TButtonType.softText, size: TSize.xs, text: 'Remove', icon: Icons.delete_outline, onTap: notifier.clearGlassImage),
+          ]),
         ),
-        const SizedBox(height: 8),
+        slider('Image blur', state.glassImageBlur.round().toString(), state.glassImageBlur, 0, 30, notifier.setGlassImageBlur),
+        slider('Image dim', '${state.glassImageDim}%', state.glassImageDim.toDouble(), 0, 80, (v) => notifier.setGlassImageDim(v.round())),
+        slider('Image saturation', pct(t.imageSaturation), t.imageSaturation, 0, 2, (v) => tweak(t.copyWith(imageSaturation: v))),
+        slider('Image brightness', pct(t.imageBrightness), t.imageBrightness, 0.5, 1.5, (v) => tweak(t.copyWith(imageBrightness: v))),
       ],
       // Over a photo the blobs only exist while animating.
-      if (!state.glassStatic || state.glassAnimated) ...[
-        Text('Blob opacity ${(blobAlpha / 255 * 100).round()}%', style: label),
-        TSlider(
-          value: blobAlpha / 255 * 100,
-          min: 0,
-          max: 100,
-          onValueChanged: (v) {
-            final alpha = (v! / 100 * 255).round();
-            state.glassStatic ? notifier.setGlassImageBlobAlpha(alpha) : notifier.setGlassBlobAlpha(alpha);
-          },
-        ),
-        const SizedBox(height: 8),
+      if (!state.glassStatic || state.glassAnimated)
+        slider('Blob opacity', '${(blobAlpha / 255 * 100).round()}%', blobAlpha / 255 * 100, 0, 100, (v) {
+          final alpha = (v / 100 * 255).round();
+          state.glassStatic ? notifier.setGlassImageBlobAlpha(alpha) : notifier.setGlassBlobAlpha(alpha);
+        }),
+    ]),
+    group('Motion', Icons.animation, [
+      switchRow('Animate (mouse + auto drift)', state.glassAnimated, notifier.setGlassAnimated),
+      if (state.glassAnimated) ...[
+        slider('Idle before drift', '${state.glassIdleSeconds}s', state.glassIdleSeconds.toDouble(), 3, 60,
+            (v) => notifier.setGlassIdleSeconds(v.round())),
+        slider('Drift speed', pct(t.driftSpeed), t.driftSpeed, 0.1, 3, (v) => tweak(t.copyWith(driftSpeed: v))),
+        slider('Pointer pull', pct(t.pointerPull), t.pointerPull, 0, 2.5, (v) => tweak(t.copyWith(pointerPull: v))),
       ],
+    ]),
+    group('Background colors', Icons.palette_outlined, [
       Text('Presets', style: label),
       const SizedBox(height: 8),
       Wrap(spacing: 8, runSpacing: 8, children: [
@@ -324,7 +381,7 @@ List<Widget> _glassOptions(BuildContext context, ThemeNotifier notifier, TThemeS
       ]),
       const SizedBox(height: 12),
       Row(children: [
-        Expanded(child: Text('Background colors', style: label)),
+        Expanded(child: Text('Blob colors', style: label)),
         if (state.glassColors != null)
           TButton(type: TButtonType.softText, size: TSize.xs, text: 'Reset', icon: Icons.restart_alt, onTap: notifier.resetGlassColors),
       ]),
@@ -349,7 +406,7 @@ List<Widget> _glassOptions(BuildContext context, ThemeNotifier notifier, TThemeS
           TButton(
               type: TButtonType.softText, size: TSize.xs, icon: Icons.remove, onTap: () => notifier.setGlassColors([...mix]..removeLast())),
       ]),
-    ],
+    ]),
     const SizedBox(height: 8),
   ];
 }

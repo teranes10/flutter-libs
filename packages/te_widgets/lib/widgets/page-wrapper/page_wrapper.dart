@@ -250,18 +250,24 @@ class _TPageWrapperState extends State<TPageWrapper> {
             ),
           );
 
+    final trailingItems = <Widget>[
+      if (widget.actions != null) ...widget.actions!,
+      if (isDesktop && widget.onBackPressed != null)
+        TButton(
+          type: TButtonType.softText,
+          icon: HugeIcons.strokeRoundedCancel01,
+          color: colors.error,
+          onTap: widget.onBackPressed,
+        ),
+    ];
+    // Every trailing action, including the close button, is separated by the same 2px gap.
     final trailingActions = Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (widget.actions != null) ...widget.actions!,
-        if (isDesktop && widget.onBackPressed != null) ...[
-          const SizedBox(width: 8),
-          TButton(
-            type: TButtonType.softText,
-            icon: HugeIcons.strokeRoundedCancel01,
-            color: colors.error,
-            onTap: widget.onBackPressed,
-          ),
+        for (var i = 0; i < trailingItems.length; i++) ...[
+          if (i > 0) const SizedBox(width: 2),
+          trailingItems[i],
         ],
       ],
     );

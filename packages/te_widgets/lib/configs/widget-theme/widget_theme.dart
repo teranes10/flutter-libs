@@ -152,10 +152,10 @@ class TWidgetTheme {
       isDarkMode: isDarkMode,
       type: TVariant.solid,
       color: m,
-      container: isDarkMode ? m.shade(500) : m.shade(400),
-      containerVariant: m.shade(400).darken(0.2),
-      onContainer: m.shade(50),
-      onContainerVariant: m.shade(50),
+      container: isDarkMode ? m.shade(500) : m.shade(500),
+      containerVariant: m.shade(500).darken(0.12),
+      onContainer: Colors.white,
+      onContainerVariant: Colors.white,
       shadow: m.shade(900).withAlpha(35),
     );
   }
@@ -166,10 +166,10 @@ class TWidgetTheme {
       isDarkMode: isDarkMode,
       type: TVariant.tonal,
       color: m,
-      container: isDarkMode ? m.shade(800) : m.shade(50),
-      containerVariant: isDarkMode ? m.shade(800).darken(0.2) : m.shade(100),
-      onContainer: isDarkMode ? m.shade(200) : m.shade(500),
-      onContainerVariant: isDarkMode ? m.shade(300) : m.shade(600),
+      container: isDarkMode ? m.shade(800) : m.shade(100),
+      containerVariant: isDarkMode ? m.shade(800).darken(0.2) : m.shade(200),
+      onContainer: isDarkMode ? m.shade(200) : m.shade(600),
+      onContainerVariant: isDarkMode ? m.shade(300) : m.shade(700),
       shadow: m.shade(600).withAlpha(35),
     );
   }

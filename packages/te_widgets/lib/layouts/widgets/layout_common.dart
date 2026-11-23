@@ -86,10 +86,10 @@ class LayoutMainContent extends StatelessWidget {
             : BoxDecoration(color: fill),
         child: Column(
           children: [
-            SizedBox(height: isMobile ? 4 : 8),
+            SizedBox(height: isMobile ? 4 : 0),
             Expanded(
               child: Padding(
-                padding: isMobile ? const EdgeInsets.symmetric(vertical: 6) : const EdgeInsets.only(left: 20, bottom: 6, top: 14),
+                padding: isMobile ? const EdgeInsets.symmetric(vertical: 6) : const EdgeInsets.only(left: 12, top: 8),
                 child: child,
               ),
             ),

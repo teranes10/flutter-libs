@@ -66,6 +66,7 @@ export 'layouts/widgets/sidebar/sidebar_items.dart';
 export 'layouts/widgets/sidebar/sidebar.dart';
 
 export 'layouts/widgets/logo.dart';
+export 'layouts/widgets/switcher.dart';
 export 'layouts/widgets/top_bar.dart';
 export 'layouts/layout.dart';
 export 'layouts/widgets/bottom_bar.dart';

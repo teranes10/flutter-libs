@@ -320,7 +320,7 @@ class _SidebarItemWidgetState extends State<TSidebarItemWidget> with SingleTicke
         borderRadius: BorderRadius.circular(8),
         child: Container(
           padding: widget.level == 0 ? widget.theme.itemPadding : widget.theme.childPadding,
-          margin: isCurrentRoute ? const EdgeInsets.fromLTRB(8, 8, 12, 8) : const EdgeInsets.only(left: 8, right: 12),
+          margin: isCurrentRoute ? const EdgeInsets.fromLTRB(12, 8, 12, 8) : const EdgeInsets.only(left: 12, right: 12),
           decoration: BoxDecoration(
             color: isCurrentRoute ? _activeBg(context) : null,
             borderRadius: BorderRadius.circular(8),

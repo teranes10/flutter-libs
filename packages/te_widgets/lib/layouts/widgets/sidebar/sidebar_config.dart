@@ -197,7 +197,7 @@ class TSidebarTheme extends TMenuTheme {
     final colors = context.colors;
 
     return TSidebarTheme(
-      defaultColor: colors.onSurfaceVariant,
+      defaultColor: colors.onSurface,
       hoverColor: colors.onSurface,
       activeColor: colors.onPrimaryContainer,
       activeBackgroundColor: colors.primaryContainer,

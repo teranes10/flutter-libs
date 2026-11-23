@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:te_widgets/te_widgets.dart';
 
-/// Desktop sidebar shared by `TLayout1` and `TLayout2`: surface + divider, logo
+/// Desktop sidebar used by `TLayout`: surface + divider, logo
 /// header and an optional pinned profile.
 ///
 /// When [onToggle] is set, hovering the sidebar reveals a collapse button after
@@ -20,9 +20,14 @@ class LayoutDesktopSidebar extends StatefulWidget {
     this.minifiedLogo,
     this.profile,
     this.profileBelowLogo = false,
+    this.switcher,
     this.showDivider = true,
     this.backgroundColor,
+    this.headerHeight = 67,
   });
+
+  /// Header height when there is no profile below the logo (matches the desktop top bar so the rows line up).
+  final double headerHeight;
 
   final List<TSidebarItem> items;
   final TSidebarMode mode;
@@ -37,6 +42,9 @@ class LayoutDesktopSidebar extends StatefulWidget {
   /// Builds the profile; `minified` is true while the sidebar is collapsed.
   final Widget Function({required bool minified})? profile;
   final bool profileBelowLogo;
+
+  /// Context switcher shown below the logo.
+  final TSwitcherBuilder? switcher;
 
   /// Draws the 1px border on the sidebar's right edge.
   final bool showDivider;
@@ -102,15 +110,21 @@ class _LayoutDesktopSidebarState extends State<LayoutDesktopSidebar> {
           );
 
     // Left edge 20 lines the logo up with the sidebar icons (item margin + padding).
-    // Without a profile, match the desktop top bar height (12 + 48 + 7) so the rows line up.
+    // Without a profile, match the desktop top bar height so the rows line up.
+    final switcher = widget.switcher?.call(minified ? TSwitcherVariant.minified : TSwitcherVariant.full);
     final matchTopBar = profile == null;
     return Padding(
-      padding: EdgeInsets.fromLTRB(minified ? 8 : 20, matchTopBar ? 0 : 18, minified ? 8 : 12, matchTopBar ? 0 : 18),
+      padding:
+          EdgeInsets.fromLTRB(minified ? 8 : 12, matchTopBar ? 0 : 18, minified ? 8 : 12, matchTopBar ? (switcher != null ? 10 : 5) : 23),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (matchTopBar) SizedBox(height: 67, child: Center(child: top)) else top,
+          if (matchTopBar) SizedBox(height: widget.headerHeight, child: Center(child: top)) else top,
+          if (switcher != null) ...[
+            SizedBox(height: matchTopBar ? 8 : 12),
+            minified ? Center(child: switcher) : switcher,
+          ],
           if (profile != null) ...[
             const SizedBox(height: 12),
             minified ? Center(child: profile) : profile,
@@ -124,7 +138,7 @@ class _LayoutDesktopSidebarState extends State<LayoutDesktopSidebar> {
     if (widget.profile == null || widget.profileBelowLogo) return null;
     final profile = widget.profile!(minified: minified);
     return Padding(
-      padding: EdgeInsets.fromLTRB(minified ? 8 : 14, 12, minified ? 8 : 12, 12),
+      padding: EdgeInsets.fromLTRB(minified ? 8 : 12, 12, minified ? 8 : 12, 12),
       child: minified ? Center(child: profile) : profile,
     );
   }

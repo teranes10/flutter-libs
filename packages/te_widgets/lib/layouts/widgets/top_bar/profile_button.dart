@@ -96,20 +96,6 @@ class LayoutProfileButton extends ConsumerWidget {
           text: isFullscreen ? 'Exit Fullscreen' : 'Fullscreen',
           onTap: () => TFullscreen.toggleFullscreen(),
         ),
-      // if (context.isDesktop)
-      //   TDropdownItem(
-      //     icon: HugeIcons.strokeRoundedLayout01,
-      //     text: 'Layout (${layoutStyle.label})',
-      //     children: [
-      //       for (final style in TLayoutStyle.values)
-      //         TDropdownItem(
-      //           icon: style == TLayoutStyle.layout1 ? HugeIcons.strokeRoundedLayoutTop : HugeIcons.strokeRoundedSidebarLeft,
-      //           text: style.label,
-      //           color: layoutStyle == style ? colors.primary : null,
-      //           onTap: () => themeNotifier.setLayoutStyle(style),
-      //         ),
-      //     ],
-      //   ),
       if (actions != null)
         for (final action in actions!)
           TDropdownItem(
@@ -148,8 +134,10 @@ class LayoutProfileButton extends ConsumerWidget {
           ),
         );
 
+    // Minified sidebar: the trigger is only an avatar, so the overlay keeps a normal width instead of matching it.
     // Sidebar profile: the overlay spans the trigger (sidebar width minus its padding).
-    if (!expand) return dropdown(TDropdownTheme.defaultTheme(colors).copyWith(boxConstraints: const BoxConstraints(minWidth: 200)));
+    if (!expand || minified)
+      return dropdown(TDropdownTheme.defaultTheme(colors).copyWith(boxConstraints: const BoxConstraints(minWidth: 200)));
     // Not a LayoutBuilder: the sidebar wraps this in IntrinsicWidth, which LayoutBuilder can't answer.
     return _WidthProbe(
       builder: (width) => dropdown(

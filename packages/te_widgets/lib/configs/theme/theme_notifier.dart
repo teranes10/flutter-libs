@@ -15,7 +15,7 @@ final sidebarModeKey = 'te_sidebar_mode';
 final primaryColorIndexKey = 'te_primary_color_index';
 final customColorKey = 'te_custom_color';
 final schemeOverridesKey = 'te_scheme_overrides';
-final layoutStyleKey = 'te_layout_style';
+final profilePositionKey = 'te_profile_position';
 final glassKey = 'te_glass';
 final glassColorsKey = 'te_glass_colors';
 final glassAnimatedKey = 'te_glass_animated';
@@ -28,6 +28,7 @@ final glassImageBlobAlphaKey = 'te_glass_image_blob_alpha';
 final glassImageThumbKey = 'te_glass_image_thumb';
 final glassImageHashKey = 'te_glass_image_hash';
 final glassIdleKey = 'te_glass_idle_seconds';
+final glassTweaksKey = 'te_glass_tweaks';
 
 ThemeMode _initialTheme = ThemeMode.light;
 TSidebarMode _initialSidebarMode = TSidebarMode.full;
@@ -35,7 +36,7 @@ int _initialPrimaryColorIndex = 0;
 Color? _initialCustomColor;
 Map<String, int> _initialLightOverrides = {};
 Map<String, int> _initialDarkOverrides = {};
-TLayoutStyle _initialLayoutStyle = TLayoutStyle.layout1;
+TProfilePosition _initialProfilePosition = TProfilePosition.sidebar;
 bool _initialGlass = true;
 List<Color>? _initialGlassColors;
 bool _initialGlassAnimated = true;
@@ -51,16 +52,17 @@ String? _initialGlassAssetHash;
 Uint8List? _initialGlassThumb;
 Uint8List? _initialGlassImageThumb;
 TGlassLook _initialGlassLook = TGlassLook.liquid;
+TGlassTweaks _initialGlassTweaks = const TGlassTweaks();
 
-/// Which `TLayout` implementation the app renders.
-enum TLayoutStyle {
-  /// Sidebar + top bar (profile in the top bar).
-  layout1,
+/// Where `TLayout` shows the profile.
+enum TProfilePosition {
+  /// In the top bar.
+  topBar,
 
-  /// Sidebar only (profile pinned in the sidebar).
-  layout2;
+  /// Pinned in the sidebar; the top bar shrinks to a compact row.
+  sidebar;
 
-  String get label => this == layout1 ? 'Layout 1' : 'Layout 2';
+  String get label => this == topBar ? 'Top bar' : 'Left bar';
 }
 
 /// Tristate modes for the navigation sidebar.
@@ -81,7 +83,9 @@ class TThemeState {
   /// (the light glass look isn't finished). The stored [themeMode] is kept, so it applies again when glass is off.
   ThemeMode get effectiveThemeMode => glass ? ThemeMode.dark : themeMode;
   final int primaryColorIndex;
-  final TLayoutStyle layoutStyle;
+
+  /// Where the profile is shown (see [TProfilePosition]).
+  final TProfilePosition profilePosition;
 
   /// Global liquid-glass mode for cards and tiles (see [TWidgetThemeExtension.glass]).
   final bool glass;
@@ -94,6 +98,9 @@ class TThemeState {
 
   /// Frosted (flat) or liquid (raised, thick) glass.
   final TGlassLook glassLook;
+
+  /// Blur, saturation, brightness, fill, shine and motion tweaks (see [TGlassTweaks]).
+  final TGlassTweaks glassTweaks;
 
   /// Seconds the pointer must rest before the background starts drifting on its own.
   final int glassIdleSeconds;
@@ -141,13 +148,15 @@ class TThemeState {
   final Map<String, int> lightOverrides;
   final Map<String, int> darkOverrides;
 
-  MaterialColor get primaryColor => customColor != null ? _swatchFrom(customColor!) : primaryColorOptions[primaryColorIndex].color;
+  Color? get _accentColor => customColor;
+
+  MaterialColor get primaryColor => _accentColor != null ? _swatchFrom(_accentColor!) : primaryColorOptions[primaryColorIndex].color;
 
   /// Values derived from a custom accent (e.g. a readable `onPrimary`); user overrides win over these.
   Map<String, int> _accentDerived(ColorScheme base) {
     final accent = primaryColor.shade500;
     return {
-      if (customColor != null) 'onPrimary': (customColor!.computeLuminance() > 0.5 ? Colors.black : Colors.white).toARGB32(),
+      if (_accentColor != null) 'onPrimary': (_accentColor!.computeLuminance() > 0.5 ? Colors.black : Colors.white).toARGB32(),
       ..._tintedKeys.map((k, t) => MapEntry(k, Color.lerp(schemeColor(base, k), accent, t)!.toARGB32())),
       'surfaceTint': accent.withValues(alpha: 0.1).toARGB32(),
       // Text colour: a deep shade of the accent in light mode, a pale shade in dark mode (keeps contrast).
@@ -202,12 +211,22 @@ class TThemeState {
   }
 
   TAppTheme get _solidTheme {
-    final base = layoutStyle == TLayoutStyle.layout2
-        ? TAppTheme.defaultTheme2(primary: primaryColor)
-        : TAppTheme.defaultTheme(primary: primaryColor);
+    final base = TAppTheme.defaultTheme(primary: primaryColor);
     // Glass is a global switch: stamped onto every widget theme the builder produces.
     final baseBuilder = base.widgetThemeBuilder;
-    final builder = glass ? (ColorScheme c) => baseBuilder(c).copyWith(glass: TGlassStyle(look: glassLook)) : baseBuilder;
+    final builder = glass
+        ? (ColorScheme c) => baseBuilder(c).copyWith(
+            glass: TGlassStyle(
+              look: glassLook,
+              blur: glassTweaks.blur,
+              fillAlpha: glassTweaks.fillAlpha,
+              lightFillAlpha: glassTweaks.fillAlpha,
+              borderAlpha: glassTweaks.shine,
+              saturationScale: glassTweaks.saturation,
+              brightnessScale: glassTweaks.brightness,
+            ),
+          )
+        : baseBuilder;
     if (lightOverrides.isEmpty && darkOverrides.isEmpty && customColor == null) {
       return glass ? base.copyWith(widgetThemeBuilder: builder) : base;
     }
@@ -223,12 +242,13 @@ class TThemeState {
   const TThemeState({
     required this.themeMode,
     required this.primaryColorIndex,
-    this.layoutStyle = TLayoutStyle.layout1,
+    this.profilePosition = TProfilePosition.sidebar,
     this.glass = true,
     this.glassColors,
     this.glassAnimated = true,
     this.glassLook = TGlassLook.liquid,
     this.glassIdleSeconds = 10,
+    this.glassTweaks = const TGlassTweaks(),
     this.glassStatic = false,
     this.glassImageBlur = 3,
     this.glassImageDim = 30,
@@ -249,13 +269,14 @@ class TThemeState {
   TThemeState copyWith({
     ThemeMode? themeMode,
     int? primaryColorIndex,
-    TLayoutStyle? layoutStyle,
+    TProfilePosition? profilePosition,
     bool? glass,
     List<Color>? glassColors,
     bool clearGlassColors = false,
     bool? glassAnimated,
     TGlassLook? glassLook,
     int? glassIdleSeconds,
+    TGlassTweaks? glassTweaks,
     bool? glassStatic,
     double? glassImageBlur,
     int? glassImageDim,
@@ -280,12 +301,13 @@ class TThemeState {
       customColor: clearCustomColor ? null : (customColor ?? this.customColor),
       themeMode: themeMode ?? this.themeMode,
       primaryColorIndex: primaryColorIndex ?? this.primaryColorIndex,
-      layoutStyle: layoutStyle ?? this.layoutStyle,
+      profilePosition: profilePosition ?? this.profilePosition,
       glass: glass ?? this.glass,
       glassColors: clearGlassColors ? null : (glassColors ?? this.glassColors),
       glassAnimated: glassAnimated ?? this.glassAnimated,
       glassLook: glassLook ?? this.glassLook,
       glassIdleSeconds: glassIdleSeconds ?? this.glassIdleSeconds,
+      glassTweaks: glassTweaks ?? this.glassTweaks,
       glassStatic: glassStatic ?? this.glassStatic,
       glassImageBlur: glassImageBlur ?? this.glassImageBlur,
       glassImageDim: glassImageDim ?? this.glassImageDim,
@@ -318,7 +340,7 @@ String _glassAssetKey(String asset) => 'te_glass_asset_${TImageStorage.urlToKey(
 /// ```
 ///
 /// - [prefs]: pass your own `SharedPreferences` instance (e.g. in tests).
-/// - [themeMode], [sidebarMode], [layoutStyle]: basic layout and theme defaults.
+/// - [themeMode], [sidebarMode], [profilePosition]: basic layout and theme defaults.
 /// - [primaryColor] (any colour) or [primaryColorIndex] (an entry of the built-in accent list): the accent.
 /// - [glass]: liquid-glass mode on/off. [glassLook]: frosted or liquid.
 /// - [glassColors]: colour mix of the animated glass background. [glassAnimated]: pointer reaction and auto drift.
@@ -336,7 +358,7 @@ Future<void> initializeApp({
   SharedPreferences? prefs,
   ThemeMode? themeMode,
   TSidebarMode? sidebarMode,
-  TLayoutStyle? layoutStyle,
+  TProfilePosition? profilePosition,
   Color? primaryColor,
   int? primaryColorIndex,
   bool? glass,
@@ -392,9 +414,9 @@ Future<void> initializeApp({
 
   _initialLightOverrides = readOverrides('light');
   _initialDarkOverrides = readOverrides('dark');
-  _initialLayoutStyle = TLayoutStyle.values.firstWhere(
-    (l) => l.name == p.getString(layoutStyleKey),
-    orElse: () => layoutStyle ?? TLayoutStyle.layout1,
+  _initialProfilePosition = TProfilePosition.values.firstWhere(
+    (l) => l.name == p.getString(profilePositionKey),
+    orElse: () => profilePosition ?? TProfilePosition.sidebar,
   );
   _initialGlass = p.getBool(glassKey) ?? glass ?? true;
   _initialGlassColors = p.getStringList(glassColorsKey)?.map((e) => Color(int.parse(e))).toList() ?? glassColors;
@@ -409,12 +431,17 @@ Future<void> initializeApp({
   _initialGlassImageBlur = p.getDouble(glassImageBlurKey) ?? glassImageBlur ?? 3;
   _initialGlassImageDim = p.getInt(glassImageDimKey) ?? glassImageDim ?? 30;
   _initialGlassImageHash = p.getString(glassImageHashKey);
+  try {
+    final raw = p.getString(glassTweaksKey);
+    if (raw != null) _initialGlassTweaks = TGlassTweaks.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+  } catch (_) {}
   _initialGlassBlobAlpha = p.getInt(glassBlobAlphaKey) ?? glassBlobAlpha ?? TGlassTuning.blobAlphaDark;
   _initialGlassImageBlobAlpha = p.getInt(glassImageBlobAlphaKey) ?? glassImageBlobAlpha ?? TGlassTuning.imageBlobAlphaDark;
   _initialGlassLook = TGlassLook.values.firstWhere(
     (l) => l.name == p.getString(glassLookKey),
     orElse: () => glassLook ?? TGlassLook.liquid,
   );
+  if (p.getString(glassTweaksKey) == null) _initialGlassTweaks = TGlassTweaks.defaults(_initialGlassLook);
 }
 
 class ThemeNotifier extends Notifier<TThemeState> {
@@ -426,12 +453,13 @@ class ThemeNotifier extends Notifier<TThemeState> {
       customColor: _initialCustomColor,
       lightOverrides: _initialLightOverrides,
       darkOverrides: _initialDarkOverrides,
-      layoutStyle: _initialLayoutStyle,
+      profilePosition: _initialProfilePosition,
       glass: _initialGlass,
       glassColors: _initialGlassColors,
       glassAnimated: _initialGlassAnimated,
       glassLook: _initialGlassLook,
       glassIdleSeconds: _initialGlassIdle,
+      glassTweaks: _initialGlassTweaks,
       glassStatic: _initialGlassStatic,
       glassImageBlur: _initialGlassImageBlur,
       glassImageDim: _initialGlassImageDim,
@@ -595,8 +623,21 @@ class ThemeNotifier extends Notifier<TThemeState> {
     SharedPreferences.getInstance().then((p) => p.setInt(glassImageBlobAlphaKey, v));
   }
 
+  void setGlassTweaks(TGlassTweaks t) {
+    state = state.copyWith(glassTweaks: t);
+    SharedPreferences.getInstance().then((p) => p.setString(glassTweaksKey, jsonEncode(t.toJson())));
+  }
+
   void setGlassLook(TGlassLook look) {
+    // Untouched surface tweaks follow the look's own defaults; customised ones are kept.
+    final t = state.glassTweaks;
+    final d = TGlassTweaks.defaults(state.glassLook);
+    final untouched = t.blur == d.blur && t.saturation == d.saturation && t.brightness == d.brightness && t.fillAlpha == d.fillAlpha && t.shine == d.shine;
     state = state.copyWith(glassLook: look);
+    if (untouched) {
+      final n = TGlassTweaks.defaults(look);
+      setGlassTweaks(t.copyWith(blur: n.blur, saturation: n.saturation, brightness: n.brightness, fillAlpha: n.fillAlpha, shine: n.shine));
+    }
     SharedPreferences.getInstance().then((p) => p.setString(glassLookKey, look.name));
   }
 
@@ -655,9 +696,9 @@ class ThemeNotifier extends Notifier<TThemeState> {
     await TGlassImageStore.clear();
   }
 
-  void setLayoutStyle(TLayoutStyle style) {
-    state = state.copyWith(layoutStyle: style);
-    SharedPreferences.getInstance().then((p) => p.setString(layoutStyleKey, style.name));
+  void setProfilePosition(TProfilePosition position) {
+    state = state.copyWith(profilePosition: position);
+    SharedPreferences.getInstance().then((p) => p.setString(profilePositionKey, position.name));
   }
 
   Future<void> _saveThemeMode(ThemeMode mode) async {
