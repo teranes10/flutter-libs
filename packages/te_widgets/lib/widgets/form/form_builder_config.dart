@@ -23,8 +23,17 @@ abstract class TFormBase {
   /// Optional list of tabs for tabbed/sub-form layouts.
   List<TFormTab>? get tabs => null;
 
-  /// Default layout type for forms with sub-forms (accordion, horizontalTabs, or verticalTabs).
+  /// Default layout type for forms with sub-forms.
+  ///
+  /// Use [TFormType.horizontalStepper] or [TFormType.verticalStepper] when
+  /// sections must be completed in order.
   TFormType? get defaultFormType => null;
+
+  /// Layouts the user can switch between with the form type toggle.
+  ///
+  /// Defaults to the stepper layouts when [defaultFormType] is a stepper
+  /// (so a sequential form stays sequential), otherwise to tabs/accordion.
+  List<TFormType> get availableFormTypes => defaultFormType?.isStepper == true ? TFormType.stepperTypes : TFormType.freeTypes;
 
   /// Optional custom storage identifier for persisting form layout preference.
   String? get storageKey => null;
@@ -86,9 +95,9 @@ abstract class TFormBase {
   }
 
   /// Collects validation errors from all fields.
-  List<String> get validationErrors => _getValidationErrors(allFields);
+  List<String> get validationErrors => _validateFields(allFields);
 
-  List<String> _getValidationErrors(List<TFormField> fieldsToValidate) {
+  static List<String> _validateFields(List<TFormField> fieldsToValidate) {
     List<String> errorsList = [];
 
     for (var field in fieldsToValidate) {
@@ -116,13 +125,13 @@ abstract class TFormBase {
         if (fb.input != null) {
           errorsList.addAll(fb.input!.validationErrors);
         } else if (fb.fields != null) {
-          errorsList.addAll(_getValidationErrors(fb.fields!));
+          errorsList.addAll(_validateFields(fb.fields!));
         } else if (fb.tabs != null) {
           for (var tab in fb.tabs!) {
             if (tab.input != null) {
               errorsList.addAll(tab.input!.validationErrors);
             } else if (tab.fields != null) {
-              errorsList.addAll(_getValidationErrors(tab.fields!));
+              errorsList.addAll(_validateFields(tab.fields!));
             }
           }
         }

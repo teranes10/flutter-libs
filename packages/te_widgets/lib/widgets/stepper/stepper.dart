@@ -27,6 +27,10 @@ class TStep {
   /// Custom color for this step.
   final Color? color;
 
+  /// Whether the step has validation errors. Renders the indicator and title
+  /// in the danger color with an alert icon.
+  final bool hasError;
+
   const TStep({
     required this.title,
     this.subtitle,
@@ -35,6 +39,7 @@ class TStep {
     this.isActive = false,
     this.isCompleted = false,
     this.color,
+    this.hasError = false,
   });
 }
 
@@ -98,59 +103,50 @@ class TStepper extends StatelessWidget {
   // ---------------------------------------------------------------------
 
   Widget _buildVerticalStepper(BuildContext context) {
+    final size = indicatorSize ?? 32;
+
+    // The connector is the left border of each step's body, so the body can hold
+    // any content (no IntrinsicHeight, which breaks LayoutBuilder-based content).
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: List.generate(steps.length, (index) {
         final isLast = index == steps.length - 1;
+        final isCurrent = index == currentStep;
 
-        return IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildVerticalIndicatorColumn(context, index, isLast),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildVerticalStepHeader(context, index),
-                    if (index == currentStep)
-                      Padding(
-                        padding: contentPadding ?? const EdgeInsets.only(left: 12, right: 12, bottom: 24, top: 12),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () => onStepTapped?.call(index),
+                  child: _buildIndicator(context, index, size: size),
+                ),
+                Expanded(child: _buildVerticalStepHeader(context, index)),
+              ],
+            ),
+            if (isCurrent || !isLast)
+              Container(
+                margin: EdgeInsets.only(left: size / 2 - 1, top: 4, bottom: isLast ? 0 : 4),
+                padding: EdgeInsets.only(left: size / 2 - 1),
+                decoration: BoxDecoration(
+                  border: isLast ? null : Border(left: BorderSide(color: _connectorColor(context, index < currentStep), width: 2)),
+                ),
+                child: isCurrent
+                    ? Padding(
+                        padding: contentPadding ?? const EdgeInsets.only(left: 12, right: 12, bottom: 24, top: 8),
                         child: TCard(
                           margin: contentMargin ?? EdgeInsets.zero,
                           borderColor: contentBorder,
                           child: steps[index].content,
                         ),
                       )
-                    else if (!isLast)
-                      const SizedBox(height: 24),
-                  ],
-                ),
+                    : const SizedBox(height: 24),
               ),
-            ],
-          ),
+          ],
         );
       }),
-    );
-  }
-
-  Widget _buildVerticalIndicatorColumn(BuildContext context, int index, bool isLast) {
-    final size = indicatorSize ?? 32;
-
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () => onStepTapped?.call(index),
-          child: _buildIndicator(context, index, size: size),
-        ),
-        if (!isLast)
-          Expanded(
-            child: Container(
-              width: 2,
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              color: _connectorColor(context, index < currentStep),
-            ),
-          ),
-      ],
     );
   }
 
@@ -170,7 +166,7 @@ class TStepper extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isActive ? FontWeight.w400 : FontWeight.w300,
-                color: isActive ? colors.onSurface : colors.onSurfaceVariant,
+                color: step.hasError ? context.theme.danger : (isActive ? colors.onSurface : colors.onSurfaceVariant),
               ),
               child: step.title,
             ),
@@ -320,10 +316,10 @@ class TStepper extends StatelessWidget {
 
   Widget _buildIndicator(BuildContext context, int index, {required double size}) {
     final colors = context.colors;
-    final mColor = color ?? context.theme.primary;
     final step = steps[index];
-    final isActive = index == currentStep;
-    final isCompleted = index < currentStep;
+    final mColor = step.hasError ? context.theme.danger : (step.color ?? color ?? context.theme.primary);
+    final isActive = index == currentStep || step.hasError;
+    final isCompleted = !step.hasError && (step.isCompleted || index < currentStep);
     final glass = TGlassStyle.resolve(context);
 
     return Container(
@@ -340,7 +336,8 @@ class TStepper extends StatelessWidget {
             : (glass != null && !isCompleted ? Border.all(color: glass.fieldEdge(context)) : null),
       ),
       child: Center(
-        child: step.icon ??
+        child: (step.hasError ? TIcon.raw(HugeIcons.strokeRoundedAlert02, size: size * 0.5625, color: Colors.white) : null) ??
+            step.icon ??
             (isCompleted
                 ? TIcon.raw(HugeIcons.strokeRoundedTick01, size: size * 0.5625, color: Colors.white)
                 : Text(
@@ -369,7 +366,7 @@ class TStepper extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
-            color: isActive ? colors.onSurface : colors.onSurfaceVariant,
+            color: step.hasError ? context.theme.danger : (isActive ? colors.onSurface : colors.onSurfaceVariant),
           ),
           textAlign: textAlign,
           child: step.title,

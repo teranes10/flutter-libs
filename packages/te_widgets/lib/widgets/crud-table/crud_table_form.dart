@@ -21,6 +21,7 @@ class _TCrudInlineFormState<T, K, F extends TFormBase> extends State<_TCrudInlin
   TError? _serverError;
   final GlobalKey _errorKey = GlobalKey();
   bool _isLoading = false;
+  final _formController = TFormController();
   ValueNotifier<TFormType>? _formType;
   TTableDetailsActions? _hostActions;
 
@@ -38,6 +39,7 @@ class _TCrudInlineFormState<T, K, F extends TFormBase> extends State<_TCrudInlin
       ? null
       : TFormTypeToggleSwitch(
           notifier: _formType!,
+          types: _form.availableFormTypes,
           onChanged: (type) => TFormTypePersistence.saveType(context, _form, type),
         );
 
@@ -67,6 +69,7 @@ class _TCrudInlineFormState<T, K, F extends TFormBase> extends State<_TCrudInlin
       });
     }
     _formType?.dispose();
+    _formController.dispose();
     super.dispose();
   }
 
@@ -91,14 +94,6 @@ class _TCrudInlineFormState<T, K, F extends TFormBase> extends State<_TCrudInlin
   }
 
   Future<void> _handleSave() async {
-    final errors = _form.validationErrors;
-    if (errors.isNotEmpty) {
-      for (var message in errors) {
-        TToastService.error(context, message);
-      }
-      return;
-    }
-
     setState(() {
       _isLoading = true;
       _serverError = null;
@@ -130,7 +125,7 @@ class _TCrudInlineFormState<T, K, F extends TFormBase> extends State<_TCrudInlin
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final form = TFormBuilder(input: _form, controller: _formController);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -148,31 +143,19 @@ class _TCrudInlineFormState<T, K, F extends TFormBase> extends State<_TCrudInlin
           ),
         if (_formType != null) ...[
           if (_hostActions == null) Align(alignment: Alignment.centerRight, child: _toggle),
-          TFormTypeScope(formTypeNotifier: _formType!, child: TFormBuilder(input: _form)),
+          TFormTypeScope(formTypeNotifier: _formType!, child: form),
         ] else ...[
           const SizedBox(height: 10),
-          TFormBuilder(input: _form),
+          form,
         ],
         Padding(
           padding: EdgeInsets.only(top: context.isDesktop ? 24 : 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            spacing: 10,
-            children: [
-              TButton(
-                baseTheme: TWidgetTheme.surfaceTheme(context.colors),
-                size: TButtonSize.md.copyWith(minW: 125),
-                text: 'Cancel',
-                onPressed: (_) => widget.onCancel(),
-              ),
-              TButton(
-                size: TButtonSize.md.copyWith(minW: 100),
-                color: theme.primary,
-                text: 'Save',
-                loading: _isLoading,
-                onPressed: (_) => _handleSave(),
-              ),
-            ],
+          child: TFormActions(
+            controller: _formController,
+            form: _form,
+            loading: _isLoading,
+            onCancel: widget.onCancel,
+            onSave: _handleSave,
           ),
         )
       ],

@@ -39,6 +39,19 @@ class FormsPage extends StatelessWidget {
             }
           },
         ),
+        const SizedBox(height: 12),
+        for (final type in TFormType.values) ...[
+          TButton(
+            text: 'Show Sectioned Form (${type.label})',
+            onPressed: (_) async {
+              final value = await TFormService.show(context, RegistrationForm(type));
+              if (value != null) {
+                debugPrint('__save registration $value');
+              }
+            },
+          ),
+          const SizedBox(height: 12),
+        ],
       ],
     );
   }
@@ -274,4 +287,83 @@ class TabbedSettingsForm extends TFormBase {
 
   @override
   String toString() => 'TabbedSettingsForm siteName: $siteName, siteUrl: $siteUrl, 2FA: $enable2FA';
+}
+
+/// Demo form with required fields across sections.
+///
+/// Pass [TFormType.horizontalStepper] / [TFormType.verticalStepper] for a
+/// sequential flow (Next is blocked until the step is valid), or tabs /
+/// accordion for free navigation. In every layout the footer shows Next
+/// until the last section, and Save with errors flags the failing sections,
+/// opens the first one and scrolls to its first invalid field.
+class RegistrationForm extends TFormBase {
+  RegistrationForm(this.type);
+
+  final TFormType type;
+
+  final name = TFieldProp<String>('');
+  final email = TFieldProp<String>('');
+  final phone = TFieldProp<String>('');
+
+  final company = TFieldProp<String>('');
+  final role = TFieldProp<String>('');
+  final teamSize = TFieldProp<int?>(null);
+
+  final username = TFieldProp<String>('');
+  final password = TFieldProp<String>('');
+  final acceptTerms = TFieldProp<bool?>(false);
+
+  @override
+  String get formTitle => 'Registration';
+
+  @override
+  double get formWidth => 800;
+
+  @override
+  TFormType? get defaultFormType => type;
+
+  // Keep the demo layout fixed per button instead of restoring a saved choice.
+  @override
+  bool get persistFormType => false;
+
+  @override
+  List<TFormTab> get tabs => [
+    TFormTab.fields(
+      title: 'Personal',
+      subtitle: 'Who you are',
+      icon: HugeIcons.strokeRoundedUser,
+      fields: [
+        TFormField.text(name, 'Full Name', isRequired: true),
+        TFormField.text(email, 'Email', isRequired: true).size(6),
+        TFormField.text(phone, 'Phone').size(6),
+      ],
+    ),
+    TFormTab.fields(
+      title: 'Company',
+      subtitle: 'Where you work',
+      icon: HugeIcons.strokeRoundedBuilding03,
+      fields: [
+        TFormField.text(company, 'Company', isRequired: true),
+        TFormField.text(role, 'Role').size(8),
+        TFormField.number<int?>(teamSize, 'Team Size').size(4),
+      ],
+    ),
+    TFormTab.fields(
+      title: 'Account',
+      subtitle: 'Sign-in details',
+      icon: HugeIcons.strokeRoundedShield01,
+      fields: [
+        TFormField.text(username, 'Username', isRequired: true).size(6),
+        TFormField.text(password, 'Password', isRequired: true, obscureText: true).size(6),
+        TFormField.checkbox(
+          acceptTerms,
+          'I accept the terms',
+          rules: [(v) => v == true ? null : 'You must accept the terms'],
+        ),
+      ],
+    ),
+  ];
+
+  @override
+  String toString() => 'RegistrationForm name: $name, email: $email, company: $company, username: $username';
 }

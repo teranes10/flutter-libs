@@ -33,6 +33,10 @@ class TTab<T> {
   /// Optional count shown as a pill after the label (e.g. `All (12)`).
   final int? count;
 
+  /// Whether the tab content has validation errors. Renders the tab in the
+  /// danger color with an alert icon.
+  final bool hasError;
+
   /// Optional content builder for this tab.
   ///
   /// When provided, this content will be displayed when the tab is selected.
@@ -68,6 +72,7 @@ class TTab<T> {
     this.isEnabled = true,
     this.isActive = false,
     this.count,
+    this.hasError = false,
     this.content,
     this.data,
     this.permission,
@@ -82,6 +87,7 @@ class TTab<T> {
         isEnabled: false,
         isActive: isActive,
         count: count,
+        hasError: hasError,
         content: content,
         data: data,
         permission: permission,

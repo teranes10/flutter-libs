@@ -40,9 +40,14 @@ class TabRenderer<T> {
     final defaultSelectedColor = selectedColor ?? colors.onPrimaryContainer;
     final defaultUnselectedColor = unselectedColor ?? colors.onSurface;
     final defaultDisabledColor = disabledColor ?? colors.onSurfaceVariant;
-    final defaultIndicatorColor = indicatorColor ?? colors.primary;
+    final danger = context.theme.danger;
+    final defaultIndicatorColor = tab.hasError ? danger : (indicatorColor ?? colors.primary);
 
-    final color = tab.isEnabled ? (isSelected ? defaultSelectedColor : defaultUnselectedColor) : defaultDisabledColor;
+    final color = !tab.isEnabled
+        ? defaultDisabledColor
+        : tab.hasError
+            ? danger
+            : (isSelected ? defaultSelectedColor : defaultUnselectedColor);
 
     final effectiveIndicatorWidth = indicatorWidth ?? 1;
     final indicatorBorder = isSelected
@@ -112,20 +117,35 @@ class TabRenderer<T> {
   }) {
     final color = !tab.isEnabled
         ? (disabledColor ?? colors.onSurfaceVariant.o(0.5))
-        : isSelected
+        : tab.hasError
+            ? context.theme.danger
+            : isSelected
             ? (selectedColor ?? colors.onSurface)
             : (unselectedColor ?? colors.onSurfaceVariant);
     final radius = BorderRadius.circular(8);
     final glass = TGlassStyle.resolve(context);
 
-    return Container(
+    final liquid = glass?.isLiquid == true;
+    final dark = colors.isDarkMode;
+    final pill = Container(
       key: tabKey,
       decoration: glass != null
           // Glass: the active pill is a bright frosted chip with a visible edge instead of an opaque raised surface.
           ? BoxDecoration(
-              color: isSelected ? Colors.white.withAlpha(colors.isDarkMode ? 52 : 235) : Colors.transparent,
+              color: isSelected && !liquid ? Colors.white.withAlpha(dark ? 52 : 235) : Colors.transparent,
+              // Liquid: a raised, lit lens: top-to-bottom sheen, soft drop shadow and the rim below instead of a flat edge.
+              gradient: isSelected && liquid
+                  ? LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.white.withAlpha(dark ? 78 : 255), Colors.white.withAlpha(dark ? 34 : 190)],
+                    )
+                  : null,
+              boxShadow: isSelected && liquid
+                  ? [BoxShadow(color: Colors.black.withAlpha(dark ? 50 : 28), blurRadius: 6, offset: const Offset(0, 2))]
+                  : null,
               borderRadius: radius,
-              border: isSelected ? Border.all(color: glass.fieldEdge(context)) : null,
+              border: isSelected && !liquid ? Border.all(color: glass.fieldEdge(context)) : null,
             )
           : BoxDecoration(
               color: isSelected ? colors.surface : Colors.transparent,
@@ -152,6 +172,7 @@ class TabRenderer<T> {
         ),
       ),
     );
+    return isSelected ? TGlassRim(borderRadius: radius, child: pill) : pill;
   }
 
   /// Builds horizontal tab content layout.

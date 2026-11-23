@@ -61,6 +61,7 @@ class TFormService {
       modalActions = [
         TFormTypeToggleSwitch(
           notifier: formTypeNotifier,
+          types: input.availableFormTypes,
           onChanged: (newType) {
             TFormTypePersistence.saveType(context, input, newType);
           },
@@ -114,17 +115,16 @@ class _TFormContent<T extends TFormBase> extends StatefulWidget {
 }
 
 class _TFormContentState<T extends TFormBase> extends State<_TFormContent<T>> {
+  final _formController = TFormController();
   bool _isLoading = false;
 
-  Future<void> _handleSave() async {
-    final errors = widget.input.validationErrors;
-    if (errors.isNotEmpty) {
-      for (var message in errors) {
-        TToastService.error(context, message);
-      }
-      return;
-    }
+  @override
+  void dispose() {
+    _formController.dispose();
+    super.dispose();
+  }
 
+  Future<void> _handleSave() async {
     setState(() {
       _isLoading = true;
     });
@@ -149,16 +149,16 @@ class _TFormContentState<T extends TFormBase> extends State<_TFormContent<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
+    final form = TFormBuilder(input: widget.input, controller: _formController);
     final formWidget = context.isMobilePlatform
         ? InteractiveViewer(
             scaleEnabled: true,
             panEnabled: true,
             minScale: 1.0,
             maxScale: 1.3,
-            child: TFormBuilder(input: widget.input),
+            child: form,
           )
-        : TFormBuilder(input: widget.input);
+        : form;
 
     return Padding(
       padding: widget.padding,
@@ -168,34 +168,123 @@ class _TFormContentState<T extends TFormBase> extends State<_TFormContent<T>> {
           formWidget,
           Padding(
             padding: EdgeInsets.only(top: widget.topSpacing),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              spacing: 10,
-              children: [
-                TButton(
-                  // Glass: a frosted button with a visible edge instead of an opaque surface block.
-                  baseTheme: TGlassStyle.resolve(context) == null
-                      ? TWidgetTheme.surfaceTheme(context.colors)
-                      : TWidgetTheme.surfaceTheme(context.colors).copyWith(
-                          container: Colors.white.withAlpha(context.colors.isDarkMode ? 24 : 150),
-                          containerVariant: Colors.white.withAlpha(context.colors.isDarkMode ? 45 : 200),
-                          outline: TGlassStyle.resolve(context)!.fieldEdge(context),
-                          outlineVariant: TGlassStyle.resolve(context)!.fieldEdge(context),
-                        ),
-                  size: TButtonSize.md.copyWith(minW: 125),
-                  text: 'Cancel',
-                  onPressed: (_) => widget.onClose(null),
-                ),
-                TButton(
-                  size: TButtonSize.md.copyWith(minW: 100),
-                  color: theme.primary,
-                  text: 'Save',
-                  loading: _isLoading,
-                  onPressed: (_) => _handleSave(),
-                ),
-              ],
+            child: TFormActions(
+              controller: _formController,
+              form: widget.input,
+              loading: _isLoading,
+              onCancel: () => widget.onClose(null),
+              onSave: _handleSave,
             ),
           )
+        ],
+      ),
+    );
+  }
+}
+
+/// Footer actions for a [TFormBuilder] driven by [controller].
+///
+/// - Single-section and accordion forms: **Cancel** · **Save**.
+/// - Tabs and steppers: **Cancel** · **Back** · **Next** until the last
+///   section, where **Next** becomes **Save**. On a stepper, Next refuses to
+///   leave a step with errors.
+///
+/// Save validates [form] first; when invalid it shows one toast, flags the
+/// sections with errors, opens the first one and scrolls to the first
+/// invalid field. [onSave] only runs for a valid form.
+class TFormActions extends StatelessWidget {
+  /// Controller attached to the form's [TFormBuilder].
+  final TFormController controller;
+
+  /// Form validated before [onSave] runs.
+  final TFormBase form;
+
+  /// Called when Cancel is pressed.
+  final VoidCallback onCancel;
+
+  /// Called when Save is pressed and [form] is valid.
+  final Future<void> Function() onSave;
+
+  /// Shows a spinner on the Save button.
+  final bool loading;
+
+  final String cancelText;
+  final String backText;
+  final String nextText;
+  final String saveText;
+
+  const TFormActions({
+    super.key,
+    required this.controller,
+    required this.form,
+    required this.onCancel,
+    required this.onSave,
+    this.loading = false,
+    this.cancelText = 'Cancel',
+    this.backText = 'Back',
+    this.nextText = 'Next',
+    this.saveText = 'Save',
+  });
+
+  Future<void> _save(BuildContext context) async {
+    final errors = form.validationErrors;
+    if (errors.isNotEmpty) {
+      TToastService.error(context, errors.first, errors.length > 1 ? 'Please fix ${errors.length} errors' : null);
+      await controller.revealErrors();
+      return;
+    }
+    await onSave();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final glass = TGlassStyle.resolve(context);
+    // Glass: a frosted button with a visible edge instead of an opaque surface block.
+    final surfaceTheme = glass == null
+        ? TWidgetTheme.surfaceTheme(colors)
+        : TWidgetTheme.surfaceTheme(colors).copyWith(
+            container: Colors.white.withAlpha(colors.isDarkMode ? 24 : 150),
+            containerVariant: Colors.white.withAlpha(colors.isDarkMode ? 45 : 200),
+            outline: glass.fieldEdge(context),
+            outlineVariant: glass.fieldEdge(context),
+          );
+
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        spacing: 10,
+        children: [
+          TButton(
+            baseTheme: surfaceTheme,
+            size: TButtonSize.md.copyWith(minW: controller.canGoBack ? null : 125),
+            text: cancelText,
+            onPressed: (_) => onCancel(),
+          ),
+          if (controller.canGoBack)
+            TButton(
+              baseTheme: surfaceTheme,
+              size: TButtonSize.md,
+              icon: HugeIcons.strokeRoundedArrowLeft01,
+              text: backText,
+              onPressed: (_) => controller.back(),
+            ),
+          if (controller.isLast)
+            TButton(
+              size: TButtonSize.md.copyWith(minW: 100),
+              color: context.theme.primary,
+              text: saveText,
+              loading: loading,
+              onPressed: (_) => _save(context),
+            )
+          else
+            TButton(
+              size: TButtonSize.md.copyWith(minW: 100),
+              color: context.theme.primary,
+              text: nextText,
+              onPressed: (_) => controller.next(),
+            ),
         ],
       ),
     );

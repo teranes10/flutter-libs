@@ -1,34 +1,55 @@
 part of 'form_builder.dart';
 
 /// Form layout presentation types for forms with sub-forms.
+///
+/// - Tabs and accordion allow free navigation between sections.
+/// - Steppers are sequential: a later step can only be opened once every
+///   step before it is valid.
 enum TFormType {
   accordion,
   horizontalTabs,
-  verticalTabs;
+  verticalTabs,
+  horizontalStepper,
+  verticalStepper;
+
+  /// Free-navigation layouts (the toggle set for regular forms).
+  static const List<TFormType> freeTypes = [accordion, horizontalTabs, verticalTabs];
+
+  /// Sequential layouts (the toggle set for forms whose default is a stepper).
+  static const List<TFormType> stepperTypes = [horizontalStepper, verticalStepper];
+
+  /// Whether this layout forces sections to be completed in order.
+  bool get isStepper => this == horizontalStepper || this == verticalStepper;
+
+  /// Whether this layout shows one section at a time (tabs or stepper),
+  /// so the form footer shows Next until the last section.
+  bool get isPaged => this != accordion;
+
+  /// The tabs layout with the same axis, used where a stepper does not fit
+  /// (e.g. a nested sub-form inheriting a stepper scope).
+  TFormType get asTabs => switch (this) {
+        horizontalStepper => horizontalTabs,
+        verticalStepper => verticalTabs,
+        _ => this,
+      };
 
   /// User-friendly display label.
-  String get label {
-    switch (this) {
-      case TFormType.accordion:
-        return 'Accordion';
-      case TFormType.horizontalTabs:
-        return 'Horizontal Tabs';
-      case TFormType.verticalTabs:
-        return 'Vertical Tabs';
-    }
-  }
+  String get label => switch (this) {
+        accordion => 'Accordion',
+        horizontalTabs => 'Horizontal Tabs',
+        verticalTabs => 'Vertical Tabs',
+        horizontalStepper => 'Horizontal Stepper',
+        verticalStepper => 'Vertical Stepper',
+      };
 
   /// Icon representing this form type.
-  dynamic get icon {
-    switch (this) {
-      case TFormType.accordion:
-        return HugeIcons.strokeRoundedViewAgenda;
-      case TFormType.horizontalTabs:
-        return HugeIcons.strokeRoundedBrowser;
-      case TFormType.verticalTabs:
-        return HugeIcons.strokeRoundedSidebarLeft;
-    }
-  }
+  dynamic get icon => switch (this) {
+        accordion => HugeIcons.strokeRoundedViewAgenda,
+        horizontalTabs => HugeIcons.strokeRoundedBrowser,
+        verticalTabs => HugeIcons.strokeRoundedSidebarLeft,
+        horizontalStepper => HugeIcons.strokeRoundedProgress02,
+        verticalStepper => HugeIcons.strokeRoundedLeftToRightListNumber,
+      };
 
   /// Tooltip description for toggle buttons.
   String get tooltip => 'Form Layout: $label';
@@ -51,34 +72,39 @@ class TFormTypePersistence {
     return form.runtimeType.toString();
   }
 
+  static TFormType _defaultOf(TFormBase form) {
+    final types = form.availableFormTypes;
+    return form.defaultFormType ?? (types.contains(TFormType.horizontalTabs) ? TFormType.horizontalTabs : types.first);
+  }
+
+  /// Parses a persisted name, accepting only layouts the form offers.
+  static TFormType? _parse(TFormBase form, String? saved) {
+    if (saved == null) return null;
+    for (final type in form.availableFormTypes) {
+      if (type.name == saved) return type;
+    }
+    return null;
+  }
+
   /// Resolves initial form type synchronously using in-memory cache, [PageStorage], or default.
   static TFormType getInitialType(BuildContext context, TFormBase form) {
-    if (!form.persistFormType) {
-      return form.defaultFormType ?? TFormType.horizontalTabs;
-    }
+    if (!form.persistFormType) return _defaultOf(form);
 
     final key = resolveKey(context, form);
 
     // 1. In-memory cache
-    if (_inMemoryCache.containsKey(key)) {
-      return _inMemoryCache[key]!;
-    }
+    final cached = _inMemoryCache[key];
+    if (cached != null && form.availableFormTypes.contains(cached)) return cached;
 
     // 2. PageStorage
     final pageStorage = PageStorage.maybeOf(context);
-    if (pageStorage != null) {
-      final saved = pageStorage.readState(context, identifier: 'form_type_$key') as String?;
-      if (saved != null) {
-        final match = TFormType.values.firstWhere(
-          (e) => e.name == saved,
-          orElse: () => form.defaultFormType ?? TFormType.horizontalTabs,
-        );
-        _inMemoryCache[key] = match;
-        return match;
-      }
+    final match = _parse(form, pageStorage?.readState(context, identifier: 'form_type_$key') as String?);
+    if (match != null) {
+      _inMemoryCache[key] = match;
+      return match;
     }
 
-    return form.defaultFormType ?? TFormType.horizontalTabs;
+    return _defaultOf(form);
   }
 
   /// Asynchronously loads persisted form type from [SharedPreferences] into [notifier].
@@ -92,12 +118,8 @@ class TFormTypePersistence {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final saved = prefs.getString('te_form_type_$key');
-      if (saved != null) {
-        final match = TFormType.values.firstWhere(
-          (e) => e.name == saved,
-          orElse: () => notifier.value,
-        );
+      final match = _parse(form, prefs.getString('te_form_type_$key'));
+      if (match != null) {
         if (notifier.value != match) {
           notifier.value = match;
           _inMemoryCache[key] = match;
@@ -152,10 +174,14 @@ extension TFormTypeContextExt on BuildContext {
   TFormType? get maybeFormType => TFormTypeScope.maybeOf(this);
 }
 
-/// Toggle switch button for switching form types (accordion, horizontal tabs, vertical tabs).
+/// Toggle switch button for switching form types.
 class TFormTypeToggleSwitch extends StatelessWidget {
   /// The reactive notifier holding the active [TFormType].
   final ValueNotifier<TFormType> notifier;
+
+  /// Layouts offered by the toggle. Defaults to [TFormType.freeTypes];
+  /// pass [TFormBase.availableFormTypes] to follow the form's choice.
+  final List<TFormType> types;
 
   /// Optional callback invoked when the form type is changed.
   final ValueChanged<TFormType>? onChanged;
@@ -168,6 +194,7 @@ class TFormTypeToggleSwitch extends StatelessWidget {
     required this.notifier,
     this.onChanged,
     this.cycle = true,
+    this.types = TFormType.freeTypes,
   });
 
   @override
@@ -181,28 +208,14 @@ class TFormTypeToggleSwitch extends StatelessWidget {
           cycle: cycle,
           type: TButtonGroupType.icon,
           size: TButtonSize.xs.copyWith(icon: 18),
-          initialIndex: currentType.index,
+          initialIndex: types.indexOf(currentType).clamp(0, types.length - 1),
           onIndexChanged: (index) {
-            final newType = TFormType.values[index];
+            final newType = types[index];
             notifier.value = newType;
             onChanged?.call(newType);
           },
           items: [
-            TButtonGroupItem(
-              icon: HugeIcons.strokeRoundedViewAgenda,
-              tooltip: 'Form Layout: Accordion',
-              active: currentType == TFormType.accordion,
-            ),
-            TButtonGroupItem(
-              icon: HugeIcons.strokeRoundedBrowser,
-              tooltip: 'Form Layout: Horizontal Tabs',
-              active: currentType == TFormType.horizontalTabs,
-            ),
-            TButtonGroupItem(
-              icon: HugeIcons.strokeRoundedSidebarLeft,
-              tooltip: 'Form Layout: Vertical Tabs',
-              active: currentType == TFormType.verticalTabs,
-            ),
+            for (final type in types) TButtonGroupItem(icon: type.icon, tooltip: type.tooltip, active: currentType == type),
           ],
         );
 
