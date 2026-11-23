@@ -32,12 +32,8 @@ final GoRouter router = GoRouter(
           builder: (context, selectedId, _) => TLayout(
             logo: const TLogo(text: 'Te Widgets'),
             minifiedLogo: const TLogo(text: 'Te'),
-            switcher: (variant) => TSwitcher(
-              variant: variant,
-              options: _options,
-              selectedId: selectedId,
-              onChanged: (w) => _selected.value = w.id,
-            ),
+            switcher: (variant) =>
+                TSwitcher(variant: variant, options: _options, selectedId: selectedId, onChanged: (w) => _selected.value = w.id),
             profile: TImage.profile(name: 'Teranes', role: 'Super Admin'),
             onLogout: () {
               // Handle logout

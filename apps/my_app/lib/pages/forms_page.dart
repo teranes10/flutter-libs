@@ -355,11 +355,7 @@ class RegistrationForm extends TFormBase {
       fields: [
         TFormField.text(username, 'Username', isRequired: true).size(6),
         TFormField.text(password, 'Password', isRequired: true, obscureText: true).size(6),
-        TFormField.checkbox(
-          acceptTerms,
-          'I accept the terms',
-          rules: [(v) => v == true ? null : 'You must accept the terms'],
-        ),
+        TFormField.checkbox(acceptTerms, 'I accept the terms', rules: [(v) => v == true ? null : 'You must accept the terms']),
       ],
     ),
   ];

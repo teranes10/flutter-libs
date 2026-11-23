@@ -2348,7 +2348,11 @@ TTile.task(
     final border = selected ? primary : colors.outlineVariant.withAlpha(60);
     Widget pane = Container(
       padding: padding,
-      decoration: BoxDecoration(color: fill, borderRadius: r, border: glass && !selected ? null : Border.all(color: border)),
+      decoration: BoxDecoration(
+        color: fill,
+        borderRadius: r,
+        border: glass && !selected ? null : Border.all(color: border),
+      ),
       child: child,
     );
     if (glass) pane = TGlassSurface.wrap(context, radius: r, color: colors.surface, child: pane);

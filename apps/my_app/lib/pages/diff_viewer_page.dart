@@ -91,7 +91,8 @@ spec:
   Widget build(BuildContext context) {
     return TPageWrapper(
       title: 'TDiffViewer Showcase',
-      description: 'Line-by-line diff and version comparison component supporting side-by-side split and unified inline modes, '
+      description:
+          'Line-by-line diff and version comparison component supporting side-by-side split and unified inline modes, '
           'with additions, deletions, line numbers, and change statistics.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

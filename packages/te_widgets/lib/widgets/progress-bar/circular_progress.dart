@@ -107,9 +107,7 @@ class TCircularProgress extends StatelessWidget {
             : (color ?? colors.primary));
     // Glass: a recessed translucent track instead of an opaque surface block.
     final trackColor = backgroundColor ??
-        (TGlassStyle.resolve(context) != null
-            ? colors.onSurface.withAlpha(colors.isDarkMode ? 40 : 26)
-            : colors.surfaceContainerHighest);
+        (TGlassStyle.resolve(context) != null ? colors.onSurface.withAlpha(colors.isDarkMode ? 40 : 26) : colors.surfaceContainerHighest);
 
     Widget indicator;
 

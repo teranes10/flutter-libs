@@ -136,8 +136,9 @@ class LayoutProfileButton extends ConsumerWidget {
 
     // Minified sidebar: the trigger is only an avatar, so the overlay keeps a normal width instead of matching it.
     // Sidebar profile: the overlay spans the trigger (sidebar width minus its padding).
-    if (!expand || minified)
+    if (!expand || minified) {
       return dropdown(TDropdownTheme.defaultTheme(colors).copyWith(boxConstraints: const BoxConstraints(minWidth: 200)));
+    }
     // Not a LayoutBuilder: the sidebar wraps this in IntrinsicWidth, which LayoutBuilder can't answer.
     return _WidthProbe(
       builder: (width) => dropdown(

@@ -216,16 +216,16 @@ class TThemeState {
     final baseBuilder = base.widgetThemeBuilder;
     final builder = glass
         ? (ColorScheme c) => baseBuilder(c).copyWith(
-            glass: TGlassStyle(
-              look: glassLook,
-              blur: glassTweaks.blur,
-              fillAlpha: glassTweaks.fillAlpha,
-              lightFillAlpha: glassTweaks.fillAlpha,
-              borderAlpha: glassTweaks.shine,
-              saturationScale: glassTweaks.saturation,
-              brightnessScale: glassTweaks.brightness,
-            ),
-          )
+              glass: TGlassStyle(
+                look: glassLook,
+                blur: glassTweaks.blur,
+                fillAlpha: glassTweaks.fillAlpha,
+                lightFillAlpha: glassTweaks.fillAlpha,
+                borderAlpha: glassTweaks.shine,
+                saturationScale: glassTweaks.saturation,
+                brightnessScale: glassTweaks.brightness,
+              ),
+            )
         : baseBuilder;
     if (lightOverrides.isEmpty && darkOverrides.isEmpty && customColor == null) {
       return glass ? base.copyWith(widgetThemeBuilder: builder) : base;
@@ -632,7 +632,11 @@ class ThemeNotifier extends Notifier<TThemeState> {
     // Untouched surface tweaks follow the look's own defaults; customised ones are kept.
     final t = state.glassTweaks;
     final d = TGlassTweaks.defaults(state.glassLook);
-    final untouched = t.blur == d.blur && t.saturation == d.saturation && t.brightness == d.brightness && t.fillAlpha == d.fillAlpha && t.shine == d.shine;
+    final untouched = t.blur == d.blur &&
+        t.saturation == d.saturation &&
+        t.brightness == d.brightness &&
+        t.fillAlpha == d.fillAlpha &&
+        t.shine == d.shine;
     state = state.copyWith(glassLook: look);
     if (untouched) {
       final n = TGlassTweaks.defaults(look);

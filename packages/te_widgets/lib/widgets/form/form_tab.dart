@@ -126,8 +126,7 @@ class TFormTab {
   dynamic get effectiveValue => value ?? title;
 
   /// Validation errors of every field in this tab (including nested sub-forms).
-  List<String> get validationErrors =>
-      input?.validationErrors ?? TFormBase._validateFields([...?fields, ...?sidebarFields]);
+  List<String> get validationErrors => input?.validationErrors ?? TFormBase._validateFields([...?fields, ...?sidebarFields]);
 
   /// Converts this [TFormTab] to a [TTab] widget representation.
   TTab<dynamic> toTab({bool hasError = false, Widget Function(BuildContext)? content}) {

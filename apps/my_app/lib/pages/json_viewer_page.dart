@@ -80,7 +80,8 @@ class _JsonViewerPageState extends State<JsonViewerPage> {
   Widget build(BuildContext context) {
     return TPageWrapper(
       title: 'TJsonViewer Showcase',
-      description: 'Interactive, collapsible JSON and map object tree inspector with search query highlighting, '
+      description:
+          'Interactive, collapsible JSON and map object tree inspector with search query highlighting, '
           'type-specific syntax coloring, depth controls, item counts, and one-click JSON clipboard copying.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,8 +111,16 @@ class _JsonViewerPageState extends State<JsonViewerPage> {
                     onValueChanged: (val) => setState(() => _searchQuery = val?.toString() ?? ''),
                   ),
                 ),
-                TCheckbox(label: 'Show Item Counts', value: _showItemCount, onValueChanged: (val) => setState(() => _showItemCount = val ?? true)),
-                TCheckbox(label: 'Copy Button', value: _showCopyButton, onValueChanged: (val) => setState(() => _showCopyButton = val ?? true)),
+                TCheckbox(
+                  label: 'Show Item Counts',
+                  value: _showItemCount,
+                  onValueChanged: (val) => setState(() => _showItemCount = val ?? true),
+                ),
+                TCheckbox(
+                  label: 'Copy Button',
+                  value: _showCopyButton,
+                  onValueChanged: (val) => setState(() => _showCopyButton = val ?? true),
+                ),
               ],
             ),
           ),

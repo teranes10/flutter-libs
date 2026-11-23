@@ -120,8 +120,8 @@ class TabRenderer<T> {
         : tab.hasError
             ? context.theme.danger
             : isSelected
-            ? (selectedColor ?? colors.onSurface)
-            : (unselectedColor ?? colors.onSurfaceVariant);
+                ? (selectedColor ?? colors.onSurface)
+                : (unselectedColor ?? colors.onSurfaceVariant);
     final radius = BorderRadius.circular(8);
     final glass = TGlassStyle.resolve(context);
 

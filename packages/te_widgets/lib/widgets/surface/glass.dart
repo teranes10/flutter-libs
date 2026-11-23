@@ -831,7 +831,8 @@ class _BlobPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_BlobPainter old) => old.colors != colors || old.base != base || old.alpha != alpha || old.pull != pull || old.radiusFactor != radiusFactor;
+  bool shouldRepaint(_BlobPainter old) =>
+      old.colors != colors || old.base != base || old.alpha != alpha || old.pull != pull || old.radiusFactor != radiusFactor;
 }
 
 /// Edge-to-edge glass for bars (bottom bars, top bars): blurs the backdrop, fills translucently and draws a
