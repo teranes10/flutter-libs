@@ -21,6 +21,7 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final glass = TGlassStyle.resolve(context) != null;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
@@ -111,7 +112,9 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                     height: 160,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.3) : colors.surfaceContainerLowest,
+                      color: glass
+                          ? colors.primary.withValues(alpha: 0.06)
+                          : (isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.3) : colors.surfaceContainerLowest),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: colors.primary.withValues(alpha: 0.4), width: 1.5),
                     ),
@@ -190,30 +193,35 @@ class _ContextMenuPageState extends State<ContextMenuPage> {
                           onTap: () => _trigger('Deleted customer account: ${row.$1}'),
                         ),
                       ],
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
-                        ),
-                        child: Row(
-                          children: [
-                            TIcon.raw(HugeIcons.strokeRoundedWhatsappBusiness, color: colors.primary, size: 20),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(row.$1, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                                  Text(row.$2, style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
-                                ],
+                      child: TGlassSurface.wrap(
+                        context,
+                        radius: BorderRadius.circular(8),
+                        color: colors.surface,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: glass ? null : (isDark ? colors.surfaceContainerHigh : colors.surface),
+                            borderRadius: BorderRadius.circular(8),
+                            border: glass ? null : Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
+                          ),
+                          child: Row(
+                            children: [
+                              TIcon.raw(HugeIcons.strokeRoundedWhatsappBusiness, color: colors.primary, size: 20),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(row.$1, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                                    Text(row.$2, style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
+                                  ],
+                                ),
                               ),
-                            ),
-                            TBadge(label: row.$3, color: row.$4),
-                            const SizedBox(width: 12),
-                            TIcon.raw(HugeIcons.strokeRoundedMoreVertical, size: 18, color: colors.onSurfaceVariant),
-                          ],
+                              TBadge(label: row.$3, color: row.$4),
+                              const SizedBox(width: 12),
+                              TIcon.raw(HugeIcons.strokeRoundedMoreVertical, size: 18, color: colors.onSurfaceVariant),
+                            ],
+                          ),
                         ),
                       ),
                     ),

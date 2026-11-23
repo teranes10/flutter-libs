@@ -86,28 +86,17 @@ class _TreeViewPageState extends State<TreeViewPage> {
     ];
   }
 
+  static const _modes = TTreeSelectionMode.values;
+
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
+    return TPageWrapper(
+      title: 'Tree View',
+      description:
+          'Interactive hierarchical tree explorer supporting single/multi-selection, tri-state checkboxes, search filtering with auto-expansion, connecting lines, and async child loading.',
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
-          Text(
-            'Tree View',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: colors.onSurface),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Interactive hierarchical tree explorer supporting single/multi-selection, tri-state checkboxes, search filtering with auto-expansion, connecting lines, and async child loading.',
-            style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
-          ),
-          const SizedBox(height: 20),
-
-          // Feedback Banner
           TBanner.info(
             variant: TVariant.tonal,
             title: 'Selected Nodes (${_selectedKeys.length})',
@@ -116,103 +105,52 @@ class _TreeViewPageState extends State<TreeViewPage> {
                 : 'Keys: ${_selectedKeys.join(', ')} | Last clicked: $_lastClickedNode',
           ),
           const SizedBox(height: 24),
-
-          // Controls Toolbar Card
           TCard(
             title: 'Tree Controls & Search',
             child: Wrap(
-              spacing: 16,
+              spacing: 20,
               runSpacing: 16,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                // Search Input
                 SizedBox(
                   width: 260,
-                  child: TextField(
-                    onChanged: (val) => setState(() => _searchQuery = val),
-                    style: const TextStyle(fontSize: 13),
-                    decoration: InputDecoration(
-                      prefixIcon: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 18),
-                      hintText: 'Filter tree nodes...',
-                      hintStyle: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: colors.outlineVariant),
-                      ),
-                    ),
+                  child: TTextField(
+                    placeholder: 'Filter tree nodes...',
+                    value: _searchQuery,
+                    clearable: true,
+                    onValueChanged: (val) => setState(() => _searchQuery = val ?? ''),
                   ),
                 ),
-
-                // Selection Mode Dropdown / Toggle
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Selection Mode: ', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
-                    SegmentedButton<TTreeSelectionMode>(
-                      segments: const [
-                        ButtonSegment(
-                          value: TTreeSelectionMode.none,
-                          label: Text('None', style: TextStyle(fontSize: 12)),
-                        ),
-                        ButtonSegment(
-                          value: TTreeSelectionMode.single,
-                          label: Text('Single', style: TextStyle(fontSize: 12)),
-                        ),
-                        ButtonSegment(
-                          value: TTreeSelectionMode.multi,
-                          label: Text('Multi', style: TextStyle(fontSize: 12)),
-                        ),
-                      ],
-                      selected: {_selectionMode},
-                      onSelectionChanged: (val) => setState(() => _selectionMode = val.first),
-                    ),
-                  ],
+                TButtonGroup(
+                  initialIndex: _modes.indexOf(_selectionMode),
+                  onIndexChanged: (i) => setState(() => _selectionMode = _modes[i]),
+                  items: [for (final m in _modes) TButtonGroupItem(text: m.name[0].toUpperCase() + m.name.substring(1))],
                 ),
-
-                // Connecting lines toggle
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(value: _showLines, onChanged: (val) => setState(() => _showLines = val ?? true)),
-                    const Text('Show branch lines', style: TextStyle(fontSize: 13)),
-                  ],
-                ),
+                TCheckbox(label: 'Show branch lines', value: _showLines, onValueChanged: (val) => setState(() => _showLines = val ?? true)),
               ],
             ),
           ),
           const SizedBox(height: 24),
-
-          // Tree Canvas Card
           TCard(
             title: 'File Explorer Tree',
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
-              ),
-              child: TTreeView<String>(
-                nodes: _getTreeData(),
-                selectionMode: _selectionMode,
-                selectedKeys: _selectedKeys,
-                showConnectingLines: _showLines,
-                searchQuery: _searchQuery,
-                expandedKeys: const {'packages', 'te_widgets'},
-                onSelectionChanged: (keys) => setState(() => _selectedKeys = keys),
-                onNodeTap: (node) => setState(() => _lastClickedNode = node.label),
-                onLoadChildren: (node) async {
-                  // Simulate async network latency
-                  await Future.delayed(const Duration(milliseconds: 750));
-                  return [
-                    const TTreeNode(key: 'bucket_1', label: 'production-backups-2026.tar.gz', icon: HugeIcons.strokeRoundedArchive),
-                    const TTreeNode(key: 'bucket_2', label: 'user-avatars-cdn', icon: HugeIcons.strokeRoundedFolder01),
-                    const TTreeNode(key: 'bucket_3', label: 'audit-ledger.parquet', icon: HugeIcons.strokeRoundedDataRecovery),
-                  ];
-                },
-              ),
+            child: TTreeView<String>(
+              nodes: _getTreeData(),
+              selectionMode: _selectionMode,
+              selectedKeys: _selectedKeys,
+              showConnectingLines: _showLines,
+              searchQuery: _searchQuery,
+              expandedKeys: const {'packages', 'te_widgets'},
+              onSelectionChanged: (keys) => setState(() => _selectedKeys = keys),
+              onNodeTap: (node) => setState(() => _lastClickedNode = node.label),
+              onLoadChildren: (node) async {
+                // Simulate async network latency
+                await Future.delayed(const Duration(milliseconds: 750));
+                return [
+                  const TTreeNode(key: 'bucket_1', label: 'production-backups-2026.tar.gz', icon: HugeIcons.strokeRoundedArchive),
+                  const TTreeNode(key: 'bucket_2', label: 'user-avatars-cdn', icon: HugeIcons.strokeRoundedFolder01),
+                  const TTreeNode(key: 'bucket_3', label: 'audit-ledger.parquet', icon: HugeIcons.strokeRoundedDataRecovery),
+                ];
+              },
             ),
           ),
         ],

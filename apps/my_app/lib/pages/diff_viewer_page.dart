@@ -89,79 +89,49 @@ spec:
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+    return TPageWrapper(
+      title: 'TDiffViewer Showcase',
+      description: 'Line-by-line diff and version comparison component supporting side-by-side split and unified inline modes, '
+          'with additions, deletions, line numbers, and change statistics.',
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
-          Text('TDiffViewer Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text(
-            'Line-by-line diff and version comparison component supporting side-by-side split and unified inline modes, '
-            'with additions, deletions, line numbers, and change statistics.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
-          ),
-          const SizedBox(height: 24),
-
-          // Control Toolbar Card
           TCard(
             title: 'Diff Comparison Settings',
             child: Wrap(
               spacing: 24,
               runSpacing: 16,
-              crossAxisAlignment: WrapCrossAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.end,
               children: [
-                // Preset Dropdown
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Preset: ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                    DropdownButton<String>(
-                      value: _selectedPreset,
-                      underline: const SizedBox(),
-                      items: const [
-                        DropdownMenuItem(value: 'Config YAML', child: Text('Kubernetes Deployment YAML')),
-                        DropdownMenuItem(value: 'SQL Schema', child: Text('PostgreSQL Schema Migration')),
-                      ],
-                      onChanged: (val) => setState(() => _selectedPreset = val ?? _selectedPreset),
-                    ),
+                SizedBox(
+                  width: 280,
+                  child: TSelect<String, String, String>(
+                    label: 'Preset',
+                    items: const ['Config YAML', 'SQL Schema'],
+                    itemText: (v) => v == 'Config YAML' ? 'Kubernetes Deployment YAML' : 'PostgreSQL Schema Migration',
+                    value: _selectedPreset,
+                    onValueChanged: (val) => setState(() => _selectedPreset = val ?? _selectedPreset),
+                  ),
+                ),
+                TButtonGroup(
+                  type: TButtonGroupType.segmented,
+                  label: 'Mode',
+                  initialIndex: _mode == TDiffViewMode.sideBySide ? 0 : 1,
+                  onIndexChanged: (i) => setState(() => _mode = i == 0 ? TDiffViewMode.sideBySide : TDiffViewMode.inline),
+                  items: [
+                    TButtonGroupItem(text: 'Side-by-Side'),
+                    TButtonGroupItem(text: 'Unified Inline'),
                   ],
                 ),
-
-                // View Mode
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Mode: ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                    SegmentedButton<TDiffViewMode>(
-                      segments: const [
-                        ButtonSegment(value: TDiffViewMode.sideBySide, label: Text('Side-by-Side')),
-                        ButtonSegment(value: TDiffViewMode.inline, label: Text('Unified Inline')),
-                      ],
-                      selected: {_mode},
-                      onSelectionChanged: (val) => setState(() => _mode = val.first),
-                    ),
-                  ],
-                ),
-
-                // Line Numbers Toggle
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(value: _showLineNumbers, onChanged: (val) => setState(() => _showLineNumbers = val ?? true)),
-                    const Text('Show Line Numbers', style: TextStyle(fontSize: 13)),
-                  ],
+                TCheckbox(
+                  label: 'Show Line Numbers',
+                  value: _showLineNumbers,
+                  onValueChanged: (val) => setState(() => _showLineNumbers = val ?? true),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-
-          // Diff Canvas Card
           TCard(
             title: 'Comparing: $_selectedPreset',
             child: SizedBox(

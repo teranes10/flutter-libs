@@ -43,15 +43,7 @@ class KeyValuePage extends StatelessWidget {
           const SizedBox(height: 2),
           Text(subtitle, style: TextStyle(fontSize: 12, color: context.colors.onSurfaceVariant)),
           const SizedBox(height: 8),
-          Card(
-            elevation: 0,
-            margin: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: BorderSide(color: context.colors.outlineVariant.withAlpha(80)),
-            ),
-            child: Padding(padding: const EdgeInsets.all(16), child: child),
-          ),
+          TCard(padding: const EdgeInsets.all(16), borderRadius: BorderRadius.circular(10), child: child),
           const SizedBox(height: 28),
         ],
       );

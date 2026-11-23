@@ -987,14 +987,12 @@ TTile(
                   InkWell(
                     onTap: () => setState(() => _selectedTileIndex = i),
                     borderRadius: BorderRadius.circular(10),
-                    child: Container(
+                    child: _optionPane(
+                      context,
+                      selected: _selectedTileIndex == i,
+                      radius: 10,
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        color: _selectedTileIndex == i ? theme.primary.withAlpha(20) : colors.surfaceContainerLowest,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: _selectedTileIndex == i ? theme.primary : colors.outlineVariant.withAlpha(60)),
-                      ),
                       child: TTile(
                         isExpanded: _selectedTileIndex == i,
                         expandedIconBackgroundColor: theme.primary,
@@ -1189,13 +1187,12 @@ TTile.lg(
                       InkWell(
                         onTap: () => setState(() => _selectedValuesMode = mode),
                         borderRadius: BorderRadius.circular(20),
-                        child: Container(
+                        child: _optionPane(
+                          context,
+                          selected: _selectedValuesMode == mode,
+                          solid: true,
+                          radius: 20,
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: _selectedValuesMode == mode ? theme.primary : colors.surfaceContainerLowest,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: _selectedValuesMode == mode ? theme.primary : colors.outlineVariant.withAlpha(80)),
-                          ),
                           child: Text(
                             mode.name,
                             style: TextStyle(
@@ -1948,12 +1945,9 @@ TTile.task(
     final colors = context.colors;
     final theme = context.theme;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.outlineVariant.withAlpha(80)),
-      ),
+    return TCard(
+      padding: EdgeInsets.zero,
+      borderRadius: BorderRadius.circular(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -2203,13 +2197,9 @@ TTile.task(
     final colors = context.colors;
     final theme = context.theme;
 
-    return Container(
+    return TCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.outlineVariant.withAlpha(80)),
-      ),
+      borderRadius: BorderRadius.circular(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2337,6 +2327,32 @@ TTile.task(
         ),
       ],
     );
+  }
+
+  /// A selectable option: a liquid glass pane in glass mode (tinted when selected), a flat bordered box otherwise.
+  /// [solid] fills the selected state with the primary colour instead of a tint.
+  Widget _optionPane(
+    BuildContext context, {
+    required bool selected,
+    required double radius,
+    required EdgeInsets padding,
+    required Widget child,
+    EdgeInsets? margin,
+    bool solid = false,
+  }) {
+    final colors = context.colors;
+    final primary = context.theme.primary;
+    final glass = TGlassStyle.resolve(context) != null;
+    final r = BorderRadius.circular(radius);
+    final fill = selected ? (solid ? primary : primary.withAlpha(glass ? 50 : 20)) : (glass ? null : colors.surfaceContainerLowest);
+    final border = selected ? primary : colors.outlineVariant.withAlpha(60);
+    Widget pane = Container(
+      padding: padding,
+      decoration: BoxDecoration(color: fill, borderRadius: r, border: glass && !selected ? null : Border.all(color: border)),
+      child: child,
+    );
+    if (glass) pane = TGlassSurface.wrap(context, radius: r, color: colors.surface, child: pane);
+    return margin == null ? pane : Padding(padding: margin, child: pane);
   }
 
   Widget _buildTileContainer(BuildContext context, {required Widget child}) {

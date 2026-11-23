@@ -193,40 +193,37 @@ class _SparklinePageState extends State<SparklinePage> {
   }) {
     final theme = Theme.of(context);
 
-    return Container(
+    return SizedBox(
       width: 340,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.cardColor,
+      child: TCard(
+        padding: const EdgeInsets.all(16),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: theme.dividerColor),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 4, offset: const Offset(0, 2))],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 12, color: theme.hintColor, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 6),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 6),
-                    TTrendIndicator(delta: delta, isPositiveGood: isPositiveGood, comparisonLabel: comparisonLabel),
-                  ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(fontSize: 12, color: theme.hintColor, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 6),
+                      TTrendIndicator(delta: delta, isPositiveGood: isPositiveGood, comparisonLabel: comparisonLabel),
+                    ],
+                  ),
                 ),
-              ),
-              chart,
-            ],
-          ),
-        ],
+                chart,
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

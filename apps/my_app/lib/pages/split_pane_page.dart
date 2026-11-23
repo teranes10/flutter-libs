@@ -59,21 +59,13 @@ class _SplitPanePageState extends State<SplitPanePage> {
                   children: [
                     const Text('Orientation:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                     const SizedBox(width: 8),
-                    SegmentedButton<Axis>(
-                      segments: [
-                        ButtonSegment(
-                          value: Axis.horizontal,
-                          label: const Text('Horizontal'),
-                          icon: TIcon.raw(HugeIcons.strokeRoundedLayoutLeft, size: 16),
-                        ),
-                        ButtonSegment(
-                          value: Axis.vertical,
-                          label: const Text('Vertical'),
-                          icon: TIcon.raw(HugeIcons.strokeRoundedTableColumnsSplit, size: 16),
-                        ),
+                    TButtonGroup(
+                      initialIndex: _axis == Axis.horizontal ? 0 : 1,
+                      onIndexChanged: (i) => setState(() => _axis = i == 0 ? Axis.horizontal : Axis.vertical),
+                      items: [
+                        TButtonGroupItem(text: 'Horizontal', icon: HugeIcons.strokeRoundedLayoutLeft),
+                        TButtonGroupItem(text: 'Vertical', icon: HugeIcons.strokeRoundedTableColumnsSplit),
                       ],
-                      selected: {_axis},
-                      onSelectionChanged: (val) => setState(() => _axis = val.first),
                     ),
                   ],
                 ),
@@ -109,19 +101,15 @@ class _SplitPanePageState extends State<SplitPanePage> {
                 ),
 
                 // Toggles
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(value: _showCollapseButtons, onChanged: (val) => setState(() => _showCollapseButtons = val ?? true)),
-                    const Text('Show Collapse Chevrons', style: TextStyle(fontSize: 13)),
-                  ],
+                TSwitch(
+                  label: 'Show Collapse Chevrons',
+                  value: _showCollapseButtons,
+                  onValueChanged: (v) => setState(() => _showCollapseButtons = v ?? true),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(value: _collapsibleLeading, onChanged: (val) => setState(() => _collapsibleLeading = val ?? true)),
-                    const Text('Snap Collapse Leading', style: TextStyle(fontSize: 13)),
-                  ],
+                TSwitch(
+                  label: 'Snap Collapse Leading',
+                  value: _collapsibleLeading,
+                  onValueChanged: (v) => setState(() => _collapsibleLeading = v ?? true),
                 ),
 
                 // Ratio Badge
@@ -168,7 +156,7 @@ class _SplitPanePageState extends State<SplitPanePage> {
 
   Widget _buildLeadingPane(ThemeData theme, ColorScheme colors) {
     return Container(
-      color: theme.cardColor,
+      color: TGlassStyle.resolve(context) != null ? Colors.transparent : theme.cardColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -206,7 +194,7 @@ class _SplitPanePageState extends State<SplitPanePage> {
 
   Widget _buildTrailingPane(ThemeData theme, ColorScheme colors) {
     return Container(
-      color: theme.colorScheme.surface,
+      color: TGlassStyle.resolve(context) != null ? Colors.transparent : theme.colorScheme.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -226,7 +214,9 @@ class _SplitPanePageState extends State<SplitPanePage> {
           Expanded(
             child: Container(
               padding: const EdgeInsets.all(16),
-              color: theme.brightness == Brightness.dark ? const Color(0xFF1E1E1E) : const Color(0xFFF8F9FA),
+              color: TGlassStyle.resolve(context) != null
+                  ? Colors.transparent
+                  : (theme.brightness == Brightness.dark ? const Color(0xFF1E1E1E) : const Color(0xFFF8F9FA)),
               child: SingleChildScrollView(
                 child: Text(
                   '// Enterprise Split Pane Implementation\n'

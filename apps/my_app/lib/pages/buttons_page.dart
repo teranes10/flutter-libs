@@ -721,23 +721,26 @@ TButton(
             icon: HugeIcons.strokeRoundedCheckmarkSquare01,
             preview: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
               children: [
-                TButtonGroup(
-                  type: TButtonGroupType.tonal,
-                  initialIndex: 0,
-                  onIndexChanged: (index) {
-                    _showSnackBar('Selected option index $index');
-                  },
-                  items: [
-                    TButtonGroupItem(text: 'Option A'),
-                    TButtonGroupItem(text: 'Option B'),
-                    TButtonGroupItem(text: 'Option C'),
-                  ],
-                ),
+                for (final type in [TButtonGroupType.solid, TButtonGroupType.tonal, TButtonGroupType.outline, TButtonGroupType.text])
+                  TButtonGroup(
+                    type: type,
+                    initialIndex: 0,
+                    onIndexChanged: (index) {
+                      _showSnackBar('${type.name}: selected option index $index');
+                    },
+                    items: [
+                      TButtonGroupItem(text: 'Option A'),
+                      TButtonGroupItem(text: 'Option B'),
+                      TButtonGroupItem(text: 'Option C'),
+                    ],
+                  ),
               ],
             ),
-            code: '''TButtonGroup(
-  type: TButtonGroupType.outline,
+            code: '''// type: solid | tonal | outline | text
+TButtonGroup(
+  type: TButtonGroupType.solid,
   initialIndex: 0,
   onIndexChanged: (index) {
     print('Selected Option index \$index');

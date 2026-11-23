@@ -78,87 +78,44 @@ class _JsonViewerPageState extends State<JsonViewerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+    return TPageWrapper(
+      title: 'TJsonViewer Showcase',
+      description: 'Interactive, collapsible JSON and map object tree inspector with search query highlighting, '
+          'type-specific syntax coloring, depth controls, item counts, and one-click JSON clipboard copying.',
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header
-          Text('TJsonViewer Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text(
-            'Interactive, collapsible JSON and map object tree inspector with search query highlighting, '
-            'type-specific syntax coloring, depth controls, item counts, and one-click JSON clipboard copying.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
-          ),
-          const SizedBox(height: 24),
-
-          // Control Toolbar Card
           TCard(
             title: 'Inspector Options',
             child: Wrap(
               spacing: 20,
               runSpacing: 16,
-              crossAxisAlignment: WrapCrossAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.end,
               children: [
-                // Dataset Dropdown
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Sample Dataset: ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-                    DropdownButton<String>(
-                      value: _selectedDataset,
-                      underline: const SizedBox(),
-                      items: const [
-                        DropdownMenuItem(value: 'Cloud Deployment', child: Text('Cloud Deployment')),
-                        DropdownMenuItem(value: 'Audit Event', child: Text('Audit Event')),
-                      ],
-                      onChanged: (val) => setState(() => _selectedDataset = val ?? _selectedDataset),
-                    ),
-                  ],
-                ),
-
-                // Search Field
                 SizedBox(
-                  width: 240,
-                  height: 36,
-                  child: TextField(
-                    onChanged: (val) => setState(() => _searchQuery = val),
-                    decoration: InputDecoration(
-                      hintText: 'Search keys or values...',
-                      prefixIcon: TIcon.raw(HugeIcons.strokeRoundedSearch01, size: 16),
-                      contentPadding: EdgeInsets.zero,
-                      isDense: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
-                    ),
-                    style: const TextStyle(fontSize: 13),
+                  width: 220,
+                  child: TSelect<String, String, String>(
+                    label: 'Sample Dataset',
+                    items: const ['Cloud Deployment', 'Audit Event'],
+                    value: _selectedDataset,
+                    onValueChanged: (val) => setState(() => _selectedDataset = val ?? _selectedDataset),
                   ),
                 ),
-
-                // Toggles
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(value: _showItemCount, onChanged: (val) => setState(() => _showItemCount = val ?? true)),
-                    const Text('Show Item Counts', style: TextStyle(fontSize: 13)),
-                  ],
+                SizedBox(
+                  width: 260,
+                  child: TTextField(
+                    label: 'Search',
+                    placeholder: 'Search keys or values...',
+                    clearable: true,
+                    onValueChanged: (val) => setState(() => _searchQuery = val?.toString() ?? ''),
+                  ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(value: _showCopyButton, onChanged: (val) => setState(() => _showCopyButton = val ?? true)),
-                    const Text('Copy Button', style: TextStyle(fontSize: 13)),
-                  ],
-                ),
+                TCheckbox(label: 'Show Item Counts', value: _showItemCount, onValueChanged: (val) => setState(() => _showItemCount = val ?? true)),
+                TCheckbox(label: 'Copy Button', value: _showCopyButton, onValueChanged: (val) => setState(() => _showCopyButton = val ?? true)),
               ],
             ),
           ),
           const SizedBox(height: 24),
-
-          // JSON Viewer Card
           TCard(
             title: 'Inspecting: $_selectedDataset',
             child: TJsonViewer(

@@ -57,30 +57,29 @@ class _TourPageState extends State<TourPage> {
     });
   }
 
+  /// Fill of a mock-up box: a faint frosted wash in glass mode, a theme surface otherwise.
+  Color _fill(double strength) {
+    final colors = context.colors;
+    if (TGlassStyle.resolve(context) != null) return Colors.white.withAlpha(colors.isDarkMode ? 14 : 70);
+    return colors.surfaceContainerHighest.withValues(alpha: strength);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final colors = context.colors;
 
     return TTour(
       controller: _tourController,
       onFinish: () => setState(() => _tourStatus = 'Tour successfully completed! You are ready to explore.'),
       onSkip: () => setState(() => _tourStatus = 'Tour was dismissed. You can restart anytime.'),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+      child: TPageWrapper(
+        title: 'TTour Showcase',
+        description:
+            'Interactive guided tour and spotlight onboarding guide. Automatically highlights screen elements '
+            'with animated cutout masks and anchored instructional cards to guide operators through complex workflows.',
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
-            Text('TTour Showcase', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text(
-              'Interactive guided tour and spotlight onboarding guide. Automatically highlights screen elements '
-              'with animated cutout masks and anchored instructional cards to guide operators through complex workflows.',
-              style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
-            ),
-            const SizedBox(height: 24),
-
             // Controls Card
             TCard(
               title: 'Onboarding Controller',
@@ -90,7 +89,6 @@ class _TourPageState extends State<TourPage> {
                     text: 'Start Feature Tour',
                     icon: HugeIcons.strokeRoundedPlay,
                     type: TButtonType.solid,
-                    color: colors.primary,
                     size: TSize.md,
                     onTap: _startTour,
                   ),
@@ -98,10 +96,7 @@ class _TourPageState extends State<TourPage> {
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: colors.surfaceContainerHighest.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
+                      decoration: BoxDecoration(color: _fill(0.4), borderRadius: BorderRadius.circular(6)),
                       child: Text(_tourStatus, style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
                     ),
                   ),
@@ -126,9 +121,9 @@ class _TourPageState extends State<TourPage> {
                           height: 40,
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           decoration: BoxDecoration(
-                            color: colors.surfaceContainerLow,
+                            color: _fill(1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: theme.dividerColor),
+                            border: Border.all(color: colors.outlineVariant),
                           ),
                           child: Row(
                             children: [
@@ -169,17 +164,17 @@ class _TourPageState extends State<TourPage> {
                     key: _metricKey,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
+                      color: _fill(0.3),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: theme.dividerColor),
+                      border: Border.all(color: colors.outlineVariant),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _buildMetricCol('Active Pods', '48 / 50', HugeIcons.strokeRoundedCloudCheck, Colors.green),
-                        Container(width: 1, height: 40, color: theme.dividerColor),
+                        Container(width: 1, height: 40, color: colors.outlineVariant),
                         _buildMetricCol('Throughput', '14.2k req/s', HugeIcons.strokeRoundedDashboardSpeed01, Colors.blue),
-                        Container(width: 1, height: 40, color: theme.dividerColor),
+                        Container(width: 1, height: 40, color: colors.outlineVariant),
                         _buildMetricCol('Error Rate', '0.01%', HugeIcons.strokeRoundedCheckmarkCircle01, Colors.teal),
                       ],
                     ),
@@ -190,9 +185,9 @@ class _TourPageState extends State<TourPage> {
                   Container(
                     height: 120,
                     decoration: BoxDecoration(
-                      color: theme.cardColor,
+                      color: _fill(1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: theme.dividerColor),
+                      border: Border.all(color: colors.outlineVariant),
                     ),
                     child: const Center(
                       child: Text(
