@@ -3,6 +3,42 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-11-23
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`te_widgets` - `v4.7.0`](#te_widgets---v470)
+ - [`te_editor` - `v3.5.2`](#te_editor---v352)
+ - [`te_map` - `v4.1.6`](#te_map---v416)
+ - [`te_scanner` - `v3.2.14`](#te_scanner---v3214)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_editor` - `v3.5.2`
+ - `te_map` - `v4.1.6`
+ - `te_scanner` - `v3.2.14`
+
+---
+
+#### `te_widgets` - `v4.7.0`
+
+ - **FIX**(te_widgets): restore TDiffViewer count badges and mode switcher; update pagination test. ([317733eb](https://github.com/teranes10/flutter-libs/commit/317733eb2e4253de9fdfeb17eb8a63fd6e94234e))
+ - **FEAT**(te_widgets): widget polish across alert, button, card, tabs, tile, viewers and glass surface. ([31e24255](https://github.com/teranes10/flutter-libs/commit/31e242558238439f406d1233811b6de8ad652025))
+ - **FEAT**(te_widgets): crud table, table and list controller updates. ([0079e1a8](https://github.com/teranes10/flutter-libs/commit/0079e1a806c41c653c95b3dff928adbfcebac077))
+ - **FEAT**(te_widgets): theme, layout and sidebar/top-bar updates; remove layout1/layout2. ([efe5fa59](https://github.com/teranes10/flutter-libs/commit/efe5fa593ff755394764159fd9a021a72d3609f1))
+ - **FEAT**(te_widgets): sectioned forms with steppers, Next/Save footer and error navigation. ([19957bf9](https://github.com/teranes10/flutter-libs/commit/19957bf9b90571b2a350b1d932bd60202d331a74))
+
+
 ## 2026-11-17
 
 ### Changes

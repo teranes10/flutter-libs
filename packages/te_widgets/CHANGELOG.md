@@ -1,3 +1,11 @@
+## 4.7.0
+
+ - **FIX**(te_widgets): restore TDiffViewer count badges and mode switcher; update pagination test. ([317733eb](https://github.com/teranes10/flutter-libs/commit/317733eb2e4253de9fdfeb17eb8a63fd6e94234e))
+ - **FEAT**(te_widgets): widget polish across alert, button, card, tabs, tile, viewers and glass surface. ([31e24255](https://github.com/teranes10/flutter-libs/commit/31e242558238439f406d1233811b6de8ad652025))
+ - **FEAT**(te_widgets): crud table, table and list controller updates. ([0079e1a8](https://github.com/teranes10/flutter-libs/commit/0079e1a806c41c653c95b3dff928adbfcebac077))
+ - **FEAT**(te_widgets): theme, layout and sidebar/top-bar updates; remove layout1/layout2. ([efe5fa59](https://github.com/teranes10/flutter-libs/commit/efe5fa593ff755394764159fd9a021a72d3609f1))
+ - **FEAT**(te_widgets): sectioned forms with steppers, Next/Save footer and error navigation. ([19957bf9](https://github.com/teranes10/flutter-libs/commit/19957bf9b90571b2a350b1d932bd60202d331a74))
+
 ## 4.6.0
 
  - **FEAT**(te_widgets): image background effects, thumbnail stage, TImage full-screen preview and new demo pages. ([1ef698bb](https://github.com/teranes10/flutter-libs/commit/1ef698bb0bd58262be48b35cce24839f8b1ac0aa))
