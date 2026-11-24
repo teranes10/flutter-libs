@@ -39,6 +39,10 @@ class TContainer extends StatelessWidget {
   /// Fill used instead of the decoration's colour while glass is active (e.g. a light wash rather than a dark surface).
   final Color? glassColor;
 
+  /// Fill alpha (0-255) of the [TGlassMode.surface] pane. Raise it (e.g. 215) for surfaces over content the backdrop
+  /// blur cannot reach, such as a web map (platform view), so text stays readable.
+  final int? glassAlpha;
+
   const TContainer({
     super.key,
     this.child,
@@ -57,6 +61,7 @@ class TContainer extends StatelessWidget {
     this.glass,
     this.glassMode = TGlassMode.tint,
     this.glassColor,
+    this.glassAlpha,
   }) : assert(color == null || decoration == null, 'Provide either color or decoration, not both.');
 
   Container _build({Widget? child, Color? color, Decoration? decoration, bool pad = true}) => Container(
@@ -96,6 +101,7 @@ class TContainer extends StatelessWidget {
           style: style,
           borderRadius: radius,
           color: base,
+          alpha: glassAlpha,
           child: padding == null ? (child ?? const SizedBox.shrink()) : Padding(padding: padding!, child: child),
         ),
       );

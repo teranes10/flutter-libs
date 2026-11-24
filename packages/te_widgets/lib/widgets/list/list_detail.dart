@@ -37,6 +37,9 @@ class TListDetail<T, K> extends StatefulWidget with TListMixin<T, K> {
   /// Optional callback to extract the leading widget from an item.
   final Widget Function(T item)? itemLeading;
 
+  /// Optional trailing widget (e.g. a status [TChip]) for each sidebar item.
+  final Widget? Function(T item)? itemTrailing;
+
   /// Optional custom builder for items in the list. If null, a default [TListCard] is rendered.
   final ListItemBuilder<T, K>? itemBuilder;
 
@@ -153,6 +156,7 @@ class TListDetail<T, K> extends StatefulWidget with TListMixin<T, K> {
     this.itemImageUrl,
     this.itemIcon,
     this.itemLeading,
+    this.itemTrailing,
     this.itemBuilder,
     this.actions,
     this.sideListWidth = 275.0,
@@ -320,6 +324,7 @@ class _TListDetailState<T, K> extends State<TListDetail<T, K>> with TListStateMi
                 imageUrl: imageUrl,
                 icon: icon,
                 leading: leading,
+                trailing: widget.itemTrailing?.call(item.data),
                 isExpanded: isSelected,
               ),
             );

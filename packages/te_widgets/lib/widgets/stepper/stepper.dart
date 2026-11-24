@@ -69,6 +69,11 @@ class TStepper extends StatelessWidget {
   /// Custom border for the content [TCard].
   final Color? contentBorder;
 
+  /// Wraps the active step's content in a [TCard]. Null defaults to true for vertical (the card separates the
+  /// step body from the connector rail) and false for horizontal, where only one step shows at a time and the
+  /// stepper already sits on its own surface (a dialog or page), so a card would just nest a second pane.
+  final bool? contentCard;
+
   /// When [true] in horizontal mode, the step title is placed **below**
   /// the indicator instead of beside it — better suited for mobile layouts.
   final bool? titleBelowIndicator;
@@ -89,6 +94,7 @@ class TStepper extends StatelessWidget {
     this.contentPadding,
     this.contentMargin,
     this.contentBorder,
+    this.contentCard,
     this.titleBelowIndicator,
     this.indicatorSize = 24,
   });
@@ -136,11 +142,13 @@ class TStepper extends StatelessWidget {
                 child: isCurrent
                     ? Padding(
                         padding: contentPadding ?? const EdgeInsets.only(left: 12, right: 12, bottom: 24, top: 8),
-                        child: TCard(
-                          margin: contentMargin ?? EdgeInsets.zero,
-                          borderColor: contentBorder,
-                          child: steps[index].content,
-                        ),
+                        child: contentCard ?? true
+                            ? TCard(
+                                margin: contentMargin ?? EdgeInsets.zero,
+                                borderColor: contentBorder,
+                                child: steps[index].content,
+                              )
+                            : steps[index].content,
                       )
                     : const SizedBox(height: 24),
               ),
@@ -195,12 +203,14 @@ class TStepper extends StatelessWidget {
           },
         ),
         const SizedBox(height: 24),
-        TCard(
-          margin: contentMargin ?? EdgeInsets.zero,
-          padding: EdgeInsets.zero,
-          borderColor: contentBorder ?? Colors.transparent,
-          child: steps[currentStep].content,
-        ),
+        if (contentCard ?? false)
+          TCard(
+            margin: contentMargin ?? EdgeInsets.zero,
+            borderColor: contentBorder,
+            child: steps[currentStep].content,
+          )
+        else
+          Padding(padding: contentPadding ?? EdgeInsets.zero, child: steps[currentStep].content),
       ],
     );
   }

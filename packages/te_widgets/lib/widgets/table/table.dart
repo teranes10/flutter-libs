@@ -621,6 +621,8 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
       onItemHeightMeasured: (w, item, chrome) => widget.onRowHeightMeasured?.call(isCardView, wTheme.dense ?? false, w, item, chrome),
       theme: wTheme.copyWith(
         listSeparatorBuilder: wTheme.listSeparatorBuilder ?? (gap > 0 ? separator : null),
+        // First load: placeholder rows shaped like this table (its column count), or cards in card view.
+        skeletonBuilder: wTheme.skeletonBuilder ?? (_) => _buildSkeleton(isCardView),
         headerBuilder: (ctx) => _wrapWithFocusDimmer(ctx, headerContent(ctx)),
         footerBuilder: wTheme.footerBuilder == null ? null : (ctx) => _wrapWithFocusDimmer(ctx, wTheme.footerBuilder!(ctx)),
       ),
@@ -635,6 +637,19 @@ class _TTableState<T, K> extends State<TTable<T, K>> with TListStateMixin<T, K, 
         return finalRow;
       },
     );
+  }
+
+  Widget _buildSkeleton(bool isCardView) {
+    if (isCardView) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < 4; i++) Padding(padding: EdgeInsets.only(bottom: _rowGap + 8), child: TSkeleton.card(lines: 2)),
+        ],
+      );
+    }
+    final columns = _effectiveHeaders.length.clamp(2, 8);
+    return TSkeleton.table(rows: 8, columns: columns, hasHeader: false, rowHeight: _estimatedRowHeight());
   }
 
   /// Row height guessed from the column types before any row is rendered: plain text, chips and switches keep the

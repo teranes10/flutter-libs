@@ -20,6 +20,9 @@ class TListTheme {
   final TListEmptyBuilder? emptyStateBuilder;
   final TListErrorBuilder? errorStateBuilder;
   final TListLoadingBuilder? loadingBuilder;
+
+  /// Placeholder items shown on the FIRST load (loading, no items yet), in place of the empty list.
+  final TListLoadingBuilder? skeletonBuilder;
   final TListHeaderBuilder? headerBuilder;
   final TListFooterBuilder? footerBuilder;
   final bool? headerSticky;
@@ -42,6 +45,7 @@ class TListTheme {
     this.emptyStateBuilder,
     this.errorStateBuilder,
     this.loadingBuilder,
+    this.skeletonBuilder,
     this.headerBuilder,
     this.footerBuilder,
     this.headerSticky,
@@ -68,6 +72,7 @@ class TListTheme {
     TListEmptyBuilder? emptyStateBuilder,
     TListErrorBuilder? errorStateBuilder,
     TListLoadingBuilder? loadingBuilder,
+    TListLoadingBuilder? skeletonBuilder,
     TListHeaderBuilder? headerBuilder,
     TListFooterBuilder? footerBuilder,
     bool? headerSticky,
@@ -90,6 +95,7 @@ class TListTheme {
       emptyStateBuilder: emptyStateBuilder ?? this.emptyStateBuilder,
       errorStateBuilder: errorStateBuilder ?? this.errorStateBuilder,
       loadingBuilder: loadingBuilder ?? this.loadingBuilder,
+      skeletonBuilder: skeletonBuilder ?? this.skeletonBuilder,
       headerBuilder: headerBuilder ?? this.headerBuilder,
       footerBuilder: footerBuilder ?? this.footerBuilder,
       headerSticky: resolvedShrinkWrap == true ? false : (headerSticky ?? this.headerSticky),
@@ -116,6 +122,10 @@ class TListTheme {
           ),
         );
       },
+      skeletonBuilder: (BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [for (var i = 0; i < 6; i++) TSkeleton.tile()],
+      ),
       infiniteScrollFooterBuilder: (BuildContext context) {
         final controller = TListScope.maybeOf(context)?.controller;
         final showLoading = controller != null ? controller.displayItems.isNotEmpty && controller.isLoading : false;

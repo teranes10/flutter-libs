@@ -67,6 +67,8 @@ extension WidgetX on Widget {
   /// Unlike a bare [TCard], the margin defaults to zero and the padding to
   /// `EdgeInsets.all(12)` so it can be dropped around any tile or block.
   /// Usage: `TTile(title: 'Hello').card(shadow: TCardShadow.md)`
+  /// Pass `glass: false` for rows that sit on a surface that is already glass (popover, panel): a nested glass pane
+  /// paints its own rim and inner shadow and reads as a dark card inside the pane.
   Widget card({
     TCardShadow shadow = TCardShadow.none,
     EdgeInsetsGeometry padding = const EdgeInsets.all(12),
@@ -75,8 +77,10 @@ extension WidgetX on Widget {
     Color? backgroundColor,
     Color? borderColor,
     VoidCallback? onTap,
+    bool? glass,
   }) {
     return TCard(
+      glass: glass,
       shadowLevel: shadow,
       padding: padding,
       margin: margin,

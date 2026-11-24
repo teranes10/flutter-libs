@@ -1001,10 +1001,14 @@ class TFormField<T> {
     Color? color,
     bool block = true,
     bool vertical = false,
+    bool tile = false,
+    Axis tileDirection = Axis.horizontal,
   }) {
     return TFormField<List<T>>(
       prop: prop,
       builder: (onValueChanged) => TCheckboxGroup<T>(
+        tile: tile,
+        tileDirection: tileDirection,
         label: label,
         tag: tag,
         helperText: helperText,
@@ -1046,6 +1050,8 @@ class TFormField<T> {
     Color? color,
     bool block = true,
     bool vertical = false,
+    bool tile = false,
+    Axis tileDirection = Axis.horizontal,
   }) {
     return TFormField<T?>(
       prop: prop,
@@ -1066,6 +1072,8 @@ class TFormField<T> {
         color: color,
         block: block,
         vertical: vertical,
+        tile: tile,
+        tileDirection: tileDirection,
         value: prop.value,
         valueNotifier: prop.valueNotifier,
         onValueChanged: onValueChanged,

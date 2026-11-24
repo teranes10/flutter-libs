@@ -133,6 +133,7 @@ class TButtonGroupTheme {
   TButtonGroupTheme copyWith({
     TButtonGroupType? type,
     TButtonSize? size,
+    TButtonShape? shape,
     Color? color,
     double? spacing,
     double? borderRadius,
@@ -145,6 +146,7 @@ class TButtonGroupTheme {
     return TButtonGroupTheme(
       type: type ?? this.type,
       size: size ?? this.size,
+      shape: shape ?? this.shape,
       color: color ?? this.color,
       spacing: spacing ?? this.spacing,
       borderRadius: borderRadius ?? this.borderRadius,

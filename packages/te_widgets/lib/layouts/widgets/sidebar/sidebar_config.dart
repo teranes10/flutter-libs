@@ -294,6 +294,10 @@ class TSidebarItemsResolver {
             }
 
             resolvedRoute = parentPath.endsWith('/') ? '$parentPath$resolvedRoute' : '$parentPath/$resolvedRoute';
+          } else if (!resolvedRoute.startsWith('/')) {
+            // A root item (or a child of a route-less group) is registered as '/route' by toGoRoutes; resolve it the
+            // same way so active-route matching against GoRouterState.matchedLocation works.
+            resolvedRoute = '/$resolvedRoute';
           }
         }
 

@@ -310,6 +310,93 @@ TOptionTile(
             ],
           ),
 
+          // Vertical tiles (icon above label, side by side)
+          WidgetDocCard(
+            title: 'Checkbox Group: Vertical Tiles',
+            description:
+                'tileDirection: Axis.vertical lays icon-above-label tiles side by side with equal widths; descriptions become tooltips.',
+            icon: HugeIcons.strokeRoundedCheckList,
+            preview: TCheckboxGroup<String>(
+              label: 'Extras',
+              tile: true,
+              tileDirection: Axis.vertical,
+              value: const ['fragile'],
+              items: const [
+                TCheckboxGroupItem(
+                  value: 'fragile',
+                  label: 'Fragile',
+                  icon: HugeIcons.strokeRoundedAlert02,
+                  description: 'Handle with care',
+                ),
+                TCheckboxGroupItem(
+                  value: 'signature',
+                  label: 'Signature',
+                  icon: HugeIcons.strokeRoundedEdit02,
+                  description: 'Signature on delivery',
+                ),
+                TCheckboxGroupItem(
+                  value: 'weekend',
+                  label: 'Weekend',
+                  icon: HugeIcons.strokeRoundedCalendar03,
+                  description: 'Weekend delivery allowed',
+                ),
+              ],
+            ),
+            code: '''TCheckboxGroup<String>(
+  label: 'Extras',
+  tile: true,
+  tileDirection: Axis.vertical,
+  items: const [
+    TCheckboxGroupItem(value: 'fragile', label: 'Fragile', icon: HugeIcons.strokeRoundedAlert02, description: 'Handle with care'),
+    TCheckboxGroupItem(value: 'signature', label: 'Signature', icon: HugeIcons.strokeRoundedEdit02),
+    TCheckboxGroupItem(value: 'weekend', label: 'Weekend', icon: HugeIcons.strokeRoundedCalendar03),
+  ],
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'tileDirection',
+                type: 'Axis',
+                defaultValue: 'Axis.horizontal',
+                description: 'vertical = icon-above-label tiles in one row',
+              ),
+            ],
+          ),
+
+          WidgetDocCard(
+            title: 'Radio Group: Vertical Tiles',
+            description: 'tileDirection: Axis.vertical lays icon-above-label tiles side by side; the selected tile gets a tick badge.',
+            icon: HugeIcons.strokeRoundedRadioButton,
+            preview: TRadioGroup<String>(
+              label: 'Service',
+              tile: true,
+              tileDirection: Axis.vertical,
+              value: 'standard',
+              items: const [
+                TRadioGroupItem(value: 'urgent', label: 'Urgent', icon: HugeIcons.strokeRoundedBolt, description: 'Within 2 h'),
+                TRadioGroupItem(value: 'standard', label: 'Standard', icon: HugeIcons.strokeRoundedTruckDelivery, description: '2-3 days'),
+                TRadioGroupItem(value: 'economy', label: 'Economy', icon: HugeIcons.strokeRoundedCalendar03, description: '5-7 days'),
+              ],
+            ),
+            code: '''TRadioGroup<String>(
+  label: 'Service',
+  tile: true,
+  tileDirection: Axis.vertical,
+  items: const [
+    TRadioGroupItem(value: 'urgent', label: 'Urgent', icon: HugeIcons.strokeRoundedBolt, description: 'Within 2 h'),
+    TRadioGroupItem(value: 'standard', label: 'Standard', icon: HugeIcons.strokeRoundedTruckDelivery),
+    TRadioGroupItem(value: 'economy', label: 'Economy', icon: HugeIcons.strokeRoundedCalendar03),
+  ],
+)''',
+            properties: const [
+              PropertyDoc(
+                name: 'tileDirection',
+                type: 'Axis',
+                defaultValue: 'Axis.horizontal',
+                description: 'vertical = icon-above-label tiles in one row',
+              ),
+            ],
+          ),
+
           // Radio Group in Tile Mode
           WidgetDocCard(
             title: 'Radio Group in Tile Mode',

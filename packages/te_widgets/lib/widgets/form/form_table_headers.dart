@@ -43,7 +43,8 @@ extension TFormBaseTableHeaders<F extends TFormBase> on F {
 
       final cell = TTableHeader<F, K>.editable(
         title,
-        get: (form) => form.fields[i].prop?.value,
+        // Read-only cells show what a person reads, not Dart's `true`/`false`.
+        get: (form) => switch (form.fields[i].prop?.value) { final bool b => b ? 'Yes' : 'No', final v => v },
         error: error == null ? null : (form) => error(form, i),
         flex: flex,
         maxWidth: maxWidth,

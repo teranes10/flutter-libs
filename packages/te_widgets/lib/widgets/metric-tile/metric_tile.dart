@@ -107,6 +107,10 @@ class TMetricTile extends StatelessWidget {
   /// Optional tooltip message.
   final String? tooltip;
 
+  /// Shows the value (and subtitle) as a skeleton while the data loads; label and icon stay. Null follows the
+  /// nearest [TLoadingScope].
+  final bool? loading;
+
   const TMetricTile({
     super.key,
     required this.label,
@@ -133,6 +137,7 @@ class TMetricTile extends StatelessWidget {
     this.type,
     this.compact = false,
     this.tooltip,
+    this.loading,
   });
 
   /// Variant theme derived from [color] and [type]; null when no [type] is given
@@ -177,6 +182,8 @@ class TMetricTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final theme = _variantTheme(colors);
+    final isLoading = loading ?? TLoadingScope.of(context);
+    final valueFont = _valueStyle(colors, theme).fontSize ?? 15;
     final accentColor = theme?.onContainer ?? color ?? colors.primary;
     final radius = borderRadius ?? BorderRadius.circular(15);
     final effectivePadding = padding ??
@@ -242,13 +249,22 @@ class TMetricTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Trend drops to its own right-aligned row when it doesn't fit beside the value.
-            TAlignedRow(
-              spacing: 6,
-              rowSpacing: 2,
-              left: [Text(value, style: _valueStyle(colors, theme))],
-              right: [if (trend != null) _buildTrendBadge(context)],
-            ),
-            if (subtitle != null && subtitle!.isNotEmpty) ...[
+            if (isLoading)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: TSkeleton.text(width: 56, height: valueFont),
+              )
+            else
+              TAlignedRow(
+                spacing: 6,
+                rowSpacing: 2,
+                left: [Text(value, style: _valueStyle(colors, theme))],
+                right: [if (trend != null) _buildTrendBadge(context)],
+              ),
+            if (isLoading && subtitle != null && subtitle!.isNotEmpty) ...[
+              const SizedBox(height: 3),
+              const TSkeleton.text(width: 80, height: 9),
+            ] else if (subtitle != null && subtitle!.isNotEmpty) ...[
               const SizedBox(height: 1),
               Text(subtitle!, style: _subtitleStyle(colors, theme)),
             ],

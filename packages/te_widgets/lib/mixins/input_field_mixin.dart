@@ -95,11 +95,13 @@ mixin TInputFieldStateMixin<W extends StatefulWidget> on State<W> {
     );
   }
 
-  Widget buildWrapper({required Widget child}) {
+  /// Label, [child], helper and errors without the field box. [labelAbove] forces the label above the child even
+  /// with a floating-label theme: for inputs that are boxes themselves (option tiles) and have nothing to float in.
+  Widget buildWrapper({required Widget child, bool labelAbove = false}) {
     final infoIcon = _widget.info != null ? wTheme.buildInfoIcon(_widget.info!, colors) : null;
     final showLabel = !THideInputLabel.of(context) && (!_widget.label.isNullOrBlank || !_widget.tag.isNullOrBlank || infoIcon != null);
 
-    return switch (wTheme.labelPosition) {
+    return switch (labelAbove ? TLabelPosition.aboveField : wTheme.labelPosition) {
       TLabelPosition.aboveField => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

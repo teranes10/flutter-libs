@@ -468,6 +468,7 @@ class _TListState<T, K> extends State<TList<T, K>> with SingleTickerProviderStat
               footerBuilder: wTheme.footerBuilder,
               loading: state.loading,
               loadingBuilder: wTheme.loadingBuilder,
+              skeletonBuilder: wTheme.skeletonBuilder,
               infiniteScroll: wTheme.infiniteScroll ?? false,
               infiniteScrollFooterBuilder: wTheme.infiniteScrollFooterBuilder,
               errorStateBuilder: wTheme.errorStateBuilder,

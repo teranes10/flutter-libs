@@ -104,6 +104,10 @@ class TPopover extends StatefulWidget {
   /// Border color override.
   final Color? borderColor;
 
+  /// Glass fill alpha (0-255). Raise it (e.g. 215) when the popover opens over content the backdrop blur cannot reach,
+  /// such as a web map (platform view), so the content stays readable.
+  final int? glassAlpha;
+
   /// Elevation shadow depth.
   final double elevation;
 
@@ -137,6 +141,7 @@ class TPopover extends StatefulWidget {
     this.borderRadius,
     this.backgroundColor,
     this.borderColor,
+    this.glassAlpha,
     this.elevation = 8.0,
     this.controller,
     this.onOpen,
@@ -308,19 +313,24 @@ class _TPopoverState extends State<TPopover> {
                       context,
                       radius: effectiveRadius.resolve(Directionality.of(context)),
                       color: effectiveBg,
+                      alpha: widget.glassAlpha,
                       child: Container(
                         constraints: constraints.contentBox,
                         decoration: BoxDecoration(
                           color: TGlassStyle.resolve(context) != null ? null : effectiveBg,
                           borderRadius: effectiveRadius,
                           border: TGlassStyle.resolve(context) != null ? null : Border.all(color: effectiveBorder),
-                          boxShadow: [
-                            BoxShadow(
-                              color: colors.shadow.withValues(alpha: isDark ? 0.35 : 0.12),
-                              blurRadius: widget.elevation * 2,
-                              offset: Offset(0, widget.elevation / 2),
-                            ),
-                          ],
+                          // Glass: no drop shadow. Under a translucent pane it shows through as a dark inner haze; the
+                          // glass edge and sheen already lift the popover off the page.
+                          boxShadow: TGlassStyle.resolve(context) != null
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: colors.shadow.withValues(alpha: isDark ? 0.35 : 0.12),
+                                    blurRadius: widget.elevation * 2,
+                                    offset: Offset(0, widget.elevation / 2),
+                                  ),
+                                ],
                         ),
                         child: ClipRRect(
                           borderRadius: effectiveRadius,

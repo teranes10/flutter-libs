@@ -15,19 +15,22 @@ extension _TCrudTopBarExt<T, K, F extends TFormBase> on _TCrudTableState<T, K, F
 
   List<Widget> _metrics(TListController<T, K> controller) {
     final builder = widget.config.topBarMetricsBuilder;
-    if (builder == null) return widget.config.topBarMetrics;
-    final count = builder(controller.flatItems).length;
-    return [
+    final tiles = <Widget>[
       ...widget.config.topBarMetrics,
-      for (var i = 0; i < count; i++)
-        ListenableBuilder(
-          listenable: controller,
-          builder: (context, _) {
-            final tiles = builder(controller.flatItems);
-            return i < tiles.length ? tiles[i] : const SizedBox.shrink();
-          },
-        ),
+      if (builder != null)
+        for (var i = 0; i < builder(controller.flatItems).length; i++)
+          ListenableBuilder(
+            listenable: controller,
+            builder: (context, _) {
+              final tiles = builder(controller.flatItems);
+              return i < tiles.length ? tiles[i] : const SizedBox.shrink();
+            },
+          ),
     ];
+    // First load: the tiles keep their labels and icons, their values are skeletons (no "0" flashing before data).
+    // The top bar rebuilds on every controller change, so the scope flips off as soon as items arrive.
+    final firstLoad = controller.isLoading && controller.flatItems.isEmpty;
+    return [for (final t in tiles) TLoadingScope(loading: firstLoad, child: t)];
   }
 
   Widget _buildTopBarContent(BuildContext ctx, {required bool hasSelection}) {

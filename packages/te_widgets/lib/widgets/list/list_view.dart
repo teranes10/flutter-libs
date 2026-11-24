@@ -40,6 +40,9 @@ class TListView<T, K> extends StatefulWidget {
   /// Builder for loading state.
   final TListLoadingBuilder? loadingBuilder;
 
+  /// Placeholder items while the first load is in flight (loading, no items yet).
+  final TListLoadingBuilder? skeletonBuilder;
+
   /// Whether infinite scroll is enabled.
   final bool infiniteScroll;
 
@@ -114,6 +117,7 @@ class TListView<T, K> extends StatefulWidget {
     this.footerBuilder,
     this.loading = false,
     this.loadingBuilder,
+    this.skeletonBuilder,
     this.infiniteScroll = false,
     this.infiniteScrollFooterBuilder,
     this.errorStateBuilder,
@@ -400,6 +404,12 @@ class _TListViewState<T, K> extends State<TListView<T, K>> {
           child: widget.errorStateBuilder?.call(context, widget.error!) ??
               TListTheme.buildErrorState(context.colors, title: widget.error!.title, message: widget.error!.message),
         ),
+      );
+    }
+
+    if (widget.loading && widget.error == null && widget.items.isEmpty && widget.skeletonBuilder != null) {
+      return SliverToBoxAdapter(
+        child: Container(key: const ValueKey('list_skeleton'), child: widget.skeletonBuilder!(context)),
       );
     }
 

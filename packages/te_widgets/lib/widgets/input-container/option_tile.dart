@@ -13,7 +13,12 @@ enum TOptionIndicator {
   toggle,
 }
 
-/// A full-width, touch-friendly selectable row (at least 56dp tall).
+/// A touch-friendly selectable option (at least 56dp tall).
+///
+/// [direction] picks the layout: [Axis.horizontal] (default) is a full-width row (leading icon, label, description,
+/// indicator on the right); [Axis.vertical] is a compact card with the icon above the label and a tick badge in the
+/// corner when selected, for a short row of side-by-side choices. A vertical tile shows no description: it (or
+/// [tooltip]) is shown on hover.
 ///
 /// Used by the `tile` mode of [TRadioGroup], [TCheckboxGroup] and [TSwitch],
 /// and directly for reason pickers and checklists on handheld screens where
@@ -56,6 +61,12 @@ class TOptionTile extends StatelessWidget {
   /// Optional focus node (keyboard navigation).
   final FocusNode? focusNode;
 
+  /// Row (default) or stacked icon-above-label layout.
+  final Axis direction;
+
+  /// Hover text with more detail. Defaults to [description] for a vertical tile.
+  final String? tooltip;
+
   /// Creates an option tile.
   const TOptionTile({
     super.key,
@@ -68,7 +79,11 @@ class TOptionTile extends StatelessWidget {
     this.disabled = false,
     this.onTap,
     this.focusNode,
+    this.direction = Axis.horizontal,
+    this.tooltip,
   });
+
+  bool get _vertical => direction == Axis.vertical;
 
   @override
   Widget build(BuildContext context) {
@@ -123,33 +138,81 @@ class TOptionTile extends StatelessWidget {
               : null,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 56),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              child: Center(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TTile.h5(
-                        title: label,
-                        subtitle: description,
-                        leading: leading,
-                        iconColor: resolvedIconColor,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    _buildIndicator(colors, accent),
-                  ],
-                ),
-              ),
-            ),
+            child: _vertical ? _buildVertical(colors, accent, resolvedIconColor) : _buildHorizontal(colors, accent, resolvedIconColor),
           ),
         ),
       ),
     );
 
     // Liquid: idle tiles are liquid glass panes (their rim is the edge); selected ones add the accent wash and edge on top.
-    if (!liquid) return tile;
-    return TGlassSurface.wrap(context, radius: BorderRadius.circular(12), color: colors.surface, child: tile);
+    final framed = liquid ? TGlassSurface.wrap(context, radius: BorderRadius.circular(12), color: colors.surface, child: tile) : tile;
+    final hover = tooltip ?? (_vertical ? description : null);
+    return hover == null || hover.isEmpty ? framed : TTooltip(message: hover, child: framed);
+  }
+
+  Widget _buildHorizontal(ColorScheme colors, Color accent, Color iconColor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Center(
+        child: Row(
+          children: [
+            Expanded(
+              child: TTile.h5(
+                title: label,
+                subtitle: description,
+                leading: leading,
+                iconColor: iconColor,
+              ),
+            ),
+            const SizedBox(width: 12),
+            _buildIndicator(colors, accent),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Icon above the label; the selection is a tick badge in the top-right corner (a switch under the label for toggles).
+  Widget _buildVertical(ColorScheme colors, Color accent, Color iconColor) {
+    final textStyle = TextStyle(
+      fontSize: 13,
+      fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+      color: selected ? colors.onSurface : colors.onSurfaceVariant,
+    );
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 12, 10, 10),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (leading != null) ...[
+                  leading is Widget ? leading as Widget : TIcon.raw(leading, size: 22, color: iconColor),
+                  const SizedBox(height: 6),
+                ],
+                Text(label, style: textStyle, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+                if (indicator == TOptionIndicator.toggle) ...[
+                  const SizedBox(height: 6),
+                  _buildIndicator(colors, accent),
+                ],
+              ],
+            ),
+          ),
+        ),
+        if (selected && indicator != TOptionIndicator.toggle)
+          Positioned(
+            top: 6,
+            right: 6,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: BoxDecoration(shape: BoxShape.circle, color: accent),
+              child: TIcon.raw(HugeIcons.strokeRoundedTick02, size: 12, color: colors.onPrimary),
+            ),
+          ),
+      ],
+    );
   }
 
   Widget _buildIndicator(ColorScheme colors, Color accent) {

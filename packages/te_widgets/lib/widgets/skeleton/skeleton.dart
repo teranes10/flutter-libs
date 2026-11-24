@@ -498,3 +498,18 @@ class _TSkeletonState extends State<TSkeleton> with SingleTickerProviderStateMix
     );
   }
 }
+
+/// Marks a subtree as "data still loading" so data widgets inside it (e.g. [TMetricTile]) render their value as a
+/// skeleton while keeping their real chrome (label, icon). [TCrudTable] wraps its top-bar metric tiles in one on the
+/// first load, so screens don't wire loading per tile.
+class TLoadingScope extends InheritedWidget {
+  const TLoadingScope({super.key, required this.loading, required super.child});
+
+  final bool loading;
+
+  /// Whether the nearest scope says loading (false without a scope).
+  static bool of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<TLoadingScope>()?.loading ?? false;
+
+  @override
+  bool updateShouldNotify(TLoadingScope oldWidget) => loading != oldWidget.loading;
+}

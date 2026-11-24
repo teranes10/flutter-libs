@@ -203,12 +203,17 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     return (buttons.sublist(0, 2), buttons.sublist(2));
   }
 
+  /// Columns are keyed by title: a page that brings its own "Actions" column would silently replace the built-in one (and with it View/Edit, the
+  /// only way to open a row's details). The built-in column then gets its own title so both stay.
+  String get _builtInActionsTitle => widget.headers.any((h) => h.text == 'Actions') ? 'Details' : 'Actions';
+
   List<TTableHeader<T, K>> _buildActiveHeaders(TWidgetThemeExtension theme) {
     final headers = List<TTableHeader<T, K>>.from(widget.headers);
 
     if (widget.config.showActions && hasActiveActions) {
       if (widget.config.flatActions) {
         headers.add(TTableHeader<T, K>.actions(
+          text: _builtInActionsTitle,
           (item) => _buildActiveActionButtons(theme, item.data),
           count: _activeActionsCount(),
           maxWidth: widget.config.actionButtonWidth * _activeActionsCount(),
@@ -216,6 +221,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       } else {
         final visibleCount = _effectiveActiveVisibleCount();
         headers.add(TTableHeader<T, K>.actions(
+          text: _builtInActionsTitle,
           (item) {
             final buttons = _buildActiveActionButtons(theme, item.data);
             final (flatButtons, menuButtons) = _splitRowActions(buttons);
@@ -245,6 +251,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
     if (widget.config.showActions && hasArchiveActions) {
       if (widget.config.flatActions) {
         headers.add(TTableHeader<T, K>.actions(
+          text: _builtInActionsTitle,
           (item) => _buildArchiveActionButtons(theme, item.data),
           count: _archiveActionsCount(),
           maxWidth: widget.config.actionButtonWidth * _archiveActionsCount(),
@@ -252,6 +259,7 @@ extension _TCrudTableBuilderExt<T, K, F extends TFormBase> on _TCrudTableState<T
       } else {
         final visibleCount = _effectiveArchiveVisibleCount();
         headers.add(TTableHeader<T, K>.actions(
+          text: _builtInActionsTitle,
           (item) {
             final buttons = _buildArchiveActionButtons(theme, item.data);
             final (flatButtons, menuButtons) = _splitRowActions(buttons);

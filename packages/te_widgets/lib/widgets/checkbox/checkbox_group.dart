@@ -93,6 +93,10 @@ class TCheckboxGroup<T> extends StatefulWidget
   /// (always vertical). Use on touch / handheld screens.
   final bool tile;
 
+  /// Tile layout (tile mode only). [Axis.horizontal]: full-width row tiles stacked in a column. [Axis.vertical]:
+  /// icon-above-label tiles side by side in one row (equal widths, description as tooltip).
+  final Axis tileDirection;
+
   /// Creates a checkbox group.
   const TCheckboxGroup({
     super.key,
@@ -119,6 +123,7 @@ class TCheckboxGroup<T> extends StatefulWidget
     this.spacing = 16,
     this.runSpacing = 8,
     this.tile = false,
+    this.tileDirection = Axis.horizontal,
   });
 
   @override
@@ -283,31 +288,36 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
       onTapOutside: (_) {
         focusNode.unfocus();
       },
-      child: buildContainer(
-        block: widget.block,
-        expands: true,
-        floatingLabelAlways: true,
-        hasValue: _selectedValues.isNotEmpty,
-        onClear: () {
-          setState(() {
-            _selectedValues.clear();
-          });
-          notifyValueChanged([]);
-        },
-        child: Focus(
-          focusNode: focusNode,
-          autofocus: widget.autoFocus,
-          skipTraversal: true,
-          canRequestFocus: !widget.disabled,
-          child: FocusScope(
-            node: _scopeNode,
-            onKeyEvent: _handleKeyEvent,
-            child: _buildCheckboxes(widget.color ?? context.theme.primary),
-          ),
-        ),
-      ),
+      // Tiles are boxes themselves: no field box around them, just the label above and helper/errors below.
+      child: widget.tile
+          ? buildWrapper(labelAbove: true, child: _focusScope(context))
+          : buildContainer(
+              block: widget.block,
+              expands: true,
+              floatingLabelAlways: true,
+              hasValue: _selectedValues.isNotEmpty,
+              onClear: () {
+                setState(() {
+                  _selectedValues.clear();
+                });
+                notifyValueChanged([]);
+              },
+              child: _focusScope(context),
+            ),
     );
   }
+
+  Widget _focusScope(BuildContext context) => Focus(
+        focusNode: focusNode,
+        autofocus: widget.autoFocus,
+        skipTraversal: true,
+        canRequestFocus: !widget.disabled,
+        child: FocusScope(
+          node: _scopeNode,
+          onKeyEvent: _handleKeyEvent,
+          child: _buildCheckboxes(widget.color ?? context.theme.primary),
+        ),
+      );
 
   Widget _buildCheckboxes(Color color) {
     final items = <Widget>[];
@@ -321,6 +331,9 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
         items.add(TOptionTile(
           focusNode: focusNode,
           label: item.label,
+          description: item.description,
+          leading: item.icon,
+          direction: widget.tileDirection,
           color: item.color ?? color,
           disabled: widget.disabled,
           indicator: TOptionIndicator.check,
@@ -338,6 +351,17 @@ class _TCheckboxGroupState<T> extends State<TCheckboxGroup<T>>
         value: isChecked,
         onValueChanged: (checked) => {_onItemChanged(item.value, checked ?? false)},
       ));
+    }
+
+    if (widget.tile && widget.tileDirection == Axis.vertical) {
+      // Equal-height tiles side by side (same approach as TRadioGroup).
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: widget.runSpacing,
+          children: [for (final item in items) Expanded(child: item)],
+        ),
+      );
     }
 
     return widget.vertical || widget.tile

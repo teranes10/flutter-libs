@@ -37,6 +37,8 @@ class _ListsPageState extends State<ListsPage> {
     expansionMode: TExpansionMode.multiple,
   );
 
+  int _skeletonReload = 0;
+
   @override
   void dispose() {
     _treeController.dispose();
@@ -227,6 +229,57 @@ TList<Node, String>(
                 PropertyDoc(name: 'item.level', type: 'int', description: 'Nesting depth, used for indentation'),
               ],
             ),
+            const SizedBox(height: 24),
+            WidgetDocCard(
+              title: 'Skeleton Loading',
+              description:
+                  'While onLoad is pending on the first load, the list shows skeleton placeholders (skeletonBuilder) instead of an empty list.',
+              icon: HugeIcons.strokeRoundedLoading03,
+              preview: SizedBox(
+                height: 360,
+                child: TList<String, String>(
+                  key: ValueKey(_skeletonReload),
+                  theme: context.theme.listTheme.copyWith(
+                    skeletonBuilder: (context) =>
+                        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (var i = 0; i < 5; i++) TSkeleton.tile()]),
+                  ),
+                  onLoad: (options) async {
+                    await Future<void>.delayed(const Duration(seconds: 3));
+                    final items = List.generate(8, (i) => 'Loaded item ${i + 1}');
+                    return TLoadResult<String>(items, items.length, hasNextPage: false);
+                  },
+                  itemKey: (s) => s,
+                  itemBuilder: (context, item, index) =>
+                      TTile(key: ValueKey(item.key), title: item.data, icon: HugeIcons.strokeRoundedTask01).card(onTap: () {}),
+                ),
+              ),
+              code: '''
+TList<String, String>(
+  theme: context.theme.listTheme.copyWith(
+    // Optional: the default is 6 TSkeleton.tile() rows
+    skeletonBuilder: (context) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [for (var i = 0; i < 5; i++) TSkeleton.tile()],
+    ),
+  ),
+  onLoad: (options) async {
+    final items = await api.fetch();
+    return TLoadResult<String>(items, items.length, hasNextPage: false);
+  },
+  itemKey: (s) => s,
+  itemBuilder: (context, item, index) => TTile(title: item.data).card(),
+)''',
+              properties: const [
+                PropertyDoc(
+                  name: 'skeletonBuilder',
+                  type: 'TListLoadingBuilder?',
+                  description: 'Placeholders shown on the first load, before any items exist',
+                ),
+                PropertyDoc(name: 'loadingBuilder', type: 'TListLoadingBuilder?', description: 'Indicator shown for later loads'),
+              ],
+            ),
+            const SizedBox(height: 12),
+            TButton(text: 'Reload skeleton demo', onTap: () => setState(() => _skeletonReload++)),
           ],
         ),
       ),

@@ -378,34 +378,42 @@ class TGlassSurface extends StatelessWidget {
     final white = Colors.white;
     final dark = context.colors.isDarkMode;
     final liquid = style.isLiquid;
+    // BoxDecoration ignores `color` when `gradient` is set, so the sheen box below never paints its fill. An explicit
+    // [alpha] (dense surfaces: tooltips, snackbars, panes over a web map the blur cannot reach) gets its fill painted
+    // as a separate layer under the sheen; the default look stays as tuned.
+    final fill = alpha == null
+        ? null
+        : (dark
+                ? (liquid ? Color.lerp(color, white, TGlassTuning.darkFillLighten)! : color)
+                : Color.lerp(color, white, TGlassTuning.lightFillWhiten)!)
+            .withAlpha(alpha!);
+    final sheen = DecoratedBox(
+      decoration: BoxDecoration(
+        // Liquid dark: a lighter, more transparent fill so the colour behind shows through instead of a dark slab.
+        color: (dark
+                ? (liquid ? Color.lerp(color, white, TGlassTuning.darkFillLighten)! : color)
+                : Color.lerp(color, white, TGlassTuning.lightFillWhiten)!)
+            .withAlpha(alpha ??
+                (dark ? (liquid ? (style.fillAlpha * TGlassTuning.darkFillAlphaFactor).round() : style.fillAlpha) : style.lightFillAlpha)),
+        borderRadius: borderRadius,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          // Light mode: glossy sheen, bright at the top-left, a clear band in the middle, a soft reflection at the bottom-right.
+          colors: dark
+              ? [white.withAlpha(style.highlightAlpha), white.withAlpha(0)]
+              : [white.withAlpha(190), white.withAlpha(20), white.withAlpha(80)],
+          stops: dark ? null : const [0.0, 0.55, 1.0],
+        ),
+        border: liquid ? null : Border.all(color: style.edgeOf(context), width: dark ? 1 : 1.4),
+      ),
+      child: child,
+    );
     final glass = ClipRRect(
       borderRadius: borderRadius,
       child: BackdropFilter(
         filter: style.backdropFilterFor(dark),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            // Liquid dark: a lighter, more transparent fill so the colour behind shows through instead of a dark slab.
-            color: (dark
-                    ? (liquid ? Color.lerp(color, white, TGlassTuning.darkFillLighten)! : color)
-                    : Color.lerp(color, white, TGlassTuning.lightFillWhiten)!)
-                .withAlpha(alpha ??
-                    (dark
-                        ? (liquid ? (style.fillAlpha * TGlassTuning.darkFillAlphaFactor).round() : style.fillAlpha)
-                        : style.lightFillAlpha)),
-            borderRadius: borderRadius,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              // Light mode: glossy sheen, bright at the top-left, a clear band in the middle, a soft reflection at the bottom-right.
-              colors: dark
-                  ? [white.withAlpha(style.highlightAlpha), white.withAlpha(0)]
-                  : [white.withAlpha(190), white.withAlpha(20), white.withAlpha(80)],
-              stops: dark ? null : const [0.0, 0.55, 1.0],
-            ),
-            border: liquid ? null : Border.all(color: style.edgeOf(context), width: dark ? 1 : 1.4),
-          ),
-          child: child,
-        ),
+        child: fill == null ? sheen : DecoratedBox(decoration: BoxDecoration(color: fill, borderRadius: borderRadius), child: sheen),
       ),
     );
     if (!liquid) return glass;

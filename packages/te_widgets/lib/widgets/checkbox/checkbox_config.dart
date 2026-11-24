@@ -11,16 +11,26 @@ class TCheckboxGroupItem<T extends Object?> {
   /// Optional custom color for this item.
   final Color? color;
 
+  /// Icon shown in tile mode (leading in a row tile, above the label in a vertical tile).
+  final dynamic icon;
+
+  /// More detail. Tile mode only: under the label in a row tile, the hover tooltip of a vertical tile.
+  final String? description;
+
   /// Creates a checkbox group item.
   const TCheckboxGroupItem({
     required this.value,
     required this.label,
     this.color,
+    this.icon,
+    this.description,
   });
 
   /// Creates an item where the label is the string representation of the value.
   TCheckboxGroupItem.map(
     this.value, {
     this.color,
+    this.icon,
+    this.description,
   }) : label = value.toString();
 }
