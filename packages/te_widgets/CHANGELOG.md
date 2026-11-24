@@ -1,3 +1,7 @@
+## 4.7.1
+
+ - **FIX**(te_widgets): polish list, radio/checkbox groups, crud table loading, sidebar and surfaces. ([6545de7b](https://github.com/teranes10/flutter-libs/commit/6545de7bc46298560eab18161467e812c97016ec))
+
 ## 4.7.0
 
  - **FIX**(te_widgets): restore TDiffViewer count badges and mode switcher; update pagination test. ([317733eb](https://github.com/teranes10/flutter-libs/commit/317733eb2e4253de9fdfeb17eb8a63fd6e94234e))

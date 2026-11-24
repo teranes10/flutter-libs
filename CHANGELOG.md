@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-11-24
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`te_widgets` - `v4.7.1`](#te_widgets---v471)
+ - [`te_editor` - `v3.5.3`](#te_editor---v353)
+ - [`te_map` - `v4.1.7`](#te_map---v417)
+ - [`te_scanner` - `v3.2.15`](#te_scanner---v3215)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_editor` - `v3.5.3`
+ - `te_map` - `v4.1.7`
+ - `te_scanner` - `v3.2.15`
+
+---
+
+#### `te_widgets` - `v4.7.1`
+
+ - **FIX**(te_widgets): polish list, radio/checkbox groups, crud table loading, sidebar and surfaces. ([6545de7b](https://github.com/teranes10/flutter-libs/commit/6545de7bc46298560eab18161467e812c97016ec))
+
+
 ## 2026-11-23
 
 ### Changes
