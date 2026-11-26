@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-11-26
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`te_widgets` - `v4.7.2`](#te_widgets---v472)
+ - [`te_editor` - `v3.5.4`](#te_editor---v354)
+ - [`te_map` - `v4.1.8`](#te_map---v418)
+ - [`te_scanner` - `v3.2.16`](#te_scanner---v3216)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_editor` - `v3.5.4`
+ - `te_map` - `v4.1.8`
+ - `te_scanner` - `v3.2.16`
+
+---
+
+#### `te_widgets` - `v4.7.2`
+
+ - **FIX**(te_widgets): keep page and loaded rows when list items are replaced. ([5e1b9efd](https://github.com/teranes10/flutter-libs/commit/5e1b9efddc97d6098411a04d704f890d8c404fcc))
+ - **FEAT**(te_widgets): add TLogin and refine layout, theme and glass defaults. ([9cda926e](https://github.com/teranes10/flutter-libs/commit/9cda926e857fbdebe52fa4a09ab297f312afbe4b))
+
+
 ## 2026-11-24
 
 ### Changes

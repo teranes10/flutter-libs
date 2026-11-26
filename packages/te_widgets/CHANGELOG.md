@@ -1,3 +1,8 @@
+## 4.7.2
+
+ - **FIX**(te_widgets): keep page and loaded rows when list items are replaced. ([5e1b9efd](https://github.com/teranes10/flutter-libs/commit/5e1b9efddc97d6098411a04d704f890d8c404fcc))
+ - **FEAT**(te_widgets): add TLogin and refine layout, theme and glass defaults. ([9cda926e](https://github.com/teranes10/flutter-libs/commit/9cda926e857fbdebe52fa4a09ab297f312afbe4b))
+
 ## 4.7.1
 
  - **FIX**(te_widgets): polish list, radio/checkbox groups, crud table loading, sidebar and surfaces. ([6545de7b](https://github.com/teranes10/flutter-libs/commit/6545de7bc46298560eab18161467e812c97016ec))
