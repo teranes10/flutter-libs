@@ -146,8 +146,11 @@ class MobileSidebarOverlayPanel extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (actions != null && actions!.isNotEmpty) ...[
-                        Wrap(spacing: 10, runSpacing: 10, children: actions!),
+                      if ((actions?.isNotEmpty ?? false) || (TFullscreen.isSupported && showFullscreenToggle)) ...[
+                        Wrap(spacing: 10, runSpacing: 10, children: [
+                          ...?actions,
+                          if (TFullscreen.isSupported && showFullscreenToggle) const LayoutFullscreenToggleButton(),
+                        ]),
                         const SizedBox(height: 8),
                       ],
                       LayoutProfileButton(
@@ -155,7 +158,6 @@ class MobileSidebarOverlayPanel extends StatelessWidget {
                         expand: true,
                         showThemeToggle: showThemeToggle,
                         showColorToggle: showColorToggle,
-                        showFullscreenToggle: showFullscreenToggle,
                         showLogout: showLogout,
                         onLogout: onLogout,
                       ),

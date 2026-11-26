@@ -40,10 +40,10 @@ TProfilePosition _initialProfilePosition = TProfilePosition.sidebar;
 bool _initialGlass = true;
 List<Color>? _initialGlassColors;
 bool _initialGlassAnimated = true;
-bool _initialGlassStatic = false;
+bool _initialGlassStatic = true;
 int _initialGlassIdle = 10;
-double _initialGlassImageBlur = 3;
-int _initialGlassImageDim = 30;
+double _initialGlassImageBlur = 15;
+int _initialGlassImageDim = 50;
 String? _initialGlassImageHash;
 int _initialGlassBlobAlpha = TGlassTuning.blobAlphaDark;
 int _initialGlassImageBlobAlpha = TGlassTuning.imageBlobAlphaDark;
@@ -162,7 +162,7 @@ class TThemeState {
       // Text colour: a deep shade of the accent in light mode, a pale shade in dark mode (keeps contrast).
       'onSurface': (base.brightness == Brightness.dark
               ? Color.lerp(base.onSurface, primaryColor.shade100, 0.6)!
-              : Color.lerp(Colors.black, primaryColor.shade900, 0.25)!)
+              : Color.lerp(Colors.black, primaryColor.shade900, 0.18)!)
           .toARGB32(),
       // Outlines: clearly accent-coloured rather than grey; the variant is a bit darker than before.
       'outline': Color.lerp(Color.lerp(base.outline, accent, 0.4)!, Colors.black, 0.04)!.toARGB32(),
@@ -173,7 +173,7 @@ class TThemeState {
       // Secondary text: light grey with a hint of accent, clearly lighter than onSurface for hierarchy.
       'onSurfaceVariant': (base.brightness == Brightness.dark
               ? Color.lerp(Colors.grey.shade500, primaryColor.shade200, 0.15)!
-              : Color.lerp(Colors.grey.shade600, primaryColor.shade500, 0.12)!)
+              : Color.lerp(Colors.grey.shade700, primaryColor.shade500, 0.12)!)
           .toARGB32(),
     };
   }
@@ -250,8 +250,8 @@ class TThemeState {
     this.glassIdleSeconds = 10,
     this.glassTweaks = const TGlassTweaks(),
     this.glassStatic = false,
-    this.glassImageBlur = 3,
-    this.glassImageDim = 30,
+    this.glassImageBlur = 15,
+    this.glassImageDim = 50,
     this.glassImageHash,
     this.glassBlobAlpha = TGlassTuning.blobAlphaDark,
     this.glassImageBlobAlpha = TGlassTuning.imageBlobAlphaDark,
@@ -345,11 +345,12 @@ String _glassAssetKey(String asset) => 'te_glass_asset_${TImageStorage.urlToKey(
 /// - [glass]: liquid-glass mode on/off. [glassLook]: frosted or liquid.
 /// - [glassColors]: colour mix of the animated glass background. [glassAnimated]: pointer reaction and auto drift.
 ///   [glassIdleSeconds]: pointer rest time before auto drift starts.
-/// - [glassStatic]: use a static image instead of the animated blobs. [glassImageBlur] (0-30) and [glassImageDim]
+/// - [glassStatic] (default true): use a static image instead of the animated blobs. [glassImageBlur] (0-30) and [glassImageDim]
 ///   (0-80 %) soften and darken that image.
 /// - [glassImageThumbnail]: base64 of a tiny thumbnail of the background image (make one with the Thumbnail page or
 ///   `TImageThumbnail.generateBase64`). It is the blurred "fade" stage between the BlurHash and the full image, and
-///   it is already in memory at startup, so it shows instantly with no storage or network read.
+///   it is already in memory at startup, so it shows instantly with no storage or network read. Without it or
+///   [glassImageAsset], a built-in thumbnail is used.
 /// - [glassBlobAlpha] / [glassImageBlobAlpha] (0-255): opacity of the animated blobs, and of the blobs over the image.
 /// - [glassImageAsset] (e.g. `assets/bg.jpg`): the static background image. It implies [glassStatic] unless you set it.
 ///   On web an asset is a network download, so it is fetched once, stored locally (IndexedDB) and read from there on
@@ -422,14 +423,15 @@ Future<void> initializeApp({
   _initialGlassColors = p.getStringList(glassColorsKey)?.map((e) => Color(int.parse(e))).toList() ?? glassColors;
   _initialGlassAnimated = p.getBool(glassAnimatedKey) ?? glassAnimated ?? true;
   _initialGlassAsset = glassImageAsset;
+  // The built-in thumbnail would not match an app's own asset, so it only applies without one.
   _initialGlassThumb = TImageThumbnail.fromBase64(glassImageThumbnail);
   _initialGlassImageThumb = TImageThumbnail.fromBase64(p.getString(glassImageThumbKey));
   _initialGlassAssetHash = glassImageAsset == null ? null : p.getString('${_glassAssetKey(glassImageAsset)}_hash');
-  // An asset or thumbnail given with no saved choice starts on the static image (a lone thumbnail is a blurred shade).
-  _initialGlassStatic = p.getBool(glassStaticKey) ?? glassStatic ?? (glassImageAsset != null || _initialGlassThumb != null);
+  // With no saved choice it starts on the static image (a lone thumbnail is a blurred shade).
+  _initialGlassStatic = p.getBool(glassStaticKey) ?? glassStatic ?? true;
   _initialGlassIdle = p.getInt(glassIdleKey) ?? glassIdleSeconds ?? 10;
-  _initialGlassImageBlur = p.getDouble(glassImageBlurKey) ?? glassImageBlur ?? 3;
-  _initialGlassImageDim = p.getInt(glassImageDimKey) ?? glassImageDim ?? 30;
+  _initialGlassImageBlur = p.getDouble(glassImageBlurKey) ?? glassImageBlur ?? 15;
+  _initialGlassImageDim = p.getInt(glassImageDimKey) ?? glassImageDim ?? 50;
   _initialGlassImageHash = p.getString(glassImageHashKey);
   try {
     final raw = p.getString(glassTweaksKey);

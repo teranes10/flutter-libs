@@ -69,6 +69,7 @@ export 'layouts/widgets/logo.dart';
 export 'layouts/widgets/switcher.dart';
 export 'layouts/widgets/top_bar.dart';
 export 'layouts/layout.dart';
+export 'widgets/login/login.dart';
 export 'layouts/widgets/bottom_bar.dart';
 export 'layouts/widgets/desktop_sidebar.dart';
 export 'layouts/widgets/layout_common.dart';

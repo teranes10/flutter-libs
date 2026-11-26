@@ -60,8 +60,10 @@ class TNavItem extends StatelessWidget {
     final auth = context.authResolve(permission, target: TAuthTarget.navBar, onDenied: onDenied);
     if (auth.isHidden) return const SizedBox.shrink();
 
-    final child = Material(
-      color: isActive ? colors.primaryContainer : colors.surface,
+    // Glass mode: inactive items are a glass pane instead of an opaque surface block.
+    final glass = TGlassStyle.resolve(context) != null;
+    Widget child = Material(
+      color: isActive ? colors.primaryContainer : (glass ? Colors.transparent : colors.surface),
       borderRadius: BorderRadius.circular(25),
       child: InkWell(
         borderRadius: BorderRadius.circular(25),
@@ -80,6 +82,10 @@ class TNavItem extends StatelessWidget {
         ),
       ),
     );
+
+    if (glass && !isActive) {
+      child = TGlassSurface.wrap(context, radius: BorderRadius.circular(25), color: colors.surface, child: child);
+    }
 
     if (auth.isDisabled) return Opacity(opacity: 0.45, child: child);
     return items != null && items!.isNotEmpty ? TDropdown(items: items!, triggerMode: TDropdownTriggerMode.tap, child: child) : child;

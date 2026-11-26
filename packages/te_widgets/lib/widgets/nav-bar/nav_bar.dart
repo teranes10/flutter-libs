@@ -64,7 +64,8 @@ class TNavbar extends StatelessWidget {
 
     return Container(
       padding: padding,
-      color: background ?? colors.surface,
+      // Glass mode: translucent so the backdrop shows through instead of an opaque block.
+      color: background ?? TGlassStyle.surface(context, colors.surface),
       child: Row(
         spacing: spacing,
         mainAxisAlignment: alignment,

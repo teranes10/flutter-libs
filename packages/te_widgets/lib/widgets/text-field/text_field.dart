@@ -184,6 +184,10 @@ class TTextField<T extends String?> extends StatefulWidget
   /// The keyboard action button. Defaults to `next` (single line) / `newline`.
   final TextInputAction? textInputAction;
 
+  /// Autofill hints (e.g. [AutofillHints.username], [AutofillHints.password]) so browsers and password managers
+  /// can fill the field. Wrap the fields in an `AutofillGroup`.
+  final Iterable<String>? autofillHints;
+
   /// Called when the user submits the field (keyboard action or the Enter key
   /// sent by a hardware / keyboard-wedge barcode scanner).
   final ValueChanged<String>? onSubmitted;
@@ -283,6 +287,7 @@ class TTextField<T extends String?> extends StatefulWidget
     this.keyboardType,
     this.inputFormatters,
     this.textInputAction,
+    this.autofillHints,
     this.onSubmitted,
     this.selectAllOnFocus = false,
     this.clearOnSubmit = false,
@@ -380,6 +385,7 @@ class _TTextFieldState<T extends String?> extends State<TTextField<T>>
       hasValue: textController.text.isNotEmpty,
       keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,
+      autofillHints: widget.autofillHints,
       inputFormatters: widget.inputFormatters,
       onTap: widget.onTap,
       onSubmitted: widget.onSubmitted == null && !widget.clearOnSubmit && !widget.keepFocusOnSubmit ? null : _onSubmitted,

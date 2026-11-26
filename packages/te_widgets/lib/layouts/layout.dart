@@ -156,7 +156,6 @@ class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStat
     final profileInSidebar =
         widget.profile != null && (widget.profilePosition ?? savedPosition) == TProfilePosition.sidebar && !sidebarMode.isNone;
     final topBarProfile = profileInSidebar ? null : widget.profile;
-    final fullWidthBar = topBarProfile == null && !sidebarMode.isNone;
 
     final resolved = resolveLayoutItems(
       context,
@@ -167,9 +166,14 @@ class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStat
 
     Widget buildSidebar(TSidebarMode mode) => LayoutDesktopSidebar(
           showDivider: false,
-          backgroundColor: TGlassStyle.resolve(context) != null ? Colors.transparent : colors.surface,
-          // The compact bar is too short for the logo, so the header keeps its own height.
-          headerHeight: fullWidthBar ? 56 : TTopBarMetrics.totalHeight(hasProfile: topBarProfile != null),
+          backgroundColor: TGlassStyle.resolve(context) != null
+              ? Colors.transparent
+              // Light mode: a touch dimmer than the surface, following custom surface colours too.
+              : colors.brightness == Brightness.light
+                  ? Color.alphaBlend(colors.onSurface.withValues(alpha: 0.02), colors.surface)
+                  : colors.surface,
+          // The sidebar floats on its own, so its header doesn't follow the top bar height.
+          headerHeight: 56,
           profileBelowLogo: widget.showProfileBelowLogo,
           switcher: widget.switcher,
           profile: !profileInSidebar
@@ -180,7 +184,6 @@ class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStat
                     profile: widget.profile!,
                     showThemeToggle: widget.showThemeToggle,
                     showColorToggle: widget.showColorToggle,
-                    showFullscreenToggle: widget.showFullscreenToggle,
                     showLogout: widget.showLogout,
                     onLogout: widget.onLogout,
                     actions: widget.actions,
@@ -243,7 +246,7 @@ class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStat
                               showThemeToggle: !profileInSidebar && widget.showThemeToggle,
                               showColorToggle: !profileInSidebar && widget.showColorToggle,
                               actions: profileInSidebar ? null : widget.actions,
-                              showFullscreenToggle: !profileInSidebar && widget.showFullscreenToggle,
+                              showFullscreenToggle: widget.showFullscreenToggle,
                               showLogout: !profileInSidebar && widget.showLogout,
                               onLogout: widget.onLogout,
                               sidebarTheme: widget.sidebarTheme,
@@ -262,15 +265,21 @@ class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStat
 
                           final sidebar = buildSidebar(sidebarMode);
                           return Padding(
-                            padding: const EdgeInsets.all(8),
+                            // No vertical padding here: the top bar sits tighter to the edge than the floating sidebar.
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Row(children: [
                               if (!sidebarMode.isNone)
-                                DecoratedBox(
-                                  decoration: _floatingDecoration(context),
-                                  child: ClipRRect(borderRadius: BorderRadius.circular(_floatRadius), child: sidebar),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  child: _floatingPanel(context, sidebar),
                                 ),
                               if (!sidebarMode.isNone) const SizedBox(width: 8),
-                              Expanded(child: Column(children: [topBar, content])),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 2, bottom: 8),
+                                  child: Column(children: [topBar, content]),
+                                ),
+                              ),
                             ]),
                           );
                         },
@@ -307,15 +316,25 @@ class _TLayoutState extends ConsumerState<TLayout> with SingleTickerProviderStat
 
 const _floatRadius = 16.0;
 
-/// Rounded, bordered, softly shadowed card look shared by the floating sidebar and top bar.
-BoxDecoration _floatingDecoration(BuildContext context, {double radius = _floatRadius}) {
+/// Fill alpha of the glass sidebar (0-255): denser than a card so the panel stands apart from the backdrop.
+const _glassPanelAlpha = 40;
+
+/// Floating card around the sidebar: a frosted pane in glass mode, else rounded, bordered and softly shadowed.
+Widget _floatingPanel(BuildContext context, Widget child) {
   final colors = context.colors;
-  final glass = TGlassStyle.resolve(context) != null;
-  return BoxDecoration(
-    color: glass ? null : colors.surface,
-    borderRadius: BorderRadius.circular(radius),
-    border: Border.all(color: colors.outlineVariant.withAlpha(160)),
-    boxShadow: [BoxShadow(color: colors.shadow.withAlpha(18), blurRadius: 12, offset: const Offset(0, 2))],
+  final radius = BorderRadius.circular(_floatRadius);
+  final glass = TGlassStyle.resolve(context);
+  if (glass != null) {
+    return TGlassSurface(style: glass, borderRadius: radius, color: colors.surface, alpha: _glassPanelAlpha, child: child);
+  }
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      color: colors.surface,
+      borderRadius: radius,
+      border: Border.all(color: colors.outlineVariant.withAlpha(160)),
+      boxShadow: [BoxShadow(color: colors.shadow.withAlpha(18), blurRadius: 12, offset: const Offset(0, 2))],
+    ),
+    child: ClipRRect(borderRadius: radius, child: child),
   );
 }
 
@@ -333,8 +352,8 @@ class _DotCanvas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final ground = dark ? const Color(0xFF16181C) : const Color(0xFFF1F2F4);
-    final dot = dark ? const Color(0xFF2A2D33) : const Color(0xFFD3D6DB);
+    final ground = dark ? const Color(0xFF16181C) : const Color(0xFFF6F7F9);
+    final dot = dark ? const Color(0xFF2A2D33) : const Color(0xFFDFE2E6);
     return CustomPaint(painter: _DotPainter(ground, dot), child: child);
   }
 }

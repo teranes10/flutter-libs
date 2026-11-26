@@ -12,7 +12,7 @@ enum _TopBarSlot {
   actions,
 }
 
-/// Top bar sizing shared with the sidebar header so both rows line up.
+/// Top bar sizing.
 abstract final class TTopBarMetrics {
   /// Content height with a profile button.
   static const double profileContentHeight = 48;
@@ -21,12 +21,9 @@ abstract final class TTopBarMetrics {
   static const double compactContentHeight = 22;
 
   static const double paddingTop = 0;
-  static const double paddingBottom = 6;
+  static const double paddingBottom = 2;
 
   static double contentHeight({required bool hasProfile}) => hasProfile ? profileContentHeight : compactContentHeight;
-
-  /// Total top bar height (content + vertical padding) when no extra content makes it taller.
-  static double totalHeight({required bool hasProfile}) => contentHeight(hasProfile: hasProfile) + paddingTop + paddingBottom;
 }
 
 class _DesktopTopBarLayoutDelegate extends MultiChildLayoutDelegate {

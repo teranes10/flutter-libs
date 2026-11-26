@@ -40,6 +40,7 @@ import 'package:my_app/pages/key_value_page.dart';
 import 'package:my_app/pages/layout_page.dart';
 import 'package:my_app/pages/list_detail_page.dart';
 import 'package:my_app/pages/lists_page.dart';
+import 'package:my_app/pages/login_sample_page.dart';
 import 'package:my_app/pages/map_sample_page.dart';
 import 'package:my_app/pages/scan_view_page.dart';
 import 'package:my_app/pages/mentions_menubar_page.dart';
@@ -273,6 +274,7 @@ final sidebarItems = [
     route: '/layout-structure',
     children: [
       TSidebarItem(icon: HugeIcons.strokeRoundedLayers01, text: 'Layout', route: 'layout', page: const LayoutPage()),
+      TSidebarItem(icon: HugeIcons.strokeRoundedLogin01, text: 'Login', route: 'login', page: const LoginSamplePage()),
       TSidebarItem(icon: HugeIcons.strokeRoundedGrid, text: 'Grid', route: 'grid', page: const GridPage()),
       TSidebarItem(icon: HugeIcons.strokeRoundedLayoutLeft, text: 'Split Pane', route: 'split-pane', page: const SplitPanePage()),
       TSidebarItem(icon: HugeIcons.strokeRoundedViewAgenda, text: 'Accordion', route: 'accordion', page: const AccordionPage()),

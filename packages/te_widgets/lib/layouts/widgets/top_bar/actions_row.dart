@@ -87,10 +87,10 @@ class _LayoutFullscreenToggleButtonState extends State<LayoutFullscreenToggleBut
     final colors = context.colors;
 
     return TButton(
-      size: TButtonSize.xs.copyWith(icon: 16),
+      size: TButtonSize.xxs.copyWith(icon: 14),
       type: TButtonType.icon,
       icon: HugeIcons.strokeRoundedFullscreen,
-      activeIcon: HugeIcons.strokeRoundedFullscreen,
+      activeIcon: HugeIcons.strokeRoundedArrowShrink,
       activeColor: colors.error,
       color: colors.onSurfaceVariant,
       active: _isFullscreen,
@@ -155,20 +155,21 @@ class LayoutActionsRow extends StatelessWidget {
       runSpacing: runSpacing,
       children: [
         if (actions != null) ...actions!,
-        if (profile != null)
+        if (profile != null) ...[
+          // Fullscreen is never tucked into the profile dropdown: it sits just before the avatar.
+          if (TFullscreen.isSupported && showFullscreenToggle) const LayoutFullscreenToggleButton(),
           LayoutProfileButton(
             profile: profile!,
             showThemeToggle: showThemeToggle,
             showColorToggle: showColorToggle,
-            showFullscreenToggle: showFullscreenToggle,
             showLogout: showLogout,
             onLogout: onLogout,
-          )
-        else ...[
+          ),
+        ] else ...[
           if (showThemeToggle) const LayoutThemeToggleButton(),
           if (showColorToggle) const LayoutColorToggleButton(),
-          if (TFullscreen.isSupported && showFullscreenToggle) const LayoutFullscreenToggleButton(),
           if (showLogout && onLogout != null) LayoutLogoutButton(onLogout: onLogout),
+          if (TFullscreen.isSupported && showFullscreenToggle) const LayoutFullscreenToggleButton(),
         ],
       ],
     );

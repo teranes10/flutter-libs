@@ -83,8 +83,8 @@ abstract final class TGlassTuning {
 
   /// Image background: alpha of the colour blobs laid over the photo (the photo's own palette; they follow the pointer
   /// and drift when idle). Lower = the photo shows more.
-  static const int imageBlobAlphaDark = 26; // 10 %
-  static const int imageBlobAlphaLight = 13;
+  static const int imageBlobAlphaDark = 38; // 15 %
+  static const int imageBlobAlphaLight = 19;
 
   /// Image background: blob size as a fraction of the screen's longer side.
   static const double imageBlobRadius = 0.5;
@@ -135,16 +135,16 @@ class TGlassTweaks {
 
   /// Defaults of each look (liquid is the constructor default).
   static TGlassTweaks defaults(TGlassLook look) =>
-      look == TGlassLook.liquid ? const TGlassTweaks() : const TGlassTweaks(fillAlpha: 107, shine: 77);
+      look == TGlassLook.liquid ? const TGlassTweaks() : const TGlassTweaks(blur: 24, saturation: 0.9, fillAlpha: 107, shine: 77);
 
   const TGlassTweaks({
-    this.blur = 24,
-    this.saturation = 0.9,
+    this.blur = 15,
+    this.saturation = 0.85,
     this.brightness = 1,
-    this.fillAlpha = 61,
-    this.shine = 61,
-    this.imageSaturation = 1,
-    this.imageBrightness = 1,
+    this.fillAlpha = 128,
+    this.shine = 128,
+    this.imageSaturation = 0.9,
+    this.imageBrightness = 0.75,
     this.pointerPull = 1,
     this.driftSpeed = 1,
   });

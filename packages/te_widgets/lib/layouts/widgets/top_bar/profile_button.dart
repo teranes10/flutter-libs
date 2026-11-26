@@ -8,7 +8,6 @@ class LayoutProfileButton extends ConsumerWidget {
   final Widget profile;
   final bool showThemeToggle;
   final bool showColorToggle;
-  final bool showFullscreenToggle;
   final bool showLogout;
   final VoidCallback? onLogout;
 
@@ -29,7 +28,6 @@ class LayoutProfileButton extends ConsumerWidget {
     required this.profile,
     this.showThemeToggle = true,
     this.showColorToggle = true,
-    this.showFullscreenToggle = true,
     this.showLogout = true,
     this.onLogout,
     this.actions,
@@ -41,7 +39,6 @@ class LayoutProfileButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeNotifierProvider);
-    final isFullscreen = TFullscreen.isFullscreen;
     final colors = context.colors;
 
     final source = profile;
@@ -89,12 +86,6 @@ class LayoutProfileButton extends ConsumerWidget {
           color: themeState.primaryColor,
           text: 'Customize',
           onTap: () => showThemeCustomizer(context, showNavigation: showLayoutSwitch),
-        ),
-      if (TFullscreen.isSupported && showFullscreenToggle)
-        TDropdownItem(
-          icon: isFullscreen ? HugeIcons.strokeRoundedFullscreen : HugeIcons.strokeRoundedFullscreen,
-          text: isFullscreen ? 'Exit Fullscreen' : 'Fullscreen',
-          onTap: () => TFullscreen.toggleFullscreen(),
         ),
       if (actions != null)
         for (final action in actions!)
