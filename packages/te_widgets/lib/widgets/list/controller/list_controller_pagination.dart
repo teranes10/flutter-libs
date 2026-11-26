@@ -235,6 +235,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     String? search,
     Map<String, dynamic>? advancedSearch,
     bool append = false,
+    bool keepLoaded = false,
   }) {
     if (itemsPerPage != null && localItems.isEmpty && displayItems.isEmpty) {
       updateState(who: who ?? '_applyLocalPagination', itemsPerPage: itemsPerPage);
@@ -242,7 +243,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     }
 
     final effectiveItems = localItems;
-    final effectivePage = page ?? value.page;
+    var effectivePage = page ?? value.page;
     final effectiveItemsPerPage = itemsPerPage ?? value.itemsPerPage;
     final effectiveSearch = search ?? value.search;
     final effectiveAdvancedSearch = advancedSearch ?? value.advancedSearch;
@@ -257,8 +258,17 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
     final filteredItems = _filter.apply(localFiltered, effectiveSearch);
     final filteredCount = filteredItems.length;
 
+    // The list shrank under the current page (e.g. a live refresh removed rows): stay on what is now the last page.
+    if (effectiveItemsPerPage > 0 && effectivePage > 1 && (effectivePage - 1) * effectiveItemsPerPage >= filteredCount) {
+      effectivePage = filteredCount == 0 ? 1 : (filteredCount / effectiveItemsPerPage).ceil();
+    }
+
     List<TListItem<T, K>> rawDisplayItems;
-    if (effectiveItemsPerPage <= 0) {
+    // Infinite scroll had loaded [page] pages: show the same number of rows from the top (re-read, so changed rows update in place).
+    final keptCount = keepLoaded && effectiveItemsPerPage > 0 ? (effectivePage * effectiveItemsPerPage).clamp(0, filteredCount) : null;
+    if (keptCount != null) {
+      rawDisplayItems = filteredItems.sublist(0, keptCount).map((item) => getOrRegisterItem(item)).toList();
+    } else if (effectiveItemsPerPage <= 0) {
       rawDisplayItems = filteredItems.map((item) => getOrRegisterItem(item)).toList();
     } else if (append && value.displayItems.isNotEmpty) {
       final startIndex = value.displayItems.length;
@@ -291,7 +301,7 @@ extension TListControllerPagination<T, K> on TListController<T, K> {
       totalItems: filteredCount,
       hasMoreItems: effectiveItemsPerPage <= 0
           ? false
-          : append
+          : append || keptCount != null
               ? rawDisplayItems.length < filteredCount
               : ((effectivePage - 1) * effectiveItemsPerPage + rawDisplayItems.length) < filteredCount,
       loading: false,

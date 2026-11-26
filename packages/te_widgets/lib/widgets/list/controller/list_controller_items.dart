@@ -37,7 +37,9 @@ extension TListControllerItems<T, K> on TListController<T, K> {
 
   /// Updates the entire list of items.
   ///
-  /// Preserves selection and expansion state where possible.
+  /// Preserves selection and expansion state where possible. A client-side replace (live data refreshing the same list) also keeps the viewer
+  /// where they are: the current page (clamped to the last page when the list shrank), or, after infinite scroll loaded more, as many rows as
+  /// were loaded, so the list neither jumps back to the first page nor loses its scroll position. Search and filters stay applied.
   /// For server-side lists, updates [totalItems] in state without triggering pagination.
   void updateItems(List<T> items, {bool append = false}) {
     if (!append) {
@@ -68,7 +70,12 @@ extension TListControllerItems<T, K> on TListController<T, K> {
     }
 
     if (!isServerSide) {
-      _executePaginationAction('updateItems', page: 1);
+      if (append) {
+        _executePaginationAction('updateItems', page: 1);
+      } else {
+        final loadedMore = value.itemsPerPage > 0 && value.displayItems.length > value.itemsPerPage;
+        _applyLocalPagination(who: 'updateItems', keepLoaded: loadedMore);
+      }
     } else if (!append) {
       // Server-side: reflect updated item count in state without re-fetching.
       updateState(who: 'updateItems_serverSide', totalItems: _itemsMap.length);
