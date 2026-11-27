@@ -159,6 +159,10 @@ class _TPopoverState extends State<TPopover> {
   Timer? _hoverTimer;
   bool _isHovered = false;
 
+  /// Receives Escape for the open popover. One node for the state's lifetime: creating (and focusing) a new node on every build would steal
+  /// focus from a field inside the popover whenever its owner rebuilds (e.g. live data under an open, searchable list).
+  final FocusNode _keyFocus = FocusNode(debugLabel: 'TPopover');
+
   @override
   void initState() {
     super.initState();
@@ -189,6 +193,7 @@ class _TPopoverState extends State<TPopover> {
 
   @override
   void dispose() {
+    _keyFocus.dispose();
     _hoverTimer?.cancel();
     if (_internalController) {
       _controller.dispose();
@@ -300,12 +305,16 @@ class _TPopoverState extends State<TPopover> {
                     _onExit();
                   }
                 },
-                child: KeyboardListener(
-                  focusNode: FocusNode()..requestFocus(),
-                  onKeyEvent: (event) {
+                // autofocus applies once, when the popover opens; key events from a focused field inside bubble up to here.
+                child: Focus(
+                  focusNode: _keyFocus,
+                  autofocus: true,
+                  onKeyEvent: (node, event) {
                     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape) {
                       _hide();
+                      return KeyEventResult.handled;
                     }
+                    return KeyEventResult.ignored;
                   },
                   child: Material(
                     type: MaterialType.transparency,
