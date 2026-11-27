@@ -220,7 +220,13 @@ class TIcon extends StatelessWidget {
         ? buildIcon(isHovering: false)
         : THoverable(builder: (context, isHovering) => buildIcon(isHovering: isHovering));
 
-    if (onTap == null && background == null && shadow == null && borderRadius == null && padding == EdgeInsets.zero) {
+    if (onTap == null &&
+        semanticLabel == null &&
+        semanticIdentifier == null &&
+        background == null &&
+        shadow == null &&
+        borderRadius == null &&
+        padding == EdgeInsets.zero) {
       return effectiveIconWidget;
     }
 
@@ -241,7 +247,19 @@ class TIcon extends StatelessWidget {
             child: decorated,
           );
 
-    if (onTap == null || (semanticLabel == null && semanticIdentifier == null)) return tappable;
+    if (semanticLabel == null && semanticIdentifier == null) return tappable;
+
+    // A labelled icon without a tap handler (a drag handle, a status glyph) is still announced: as a named image.
+    if (onTap == null) {
+      return Semantics(
+        container: true,
+        image: true,
+        label: semanticLabel,
+        identifier: semanticIdentifier,
+        excludeSemantics: true,
+        child: tappable,
+      );
+    }
 
     return Semantics(
       container: true,
