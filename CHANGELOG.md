@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2026-11-27
+
+### Changes
+
+---
+
+Packages with breaking changes:
+
+ - There are no breaking changes in this release.
+
+Packages with other changes:
+
+ - [`te_widgets` - `v4.7.3`](#te_widgets---v473)
+ - [`te_editor` - `v3.5.5`](#te_editor---v355)
+ - [`te_map` - `v4.1.9`](#te_map---v419)
+ - [`te_scanner` - `v3.2.17`](#te_scanner---v3217)
+
+Packages with dependency updates only:
+
+> Packages listed below depend on other packages in this workspace that have had changes. Their versions have been incremented to bump the minimum dependency versions of the packages they depend upon in this project.
+
+ - `te_editor` - `v3.5.5`
+ - `te_map` - `v4.1.9`
+ - `te_scanner` - `v3.2.17`
+
+---
+
+#### `te_widgets` - `v4.7.3`
+
+ - **FIX**(te_widgets): keep focus inside an open popover when its owner rebuilds. ([5bcbe8a0](https://github.com/teranes10/flutter-libs/commit/5bcbe8a01e62794f4b731c39d3e17fcfc4df5025))
+ - **FIX**(te_widgets): announce labelled icons that have no tap handler. ([8bd29c9b](https://github.com/teranes10/flutter-libs/commit/8bd29c9bccefc3e67a62ddd6ac8cfa755e5cdad0))
+
+
 ## 2026-11-26
 
 ### Changes

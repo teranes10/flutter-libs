@@ -1,3 +1,8 @@
+## 4.7.3
+
+ - **FIX**(te_widgets): keep focus inside an open popover when its owner rebuilds. ([5bcbe8a0](https://github.com/teranes10/flutter-libs/commit/5bcbe8a01e62794f4b731c39d3e17fcfc4df5025))
+ - **FIX**(te_widgets): announce labelled icons that have no tap handler. ([8bd29c9b](https://github.com/teranes10/flutter-libs/commit/8bd29c9bccefc3e67a62ddd6ac8cfa755e5cdad0))
+
 ## 4.7.2
 
  - **FIX**(te_widgets): keep page and loaded rows when list items are replaced. ([5e1b9efd](https://github.com/teranes10/flutter-libs/commit/5e1b9efddc97d6098411a04d704f890d8c404fcc))
